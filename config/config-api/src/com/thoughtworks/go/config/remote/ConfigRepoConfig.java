@@ -5,6 +5,7 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.StringUtil;
 
 import java.util.Map;
@@ -124,5 +125,17 @@ public class ConfigRepoConfig implements Validatable {
         }
     }
 
+    public boolean hasSameMaterial(MaterialConfig config) {
+        if(this.getMaterialConfig() == null)
+            return  false;
+        return  this.getMaterialConfig().equals(config);
+    }
 
+    public boolean hasMaterialWithFingerprint(String fingerprint) {
+        if (this.getMaterialConfig() == null) {
+            return false;
+        }
+        String materialFingerprint = this.getMaterialConfig().getFingerprint();
+        return materialFingerprint.equals(fingerprint);
+    }
 }

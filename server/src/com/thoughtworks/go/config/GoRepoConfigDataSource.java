@@ -45,7 +45,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         String fingerprint = material.getFingerprint();
         if(this.configWatchList.hasConfigRepoWithFingerprint(fingerprint))
         {
-            ConfigRepoConfig repoConfig = configWatchList.getConfigRepoForMaterial(material);
+            ConfigRepoConfig repoConfig = configWatchList.getConfigRepoForMaterial(material.config());
             PartialConfigProvider plugin = this.configPluginService.partialConfigProviderFor(repoConfig);
 
         }

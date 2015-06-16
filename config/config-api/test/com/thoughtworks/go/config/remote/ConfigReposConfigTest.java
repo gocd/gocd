@@ -67,6 +67,5 @@ public class ConfigReposConfigTest {
         repos.validate(null);
         assertThat(repo1.errors().isEmpty(),is(true));
         assertThat(repo2.errors().isEmpty(),is(true));
-
     }
 }

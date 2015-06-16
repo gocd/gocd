@@ -2,7 +2,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,21 +21,24 @@ public class GoConfigWatchList implements ConfigChangedListener {
     private CachedFileGoConfig fileGoConfig;
 
     private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<ChangedRepoConfigWatchListListener>();
+    private ConfigReposConfig reposConfig;
 
     @Autowired public GoConfigWatchList(CachedFileGoConfig fileGoConfig) {
 
         this.fileGoConfig = fileGoConfig;
+        this.reposConfig  = fileGoConfig.currentConfig().getConfigRepos();
     }
 
     public ConfigReposConfig getCurrentConfigRepos()
     {
-        return  null;
+        return reposConfig;
     }
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        ConfigReposConfig partSources = null;//TODO
+        ConfigReposConfig partSources = newCruiseConfig.getConfigRepos();
 
+        this.reposConfig = partSources;
         notifyListeners(partSources);
     }
     private synchronized void notifyListeners(ConfigReposConfig configRepoConfigs) {
@@ -49,11 +52,12 @@ public class GoConfigWatchList implements ConfigChangedListener {
     }
 
     public boolean hasConfigRepoWithFingerprint(String fingerprint) {
-        return false;
+        return this.reposConfig.hasMaterialWithFingerprint(fingerprint);
     }
 
-    public ConfigRepoConfig getConfigRepoForMaterial(Material material) {
-        return null;
+    public ConfigRepoConfig getConfigRepoForMaterial(MaterialConfig material) {
+        ConfigRepoConfig repo = this.reposConfig.getConfigRepo(material);
+        return  repo;
     }
 
     public void registerListener(ChangedRepoConfigWatchListListener listener) {

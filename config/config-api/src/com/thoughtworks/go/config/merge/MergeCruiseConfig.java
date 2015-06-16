@@ -5,6 +5,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -979,6 +980,17 @@ public class MergeCruiseConfig implements CruiseConfig {
     public void setSCMs(SCMs scms) {
         this.main.setSCMs(scms);
     }
+
+    @Override
+    public ConfigReposConfig getConfigRepos() {
+        return this.main.getConfigRepos();
+    }
+
+    @Override
+    public void setConfigRepos(ConfigReposConfig repos) {
+        this.main.setConfigRepos(repos);
+    }
+
 
     private static abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {
         private final List<ConfigErrors> allErrors;

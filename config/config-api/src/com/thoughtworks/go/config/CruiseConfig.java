@@ -1,6 +1,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -34,6 +35,9 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     int schemaVersion();
 
+    ConfigReposConfig getConfigRepos();
+
+    void setConfigRepos(ConfigReposConfig repos);
 
     void validate(ValidationContext validationContext);
 

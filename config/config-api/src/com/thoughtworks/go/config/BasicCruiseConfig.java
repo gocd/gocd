@@ -33,6 +33,7 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.JobConfigVisitor;
 import com.thoughtworks.go.domain.NullTask;
@@ -72,6 +73,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag(label = "templates") @SkipParameterResolution private TemplatesConfig templatesConfig = new TemplatesConfig();
     @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
     @ConfigSubtag @SkipParameterResolution private Agents agents = new Agents();
+    @ConfigSubtag @SkipParameterResolution private ConfigReposConfig configRepos = new ConfigReposConfig();
 
 
     //This is set reflective by the MagicalGoConfigXmlLoader
@@ -338,6 +340,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public int schemaVersion() {
         return GoConstants.CONFIG_SCHEMA_VERSION;
+    }
+
+    @Override
+    public ConfigReposConfig getConfigRepos() {
+        return configRepos;
+    }
+
+    @Override
+    public void setConfigRepos(ConfigReposConfig repos) {
+        configRepos = repos;
     }
 
     @Override

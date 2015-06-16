@@ -837,6 +837,10 @@ public class CruiseConfigTest {
         assertThat(cruiseConfig.canDeletePluggableSCMMaterial(scmConfigOne), is(false));
         assertThat(cruiseConfig.canDeletePluggableSCMMaterial(scmConfigTwo), is(true));
     }
+    @Test
+    public void shouldReturnConfigRepos(){
+        assertNotNull(cruiseConfig.getConfigRepos());
+    }
 
     private Role setupSecurityWithRole() {
         SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);

@@ -71,6 +71,8 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
     private LegacyMaterialChecker materialChecker;
     @Autowired
     private MaterialService materialService;
+    @Autowired
+    private ScmMaterialCheckoutService checkoutService;
 
     private SCMExtension scmExtension;
     private SubprocessExecutionContext subprocessExecutionContext;
@@ -123,7 +125,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         data.put("k1", "v1");
         when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class))).thenReturn(new MaterialPollResult(data, new SCMRevision()));
         mockSCMExtensionInPoller();
-        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
+        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService,checkoutService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
 
         transactionTemplate.execute(new TransactionCallback() {
@@ -151,7 +153,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         newData.put("k2", "v2");
         when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class), any(SCMRevision.class))).thenReturn(new MaterialPollResult(newData, new SCMRevision()));
         mockSCMExtensionInPoller();
-        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
+        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService,checkoutService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
 
         transactionTemplate.execute(new TransactionCallback() {

@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Component
 public class GoConfigWatchList implements ConfigChangedListener {
-    private static final Logger LOGGER = Logger.getLogger(CachedGoConfig.class);
+    private static final Logger LOGGER = Logger.getLogger(GoConfigWatchList.class);
 
     private CachedFileGoConfig fileGoConfig;
 

@@ -48,10 +48,6 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
             mduPerformanceLogger.pickedUpMaterialForMDU(message.trackingId(), material);
             bombIf(diskSpaceMonitor.isLowOnDisk(), "Cruise server is too low on disk to continue with material update");
             updater.updateMaterial(material);
-            //TODO #1133 now parse configuration from material so that it is available before update completed is fired
-            // we do not want next update to start before parsing is over
-            // we do want to reuse pipelines/flyweight directory where a complete clean checkout is.
-            repoConfigDataSource.onPolledMaterial(material);
             mduPerformanceLogger.postingMessageAboutMDUCompletion(message.trackingId(), material);
             topic.post(new MaterialUpdateSuccessfulMessage(material, message.trackingId())); //This should happen only if the transaction is committed.
         }

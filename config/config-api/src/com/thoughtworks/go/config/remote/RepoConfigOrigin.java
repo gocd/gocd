@@ -10,6 +10,15 @@ public class RepoConfigOrigin implements ConfigOrigin {
     private ConfigRepoConfig configRepo;
     private String revision;
 
+    public RepoConfigOrigin()
+    {
+    }
+    public RepoConfigOrigin(ConfigRepoConfig configRepo,String revision)
+    {
+        this.configRepo = configRepo;
+        this.revision = revision;
+    }
+
     @Override
     public boolean canEdit() {
         // if there will be implementation to edit repository then this

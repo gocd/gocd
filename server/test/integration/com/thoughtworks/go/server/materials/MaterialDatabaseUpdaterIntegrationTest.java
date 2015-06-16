@@ -72,6 +72,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Autowired private SecurityService securityService;
     @Autowired private PackageAsRepositoryExtension packageAsRepositoryExtension;
     @Autowired private SCMExtension scmExtension;
+    @Autowired private ScmMaterialCheckoutService checkoutService;
 
     private GitTestRepo testRepo;
     private MaterialDatabaseUpdaterIntegrationTest.TransactionTemplateWithInvocationCount transactionTemplateWithInvocationCount;
@@ -83,7 +84,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
 
         MaterialService slowMaterialService = new MaterialServiceWhichSlowsDownFirstTimeModificationCheck(materialRepository, goConfigService, securityService, packageAsRepositoryExtension, scmExtension);
         LegacyMaterialChecker materialChecker = new LegacyMaterialChecker(slowMaterialService, subprocessExecutionContext);
-        ScmMaterialUpdater scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, slowMaterialService);
+        ScmMaterialUpdater scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, slowMaterialService,checkoutService);
         transactionTemplateWithInvocationCount = new TransactionTemplateWithInvocationCount(transactionTemplate);
         updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplateWithInvocationCount, goCache, dependencyMaterialUpdater,
                 scmMaterialUpdater, packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);

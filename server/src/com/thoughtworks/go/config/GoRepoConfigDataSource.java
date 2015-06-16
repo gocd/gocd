@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     private ScmMaterialCheckoutService checkoutService;
 
     private Map<String,PartialConfig> fingerprintLatestConfigMap = new ConcurrentHashMap<String,PartialConfig>();
+
+    private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<PartialConfigUpdateCompletedListener>();
 
     @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService,
                                              ScmMaterialCheckoutService checkoutService)
@@ -81,14 +84,45 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
                 newPart.setOrigin(new RepoConfigOrigin(repoConfig,revision));
                 fingerprintLatestConfigMap.put(fingerprint, newPart);
-                //TODO post message about finished parsed part
+                notifySuccessListeners(repoConfig, newPart);
             }
             catch (Exception ex)
             {
                 // TODO make sure this is clearly shown to user
+                fingerprintLatestConfigMap.put(fingerprint, null);
                 LOGGER.error(String.format("Failed to parse configuration material %s by %s",
                         material.getDisplayName(),plugin));
-                //TODO post message about failed parsed part
+                notifyFailureListeners(repoConfig, ex);
+            }
+        }
+    }
+
+    private void notifyFailureListeners(ConfigRepoConfig repoConfig, Exception ex) {
+        for(PartialConfigUpdateCompletedListener listener : this.listeners)
+        {
+            try
+            {
+                listener.onFailedPartialConfig(repoConfig,ex);
+            }
+            catch (Exception e)
+            {
+                LOGGER.error(String.format("Failed to fire event 'exception while parsing partial configuration' for listener %s",
+                        listener));
+            }
+        }
+    }
+
+    private void notifySuccessListeners(ConfigRepoConfig repoConfig, PartialConfig newPart) {
+        for(PartialConfigUpdateCompletedListener listener : this.listeners)
+        {
+            try
+            {
+                listener.onSuccessPartialConfig(repoConfig,newPart);
+            }
+            catch (Exception e)
+            {
+                LOGGER.error(String.format("Failed to fire parsed partial configuration for listener %s",
+                        listener));
             }
         }
     }

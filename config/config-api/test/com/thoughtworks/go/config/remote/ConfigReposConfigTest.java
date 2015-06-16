@@ -1,0 +1,72 @@
+package com.thoughtworks.go.config.remote;
+
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.mock;
+
+public class ConfigReposConfigTest {
+    private  ConfigReposConfig repos;
+    @Before
+    public void SetUp()
+    {
+        repos = new ConfigReposConfig();
+    }
+    @Test
+    public void shouldReturnFalseThatHasMaterialWhenEmpty(){
+        assertThat(repos.isEmpty(),is(true));
+        assertThat(repos.hasMaterial(mock(MaterialConfig.class)),is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueThatHasMaterialWhenAddedConfigRepo(){
+        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin"));
+        assertThat(repos.hasMaterial(new GitMaterialConfig("http://git")),is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueThatHasConfigRepoWhenAddedConfigRepo(){
+        repos.add(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin"));
+        assertThat(repos.contains(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin")),is(true));
+    }
+    @Test
+    public void shouldReturnFalseThatHasConfigRepoWhenEmpty(){
+        assertThat(repos.isEmpty(),is(true));
+        assertThat(repos.contains(new ConfigRepoConfig(new GitMaterialConfig("http://git"),"myplugin")),is(false));
+    }
+
+    @Test
+    public void shouldErrorWhenDuplicateReposExist(){
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myotherplugin");
+        repos.add(repo1);
+        repos.add(repo2);
+        // this is a limitation, we identify config repos by material fingerprint later
+        // so there cannot be one repository parsed by 2 plugins.
+        // This also does not seem like practical use case anyway
+        repos.validate(null);
+        assertThat(repo1.errors().on(ConfigRepoConfig.UNIQUE_REPO),
+                is("You have defined multiple configuration repositories with the same repository - http://git"));
+        assertThat(repo2.errors().on(ConfigRepoConfig.UNIQUE_REPO),
+                is("You have defined multiple configuration repositories with the same repository - http://git"));
+
+    }
+    @Test
+    public void shouldNotErrorWhenReposFingerprintDiffer(){
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplugin");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(new GitMaterialConfig("http://git","develop"), "myotherplugin");
+        repos.add(repo1);
+        repos.add(repo2);
+        repos.validate(null);
+        assertThat(repo1.errors().isEmpty(),is(true));
+        assertThat(repo2.errors().isEmpty(),is(true));
+
+    }
+}

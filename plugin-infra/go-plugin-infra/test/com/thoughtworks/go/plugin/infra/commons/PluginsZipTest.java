@@ -117,4 +117,48 @@ public class PluginsZipTest {
         temporaryFolder.delete();
         pluginsZip.md5();
     }
+
+    @Test(expected = FileAccessRightsCheckException.class)
+    public void shouldFailGracefullyWhenExternalFileCannotBeRead() throws Exception {
+        File bundledPluginsDir = temporaryFolder.newFolder("plugins-bundled-ext");
+        SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
+        when(systemEnvironmentFail.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
+        when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginsDir.getAbsolutePath());
+        when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("");
+        when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
+        FileUtils.writeStringToFile(new File(bundledPluginsDir, "bundled1.jar"), "Bundled1");
+
+        PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, new ZipUtil());
+        pluginsZipFail.create();
+    }
+
+    @Test(expected = FileAccessRightsCheckException.class)
+    public void shouldFailGracefullyWhenBundledFileCannotBeRead() throws Exception {
+        SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
+        when(systemEnvironmentFail.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
+        when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("");
+        when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
+        when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
+        FileUtils.writeStringToFile(new File(externalPluginsDir, "external1.jar"), "External1");
+
+        PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, new ZipUtil());
+        pluginsZipFail.create();
+    }
+
+    @Test
+    public void fileAccessErrorShouldContainPathToTheFolderInWhichTheErrorOccurred() throws Exception {
+        SystemEnvironment systemEnvironmentFail = mock(SystemEnvironment.class);
+        when(systemEnvironmentFail.get(SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED)).thenReturn(true);
+        when(systemEnvironmentFail.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn("/dummy");
+        when(systemEnvironmentFail.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(externalPluginsDir.getAbsolutePath());
+        when(systemEnvironmentFail.get(ALL_PLUGINS_ZIP_PATH)).thenReturn("");
+        FileUtils.writeStringToFile(new File(externalPluginsDir, "external1.jar"), "External1");
+        expectedException.expect(FileAccessRightsCheckException.class);
+        expectedException.expectMessage("dummy");
+
+        PluginsZip pluginsZipFail = new PluginsZip(systemEnvironmentFail, new ZipUtil());
+        pluginsZipFail.create();
+
+    }
 }
+

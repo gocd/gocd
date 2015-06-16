@@ -83,8 +83,7 @@ public class PluginsZip {
         boolean external = externalPlugins.canRead();
         if (!bundled || !external) {
             String folder = bundled ? externalPlugins.getAbsolutePath() : bundledPlugins.getAbsolutePath();
-            LOG.error(String.format("Could not read plugins." +
-                    "Please check access rights on files in folder: %s.", folder));
+            LOG.error(String.format("Could not read plugins. Please check access rights on files in folder: %s.", folder));
             throw new FileAccessRightsCheckException(String.format("Could not read plugins. Please check access rights in folder: %s", folder));
         }
     }

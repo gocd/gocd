@@ -169,10 +169,10 @@ describe("form_fields_table", function () {
         assertEquals('another_x', table.find("div span.sample_row")[1].innerHTML);
         assertEquals('delete_me', table.find("div a.delete_action")[0].innerHTML);
         assertEquals('delete_me', table.find("div a.delete_action")[1].innerHTML);
-        fire_event(value_x_delete, 'click');
+        fire_event(table.find("div a.delete_action")[0], 'click');
         assertEquals('another_x', table.find("div span.sample_row")[0].innerHTML);
         assertEquals('delete_me', table.find("div a.delete_action")[0].innerHTML);
-        fire_event(jQuery(".delete_action").get(0), 'click');
+        fire_event(table.find("div a.delete_action")[0], 'click');
         assertEquals("", table.html());
     });
 });

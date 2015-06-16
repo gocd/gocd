@@ -45,15 +45,6 @@ describe "/pipelines/show.html.erb" do
     assign(:variables, @variables = EnvironmentVariablesConfig.new)
   end
 
-  it "should have the same contents as the jsunit fixture" do
-    @variables.add("foo","foo_value")
-    @variables.add("bar","bar_value")
-
-    render :partial => "pipelines/pipeline_material_revisions.html", :locals => {:scope => {:show_on_pipelines => false}}
-
-    assert_fixture_equal("pipeline_deploy_test_rails_new.html", response.body)
-  end
-
   it "should display revision number, time and material name/url" do
     config_of_latest_hg_rev = @pim.getMaterials().get(1)
     latest_hg_rev = @hg_revisions.getMaterialRevision(0)

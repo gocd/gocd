@@ -1,0 +1,13 @@
+Jasmine has been installed.
+
+To run the server:
+
+rake jasmine
+
+To run the automated CI task with PhantomJS:
+
+rake jasmine:ci
+
+To install some example javascripts and specs:
+
+jasmine examples

@@ -182,12 +182,6 @@ task :precompile_assets do
   end
 end
 
-task :jasmine_tests do
-  cd rails_root do
-    sh_with_environment("#{ruby_executable} -S ./bin/rake spec:javascript", {'RAILS_ENV' => 'test', 'REPORTERS' => 'console,junit', 'CLASSPATH' => classpath})
-  end
-end
-
 # inline partials
 RAILS_DIR = "rails.new"
 RAILS_ROOT = "target/webapp/WEB-INF/" + RAILS_DIR

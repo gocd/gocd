@@ -1,0 +1,4 @@
+desc "A flunk task that does not want to be trampled"
+task :jasmine_flunk do
+  nil
+end

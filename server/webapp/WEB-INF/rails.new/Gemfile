@@ -16,7 +16,8 @@ gem 'roar'
 
 group :test do
   gem 'minitest'
-  gem "jasmine-rails"
+  gem "jasmine"
+  gem 'selenium-webdriver'
   gem 'jasmine-jquery-rails'
   gem 'jasmine-junitreporter'
 

@@ -39,6 +39,7 @@
 //= require "lib/ui.core-1.7.3.js"
 //= require "lib/ui.dialog-1.7.3.js"
 //= require "lib/ansi_up.js"
+//= require "lib/lodash.js"
 //= require "build_base_observer.js"
 //= require "json_to_css.js"
 //= require "util.js"

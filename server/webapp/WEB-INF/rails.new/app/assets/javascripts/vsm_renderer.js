@@ -193,16 +193,11 @@ Graph_Renderer = function (container) {
 
     function renderScmInstance(instance) {
 
-        if (instance.user != null && instance.user != undefined) {
-            var userName = (instance.user).replace("<", '&lt;');
-            userName = userName.replace(">", '&gt;');
-        }
-
         return '<li class="instance">'
                 + '<div title="' + instance.revision + '" class="icon revision">' + '<a href="' + instance.locator + '">' + instance.revision + '</a>' + ' </div>'
                 + '<div class="usercomment wraptext">' + parseComment(instance.comment) + '</div>'
                 + '<div class="author">'
-                + '<p>' + userName + ' </p>'
+                + '<p>' + _.escape(instance.user) + ' </p>'
                 + '<p>' + instance.modified_time + '</p>'
                 + '</div>'
                 + '</li>';
@@ -222,7 +217,7 @@ Graph_Renderer = function (container) {
             }
             return comment_markup + "Trackback: " + "Not Provided";
         }
-        return comment;
+        return _.escape(comment);
     }
 
     function parseCommentForTooltip(comment) {
@@ -239,7 +234,7 @@ Graph_Renderer = function (container) {
             }
             return comment_tooltip + "Trackback: " + "Not Provided";
         }
-        return comment;
+        return _.escape(comment);
     }
 
     function renderPipelineEntity(node) {

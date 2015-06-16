@@ -80,8 +80,10 @@ var EnvironmentVariableEdit = function (options) {
     })
 };
 
-var EnvironmentVariableAddRemove = function(parentElement) {
+var EnvironmentVariableAddRemove = function(parentElement, options) {
   var $ = jQuery;
+
+  options = $.extend({}, options);
 
   var addButton = $(parentElement).find('.add_item');
   var template = $(parentElement).find('.template').html();
@@ -93,12 +95,19 @@ var EnvironmentVariableAddRemove = function(parentElement) {
   addButton.on('click.environmentVariableTemplateCopy', function(evt){
     evt.preventDefault();
     addRowTo.append(template);
+    if(options.onAdd){
+      options.onAdd(addButton);
+    }
   });
 
   $(parentElement).on('click.environmentVariableTemplateCopy', '.delete_parent', function(evt){
     evt.preventDefault();
     var deleteLink = $(evt.target);
     deleteLink.parents('.environment-variable-edit-row').remove();
+    if(options.onRemove){
+      options.onRemove(deleteLink);
+    }
+
   });
 
 };

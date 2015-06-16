@@ -89,7 +89,14 @@
   (function ($) {
     $(function () {
       EnvironmentVariableEdit({tableRowSelector: '.environment-variable-edit-row'});
-      EnvironmentVariableAddRemove($('#<%=template_row_id_prefix-%>'));
+      EnvironmentVariableAddRemove($('#<%=template_row_id_prefix-%>'), {
+        onAdd: function(addButton){
+          addButton.parents('form.dirtyform').data('dirty', true);
+        },
+        onRemove: function(deleteLink){
+          deleteLink.parents('form.dirtyform').data('dirty', true);
+        }
+      });
     });
   })(jQuery);
 </script>

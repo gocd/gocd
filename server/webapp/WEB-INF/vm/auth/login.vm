@@ -155,6 +155,11 @@
                                 <div class='clear-both'><!-- Clear floats --></div>
                             </form>
                         </div>
+
+                        #foreach ($authentication_plugin_id in $authentication_plugin_registry.getPluginsThatHaveImageURL())
+                            <a href="/go/plugin/interact/$authentication_plugin_id/index"><img src="$authentication_plugin_registry.getDisplayImageURLFor($authentication_plugin_id)" alt="$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)" /></a>
+                        #end
+
                     </div>
                 </div>
                 

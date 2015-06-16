@@ -122,6 +122,13 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Configuration 'display-name' should be of type string");
         }
 
+        String displayImageURL;
+        try {
+            displayImageURL = (String) map.get("display-image-url");
+        } catch (Exception e) {
+            throw new RuntimeException("Configuration 'display-image-url' should be of type string");
+        }
+
         Boolean supportsPasswordBasedAuthentication = false;
         try {
             if (map.get("supports-password-based-authentication") != null) {
@@ -140,7 +147,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Configuration 'supports-user-search' should be of type boolean");
         }
 
-        return new AuthenticationPluginConfiguration(displayName, supportsPasswordBasedAuthentication, supportsUserSearch);
+        return new AuthenticationPluginConfiguration(displayName, displayImageURL, supportsPasswordBasedAuthentication, supportsUserSearch);
     }
 
     User toUser(Map map) {

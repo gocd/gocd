@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.authentication;
 
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
+import com.thoughtworks.go.util.StringUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -29,11 +30,15 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Component
 public class AuthenticationPluginRegistry {
     private final Map<String, AuthenticationPluginConfiguration> pluginToConfigurationMap = new ConcurrentHashMap<String, AuthenticationPluginConfiguration>();
+    private final Set<String> pluginsThatHaveImageURL = new ConcurrentSkipListSet<String>();
     private final Set<String> pluginsThatSupportsPasswordBasedAuthentication = new ConcurrentSkipListSet<String>();
     private final Set<String> pluginsThatSupportsUserSearch = new ConcurrentSkipListSet<String>();
 
     public void registerPlugin(String pluginId, AuthenticationPluginConfiguration configuration) {
         pluginToConfigurationMap.put(pluginId, configuration);
+        if (!StringUtil.isBlank(configuration.getDisplayImageURL())) {
+            pluginsThatHaveImageURL.add(pluginId);
+        }
         if (configuration.supportsPasswordBasedAuthentication()) {
             pluginsThatSupportsPasswordBasedAuthentication.add(pluginId);
         }
@@ -44,12 +49,17 @@ public class AuthenticationPluginRegistry {
 
     public void deregisterPlugin(String pluginId) {
         pluginToConfigurationMap.remove(pluginId);
+        pluginsThatHaveImageURL.remove(pluginId);
         pluginsThatSupportsPasswordBasedAuthentication.remove(pluginId);
         pluginsThatSupportsUserSearch.remove(pluginId);
     }
 
     public Set<String> getAuthenticationPlugins() {
         return new HashSet<String>(pluginToConfigurationMap.keySet());
+    }
+
+    public Set<String> getPluginsThatHaveImageURL() {
+        return Collections.unmodifiableSet(pluginsThatHaveImageURL);
     }
 
     public Set<String> getPluginsThatSupportsPasswordBasedAuthentication() {
@@ -63,6 +73,11 @@ public class AuthenticationPluginRegistry {
     public String getDisplayNameFor(String pluginId) {
         AuthenticationPluginConfiguration configuration = pluginToConfigurationMap.get(pluginId);
         return configuration == null ? null : configuration.getDisplayName();
+    }
+
+    public String getDisplayImageURLFor(String pluginId) {
+        AuthenticationPluginConfiguration configuration = pluginToConfigurationMap.get(pluginId);
+        return configuration == null ? null : configuration.getDisplayImageURL();
     }
 
     public boolean supportsPasswordBasedAuthentication(String pluginId) {

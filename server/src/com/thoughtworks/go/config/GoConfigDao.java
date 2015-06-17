@@ -209,7 +209,7 @@ public class GoConfigDao {
      * @deprecated Used only in tests
      */
     public void forceReload() {
-        cachedConfigService.onTimer();
+        cachedConfigService.forceReload();
     }
 
     public static class CompositeConfigCommand implements UpdateConfigCommand {

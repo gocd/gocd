@@ -98,7 +98,7 @@ describe("task_plugin_view", function () {
         assertEquals("Y", para_2().text());
     });
 
-    if (!jQuery.browser.msie) {
+    if (window.navigator.userAgent.indexOf("MSIE")<=0) {
         it("test_should_ensure_angular_binding_for_task_plugin_view_works", function () {
             new TaskPluginView().initialize("plugged_task_angular_app_id", "plugged_task_data_element_id", "task[onCancel]").bootstrapAngular();
 
@@ -127,7 +127,7 @@ describe("task_plugin_view", function () {
         assertEquals("task[onCancel][more_data]", textarea().attr("name"));
     });
 
-    if (!jQuery.browser.msie) {
+    if (window.navigator.userAgent.indexOf("MSIE")<=0) {
         it("test_should_not_fail_to_bind_when_there_is_no_data", function () {
             new TaskPluginView().initialize("empty_data_plugged_task_angular_app_id", "empty_plugged_task_data_element_id", "prefix").bootstrapAngular();
 

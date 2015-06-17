@@ -276,7 +276,7 @@ describe("value_stream_map_renderer", function () {
         assertEquals("details of deleted pipeline are shown.", deleted_pipeline_message, jQuery("#vsm-container #deleted_pipeline .message span").text());
     });
 
-    if (!jQuery.browser.msie) {
+    if (window.navigator.userAgent.indexOf("MSIE")<=0) {
         it("testShouldDisplayAllDetailsForSCMMaterialNodes", function () {
             /*
              hg_fingerprint -> p1
@@ -392,7 +392,7 @@ describe("value_stream_map_renderer", function () {
             jQuery('#pkg_id .material_revisions_label').attr("title"));
     });
 
-    if (!jQuery.browser.msie) {
+    if (window.navigator.userAgent.indexOf("MSIE")<=0) {
         it("testShouldCheckIfCommentsBoxIsShownCorrectlyIfTwoOrMoreSameSVNorTFSorP4IsConfiguredWithDifferentCredentials", function () {
             var svn_material_1 = scmMaterialNode('svn_fingerprint_1', 'http://username1:password1@svn.com', "svn", '["p1"]', 1,
                 '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');

@@ -17,6 +17,8 @@
 module ApiV1
   class BaseController < ::ApplicationController
 
+    include AuthenticationHelper
+
     FORMATS                = [:json_hal_v1]
     DEFAULT_FORMAT         = FORMATS.last
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
@@ -42,19 +44,12 @@ module ApiV1
       render json_hal_v1: json, location: url
     end
 
-    rescue_from RecordNotFound do |exception|
-      render :json_hal_v1 => { :message => 'The resource you requested was not found!' }, :status => 404
-    end
+    rescue_from RecordNotFound, with: :render_not_found_error
 
-    def verify_content_type_on_post
-      if [:put, :post, :patch].include?(request.request_method_symbol) && !request.raw_post.blank? && request.content_mime_type != :json
-        render json_hal_v1: { message: "You must specify a 'Content-Type' of 'application/json'" }, status: :unsupported_media_type
-      end
-    end
+    protected
 
     def render_http_operation_result(result)
       render json_hal_v1: { message: result.detailedMessage().strip }, status: result.httpCode()
     end
-
   end
 end

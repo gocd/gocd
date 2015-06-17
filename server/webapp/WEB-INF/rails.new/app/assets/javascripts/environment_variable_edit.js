@@ -79,3 +79,35 @@ var EnvironmentVariableEdit = function (options) {
         resetLink.toggle();
     })
 };
+
+var EnvironmentVariableAddRemove = function(parentElement, options) {
+  var $ = jQuery;
+
+  options = $.extend({}, options);
+
+  var addButton = $(parentElement).find('.add_item');
+  var template = $(parentElement).find('.template').html();
+  var addRowTo = $(parentElement).find('.variables tbody');
+
+  // add a blank row
+  addRowTo.append(template);
+
+  addButton.on('click.environmentVariableTemplateCopy', function(evt){
+    evt.preventDefault();
+    addRowTo.append(template);
+    if(options.onAdd){
+      options.onAdd(addButton);
+    }
+  });
+
+  $(parentElement).on('click.environmentVariableTemplateCopy', '.delete_parent', function(evt){
+    evt.preventDefault();
+    var deleteLink = $(evt.target);
+    deleteLink.parents('.environment-variable-edit-row').remove();
+    if(options.onRemove){
+      options.onRemove(deleteLink);
+    }
+
+  });
+
+};

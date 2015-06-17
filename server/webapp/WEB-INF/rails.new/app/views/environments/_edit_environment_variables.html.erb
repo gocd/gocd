@@ -1,47 +1,46 @@
 <div class="form_content">
   <div class="environment_variables_section popup_form">
-        <table style="display: none;">
-            <tbody id="plain_text_environment_variables_template" class="template">
-              <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
-                  <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false}} -%>
-              <%- end -%>
-            </tbody>
-        </table>
-
-        <table style="display: none;">
-            <tbody id="secure_environment_variables_template" class="template">
-              <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
-                  <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true}} -%>
-              <%- end -%>
-            </tbody>
-        </table>
 
     <div class="plain-text-variables">
       <h3><%= l.string("ENVIRONMENT_VARIABLES") %></h3>
       <table class="variables">
         <tbody>
-          <% scope[:form].object.getPlainTextVariables().each do |variable| -%>
-              <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
-                  <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false}} -%>
-              <% end %>
-          <%- end -%>
+        <% scope[:form].object.getPlainTextVariables().each do |variable| -%>
+          <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
+            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false, :is_changed => false}} -%>
+          <% end %>
+        <%- end -%>
         </tbody>
       </table>
-      <a class="add_item" data-add-environment-to=".plain-text-variables .variables tbody" data-environment-template="#plain_text_environment_variables_template"><%= l.string("ADD") -%></a>
+      <a class="add_item"><%= l.string("ADD") -%></a>
+      <table style="display: none;">
+        <tbody class="template">
+        <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
+          <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false, :is_changed => true}} -%>
+        <%- end -%>
+        </tbody>
+      </table>
     </div>
 
     <div class="secure-variables">
       <h3><%= l.string("SECURE_ENVIRONMENT_VARIABLES") %></h3>
       <table class="variables">
         <tbody>
-          <% scope[:form].object.getSecureVariables().each do |variable| -%>
-            <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
-              <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true}} -%>
-            <% end %>
-          <%- end -%>
+        <% scope[:form].object.getSecureVariables().each do |variable| -%>
+          <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
+            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true, :is_changed => false}} -%>
+          <% end %>
+        <%- end -%>
         </tbody>
       </table>
-      <a class="add_item" data-add-environment-to=".secure-variables .variables tbody" data-environment-template="#secure_environment_variables_template"><%= l.string("ADD") -%></a>
+      <a class="add_item"><%= l.string("ADD") -%></a>
+      <table style="display: none;">
+        <tbody class="template">
+        <%= scope[:form].fields_for :variables, :index => "" do |var_form| -%>
+          <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true, :is_changed => true}} -%>
+        <%- end -%>
+        </tbody>
+      </table>
     </div>
 
   </div>
@@ -50,20 +49,8 @@
   (function ($) {
     $(function () {
       EnvironmentVariableEdit({tableRowSelector: '.environment-variable-edit-row'});
+      EnvironmentVariableAddRemove($('.secure-variables'));
+      EnvironmentVariableAddRemove($('.plain-text-variables'));
     });
-    function setupEnvVarForm(finish_button) {
-      $('.add_item').each(function (i, elem) {
-        var addButton = $(elem);
-        var template = $(addButton.attr('data-environment-template'));
-        var addRowTo = $(addButton.attr('data-add-environment-to'));
-        var rowCreator = new EnvironmentVariables.RowCreator(template, null, '.delete_parent', true);
-        var environmentVariables = new EnvironmentVariables(addRowTo, rowCreator, null, null, null);
-        environmentVariables.addDefaultRow();
-        environmentVariables.registerAddButton(addButton);
-        environmentVariables.registerFinishButton(finish_button);
-      });
-    }
-
-    setupEnvVarForm($('.finish'))
   })(jQuery);
 </script>

@@ -42,7 +42,7 @@ describe "admin/pipelines/environment_variables.html.erb" do
     @view_file = "admin/pipelines/environment_variables.html.erb"
     @object_name = 'pipeline'
   end
-  
+
   it_should_behave_like :environment_variables_form
   it_should_behave_like :secure_environment_variables_form
 end

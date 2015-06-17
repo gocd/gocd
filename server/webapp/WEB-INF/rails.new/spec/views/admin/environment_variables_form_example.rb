@@ -38,9 +38,9 @@ shared_examples_for :environment_variables_form do
   it "should have correct row templates" do
     render template: @view_file
 
-    textarea_content = Capybara.string(response.body).find('textarea#variables_variables_template').text
-
-    expect(textarea_content).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]']")
+    Capybara.string(response.body).find('form div#variables_secure tbody.template', visible: false).tap do |template|
+      expect(template).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]']", visible: false)
+    end
   end
 
   it "should show errors" do
@@ -82,12 +82,10 @@ shared_examples_for :secure_environment_variables_form do
   it "should have correct row templates for secure section" do
     render template: @view_file
 
-    Capybara.string(response.body).find('form').tap do |form|
-      textarea_content = form.find("textarea#variables_secure_variables_template").text
-
-      expect(textarea_content).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][type='password']")
-      expect(textarea_content).to have_selector("input##{@object_name}_variables__secure")
-      expect(textarea_content).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='true']")
+    Capybara.string(response.body).find('form div#variables_secure tbody.template', visible: false).tap do |template|
+      expect(template).to have_selector("input[name='#{@object_name}[variables][][valueForDisplay]'][type='password']", visible: false)
+      expect(template).to have_selector("input##{@object_name}_variables__secure", visible: false)
+      expect(template).to have_selector("input[type='hidden'][name='#{@object_name}[variables][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]'][value='true']", visible: false)
     end
   end
 

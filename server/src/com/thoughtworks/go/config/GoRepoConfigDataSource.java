@@ -49,6 +49,13 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         this.configWatchList.registerListener(this);
     }
 
+    public boolean hasListener(PartialConfigUpdateCompletedListener listener) {
+        return this.listeners.contains(listener);
+    }
+    public void registerListener(PartialConfigUpdateCompletedListener listener) {
+        this.listeners.add(listener);
+    }
+
     public boolean latestParseHasFailedForMaterial(MaterialConfig material) {
         String fingerprint = material.getFingerprint();
         PartialConfigParseResult result = fingerprintLatestConfigMap.get(fingerprint);
@@ -172,6 +179,8 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             }
         }
     }
+
+
 
     private  class  PartialConfigParseResult{
         private PartialConfig lastSuccess;

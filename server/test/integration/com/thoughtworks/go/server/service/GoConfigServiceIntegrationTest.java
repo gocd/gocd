@@ -184,7 +184,7 @@ public class GoConfigServiceIntegrationTest {
 
         configHelper.addTemplate("pipeline", "stage");
 
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("loser")), result);
@@ -202,7 +202,7 @@ public class GoConfigServiceIntegrationTest {
 
         configHelper.addTemplate("pipeline", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("template-admin")))), "stage");
 
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("template-admin")), result);
@@ -219,7 +219,7 @@ public class GoConfigServiceIntegrationTest {
 
         configHelper.addTemplate("pipeline", "stage");
 
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("hero")), result);
@@ -508,7 +508,7 @@ public class GoConfigServiceIntegrationTest {
 
     @Test
     public void shouldLoadConfigFileOnlyWhenModifiedOnDisk() throws InterruptedException {
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         Thread.sleep(1000);
         goConfigService.updateConfig(new UpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -517,7 +517,7 @@ public class GoConfigServiceIntegrationTest {
             }
         });
         CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         assertThat(cruiseConfig, sameInstance(cachedGoConfig.loadForEditing()));
     }
 

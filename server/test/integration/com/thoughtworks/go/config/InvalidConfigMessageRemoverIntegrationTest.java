@@ -82,7 +82,7 @@ public class InvalidConfigMessageRemoverIntegrationTest {
         remover.initialize();
         assertThat(serverHealthService.getAllLogs().isEmpty(), is(false));
         configHelper.addAgent("hostname", "uuid"); //Any change to the config file
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         assertThat(serverHealthService.filterByScope(HealthStateScope.forInvalidConfig()).isEmpty(), is(true));
     }
 }

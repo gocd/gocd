@@ -54,13 +54,6 @@ public class CachedGoConfig implements ConfigChangedListener, PartialConfigChang
     private volatile Exception lastException;
     private volatile GoConfigHolder configHolder;
 
-    public CachedGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService) {
-        this.dataSource = dataSource;
-        this.serverHealthService = serverHealthService;
-    }
-
-    //TODO remove above constructor, rewrite service and use below
-
     @Autowired public CachedGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService,
                                      CachedFileGoConfig fileService,GoPartialConfig partialConfig) {
         this.dataSource = dataSource;
@@ -76,14 +69,14 @@ public class CachedGoConfig implements ConfigChangedListener, PartialConfigChang
         this.tryAssembleMergedConfig(newCruiseConfig,this.partialConfig.lastPartials());
     }
     @Override
-    public void onPartialConfigChanged(List<PartialConfig> partials) {
+    public void onPartialConfigChanged(PartialConfig[] partials) {
         this.tryAssembleMergedConfig(this.fileService.currentConfig(),partials);
     }
 
     /**
      * attempts to create a new merged cruise config
     */
-    private void tryAssembleMergedConfig(CruiseConfig cruiseConfig,List<PartialConfig> partials)
+    private void tryAssembleMergedConfig(CruiseConfig cruiseConfig,PartialConfig[] partials)
     {
         // create merge (by new MergeCruiseConfig or by injecting strategy)
         // validate

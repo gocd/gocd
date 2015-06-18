@@ -127,7 +127,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
 
     private void modifyArtifactRoot() {
         configHelper.currentConfig().server().updateArtifactRoot("something/else");//Config changed but security config did not.
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
     }
 
     @Test
@@ -225,7 +225,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     private void turnOnSecurity(String username) throws IOException {
         configHelper.turnOnSecurity();
         configHelper.addAdmins(username);
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
     }
 
     private void stubSessionToReturn0() {

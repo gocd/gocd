@@ -41,22 +41,16 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener {
     private static final Logger LOGGER = Logger.getLogger(GoPartialConfig.class);
 
     private GoRepoConfigDataSource repoConfigDataSource;
-    // we will use that to wait for all config repos to finish updates
-    private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
-    private MaterialConfigConverter materialConfigConverter;
     private GoConfigWatchList configWatchList;
-    private PartialConfigStatusService statusService;
 
     private List<PartialConfigChangedListener> listeners = new ArrayList<PartialConfigChangedListener>();
     // last, ready partial configs
     private Map<String,PartialConfig> fingerprintLatestConfigMap = new ConcurrentHashMap<String,PartialConfig>();
 
-    @Autowired public  GoPartialConfig(GoRepoConfigDataSource repoConfigDataSource,MaterialUpdateStatusNotifier materialUpdateStatusNotifier,
-                                       MaterialConfigConverter materialConfigConverter,MaterialUpdateCompletedTopic topic) {
+    @Autowired public  GoPartialConfig(GoRepoConfigDataSource repoConfigDataSource,
+                                       GoConfigWatchList configWatchList) {
         this.repoConfigDataSource = repoConfigDataSource;
-        this.materialUpdateStatusNotifier = materialUpdateStatusNotifier;
-        this.materialConfigConverter = materialConfigConverter;
-
+        this.configWatchList = configWatchList;
     }
 
     public PartialConfig[] lastPartials() {

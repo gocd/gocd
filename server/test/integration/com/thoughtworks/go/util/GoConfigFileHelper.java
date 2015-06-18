@@ -35,6 +35,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -141,7 +142,11 @@ public class GoConfigFileHelper {
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), probeService, serverHealthService);
             dataSource.upgradeIfNecessary();
-            CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, serverHealthService);
+            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
+            GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
+            GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, new GoConfigPluginService(), new ScmMaterialCheckoutService());
+            GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService, probeService);
         } catch (IOException e) {

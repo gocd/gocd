@@ -64,7 +64,7 @@ public class PipelinePauseServiceIntegrationTest {
         String name = "pipeline-name";
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(name);
         configHelper.writeConfigFile(cruiseConfig);
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         Username userName = new Username(new CaseInsensitiveString("UserFoo"));
         pipelinePauseService.pause(name, "tiny pause cause", userName);
@@ -80,7 +80,7 @@ public class PipelinePauseServiceIntegrationTest {
         String name = "pipeline-name";
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(name);
         configHelper.writeConfigFile(cruiseConfig);
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         Username userName = new Username(new CaseInsensitiveString("UserFoo"));
         pipelinePauseService.pause(name, "pause for testing", userName);

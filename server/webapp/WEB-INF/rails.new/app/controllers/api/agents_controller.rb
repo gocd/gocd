@@ -17,6 +17,9 @@
 class Api::AgentsController < Api::ApiController
   include AgentBulkEditor
 
+  before_action :check_user
+  before_action :check_admin_user, except: [:index, :show, :job_run_history]
+
   JobHistoryColumns = com.thoughtworks.go.server.service.JobInstanceService::JobHistoryColumns
 
   def index

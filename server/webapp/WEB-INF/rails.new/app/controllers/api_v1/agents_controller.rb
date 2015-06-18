@@ -17,6 +17,9 @@
 module ApiV1
   class AgentsController < ApiV1::BaseController
 
+    before_action :check_user
+    before_action :check_admin_user, except: [:index, :show]
+
     before_action :load_agent, only: [:show, :edit, :update, :destroy, :enable, :disable]
 
     def index

@@ -35,7 +35,7 @@ public class ScmMaterialCheckoutService {
         {
             try
             {
-                listener.onCheckoutComplete(material, newChanges, folder, revision);
+                listener.onCheckoutComplete(material.config(), folder, revision);
             }
             catch (Exception e)
             {

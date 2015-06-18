@@ -63,4 +63,8 @@ public class GoConfigWatchList implements ConfigChangedListener {
     public void registerListener(ChangedRepoConfigWatchListListener listener) {
         listeners.add(listener);
     }
+
+    public boolean hasListener(ChangedRepoConfigWatchListListener listener) {
+        return this.listeners.contains(listener);
+    }
 }

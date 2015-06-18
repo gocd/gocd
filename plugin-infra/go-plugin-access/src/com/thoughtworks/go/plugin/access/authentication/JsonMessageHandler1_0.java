@@ -129,6 +129,15 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Configuration 'display-image-url' should be of type string");
         }
 
+        Boolean supportsWebBasedAuthentication = false;
+        try {
+            if (map.get("supports-web-based-authentication") != null) {
+                supportsWebBasedAuthentication = (Boolean) map.get("supports-web-based-authentication");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Configuration 'supports-web-based-authentication' should be of type boolean");
+        }
+
         Boolean supportsPasswordBasedAuthentication = false;
         try {
             if (map.get("supports-password-based-authentication") != null) {
@@ -147,7 +156,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Configuration 'supports-user-search' should be of type boolean");
         }
 
-        return new AuthenticationPluginConfiguration(displayName, displayImageURL, supportsPasswordBasedAuthentication, supportsUserSearch);
+        return new AuthenticationPluginConfiguration(displayName, displayImageURL, supportsWebBasedAuthentication, supportsPasswordBasedAuthentication, supportsUserSearch);
     }
 
     User toUser(Map map) {

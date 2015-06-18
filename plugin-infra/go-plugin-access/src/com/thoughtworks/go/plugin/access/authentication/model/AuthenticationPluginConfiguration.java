@@ -19,12 +19,15 @@ package com.thoughtworks.go.plugin.access.authentication.model;
 public class AuthenticationPluginConfiguration {
     private String displayName;
     private String displayImageURL;
+    private boolean supportsWebBasedAuthentication;
     private boolean supportsPasswordBasedAuthentication;
     private boolean supportsUserSearch;
 
-    public AuthenticationPluginConfiguration(String displayName, String displayImageURL, boolean supportsPasswordBasedAuthentication, boolean supportsUserSearch) {
+    public AuthenticationPluginConfiguration(String displayName, String displayImageURL, boolean supportsWebBasedAuthentication,
+                                             boolean supportsPasswordBasedAuthentication, boolean supportsUserSearch) {
         this.displayName = displayName;
         this.displayImageURL = displayImageURL;
+        this.supportsWebBasedAuthentication = supportsWebBasedAuthentication;
         this.supportsPasswordBasedAuthentication = supportsPasswordBasedAuthentication;
         this.supportsUserSearch = supportsUserSearch;
     }
@@ -43,6 +46,14 @@ public class AuthenticationPluginConfiguration {
 
     public void setDisplayImageURL(String displayImageURL) {
         this.displayImageURL = displayImageURL;
+    }
+
+    public boolean supportsWebBasedAuthentication() {
+        return supportsWebBasedAuthentication;
+    }
+
+    public void setSupportsWebBasedAuthentication(boolean supportsWebBasedAuthentication) {
+        this.supportsWebBasedAuthentication = supportsWebBasedAuthentication;
     }
 
     public boolean supportsPasswordBasedAuthentication() {
@@ -70,6 +81,7 @@ public class AuthenticationPluginConfiguration {
 
         if (supportsPasswordBasedAuthentication != that.supportsPasswordBasedAuthentication) return false;
         if (supportsUserSearch != that.supportsUserSearch) return false;
+        if (supportsWebBasedAuthentication != that.supportsWebBasedAuthentication) return false;
         if (displayImageURL != null ? !displayImageURL.equals(that.displayImageURL) : that.displayImageURL != null)
             return false;
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
@@ -81,6 +93,7 @@ public class AuthenticationPluginConfiguration {
     public int hashCode() {
         int result = displayName != null ? displayName.hashCode() : 0;
         result = 31 * result + (displayImageURL != null ? displayImageURL.hashCode() : 0);
+        result = 31 * result + (supportsWebBasedAuthentication ? 1 : 0);
         result = 31 * result + (supportsPasswordBasedAuthentication ? 1 : 0);
         result = 31 * result + (supportsUserSearch ? 1 : 0);
         return result;

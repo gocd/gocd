@@ -10,7 +10,7 @@
 
   <td class="name_value_cell">
     <% if scope[:is_secure] %>
-      <%= scope[:var_form].password_field :valueForDisplay, :class => 'form_input environment_variable_value', :id => nil -%>
+      <%= scope[:var_form].password_field :valueForDisplay, :class => 'form_input environment_variable_value', :id => nil, :readonly => scope[:is_readonly] ? 'readonly' : nil -%>
       <%= scope[:var_form].hidden_field :secure, value: true -%>
       <% if scope[:var_form].object %>
         <%= scope[:var_form].hidden_field :originalValue, value: scope[:var_form].object.getValueForDisplay, class: "original-secure-variable-value" -%>

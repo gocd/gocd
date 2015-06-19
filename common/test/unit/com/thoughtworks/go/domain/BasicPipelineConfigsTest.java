@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -90,13 +91,45 @@ public class BasicPipelineConfigsTest {
                 is("Invalid group name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
     @Test
-    public void shouldValidateThatAuthorizationCannotBeInRemoteRepository() {
-        BasicPipelineConfigs group = new BasicPipelineConfigs();
-        group.setOrigin(new RepoConfigOrigin());
+    public void shouldErrorWhenAuthorizationIsDefinedInConfigRepo() {
+        BasicPipelineConfigs group = new BasicPipelineConfigs(new RepoConfigOrigin());
+        group.setGroup("gr");
+
+        group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
+                m(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
+                m(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
+                m(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+                m(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+                m(Authorization.NAME, "blinds",         Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
+
         group.validate(null);
 
         assertThat(group.errors().on(BasicPipelineConfigs.NO_REMOTE_AUTHORIZATION),
                 is("Authorization can be defined only in configuration file"));
+    }
+    @Test
+    public void shouldNotErrorWhenNoAuthorizationIsDefined_AndInConfigRepo() {
+        BasicPipelineConfigs group = new BasicPipelineConfigs(new RepoConfigOrigin());
+        group.setGroup("gr");
+
+        group.validate(null);
+
+        assertThat(group.errors().isEmpty(), is(true));
+    }
+    @Test
+    public void shouldNotErrorWhenAuthorizationIsDefinedLocally() {
+        BasicPipelineConfigs group = new BasicPipelineConfigs(new FileConfigOrigin());
+        group.setGroup("gr");
+        group.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
+                m(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
+                m(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
+                m(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+                m(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+                m(Authorization.NAME, "blinds",         Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
+
+        group.validate(null);
+
+        assertThat(group.errors().isEmpty(), is(true));
     }
 
     @Test

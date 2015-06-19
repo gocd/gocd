@@ -748,7 +748,10 @@ public class BasicCruiseConfig implements CruiseConfig {
             List<PipelineConfig> configs = new ArrayList<PipelineConfig>();
             PipelineGroups groups = getGroups();
             for (PipelineConfigs group : groups) {
-                configs.addAll(group);
+                for(PipelineConfig pipelineConfig : group)
+                {
+                    configs.add(pipelineConfig);
+                }
             }
             allPipelineConfigs = configs;
         }

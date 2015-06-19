@@ -69,6 +69,11 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
+    public boolean contains(PipelineConfig pipelineConfig) {
+        return super.contains(pipelineConfig);
+    }
+
+    @Override
     public ConfigOrigin getOrigin() {
         return configOrigin;
     }
@@ -278,7 +283,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public PipelineConfigs getCopyForEditing() {
-        PipelineConfigs clone = (PipelineConfigs) clone();
+        BasicPipelineConfigs clone = (BasicPipelineConfigs) clone();
         clone.clear();
         for (PipelineConfig pipeline : this) {
             clone.add(pipeline.getCopyForEditing());
@@ -401,6 +406,11 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         for (PipelineConfig pipelineConfig : this){
             pipelineConfig.cleanupAllUsagesOfRole(roleToDelete);
         }
+    }
+
+    @Override
+    public int indexOf(PipelineConfig pipelineConfig) {
+        return super.indexOf(pipelineConfig);
     }
 
     public void setOrigin(ConfigOrigin origin) {

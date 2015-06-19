@@ -155,6 +155,13 @@ public class BasicPipelineConfigsTest {
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
         assertThat(group.first().getLabelTemplate(), is("blah"));
     }
+    @Test
+    public void shouldReturnIndexOfPipeline_When2Pipelines() {
+        PipelineConfigs group = new BasicPipelineConfigs(
+                PipelineConfigMother.pipelineConfig("pipeline1"),PipelineConfigMother.pipelineConfig("pipeline2"));
+        PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
+        assertThat(group.indexOf(pipelineConfig),is(1));
+    }
 
     @Test
     public void shouldUpdateName() {

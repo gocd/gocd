@@ -1,6 +1,7 @@
 package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -13,6 +14,7 @@ import java.util.Map;
  * Defines single source of remote configuration and name of plugin to interpet it.
  * This goes to standard static xml configuration.
  */
+@ConfigTag("config-repo")
 public class ConfigRepoConfig implements Validatable {
     // defines source of configuration. Any will fit
     private ScmMaterialConfig repo;

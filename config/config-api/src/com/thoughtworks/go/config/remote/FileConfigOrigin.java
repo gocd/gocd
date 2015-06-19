@@ -11,4 +11,9 @@ public class FileConfigOrigin implements ConfigOrigin {
     public boolean canEdit() {
         return true;
     }
+
+    @Override
+    public boolean isLocal() {
+        return true;
+    }
 }

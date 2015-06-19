@@ -49,8 +49,10 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
-
     public BasicPipelineConfigs() {
+    }
+    public BasicPipelineConfigs(ConfigOrigin configOrigin) {
+        this.configOrigin = configOrigin;
     }
 
     public BasicPipelineConfigs(PipelineConfig... pipelineConfigs) {
@@ -302,7 +304,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
             this.configErrors.add(GROUP, NameTypeValidator.errorMessage("group", group));
         }
         if(this.configOrigin != null && //when there is no origin specified we should not check it at all
-                !(this.configOrigin instanceof FileConfigOrigin))
+                !(this.configOrigin.isLocal()))
         {
             this.configErrors.add(NO_REMOTE_AUTHORIZATION,
                 "Authorization can be defined only in configuration file");

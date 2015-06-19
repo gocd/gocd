@@ -46,18 +46,17 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     public PipelineConfigs getAuthorizationPart()
     {
-        for(PipelineConfigs part : parts)
-        {
-            if(part.getOrigin() instanceof FileConfigOrigin)
-                return part;
-        }
-        throw bomb("No valid configuration part to store authorization");
+        PipelineConfigs found = this.getAuthorizationPartOrNull();
+        if(found == null)
+            throw bomb("No valid configuration part to store authorization");
+
+        return  found;
     }
     public PipelineConfigs getAuthorizationPartOrNull()
     {
         for(PipelineConfigs part : parts)
         {
-            if(part.getOrigin() instanceof FileConfigOrigin)
+            if(part.getOrigin() != null && part.getOrigin().isLocal())
                 return part;
         }
         return null;
@@ -84,12 +83,11 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
     public PipelineConfigs getFirstEditablePart()
     {
-        for(PipelineConfigs part : parts)
-        {
-            if(part.getOrigin() != null && part.getOrigin().canEdit())
-                return  part;
-        }
-        throw bomb("No editable confgiration part");
+        PipelineConfigs found = getFirstEditablePartOrNull();
+        if(found == null)
+            throw bomb("No editable configuration part");
+
+        return found;
     }
 
     @Override

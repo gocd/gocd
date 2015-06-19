@@ -16,4 +16,9 @@ public class RepoConfigOrigin implements ConfigOrigin {
         // class should participate in providing info on how to do that
         return false;
     }
+
+    @Override
+    public boolean isLocal() {
+        return false;
+    }
 }

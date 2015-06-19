@@ -34,12 +34,22 @@ module ApiSpecHelper
 
   def login_as_user
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    controller.stub(:security_service).and_return(@security_service = double('security-service'))
+    @security_service.stub(:isSecurityEnabled).and_return(true)
+    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+  end
+
+  def disable_security
+    controller.stub(:security_service).and_return(@security_service = double('security-service'))
+    @security_service.stub(:isSecurityEnabled).and_return(false)
   end
 
   def become_admin
     controller.stub(:security_service).and_return(@security_service = double('security-service'))
     @security_service.stub(:isUserAdmin).with(@user).and_return(true)
+    @security_service.stub(:isSecurityEnabled).and_return(true)
   end
+
 end
 
 class UrlBuilder

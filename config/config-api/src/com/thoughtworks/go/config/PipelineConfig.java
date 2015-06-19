@@ -485,16 +485,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public EnvironmentVariablesConfig getPlainTextVariables() {
-        EnvironmentVariablesConfig result = new EnvironmentVariablesConfig();
-        for (EnvironmentVariableConfig variable : variables) {
-            if (!variable.isSecure()) {
-                result.add(variable);
-            }
-        }
-        return result;
+        return variables.getPlainTextVariables();
     }
 
-    public List<EnvironmentVariableConfig> getSecureVariables() {
+    public EnvironmentVariablesConfig getSecureVariables() {
         return variables.getSecureVariables();
     }
 

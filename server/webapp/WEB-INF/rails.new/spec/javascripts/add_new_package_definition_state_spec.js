@@ -15,11 +15,17 @@
  *************************GO-LICENSE-END**********************************/
 
 describe("add_new_package_definition_state", function () {
+    var originalPackageMaterialDefinition = PackageMaterialDefinition;
     beforeEach(function () {
         setFixtures("<input id=\"repo_containter\" value=\"value\"/>\n" +
             "<div id=\"packageConfigContainer\"></div>\n" +
             "<span id=\"saveButton\">Save Button</span>\n" +
-            "<div id=\"packageContainer\"></div>\n")
+            "<div id=\"packageContainer\"></div>\n");
+        PackageMaterialDefinition = originalPackageMaterialDefinition;
+    });
+
+    afterEach(function(){
+        PackageMaterialDefinition = originalPackageMaterialDefinition;
     });
 
     it("test_should_setup_MBFocusable_on_elements_inserted_via_ajax", function () {

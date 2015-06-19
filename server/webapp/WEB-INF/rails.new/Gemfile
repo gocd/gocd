@@ -16,7 +16,8 @@ gem 'roar'
 
 group :test do
   gem 'minitest'
-  gem "jasmine-rails"
+  gem "jasmine"
+  gem 'selenium-webdriver'
   gem 'jasmine-jquery-rails'
   gem 'jasmine-junitreporter'
 
@@ -24,4 +25,6 @@ group :test do
   gem 'rspec-extra-formatters'
 
   gem 'capybara', '2.2.1'
+  gem 'ruby-debug-base', '0.10.5.rc10'
+  gem 'ruby-debug-ide', '0.4.30'
 end

@@ -184,7 +184,7 @@ end
 
 task :jasmine_tests do
   cd rails_root do
-    sh_with_environment("#{ruby_executable} -S ./bin/rake spec:javascript", {'RAILS_ENV' => 'test', 'REPORTERS' => 'console,junit', 'CLASSPATH' => classpath})
+    sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", {'RAILS_ENV' => 'test', 'REPORTERS' => 'console,junit', 'CLASSPATH' => classpath})
   end
 end
 

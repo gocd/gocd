@@ -339,28 +339,6 @@ describe "/agents/index.html.erb" do
       end
     end
 
-    it "should have the same contents as the jsunit fixture" do
-      render
-
-      body = response.body.gsub(/\<script.+?\<\/script\>/mi, '')
-      resp_doc = REXML::Document.new('<temp>' + body + '</temp>')
-      REXML::XPath.each(resp_doc, "//td[@class='location']") do |loc_field|
-        loc_field.attributes["title"] = "LOCATION"
-        span = REXML::XPath.first(loc_field, "./span")
-        span.children.each do |text|
-          span.delete text
-        end
-        span.text = "LOCATION"
-      end
-
-      first = REXML::XPath.first(resp_doc, 'temp')
-      html = ""
-      first.children.each do |node|
-        html.concat(node.to_s)
-      end
-      assert_fixture_equal("micro_content_on_agents_test_rails_new.html", html)
-    end
-
     it "should have resource validation message set" do
       render
       expect(response).to have_selector('div.validation_message', :text => "Invalid character. Please use a-z, A-Z, 0-9, fullstop, underscore, hyphen and pipe.")

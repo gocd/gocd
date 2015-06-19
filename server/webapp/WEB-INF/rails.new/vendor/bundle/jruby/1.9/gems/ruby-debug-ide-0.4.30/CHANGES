@@ -1,0 +1,75 @@
+This document is not maintained since version 0.1.10. See ``Changes'' section
+in the ``ruby-debug-ide protocol'' document:
+
+  http://debug-commons.rubyforge.org/protocol-spec.html
+
+and ChangeLog for details. protocol-spec.html is generated from
+doc/protocol-spec.texi file.
+
+========================================================================
+
+0.1.9 - 0.1.10
+--------------
+
+  * fixed bug when inspected variable's to_s methods returns non-String.
+    Returns diagonstic message now.
+  * do not use '==' from within debugger to prevent runtime error
+  * Workarounding JRuby issue (http://jira.codehaus.org/browse/JRUBY-2063)
+  * switching to ruby-debug-base 0.1.10 (all tests pass)
+
+0.1.8 - 0.1.9
+-------------
+
+  * be sure 'exit' is always called.
+  * to_inspect = str.gsub(/\\n/, "\n") in debug_eval() to make possible to
+    evaluate multiline expressions. Frontend must escape new lines
+    accordingly.
+  * prevent exception when to_s returns nil on being evaluated value
+
+0.1.7 - 0.1.8
+-------------
+
+  * fixed error during breakpoint removing
+  * (protocols merge) print debug message on $stderr like classic debugger
+
+0.1.6 - 0.1.7
+-------------
+
+  * ensure 'yaml' (is_binary_data?) is always loaded in xml_printer.rb
+  * VarInstanceCommand enumerates also variables of an object's class, as it
+    is done in the classic-debugger
+  * do not send unneeded end-of-lines (fast and classic protocol merging)
+  * do not send non-xml PROMPT and CONFIRM + getting rid of 'confirm' methods
+    in the whole codebase (fast and classic protocol merging)
+  * send info <message> when 'delete' is used without given 'pos' (deleting of
+    all breakpoints is not supported)
+  * return <error> on 'delete <negative_int>' (protocol unification)
+  * always use one-based frame numbering (was not the case in <frame[s]>)
+  * send message 'finished' back when exiting
+
+0.1.5 - 0.1.6
+-------------
+
+  * do not send binary data within values of variables. See
+    http://www.netbeans.org/nonav/issues/show_bug.cgi?id=101748 for more
+    details
+
+0.1.4 - 0.1.5
+-------------
+
+  * fixed subtle bug in xml_printer.rb#print_variable which caused the
+    debugger to die when == method was overridden and did not count on nil
+    parameters
+  * Hash and Array subclasses did not have children thus cannot be expanded in
+    a GUI. E.g. @params in Rails controller (HashWithIndifferentAccess)
+
+0.1.3 - 0.1.4
+-------------
+
+  * migration to ruby-debug 0.1.4
+
+0.1.2 - 0.1.3
+-------------
+
+  * adding step+ and next+ commands (since ruby-debug 0.9.1)
+

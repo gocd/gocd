@@ -98,18 +98,19 @@ describe("task_plugin_view", function () {
         assertEquals("Y", para_2().text());
     });
 
+    if (window.navigator.userAgent.indexOf("MSIE")<=0) {
+        it("test_should_ensure_angular_binding_for_task_plugin_view_works", function () {
+            new TaskPluginView().initialize("plugged_task_angular_app_id", "plugged_task_data_element_id", "task[onCancel]").bootstrapAngular();
 
-    it("test_should_ensure_angular_binding_for_task_plugin_view_works", function () {
-        new TaskPluginView().initialize("plugged_task_angular_app_id", "plugged_task_data_element_id", "task[onCancel]").bootstrapAngular();
+            textbox_1().val("NEW_VALUE_1").trigger("input");
+            assertEquals("NEW_VALUE_1", textbox_1().val());
+            assertEquals("NEW_VALUE_1", para_1().text());
 
-        textbox_1().val("NEW_VALUE_1").trigger("input");
-        assertEquals("NEW_VALUE_1", textbox_1().val());
-        assertEquals("NEW_VALUE_1", para_1().text());
-
-        textbox_2().val("NEW_VALUE_2").trigger("input");
-        assertEquals("NEW_VALUE_2", textbox_2().val());
-        assertEquals("NEW_VALUE_2", para_2().text());
-    });
+            textbox_2().val("NEW_VALUE_2").trigger("input");
+            assertEquals("NEW_VALUE_2", textbox_2().val());
+            assertEquals("NEW_VALUE_2", para_2().text());
+        });
+    }
 
 
     it("test_should_change_name_of_all_input_elements_to_have_form_name", function () {
@@ -126,21 +127,22 @@ describe("task_plugin_view", function () {
         assertEquals("task[onCancel][more_data]", textarea().attr("name"));
     });
 
+    if (window.navigator.userAgent.indexOf("MSIE")<=0) {
+        it("test_should_not_fail_to_bind_when_there_is_no_data", function () {
+            new TaskPluginView().initialize("empty_data_plugged_task_angular_app_id", "empty_plugged_task_data_element_id", "prefix").bootstrapAngular();
 
-    it("test_should_not_fail_to_bind_when_there_is_no_data", function () {
-        new TaskPluginView().initialize("empty_data_plugged_task_angular_app_id", "empty_plugged_task_data_element_id", "prefix").bootstrapAngular();
+            var initially_empty_textbox = jQuery("#empty_data_plugged_task_angular_app_id input[ng-model='initially_empty']");
+            var initially_empty_para = jQuery("#empty_data_plugged_task_angular_app_id p#initially_empty_para");
 
-        var initially_empty_textbox = jQuery("#empty_data_plugged_task_angular_app_id input[ng-model='initially_empty']");
-        var initially_empty_para = jQuery("#empty_data_plugged_task_angular_app_id p#initially_empty_para");
+            assertEquals("", initially_empty_textbox.val());
+            assertEquals("", initially_empty_para.text());
 
-        assertEquals("", initially_empty_textbox.val());
-        assertEquals("", initially_empty_para.text());
-
-        initially_empty_textbox.val("NEW_VALUE_1").trigger("input");
-        assertEquals("NEW_VALUE_1", initially_empty_textbox.val());
-        assertEquals("NEW_VALUE_1", initially_empty_para.text());
-        expect(jQuery("#empty_data_plugged_task_angular_app_id").attr("ng-controller")).toBe("empty_data_plugged_task_angular_app_id_controller")
-    });
+            initially_empty_textbox.val("NEW_VALUE_1").trigger("input");
+            assertEquals("NEW_VALUE_1", initially_empty_textbox.val());
+            assertEquals("NEW_VALUE_1", initially_empty_para.text());
+            expect(jQuery("#empty_data_plugged_task_angular_app_id").attr("ng-controller")).toBe("empty_data_plugged_task_angular_app_id_controller")
+        });
+    }
 
 
     it("test_should_map_server_side_validation_errors", function () {

@@ -118,15 +118,14 @@ EnvironmentVariables = function() {
         jQuery(firstTextField).focus();
     }
 
-    init.RowCreator = function(template_textarea, wrapper_element_type, remove_button_selector) {
-        this.template_text = template_textarea.text();
+    init.RowCreator = function(template_element, wrapper_element_type, remove_button_selector, useInnerHtmlInsteadOfTextFromTemplate) {
+        this.template_text = useInnerHtmlInsteadOfTextFromTemplate ? template_element.html() : template_element.text();
         this.remove_button_selector = remove_button_selector;
         this.wrapper_element_type = wrapper_element_type;
     };
 
     init.RowCreator.prototype.createRow = function(on_remove) {
-        var row = createWrapperElement(this.wrapper_element_type);
-        row.html(this.template_text);
+        var row = createWrapperElement(this.wrapper_element_type, this.template_text);
         this.registerExistingRow(row, on_remove);
         return row;
     };
@@ -138,8 +137,12 @@ EnvironmentVariables = function() {
         });
     };
 
-    function createWrapperElement(tag_type) {
-        return jQuery(document.createElement(tag_type));
+    function createWrapperElement(tag_type, template_text) {
+        if(tag_type){
+          return jQuery(document.createElement(tag_type)).html(template_text);
+        } else {
+          return jQuery(template_text);
+        }
     }
 
     function mapAssoc(array, fn) {

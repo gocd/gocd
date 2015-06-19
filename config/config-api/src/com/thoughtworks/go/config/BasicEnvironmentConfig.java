@@ -256,6 +256,14 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
             variables.setConfigAttributes(attributeMap.get(VARIABLES_FIELD));
         }
     }
+    @Override
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        return variables.getPlainTextVariables();
+    }
+    @Override
+    public EnvironmentVariablesConfig getSecureVariables() {
+        return variables.getSecureVariables();
+    }
 
     @Override
     public ConfigOrigin getOrigin() {

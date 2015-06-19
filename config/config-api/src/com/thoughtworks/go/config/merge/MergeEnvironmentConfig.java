@@ -116,6 +116,8 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     public void setConfigAttributes(Object attributes) {
 
     }
+
+
     @Override
     public void addEnvironmentVariable(String name, String value) {
 
@@ -235,6 +237,33 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
         for(EnvironmentConfig part : this)
         {
             for(EnvironmentVariableConfig partVariable : part.getVariables())
+            {
+                if(!allVariables.contains(partVariable))
+                    allVariables.add(partVariable);
+            }
+        }
+        return allVariables;
+    }
+    @Override
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        EnvironmentVariablesConfig allVariables = new EnvironmentVariablesConfig();
+        for(EnvironmentConfig part : this)
+        {
+            for(EnvironmentVariableConfig partVariable : part.getPlainTextVariables())
+            {
+                if(!allVariables.contains(partVariable))
+                    allVariables.add(partVariable);
+            }
+        }
+        return allVariables;
+    }
+
+    @Override
+    public EnvironmentVariablesConfig getSecureVariables() {
+        EnvironmentVariablesConfig allVariables = new EnvironmentVariablesConfig();
+        for(EnvironmentConfig part : this)
+        {
+            for(EnvironmentVariableConfig partVariable : part.getSecureVariables())
             {
                 if(!allVariables.contains(partVariable))
                     allVariables.add(partVariable);

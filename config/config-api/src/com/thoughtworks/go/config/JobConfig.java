@@ -240,6 +240,14 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return variables;
     }
 
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        return variables.getPlainTextVariables();
+    }
+
+    public EnvironmentVariablesConfig getSecureVariables() {
+        return variables.getSecureVariables();
+    }
+
     public boolean hasVariable(String variableName) {
         return variables.hasVariable(variableName);
     }

@@ -72,15 +72,21 @@ BuildOutputObserver.prototype = {
 
     _update_live_output_raw: function (build_output) {
         var is_output_empty = !build_output;
-        var buildoutputPreElement = $('buildoutput_pre');
+        // we loop through these elements below, because there's 2 of those
+        // on on the console tab, and another on failures tab
+        var buildoutputPreElement = $$('.buildoutput_pre');
         if (!is_output_empty && buildoutputPreElement) {
             var escapedOutPut = build_output.escapeHTML();
             if (Prototype.Browser.IE) {
                 // Fix for the IE not wrap /r in pre bug
                 escapedOutPut = '<br/>' + escapedOutPut.replace(/\n/ig, '<br\/>');
-                buildoutputPreElement.innerHTML += escapedOutPut;
+                buildoutputPreElement.each(function(e, i){
+                    e.innerHTML += escapedOutPut;
+                })
             } else {
-                buildoutputPreElement.insert({bottom: escapedOutPut})
+                buildoutputPreElement.each(function(e, i) {
+                    e.insert({bottom: escapedOutPut})
+                });
             }
         }
         return is_output_empty;
@@ -89,7 +95,7 @@ BuildOutputObserver.prototype = {
     _update_live_output_color: function(build_output) {
         var is_output_empty = !build_output;
         if (!is_output_empty) {
-            var consoleElement = jQuery('#buildoutput_pre');
+            var consoleElement = jQuery('.buildoutput_pre');
 
             // parsing the entier console output and building HTML is computationally expensive and blows up memory
             // we therefore chunk the console output into 1000 lines each and hand it over to the parser, and also insert it into the DOM.

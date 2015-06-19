@@ -177,30 +177,6 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.tlb</groupId>
-            <artifactId>tlb-java</artifactId>
-            <version>0.3.2-90-g6df47e3</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-io</groupId>
-                    <artifactId>commons-io</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
     <build>

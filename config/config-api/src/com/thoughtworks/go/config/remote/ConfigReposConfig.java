@@ -48,7 +48,7 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
 
     @Override
     public ConfigErrors errors() {
-        return errors();
+        return errors;
     }
 
     @Override

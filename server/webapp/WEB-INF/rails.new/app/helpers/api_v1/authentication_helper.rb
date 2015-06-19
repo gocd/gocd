@@ -17,6 +17,7 @@
 module ApiV1
   module AuthenticationHelper
     def check_user
+      return unless security_service.isSecurityEnabled()
       if current_user.try(:isAnonymous)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
         render_not_found_error
@@ -24,7 +25,7 @@ module ApiV1
     end
 
     def check_admin_user
-      if current_user && !security_service.isUserAdmin(current_user)
+      unless security_service.isUserAdmin(current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
         render_not_found_error
       end

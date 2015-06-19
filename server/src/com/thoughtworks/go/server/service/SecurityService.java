@@ -130,6 +130,10 @@ public class SecurityService {
         return goConfigService.isUserAdmin(username);
     }
 
+    public boolean isSecurityEnabled(){
+        return goConfigService.isSecurityEnabled();
+    }
+
     public boolean hasOperatePermissionForFirstStage(String pipelineName, String userName) {
         StageConfig stage = goConfigService.findFirstStageOfPipeline(new CaseInsensitiveString(pipelineName));
         return hasOperatePermissionForStage(pipelineName, CaseInsensitiveString.str(stage.name()), userName);

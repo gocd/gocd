@@ -57,6 +57,22 @@ describe ApiV1::AgentsController do
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
+
+    describe 'anonymous user with security disabled' do
+      before(:each) do
+        disable_security
+      end
+
+      it 'should get agents json' do
+        two_agents = AgentsViewModelMother.getTwoAgents()
+
+        @agent_service.should_receive(:agents).and_return(two_agents)
+
+        get_with_api_header :index
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(two_agents, ApiV1::AgentsRepresenter))
+      end
+    end
   end
 
   describe :show do

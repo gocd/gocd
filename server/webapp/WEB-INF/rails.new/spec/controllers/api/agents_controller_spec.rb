@@ -21,7 +21,7 @@ describe Api::AgentsController do
     controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
     controller.stub(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
     login_as_user
-    become_admin
+    login_as_admin
   end
 
   describe :index do

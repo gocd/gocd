@@ -33,23 +33,31 @@ module ApiSpecHelper
   end
 
   def login_as_user
+    enable_security
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    controller.stub(:security_service).and_return(@security_service = double('security-service'))
-    @security_service.stub(:isSecurityEnabled).and_return(true)
     @security_service.stub(:isUserAdmin).with(@user).and_return(false)
   end
 
   def disable_security
     controller.stub(:security_service).and_return(@security_service = double('security-service'))
     @security_service.stub(:isSecurityEnabled).and_return(false)
+    @security_service.stub(:isUserAdmin).and_return(true)
   end
 
-  def become_admin
+  def enable_security
     controller.stub(:security_service).and_return(@security_service = double('security-service'))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(true)
     @security_service.stub(:isSecurityEnabled).and_return(true)
   end
 
+  def login_as_admin
+    enable_security
+    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    @security_service.stub(:isUserAdmin).with(@user).and_return(true)
+  end
+
+  def login_as_anonymous
+    controller.stub(:current_user).and_return(@user = Username::ANONYMOUS)
+  end
 end
 
 class UrlBuilder

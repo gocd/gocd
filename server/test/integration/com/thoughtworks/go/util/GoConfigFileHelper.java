@@ -146,7 +146,7 @@ public class GoConfigFileHelper {
             GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
             GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, new GoConfigPluginService(), new ScmMaterialCheckoutService());
             GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
-            CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, serverHealthService,fileService,partialConfig);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService, probeService);
         } catch (IOException e) {

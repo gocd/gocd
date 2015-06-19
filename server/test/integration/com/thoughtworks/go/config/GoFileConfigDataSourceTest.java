@@ -94,7 +94,7 @@ public class GoFileConfigDataSourceTest {
         dataSource.upgradeIfNecessary();
         CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource, new ServerHealthService());
         GoPartialConfig partialConfig = null;
-        CachedGoConfig cachedConfigService = new CachedGoConfig(dataSource, new ServerHealthService(),fileService,partialConfig);
+        CachedGoConfig cachedConfigService = new CachedGoConfig(new ServerHealthService(),fileService,partialConfig);
         cachedConfigService.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedConfigService, metricsProbeService);
         configHelper.load();

@@ -158,6 +158,17 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     @Override
+    public void remove(PipelineConfig pipelineConfig) {
+        PipelineConfigs part = this.getPartWithPipeline(pipelineConfig.name());
+        throw new RuntimeException("TODO: Not implemented yet");
+    }
+
+    @Override
+    public PipelineConfig remove(int i) {
+        throw new RuntimeException("TODO: Not implemented yet");
+    }
+
+    @Override
     public boolean add(PipelineConfig pipelineConfig) {
         verifyUniqueName(pipelineConfig);
         PipelineConfigs part = this.getFirstEditablePartOrNull();
@@ -205,6 +216,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
         }
         throw new IndexOutOfBoundsException();
     }
+
 
     @Override
     public boolean addWithoutValidation(PipelineConfig pipelineConfig) {

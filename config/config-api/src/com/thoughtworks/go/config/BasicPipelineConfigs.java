@@ -416,6 +416,16 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         return super.indexOf(pipelineConfig);
     }
 
+    @Override
+    public void remove(PipelineConfig pipelineConfig) {
+        super.remove(pipelineConfig);
+    }
+
+    @Override
+    public PipelineConfig remove(int i) {
+         return super.remove(i);
+    }
+
     public void setOrigin(ConfigOrigin origin) {
         this.configOrigin = origin;
     }

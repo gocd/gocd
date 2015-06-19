@@ -105,4 +105,8 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
     int indexOf(PipelineConfig pipelineConfig);
 
     PipelineConfig get(int i);
+
+    void remove(PipelineConfig pipelineConfig);
+
+    PipelineConfig remove(int i);
 }

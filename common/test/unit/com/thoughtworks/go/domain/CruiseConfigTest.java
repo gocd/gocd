@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -32,10 +34,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
@@ -49,6 +48,7 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -840,6 +840,106 @@ public class CruiseConfigTest {
     @Test
     public void shouldReturnConfigRepos(){
         assertNotNull(cruiseConfig.getConfigRepos());
+    }
+
+    // tests merged config
+
+    @Test
+    public void shouldReturnGroupsOtherThanMain_WhenMerged()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+        assertNotSame(mainCruiseConfig.getGroups(), cruiseConfig.getGroups());
+    }
+    @Test
+    public void shouldReturnTrueWhenHasGroup()
+    {
+        assertThat(cruiseConfig.hasPipelineGroup("existing_group"), is(true));
+    }
+    @Test
+    public void shouldReturnFalseWhenDoesNotHaveGroup()
+    {
+        assertThat(cruiseConfig.hasPipelineGroup("non_existing_group"),is(false));
+    }
+
+    // TODO actual merge cases
+
+    @Test
+    public void shouldReturnTrueHasPipelinesFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe2")),is(true));
+    }
+    @Test
+    public void shouldReturnFalseWhenHasNotPipelinesFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")),is(false));
+    }
+    @Test
+    public void shouldReturnGroupsFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipelineInGroup("pipe2", "g2"));
+
+        assertThat(cruiseConfig.hasPipelineGroup("g2"),is(true));
+    }
+    @Test
+    public void shouldAddPipelineToMain()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        pipelines.setOrigin(new FileConfigOrigin());
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+        cruiseConfig.addPipeline("group_main",PipelineConfigMother.pipelineConfig("pipe3"));
+
+        assertThat(mainCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
+
+    }
+    @Test
+    public void shouldgetAllPipelineNamesFromAllParts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipelineInGroup("pipe2", "g2"),PartialConfigMother.withPipelineInGroup("pipe3", "g3"));
+
+        assertThat(cruiseConfig.getAllPipelineNames(), contains(
+                new CaseInsensitiveString("pipe2"),
+                new CaseInsensitiveString("pipe1"),
+                new CaseInsensitiveString("pipe3")));
+    }
+    @Test
+    public  void shouldGetJobConfigByName()
+    {
+        goConfigMother.addPipeline(cruiseConfig, "cruise", "dev", "linux-firefox");
+        JobConfig job = cruiseConfig.jobConfigByName("cruise", "dev", "linux-firefox", true);
+        assertNotNull(job);
+    }
+    @Test
+    public void createsMergePipelineConfigsOnlyWhenManyParts()
+    {
+        assertThat(cruiseConfig.getGroups().get(0) instanceof MergePipelineConfigs,is(false));
+
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipelineInGroup("pipe2", "existing_group"));
+        assertThat(cruiseConfig.getGroups().get(0) instanceof MergePipelineConfigs,is(true));
+
     }
 
     private Role setupSecurityWithRole() {

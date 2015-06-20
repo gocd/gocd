@@ -142,8 +142,8 @@ public class MergedGoConfig implements ConfigChangedListener, PartialConfigChang
 
     // no actions on timer now. We only react to events in CachedFileGoConfig and in GoPartialConfig
 
-    public ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
-        return this.fileService.writeWithLock(updateConfigCommand);
+    public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
+        return this.fileService.writeWithLock(updateConfigCommand,new GoConfigHolder(this.currentConfig,this.currentConfigForEdit));
     }
 
     private synchronized void saveValidConfigToCache(GoConfigHolder configHolder) {

@@ -93,8 +93,14 @@ public class CachedFileGoConfig {
         }
     }
 
+    //TODO remove?
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
-        GoFileConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeWithLock(updateConfigCommand, new GoConfigHolder(currentConfig, currentConfigForEdit));
+        GoConfigHolder holder = new GoConfigHolder(currentConfig, currentConfigForEdit);
+        return writeWithLock(updateConfigCommand, holder);
+    }
+
+    public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand, GoConfigHolder holder) {
+        GoFileConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeWithLock(updateConfigCommand, holder);
         saveValidConfigToCache(saveResult.getConfigHolder());
         return saveResult.getConfigSaveState();
     }

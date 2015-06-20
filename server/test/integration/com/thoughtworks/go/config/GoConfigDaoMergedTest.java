@@ -35,7 +35,7 @@ public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
 
         configHelper = new GoConfigFileHelper(partials);
         goConfigDao = configHelper.getGoConfigFileDao();
-        mergedGoConfig = configHelper.getCachedGoConfig();
+        cachedGoConfig = configHelper.getCachedGoConfig();
     }
 
     @Before
@@ -51,7 +51,7 @@ public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
 
     @Test
     public void shouldUpgradeOldXmlWhenRequestedTo() throws Exception {
-        mergedGoConfig.save(ConfigFileFixture.VERSION_5, true);
+        cachedGoConfig.save(ConfigFileFixture.VERSION_5, true);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(2));
         assertNotNull(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("framework")));

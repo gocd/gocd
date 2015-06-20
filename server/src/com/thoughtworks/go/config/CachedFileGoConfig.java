@@ -35,7 +35,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands when to reload the config file
  */
 @Component
-public class CachedFileGoConfig {
+public class CachedFileGoConfig implements CachedGoConfig {
     private static final Logger LOGGER = Logger.getLogger(CachedFileGoConfig.class);
 
     private final GoFileConfigDataSource dataSource;
@@ -52,11 +52,13 @@ public class CachedFileGoConfig {
         this.serverHealthService = serverHealthService;
     }
 
+    @Override
     public CruiseConfig loadForEditing() {
         loadConfigIfNull();
         return currentConfigForEdit;
     }
 
+    @Override
     public CruiseConfig currentConfig() {
         if (currentConfig == null) {
             return new BasicCruiseConfig();
@@ -70,15 +72,22 @@ public class CachedFileGoConfig {
         }
     }
 
+    @Override
     public void loadConfigIfNull() {
         if (currentConfig == null || currentConfigForEdit == null || configHolder == null) {
             loadFromDisk();
         }
     }
 
+    @Override
+    public void forceReload()
+    {
+        loadFromDisk();
+    }
+
     //NOTE: This method is called on a thread from Spring
     public void onTimer() {
-        loadFromDisk();
+        this.forceReload();
     }
 
     private synchronized void loadFromDisk() {
@@ -93,7 +102,7 @@ public class CachedFileGoConfig {
         }
     }
 
-    //TODO remove?
+    @Override
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
         GoConfigHolder holder = new GoConfigHolder(currentConfig, currentConfigForEdit);
         return writeWithLock(updateConfigCommand, holder);
@@ -129,15 +138,18 @@ public class CachedFileGoConfig {
         return HealthStateType.invalidConfig();
     }
 
+    @Override
     public String getFileLocation() {
         return dataSource.fileLocation().getAbsolutePath();
     }
 
+    @Override
     public synchronized void save(String configFileContent, boolean shouldMigrate) throws Exception {
         GoConfigHolder newConfigHolder = dataSource.write(configFileContent, shouldMigrate);
         saveValidConfigToCache(newConfigHolder);
     }
 
+    @Override
     public GoConfigValidity checkConfigFileValid() {
         Exception ex = lastException;
         if (ex != null) {
@@ -146,6 +158,7 @@ public class CachedFileGoConfig {
         return GoConfigValidity.valid();
     }
 
+    @Override
     public synchronized void registerListener(ConfigChangedListener listener) {
         this.listeners.add(listener);
         if (currentConfig != null) {
@@ -166,6 +179,7 @@ public class CachedFileGoConfig {
     /**
      * @deprecated Used only in tests
      */
+    @Override
     public synchronized void clearListeners() {
         listeners.clear();
     }
@@ -173,14 +187,17 @@ public class CachedFileGoConfig {
     /**
      * @deprecated Used only in tests
      */
+    @Override
     public void reloadListeners() {
         notifyListeners(currentConfig());
     }
 
+    @Override
     public GoConfigHolder loadConfigHolder() {
         return configHolder;
     }
 
+    @Override
     public boolean hasListener(ConfigChangedListener listener) {
         return this.listeners.contains(listener);
     }

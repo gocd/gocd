@@ -138,9 +138,9 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldVersionTheCruiseConfigXmlWhenSaved() throws Exception {
-        MergedGoConfig mergedGoConfig = configHelper.getCachedGoConfig();
-        CruiseConfig configForEdit = mergedGoConfig.loadForEditing();
-        GoConfigHolder configHolder = new GoConfigHolder(mergedGoConfig.currentConfig(), configForEdit);
+        CachedGoConfig cachedGoConfig = configHelper.getCachedGoConfig();
+        CruiseConfig configForEdit = cachedGoConfig.loadForEditing();
+        GoConfigHolder configHolder = new GoConfigHolder(cachedGoConfig.currentConfig(), configForEdit);
 
         Date loserChangedAt = new DateTime().plusDays(2).toDate();
         when(timeProvider.currentTime()).thenReturn(loserChangedAt);

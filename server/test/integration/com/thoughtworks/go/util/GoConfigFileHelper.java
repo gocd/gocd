@@ -92,7 +92,7 @@ public class GoConfigFileHelper {
     public GoConfigMother goConfigMother = new GoConfigMother();
     private File passwordFile = null;
     private GoConfigDao goConfigDao;
-    private MergedGoConfig mergedGoConfig;
+    private CachedGoConfig cachedGoConfig;
     private SystemEnvironment sysEnv;
     private String originalConfigDir;
     private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
@@ -129,7 +129,7 @@ public class GoConfigFileHelper {
         try {
             Field field = GoConfigDao.class.getDeclaredField("cachedConfigService");
             field.setAccessible(true);
-            this.mergedGoConfig = (MergedGoConfig) field.get(goConfigDao);
+            this.cachedGoConfig = (CachedGoConfig) field.get(goConfigDao);
         } catch (Exception e) {
             bomb(e);
         }
@@ -204,8 +204,8 @@ public class GoConfigFileHelper {
         return goConfigDao;
     }
 
-    public MergedGoConfig getCachedGoConfig() {
-        return mergedGoConfig;
+    public CachedGoConfig getCachedGoConfig() {
+        return cachedGoConfig;
     }
 
     public void setArtifactsDir(String artifactsDir) {
@@ -260,7 +260,7 @@ public class GoConfigFileHelper {
         sysEnv.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, originalConfigDir);
         FileUtils.deleteQuietly(configFile);
         try {
-            mergedGoConfig.save(originalXml, true);
+            cachedGoConfig.save(originalXml, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -709,7 +709,7 @@ public class GoConfigFileHelper {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             getXml(cruiseConfig, buffer);
-            mergedGoConfig.save(new String(buffer.toByteArray()), false);
+            cachedGoConfig.save(new String(buffer.toByteArray()), false);
         } catch (Exception e) {
             throw bomb(e);
         }

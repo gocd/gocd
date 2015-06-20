@@ -22,20 +22,15 @@ import java.util.List;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullTask;
-import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_ANT_BUILDER;
@@ -61,7 +56,7 @@ import static org.mockito.Mockito.*;
 public abstract class GoConfigDaoBaseTest {
     protected GoConfigFileHelper configHelper ;
     protected GoConfigDao goConfigDao ;
-    protected MergedGoConfig mergedGoConfig ;
+    protected CachedGoConfig cachedGoConfig;
     protected LogFixture logger;
 
     @Test
@@ -278,7 +273,7 @@ public abstract class GoConfigDaoBaseTest {
 
     @Test
     public void shouldFeedCloneOfConfigBackToCommand() throws Exception {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), true) {
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true) {
 
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -294,12 +289,12 @@ public abstract class GoConfigDaoBaseTest {
 
         assertThat(command.after.getEnvironments().size(), is(0));
         command.after.addEnvironment("bar");
-        assertThat(mergedGoConfig.currentConfig().getEnvironments().size(), is(0));
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().size(), is(0));
     }
 
     @Test
     public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() throws Exception {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), false);
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), false);
         try {
             goConfigDao.updateConfig(command);
             fail("should have failed as check returned false");
@@ -311,7 +306,7 @@ public abstract class GoConfigDaoBaseTest {
 
     @Test
     public void shouldPerformUpdateIfCanContinue() throws Exception {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), true);
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true);
         goConfigDao.updateConfig(command);
         assertThat(command.wasUpdated, is(true));
     }
@@ -321,9 +316,9 @@ public abstract class GoConfigDaoBaseTest {
         configHelper.addTemplate("my-template", "my-stage");
         configHelper.addPipeline("pipeline", "stage");
         configHelper.addPipelineWithTemplate(PipelineConfigs.DEFAULT_GROUP, "my-pipeline", "my-template");
-        CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), true));
+        CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true));
         goConfigDao.updateConfig(command);
-        verify(command).canContinue(mergedGoConfig.currentConfig());
+        verify(command).canContinue(cachedGoConfig.currentConfig());
     }
 
     @Test
@@ -446,7 +441,7 @@ public abstract class GoConfigDaoBaseTest {
     @Test
     public void shouldOverwriteConfigContentAfterSave() throws Exception {
         useConfigString(WITH_3_AGENT_CONFIG);
-        mergedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
+        cachedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true).tasks().size(), is(1));
     }
@@ -457,7 +452,7 @@ public abstract class GoConfigDaoBaseTest {
         CruiseConfig cruiseConfig = goConfigDao.load();
 
         try {
-            mergedGoConfig.save("This is invalid Cruise", false);
+            cachedGoConfig.save("This is invalid Cruise", false);
             fail();
         } catch (Exception ignored) {
 
@@ -468,7 +463,7 @@ public abstract class GoConfigDaoBaseTest {
     @Test
     public void shouldNotAllowTypeForArtifactsBecausePolymorphismIsUsedInstead() throws Exception {
         try {
-            mergedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
+            cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
             fail();
         } catch (Exception e) {
             assertContains(e.toString(), "'type' is not allowed");
@@ -478,7 +473,7 @@ public abstract class GoConfigDaoBaseTest {
     @Test
     public void shouldNotAllowOldXml() throws Exception {
         try {
-            mergedGoConfig.save(ConfigFileFixture.VERSION_5, false);
+            cachedGoConfig.save(ConfigFileFixture.VERSION_5, false);
             fail();
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Value '5' of attribute 'schemaVersion' of element 'cruise' is not valid"));
@@ -490,7 +485,7 @@ public abstract class GoConfigDaoBaseTest {
     @Test
     public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {
         try {
-            mergedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
+            cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
             fail();
         } catch (Exception e) {
             assertThat(logger.getLog(),

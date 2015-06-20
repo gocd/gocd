@@ -38,7 +38,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands when to reload the config file or other config source
  */
 @Component
-public class MergedGoConfig implements ConfigChangedListener, PartialConfigChangedListener {
+public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, PartialConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(MergedGoConfig.class);
 
     //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old MergedGoConfig
@@ -213,6 +213,11 @@ public class MergedGoConfig implements ConfigChangedListener, PartialConfigChang
 
     public GoConfigHolder loadConfigHolder() {
         return configHolder;
+    }
+
+    @Override
+    public boolean hasListener(ConfigChangedListener listener) {
+        return this.listeners.contains(listener);
     }
 
 

@@ -2,7 +2,9 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.NoOpMetricsProbeService;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
@@ -13,7 +15,13 @@ import com.thoughtworks.go.util.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
+import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_CONFIG_REPO;
+import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -38,9 +46,11 @@ public class CachedGoConfigTest {
 
     private GoPartialConfig partials;
 
+    private File folder = new File("workdir");
+
     @Before
     public void setUp() throws Exception {
-        configHelper = new GoConfigFileHelper(CONFIG);
+        configHelper = new GoConfigFileHelper(ONE_CONFIG_REPO);
         SystemEnvironment env = new SystemEnvironment();
         ConfigRepository configRepository = new ConfigRepository(env);
         configRepository.initialize();
@@ -80,6 +90,50 @@ public class CachedGoConfigTest {
         configHelper.writeXmlToConfigFile(content);
 
         verify(listener, times(1)).onConfigChange(any(CruiseConfig.class));
+    }
+
+    @Test
+    public void shouldListenForNewPartialConfigs()
+    {
+        assertTrue(partials.hasListener(cachedGoConfig));
+    }
+    @Test
+    public void shouldListenForFileChanges()
+    {
+        assertTrue(cachedFileGoConfig.hasListener(cachedGoConfig));
+    }
+
+    @Test
+    public void shouldReturnMergedConfig_WhenThereIsValidPartialConfig() throws Exception
+    {
+        assertThat(configWatchList.getCurrentConfigRepos().size(),is(1));
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        PartialConfig part1 = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(
+                part1
+        );
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
+        assertThat(repoConfigDataSource.latestPartialConfigForMaterial(configRepo.getMaterialConfig()),is(part1));
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+    }
+
+    @Test
+    public void shouldNotifyWithMergedConfig_WhenPartUpdated() throws Exception
+    {
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        PartialConfig part1 = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part1);
+
+        ConfigChangedListener listener = mock(ConfigChangedListener.class);
+        cachedGoConfig.registerListener(listener);
+
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
+
+        assertThat("currentConfigShouldBeMerged",
+                cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+        verify(listener, times(1)).onConfigChange(cachedGoConfig.currentConfig());
     }
 
 }

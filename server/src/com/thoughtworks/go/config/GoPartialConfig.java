@@ -40,6 +40,14 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         this.repoConfigDataSource.registerListener(this);
     }
 
+    public void registerListener(PartialConfigChangedListener listener) {
+        this.listeners.add(listener);
+    }
+
+    public boolean hasListener(PartialConfigChangedListener listener) {
+        return this.listeners.contains(listener);
+    }
+
     private void notifyListeners() {
         PartialConfig[] partials = this.lastPartials();
         for(PartialConfigChangedListener listener : listeners)
@@ -88,4 +96,5 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         //fire event about changed partials collection
         this.notifyListeners();
     }
+
 }

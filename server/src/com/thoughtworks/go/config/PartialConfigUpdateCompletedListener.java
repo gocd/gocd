@@ -11,4 +11,6 @@ public interface PartialConfigUpdateCompletedListener {
     void onFailedPartialConfig(ConfigRepoConfig repoConfig, Exception ex);
 
     void onSuccessPartialConfig(ConfigRepoConfig repoConfig, PartialConfig newPart);
+
+
 }

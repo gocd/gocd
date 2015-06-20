@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -51,6 +52,7 @@ public class CachedGoConfig implements ConfigChangedListener, PartialConfigChang
     private volatile CruiseConfig currentConfig;
     private volatile CruiseConfig currentConfigForEdit;
     private volatile GoConfigHolder configHolder;
+    private volatile Exception lastException;
 
     @Autowired public CachedGoConfig(ServerHealthService serverHealthService,
                                      CachedFileGoConfig fileService,GoPartialConfig partialConfig) {
@@ -59,6 +61,7 @@ public class CachedGoConfig implements ConfigChangedListener, PartialConfigChang
         this.partialConfig = partialConfig;
 
         this.fileService.registerListener(this);
+        this.partialConfig.registerListener(this);
     }
 
     @Override
@@ -73,31 +76,42 @@ public class CachedGoConfig implements ConfigChangedListener, PartialConfigChang
     /**
      * attempts to create a new merged cruise config
     */
-    private void tryAssembleMergedConfig(CruiseConfig cruiseConfig,PartialConfig[] partials)
-    {
-        GoConfigHolder newConfigHolder;
+    public void tryAssembleMergedConfig(CruiseConfig cruiseConfig,PartialConfig[] partials) {
+        try {
+            GoConfigHolder newConfigHolder;
 
-        if(partials.length == 0)
-        {
-            // no partial configurations
-            // then just use basic configuration from xml
-            newConfigHolder = fileService.loadConfigHolder();
-        }
-        else {
-            // create merge (uses merge strategy internally)
-            BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, partials);
-            // validate
-            List<ConfigErrors> errors = validate(merge);
-            if (!errors.isEmpty()) {
-                LOGGER.error(String.format("Failed validation of merged configuration: %s", merge.getOrigin()));
-                return;
+            if (partials.length == 0) {
+                // no partial configurations
+                // then just use basic configuration from xml
+                newConfigHolder = fileService.loadConfigHolder();
+            } else {
+                // create merge (uses merge strategy internally)
+                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, partials);
+                // validate
+                List<ConfigErrors> allErrors = validate(merge);
+                if (!allErrors.isEmpty()) {
+
+                    if (!allErrors.isEmpty()) {
+                        throw new GoConfigInvalidException(merge, allErrors);
+                    }
+                    return;
+                }
+                CruiseConfig forEdit = fileService.loadConfigHolder().configForEdit;
+                newConfigHolder = new GoConfigHolder(merge, forEdit);
             }
-            CruiseConfig forEdit = fileService.loadConfigHolder().configForEdit;
-            newConfigHolder = new GoConfigHolder(merge,forEdit);
+            // save to cache and fire event
+            this.saveValidConfigToCache(newConfigHolder);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Failed validation of merged configuration: %s", e));
+            saveConfigError(e);
         }
-        // save to cache and fire event
-        this.saveValidConfigToCache(newConfigHolder);
     }
+    private synchronized void saveConfigError(Exception e) {
+        this.lastException = e;
+        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_XML, GoConfigValidity.invalid(e).errorMessage(), invalidConfigType());
+        serverHealthService.update(state);
+    }
+
     public static List<ConfigErrors> validate(CruiseConfig config) {
         List<ConfigErrors> validationErrors = new ArrayList<ConfigErrors>();
         validationErrors.addAll(config.validateAfterPreprocess());

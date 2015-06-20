@@ -174,4 +174,8 @@ public class CachedFileGoConfig {
     public GoConfigHolder loadConfigHolder() {
         return configHolder;
     }
+
+    public boolean hasListener(ConfigChangedListener listener) {
+        return this.listeners.contains(listener);
+    }
 }

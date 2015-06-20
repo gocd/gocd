@@ -31,6 +31,7 @@ import javax.annotation.PostConstruct;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
@@ -325,8 +326,12 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public ConfigOrigin getOrigin() {
-            throw new RuntimeException("TODO: Not implemented yet");
-            //TODO a composite of all origins
+            MergeConfigOrigin origins = new MergeConfigOrigin(this.main.getOrigin());
+            for(PartialConfig part : this.parts)
+            {
+                origins.add(part.getOrigin());
+            }
+            return origins;
         }
 
         @Override

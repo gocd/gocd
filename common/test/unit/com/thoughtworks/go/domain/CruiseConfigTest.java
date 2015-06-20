@@ -24,9 +24,12 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -959,6 +962,26 @@ public class CruiseConfigTest {
                 PartialConfigMother.withPipelineInGroup("pipe2", "existing_group"));
         assertThat(cruiseConfig.getGroups().get(0) instanceof MergePipelineConfigs,is(true));
 
+    }
+    @Test
+    public void shouldReturnOriginAsASumOfAllOrigins()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        FileConfigOrigin fileOrigin = new FileConfigOrigin();
+        mainCruiseConfig.setOrigins(fileOrigin);
+
+        PartialConfig part = PartialConfigMother.withPipeline("pipe2");
+        RepoConfigOrigin repoOrigin = new RepoConfigOrigin();
+        part.setOrigin(repoOrigin);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,part);
+
+        ConfigOrigin allOrigins = cruiseConfig.getOrigin();
+        assertThat(allOrigins instanceof MergeConfigOrigin,is(true));
+
+        MergeConfigOrigin mergeConfigOrigin = (MergeConfigOrigin)allOrigins;
+        assertThat(mergeConfigOrigin.size(),is(2));
+        assertThat(mergeConfigOrigin.contains(fileOrigin),is(true));
+        assertThat(mergeConfigOrigin.contains(repoOrigin),is(true));
     }
 
     private Role setupSecurityWithRole() {

@@ -177,6 +177,7 @@ describe "admin/plugins/plugins/index.html.erb" do
 
   it "should add settings icon if settings is available" do
     expect(@meta_data_store).to receive(:hasPlugin).with('plugin1.id').and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     assign(:plugin_descriptors, [valid_descriptor("1")])
 
     render
@@ -194,6 +195,23 @@ describe "admin/plugins/plugins/index.html.erb" do
 
   it "should not add settings icon if settings is not available" do
     expect(@meta_data_store).to receive(:hasPlugin).with('plugin1.id').and_return(false)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
+    assign(:plugin_descriptors, [valid_descriptor("1")])
+
+    render
+
+    Capybara.string(response.body).find('div#plugins-listing').tap do |plugins_listing|
+      plugins_listing.find("li.plugin.enabled[id='plugin1.id']").tap do |li|
+        li.find("div.plugin-details").tap do |plugin_details|
+          expect(plugin_details).not_to have_selector('span.settings')
+        end
+      end
+    end
+  end
+
+  it "should not add settings icon if user is not an admin" do
+    expect(@meta_data_store).to receive(:hasPlugin).with('plugin1.id').and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
     assign(:plugin_descriptors, [valid_descriptor("1")])
 
     render

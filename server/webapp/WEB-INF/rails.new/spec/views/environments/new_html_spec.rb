@@ -79,7 +79,7 @@ describe "environments/new.html.erb" do
     render
 
     expect(response).to have_selector("h2", "Environment Variables (Name = Value)")
-    expect(response).to have_selector("div.environment_variables_section ul.variables")
+    expect(response).to have_selector("div.environment_variables_section .variables")
   end
 
   it "should show the environment name with pipeline selections while adding a new environment" do

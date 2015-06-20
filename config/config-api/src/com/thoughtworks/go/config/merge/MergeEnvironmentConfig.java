@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
 /**
  * Composite of many EnvironmentConfig instances. Hides elementary environment configurations.
  */
@@ -116,6 +118,8 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     public void setConfigAttributes(Object attributes) {
 
     }
+
+
     @Override
     public void addEnvironmentVariable(String name, String value) {
 
@@ -242,6 +246,33 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
         }
         return allVariables;
     }
+    @Override
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        EnvironmentVariablesConfig allVariables = new EnvironmentVariablesConfig();
+        for(EnvironmentConfig part : this)
+        {
+            for(EnvironmentVariableConfig partVariable : part.getPlainTextVariables())
+            {
+                if(!allVariables.contains(partVariable))
+                    allVariables.add(partVariable);
+            }
+        }
+        return allVariables;
+    }
+
+    @Override
+    public EnvironmentVariablesConfig getSecureVariables() {
+        EnvironmentVariablesConfig allVariables = new EnvironmentVariablesConfig();
+        for(EnvironmentConfig part : this)
+        {
+            for(EnvironmentVariableConfig partVariable : part.getSecureVariables())
+            {
+                if(!allVariables.contains(partVariable))
+                    allVariables.add(partVariable);
+            }
+        }
+        return allVariables;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -287,6 +318,11 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public ConfigOrigin getOrigin() {
-        return null;
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        throw bomb("Cannot set origins on merged config");
     }
 }

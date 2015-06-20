@@ -1,0 +1,18 @@
+rvm:
+  - 1.9.3
+  - jruby
+  - rbx
+  - 2.0.0
+  - 2.1.0
+  - ruby-head
+sudo: false
+cache: bundler
+env:
+  - CHILDPROCESS_POSIX_SPAWN=true CHILDPROCESS_UNSET=should-be-unset
+  - CHILDPROCESS_POSIX_SPAWN=false CHILDPROCESS_UNSET=should-be-unset
+matrix:
+  allow_failures:
+    - rvm: rbx
+    - rvm: ruby-head
+    - rvm: 2.1.0
+      env: "CHILDPROCESS_POSIX_SPAWN=true"

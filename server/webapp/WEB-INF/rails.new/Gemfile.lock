@@ -46,19 +46,22 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
+    childprocess (0.5.6)
+      ffi (~> 1.0, >= 1.0.11)
     diff-lcs (1.2.5)
     dynamic_form (1.1.4)
     erubis (2.7.0)
+    ffi (1.9.8-java)
     hike (1.2.3)
     i18n (0.6.9)
-    jasmine-core (2.0.2)
+    jasmine (2.3.0)
+      jasmine-core (~> 2.3)
+      phantomjs
+      rack (>= 1.2.1)
+      rake
+    jasmine-core (2.3.4)
     jasmine-jquery-rails (2.0.3)
     jasmine-junitreporter (0.0.1)
-    jasmine-rails (0.10.2)
-      jasmine-core (>= 1.3, < 3.0)
-      phantomjs
-      railties (>= 3.1.0)
-      sprockets-rails
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -66,7 +69,7 @@ GEM
     minitest (4.7.5)
     multi_json (1.10.0)
     nokogiri (1.6.6.2-java)
-    phantomjs (1.9.7.1)
+    phantomjs (1.9.8.0)
     polyglot (0.3.4)
     rack (1.5.2)
     rack-test (0.6.2)
@@ -103,12 +106,20 @@ GEM
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
+    ruby-debug-base (0.10.5.rc10-java)
+    ruby-debug-ide (0.4.30)
+    rubyzip (1.1.7)
     sass (3.2.19)
     sass-rails (4.0.3)
       railties (>= 4.0.0, < 5.0)
       sass (~> 3.2.0)
       sprockets (~> 2.8, <= 2.11.0)
       sprockets-rails (~> 2.0)
+    selenium-webdriver (2.46.2)
+      childprocess (~> 0.5)
+      multi_json (~> 1.0)
+      rubyzip (~> 1.0)
+      websocket (~> 1.0)
     sprockets (2.11.0)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -131,6 +142,7 @@ GEM
       activesupport (>= 3)
       railties (>= 3)
       yard (~> 0.7)
+    websocket (1.2.2)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.8.7.6)
@@ -143,16 +155,19 @@ DEPENDENCIES
   capybara (= 2.2.1)
   dynamic_form
   gadgets (= 0.0.1)!
+  jasmine
   jasmine-jquery-rails
   jasmine-junitreporter
-  jasmine-rails
   minitest
   oauth2_provider (= 1.0.3)!
   rails (= 4.0.4)
   roar
   rspec-extra-formatters
   rspec-rails (= 2.14.2)
+  ruby-debug-base (= 0.10.5.rc10)
+  ruby-debug-ide (= 0.4.30)
   sass-rails (= 4.0.3)
+  selenium-webdriver
   sprockets-rails
   validatable (>= 1.6.0)
   versionist

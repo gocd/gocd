@@ -1,0 +1,1073 @@
+This file contains changes before division debug-commons project into
+'ruby-debug-ide' and 'classic-debug-ide' projects.
+
+2008-05-08 12:45  Martin Krauskopf
+
+	* README, Rakefile, nbproject, svn2cl_usermap: Finishing division
+	  cleanup
+
+2008-05-08 12:17  Martin Krauskopf
+
+	* MIT-LICENSE, classic-debug/ChangeLog, classic-debug/Rakefile,
+	  classic-debug/build_dist, classic-debug/classic-debug.txt,
+	  classic-debug/lib/classic-debug-verbose.rb,
+	  classic-debug/lib/classic-debug.rb, classic-debug/lib/context.rb,
+	  classic-debug/lib/xml_printer.rb,
+	  classic-debug/test/cd_basic_test.rb,
+	  classic-debug/test/cd_inspect_test.rb,
+	  classic-debug/test/cd_stepping_breakpoints_test.rb,
+	  classic-debug/test/cd_test_base.rb,
+	  classic-debug/test/cd_threads_and_frames_test.rb,
+	  classic-debug/test/cd_variables_test.rb, config.yaml,
+	  etc/kill_debugger, ruby-debug-ide/CHANGES,
+	  ruby-debug-ide/ChangeLog, ruby-debug-ide/README,
+	  ruby-debug-ide/Rakefile, ruby-debug-ide/bin/rdebug-ide,
+	  ruby-debug-ide/build_and_install.sh,
+	  ruby-debug-ide/lib/ruby-debug.rb,
+	  ruby-debug-ide/lib/ruby-debug/command.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/breakpoints.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/catchpoint.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/control.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/eval.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/frame.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/inspect.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/load.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/stepping.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/threads.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/variables.rb,
+	  ruby-debug-ide/lib/ruby-debug/event_processor.rb,
+	  ruby-debug-ide/lib/ruby-debug/helper.rb,
+	  ruby-debug-ide/lib/ruby-debug/interface.rb,
+	  ruby-debug-ide/lib/ruby-debug/printers.rb,
+	  ruby-debug-ide/lib/ruby-debug/processor.rb,
+	  ruby-debug-ide/lib/ruby-debug/xml_printer.rb,
+	  ruby-debug-ide/test/rd_basic_test.rb,
+	  ruby-debug-ide/test/rd_inspect_test.rb,
+	  ruby-debug-ide/test/rd_stepping_breakpoints_test.rb,
+	  ruby-debug-ide/test/rd_test_base.rb,
+	  ruby-debug-ide/test/rd_threads_and_frames_test.rb,
+	  ruby-debug-ide/test/rd_variables_test.rb,
+	  test-base/basic_test.rb, test-base/inspect_test.rb,
+	  test-base/readers.rb, test-base/stepping_breakpoints_test.rb,
+	  test-base/test_base.rb, test-base/threads_and_frames_test.rb,
+	  test-base/variables_test.rb: Dividing 'debug-commons' into two
+	  projects:
+	  - ruby-debug-ide: wrapper for ruby-debug-base
+	  - classic-debug-ide: wrapper for classic debug.rb
+	  to make further development more smooth. classic-debug-ide is
+	  getting
+	  deprecated by availability of ruby-debug-base for MRI, JRuby and
+	  Rubinius
+
+2008-05-05 14:47  Martin Krauskopf
+
+	* config.yaml: More info for developers
+
+2008-05-05 14:45  Martin Krauskopf
+
+	* ., ruby-debug-ide/test/rd_test_base.rb, test-base/test_base.rb: -
+	  s/config.yaml.private/config.private.yaml for better recognition
+	  by tools
+	  - sanity check for rdebug-ide presence during tests
+
+2008-03-13 12:39  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile, ruby-debug-ide/build_and_install.sh:
+	  Switching trunk to version 0.1.11
+
+2008-03-13 12:35  Martin Krauskopf
+
+	* ruby-debug-ide/CHANGES, ruby-debug-ide/lib/ruby-debug.rb:
+	  [#17601] Cannot connect to debugger using ipv6
+	  (confimed by Piotr Hlawski)
+
+2008-02-19 12:30  Martin Krauskopf
+
+	* MIT-LICENSE: Updating license and addint MIT license for
+	  jruby-debug-base
+
+2008-02-04 13:51  Martin Krauskopf
+
+	* ruby-debug-ide/CHANGES, ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/interface.rb: Workarounding JRuby
+	  issue (http://jira.codehaus.org/browse/JRUBY-2063)
+
+2008-02-01 22:49  Martin Krauskopf
+
+	* ., ChangeLog, classic-debug/ChangeLog, ruby-debug-ide/ChangeLog:
+	  Ignore per-developer configuration. Batch ChangeLog regeneration.
+
+2008-02-01 22:44  Martin Krauskopf
+
+	* config.yaml, ruby-debug-ide/test/rd_test_base.rb,
+	  test-base/test_base.rb: Easy way to run jruby in the debug mode
+	  (handy when debugging jruby-debug-base under Java debugger)
+
+2008-02-01 22:42  Martin Krauskopf
+
+	* config.yaml, test-base/test_base.rb: Making config.yaml just a
+	  template, providing support for config.yaml.private for each
+	  developer which is not shared in VCS.
+	  Default interpreter to ruby in template
+
+2008-02-01 22:26  Martin Krauskopf
+
+	* classic-debug/test/cd_basic_test.rb,
+	  classic-debug/test/cd_inspect_test.rb,
+	  classic-debug/test/cd_stepping_breakpoints_test.rb,
+	  classic-debug/test/cd_test_base.rb,
+	  classic-debug/test/cd_threads_and_frames_test.rb,
+	  classic-debug/test/cd_variables_test.rb,
+	  ruby-debug-ide/test/rd_inspect_test.rb,
+	  ruby-debug-ide/test/rd_stepping_breakpoints_test.rb,
+	  ruby-debug-ide/test/rd_threads_and_frames_test.rb,
+	  ruby-debug-ide/test/rd_variables_test.rb: Tweaking loadpath so
+	  all test are runnable directly
+
+2008-02-01 18:48  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug.rb,
+	  ruby-debug-ide/lib/ruby-debug/xml_printer.rb: Moving print_debug
+	  to Debugger module, so it might be used from all places. It has
+	  nothing to do with XMLPrinter
+
+2008-02-01 17:01  Martin Krauskopf
+
+	* ruby-debug-ide/test/rd_test_base.rb: Do not return whole PATH as
+	  array when rdebug-ide is not present
+
+2008-02-01 16:03  Martin Krauskopf
+
+	* ChangeLog, Rakefile, classic-debug/ChangeLog,
+	  ruby-debug-ide/ChangeLog, svn2cl_usermap: svn2cl ChangeLog
+	  generator support
+
+2008-02-01 15:59  Martin Krauskopf
+
+	* ruby-debug-ide/CHANGES, ruby-debug-ide/ChangeLog:
+	  s/ChangeLog/CHANGES - is not GNU-style ChangeLog
+
+2008-02-01 15:45  Martin Krauskopf
+
+	* classic-debug/test/cd_stepping_breakpoints_test.rb,
+	  classic-debug/test/cd_test_base.rb,
+	  classic-debug/test/cd_threads_and_frames_test.rb, config.yaml,
+	  ruby-debug-ide/test/rd_test_base.rb, test-base/test_base.rb: -
+	  configurable interpreter through yaml
+	  - pass righ parameters for JRuby debuggers
+	  - assert error when needed unset key is not present in yaml
+
+2008-02-01 12:42  Martin Krauskopf
+
+	* Rakefile, test-base/test_base.rb: Enable and fixing warnings
+
+2008-02-01 11:47  Martin Krauskopf
+
+	* Rakefile: Convenient targets for running classic and fast
+	  debuggers' tests separately
+
+2008-02-01 11:46  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile: Switching trunk to ruby-debug-base
+	  0.10.0
+
+2008-02-01 11:45  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug.rb,
+	  ruby-debug-ide/lib/ruby-debug/processor.rb: minor refactoring:
+	  clearer name for Debugger.event_processor
+
+2008-02-01 11:17  Martin Krauskopf
+
+	* ruby-debug-ide/build_and_install.sh: tweak: do not try to contact
+	  rubyforge during installation
+
+2008-01-29 22:41  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile: Minor fixes/tweaks to specifications
+
+2008-01-21 21:46  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile: - fixing failing ide_spec task (not sure
+	  why it didn't fail before)
+	  - s/javaide_spec/ide_spec (really not Java dependent in any way)
+
+2007-11-12 15:27  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/xml_printer.rb,
+	  ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/xml_printer.rb,
+	  test-base/variables_test.rb: do not use '==' from within debugger
+	  to prevent runtime error
+
+2007-11-07 10:37  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/xml_printer.rb,
+	  ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/xml_printer.rb,
+	  test-base/variables_test.rb: Fixed bug when inspected variable's
+	  to_s methods returns non-String. Returns diagonstic message now.
+
+2007-11-07 09:37  Martin Krauskopf
+
+	* ruby-debug-ide/test/rd_test_base.rb: s/':'/File::PATH_SEPARATOR
+
+2007-11-07 09:29  Martin Krauskopf
+
+	* ruby-debug-ide/test/rd_test_base.rb: redundant require; commited
+	  by mistake
+
+2007-11-07 09:03  Martin Krauskopf
+
+	* config.yaml, ruby-debug-ide/test/rd_test_base.rb: Try to find
+	  rdebug-ide for tests automatically without the need to set it in
+	  config
+
+2007-11-06 14:51  Martin Krauskopf
+
+	* nbproject: ignore per-user metadata
+
+2007-11-06 14:51  Martin Krauskopf
+
+	* nbproject, nbproject/project.properties, nbproject/project.xml: -
+	  adding NetBeans metadata to make it easy to open directly in
+	  NetBeans
+	  (Eclipse one are already there)
+
+2007-10-26 10:15  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile, ruby-debug-ide/build_and_install.sh:
+	  Actually, since the beginning, release version was lower by one
+	  version.
+	  So after 0.1.9 release, 0.1.10 is right for trunk.
+
+2007-10-26 09:59  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile, ruby-debug-ide/build_and_install.sh:
+	  trunk is 0.1.9, 0.1.8 was already released
+
+2007-10-25 07:31  Martin Krauskopf
+
+	* test-base/variables_test.rb: introducing assert_variables for
+	  test simplification
+
+2007-10-25 03:41  superchris
+
+	* ruby-debug-ide/lib/ruby-debug.rb: Fix to make compatible with
+	  jruby-debug
+
+2007-10-08 08:43  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/xml_printer.rb,
+	  ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/xml_printer.rb,
+	  test-base/variables_test.rb: - prevent exception when to_s
+	  returns nil on being evaluated value
+	  - classic-debug/lib/xml_printer.rb: merging differencies from
+	  ruby-debug-ide (non-semantic change)
+
+2007-08-16 15:10  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/context.rb,
+	  ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/commands/control.rb: be sure 'exit'
+	  is always called.
+
+2007-08-09 12:50  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/build_dist: Releasing
+	  0.9.4, switching trunk to 0.9.5
+
+2007-08-08 14:00  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/context.rb,
+	  ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/command.rb,
+	  test-base/inspect_test.rb: Ability to inspect multiline
+	  expressions
+
+2007-08-08 13:58  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug/xml_printer.rb: typo:
+	  s/locale/local
+
+2007-08-08 12:04  Martin Krauskopf
+
+	* classic-debug/test/cd_inspect_test.rb,
+	  ruby-debug-ide/test/rd_inspect_test.rb,
+	  test-base/inspect_test.rb: run 'inspect variables' test also for
+	  ruby-debug backend
+
+2007-08-03 07:51  Martin Krauskopf
+
+	* ruby-debug-ide/bin/rdebug-ide: s/rdebug-javaide/rdebug-id
+
+2007-07-31 09:58  Martin Krauskopf
+
+	* classic-debug/Rakefile: typo: s/rm_r/rm_rf
+
+2007-07-31 07:26  Martin Krauskopf
+
+	* classic-debug/Rakefile: Clean task
+
+2007-07-31 06:43  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb:
+	  synchronize get_thread_num method
+
+2007-07-25 08:45  Martin Krauskopf
+
+	* classic-debug/test/cd_threads_and_frames_test.rb: queer threading
+	  test which does not pass with JRuby
+
+2007-07-25 08:43  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb,
+	  classic-debug/lib/context.rb, classic-debug/lib/xml_printer.rb:
+	  synchronizing all socket communication to prevent race condition
+
+2007-07-23 17:31  Martin Krauskopf
+
+	* config.yaml, test-base/test_base.rb: Make server timeout
+	  customizable in tests
+
+2007-07-23 13:37  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/context.rb: Finalizing
+	  code clean-up, forgotten ChangeLog
+
+2007-07-23 13:24  Martin Krauskopf
+
+	* classic-debug/build_dist: include also context and xml_printer
+	  after reorganization
+
+2007-07-23 13:23  Martin Krauskopf
+
+	* ruby-debug-ide/test/rd_test_base.rb, test-base/test_base.rb:
+	  fixing test infrastructure so it runs from all appropriate
+	  places/directories
+
+2007-07-23 13:23  Martin Krauskopf
+
+	* classic-debug/lib/classic-debug.rb, classic-debug/lib/context.rb,
+	  classic-debug/lib/xml_printer.rb: Rubyfying Java-based names (no
+	  semantic change)
+
+2007-07-23 12:54  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb,
+	  classic-debug/lib/context.rb, classic-debug/lib/xml_printer.rb:
+	  Code reorganization. Context and Printer class moved to their own
+	  files. No semantic change.
+
+2007-07-23 12:25  Martin Krauskopf
+
+	* config.yaml, ruby-debug-ide/test/rd_test_base.rb,
+	  test-base/test_base.rb: moving customization of verbose output to
+	  the yaml file
+
+2007-07-23 11:25  Martin Krauskopf
+
+	* test-base/basic_test.rb: give a while to the underlying process
+	  to finish + fixing name
+
+2007-07-23 11:22  Martin Krauskopf
+
+	* Rakefile: common Rakefile; for running both, classic and fast
+	  debuggers tests
+
+2007-07-20 14:10  Martin Krauskopf
+
+	* config.yaml, ruby-debug-ide/test/rd_test_base.rb,
+	  test-base/test_base.rb: path to rdebug-ide executable in tests is
+	  configurable through config.yaml
+
+2007-07-20 13:40  Martin Krauskopf
+
+	* test-base/test_base.rb: switching to 'open3' library which is
+	  supposed to be more multiplatform then current way
+
+2007-07-20 12:18  Martin Krauskopf
+
+	* classic-debug/test/cd_variables_test.rb,
+	  test-base/variables_test.rb: test_variables_in_frames[2] fails.
+	  Run them only with classic debugger for now
+
+2007-07-20 12:04  Martin Krauskopf
+
+	* ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/commands/frame.rb: fixed error
+	  during breakpoint removing
+
+2007-07-20 11:59  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile, ruby-debug-ide/build_and_install.sh:
+	  version increase
+
+2007-07-20 11:58  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug/xml_printer.rb: (protocols merge)
+	  print debug message on like classic debugger
+
+2007-07-19 09:49  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb: - do
+	  not allow to call 'set_trace_func' by debuggee
+	  - s/DEBUGGER__/DC_DEBUGGER__ to prevent debug.rb collisions
+
+2007-07-18 13:59  Martin Krauskopf
+
+	* classic-debug/lib/classic-debug.rb: trivial: utilizing printError
+
+2007-07-17 15:21  Martin Krauskopf
+
+	* test-base/test_base.rb: typo/unused_param in
+	  assert_test_breakpoint
+
+2007-07-17 15:02  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb,
+	  ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/commands/control.rb,
+	  test-base/basic_test.rb: send message 'finished' back when
+	  exiting
+
+2007-07-16 14:47  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb,
+	  classic-debug/test/cd_basic_test.rb,
+	  ruby-debug-ide/test/rd_basic_test.rb, test-base/basic_test.rb:
+	  Implementing 'exit' command for classic debugger + tests
+
+2007-07-16 09:53  Martin Krauskopf
+
+	* classic-debug/ChangeLog: Marking release points in ChangeLog to
+	  get better overview about what has changed
+
+2007-07-16 09:46  Martin Krauskopf
+
+	* ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/xml_printer.rb,
+	  ruby-debug-ide/test/rd_threads_and_frames_test.rb,
+	  test-base/threads_and_frames_test.rb: always use one-based frame
+	  numbering (was not the case in <frame[s]>)
+
+2007-07-15 15:48  Martin Krauskopf
+
+	* classic-debug/test/cd_threads_and_frames_test.rb,
+	  ruby-debug-ide/test/rd_threads_and_frames_test.rb,
+	  test-base/threads_and_frames_test.rb: More tests for
+	  ruby-debug-ide
+
+2007-07-15 15:46  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug/command.rb,
+	  ruby-debug-ide/lib/ruby-debug/commands/breakpoints.rb,
+	  ruby-debug-ide/lib/ruby-debug/helper.rb: Return <error> on
+	  'delete <negative_int>. Merging recent ruby-debug changes +
+	  protocols unification, making more tests pass.
+
+2007-07-15 15:37  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile, ruby-debug-ide/build_and_install.sh: Add
+	  'test' task a make it default one
+
+2007-07-15 13:29  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb,
+	  test-base/stepping_breakpoints_test.rb: More protocols
+	  unification: sent error when the negative number is passed to
+	  delete
+
+2007-07-13 11:43  Martin Krauskopf
+
+	* classic-debug/test/cd_threads_and_frames_test.rb,
+	  test-base/threads_and_frames_test.rb: more tests reorganization
+
+2007-07-12 12:01  Martin Krauskopf
+
+	* test-base/variables_test.rb: Adding one more test for variables
+	  in frames evaluation (does not work with fast debugger yet)
+
+2007-07-12 11:59  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb: Make
+	  'self' first in the local variables list
+
+2007-07-11 13:26  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb:
+	  lib/classic-debug.rb: turning off some logging in debug mode.
+	  *Too* verbose to be useful in a frontend. Might be uncommented by
+	  developer for now.
+
+2007-07-10 17:23  Martin Krauskopf
+
+	* classic-debug/test/cd_variables_test.rb,
+	  ruby-debug-ide/test/rd_variables_test.rb,
+	  test-base/variables_test.rb: variables tests for fast-debugger
+	  (some still does not work, see cd_variables_test)
+
+2007-07-10 17:21  Martin Krauskopf
+
+	* ruby-debug-ide/test/rd_stepping_breakpoints_test.rb: unneeded
+	  load_path adjusting (done in RDTestBase)
+
+2007-07-09 18:40  Martin Krauskopf
+
+	* ruby-debug-ide/test/rd_test_base.rb: Fail quickly when RDEBUG_IDE
+	  path is not set
+
+2007-07-09 12:53  Martin Krauskopf
+
+	* classic-debug: Ignore 'dist' directory
+
+2007-07-09 12:53  Martin Krauskopf
+
+	* classic-debug/build_dist: fixing build script to reflect the new
+	  structure
+
+2007-07-09 12:48  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/lib/classic-debug.rb:
+	  prevent error when debugger process is killed + better error
+	  logging
+
+2007-07-09 11:03  Martin Krauskopf
+
+	* classic-debug/Rakefile: fixing test rake task
+
+2007-07-09 11:02  Martin Krauskopf
+
+	* test-base/test_base.rb: Unused code
+
+2007-07-09 11:02  Martin Krauskopf
+
+	* classic-debug/test/cd_inspect_test.rb,
+	  classic-debug/test/cd_stepping_breakpoints_test.rb,
+	  classic-debug/test/cd_test_base.rb,
+	  classic-debug/test/cd_threads_and_frames_test.rb,
+	  classic-debug/test/cd_variables_test.rb: more test refactoring
+	  and cleanup as merging the fast and classic tests
+
+2007-07-09 10:58  Martin Krauskopf
+
+	* ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/command.rb,
+	  ruby-debug-ide/lib/ruby-debug/interface.rb,
+	  ruby-debug-ide/lib/ruby-debug/processor.rb: do not send non-xml
+	  PROMPT and CONFIRM + getting rid of 'confirm' methods in the
+	  whole codebase (fast and classic protocol merging)
+
+2007-07-09 10:57  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug/commands/breakpoints.rb: send info
+	  <message> when 'delete' is used without given 'pos' (deleting of
+	  all breakpoints is not supported)
+
+2007-07-04 16:04  Martin Krauskopf
+
+	* ruby-debug-ide/test,
+	  ruby-debug-ide/test/rd_stepping_breakpoints_test.rb,
+	  ruby-debug-ide/test/rd_test_base.rb: Initial tests for fast
+	  debugger
+
+2007-07-04 16:04  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug/xml_printer.rb: Do not send
+	  end-of-lines. Part of fast, classic protocols merge
+
+2007-07-04 16:03  Martin Krauskopf
+
+	* ruby-debug-ide/lib/ruby-debug/interface.rb: Do not send non-xml,
+	  unused text (PROMPT, CONFIRM). Part of fast, classic protocols
+	  merge
+
+2007-07-04 16:02  Martin Krauskopf
+
+	* classic-debug/ChangeLog, classic-debug/test/cd_inspect_test.rb,
+	  classic-debug/test/cd_stepping_breakpoints_test.rb,
+	  classic-debug/test/cd_test_base.rb,
+	  classic-debug/test/cd_threads_and_frames_test.rb,
+	  classic-debug/test/cd_variables_test.rb,
+	  classic-debug/test/readers.rb, classic-debug/test/test_base.rb,
+	  test-base, test-base/readers.rb,
+	  test-base/stepping_breakpoints_test.rb, test-base/test_base.rb:
+	  Initial test refactoring. Sharing common tests which work for
+	  both, classic and fast debuggers. Currently
+	  stepping_breakpoints_test.
+
+2007-07-04 15:45  Martin Krauskopf
+
+	* classic-debug/lib/classic-debug.rb: Return <message> for unknown
+	  command (merging fast and classic debuggers protocols)
+
+2007-07-02 12:07  Martin Krauskopf
+
+	* ruby-debug-ide/ChangeLog,
+	  ruby-debug-ide/lib/ruby-debug/commands/variables.rb,
+	  ruby-debug-ide/lib/ruby-debug/xml_printer.rb: VarInstanceCommand
+	  enumerates also variables of an object's class, as it is done in
+	  the classic-debugger
+
+2007-07-02 11:30  Martin Krauskopf
+
+	* ruby-debug-ide/Rakefile, ruby-debug-ide/build_and_install.sh:
+	  Increasing trunk to version 0.1.7
+
+2007-07-02 08:09  Martin Krauskopf
+
+	* ruby-debug-ide, ruby-debug-javaide: renaming ruby-debug-javaide
+	  to more general and truthful ruby-debug-ide
+
+2007-07-02 08:03  Martin Krauskopf
+
+	* ChangeLog, Rakefile, classic-debug, classic-debug.txt,
+	  classic-debug/ChangeLog, classic-debug/Rakefile,
+	  classic-debug/build_dist, classic-debug/classic-debug.txt,
+	  classic-debug/lib, classic-debug/test, etc/build_dist, lib, test:
+	  moving classic debugger to its own directory
+
+2007-07-01 14:17  Martin Krauskopf
+
+	* ruby-debug-javaide/ChangeLog: ChangeLog (forgotten commit)
+
+2007-06-25 09:51  Martin Krauskopf
+
+	* ruby-debug-javaide/lib/ruby-debug/xml_printer.rb: Be sure 'yaml'
+	  module is loaded, needed for is_binary_data
+
+2007-06-19 13:14  Martin Krauskopf
+
+	* lib/classic-debug.rb: is_binary_data? is defined in yaml -
+	  require yaml
+
+2007-06-18 20:20  Martin Krauskopf
+
+	* test/cd_inspect_test.rb, test/cd_threads_and_frames_test.rb,
+	  test/test_base.rb: reverting (committed by mistake)
+
+2007-06-18 20:13  Martin Krauskopf
+
+	* etc/build_dist, test/cd_inspect_test.rb,
+	  test/cd_threads_and_frames_test.rb, test/test_base.rb: increasing
+	  version
+
+2007-06-18 20:11  Martin Krauskopf
+
+	* ChangeLog, lib/classic-debug.rb: do not send binary data within
+	  values of variables
+	  See http://www.netbeans.org/nonav/issues/show_bug.cgi?id=101748
+	  for more details.
+
+2007-06-18 20:01  Martin Krauskopf
+
+	* ruby-debug-javaide/Rakefile,
+	  ruby-debug-javaide/build_and_install.sh: increasing version
+
+2007-06-18 20:00  Martin Krauskopf
+
+	* ruby-debug-javaide/ChangeLog: Changelog update
+
+2007-06-18 19:55  Martin Krauskopf
+
+	* ruby-debug-javaide/lib/ruby-debug/xml_printer.rb: Do not send
+	  binary data
+	  (see http://www.netbeans.org/nonav/issues/show_bug.cgi?id=101748
+	  for more details)
+
+2007-05-23 14:24  Martin Krauskopf
+
+	* ruby-debug-javaide/ChangeLog,
+	  ruby-debug-javaide/lib/ruby-debug/commands/variables.rb,
+	  ruby-debug-javaide/lib/ruby-debug/xml_printer.rb: Hash and Array
+	  subclasses did not have children thus cannot be expanded ina GUI
+
+2007-05-23 12:15  Martin Krauskopf
+
+	* ruby-debug-javaide/Rakefile,
+	  ruby-debug-javaide/build_and_install.sh: bumping version to 0.1.5
+
+2007-05-23 12:15  Martin Krauskopf
+
+	* ruby-debug-javaide/ChangeLog,
+	  ruby-debug-javaide/lib/ruby-debug/xml_printer.rb: fixed subtle
+	  bug in xml_printer.rb#print_variable which caused the
+	  debugger to die when == method was overrided and did not count on
+	  nil
+	  parameters
+
+2007-05-18 18:11  Martin Krauskopf
+
+	* ruby-debug-javaide/build_and_install.sh: needs
+	  ruby-debug-ide-0.1.4
+
+2007-05-06 16:57  Martin Krauskopf
+
+	* etc/build_dist: increasing version to 0.9.3
+
+2007-05-06 16:56  Martin Krauskopf
+
+	* ChangeLog, lib/classic-debug.rb, test/cd_inspect_test.rb:
+	  Escaping error message in processingException. Sometime caused to
+	  send invalid XML
+
+2007-05-01 12:22  Markus Barchfeld
+
+	* .project: added ruby nature
+
+2007-05-01 12:21  Markus Barchfeld
+
+	* ruby-debug-javaide/Rakefile: bump version to 0.1.4,
+	  ruby-debug-base to 0.9.3
+
+2007-05-01 12:21  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/commands/control.rb: fixed exit
+	  command
+
+2007-05-01 12:19  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/command.rb: set a timeout for
+	  debug_eval (10 sec hardcoded)
+
+2007-05-01 12:15  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/processor.rb: removed display
+	  variable in state: it is needed for CLI only and caused output to
+	  stdout
+
+2007-04-30 11:22  Martin Krauskopf
+
+	* ruby-debug-javaide/Rakefile,
+	  ruby-debug-javaide/build_and_install.sh: version upgrade 0.1.2
+	  --> 0.1.3
+
+2007-04-29 15:50  Martin Krauskopf
+
+	* ruby-debug-javaide/ChangeLog,
+	  ruby-debug-javaide/lib/ruby-debug/commands/stepping.rb: adding
+	  step+ and next+ commands (since ruby-debug 0.9.1)
+
+2007-04-29 08:52  Martin Krauskopf
+
+	* README: update: follow rather project's homepage
+
+2007-04-27 14:41  Martin Krauskopf
+
+	* ChangeLog: fixing tests for JRuby interpreter
+
+2007-04-27 14:39  Martin Krauskopf
+
+	* test/cd_stepping_breakpoints_test.rb: expect events in the right
+	  order (discovered with JRuby interpreter - did not work)
+
+2007-04-27 14:06  Martin Krauskopf
+
+	* test/cd_stepping_breakpoints_test.rb: redunand sent_cont
+
+2007-04-27 13:38  Martin Krauskopf
+
+	* test/cd_threads_and_frames_test.rb: typo
+
+2007-04-27 13:38  Martin Krauskopf
+
+	* test/cd_threads_and_frames_test.rb:
+	  CDThreadsAndFrames.test_frames: assert breakpoint appropriately
+
+2007-04-27 13:34  Martin Krauskopf
+
+	* test/test_base.rb: rollbacking mistake - use Ruby by default, not
+	  JRuby
+
+2007-04-27 13:34  Martin Krauskopf
+
+	* test/cd_threads_and_frames_test.rb: JRuby handles local_variable
+	  inside of spawned thread differently then Ruby
+
+2007-04-27 13:22  Martin Krauskopf
+
+	* test/cd_stepping_breakpoints_test.rb: JRuby intepreter does not
+	  have the problem with 'stopping on one line twicely' - disabling
+	  test_stopping_on_one_line_twice for JRuby
+
+2007-04-27 13:21  Martin Krauskopf
+
+	* test/test_base.rb: giving chance to test to reveal what
+	  interpreter is used, + some trivialities
+
+2007-04-11 12:59  Martin Krauskopf
+
+	* ruby-debug-javaide/Rakefile,
+	  ruby-debug-javaide/build_and_install.sh: update to
+	  ruby-debug-base 0.9.2
+
+2007-04-05 12:35  Martin Krauskopf
+
+	* ruby-debug-javaide/Rakefile: upgrade also ruby-debug-ide version
+	  together with ruby-debug-base upgrades
+
+2007-04-05 12:33  Martin Krauskopf
+
+	* ruby-debug-javaide/Rakefile: upgrade to ruby-debug-base 0.9.1
+
+2007-04-03 06:59  Martin Krauskopf
+
+	* ruby-debug-javaide/build_and_install.sh: - simply possibility to
+	  suppress 'sudo' with an '-n' options
+	  - delete pkg only if it exists
+
+2007-04-03 06:43  Martin Krauskopf
+
+	* etc/kill_debugger: migrating to ruby-debug-ide
+
+2007-04-01 11:47  Markus Barchfeld
+
+	* ruby-debug-javaide/Rakefile,
+	  ruby-debug-javaide/build_and_install.sh: changed name from
+	  ruby-debug-javaide to ruby-debug-ide
+
+2007-03-31 15:40  Markus Barchfeld
+
+	* ruby-debug-javaide/bin/rdebug-ide,
+	  ruby-debug-javaide/bin/rdebug-javaide: rename
+
+2007-03-31 15:11  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/commands/control.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/eval.rb: stripped down
+	  to essentials for IDE support, provide all commands through one
+	  port
+
+2007-03-31 15:10  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/event_processor.rb: stripped
+	  down to essentials for IDE support, provide all commands through
+	  one port
+
+2007-03-31 15:10  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/processor.rb: stripped down to
+	  essentials for IDE support, provide all commands through one port
+
+2007-03-31 15:09  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug.rb: stripped down to essentials
+	  for IDE support, provide all commands through one port
+
+2007-03-31 15:08  Markus Barchfeld
+
+	* ruby-debug-javaide/bin/rdebug-javaide: stripped down to
+	  essentials for IDE support, provide all commands through one port
+
+2007-03-31 11:05  Markus Barchfeld
+
+	* ruby-debug-javaide/Rakefile: first successful integration. runs
+	  with HEAD from ruby-debug-base. All tests (except static vars and
+	  constants) green.
+
+2007-03-31 11:02  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/commands/eval.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/frame.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/stepping.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/variables.rb: first
+	  successful integration. runs with HEAD from ruby-debug-base. All
+	  tests (except static vars and constants) green.
+
+2007-03-31 10:58  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/command.rb,
+	  ruby-debug-javaide/lib/ruby-debug/xml_printer.rb: first
+	  successful integration. runs with HEAD from ruby-debug-base. All
+	  tests (except static vars and constants) green.
+
+2007-03-31 10:46  Markus Barchfeld
+
+	* ruby-debug-javaide/Rakefile,
+	  ruby-debug-javaide/lib/ruby-debug/command.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/eval.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/frame.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/rdebugExtension.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/settings.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/stepping.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/variables.rb,
+	  ruby-debug-javaide/lib/ruby-debug/processor.rb,
+	  ruby-debug-javaide/lib/ruby-debug/xml_printer.rb: first
+	  successful integration. runs with HEAD from ruby-debug-base. All
+	  tests (except static vars and constants) green.
+
+2007-03-30 15:24  Martin Krauskopf
+
+	* ruby-debug-javaide: svn-ignore pkg directory
+
+2007-03-29 18:46  Martin Krauskopf
+
+	* etc/build_dist: increasing version to 0.9.2
+
+2007-03-29 18:45  Martin Krauskopf
+
+	* test/test_base.rb: trivial: i var is not needed in teardown
+
+2007-03-29 18:34  Martin Krauskopf
+
+	* ChangeLog, lib/classic-debug.rb,
+	  test/cd_stepping_breakpoints_test.rb: Fixing breakpoints removing
+	  (rubyforge bug #9548)
+
+2007-03-24 13:44  Markus Barchfeld
+
+	* ruby-debug-javaide/README: initial check-in for
+	  ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:43  Markus Barchfeld
+
+	* ruby-debug-javaide/bin/rdebug-javaide: initial check-in for
+	  ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:42  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/commands/breakpoints.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/catchpoint.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/control.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/eval.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/frame.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/inspect.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/load.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/rdebugExtension.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/settings.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/stepping.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/threads.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands/variables.rb: initial
+	  check-in for ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:41  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug/command.rb,
+	  ruby-debug-javaide/lib/ruby-debug/commands,
+	  ruby-debug-javaide/lib/ruby-debug/interface.rb,
+	  ruby-debug-javaide/lib/ruby-debug/printers.rb,
+	  ruby-debug-javaide/lib/ruby-debug/processor.rb,
+	  ruby-debug-javaide/lib/ruby-debug/xml_printer.rb: initial
+	  check-in for ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:40  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug: initial check-in for
+	  ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:39  Markus Barchfeld
+
+	* ruby-debug-javaide/lib/ruby-debug.rb: initial check-in for
+	  ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:38  Markus Barchfeld
+
+	* ruby-debug-javaide/lib: initial check-in for ruby-debug-javaide
+	  which uses ruby-debug-base
+
+2007-03-24 13:36  Markus Barchfeld
+
+	* ruby-debug-javaide/bin: initial check-in for ruby-debug-javaide
+	  which uses ruby-debug-base
+
+2007-03-24 13:35  Markus Barchfeld
+
+	* ruby-debug-javaide/build_and_install.sh: initial check-in for
+	  ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:26  Markus Barchfeld
+
+	* ruby-debug-javaide, ruby-debug-javaide/Rakefile: initial check-in
+	  for ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:22  Markus Barchfeld
+
+	* .externalToolBuilders,
+	  .externalToolBuilders/build_and_install.launch: initial check-in
+	  for ruby-debug-javaide which uses ruby-debug-base
+
+2007-03-24 13:17  Markus Barchfeld
+
+	* .project: initial check-in for ruby-debug-javaide which uses
+	  ruby-debug-base
+
+2007-03-21 07:20  Martin Krauskopf
+
+	* etc/build_dist: increasing version to 0.9.1, major Windows bug
+	  fixed
+
+2007-03-20 18:22  Martin Krauskopf
+
+	* ChangeLog, lib/classic-debug.rb,
+	  test/cd_stepping_breakpoints_test.rb, test/readers.rb,
+	  test/test_base.rb: - correctly handles spaces and semicolons in
+	  path
+	  - added Breakpoint struct for better readability
+
+2007-03-16 04:55  Martin Krauskopf
+
+	* ChangeLog: fixing ChangeLog message
+
+2007-03-15 20:25  Martin Krauskopf
+
+	* .: ignore dist directory
+
+2007-03-15 20:24  Martin Krauskopf
+
+	* ChangeLog, classic-debug.txt: describing few commands
+
+2007-03-15 18:31  Martin Krauskopf
+
+	* ChangeLog, README: TOC, 1.8.6 works smoothly, intermediate Java
+	  library note
+
+2007-03-15 18:30  Martin Krauskopf
+
+	* etc/kill_debugger: handy script helpful durinng testing phase
+
+2007-03-15 18:29  Martin Krauskopf
+
+	* etc, etc/build_dist: simple script for building final tarball
+
+2007-02-21 17:46  Martin Krauskopf
+
+	* ChangeLog, README, classic-debug.txt: description of
+	  $RemoteDebugPort
+
+2007-02-21 17:43  Martin Krauskopf
+
+	* test/test_base.rb: trivial: use File.join
+
+2007-02-19 17:51  Martin Krauskopf
+
+	* ChangeLog, lib/classic-debug.rb,
+	  test/cd_stepping_breakpoints_test.rb: fixing (my) regression of
+	  next/continue behavior while stepping over
+
+2007-02-16 13:09  Martin Krauskopf
+
+	* ChangeLog, test/cd_inspect_test.rb,
+	  test/cd_stepping_breakpoints_test.rb,
+	  test/cd_threads_and_frames_test.rb, test/cd_variables_test.rb,
+	  test/readers.rb, test/test_base.rb: - Rubyfying 'inspecting'
+	  tests (more to come)
+	  - run_to_line function + relevant refactoring
+	  - introducing ChangeLog
+
+2007-02-16 07:48  Martin Krauskopf
+
+	* MIT-LICENSE: License note about the fact that classic-debug is
+	  based on Ruby's debug.rb
+
+2007-02-15 21:07  Martin Krauskopf
+
+	* MIT-LICENSE, README, Rakefile, lib, lib/classic-debug-verbose.rb,
+	  lib/classic-debug.rb, test, test/cd_stepping_breakpoints_test.rb,
+	  test/cd_threads_and_frames_test.rb, test/cd_variables_test.rb,
+	  test/readers.rb, test/test_base.rb: initial commit
+
+2007-02-15 20:12  Martin Krauskopf
+
+	* .: trunk directory
+

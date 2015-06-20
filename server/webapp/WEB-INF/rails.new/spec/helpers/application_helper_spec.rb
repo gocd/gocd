@@ -453,7 +453,7 @@ describe ApplicationHelper do
   end
 
   it "should mark defaultable field by adding a hidden input" do
-    expect(register_defaultable_list("foo>bar>baz")).to eq('<input type="hidden" name="default_as_empty_list[]" value="foo>bar>baz"/>')
+    assert_dom_equal(register_defaultable_list("foo>bar>baz"), '<input type="hidden" name="default_as_empty_list[]" value="foo&gt;bar&gt;baz"/>')
   end
 
   describe "unauthorized_access" do

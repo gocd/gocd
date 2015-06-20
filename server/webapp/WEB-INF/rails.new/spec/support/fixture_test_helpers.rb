@@ -1,14 +1,4 @@
 module FixtureTestHelpers
-  def assert_fixture_equal(fixture, response)
-    generated = extract_test("<div class='under_test'>" + response + "</div>")
-    jsunit = extract_test(File.read(File.join(Rails.root, "..", "..", "..", "jsunit", "tests", fixture)))
-
-    # File.open('/tmp/jsunit.xml', 'w') { |f| f.write(jsunit) }
-    # File.open('/tmp/generated.xml', 'w') { |f| f.write(generated) }
-    # puts `diff /tmp/generated.xml /tmp/jsunit.xml`
-
-    generated.gsub(/\s+/, " ").should == jsunit.gsub(/\s+/, " ")
-  end
 
 # Modify HTML to remove time dependent stuff so we can compare HTML files more reliably
   def extract_test(xml)

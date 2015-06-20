@@ -78,15 +78,17 @@ public class UserSearchServiceTest {
         User bar = new User("bar-foo", new ArrayList<String>(), "bar@go.com", true);
         when(ldapUserSearch.search(searchTerm)).thenReturn(Arrays.asList(foo, bar));
 
-        List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2");
+        List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
         when(authenticationPluginRegistry.getPluginsThatSupportsUserSearch()).thenReturn(new LinkedHashSet<String>(pluginIds));
         when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
         when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
         when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.model.User>());
+        when(authenticationExtension.searchUser("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.model.User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 
-        assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.LDAP), new UserSearchModel(bar, UserSourceType.LDAP), new UserSearchModel(getUser(1), UserSourceType.PLUGIN), new UserSearchModel(getUser(2), UserSourceType.PLUGIN), new UserSearchModel(getUser(3), UserSourceType.PLUGIN))));
+        assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.LDAP), new UserSearchModel(bar, UserSourceType.LDAP), new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
+                new UserSearchModel(getUser(2), UserSourceType.PLUGIN), new UserSearchModel(getUser(3), UserSourceType.PLUGIN), new UserSearchModel(new User("username-" + 4, "", ""), UserSourceType.PLUGIN))));
     }
 
     @Test

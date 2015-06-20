@@ -213,6 +213,10 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         return isSecure;
     }
 
+    public boolean isPlain() {
+        return !isSecure();
+    }
+
     private void setValue(String value){
         if (isSecure) {
             encryptedValue = new EncryptedVariableValueConfig(encrypt(value));

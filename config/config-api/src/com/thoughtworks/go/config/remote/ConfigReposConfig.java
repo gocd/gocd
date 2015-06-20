@@ -1,8 +1,6 @@
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -14,9 +12,14 @@ import java.util.Map;
 /**
  * List of remote configuration sources and how to interpret them
  */
+@ConfigTag("config-repos")
+@ConfigCollection(value = ConfigRepoConfig.class)
 public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implements Validatable {
 
     private  ConfigErrors errors = new ConfigErrors();
+
+    public ConfigReposConfig(){
+    }
 
     public ConfigReposConfig(ConfigRepoConfig... configRepos)
     {
@@ -48,7 +51,7 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
 
     @Override
     public ConfigErrors errors() {
-        return errors();
+        return errors;
     }
 
     @Override

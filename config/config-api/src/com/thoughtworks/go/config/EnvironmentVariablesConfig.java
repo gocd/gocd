@@ -121,24 +121,25 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
         }
     }
 
-    public List<EnvironmentVariableConfig> getSecureVariables() {
-        ArrayList<EnvironmentVariableConfig> secureVariables = new ArrayList<EnvironmentVariableConfig>();
+    public EnvironmentVariablesConfig getSecureVariables() {
+        EnvironmentVariablesConfig result = new EnvironmentVariablesConfig();
         for (EnvironmentVariableConfig environmentVariableConfig : this) {
             if (environmentVariableConfig.isSecure()) {
-                secureVariables.add(environmentVariableConfig);
+                result.add(environmentVariableConfig);
             }
         }
-        return secureVariables;
+        return result;
     }
 
-    public List<EnvironmentVariableConfig> getPlainTextVariables() {
-        ArrayList<EnvironmentVariableConfig> plainTextVariables = new ArrayList<EnvironmentVariableConfig>();
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        EnvironmentVariablesConfig result = new EnvironmentVariablesConfig();
         for (EnvironmentVariableConfig environmentVariableConfig : this) {
-            if (!environmentVariableConfig.isSecure()) {
-                plainTextVariables.add(environmentVariableConfig);
+            if (environmentVariableConfig.isPlain()) {
+                result.add(environmentVariableConfig);
             }
         }
-        return plainTextVariables;
+        return result;
 
     }
+
 }

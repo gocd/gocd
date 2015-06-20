@@ -336,7 +336,7 @@ public class MergePipelineConfigsTest {
     // 2 parts and more cases
 
     @Test
-    public void shouldReturnTrueIfPipelineExistIn2Parts() {
+    public void shouldReturnTrueIfPipelineExist_When2ConfigParts() {
         PipelineConfigs part1 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         PipelineConfigs part2 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
         MergePipelineConfigs merge = new MergePipelineConfigs(part1,part2);
@@ -346,7 +346,7 @@ public class MergePipelineConfigsTest {
 
 
     @Test
-    public void shouldReturnFalseIfPipelineNotExistIn2Parts() {
+    public void shouldReturnFalseIfPipelineNotExist_When2ConfigParts() {
         PipelineConfigs part1 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         PipelineConfigs part2 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
         MergePipelineConfigs merge = new MergePipelineConfigs(part2);
@@ -354,7 +354,7 @@ public class MergePipelineConfigsTest {
     }
 
     @Test
-    public void shouldReturnTrueIfAuthorizationIsNotDefinedIn2Parts() {
+    public void shouldReturnTrueIfAuthorizationIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs();
         filePart.setOrigin(new FileConfigOrigin());
 
@@ -362,7 +362,7 @@ public class MergePipelineConfigsTest {
         assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
     }
     @Test
-    public void shouldReturnAuthorizationFromFileIfDefinedIn2Parts() {
+    public void shouldReturnAuthorizationFromFileIfDefined_When2ConfigParts() {
         BasicPipelineConfigs part1 = new BasicPipelineConfigs();
         Authorization fileAuth = new Authorization();
         part1.setAuthorization(fileAuth);
@@ -376,7 +376,7 @@ public class MergePipelineConfigsTest {
     }
 
     @Test
-    public void shouldReturnFalseIfViewPermissionIsNotDefinedIn2Parts() {
+    public void shouldReturnFalseIfViewPermissionIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline3"));
         filePart.setOrigin(new FileConfigOrigin());
 
@@ -388,7 +388,7 @@ public class MergePipelineConfigsTest {
     }
 
     @Test
-    public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefinedIn2Parts() {
+    public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs();
         filePart.setOrigin(new FileConfigOrigin());
 
@@ -397,7 +397,7 @@ public class MergePipelineConfigsTest {
     }
 
     @Test
-    public void validate_shouldMakeSureTheNameIsAppropriateIn2Parts() {
+    public void validate_shouldMakeSureTheNameIsAppropriate_When2ConfigParts() {
         PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs());
         group.validate(null);
         assertThat(group.errors().on(BasicPipelineConfigs.GROUP),
@@ -410,7 +410,7 @@ public class MergePipelineConfigsTest {
     }
 
     @Test
-    public void shouldValidateThatPipelineNameIsUniqueIn2Parts() {
+    public void shouldValidateThatPipelineNameIsUnique_When2ConfigParts() {
         PipelineConfig first = PipelineConfigMother.pipelineConfig("first");
         PipelineConfig duplicate = PipelineConfigMother.pipelineConfig("first");
         PipelineConfigs group = new MergePipelineConfigs(
@@ -424,7 +424,7 @@ public class MergePipelineConfigsTest {
     }
 
     @Test
-    public void shouldReturnSizeSummedFrom2Parts(){
+    public void shouldReturnSizeSummedFrom2ConfigParts(){
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));

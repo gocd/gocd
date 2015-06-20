@@ -485,16 +485,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public EnvironmentVariablesConfig getPlainTextVariables() {
-        EnvironmentVariablesConfig result = new EnvironmentVariablesConfig();
-        for (EnvironmentVariableConfig variable : variables) {
-            if (!variable.isSecure()) {
-                result.add(variable);
-            }
-        }
-        return result;
+        return variables.getPlainTextVariables();
     }
 
-    public List<EnvironmentVariableConfig> getSecureVariables() {
+    public EnvironmentVariablesConfig getSecureVariables() {
         return variables.getSecureVariables();
     }
 
@@ -849,6 +843,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public ConfigOrigin getOrigin() {
         return origin;
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
     }
 
     public void setOrigin(ConfigOrigin origin) {

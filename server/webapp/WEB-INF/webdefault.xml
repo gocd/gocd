@@ -26,83 +26,17 @@
     </context-param>
 
     <filter>
-        <filter-name>gizFilter</filter-name>
+        <filter-name>gzipFilter</filter-name>
         <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
+        <init-param>
+            <param-name>mimeTypes</param-name>
+            <param-value>text/html,text/plain,text/xml,application/xhtml+xml,text/css,application/javascript,image/svg+xml,application/vnd.go.cd.v1+json,application/json</param-value>
+        </init-param>
     </filter>
 
     <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>*.js</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>*.json</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>*.css</url-pattern>
-    </filter-mapping>
-
-    <!-- This is the older UI pages -->
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/tab/*</url-pattern>
-    </filter-mapping>
-
-    <!-- New pages need to be added explicitly since
-        the old /tab/* approach won't work -->
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/pipelines</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/pipelines/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/home</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/agents</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/environments</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/stylesheets</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/assets</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/admin</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>/admin/*</url-pattern>
-    </filter-mapping>
-
-    <!-- This capturees logs which are served out frequently
-        e.g. on the console tab of the job page-->
-    <filter-mapping>
-        <filter-name>gizFilter</filter-name>
-        <url-pattern>*.log</url-pattern>
+        <filter-name>gzipFilter</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <servlet>

@@ -49,8 +49,10 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
-
     public BasicPipelineConfigs() {
+    }
+    public BasicPipelineConfigs(ConfigOrigin configOrigin) {
+        this.configOrigin = configOrigin;
     }
 
     public BasicPipelineConfigs(PipelineConfig... pipelineConfigs) {
@@ -69,8 +71,23 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
+    public boolean contains(PipelineConfig pipelineConfig) {
+        return super.contains(pipelineConfig);
+    }
+
+    @Override
     public ConfigOrigin getOrigin() {
         return configOrigin;
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.configOrigin = origins;
+        for(PipelineConfig pipe : this)
+        {
+            pipe.setOrigins(origins);
+        }
+        this.authorization.setOrigins(origins);
     }
 
     @Override
@@ -278,7 +295,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public PipelineConfigs getCopyForEditing() {
-        PipelineConfigs clone = (PipelineConfigs) clone();
+        BasicPipelineConfigs clone = (BasicPipelineConfigs) clone();
         clone.clear();
         for (PipelineConfig pipeline : this) {
             clone.add(pipeline.getCopyForEditing());
@@ -297,7 +314,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
             this.configErrors.add(GROUP, NameTypeValidator.errorMessage("group", group));
         }
         if(this.configOrigin != null && //when there is no origin specified we should not check it at all
-                !(this.configOrigin instanceof FileConfigOrigin))
+                !(this.configOrigin.isLocal()) &&
+                this.hasAuthorizationDefined())
         {
             this.configErrors.add(NO_REMOTE_AUTHORIZATION,
                 "Authorization can be defined only in configuration file");
@@ -401,6 +419,21 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         for (PipelineConfig pipelineConfig : this){
             pipelineConfig.cleanupAllUsagesOfRole(roleToDelete);
         }
+    }
+
+    @Override
+    public int indexOf(PipelineConfig pipelineConfig) {
+        return super.indexOf(pipelineConfig);
+    }
+
+    @Override
+    public void remove(PipelineConfig pipelineConfig) {
+        super.remove(pipelineConfig);
+    }
+
+    @Override
+    public PipelineConfig remove(int i) {
+         return super.remove(i);
     }
 
     public void setOrigin(ConfigOrigin origin) {

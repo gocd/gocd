@@ -61,4 +61,8 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     void setConfigAttributes(Object attributes);
 
+    EnvironmentVariablesConfig getPlainTextVariables();
+
+    EnvironmentVariablesConfig getSecureVariables();
+
 }

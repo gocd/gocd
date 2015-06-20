@@ -115,7 +115,7 @@ describe("command_auto_complete", function () {
 
         assertEquals("Author - 1", jQuery(".under_test .snippet_details .author .value").text());
         assertTrue("Author should be visible", jQuery(".under_test .snippet_details .author .value").is(":visible"));
-        assertTrue("Author with link should not be visible", jQuery(".under_test .snippet_details .author .value-with-link").is(":hidden"));
+        assertTrue("Author with link should not be visible", jQuery(".under_test .snippet_details .author .value-with-link a").is(":hidden"));
     });
 
     it("testShouldPopulateAuthorDataWithLinkWhenAuthorInfoIsNotEmpty", function () {

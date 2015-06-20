@@ -38,12 +38,6 @@ describe "/pipelines/_pipeline_selector_pipelines.html.erb" do
     assign(:pipeline_selections, PipelineSelections.new())
   end
 
-  it "should have the same contents as the jsunit fixture" do
-    render :partial => "pipelines/pipelines_selector", :locals => {:scope => {}}
-
-    assert_fixture_equal("pipelines_selector_test_rails_new.html", response.body)
-  end
-
   describe "/pipelines/pipeline_selector_pipelines.html.erb" do
     it "should render checkboxes for all groups and pipelines" do
       render :partial => "pipelines/pipeline_selector_pipelines", :locals => {:scope => {}}

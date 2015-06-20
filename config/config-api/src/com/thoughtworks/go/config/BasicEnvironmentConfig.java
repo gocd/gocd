@@ -44,6 +44,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     static final String AGENTS_FIELD = "agents";
     static final String VARIABLES_FIELD = "variables";
     private final ConfigErrors configErrors = new ConfigErrors();
+    private ConfigOrigin origin;
 
     public BasicEnvironmentConfig() {
     }
@@ -256,9 +257,22 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
             variables.setConfigAttributes(attributeMap.get(VARIABLES_FIELD));
         }
     }
+    @Override
+    public EnvironmentVariablesConfig getPlainTextVariables() {
+        return variables.getPlainTextVariables();
+    }
+    @Override
+    public EnvironmentVariablesConfig getSecureVariables() {
+        return variables.getSecureVariables();
+    }
 
     @Override
     public ConfigOrigin getOrigin() {
-        return null;
+        return origin;
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
     }
 }

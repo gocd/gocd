@@ -9,5 +9,10 @@ public interface ConfigOrigin {
      */
     boolean canEdit();
 
+    /**
+     * @return true when origin is local
+     */
+    boolean isLocal();
+
     //TODO displayString for UI
 }

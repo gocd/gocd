@@ -50,6 +50,7 @@ public class PluginsZip {
         if (!pluginsEnabled) {
             return;
         }
+        checkFilesAccessibility(bundledPlugins, externalPlugins);
         try {
             ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(destZipFile, true);
             zipBuilder.add("bundled", bundledPlugins).add("external", externalPlugins).done();
@@ -74,6 +75,16 @@ public class PluginsZip {
             return DigestUtils.md5Hex(digestOfPlugins);
         } catch (Exception e) {
             throw new RuntimeException(String.format("Could not compute md5 of plugins. Exception occurred: %s", e.getStackTrace()));
+        }
+    }
+
+    private void checkFilesAccessibility(File bundledPlugins, File externalPlugins) {
+        boolean bundled = bundledPlugins.canRead();
+        boolean external = externalPlugins.canRead();
+        if (!bundled || !external) {
+            String folder = bundled ? externalPlugins.getAbsolutePath() : bundledPlugins.getAbsolutePath();
+            LOG.error(String.format("Could not read plugins. Please check access rights on files in folder: %s.", folder));
+            throw new FileAccessRightsCheckException(String.format("Could not read plugins. Please check access rights in folder: %s", folder));
         }
     }
 }

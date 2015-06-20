@@ -25,4 +25,9 @@ public class MergeConfigOrigin extends BaseCollection<ConfigOrigin> implements C
         }
         return false;
     }
+
+    @Override
+    public boolean isLocal() {
+        return false;
+    }
 }

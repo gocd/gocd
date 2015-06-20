@@ -24,6 +24,8 @@ describe "admin/stages/environment_variables.html.erb" do
     @variables = EnvironmentVariablesConfig.new()
     @variables.add("env-name", "env-val")
     @variables.add("env-name2", "env-val2")
+    @encryptedVariable = EnvironmentVariableConfig.new(GoCipher.new, "password", "=%@#SFR", true)
+    @variables.add(@encryptedVariable)
 
     pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-name"].to_java(java.lang.String))
     @stage = pipeline.get(0)
@@ -31,14 +33,16 @@ describe "admin/stages/environment_variables.html.erb" do
     assign(:pipeline, pipeline)
     assign(:stage, @stage)
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    @cruise_config = CruiseConfig.new
+    assign(:cruise_config, @cruise_config)
     @cruise_config.addPipeline("group-1", pipeline)
 
-    in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :current_tab => "environment_variables")
+    in_params(stage_parent: "pipelines", pipeline_name: "foo_bar", stage_name: "stage-name", action: "edit", controller: "admin/stages", current_tab: "environment_variables")
 
     @view_file = "admin/stages/environment_variables.html.erb"
     @object_name = 'stage'
   end
 
   it_should_behave_like :environment_variables_form
+  it_should_behave_like :secure_environment_variables_form
 end

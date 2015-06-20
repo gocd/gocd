@@ -146,6 +146,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         ConfigOrigin getOrigin();
 
         void setOrigins(ConfigOrigin origins);
+
+        String getMd5();
     }
     private class BasicStrategy implements CruiseStrategy {
 
@@ -198,6 +200,11 @@ public class BasicCruiseConfig implements CruiseConfig {
             {
                 pipes.setOrigins(origins);
             }
+        }
+
+        @Override
+        public String getMd5() {
+            return md5;
         }
     }
     private class MergeStrategy implements CruiseStrategy {
@@ -325,6 +332,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public void setOrigins(ConfigOrigin origins) {
             throw bomb("Cannot set origins on merged config");
+        }
+
+        @Override
+        public String getMd5() {
+            return this.main.getMd5();
         }
     }
 
@@ -1048,7 +1060,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public String getMd5() {
-        return md5;
+        return this.strategy.getMd5();
     }
 
     @Override

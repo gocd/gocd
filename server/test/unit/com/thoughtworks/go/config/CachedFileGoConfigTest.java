@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
 
 public class CachedFileGoConfigTest {
     private CachedFileGoConfig cachedFileGoConfig;
-    private CachedGoConfig cachedGoConfig;
+    private MergedGoConfig mergedGoConfig;
     private GoConfigFileHelper configHelper;
     private GoFileConfigDataSource dataSource;
     private ServerHealthService serverHealthService;
@@ -76,8 +76,8 @@ public class CachedFileGoConfigTest {
         cachedFileGoConfig.loadConfigIfNull();
         GoPartialConfig partials = mock(GoPartialConfig.class);
         when(partials.lastPartials()).thenReturn(new PartialConfig[0]);
-        cachedGoConfig = new CachedGoConfig(serverHealthService,cachedFileGoConfig, partials);
-        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedGoConfig, mock(MetricsProbeService.class)));
+        mergedGoConfig = new MergedGoConfig(serverHealthService,cachedFileGoConfig, partials);
+        configHelper.usingCruiseConfigDao(new GoConfigDao(mergedGoConfig, mock(MetricsProbeService.class)));
     }
 
     @Test public void shouldUpdateCachedConfigOnSave() throws Exception {

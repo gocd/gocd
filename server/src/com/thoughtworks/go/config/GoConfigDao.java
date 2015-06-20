@@ -40,13 +40,13 @@ import static com.thoughtworks.go.util.ExceptionUtils.*;
  */
 @Component
 public class GoConfigDao {
-    private CachedGoConfig cachedConfigService;
+    private MergedGoConfig cachedConfigService;
     private MetricsProbeService metricsProbeService;
     private final Object writeLock;
     private Cloner cloner = new Cloner();
 
     @Autowired
-    public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
+    public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
         writeLock = new Object();

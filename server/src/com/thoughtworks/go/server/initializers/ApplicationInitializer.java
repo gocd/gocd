@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.config.CachedGoConfig;
+import com.thoughtworks.go.config.MergedGoConfig;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
@@ -60,7 +60,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private GoFileConfigDataSource goFileConfigDataSource;
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired private MergedGoConfig mergedGoConfig;
     @Autowired private ConsoleActivityMonitor consoleActivityMonitor;
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private PipelineScheduler pipelineScheduler;
@@ -96,7 +96,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();
             goFileConfigDataSource.upgradeIfNecessary();
-            cachedGoConfig.loadConfigIfNull();
+            mergedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
             licenseViolationChecker.initialize();
 

@@ -94,7 +94,7 @@ public class GoFileConfigDataSourceTest {
         dataSource.upgradeIfNecessary();
         CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource, new ServerHealthService());
         GoPartialConfig partialConfig = null;
-        CachedGoConfig cachedConfigService = new CachedGoConfig(new ServerHealthService(),fileService,partialConfig);
+        MergedGoConfig cachedConfigService = new MergedGoConfig(new ServerHealthService(),fileService,partialConfig);
         cachedConfigService.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedConfigService, metricsProbeService);
         configHelper.load();
@@ -138,9 +138,9 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldVersionTheCruiseConfigXmlWhenSaved() throws Exception {
-        CachedGoConfig cachedGoConfig = configHelper.getCachedGoConfig();
-        CruiseConfig configForEdit = cachedGoConfig.loadForEditing();
-        GoConfigHolder configHolder = new GoConfigHolder(cachedGoConfig.currentConfig(), configForEdit);
+        MergedGoConfig mergedGoConfig = configHelper.getCachedGoConfig();
+        CruiseConfig configForEdit = mergedGoConfig.loadForEditing();
+        GoConfigHolder configHolder = new GoConfigHolder(mergedGoConfig.currentConfig(), configForEdit);
 
         Date loserChangedAt = new DateTime().plusDays(2).toDate();
         when(timeProvider.currentTime()).thenReturn(loserChangedAt);

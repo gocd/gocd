@@ -59,7 +59,7 @@ public class GoConfigDaoTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private GoConfigDao goConfigDao = configHelper.getGoConfigFileDao();
     private LogFixture logger;
-    private CachedGoConfig cachedGoConfig = configHelper.getCachedGoConfig();
+    private MergedGoConfig mergedGoConfig = configHelper.getCachedGoConfig();
 
     @Before
     public void setup() throws Exception {
@@ -286,7 +286,7 @@ public class GoConfigDaoTest {
 
     @Test
     public void shouldFeedCloneOfConfigBackToCommand() throws Exception {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true) {
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), true) {
 
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -302,12 +302,12 @@ public class GoConfigDaoTest {
 
         assertThat(command.after.getEnvironments().size(), is(0));
         command.after.addEnvironment("bar");
-        assertThat(cachedGoConfig.currentConfig().getEnvironments().size(), is(0));
+        assertThat(mergedGoConfig.currentConfig().getEnvironments().size(), is(0));
     }
 
     @Test
     public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() throws Exception {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), false);
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), false);
         try {
             goConfigDao.updateConfig(command);
             fail("should have failed as check returned false");
@@ -319,7 +319,7 @@ public class GoConfigDaoTest {
 
     @Test
     public void shouldPerformUpdateIfCanContinue() throws Exception {
-        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true);
+        CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), true);
         goConfigDao.updateConfig(command);
         assertThat(command.wasUpdated, is(true));
     }
@@ -329,9 +329,9 @@ public class GoConfigDaoTest {
         configHelper.addTemplate("my-template", "my-stage");
         configHelper.addPipeline("pipeline", "stage");
         configHelper.addPipelineWithTemplate(PipelineConfigs.DEFAULT_GROUP, "my-pipeline", "my-template");
-        CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true));
+        CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(mergedGoConfig.loadForEditing().getMd5(), true));
         goConfigDao.updateConfig(command);
-        verify(command).canContinue(cachedGoConfig.currentConfig());
+        verify(command).canContinue(mergedGoConfig.currentConfig());
     }
 
     @Test
@@ -454,7 +454,7 @@ public class GoConfigDaoTest {
     @Test
     public void shouldOverwriteConfigContentAfterSave() throws Exception {
         useConfigString(WITH_3_AGENT_CONFIG);
-        cachedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
+        mergedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true).tasks().size(), is(1));
     }
@@ -465,7 +465,7 @@ public class GoConfigDaoTest {
         CruiseConfig cruiseConfig = goConfigDao.load();
 
         try {
-            cachedGoConfig.save("This is invalid Cruise", false);
+            mergedGoConfig.save("This is invalid Cruise", false);
             fail();
         } catch (Exception ignored) {
 
@@ -476,7 +476,7 @@ public class GoConfigDaoTest {
     @Test
     public void shouldNotAllowTypeForArtifactsBecausePolymorphismIsUsedInstead() throws Exception {
         try {
-            cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
+            mergedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
             fail();
         } catch (Exception e) {
             assertContains(e.toString(), "'type' is not allowed");
@@ -486,7 +486,7 @@ public class GoConfigDaoTest {
     @Test
     public void shouldNotAllowOldXml() throws Exception {
         try {
-            cachedGoConfig.save(ConfigFileFixture.VERSION_5, false);
+            mergedGoConfig.save(ConfigFileFixture.VERSION_5, false);
             fail();
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Value '5' of attribute 'schemaVersion' of element 'cruise' is not valid"));
@@ -495,7 +495,7 @@ public class GoConfigDaoTest {
 
     @Test
     public void shouldUpgradeOldXmlWhenRequestedTo() throws Exception {
-        cachedGoConfig.save(ConfigFileFixture.VERSION_5, true);
+        mergedGoConfig.save(ConfigFileFixture.VERSION_5, true);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(1));
         assertThat(cruiseConfig.getAllPipelineConfigs().get(0).name(), is(new CaseInsensitiveString("framework")));
@@ -504,7 +504,7 @@ public class GoConfigDaoTest {
     @Test
     public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {
         try {
-            cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
+            mergedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
             fail();
         } catch (Exception e) {
             assertThat(logger.getLog(),

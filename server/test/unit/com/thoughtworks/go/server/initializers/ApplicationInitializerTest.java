@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.config.CachedGoConfig;
+import com.thoughtworks.go.config.MergedGoConfig;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
@@ -86,7 +86,7 @@ public class ApplicationInitializerTest {
     @Mock
     private DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
     @Mock
-    private CachedGoConfig cachedGoConfig;
+    private MergedGoConfig mergedGoConfig;
     @Mock
     private ConsoleActivityMonitor consoleActivityMonitor;
     @Mock

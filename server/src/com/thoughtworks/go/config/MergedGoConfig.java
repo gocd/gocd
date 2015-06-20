@@ -38,10 +38,10 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands when to reload the config file or other config source
  */
 @Component
-public class CachedGoConfig implements ConfigChangedListener, PartialConfigChangedListener {
-    private static final Logger LOGGER = Logger.getLogger(CachedGoConfig.class);
+public class MergedGoConfig implements ConfigChangedListener, PartialConfigChangedListener {
+    private static final Logger LOGGER = Logger.getLogger(MergedGoConfig.class);
 
-    //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old CachedGoConfig
+    //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old MergedGoConfig
     private CachedFileGoConfig fileService;
     private GoPartialConfig partialConfig;
 
@@ -54,8 +54,8 @@ public class CachedGoConfig implements ConfigChangedListener, PartialConfigChang
     private volatile GoConfigHolder configHolder;
     private volatile Exception lastException;
 
-    @Autowired public CachedGoConfig(ServerHealthService serverHealthService,
-                                     CachedFileGoConfig fileService,GoPartialConfig partialConfig) {
+    @Autowired public MergedGoConfig(ServerHealthService serverHealthService,
+                                     CachedFileGoConfig fileService, GoPartialConfig partialConfig) {
         this.serverHealthService = serverHealthService;
         this.fileService = fileService;
         this.partialConfig = partialConfig;

@@ -35,7 +35,7 @@ import static org.junit.Assert.assertThat;
 
 @Ignore("This is used for benchmarking cruise-config performance. It is not run automatically")
 public class CachedCruiseConfigPerformanceTest {
-    private static CachedGoConfig cache;
+    private static MergedGoConfig cache;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -46,7 +46,7 @@ public class CachedCruiseConfigPerformanceTest {
         ConfigCache configCache = new ConfigCache();
         ServerVersion serverVersion = new ServerVersion();
         ConfigElementImplementationRegistry register = ConfigElementImplementationRegistryMother.withNoPlugins();
-        cache = new CachedGoConfig(new GoFileConfigDataSource(new GoConfigMigration(repo, new TimeProvider(), configCache, register,
+        cache = new MergedGoConfig(new GoFileConfigDataSource(new GoConfigMigration(repo, new TimeProvider(), configCache, register,
                 null), repo, env, new TimeProvider(), configCache,
                 serverVersion, register, null, new ServerHealthService()), new ServerHealthService());
         cache.save(config, true);

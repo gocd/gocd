@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.thoughtworks.go.config.CachedGoConfig;
+import com.thoughtworks.go.config.MergedGoConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -62,7 +62,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
 
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired private MergedGoConfig mergedGoConfig;
 
     private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private TimeProvider timeProvider;
@@ -127,7 +127,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
 
     private void modifyArtifactRoot() {
         configHelper.currentConfig().server().updateArtifactRoot("something/else");//Config changed but security config did not.
-        cachedGoConfig.forceReload();
+        mergedGoConfig.forceReload();
     }
 
     @Test
@@ -225,7 +225,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     private void turnOnSecurity(String username) throws IOException {
         configHelper.turnOnSecurity();
         configHelper.addAdmins(username);
-        cachedGoConfig.forceReload();
+        mergedGoConfig.forceReload();
     }
 
     private void stubSessionToReturn0() {

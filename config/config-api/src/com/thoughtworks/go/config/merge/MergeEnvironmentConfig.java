@@ -116,33 +116,33 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public void setConfigAttributes(Object attributes) {
-
+        throw new RuntimeException("Not implemented");
     }
 
 
     @Override
     public void addEnvironmentVariable(String name, String value) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void addAgent(String uuid) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void addAgentIfNew(String uuid) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void addPipeline(CaseInsensitiveString pipelineName) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void removeAgent(String uuid) {
-
+        throw new RuntimeException("Not implemented");
     }
 
 

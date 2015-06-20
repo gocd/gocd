@@ -113,7 +113,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void validateNameUniqueness(Map<String, PipelineConfigs> groupNameMap) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -301,7 +301,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
             @Override
             public void remove() {
-
+                throw new RuntimeException("Not implemented");
             }
         };
     }
@@ -370,7 +370,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public boolean exist(int pipelineIndex) {
-        return false;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -419,7 +419,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void addError(String fieldName, String message) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     @Override

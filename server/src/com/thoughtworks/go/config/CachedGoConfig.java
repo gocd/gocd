@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.go.config.merge.MergeCruiseConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -85,8 +84,8 @@ public class CachedGoConfig implements ConfigChangedListener, PartialConfigChang
             newConfigHolder = fileService.loadConfigHolder();
         }
         else {
-            // create merge (by new MergeCruiseConfig or by injecting strategy)
-            MergeCruiseConfig merge = new MergeCruiseConfig((BasicCruiseConfig) cruiseConfig, partials);
+            // create merge (uses merge strategy internally)
+            BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, partials);
             // validate
             List<ConfigErrors> errors = validate(merge);
             if (!errors.isEmpty()) {

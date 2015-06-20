@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
 import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_CONFIG_REPO;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,14 +28,9 @@ import static org.mockito.Mockito.*;
 /**
  * Created by tomzo on 6/19/15.
  */
-public class MergedGoConfigTest {
+public class MergedGoConfigTest extends CachedGoConfigBaseTest {
 
     private CachedFileGoConfig cachedFileGoConfig;
-    private MergedGoConfig mergedGoConfig;
-    private GoConfigFileHelper configHelper;
-    private GoFileConfigDataSource dataSource;
-    private ServerHealthService serverHealthService;
-    private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
 
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
@@ -46,10 +42,13 @@ public class MergedGoConfigTest {
     private GoPartialConfig partials;
 
     private File folder = new File("workdir");
+    /*
+        GoPartialConfig partials = mock(GoPartialConfig.class);
+        when(partials.lastPartials()).thenReturn(new PartialConfig[0]);*/
 
     @Before
     public void setUp() throws Exception {
-        configHelper = new GoConfigFileHelper(ONE_CONFIG_REPO);
+        configHelper = new GoConfigFileHelper(CONFIG);
         SystemEnvironment env = new SystemEnvironment();
         ConfigRepository configRepository = new ConfigRepository(env);
         configRepository.initialize();
@@ -71,14 +70,15 @@ public class MergedGoConfigTest {
 
         partials = new GoPartialConfig(repoConfigDataSource,configWatchList);
 
-        mergedGoConfig = new MergedGoConfig(serverHealthService,cachedFileGoConfig, partials);
+        cachedGoConfig = new MergedGoConfig(serverHealthService,cachedFileGoConfig, partials);
+        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig, metricsProbeService));
     }
 
     @Test
     public void shouldNotifyListenersWhenFileChanged()
     {
         ConfigChangedListener listener = mock(ConfigChangedListener.class);
-        mergedGoConfig.registerListener(listener);
+        cachedGoConfig.registerListener(listener);
 
         String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifacts' />"
@@ -94,12 +94,12 @@ public class MergedGoConfigTest {
     @Test
     public void shouldListenForNewPartialConfigs()
     {
-        assertTrue(partials.hasListener(mergedGoConfig));
+        assertTrue(partials.hasListener((MergedGoConfig)cachedGoConfig));
     }
     @Test
     public void shouldListenForFileChanges()
     {
-        assertTrue(cachedFileGoConfig.hasListener(mergedGoConfig));
+        assertTrue(cachedFileGoConfig.hasListener((MergedGoConfig)cachedGoConfig));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class MergedGoConfigTest {
         );
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
         assertThat(repoConfigDataSource.latestPartialConfigForMaterial(configRepo.getMaterialConfig()),is(part1));
-        assertThat(mergedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
     }
 
     @Test
@@ -126,13 +126,13 @@ public class MergedGoConfigTest {
         when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part1);
 
         ConfigChangedListener listener = mock(ConfigChangedListener.class);
-        mergedGoConfig.registerListener(listener);
+        cachedGoConfig.registerListener(listener);
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
 
         assertThat("currentConfigShouldBeMerged",
-                mergedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
-        verify(listener, times(1)).onConfigChange(mergedGoConfig.currentConfig());
+                cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+        verify(listener, times(1)).onConfigChange(cachedGoConfig.currentConfig());
     }
 
 }

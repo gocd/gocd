@@ -16,4 +16,19 @@ public class FileConfigOrigin implements ConfigOrigin {
     public boolean isLocal() {
         return true;
     }
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public int hashCode() {
+        return 23451;
+    }
 }

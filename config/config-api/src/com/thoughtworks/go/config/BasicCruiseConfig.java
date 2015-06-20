@@ -144,10 +144,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         void updateGroup(PipelineConfigs pipelineConfigs, String groupName);
 
         ConfigOrigin getOrigin();
+
+        void setOrigins(ConfigOrigin origins);
     }
     private class BasicStrategy implements CruiseStrategy {
 
-        private final FileConfigOrigin origin;
+        private ConfigOrigin origin;
 
         public  BasicStrategy()
         {
@@ -183,6 +185,19 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public ConfigOrigin getOrigin() {
             return origin;
+        }
+
+        @Override
+        public void setOrigins(ConfigOrigin origins) {
+            origin = origins;
+            for(EnvironmentConfig env : environments)
+            {
+                env.setOrigins(origins);
+            }
+            for(PipelineConfigs pipes : groups)
+            {
+                pipes.setOrigins(origins);
+            }
         }
     }
     private class MergeStrategy implements CruiseStrategy {
@@ -305,6 +320,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         public ConfigOrigin getOrigin() {
             throw new RuntimeException("TODO: Not implemented yet");
             //TODO a composite of all origins
+        }
+
+        @Override
+        public void setOrigins(ConfigOrigin origins) {
+            throw bomb("Cannot set origins on merged config");
         }
     }
 
@@ -734,7 +754,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-        this.strategy.updateGroup(pipelineConfigs,groupName);
+        this.strategy.updateGroup(pipelineConfigs, groupName);
     }
 
     @Override
@@ -986,7 +1006,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
-        this.strategy.makePipelineUseTemplate(pipelineName,templateName);
+        this.strategy.makePipelineUseTemplate(pipelineName, templateName);
     }
 
     @Override
@@ -1238,6 +1258,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public ConfigOrigin getOrigin() {
         return strategy.getOrigin();
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.strategy.setOrigins(origins);
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {

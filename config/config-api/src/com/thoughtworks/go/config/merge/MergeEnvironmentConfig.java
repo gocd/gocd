@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
 /**
  * Composite of many EnvironmentConfig instances. Hides elementary environment configurations.
  */
@@ -316,6 +318,11 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public ConfigOrigin getOrigin() {
-        return null;
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        throw bomb("Cannot set origins on merged config");
     }
 }

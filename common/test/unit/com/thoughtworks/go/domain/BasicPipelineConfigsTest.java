@@ -19,10 +19,12 @@ package com.thoughtworks.go.domain;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.DISABLED;
@@ -62,6 +64,20 @@ public class BasicPipelineConfigsTest {
         PipelineConfigs group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(false));
+    }
+    @Test
+    public void shouldSetOriginInPipelines() {
+        PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfigs group = new BasicPipelineConfigs(pipe);
+        group.setOrigins(new FileConfigOrigin());
+        assertThat(pipe.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+    }
+    @Test
+    public void shouldSetOriginInAuthorization() {
+        PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfigs group = new BasicPipelineConfigs(pipe);
+        group.setOrigins(new FileConfigOrigin());
+        assertThat(group.getAuthorization().getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
 
     @Test

@@ -44,6 +44,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     static final String AGENTS_FIELD = "agents";
     static final String VARIABLES_FIELD = "variables";
     private final ConfigErrors configErrors = new ConfigErrors();
+    private ConfigOrigin origin;
 
     public BasicEnvironmentConfig() {
     }
@@ -267,6 +268,11 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public ConfigOrigin getOrigin() {
-        return null;
+        return origin;
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
     }
 }

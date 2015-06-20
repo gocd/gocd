@@ -27,6 +27,8 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.*;
@@ -57,6 +59,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -146,6 +149,33 @@ public class MagicalGoConfigXmlLoaderTest {
 
         PipelineConfig pipelineConfig4 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline4"));
         shouldBeGitMaterial(pipelineConfig4.materialConfigs().first());
+    }
+    @Test
+    public void shouldSetConfigOriginInCruiseConfig_AfterLoadingConfigFile() throws Exception {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;
+        assertThat(cruiseConfig.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+    }
+    @Test
+    public void shouldSetConfigOriginInPipeline_AfterLoadingConfigFile() throws Exception {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;
+        PipelineConfig pipelineConfig1 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        assertThat(pipelineConfig1.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+    }
+    @Test
+    public void shouldSetConfigOriginInEnvironment_AfterLoadingConfigFile()
+    {
+        String content = ConfigFileFixture.configWithEnvironments(
+                "<environments>"
+                        + "  <environment name='uat'>"
+                        + "    <agents>"
+                        + "      <physical uuid='1'/>"
+                        + "      <physical uuid='2'/>"
+                        + "    </agents>"
+                        + "  </environment>"
+                        + "</environments>");
+        EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
+        EnvironmentConfig uat = environmentsConfig.get(0);
+        assertThat(uat.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
 
     @Test

@@ -21,7 +21,10 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -299,6 +302,14 @@ public class GoConfigMother {
         cruiseConfig.addPipeline("group-1", pipeline1);
         cruiseConfig.addPipeline("group-1", pipeline2);
         cruiseConfig.addPipeline("group-1", pipeline3);
+        return cruiseConfig;
+    }
+
+    public static CruiseConfig configWithConfigRepo() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(
+                new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git"),"myplugin"
+        )));
         return cruiseConfig;
     }
 }

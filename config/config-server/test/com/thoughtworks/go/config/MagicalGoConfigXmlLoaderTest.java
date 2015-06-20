@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.validation.*;
@@ -150,6 +151,106 @@ public class MagicalGoConfigXmlLoaderTest {
         PipelineConfig pipelineConfig4 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline4"));
         shouldBeGitMaterial(pipelineConfig4.materialConfigs().first());
     }
+    @Test
+    public void shouldLoadConfigWithConfigRepo() throws Exception
+    {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.ONE_CONFIG_REPO).config;
+        assertThat(cruiseConfig.getConfigRepos().size(),is(1));
+        ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
+        assertThat(configRepo.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
+    }
+    @Test
+    public void shouldLoadConfigWithConfigRepoAndPluginName() throws Exception
+    {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+                  "  <config-repos>\n"
+                + "    <config-repo plugin=\"myplugin\">\n"
+                + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                + "    </config-repo >\n"
+                + "  </config-repos>\n"
+        )).config;
+        assertThat(cruiseConfig.getConfigRepos().size(),is(1));
+        ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
+        assertThat(configRepo.getConfigProviderPluginName(), is("myplugin"));
+    }
+    @Test
+    public void shouldLoadConfigWith2ConfigRepos() throws Exception
+    {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        )).config;
+        assertThat(cruiseConfig.getConfigRepos().size(),is(2));
+        ConfigRepoConfig configRepo1 = cruiseConfig.getConfigRepos().get(0);
+        assertThat(configRepo1.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
+        ConfigRepoConfig configRepo2 = cruiseConfig.getConfigRepos().get(1);
+        assertThat(configRepo2.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-refmain-config-part.git")));
+    }
+    @Test
+    public void shouldLoadConfigWithConfigRepoAndConfiguration() throws Exception
+    {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo >\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "      <configuration>\n"
+                        + "        <property>\n"
+                        + "          <key>pattern</key>\n"
+                        + "          <value>*.gocd.xml</value>\n"
+                        + "        </property>\n"
+                        + "      </configuration>\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        )).config;
+        assertThat(cruiseConfig.getConfigRepos().size(),is(1));
+        ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
+
+        assertThat(configRepo.getConfiguration().size(),is(1));
+        assertThat(configRepo.getConfiguration().getProperty("pattern").getValue(),is("*.gocd.xml"));
+    }
+    @Test(expected = XsdValidationException.class)
+    public void shouldThrowXsdValidationException_WhenNoRepository() throws Exception
+    {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        )).config;
+    }
+    @Test(expected = XsdValidationException.class)
+    public void shouldThrowXsdValidationException_When2RepositoriesInSameConfigElement() throws Exception
+    {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        )).config;
+    }
+    @Test(expected = GoConfigInvalidException.class)
+    public void shouldFailValidation_WhenSameMaterialUsedBy2ConfigRepos() throws Exception
+    {
+        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "    <config-repo plugin=\"myotherplugin\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        )).config;
+    }
+
     @Test
     public void shouldSetConfigOriginInCruiseConfig_AfterLoadingConfigFile() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;

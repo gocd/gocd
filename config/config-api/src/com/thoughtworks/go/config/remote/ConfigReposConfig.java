@@ -13,7 +13,7 @@ import java.util.Map;
  * List of remote configuration sources and how to interpret them
  */
 @ConfigTag("config-repos")
-@ConfigCollection(value = ConfigRepoConfig.class, asFieldName = "configRepos")
+@ConfigCollection(value = ConfigRepoConfig.class)
 public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implements Validatable {
 
     private  ConfigErrors errors = new ConfigErrors();

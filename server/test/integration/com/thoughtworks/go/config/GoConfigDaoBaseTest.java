@@ -22,10 +22,13 @@ import java.util.List;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullTask;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.ConfigFileFixture;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.*;
@@ -52,25 +55,14 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-public class GoConfigDaoTest {
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    private GoConfigDao goConfigDao = configHelper.getGoConfigFileDao();
-    private LogFixture logger;
-    private MergedGoConfig mergedGoConfig = configHelper.getCachedGoConfig();
 
-    @Before
-    public void setup() throws Exception {
-        configHelper.initializeConfigFile();
-        logger = LogFixture.startListening();
-    }
-
-    @After
-    public void teardown() throws Exception {
-        logger.stopListening();
-    }
+public abstract class GoConfigDaoBaseTest {
+    protected GoConfigFileHelper configHelper ;
+    protected GoConfigDao goConfigDao ;
+    protected MergedGoConfig mergedGoConfig ;
+    protected LogFixture logger;
 
     @Test
     public void shouldCreateCruiseConfigFromBasicConfigFile() throws Exception {
@@ -493,13 +485,7 @@ public class GoConfigDaoTest {
         }
     }
 
-    @Test
-    public void shouldUpgradeOldXmlWhenRequestedTo() throws Exception {
-        mergedGoConfig.save(ConfigFileFixture.VERSION_5, true);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(1));
-        assertThat(cruiseConfig.getAllPipelineConfigs().get(0).name(), is(new CaseInsensitiveString("framework")));
-    }
+
 
     @Test
     public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {

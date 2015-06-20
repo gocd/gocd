@@ -100,6 +100,9 @@ public class GoConfigFileHelper {
     public GoConfigFileHelper() {
         this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
     }
+    public GoConfigFileHelper(GoPartialConfig partials) {
+        this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS,partials);
+    }
 
     public GoConfigFileHelper(GoConfigDao goConfigDao) {
         this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, goConfigDao);
@@ -132,6 +135,9 @@ public class GoConfigFileHelper {
         }
     }
 
+    /**
+     * Creates config dao that accesses single file
+     */
     public static GoConfigDao createTestingDao() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
@@ -146,6 +152,27 @@ public class GoConfigFileHelper {
             GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
             GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, new GoConfigPluginService(), new ScmMaterialCheckoutService());
             GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
+            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
+            cachedConfigService.loadConfigIfNull();
+            return new GoConfigDao(cachedConfigService, probeService);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    /**
+     * Creates config dao that has custom remote configuration parts provided by partialConfig argument
+     */
+    public static GoConfigDao createTestingDao(GoPartialConfig partialConfig) {
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        try {
+            NoOpMetricsProbeService probeService = new NoOpMetricsProbeService();
+            ServerHealthService serverHealthService = new ServerHealthService();
+            ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
+            configRepository.initialize();
+            GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
+                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), probeService, serverHealthService);
+            dataSource.upgradeIfNecessary();
+            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService, probeService);
@@ -168,6 +195,9 @@ public class GoConfigFileHelper {
 
     public GoConfigFileHelper(String xml) {
        this(xml, createTestingDao());
+    }
+    public GoConfigFileHelper(String xml,GoPartialConfig partials) {
+        this(xml, createTestingDao(partials));
     }
 
     public GoConfigDao getGoConfigFileDao() {

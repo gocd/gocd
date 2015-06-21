@@ -18,6 +18,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
+import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_1CONFIGREPO;
 import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_CONFIG_REPO;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,13 +43,10 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
     private GoPartialConfig partials;
 
     private File folder = new File("workdir");
-    /*
-        GoPartialConfig partials = mock(GoPartialConfig.class);
-        when(partials.lastPartials()).thenReturn(new PartialConfig[0]);*/
 
     @Before
     public void setUp() throws Exception {
-        configHelper = new GoConfigFileHelper(CONFIG);
+        configHelper = new GoConfigFileHelper(CONFIG_WITH_1CONFIGREPO);
         SystemEnvironment env = new SystemEnvironment();
         ConfigRepository configRepository = new ConfigRepository(env);
         configRepository.initialize();

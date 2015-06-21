@@ -27,6 +27,7 @@ public class GoConfigWatchList implements ConfigChangedListener {
 
         this.fileGoConfig = fileGoConfig;
         this.reposConfig  = fileGoConfig.currentConfig().getConfigRepos();
+        this.fileGoConfig.registerListener(this);
     }
 
     public ConfigReposConfig getCurrentConfigRepos()

@@ -46,6 +46,12 @@ public class GoConfigWatchListTest {
     }
 
     @Test
+    public  void shouldListenForConfigFileChanges()
+    {
+        verify(cachedGoConfig,times(1)).registerListener(watchList);
+    }
+
+    @Test
     public void shouldNotifyConfigListenersWhenConfigChanges() throws Exception {
         final ChangedRepoConfigWatchListListener listener = mock(ChangedRepoConfigWatchListListener.class);
 

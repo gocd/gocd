@@ -82,8 +82,9 @@ public class MagicalGoConfigXmlWriter {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
         Context context = metricsProbeService.begin(ProbeType.WRITE_CONFIG_TO_FILE_SYSTEM);
         try {
-            if(!configForEdit.getOrigin().isLocal())
-                throw new IllegalArgumentException("cannot serialize non-local configuration to xml");
+            if(!configForEdit.getOrigin().isLocal()) {
+                configForEdit = configForEdit.getLocal();
+            }
             if (!skipPreprocessingAndValidation) {
                 new MagicalGoConfigXmlLoader(configCache, registry, metricsProbeService).preprocessAndValidate(configForEdit);
                 LOGGER.debug("[Serializing Config] Done with cruise config validators.");

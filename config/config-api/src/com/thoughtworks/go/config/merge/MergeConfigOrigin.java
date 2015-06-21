@@ -30,4 +30,9 @@ public class MergeConfigOrigin extends BaseCollection<ConfigOrigin> implements C
     public boolean isLocal() {
         return false;
     }
+
+    @Override
+    public String displayName() {
+        return "TODO merge names";
+    }
 }

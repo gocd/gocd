@@ -1,7 +1,10 @@
 package com.thoughtworks.go.config;
 
 
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -33,6 +36,7 @@ public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
         PartialConfig[] parts = new PartialConfig[1];
         parts[0] = new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("remote-pipe"))));
+        parts[0].setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://config-repo.git"),"someplugin"),"3213455"));
 
         when(partials.lastPartials()).thenReturn(parts);
 
@@ -69,7 +73,7 @@ public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
         }
         catch (RuntimeException ex)
         {
-            assertThat(ex.getMessage(),is("You have defined multiple pipelines called 'remote-pipe'. Pipeline names must be unique."));
+            assertThat(ex.getMessage(),is("Pipeline called 'remote-pipe' is already defined in configuration repository http://config-repo.git at 3213455"));
             return;
         }
         fail("Should have thrown");

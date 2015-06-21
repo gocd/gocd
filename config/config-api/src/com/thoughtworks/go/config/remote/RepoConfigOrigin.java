@@ -30,4 +30,9 @@ public class RepoConfigOrigin implements ConfigOrigin {
     public boolean isLocal() {
         return false;
     }
+
+    @Override
+    public String displayName() {
+        return configRepo.getMaterialConfig().getDisplayName() + " at " + revision;
+    }
 }

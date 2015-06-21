@@ -384,7 +384,8 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
-            //TODO validate at global level
+            // validate at global level
+            this.verifyUniqueNameInParts(pipelineConfig);
             this.main.addPipeline(groupName,pipelineConfig);
             //TODO add rather than reconstruct
             groups = this.mergePipelineConfigs();
@@ -392,10 +393,24 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
-            //TODO validate at global level
+            this.verifyUniqueNameInParts(pipelineConfig);
             this.main.addPipelineWithoutValidation(groupName,pipelineConfig);
             //TODO add rather than reconstruct
             groups = this.mergePipelineConfigs();
+        }
+        private void verifyUniqueNameInParts(PipelineConfig pipelineConfig) {
+            for(PartialConfig part : this.parts)
+            {
+                for(PipelineConfigs partGroup : part.getGroups())
+                {
+                    if(partGroup.hasPipeline(pipelineConfig.name())){
+                        throw bomb("Pipeline called '" + pipelineConfig.name() +
+                                "' is already defined in configuration repository " +
+                                part.getOrigin().displayName());
+                    }
+
+                }
+            }
         }
 
         @Override
@@ -721,12 +736,12 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
-        this.strategy.addPipeline(groupName,pipelineConfig);
+        this.strategy.addPipeline(groupName, pipelineConfig);
     }
 
     @Override
     public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
-        this.strategy.addPipelineWithoutValidation(groupName,pipelineConfig);
+        this.strategy.addPipelineWithoutValidation(groupName, pipelineConfig);
     }
 
     @Override

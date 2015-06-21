@@ -206,6 +206,30 @@ public abstract class GoConfigDaoBaseTest {
         assertThat(cruiseConfig.numberOfPipelines(), is(oldsize + 1));
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring")), is(pipelineConfig));
     }
+    @Test
+    public void shouldFailToAddDuplicatePipelineToConfigFile() throws Exception {
+        CruiseConfig cruiseConfig = goConfigDao.load();
+        int oldsize = cruiseConfig.numberOfPipelines();
+        PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
+                "www.spring.com");
+        goConfigDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
+
+        cruiseConfig = goConfigDao.load();
+        assertThat(cruiseConfig.numberOfPipelines(), is(oldsize + 1));
+        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring")), is(pipelineConfig));
+
+        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
+                "www.spring.com");
+        try {
+            goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
+        }
+        catch (RuntimeException ex)
+        {
+            assertThat(ex.getMessage(),is("You have defined multiple pipelines called 'spring'. Pipeline names must be unique."));
+            return;
+        }
+        fail("Should have thrown");
+    }
 
     @Test
     public void shouldFailWhenConfigUpdateCannotBeMergedWithLatestRevision() throws Exception {

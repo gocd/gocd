@@ -5,15 +5,18 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,5 +58,20 @@ public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(2));
         assertNotNull(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("framework")));
+    }
+
+    @Test
+    public void shouldFailWhenTryingToAddPipelineDefinedRemotely() throws Exception {
+        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("remote-pipe", "ut",
+                "www.spring.com");
+        try {
+            goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
+        }
+        catch (RuntimeException ex)
+        {
+            assertThat(ex.getMessage(),is("You have defined multiple pipelines called 'remote-pipe'. Pipeline names must be unique."));
+            return;
+        }
+        fail("Should have thrown");
     }
 }

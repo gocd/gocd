@@ -24,6 +24,24 @@ describe ApiV1::AgentsController do
   end
 
   describe :index do
+    describe :security do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:get, :index)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:get, :index).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+
+      it 'should allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to allow_action(:get, :index)
+      end
+    end
+
     describe 'logged in' do
       before(:each) do
         login_as_user
@@ -49,39 +67,32 @@ describe ApiV1::AgentsController do
         expect(actual_response).to eq(expected_response(zero_agents, ApiV1::AgentsRepresenter))
       end
     end
-
-    describe 'as anonymous user with security enabled' do
-      before(:each) do
-        enable_security
-        login_as_anonymous
-      end
-
-      it 'renders 404' do
-        get_with_api_header :index
-        expect(response).to be_not_found
-        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-      end
-    end
-
-    describe 'anonymous user with security disabled' do
-      before(:each) do
-        disable_security
-        login_as_anonymous
-      end
-
-      it 'should get agents json' do
-        two_agents = AgentsViewModelMother.getTwoAgents()
-
-        @agent_service.should_receive(:agents).and_return(two_agents)
-
-        get_with_api_header :index
-        expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(two_agents, ApiV1::AgentsRepresenter))
-      end
-    end
   end
 
   describe :show do
+    describe :security do
+      before(:each) do
+        @agent = AgentInstanceMother.idle()
+        @agent_service.stub(:findAgent).and_return(@agent)
+      end
+
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:get, :show, uuid: @agent.getUuid())
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:get, :show, uuid: @agent.getUuid()).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+
+      it 'should allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to allow_action(:get, :show, uuid: @agent.getUuid())
+      end
+    end
+
     describe 'logged in' do
       before(:each) do
         login_as_user
@@ -104,39 +115,32 @@ describe ApiV1::AgentsController do
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
-
-    describe 'as anonymous user with security enabled' do
-      before(:each) do
-        enable_security
-        login_as_anonymous
-      end
-
-      it 'renders 404 ' do
-        agent = AgentInstanceMother.idle()
-
-        get_with_api_header :show, uuid: agent.getUuid()
-        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-      end
-    end
-
-    describe 'as anonymous user with security disabled' do
-      before(:each) do
-        disable_security
-        login_as_anonymous
-      end
-
-      it 'should get agents json' do
-        agent = AgentInstanceMother.idle()
-        controller.agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
-
-        get_with_api_header :show, uuid: agent.getUuid()
-        expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
-      end
-    end
   end
 
   describe :delete do
+    describe :security do
+      before(:each) do
+        @agent = AgentInstanceMother.idle()
+        @agent_service.stub(:findAgent).and_return(@agent)
+      end
+
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:delete, :destroy, uuid: @agent.getUuid())
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:delete, :destroy, uuid: @agent.getUuid()).with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+
+      it 'should not allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:delete, :destroy, uuid: @agent.getUuid()).with(401, 'You are not authorized to perform this action.')
+      end
+    end
+
     describe 'as admin user' do
       before(:each) do
         login_as_admin
@@ -167,43 +171,32 @@ describe ApiV1::AgentsController do
         expect(response).to have_api_message_response(200, 'Deleted 1 agent(s).')
       end
     end
-
-    describe 'as non-admin user' do
-      before(:each) do
-        login_as_user
-      end
-
-      it 'renders 404 when deleting an agent' do
-        agent = AgentInstanceMother.idle()
-        @agent_service.stub(:findAgent).and_return(agent)
-
-        delete_with_api_header :destroy, :uuid => agent.getUuid()
-        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-      end
-    end
-
-    describe 'as anonymous user with security disabled' do
-      before(:each) do
-        disable_security
-        login_as_anonymous
-      end
-
-      it 'should return 200 when delete completes' do
-        agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
-
-        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
-          result.ok('Deleted 1 agent(s).')
-        end
-
-        delete_with_api_header :destroy, :uuid => agent.getUuid()
-        expect(response).to be_ok
-        expect(response).to have_api_message_response(200, 'Deleted 1 agent(s).')
-      end
-    end
   end
 
   describe :update do
+    describe :security do
+      before(:each) do
+        @agent = AgentInstanceMother.idle()
+        @agent_service.stub(:findAgent).and_return(@agent)
+      end
+
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname')
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname').with(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+
+      it 'should not allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:patch, :update, uuid: @agent.getUuid(), hostname: 'some-hostname').with(401, 'You are not authorized to perform this action.')
+      end
+    end
+
     describe 'as admin user' do
       before(:each) do
         login_as_admin
@@ -275,39 +268,6 @@ describe ApiV1::AgentsController do
 
         patch_with_api_header :update, uuid: null_agent.getUuid()
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-      end
-    end
-
-    describe 'as non-admin-user' do
-      before(:each) do
-        login_as_user
-      end
-
-      it 'renders 404' do
-        agent = AgentInstanceMother.idle()
-        @agent_service.stub(:findAgent).and_return(agent)
-
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
-        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
-      end
-    end
-
-    describe 'as anonymous user with security disabled' do
-      before(:each) do
-        disable_security
-        login_as_anonymous
-      end
-
-      it 'should return agent json when agent name update is successful' do
-        agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, TriState.UNSET) do |user, result, uuid, new_hostname|
-          result.ok("Updated agent with uuid #{agent.getUuid()}")
-        end
-
-        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
-        expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
       end
     end
   end

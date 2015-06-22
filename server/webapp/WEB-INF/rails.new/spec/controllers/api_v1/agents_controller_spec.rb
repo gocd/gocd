@@ -21,144 +21,294 @@ describe ApiV1::AgentsController do
   before do
     controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
     controller.stub(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
-    controller.stub(:current_user).and_return(@user = Object.new)
   end
 
   describe :index do
-    it 'should get agents json' do
-      two_agents = AgentsViewModelMother.getTwoAgents()
+    describe 'logged in' do
+      before(:each) do
+        login_as_user
+      end
 
-      @agent_service.should_receive(:agents).and_return(two_agents)
+      it 'should get agents json' do
+        two_agents = AgentsViewModelMother.getTwoAgents()
 
-      get_with_api_header :index
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(two_agents, ApiV1::AgentsRepresenter))
+        @agent_service.should_receive(:agents).and_return(two_agents)
+
+        get_with_api_header :index
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(two_agents, ApiV1::AgentsRepresenter))
+      end
+
+      it 'should get empty json when there are no agents' do
+        zero_agents = AgentsViewModelMother.getZeroAgents()
+
+        @agent_service.should_receive(:agents).and_return(zero_agents)
+
+        get_with_api_header :index
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(zero_agents, ApiV1::AgentsRepresenter))
+      end
     end
 
-    it 'should get empty json when there are no agents' do
-      zero_agents = AgentsViewModelMother.getZeroAgents()
+    describe 'as anonymous user with security enabled' do
+      before(:each) do
+        enable_security
+        login_as_anonymous
+      end
 
-      @agent_service.should_receive(:agents).and_return(zero_agents)
+      it 'renders 404' do
+        get_with_api_header :index
+        expect(response).to be_not_found
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+    end
 
-      get_with_api_header :index
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(zero_agents, ApiV1::AgentsRepresenter))
+    describe 'anonymous user with security disabled' do
+      before(:each) do
+        disable_security
+        login_as_anonymous
+      end
+
+      it 'should get agents json' do
+        two_agents = AgentsViewModelMother.getTwoAgents()
+
+        @agent_service.should_receive(:agents).and_return(two_agents)
+
+        get_with_api_header :index
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(two_agents, ApiV1::AgentsRepresenter))
+      end
     end
   end
 
   describe :show do
-    it 'should get agents json' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+    describe 'logged in' do
+      before(:each) do
+        login_as_user
+      end
 
-      get_with_api_header :show, uuid: agent.getUuid()
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+      it 'should get agents json' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+
+        get_with_api_header :show, uuid: agent.getUuid()
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+      end
+
+      it 'should return 404 when agent is not found' do
+        null_agent = NullAgentInstance.new('some-uuid')
+        @agent_service.should_receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
+
+        get_with_api_header :show, uuid: null_agent.getUuid()
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
     end
 
-    it 'should return 404 when agent is not found' do
-      null_agent = NullAgentInstance.new('some-uuid')
-      @agent_service.should_receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
+    describe 'as anonymous user with security enabled' do
+      before(:each) do
+        enable_security
+        login_as_anonymous
+      end
 
-      get_with_api_header :show, uuid: null_agent.getUuid()
-      expect(response).to have_api_message_response(404, 'The resource you requested was not found!')
+      it 'renders 404 ' do
+        agent = AgentInstanceMother.idle()
+
+        get_with_api_header :show, uuid: agent.getUuid()
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+    end
+
+    describe 'as anonymous user with security disabled' do
+      before(:each) do
+        disable_security
+        login_as_anonymous
+      end
+
+      it 'should get agents json' do
+        agent = AgentInstanceMother.idle()
+        controller.agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+
+        get_with_api_header :show, uuid: agent.getUuid()
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+      end
     end
   end
 
   describe :delete do
-    it 'should render result in case of error' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
-
-      @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
-        result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
+    describe 'as admin user' do
+      before(:each) do
+        login_as_admin
       end
 
-      delete_with_api_header :destroy, :uuid => agent.getUuid()
-      expect(response).to have_api_message_response(406, 'Not Acceptable')
+      it 'should render result in case of error' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+
+        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
+          result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
+        end
+
+        delete_with_api_header :destroy, :uuid => agent.getUuid()
+        expect(response).to have_api_message_response(406, 'Not Acceptable')
+      end
+
+      it 'should return 200 when delete completes' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+
+        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
+          result.ok('Deleted 1 agent(s).')
+        end
+
+        delete_with_api_header :destroy, :uuid => agent.getUuid()
+        expect(response).to be_ok
+        expect(response).to have_api_message_response(200, 'Deleted 1 agent(s).')
+      end
     end
 
-    it 'should return 200 when delete completes' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
-
-      @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
-        result.ok('Deleted 1 agent(s).')
+    describe 'as non-admin user' do
+      before(:each) do
+        login_as_user
       end
 
-      delete_with_api_header :destroy, :uuid => agent.getUuid()
-      expect(response).to be_ok
-      expect(response).to have_api_message_response(200, 'Deleted 1 agent(s).')
+      it 'renders 404 when deleting an agent' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.stub(:findAgent).and_return(agent)
+
+        delete_with_api_header :destroy, :uuid => agent.getUuid()
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+    end
+
+    describe 'as anonymous user with security disabled' do
+      before(:each) do
+        disable_security
+        login_as_anonymous
+      end
+
+      it 'should return 200 when delete completes' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+
+        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
+          result.ok('Deleted 1 agent(s).')
+        end
+
+        delete_with_api_header :destroy, :uuid => agent.getUuid()
+        expect(response).to be_ok
+        expect(response).to have_api_message_response(200, 'Deleted 1 agent(s).')
+      end
     end
   end
 
   describe :update do
-    it 'should return agent json when agent name update is successful' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, TriState.UNSET) do |user, result, uuid, new_hostname|
-        result.ok("Updated agent with uuid #{agent.getUuid()}")
+    describe 'as admin user' do
+      before(:each) do
+        login_as_admin
       end
 
-      put_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
-    end
+      it 'should return agent json when agent name update is successful' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
 
-    it 'should return agent json when agent resources update is successful by specifing a comma separated string' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
-        result.ok("Updated agent with uuid #{agent.getUuid()}")
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
       end
 
-      put_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox"
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
-    end
+      it 'should return agent json when agent resources update is successful by specifing a comma separated string' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
 
-    it 'should return agent json when agent is enabled' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.TRUE) do |user, result, uuid, new_hostname|
-        result.ok("Updated agent with uuid #{agent.getUuid()}")
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox"
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
       end
 
-      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", enabled: true
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
-    end
+      it 'should return agent json when agent is enabled' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.TRUE) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
 
-    it 'should return agent json when agent is disabled' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.FALSE) do |user, result, uuid, new_hostname|
-        result.ok("Updated agent with uuid #{agent.getUuid()}")
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", enabled: true
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
       end
 
-      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", enabled: "fALSe"
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
-    end
+      it 'should return agent json when agent is disabled' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.FALSE) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
 
-    it 'should return agent json when agent resources update is successful by specifying a resource array' do
-      agent = AgentInstanceMother.idle()
-      @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-      @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
-        result.ok("Updated agent with uuid #{agent.getUuid()}")
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: "java,linux,firefox", enabled: "fALSe"
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
       end
 
-      patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
-      expect(response).to be_ok
-      expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+      it 'should return agent json when agent resources update is successful by specifying a resource array' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+      end
+
+      it 'should return 404 when agent is not found' do
+        null_agent = NullAgentInstance.new('some-uuid')
+        @agent_service.should_receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
+
+        patch_with_api_header :update, uuid: null_agent.getUuid()
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
     end
 
-    it 'should return 404 when agent is not found' do
-      null_agent = NullAgentInstance.new('some-uuid')
-      @agent_service.should_receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
+    describe 'as non-admin-user' do
+      before(:each) do
+        login_as_user
+      end
 
-      patch_with_api_header :update, uuid: null_agent.getUuid()
-      expect(response).to have_api_message_response(404, 'The resource you requested was not found!')
+      it 'renders 404' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.stub(:findAgent).and_return(agent)
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+    end
+
+    describe 'as anonymous user with security disabled' do
+      before(:each) do
+        disable_security
+        login_as_anonymous
+      end
+
+      it 'should return agent json when agent name update is successful' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname'
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV1::AgentRepresenter))
+      end
     end
   end
 

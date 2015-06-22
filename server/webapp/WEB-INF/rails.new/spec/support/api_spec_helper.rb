@@ -15,12 +15,48 @@
 ##########################GO-LICENSE-END##################################
 
 module ApiSpecHelper
-  [:get, :post, :put, :delete, :head, :patch].each do |http_verb|
+  [:get, :delete, :head].each do |http_verb|
     class_eval(<<-EOS, __FILE__, __LINE__)
       def #{http_verb}_with_api_header(path, params={}, headers={})
         #{http_verb} path, params, {'Accept' => 'application/vnd.go.cd.v1+json'}.merge(headers)
       end
     EOS
+  end
+
+  [:post, :put, :patch].each do |http_verb|
+    class_eval(<<-EOS, __FILE__, __LINE__)
+      def #{http_verb}_with_api_header(path, params={}, headers={})
+        controller.stub(:verify_content_type_on_post)
+        #{http_verb} path, params, {'Accept' => 'application/vnd.go.cd.v1+json'}.merge(headers)
+      end
+    EOS
+  end
+
+  def login_as_user
+    enable_security
+    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+  end
+
+  def disable_security
+    controller.stub(:security_service).and_return(@security_service = double('security-service'))
+    @security_service.stub(:isSecurityEnabled).and_return(false)
+    @security_service.stub(:isUserAdmin).and_return(true)
+  end
+
+  def enable_security
+    controller.stub(:security_service).and_return(@security_service = double('security-service'))
+    @security_service.stub(:isSecurityEnabled).and_return(true)
+  end
+
+  def login_as_admin
+    enable_security
+    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    @security_service.stub(:isUserAdmin).with(@user).and_return(true)
+  end
+
+  def login_as_anonymous
+    controller.stub(:current_user).and_return(@user = Username::ANONYMOUS)
   end
 end
 
@@ -35,6 +71,7 @@ class UrlBuilder
     [*args, opts]
   end
 end
+
 
 RSpec::Matchers.define :have_api_message_response do |expected_status, expected_message|
 

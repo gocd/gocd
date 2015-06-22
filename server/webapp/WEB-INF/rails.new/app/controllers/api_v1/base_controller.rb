@@ -17,11 +17,14 @@
 module ApiV1
   class BaseController < ::ApplicationController
 
+    include AuthenticationHelper
+
     FORMATS                = [:json_hal_v1]
     DEFAULT_FORMAT         = FORMATS.last
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
 
     skip_before_filter :verify_authenticity_token
+    before_filter :verify_content_type_on_post
     before_filter :set_default_response_format
 
     def set_default_response_format
@@ -41,13 +44,12 @@ module ApiV1
       render json_hal_v1: json, location: url
     end
 
-    rescue_from RecordNotFound do |exception|
-      render :json_hal_v1 => { :message => 'The resource you requested was not found!' }, :status => 404
-    end
+    rescue_from RecordNotFound, with: :render_not_found_error
+
+    protected
 
     def render_http_operation_result(result)
       render json_hal_v1: { message: result.detailedMessage().strip }, status: result.httpCode()
     end
-
   end
 end

@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
-class Api::ApiController < ApplicationController
-  skip_before_filter :verify_authenticity_token
+module ApiV1
+  class ErrorsController < BaseController
 
-  include ApiV1::AuthenticationHelper
+    def not_found
+      render :json_hal_v1 => { :message => 'The resource you requested was not found!' }, :status => 404
+    end
+
+  end
 end

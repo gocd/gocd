@@ -60,12 +60,19 @@ BuildOutputObserver.prototype = {
                 onSuccess: function(transport, next_start_as_json) {
                     if (next_start_as_json) {
                         _this.start_line_number = next_start_as_json[0];
-                        var build_output = transport.responseText;
-                        _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, build_output);
+                        _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, transport.responseText);
                     } else {
                         _this.is_output_empty = true;
                     }
+                },
+              onFailure: function(response){
+                if (404 === response.status){
+                  _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, response.responseText);
+                } else {
+                  var message = "There was an error contacting the server. The HTTP status was " + response.status + ".";
+                  _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, message);
                 }
+              }
             });
         }
     },

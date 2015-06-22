@@ -35,7 +35,7 @@ module ApiV1
     property :getIpAddress, as: :ip_address
     property :isEnabled, as: :enabled
     property :getLocation, as: :sandbox
-    property :get_status_for_display, as: :status
+    property :getStatusForDisplay, as: :status
     property :getOperatingSystem, as: :operating_system
     property :free_space, exec_context: :decorator
     property :getResources, as: :resources

@@ -172,8 +172,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
 
         @Override
-        public void setEnvironments(EnvironmentsConfig environments) {
-            environments = environments;
+        public void setEnvironments(EnvironmentsConfig envs) {
+            environments = envs;
         }
 
         @Override

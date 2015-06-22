@@ -42,7 +42,7 @@ public class PartialConfigHelper {
         cruiseConfig.setGroup(partialConfig.getGroups());
         cruiseConfig.setEnvironments(partialConfig.getEnvironments());
 
-        writer.write(cruiseConfig, output, false);
+        writer.write(cruiseConfig, output, true);
         return dest;
     }
     public File writeFileWithContent(String relativePath,String content) throws Exception
@@ -57,6 +57,12 @@ public class PartialConfigHelper {
     public File addFileWithPipelineGroup(String relativePath, PipelineConfigs group) throws Exception {
         PartialConfig partialConfig = new PartialConfig();
         partialConfig.getGroups().add(group);
+        return this.addFileWithPartialConfig(relativePath,partialConfig);
+    }
+
+    public File addFileWithEnvironment(String relativePath, EnvironmentConfig env) throws Exception {
+        PartialConfig partialConfig = new PartialConfig();
+        partialConfig.getEnvironments().add(env);
         return this.addFileWithPartialConfig(relativePath,partialConfig);
     }
 }

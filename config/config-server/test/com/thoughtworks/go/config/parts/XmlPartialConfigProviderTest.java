@@ -2,6 +2,8 @@ package com.thoughtworks.go.config.parts;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
@@ -83,6 +85,20 @@ public class XmlPartialConfigProviderTest {
         assertThat(groupRead.size(),is(group1.size()));
         assertThat(groupRead.get(0),is(group1.get(0)));
     }
+    @Test
+    public void shouldParseFileWithOneEnvironment() throws Exception
+    {
+        EnvironmentConfig env = EnvironmentConfigMother.environment("dev");
+
+        File file = helper.addFileWithEnvironment("dev-env.gocd.xml", env);
+
+        PartialConfig part = xmlPartialProvider.ParseFile(file);
+
+        EnvironmentsConfig loadedEnvs = part.getEnvironments();
+        assertThat(loadedEnvs.size(),is(1));
+        assertThat(loadedEnvs.get(0),is(env));
+    }
+
 
     @Test
     public void shouldLoadDirectoryWithOnePipeline() throws Exception
@@ -110,6 +126,27 @@ public class XmlPartialConfigProviderTest {
         assertThat(groupRead,is(group1));
         assertThat(groupRead.size(),is(group1.size()));
         assertThat(groupRead.get(0),is(group1.get(0)));
+    }
+
+    @Test
+    public void shouldLoadDirectoryWithTwoPipelineGroupsAndEnvironment() throws Exception
+    {
+        GoConfigMother mother = new GoConfigMother();
+        PipelineGroups groups = mother.cruiseConfigWithTwoPipelineGroups().getGroups();
+        EnvironmentConfig env = EnvironmentConfigMother.environment("dev");
+
+        helper.addFileWithPipelineGroup("group1.gocd.xml", groups.get(0));
+        helper.addFileWithPipelineGroup("group2.gocd.xml", groups.get(1));
+        helper.addFileWithEnvironment("dev-env.gocd.xml", env);
+
+        PartialConfig part = xmlPartialProvider.Load(tmpFolder, mock(PartialConfigLoadContext.class));
+
+        PipelineGroups groupsRead = part.getGroups();
+        assertThat(groupsRead.size(),is(2));
+
+        EnvironmentsConfig loadedEnvs = part.getEnvironments();
+        assertThat(loadedEnvs.size(),is(1));
+        assertThat(loadedEnvs.get(0),is(env));
     }
 
     @Test

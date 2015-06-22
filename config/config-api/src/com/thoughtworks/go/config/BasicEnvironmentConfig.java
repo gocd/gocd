@@ -39,11 +39,9 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @ConfigSubtag private EnvironmentAgentsConfig agents = new EnvironmentAgentsConfig();
     @ConfigSubtag private EnvironmentPipelinesConfig pipelines = new EnvironmentPipelinesConfig();
 
-    static final String NAME_FIELD = "name";
-    static final String PIPELINES_FIELD = "pipelines";
-    static final String AGENTS_FIELD = "agents";
-    static final String VARIABLES_FIELD = "variables";
+
     private final ConfigErrors configErrors = new ConfigErrors();
+    private ConfigOrigin origin;
 
     public BasicEnvironmentConfig() {
     }
@@ -267,6 +265,11 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public ConfigOrigin getOrigin() {
-        return null;
+        return origin;
+    }
+
+    //@Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
     }
 }

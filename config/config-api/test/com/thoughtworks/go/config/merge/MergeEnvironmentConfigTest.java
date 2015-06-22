@@ -1,19 +1,23 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.collections.map.SingletonMap;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
     public MergeEnvironmentConfig singleEnvironmentConfig;
@@ -22,10 +26,17 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
 
     @Before
     public void setUp() throws Exception {
-        singleEnvironmentConfig = new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")));
+        BasicEnvironmentConfig localUatEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        localUatEnv.setOrigins(new FileConfigOrigin());
+
+        singleEnvironmentConfig = new MergeEnvironmentConfig(localUatEnv);
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
         pairEnvironmentConfig = new MergeEnvironmentConfig(
-                new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
-                new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")));
+                uatLocalPart,
+                uatRemotePart);
 
         super.environmentConfig = pairEnvironmentConfig;
     }
@@ -35,6 +46,20 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
     {
         new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
                 new BasicEnvironmentConfig(new CaseInsensitiveString("Two")));
+    }
+
+
+    @Test
+    public void shouldFailUpdateName() {
+        try {
+            environmentConfig.setConfigAttributes(new SingletonMap(EnvironmentConfig.NAME_FIELD, "PROD"));
+        }
+        catch (RuntimeException ex)
+        {
+            assertThat(ex.getMessage(),is("Cannot update name of environment defined in multiple sources"));
+            return;
+        }
+        fail("should have thrown");
     }
 
     // merges
@@ -130,7 +155,27 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
         assertThat(pairEnvironmentConfig.errors().on(MergeEnvironmentConfig.CONSISTENT_KV),
                 Matchers.is("Environment variable 'variable-name1' is defined more than once with different values"));
     }
-    //TODO updates
 
+    @Test
+    public void shouldFailUpdatePipelinesWhenRemovingFromNonEditableSource() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+        // add untouchable pipeline
+        uatRemotePart.addPipeline(new CaseInsensitiveString("baz"));
+        pairEnvironmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+
+        try {
+            pairEnvironmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.PIPELINES_FIELD,
+                    Arrays.asList(new SingletonMap("name", "foo"), new SingletonMap("name", "bar"))));
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(), startsWith("Cannot remove pipeline baz from environment UAT because it is defined in non-editable source"));
+        }
+
+        assertThat(pairEnvironmentConfig.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("baz"))));
+    }
 
 }

@@ -113,12 +113,6 @@ public abstract class EnvironmentConfigBaseTest {
     }
 
     @Test
-    public void shouldUpdateName() {
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
-        assertThat(environmentConfig.name(), is(new CaseInsensitiveString("PROD")));
-    }
-
-    @Test
     public void shouldUpdatePipelines() {
         environmentConfig.addPipeline(new CaseInsensitiveString("baz"));
         environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.PIPELINES_FIELD, Arrays.asList(new SingletonMap("name", "foo"), new SingletonMap("name", "bar"))));

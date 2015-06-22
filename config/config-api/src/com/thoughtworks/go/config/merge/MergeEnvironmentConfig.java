@@ -9,7 +9,10 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
  * Composite of many EnvironmentConfig instances. Hides elementary environment configurations.
@@ -40,6 +43,31 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
             this.add(part);
         }
     }
+
+
+    public EnvironmentConfig getFirstEditablePartOrNull()
+    {
+        for(EnvironmentConfig part : this)
+        {
+            if(isEditable(part))
+                return  part;
+        }
+        return  null;
+    }
+
+    private boolean isEditable(EnvironmentConfig part) {
+        return part.getOrigin() != null && part.getOrigin().canEdit();
+    }
+
+    public EnvironmentConfig getFirstEditablePart()
+    {
+        EnvironmentConfig found = getFirstEditablePartOrNull();
+        if(found == null)
+            throw bomb("No editable configuration part");
+
+        return found;
+    }
+
 
     @Override
     public void validate(ValidationContext validationContext) {
@@ -114,33 +142,118 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public void setConfigAttributes(Object attributes) {
+        if (attributes == null) {
+            return;
+        }
+        Map attributeMap = (Map) attributes;
+        if (attributeMap.containsKey(NAME_FIELD)) {
+            CaseInsensitiveString newName = new CaseInsensitiveString((String) attributeMap.get(NAME_FIELD));
+            if(!newName.equals(this.name()))
+                throw bomb("Cannot update name of environment defined in multiple sources");
+        }
+        if (attributeMap.containsKey(PIPELINES_FIELD)) {
+            Object pipelinesAttributes = attributeMap.get(PIPELINES_FIELD);
+            this.setPipelineAttributes(pipelinesAttributes);
+        }
+        if (attributeMap.containsKey(AGENTS_FIELD)) {
+            Object agentAttributes = attributeMap.get(AGENTS_FIELD);
+            this.setAgentAttributes(agentAttributes);
+        }
+        if (attributeMap.containsKey(VARIABLES_FIELD)) {
+            Object variablesAttributes = attributeMap.get(VARIABLES_FIELD);
+            this.setVariablesAttributes(variablesAttributes);
+        }
+    }
 
+    private void setVariablesAttributes(Object variablesAttributes) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    private void setAgentAttributes(Object agentAttributes) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    private void setPipelineAttributes(Object pipelinesAttributes) {
+        if (pipelinesAttributes != null) {
+            // these are all pipelines that user wants to have set
+            List<Map> pipelineAttributes = (List) pipelinesAttributes;
+            List<EnvironmentPipelineConfig> newProposed = new ArrayList<EnvironmentPipelineConfig>();
+            for (Map attributeMap : pipelineAttributes) {
+                EnvironmentPipelineConfig pipeInEnv = new EnvironmentPipelineConfig(new CaseInsensitiveString((String) attributeMap.get("name")));
+                newProposed.add(pipeInEnv);
+            }
+            // but we cannot remove any pipelines from non-editable sources
+
+            List<EnvironmentPipelineConfig> removals = new ArrayList<EnvironmentPipelineConfig>();
+            for(EnvironmentConfig part : this) {
+                for (EnvironmentPipelineConfig existingPipeline : part.getPipelines()) {
+                    // lets check if user is trying to remove something unmodifiable
+                    if(!newProposed.contains(existingPipeline))
+                    {
+                        if(!isEditable(part))
+                            throw bomb(String.format("Cannot remove pipeline %s from environment %s because it is defined in non-editable source %s",
+                                    existingPipeline.getName(),this.name(),part.getOrigin()));
+                        // otherwise it can just be removed
+                        removals.add(existingPipeline);
+                    }
+                    else
+                    {
+                        // trying to set something already set in one of the parts
+                        // remove the attempt
+                        newProposed.remove(existingPipeline);
+                    }
+                }
+            }
+            for(EnvironmentPipelineConfig toRemove : removals)
+            {
+                for(EnvironmentConfig part : this) {
+                    part.getPipelines().remove(toRemove);
+                }
+            }
+            // all we have left now are new additions
+            // let's just add them to first editable part
+            this.getFirstEditablePart().getPipelines().addAll(newProposed);
+        }
     }
 
 
     @Override
     public void addEnvironmentVariable(String name, String value) {
-
+        this.getFirstEditablePart().addEnvironmentVariable(name,value);
     }
 
     @Override
     public void addAgent(String uuid) {
-
+        this.getFirstEditablePart().addAgent(uuid);
     }
 
     @Override
     public void addAgentIfNew(String uuid) {
-
+        for(EnvironmentConfig part : this)
+        {
+            if (part.hasAgent(uuid)) {
+                return;
+            }
+        }
+        this.getFirstEditablePart().addAgentIfNew(uuid);
     }
 
     @Override
     public void addPipeline(CaseInsensitiveString pipelineName) {
-
+        this.getFirstEditablePart().addPipeline(pipelineName);
     }
 
     @Override
     public void removeAgent(String uuid) {
-
+        for(EnvironmentConfig part : this)
+        {
+            if (part.hasAgent(uuid)) {
+                if(isEditable(part))
+                    part.removeAgent(uuid);
+                else
+                    throw bomb("cannot remove agent defined in non-editable source");
+            }
+        }
     }
 
 

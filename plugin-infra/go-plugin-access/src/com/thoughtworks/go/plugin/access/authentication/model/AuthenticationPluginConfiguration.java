@@ -21,15 +21,12 @@ public class AuthenticationPluginConfiguration {
     private String displayImageURL;
     private boolean supportsWebBasedAuthentication;
     private boolean supportsPasswordBasedAuthentication;
-    private boolean supportsUserSearch;
 
-    public AuthenticationPluginConfiguration(String displayName, String displayImageURL, boolean supportsWebBasedAuthentication,
-                                             boolean supportsPasswordBasedAuthentication, boolean supportsUserSearch) {
+    public AuthenticationPluginConfiguration(String displayName, String displayImageURL, boolean supportsWebBasedAuthentication, boolean supportsPasswordBasedAuthentication) {
         this.displayName = displayName;
         this.displayImageURL = displayImageURL;
         this.supportsWebBasedAuthentication = supportsWebBasedAuthentication;
         this.supportsPasswordBasedAuthentication = supportsPasswordBasedAuthentication;
-        this.supportsUserSearch = supportsUserSearch;
     }
 
     public String getDisplayName() {
@@ -64,14 +61,6 @@ public class AuthenticationPluginConfiguration {
         this.supportsPasswordBasedAuthentication = supportsPasswordBasedAuthentication;
     }
 
-    public boolean supportsUserSearch() {
-        return supportsUserSearch;
-    }
-
-    public void setSupportsUserSearch(boolean supportsUserSearch) {
-        this.supportsUserSearch = supportsUserSearch;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,7 +69,6 @@ public class AuthenticationPluginConfiguration {
         AuthenticationPluginConfiguration that = (AuthenticationPluginConfiguration) o;
 
         if (supportsPasswordBasedAuthentication != that.supportsPasswordBasedAuthentication) return false;
-        if (supportsUserSearch != that.supportsUserSearch) return false;
         if (supportsWebBasedAuthentication != that.supportsWebBasedAuthentication) return false;
         if (displayImageURL != null ? !displayImageURL.equals(that.displayImageURL) : that.displayImageURL != null)
             return false;
@@ -95,7 +83,6 @@ public class AuthenticationPluginConfiguration {
         result = 31 * result + (displayImageURL != null ? displayImageURL.hashCode() : 0);
         result = 31 * result + (supportsWebBasedAuthentication ? 1 : 0);
         result = 31 * result + (supportsPasswordBasedAuthentication ? 1 : 0);
-        result = 31 * result + (supportsUserSearch ? 1 : 0);
         return result;
     }
 }

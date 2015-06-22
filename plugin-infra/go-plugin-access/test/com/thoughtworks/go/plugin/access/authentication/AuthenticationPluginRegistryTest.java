@@ -34,10 +34,10 @@ public class AuthenticationPluginRegistryTest {
     @Before
     public void setUp() {
         registry = new AuthenticationPluginRegistry();
-        registry.registerPlugin("plugin-id-1", new AuthenticationPluginConfiguration("plugin 1", "image 1", true, true, true));
-        registry.registerPlugin("plugin-id-2", new AuthenticationPluginConfiguration("plugin 2", null, false, false, true));
-        registry.registerPlugin("plugin-id-3", new AuthenticationPluginConfiguration("plugin 3", "image 3", true, true, false));
-        registry.registerPlugin("plugin-id-4", new AuthenticationPluginConfiguration("plugin 4", null, false, false, false));
+        registry.registerPlugin("plugin-id-1", new AuthenticationPluginConfiguration("plugin 1", "image 1", true, true));
+        registry.registerPlugin("plugin-id-2", new AuthenticationPluginConfiguration("plugin 2", null, false, false));
+        registry.registerPlugin("plugin-id-3", new AuthenticationPluginConfiguration("plugin 3", "image 3", true, true));
+        registry.registerPlugin("plugin-id-4", new AuthenticationPluginConfiguration("plugin 4", null, false, false));
     }
 
     @After
@@ -61,11 +61,6 @@ public class AuthenticationPluginRegistryTest {
     }
 
     @Test
-    public void shouldGetAllPluginsThatSupportsUserSearch() {
-        verifySetContents(registry.getPluginsThatSupportsUserSearch(), "plugin-id-1", "plugin-id-2");
-    }
-
-    @Test
     public void shouldGetIndividualConfigurationExistingPlugin() {
         verifyConfigurationFor("plugin-id-1", "plugin 1", "image 1", true, true, true);
         verifyConfigurationFor("plugin-id-2", "plugin 2", null, false, false, true);
@@ -79,7 +74,6 @@ public class AuthenticationPluginRegistryTest {
         assertThat(registry.getDisplayNameFor(pluginId), is(nullValue()));
         assertThat(registry.getDisplayImageURLFor(pluginId), is(nullValue()));
         assertThat(registry.supportsPasswordBasedAuthentication(pluginId), is(false));
-        assertThat(registry.supportsUserSearch(pluginId), is(false));
     }
 
     @Test
@@ -90,7 +84,6 @@ public class AuthenticationPluginRegistryTest {
         verifySetContents(registry.getAuthenticationPlugins(), "plugin-id-1", "plugin-id-4");
         verifySetContents(registry.getPluginsThatSupportsWebBasedAuthentication(), "plugin-id-1");
         verifySetContents(registry.getPluginsThatSupportsPasswordBasedAuthentication(), "plugin-id-1");
-        verifySetContents(registry.getPluginsThatSupportsUserSearch(), "plugin-id-1");
     }
 
     private void verifySetContents(Set<String> set, String... values) {
@@ -104,6 +97,5 @@ public class AuthenticationPluginRegistryTest {
         assertThat(registry.getDisplayImageURLFor(pluginId), is(displayImageURL));
         assertThat(registry.supportsPasswordBasedAuthentication(pluginId), is(supportsWebBasedAuthentication));
         assertThat(registry.supportsPasswordBasedAuthentication(pluginId), is(supportsPasswordBasedAuthentication));
-        assertThat(registry.supportsUserSearch(pluginId), is(supportsUserSearch));
     }
 }

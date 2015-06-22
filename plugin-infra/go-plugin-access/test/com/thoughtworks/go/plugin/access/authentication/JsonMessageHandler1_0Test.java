@@ -43,14 +43,14 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldHandleResponseMessageForPluginConfiguration() throws Exception {
-        AuthenticationPluginConfiguration configuration = messageHandler.responseMessageForPluginConfiguration("{\"display-name\":\"display-name\",\"display-image-url\":\"display-image-url\",\"supports-web-based-authentication\":true,\"supports-password-based-authentication\":true,\"supports-user-search\":true}");
-        assertThat(configuration, is(new AuthenticationPluginConfiguration("display-name", "display-image-url", true, true, true)));
+        AuthenticationPluginConfiguration configuration = messageHandler.responseMessageForPluginConfiguration("{\"display-name\":\"display-name\",\"display-image-url\":\"display-image-url\",\"supports-web-based-authentication\":true,\"supports-password-based-authentication\":true}");
+        assertThat(configuration, is(new AuthenticationPluginConfiguration("display-name", "display-image-url", true, true)));
     }
 
     @Test
     public void shouldHandleEmptyResponseMessageForPluginConfiguration() throws Exception {
         AuthenticationPluginConfiguration configuration = messageHandler.responseMessageForPluginConfiguration("{}");
-        assertThat(configuration, is(new AuthenticationPluginConfiguration(null, null, false, false, false)));
+        assertThat(configuration, is(new AuthenticationPluginConfiguration(null, null, false, false)));
     }
 
     @Test
@@ -115,7 +115,6 @@ public class JsonMessageHandler1_0Test {
         assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"display-image-url\":true}"), is("Configuration 'display-image-url' should be of type string"));
         assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"supports-web-based-authentication\":\"test\"}"), is("Configuration 'supports-web-based-authentication' should be of type boolean"));
         assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"supports-password-based-authentication\":\"test\"}"), is("Configuration 'supports-password-based-authentication' should be of type boolean"));
-        assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"supports-password-based-authentication\":true,\"supports-user-search\":\"test\"}"), is("Configuration 'supports-user-search' should be of type boolean"));
     }
 
     @Test

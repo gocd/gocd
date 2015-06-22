@@ -147,16 +147,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Configuration 'supports-password-based-authentication' should be of type boolean");
         }
 
-        Boolean supportsUserSearch = false;
-        try {
-            if (map.get("supports-user-search") != null) {
-                supportsUserSearch = (Boolean) map.get("supports-user-search");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Configuration 'supports-user-search' should be of type boolean");
-        }
-
-        return new AuthenticationPluginConfiguration(displayName, displayImageURL, supportsWebBasedAuthentication, supportsPasswordBasedAuthentication, supportsUserSearch);
+        return new AuthenticationPluginConfiguration(displayName, displayImageURL, supportsWebBasedAuthentication, supportsPasswordBasedAuthentication);
     }
 
     User toUser(Map map) {

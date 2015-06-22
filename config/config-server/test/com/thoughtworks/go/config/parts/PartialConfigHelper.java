@@ -45,6 +45,14 @@ public class PartialConfigHelper {
         writer.write(cruiseConfig, output, false);
         return dest;
     }
+    public File writeFileWithContent(String relativePath,String content) throws Exception
+    {
+        File dest = new File(directory,relativePath);
+        FileUtil.createParentFolderIfNotExist(dest);
+
+        FileUtil.writeContentToFile(content,dest);
+        return dest;
+    }
 
     public File addFileWithPipelineGroup(String relativePath, PipelineConfigs group) throws Exception {
         PartialConfig partialConfig = new PartialConfig();

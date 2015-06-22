@@ -8,6 +8,7 @@ import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
+import org.jdom.input.JDOMParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -145,6 +146,26 @@ public class XmlPartialConfigProviderTest {
         catch (Exception ex)
         {
             assertThat(ex.getMessage(),is("You have defined multiple pipelines called 'pipeline1'. Pipeline names must be unique."));
+            return;
+        }
+        fail("should have thrown");
+    }
+
+    @Test
+    public void shouldFailToLoadDirectoryWithNonXmlFormat() throws Exception
+    {
+        String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
+                + "/cruise>";// missing '<'
+
+        helper.writeFileWithContent("bad.gocd.xml",content);
+
+        try
+        {
+            PartialConfig part = xmlPartialProvider.Load(tmpFolder, mock(PartialConfigLoadContext.class));
+        }
+        catch (JDOMParseException ex)
+        {
             return;
         }
         fail("should have thrown");

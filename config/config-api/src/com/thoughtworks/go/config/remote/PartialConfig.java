@@ -82,5 +82,11 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     public void setPipelines(PipelineGroups pipelines) {
         this.pipelines = pipelines;
     }
-    
+
+    /**
+     * Validate this part within its own scope.
+     */
+    public void validatePart() {
+
+    }
 }

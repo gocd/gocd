@@ -15,72 +15,26 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class MergeEnvironmentConfigTest {
+public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
     public MergeEnvironmentConfig singleEnvironmentConfig;
     public MergeEnvironmentConfig pairEnvironmentConfig;
     private static final String AGENT_UUID = "uuid";
 
     @Before
     public void setUp() throws Exception {
-        singleEnvironmentConfig = new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("One")));
-        pairEnvironmentConfig = new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("One")),
-                new BasicEnvironmentConfig(new CaseInsensitiveString("One")));
+        singleEnvironmentConfig = new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")));
+        pairEnvironmentConfig = new MergeEnvironmentConfig(
+                new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
+                new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")));
+
+        super.environmentConfig = pairEnvironmentConfig;
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAllowPartsWithDifferentNames()
     {
-        new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("One")),
+        new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
                 new BasicEnvironmentConfig(new CaseInsensitiveString("Two")));
-    }
-
-    @Test
-    public void shouldCreateMatcherWhenNoPipelines() throws Exception {
-        EnvironmentPipelineMatcher pipelineMatcher = singleEnvironmentConfig.createMatcher();
-        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID), is(false));
-    }
-
-    @Test
-    public void shouldCreateMatcherWhenPipelinesGiven() throws Exception {
-        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("pipeline"));
-        singleEnvironmentConfig.first().addAgent(AGENT_UUID);
-        EnvironmentPipelineMatcher pipelineMatcher = singleEnvironmentConfig.createMatcher();
-        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID), is(true));
-    }
-
-    @Test
-    public void twoEnvironmentConfigsShouldBeEqualIfNameIsEqual() throws Exception {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("One"));
-        assertThat(another, Matchers.<EnvironmentConfig>is(singleEnvironmentConfig));
-        assertThat(singleEnvironmentConfig, Matchers.<EnvironmentConfig>is(another));
-    }
-
-    @Test
-    public void twoEnvironmentConfigsShouldNotBeEqualIfnameNotEqual() throws Exception {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
-        assertThat(another, Matchers.<EnvironmentConfig>is(Matchers.<EnvironmentConfig>not(singleEnvironmentConfig)));
-    }
-    @Test
-    public void shouldAddEnvironmentVariablesToEnvironmentVariableContext() throws Exception {
-        singleEnvironmentConfig.first().addEnvironmentVariable("variable-name", "variable-value");
-        EnvironmentVariableContext context = singleEnvironmentConfig.createEnvironmentContext();
-        assertThat(context.getProperty("variable-name"), is("variable-value"));
-    }
-
-    @Test
-    public void shouldAddEnvironmentNameToEnvironmentVariableContext() throws Exception {
-        EnvironmentVariableContext context = singleEnvironmentConfig.createEnvironmentContext();
-        assertThat(context.getProperty(EnvironmentVariableContext.GO_ENVIRONMENT_NAME), is("One"));
-    }
-
-    @Test
-    public void shouldReturnPipelineNamesContainedInIt() throws Exception {
-        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("deployment"));
-        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("testing"));
-        List<CaseInsensitiveString> pipelineNames = singleEnvironmentConfig.getPipelineNames();
-        assertThat(pipelineNames.size(), is(2));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("deployment")));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("testing")));
     }
 
     // merges

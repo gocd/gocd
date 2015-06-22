@@ -34,14 +34,9 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class BasicEnvironmentConfigTest {
+public abstract class EnvironmentConfigBaseTest {
     public EnvironmentConfig environmentConfig;
     private static final String AGENT_UUID = "uuid";
-
-    @Before
-    public void setUp() throws Exception {
-        environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-    }
 
     @Test
     public void shouldCreateMatcherWhenNoPipelines() throws Exception {

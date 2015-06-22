@@ -41,6 +41,10 @@ module ApiV1
       render :json_hal_v1 => { :message => 'Either the resource you requested was not found, or you are not authorized to perform this action.' }, :status => 404
     end
 
+    def render_bad_request(exception)
+      render :json_hal_v1 => { :message => "Your request could not be processed. #{exception.message}" }, :status => 400
+    end
+
     def render_unauthorized_error
       render :json_hal_v1 => { :message => 'You are not authorized to perform this action.' }, :status => 401
     end

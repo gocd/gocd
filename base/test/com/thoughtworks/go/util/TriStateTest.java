@@ -51,4 +51,8 @@ public class TriStateTest {
         assertFalse(triState.isTruthy());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadStringShouldRaiseError() throws Exception {
+        TriState.from("foo");
+    }
 }

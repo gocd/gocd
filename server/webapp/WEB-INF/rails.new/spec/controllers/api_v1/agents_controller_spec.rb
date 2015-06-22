@@ -269,6 +269,14 @@ describe ApiV1::AgentsController do
         patch_with_api_header :update, uuid: null_agent.getUuid()
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
+
+      it 'should raise error when submitting a junk (non-blank) value for enabled boolean' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', enabled: 'foo'
+        expect(response).to have_api_message_response(400, "Your request could not be processed. The string 'foo' does not look like a boolean.")
+      end
     end
   end
 

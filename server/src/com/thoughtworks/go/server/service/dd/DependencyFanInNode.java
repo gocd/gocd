@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.dd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,7 +37,6 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
 import com.thoughtworks.go.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.log4j.Logger;
 
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALL_OPTIONS_EXHAUSTED;
@@ -180,19 +180,14 @@ public class DependencyFanInNode extends FanInNode {
         if (pIdScmPair == null) {
             return false;
         }
+        Map<FaninScmMaterial, PipelineTimelineEntry.Revision> versionsByMaterial = new HashMap<FaninScmMaterial, PipelineTimelineEntry.Revision>();
         List<FaninScmMaterial> scmMaterialList = pIdScmPair.last();
         for (final FaninScmMaterial scmMaterial : scmMaterialList) {
-            Collection<FaninScmMaterial> scmMaterialOfSameFingerprint = CollectionUtils.select(scmMaterialList, new Predicate() {
-                @Override
-                public boolean evaluate(Object o) {
-                    return scmMaterial.equals(o);
-                }
-            });
-
-            for (FaninScmMaterial faninScmMaterial : scmMaterialOfSameFingerprint) {
-                if (!faninScmMaterial.revision.equals(scmMaterial.revision)) {
-                    return false;
-                }
+            PipelineTimelineEntry.Revision revision = versionsByMaterial.get(scmMaterial);
+            if (revision == null) {
+                versionsByMaterial.put(scmMaterial, scmMaterial.revision);
+            } else if (!revision.equals(scmMaterial.revision)) {
+                return false;
             }
         }
         return true;

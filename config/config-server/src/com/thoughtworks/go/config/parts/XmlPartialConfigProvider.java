@@ -3,6 +3,8 @@ package com.thoughtworks.go.config.parts;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.WildcardScanner;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.util.FileUtil;
 
 import java.io.File;
@@ -26,9 +28,7 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
 
     @Override
     public PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) throws Exception {
-        String pattern = defaultPatter;
-
-        File[] allFiles = getFiles(configRepoCheckoutDirectory,pattern);
+        File[] allFiles = getFiles(configRepoCheckoutDirectory, context);
 
         // if context had changed files list then we could parse only new content
 
@@ -43,7 +43,23 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         return partialConfig;
     }
 
-    public File[] getFiles(File configRepoCheckoutDirectory,String pattern) {
+    public File[] getFiles(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
+        String pattern = defaultPatter;
+
+        Configuration configuration = context.configuration();
+        if(configuration != null)
+        {
+            ConfigurationProperty explicitPattern = configuration.getProperty("pattern");
+            if(explicitPattern != null)
+            {
+                pattern = explicitPattern.getValue();
+            }
+        }
+
+        return getFiles(configRepoCheckoutDirectory,pattern);
+    }
+
+    private File[] getFiles(File configRepoCheckoutDirectory,String pattern) {
         WildcardScanner scanner = new WildcardScanner(configRepoCheckoutDirectory,pattern);
 
         return scanner.getFiles();

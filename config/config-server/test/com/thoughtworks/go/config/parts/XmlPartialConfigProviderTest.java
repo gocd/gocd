@@ -3,6 +3,7 @@ package com.thoughtworks.go.config.parts;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -23,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by tomzo on 6/22/15.
@@ -159,12 +161,34 @@ public class XmlPartialConfigProviderTest {
         File file3 = helper.addFileWithPipeline("subdir/pipe1.gocd.xml", pipe1);
         File file4 = helper.addFileWithPipeline("subdir/sub/pipe1.gocd.xml", pipe1);
 
-        File[] matchingFiles = xmlPartialProvider.getFiles(tmpFolder, "**/*.gocd.xml");
+        File[] matchingFiles = xmlPartialProvider.getFiles(tmpFolder, mock(PartialConfigLoadContext.class));
 
         File[] expected = new File[3];
         expected[0] = file1;
         expected[1] = file3;
         expected[2] = file4;
+        assertArrayEquals(expected,matchingFiles);
+    }
+
+    @Test
+    public void shouldUseExplicitPatternWhenProvided() throws Exception {
+        GoConfigMother mother = new GoConfigMother();
+        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+
+        File file1 = helper.addFileWithPipeline("pipe1.myextension", pipe1);
+        File file2 = helper.addFileWithPipeline("pipe1.gcd.xml", pipe1);
+        File file3 = helper.addFileWithPipeline("subdir/pipe1.gocd.xml", pipe1);
+        File file4 = helper.addFileWithPipeline("subdir/sub/pipe1.gocd.xml", pipe1);
+
+        PartialConfigLoadContext context = mock(PartialConfigLoadContext.class);
+        Configuration configs = new Configuration();
+        configs.addNewConfigurationWithValue("pattern","*.myextension",false);
+        when(context.configuration()).thenReturn(configs);
+
+        File[] matchingFiles = xmlPartialProvider.getFiles(tmpFolder, context);
+
+        File[] expected = new File[1];
+        expected[0] = file1;
         assertArrayEquals(expected,matchingFiles);
     }
 

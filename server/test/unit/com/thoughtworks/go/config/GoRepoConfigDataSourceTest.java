@@ -53,7 +53,7 @@ public class GoRepoConfigDataSourceTest {
 
 
     @Test
-    public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList()
+    public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList() throws Exception
     {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
@@ -65,7 +65,7 @@ public class GoRepoConfigDataSourceTest {
     }
 
     //@Test
-    public void shouldProvideParseContextWhenCallingPluginParse()
+    public void shouldProvideParseContextWhenCallingPluginParse() throws Exception
     {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
@@ -77,7 +77,7 @@ public class GoRepoConfigDataSourceTest {
     }
 
     @Test
-    public void shouldNotCallPluginLoadOnCheckout_WhenMaterialNotInWatchList()
+    public void shouldNotCallPluginLoadOnCheckout_WhenMaterialNotInWatchList() throws Exception
     {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
 

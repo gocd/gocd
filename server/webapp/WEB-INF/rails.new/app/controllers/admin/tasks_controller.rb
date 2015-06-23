@@ -152,7 +152,7 @@ module Admin
         pipeline_name = @pipeline.name()
         stage_name = @stage.name()
         looking_at_template = ::ConfigUpdate::LoadConfig.for(params).looking_at_template?
-        map = com.thoughtworks.go.server.presentation.FetchArtifactViewHelper.new(cruise_config, pipeline_name, stage_name, looking_at_template).autosuggestMap()
+        map = com.thoughtworks.go.server.presentation.FetchArtifactViewHelper.new(system_environment, cruise_config, pipeline_name, stage_name, looking_at_template).autosuggestMap()
         assert_load :pipeline_json, mk_as_json(map)
       end
     end

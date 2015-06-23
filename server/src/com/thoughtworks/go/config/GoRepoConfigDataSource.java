@@ -126,7 +126,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             try {
                 //TODO put modifications and previous partial config in context
                 // the context is just a helper for plugin.
-                PartialConfigLoadContext context = null;
+                PartialConfigLoadContext context = new LoadContext();
                 PartialConfig newPart = plugin.Load(folder, context);
                 if(newPart == null)
                 {
@@ -209,5 +209,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         public void setLastFailure(Exception lastFailure) {
             this.lastFailure = lastFailure;
         }
+    }
+
+    private class LoadContext implements PartialConfigLoadContext
+    {
+
     }
 }

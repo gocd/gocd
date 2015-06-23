@@ -64,7 +64,7 @@ public class GoRepoConfigDataSourceTest {
         verify(plugin,times(1)).Load(eq(folder),any(PartialConfigLoadContext.class));
     }
 
-    //@Test
+    @Test
     public void shouldProvideParseContextWhenCallingPluginParse()
     {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");

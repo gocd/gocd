@@ -17,7 +17,6 @@
 require 'roar/decorator'
 require 'roar/json'
 require 'roar/json/hal'
-require 'representable/debug'
 
 module ApiV1
   class BaseRepresenter < Roar::Decorator
@@ -25,8 +24,16 @@ module ApiV1
 
     class <<self
       def property(name, options={})
-        super(name, options.merge!(render_nil: true))
+        if (options[:skip_nil])
+          super
+        else
+          super(name, options.merge!(render_nil: true))
+        end
       end
+    end
+
+    def to_hash(*options)
+      super.deep_symbolize_keys
     end
 
   end

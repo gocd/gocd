@@ -58,6 +58,14 @@ module ApiSpecHelper
   def login_as_anonymous
     controller.stub(:current_user).and_return(@user = Username::ANONYMOUS)
   end
+
+  def actual_response
+    JSON.parse(response.body).deep_symbolize_keys
+  end
+
+  def expected_response(thing, representer)
+    JSON.parse(representer.new(thing).to_hash(url_builder: controller).to_json).deep_symbolize_keys
+  end
 end
 
 class UrlBuilder
@@ -212,7 +220,7 @@ RSpec::Matchers.define :have_links do |*link_names|
 
   match do |hal_json|
     @matcher = RSpec::Matchers::BuiltIn::MatchArray.new(link_names.collect(&:to_sym))
-    @matcher.matches?((hal_json['_links'] || {}).keys.collect(&:to_sym))
+    @matcher.matches?((hal_json[:_links] || {}).keys.collect(&:to_sym))
   end
 end
 
@@ -229,33 +237,33 @@ RSpec::Matchers.define :have_link do |link_name|
     @match = false
 
     if @link_url
-      if hal_json['_links'].blank?
+      if hal_json[:_links].blank?
         @match                          = false
         @failure_message_for_should     = 'the json has no links in it'
         @failure_message_for_should_not = 'the json has links in it'
       else
-        if link = hal_json['_links'][link_name.to_s]
+        if link = hal_json[:_links][link_name.to_sym]
           if link.is_a?(Array)
-            if found_links = link.find_all { |each_link| each_link['href'] = @link_url }
+            if found_links = link.find_all { |each_link| each_link[:href] = @link_url }
               if @rel_type
-                @match = found_links.any? { |each_link| each_link['rel'].to_sym ==@rel_type.to_sym }
+                @match = found_links.any? { |each_link| each_link[:rel].to_sym ==@rel_type.to_sym }
               else
                 @match = true
               end
-              @failure_message_for_should_not = "expected json to not have a #{link_name.inspect} link with href #{@rel_type.inspect}, got #{link.inspect} instead"
+              @failure_message_for_should_not = "expected json to not have a #{link_name.inspect} link with href #{@rel_type.inspect}\n got #{link.inspect} instead"
             else
-              @failure_message_for_should = "expected json to have a #{link_name.inspect} link with href #{@rel_type.inspect}, got #{link.inspect} instead"
+              @failure_message_for_should = "expected json to have a #{link_name.inspect} link with href #{@rel_type.inspect}\n got #{link.inspect} instead"
             end
           else
-            if link['href'] == @link_url
+            if link[:href] == @link_url
               if @rel_type
-                @match = (@rel_type.to_sym == link['ref'].to_s)
+                @match = (@rel_type.to_sym == link[:ref].to_sym)
               else
                 @match = true
               end
-              @failure_message_for_should_not = "expected json to not have a #{link_name.inspect} link with href #{@link_url.inspect}, got #{link['href'].inspect} instead"
+              @failure_message_for_should_not = "expected json to not have a #{link_name.inspect} link with href #{@link_url.inspect}\n got #{link['href'].inspect} instead"
             else
-              @failure_message_for_should = "expected json to have a #{link_name.inspect} link with href #{@link_url.inspect}, got #{link['href'].inspect} instead"
+              @failure_message_for_should = "expected json to have a #{link_name.inspect} link with href #{@link_url.inspect}\n got #{link['href'].inspect} instead"
             end
           end
         else

@@ -178,4 +178,31 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
         assertThat(pairEnvironmentConfig.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("baz"))));
     }
 
+    @Test
+    public void shouldFailToRemoveAgentFromEnvironment_WhenSourceIsNonEditable() throws Exception {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        uatRemotePart.addAgent("uuid1");
+        uatRemotePart.addAgent("uuid2");
+        assertThat(environmentConfig.getAgents().size(), is(2));
+        assertThat(environmentConfig.hasAgent("uuid1"), is(true));
+        assertThat(environmentConfig.hasAgent("uuid2"), is(true));
+
+        try {
+            environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.AGENTS_FIELD,
+                    Arrays.asList(new SingletonMap("uuid", "uuid-2"), new SingletonMap("uuid", "uuid-3"))));
+        }
+        catch (Exception ex){
+            assertThat(ex.getMessage(),startsWith("Cannot remove agent uuid1 from environment UAT because it is defined in non-editable source"));
+        }
+
+        assertThat(environmentConfig.getAgents().size(), is(2));
+        assertThat(environmentConfig.hasAgent("uuid1"), is(true));
+        assertThat(environmentConfig.hasAgent("uuid2"), is(true));
+    }
+
 }

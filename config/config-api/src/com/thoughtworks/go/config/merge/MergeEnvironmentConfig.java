@@ -169,8 +169,47 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
         throw new RuntimeException("Not implemented");
     }
 
-    private void setAgentAttributes(Object agentAttributes) {
-        throw new RuntimeException("Not implemented");
+    private void setAgentAttributes(Object agentsAttributes) {
+        if (agentsAttributes != null) {
+            // these are all agents that user wants to have set
+            List<Map> agentAttributes = (List) agentsAttributes;
+            List<EnvironmentAgentConfig> newProposed = new ArrayList<EnvironmentAgentConfig>();
+            for (Map attributeMap : agentAttributes) {
+                EnvironmentAgentConfig agentInEnv = new EnvironmentAgentConfig((String) attributeMap.get("uuid"));
+                newProposed.add(agentInEnv);
+            }
+            // but we cannot remove any agent from non-editable sources
+
+            List<EnvironmentAgentConfig> removals = new ArrayList<EnvironmentAgentConfig>();
+            for(EnvironmentConfig part : this) {
+                for (EnvironmentAgentConfig existingAgent : part.getAgents()) {
+                    // lets check if user is trying to remove something unmodifiable
+                    if(!newProposed.contains(existingAgent))
+                    {
+                        if(!isEditable(part))
+                            throw bomb(String.format("Cannot remove agent %s from environment %s because it is defined in non-editable source %s",
+                                    existingAgent.getUuid(), this.name(), part.getOrigin()));
+                        // otherwise it can just be removed
+                        removals.add(existingAgent);
+                    }
+                    else
+                    {
+                        // trying to set something already set in one of the parts
+                        // remove the attempt
+                        newProposed.remove(existingAgent);
+                    }
+                }
+            }
+            for(EnvironmentAgentConfig toRemove : removals)
+            {
+                for(EnvironmentConfig part : this) {
+                    part.getAgents().remove(toRemove);
+                }
+            }
+            // all we have left now are new additions
+            // let's just add them to first editable part
+            this.getFirstEditablePart().getAgents().addAll(newProposed);
+        }
     }
 
     private void setPipelineAttributes(Object pipelinesAttributes) {

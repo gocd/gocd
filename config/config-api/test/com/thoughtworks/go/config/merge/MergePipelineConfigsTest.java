@@ -6,9 +6,13 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.DISABLED;
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.OFF;
@@ -31,7 +35,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsBaseTest  {
         pipelineConfigsLocal.setOrigin(new FileConfigOrigin());
         BasicPipelineConfigs pipelineConfigsRemote = new BasicPipelineConfigs();
         pipelineConfigsRemote.setOrigin(new RepoConfigOrigin());
-        return new MergePipelineConfigs(pipelineConfigsLocal,pipelineConfigsRemote);
+        return new MergePipelineConfigs(pipelineConfigsRemote,pipelineConfigsLocal);
     }
 
     @Override
@@ -39,6 +43,15 @@ public class MergePipelineConfigsTest extends PipelineConfigsBaseTest  {
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.setOrigin(new FileConfigOrigin());
         return new MergePipelineConfigs(pipelineConfigs);
+    }
+
+    @Override
+    protected PipelineConfigs createWithPipelines(PipelineConfig first, PipelineConfig second) {
+        BasicPipelineConfigs pipelineConfigsLocal = new BasicPipelineConfigs(first, second);
+        pipelineConfigsLocal.setOrigin(new FileConfigOrigin());
+        BasicPipelineConfigs pipelineConfigsRemote = new BasicPipelineConfigs();
+        pipelineConfigsRemote.setOrigin(new RepoConfigOrigin());
+        return new MergePipelineConfigs(pipelineConfigsLocal,pipelineConfigsRemote);
     }
 
     @Test
@@ -198,6 +211,22 @@ public class MergePipelineConfigsTest extends PipelineConfigsBaseTest  {
     }
 
     @Test
+    public void shouldValidateNameUniqueness_When2ConfigParts()
+    {
+        PipelineConfig first = PipelineConfigMother.pipelineConfig("first");
+        PipelineConfig duplicate = PipelineConfigMother.pipelineConfig("first");
+        PipelineConfigs group = new MergePipelineConfigs(
+                new BasicPipelineConfigs(first, PipelineConfigMother.pipelineConfig("second")),
+                new BasicPipelineConfigs(duplicate, PipelineConfigMother.pipelineConfig("third")));
+
+        Map<String, PipelineConfigs> nameToConfig = new HashMap<String, PipelineConfigs>();
+        List<PipelineConfigs> visited = new ArrayList();
+
+        group.validateNameUniqueness(nameToConfig);
+
+    }
+
+    @Test
     public void shouldReturnSizeSummedFrom2ConfigParts(){
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
@@ -337,5 +366,78 @@ public class MergePipelineConfigsTest extends PipelineConfigsBaseTest  {
         }
 
         fail("exception not thrown");
+    }
+
+    @Test
+    public void shouldFailToAddPipelineAtIndex_WhenWouldLandInNonEditablePart() {
+        PipelineConfig pipeline0 = PipelineConfigMother.pipelineConfig("pipeline0");
+        PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfig pipeline3 = PipelineConfigMother.pipelineConfig("pipeline3");
+        PipelineConfig pipeline5 = PipelineConfigMother.pipelineConfig("pipeline5");
+        PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
+        PipelineConfig pipeline4 = PipelineConfigMother.pipelineConfig("pipeline4");
+
+        BasicPipelineConfigs pipelineConfigsMiddle = new BasicPipelineConfigs(pipeline3);
+        pipelineConfigsMiddle.setOrigin(new FileConfigOrigin());
+
+        BasicPipelineConfigs bottom = new BasicPipelineConfigs(pipeline0, pipeline1, pipeline2);
+        BasicPipelineConfigs top = new BasicPipelineConfigs(pipeline4, pipeline5);
+        bottom.setOrigin(new RepoConfigOrigin());
+        top.setOrigin(new RepoConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(
+                bottom,
+                pipelineConfigsMiddle,
+                top);
+
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipelineToInsert");
+
+        tryAddAndAssertThatFailed(group, p1, 0);
+        tryAddAndAssertThatFailed(group, p1, 1);
+        tryAddAndAssertThatFailed(group, p1, 2);
+
+        tryAddAndAssertThatFailed(group, p1, 5);
+        tryAddAndAssertThatFailed(group, p1, 4);
+    }
+
+    private void tryAddAndAssertThatFailed(PipelineConfigs group, PipelineConfig p1, int index) {
+        try {
+            group.add(index,p1);
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(),is("Cannot add pipeline to non-editable configuration part"));
+            return;
+        }
+        fail(String.format("should have thrown when adding at %s",index));
+    }
+
+    @Test
+    public void shouldAddPipelineAtIndex_WhenWouldLandInEditablePart() {
+        PipelineConfig pipeline0 = PipelineConfigMother.pipelineConfig("pipeline0");
+        PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfig pipeline3 = PipelineConfigMother.pipelineConfig("pipeline3");
+        PipelineConfig pipeline5 = PipelineConfigMother.pipelineConfig("pipeline5");
+        PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
+        PipelineConfig pipeline4 = PipelineConfigMother.pipelineConfig("pipeline4");
+
+        BasicPipelineConfigs pipelineConfigsMiddle = new BasicPipelineConfigs(pipeline3);
+        pipelineConfigsMiddle.setOrigin(new FileConfigOrigin());
+
+        BasicPipelineConfigs bottom = new BasicPipelineConfigs(pipeline0, pipeline1, pipeline2);
+        BasicPipelineConfigs top = new BasicPipelineConfigs(pipeline4, pipeline5);
+        bottom.setOrigin(new RepoConfigOrigin());
+        top.setOrigin(new RepoConfigOrigin());
+
+        PipelineConfigs group = new MergePipelineConfigs(
+                bottom,
+                pipelineConfigsMiddle,
+                top);
+
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipelineToInsert");
+
+        group.add(3,p1);
+        assertThat(group, hasItem(p1));
+        assertThat(pipelineConfigsMiddle, hasItem(p1));
     }
 }

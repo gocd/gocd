@@ -16,13 +16,16 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.DISABLED;
@@ -43,6 +46,8 @@ public abstract class PipelineConfigsBaseTest {
     protected abstract PipelineConfigs createWithPipeline(PipelineConfig pipelineConfig);
 
     protected abstract PipelineConfigs createEmpty();
+
+    protected abstract PipelineConfigs createWithPipelines(PipelineConfig first, PipelineConfig second);
 
     @Test
     public void shouldReturnTrueIfPipelineExist() {
@@ -141,7 +146,8 @@ public abstract class PipelineConfigsBaseTest {
     @Test
     public void shouldValidateThatPipelineNameIsUnique() {
         PipelineConfig first = PipelineConfigMother.pipelineConfig("first");
-        PipelineConfigs group = new BasicPipelineConfigs(first, PipelineConfigMother.pipelineConfig("second"));
+        PipelineConfig second = PipelineConfigMother.pipelineConfig("second");
+        PipelineConfigs group = createWithPipelines(first, second);
         PipelineConfig duplicate = PipelineConfigMother.pipelineConfig("first");
         group.addWithoutValidation(duplicate);
 
@@ -150,6 +156,8 @@ public abstract class PipelineConfigsBaseTest {
         assertThat(first.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines called 'first'. Pipeline names are case-insensitive and must be unique."));
 
     }
+
+
     @Test
     public void shouldReturnFalseIfOperatePermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
@@ -194,29 +202,50 @@ public abstract class PipelineConfigsBaseTest {
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
         assertThat(group.get(0).getLabelTemplate(), is("blah"));
     }
+
+    @Test
+    public void shouldAddPipelineAtIndex() {
+        PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline0"));
+
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        group.add(1,p1);
+
+        assertThat(group.get(1),is(p1));
+    }
+    @Test
+    public void shouldRemovePipelineAtIndex() {
+        PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline0"));
+
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        group.add(1,p1);
+
+        group.remove(0);
+
+        assertThat(group.get(0), is(p1));
+        assertThat(group.size(), is(1));
+    }
+
+    @Test
+    public void shouldRemovePipeline() {
+        PipelineConfig p0 = PipelineConfigMother.pipelineConfig("pipeline0");
+        PipelineConfigs group = createWithPipeline(p0);
+
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        group.add(1,p1);
+
+        group.remove(p0);
+
+        assertThat(group.get(0),is(p1));
+        assertThat(group.size(), is(1));
+    }
+
     @Test
     public void shouldReturnIndexOfPipeline_When2Pipelines() {
-        PipelineConfigs group = new BasicPipelineConfigs(
-                PipelineConfigMother.pipelineConfig("pipeline1"),PipelineConfigMother.pipelineConfig("pipeline2"));
+        PipelineConfigs group = createWithPipelines(PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline2"));
         PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
         assertThat(group.indexOf(pipelineConfig),is(1));
     }
 
-    @Test
-    public void shouldUpdateName() {
-        PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, "my-new-group"));
-        assertThat(group.getGroup(), is("my-new-group"));
-
-        group.setConfigAttributes(m());
-        assertThat(group.getGroup(), is("my-new-group"));
-
-        group.setConfigAttributes(null);
-        assertThat(group.getGroup(), is("my-new-group"));
-
-        group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, null));
-        assertThat(group.getGroup(), is(nullValue()));
-    }
 
     @Test
     public void shouldUpdateAuthorization() {
@@ -307,6 +336,29 @@ public abstract class PipelineConfigsBaseTest {
         pipelineConfigs.setGroup("");
 
         assertThat(pipelineConfigs.getGroup(), is(BasicPipelineConfigs.DEFAULT_GROUP));
+    }
+
+    @Test
+    public void shouldValidateGroupNameUniqueness()
+    {
+        Map<String, PipelineConfigs> nameToConfig = new HashMap<String, PipelineConfigs>();
+        PipelineConfigs group1 = createEmpty();
+        group1.setGroup("joe");
+        PipelineConfigs group2 = createEmpty();
+        group2.setGroup("joe");
+        group1.validateNameUniqueness(nameToConfig);
+        group2.validateNameUniqueness(nameToConfig);
+        assertThat(group1.errors().on(PipelineConfigs.GROUP), is("Group with name 'joe' already exists"));
+    }
+
+    @Test
+    public void shouldGetAllPipelinesList()
+    {
+        PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("pipeline1");
+        PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
+        PipelineConfigs group = createWithPipelines(pipeline1, pipeline2);
+        assertThat(group.getPipelines(), hasItem(pipeline1));
+        assertThat(group.getPipelines(), hasItem(pipeline2));
     }
 
     private List privileges(final Authorization.PrivilegeState admin, final Authorization.PrivilegeState operate, final Authorization.PrivilegeState view) {

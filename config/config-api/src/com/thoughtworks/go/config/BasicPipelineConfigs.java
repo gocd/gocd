@@ -323,7 +323,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public void validateNameUniqueness(Map<String, PipelineConfigs> groupNameMap) {
-        String currentName = group.toLowerCase();
+        String currentName = sanitizedGroupName(group).toLowerCase();
         PipelineConfigs groupWithSameName = groupNameMap.get(currentName);
         if (groupWithSameName == null) {
             groupNameMap.put(currentName, this);

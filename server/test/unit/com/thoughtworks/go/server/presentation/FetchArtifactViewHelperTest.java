@@ -29,8 +29,10 @@ import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
@@ -38,8 +40,12 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FetchArtifactViewHelperTest {
+    @Mock
+    private SystemEnvironment systemEnvironment;
     private CruiseConfig cruiseConfig;
 
 
@@ -70,6 +76,10 @@ public class FetchArtifactViewHelperTest {
      */
     @Before
     public void setUp() {
+        initMocks(this);
+
+        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
+
         PipelineConfig random = PipelineConfigMother.pipelineConfig("random_pipeline");
         JobConfigs randomJobs = random.getStage(new CaseInsensitiveString("mingle")).getJobs();
         randomJobs.add(new JobConfig("mingle_job"));
@@ -116,8 +126,17 @@ public class FetchArtifactViewHelperTest {
     }
 
     @Test
+    public void shouldNotSuggestIfTurnedOff() {
+        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(false);
+
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
+
+        assertThat(jobForFetchHierarchy.isEmpty(), is(true));
+    }
+
+    @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromLocalPipeline() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
 
         assertThat(jobForFetchHierarchy, is(
                 m(str("uppest"),
@@ -134,7 +153,7 @@ public class FetchArtifactViewHelperTest {
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromDirectUpstream() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(cruiseConfig, new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper_stage_3"), false).autosuggestMap();
 
         assertThat(jobForFetchHierarchy, is(
                 m(str("uppest"),
@@ -156,7 +175,7 @@ public class FetchArtifactViewHelperTest {
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromAncestorUpstream() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(cruiseConfig, new CaseInsensitiveString("downest"), new CaseInsensitiveString("downest_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest"), new CaseInsensitiveString("downest_stage_3"), false).autosuggestMap();
 
         assertThat(jobForFetchHierarchy, is(
                 m(str("uppest/upper/downer"),
@@ -188,7 +207,7 @@ public class FetchArtifactViewHelperTest {
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromAncestorUpstream_withMultiplePathsToSameDestination() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(cruiseConfig, new CaseInsensitiveString("downest_wmp"), new CaseInsensitiveString("downest_wmp_stage_3"), false).autosuggestMap();
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest_wmp"), new CaseInsensitiveString("downest_wmp_stage_3"), false).autosuggestMap();
 
 
         assertThat(jobForFetchHierarchy, is(
@@ -231,10 +250,10 @@ public class FetchArtifactViewHelperTest {
                           str("downest_wmp_stage_2"),
                                 a(str("downest_wmp_job_2"))))));
     }
-    
+
     @Test
     public void shouldSuggest_AllPathsInEntireConfigDependencyGraph_fromAnyStageToAnyUpstreamStage() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(cruiseConfig, new CaseInsensitiveString("template-1"), new CaseInsensitiveString("t1-stage-3"), true).autosuggestMap();
+        Map<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("template-1"), new CaseInsensitiveString("t1-stage-3"), true).autosuggestMap();
 
         assertThat(jobForFetchHierarchy, is(
                 m(str("uppest/upper/downer/downest"),

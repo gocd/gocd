@@ -29,35 +29,37 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Component
 public class AuthenticationPluginRegistry {
     private final Map<String, AuthenticationPluginConfiguration> pluginToConfigurationMap = new ConcurrentHashMap<String, AuthenticationPluginConfiguration>();
+    // all login page renders will require this set & hence a local cache
+    private final Set<String> pluginsThatSupportsWebBasedAuthentication = new ConcurrentSkipListSet<String>();
+    // all API (curl) calls will require this set & hence a local cache
     private final Set<String> pluginsThatSupportsPasswordBasedAuthentication = new ConcurrentSkipListSet<String>();
-    private final Set<String> pluginsThatSupportsUserSearch = new ConcurrentSkipListSet<String>();
 
     public void registerPlugin(String pluginId, AuthenticationPluginConfiguration configuration) {
         pluginToConfigurationMap.put(pluginId, configuration);
+        if (configuration.supportsWebBasedAuthentication()) {
+            pluginsThatSupportsWebBasedAuthentication.add(pluginId);
+        }
         if (configuration.supportsPasswordBasedAuthentication()) {
             pluginsThatSupportsPasswordBasedAuthentication.add(pluginId);
-        }
-        if (configuration.supportsUserSearch()) {
-            pluginsThatSupportsUserSearch.add(pluginId);
         }
     }
 
     public void deregisterPlugin(String pluginId) {
         pluginToConfigurationMap.remove(pluginId);
+        pluginsThatSupportsWebBasedAuthentication.remove(pluginId);
         pluginsThatSupportsPasswordBasedAuthentication.remove(pluginId);
-        pluginsThatSupportsUserSearch.remove(pluginId);
     }
 
     public Set<String> getAuthenticationPlugins() {
         return new HashSet<String>(pluginToConfigurationMap.keySet());
     }
 
-    public Set<String> getPluginsThatSupportsPasswordBasedAuthentication() {
-        return Collections.unmodifiableSet(pluginsThatSupportsPasswordBasedAuthentication);
+    public Set<String> getPluginsThatSupportsWebBasedAuthentication() {
+        return Collections.unmodifiableSet(pluginsThatSupportsWebBasedAuthentication);
     }
 
-    public Set<String> getPluginsThatSupportsUserSearch() {
-        return Collections.unmodifiableSet(pluginsThatSupportsUserSearch);
+    public Set<String> getPluginsThatSupportsPasswordBasedAuthentication() {
+        return Collections.unmodifiableSet(pluginsThatSupportsPasswordBasedAuthentication);
     }
 
     public String getDisplayNameFor(String pluginId) {
@@ -65,14 +67,14 @@ public class AuthenticationPluginRegistry {
         return configuration == null ? null : configuration.getDisplayName();
     }
 
+    public String getDisplayImageURLFor(String pluginId) {
+        AuthenticationPluginConfiguration configuration = pluginToConfigurationMap.get(pluginId);
+        return configuration == null ? null : configuration.getDisplayImageURL();
+    }
+
     public boolean supportsPasswordBasedAuthentication(String pluginId) {
         AuthenticationPluginConfiguration configuration = pluginToConfigurationMap.get(pluginId);
         return configuration == null ? false : configuration.supportsPasswordBasedAuthentication();
-    }
-
-    public boolean supportsUserSearch(String pluginId) {
-        AuthenticationPluginConfiguration configuration = pluginToConfigurationMap.get(pluginId);
-        return configuration == null ? false : configuration.supportsUserSearch();
     }
 
     @Deprecated

@@ -122,6 +122,22 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Configuration 'display-name' should be of type string");
         }
 
+        String displayImageURL;
+        try {
+            displayImageURL = (String) map.get("display-image-url");
+        } catch (Exception e) {
+            throw new RuntimeException("Configuration 'display-image-url' should be of type string");
+        }
+
+        Boolean supportsWebBasedAuthentication = false;
+        try {
+            if (map.get("supports-web-based-authentication") != null) {
+                supportsWebBasedAuthentication = (Boolean) map.get("supports-web-based-authentication");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Configuration 'supports-web-based-authentication' should be of type boolean");
+        }
+
         Boolean supportsPasswordBasedAuthentication = false;
         try {
             if (map.get("supports-password-based-authentication") != null) {
@@ -131,16 +147,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Configuration 'supports-password-based-authentication' should be of type boolean");
         }
 
-        Boolean supportsUserSearch = false;
-        try {
-            if (map.get("supports-user-search") != null) {
-                supportsUserSearch = (Boolean) map.get("supports-user-search");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Configuration 'supports-user-search' should be of type boolean");
-        }
-
-        return new AuthenticationPluginConfiguration(displayName, supportsPasswordBasedAuthentication, supportsUserSearch);
+        return new AuthenticationPluginConfiguration(displayName, displayImageURL, supportsWebBasedAuthentication, supportsPasswordBasedAuthentication);
     }
 
     User toUser(Map map) {

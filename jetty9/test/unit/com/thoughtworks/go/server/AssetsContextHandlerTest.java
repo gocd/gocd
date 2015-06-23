@@ -1,4 +1,4 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.server;
 
@@ -20,6 +21,7 @@ import com.thoughtworks.go.util.OperatingSystem;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -60,8 +62,8 @@ public class AssetsContextHandlerTest {
     @Test
     public void shouldSetHeadersAndBaseDirectory() throws IOException {
         assertThat(handler.getContextPath(), is("/go/assets"));
-        assertThat(handler.getHandler() instanceof AssetsContextHandler.AssetsHandler, is(true));
-        AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) handler.getHandler();
+        assertThat(((HandlerWrapper) handler.getHandler()).getHandler() instanceof AssetsContextHandler.AssetsHandler, is(true));
+        AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) ((HandlerWrapper) handler.getHandler()).getHandler();
         ResourceHandler resourceHandler = (ResourceHandler) ReflectionUtil.getField(assetsHandler, "resourceHandler");
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
         assertThat(resourceHandler.getResourceBase(), isSameFileAs(new File("WEB-INF/rails.root/public/assets").toURI().toString()));
@@ -75,7 +77,7 @@ public class AssetsContextHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         Request baseRequest = mock(Request.class);
         ResourceHandler resourceHandler = mock(ResourceHandler.class);
-        ReflectionUtil.setField(handler.getHandler(), "resourceHandler", resourceHandler);
+        handler.setHandler(resourceHandler);
 
         handler.getHandler().handle(target, baseRequest, request, response);
         verify(resourceHandler).handle(target, baseRequest, request, response);
@@ -90,7 +92,7 @@ public class AssetsContextHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         Request baseRequest = mock(Request.class);
         ResourceHandler resourceHandler = mock(ResourceHandler.class);
-        ReflectionUtil.setField(handler.getHandler(), "resourceHandler", resourceHandler);
+        ReflectionUtil.setField(((HandlerWrapper) handler.getHandler()).getHandler(), "resourceHandler", resourceHandler);
 
         handler.getHandler().handle(target, baseRequest, request, response);
         verify(resourceHandler, never()).handle(any(String.class), any(Request.class), any(HttpServletRequest.class), any(HttpServletResponse.class));

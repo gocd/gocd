@@ -5,6 +5,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.ArrayList;
@@ -166,7 +167,89 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     private void setVariablesAttributes(Object variablesAttributes) {
-        throw new RuntimeException("Not implemented");
+        if (variablesAttributes != null) {
+            // these are all k=v that user wants to have set
+            List<Map> variableAttributes = (List) variablesAttributes;
+            List<EnvironmentVariableConfig> newProposed = new ArrayList<EnvironmentVariableConfig>();
+            for (Map attributeMap : variableAttributes) {
+                EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(new GoCipher());
+                try {
+                    environmentVariableConfig.setConfigAttributes(attributeMap);
+                    newProposed.add(environmentVariableConfig);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+            }
+            // but we cannot remove or change assignment of any variable from non-editable sources
+
+            List<EnvironmentVariableConfig> removals = new ArrayList<EnvironmentVariableConfig>();
+            List<EnvironmentVariableConfig> changes = new ArrayList<EnvironmentVariableConfig>();
+            List<EnvironmentVariableConfig> nochanges = new ArrayList<EnvironmentVariableConfig>();
+            for(EnvironmentConfig part : this) {
+                for (EnvironmentVariableConfig existingVariable : part.getVariables()) {
+                    // lets check if user is trying to remove or change something unmodifiable
+                    boolean found = false;
+                    for(EnvironmentVariableConfig var : newProposed)
+                    {
+                        if(var.getName().equals(existingVariable.getName()))
+                        {
+                            // trying to set variable which is already set in this part
+                            if(!var.getValue().equals(existingVariable.getValue()))
+                            {
+                                // and it is trying to change current assignment
+                                if(!isEditable(part))
+                                    throw bomb(String.format("Cannot change variable %s in environment %s because it is defined in non-editable source %s",
+                                            existingVariable.getName(), this.name(), part.getOrigin()));
+                                //otherwise it can be changed
+                                if(!changes.contains(var)) {
+                                    changes.add(var);
+                                    // existing assignment must be removed
+                                    removals.add(existingVariable);
+                                }
+                            }
+                            else
+                            {
+                                // assignment did not change so forget this change
+                                if(!nochanges.contains(var))
+                                    nochanges.add(var);
+                            }
+                            found = true;
+                        }
+                    }
+                    if(!found)
+                    {
+                        // the new proposed did not contain existingVariable
+                        // therefore intent is to remove it
+                        if(!isEditable(part))
+                            throw bomb(String.format("Cannot remove variable %s from environment %s because it is defined in non-editable source %s",
+                                    existingVariable.getName(), this.name(), part.getOrigin()));
+                        removals.add(existingVariable);
+                    }
+                    // otherwise already handled
+                }
+            }
+            for(EnvironmentVariableConfig noChange : nochanges)
+            {
+                newProposed.remove(noChange);
+            }
+            // remove modifications from newProposed so that only new variables are there
+            for(EnvironmentVariableConfig noChange : changes)
+            {
+                newProposed.remove(noChange);
+            }
+            // removes what user wanted to remove
+            // and removes existing variables to be replaced
+            for(EnvironmentVariableConfig toRemove : removals)
+            {
+                for(EnvironmentConfig part : this) {
+                    part.getVariables().remove(toRemove);
+                }
+            }
+            // add variables which are to be modified
+            this.getFirstEditablePart().getVariables().addAll(changes);
+            // add new variables
+            this.getFirstEditablePart().getVariables().addAll(newProposed);
+        }
     }
 
     private void setAgentAttributes(Object agentsAttributes) {

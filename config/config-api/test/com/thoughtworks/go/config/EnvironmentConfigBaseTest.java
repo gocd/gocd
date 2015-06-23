@@ -153,7 +153,7 @@ public abstract class EnvironmentConfigBaseTest {
         assertThat(environmentConfig, is(beforeUpdate));
     }
 
-    private static Map<String, String> envVar(String name, String value) {
+    protected static Map<String, String> envVar(String name, String value) {
         Map<String, String> map = new HashMap<String, String>();
         map.put(EnvironmentVariableConfig.NAME, name);
         map.put(EnvironmentVariableConfig.VALUE, value);

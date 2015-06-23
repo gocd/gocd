@@ -205,4 +205,69 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
         assertThat(environmentConfig.hasAgent("uuid2"), is(true));
     }
 
+    @Test
+    public void shouldFailToUpdateEnvironmentVariables_WhenSourceIsNonEditable() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        uatRemotePart.addEnvironmentVariable("hello", "world");
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        try {
+            environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
+                    Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(),startsWith("Cannot remove variable hello from environment UAT because it is defined in non-editable source"));
+        }
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "world")));
+        assertThat(environmentConfig.getVariables().size(), is(1));
+    }
+
+
+    @Test
+    public void shouldUpdateEnvironmentVariables_WhenSourceIsNonEditable_ButChangesAreCompatible() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        uatRemotePart.addEnvironmentVariable("hello", "world");
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
+                    Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"),envVar("hello", "world"))));
+
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "world")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat(environmentConfig.getVariables().size(), is(3));
+
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables().size(), is(2));
+    }
+    @Test
+    public void shouldUpdateEnvironmentVariablesWhenSourceIsEditable() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        uatLocalPart.addEnvironmentVariable("hello", "world");
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
+                Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"),envVar("hello", "you"))));
+
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "you")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat(environmentConfig.getVariables().size(), is(3));
+
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "you")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables().size(), is(3));
+    }
 }

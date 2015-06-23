@@ -23,7 +23,7 @@ module ApiV1
     end
 
     link :doc do |opts|
-      'http://www.go.cd/documentation/user/current/api/v1/agents.html'
+      'http://api.go.cd/#agents'
     end
 
     link :find do |opts|

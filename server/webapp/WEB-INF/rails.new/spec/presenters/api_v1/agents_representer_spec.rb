@@ -34,7 +34,7 @@ describe ApiV1::AgentsRepresenter do
 
     expect(actual_json).to have_links(:self, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/agents')
-    expect(actual_json).to have_link(:doc).with_url('http://www.go.cd/documentation/user/current/api/v1/agents.html')
+    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#agents')
     actual_json.delete('_links')
   end
 

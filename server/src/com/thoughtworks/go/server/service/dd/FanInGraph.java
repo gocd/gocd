@@ -81,12 +81,12 @@ public class FanInGraph {
 
     private void buildGraph(PipelineConfig target) {
         nodes.add(this.root);
-        final HashSet<String> scmMaterials = new HashSet<String>();
+        final Set<String> scmMaterials = new HashSet<String>();
         buildRestOfTheGraph(this.root, target, scmMaterials);
         dependencyMaterialFingerprintMap.put((DependencyMaterialConfig) this.root.materialConfig, scmMaterials);
     }
 
-    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, HashSet<String> scmMaterialSet) {
+    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet) {
         for (MaterialConfig material : target.materialConfigs()) {
             FanInNode node = createNode(material);
             root.children.add(node);
@@ -101,16 +101,15 @@ public class FanInGraph {
         }
     }
 
-    private void handleScmMaterial(HashSet<String> scmMaterialSet, MaterialConfig material) {
+    private void handleScmMaterial(Set<String> scmMaterialSet, MaterialConfig material) {
         final String fingerprint = material.getFingerprint();
         scmMaterialSet.add(fingerprint);
         fingerprintScmMaterialMap.put(fingerprint, material);
     }
 
-    private void handleDependencyMaterial(HashSet<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node) {
-        final HashSet<String> scmMaterialFingerprintSet = new HashSet<String>();
+    private void handleDependencyMaterial(Set<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node) {
+        final Set<String> scmMaterialFingerprintSet = new HashSet<String>();
         buildRestOfTheGraph(node, cruiseConfig.pipelineConfigByName(depMaterial.getPipelineName()), scmMaterialFingerprintSet);
-        scmMaterialFingerprintSet.addAll(scmMaterialFingerprintSet);
         dependencyMaterialFingerprintMap.put(depMaterial, scmMaterialFingerprintSet);
         scmMaterialSet.addAll(scmMaterialFingerprintSet);
     }
@@ -160,7 +159,6 @@ public class FanInGraph {
     }
 
     public MaterialRevisions computeRevisions(MaterialRevisions actualRevisions, PipelineTimeline pipelineTimeline) {
-
         assertAllDirectDependenciesArePresentInInput(actualRevisions, pipelineName);
 
         Pair<List<RootFanInNode>, List<DependencyFanInNode>> scmAndDepMaterialsChildren = getScmAndDepMaterialsChildren();

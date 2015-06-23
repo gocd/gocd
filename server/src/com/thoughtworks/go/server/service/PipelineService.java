@@ -49,7 +49,6 @@ import java.util.Queue;
 
 @Service
 public class PipelineService implements UpstreamPipelineResolver {
-
     private static final Logger LOGGER = Logger.getLogger(PipelineService.class);
 
     private TransactionTemplate transactionTemplate;

@@ -1,4 +1,4 @@
-##########################GO-LICENSE-START################################
+##########################################################################
 # Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 require 'spec_helper'
 
@@ -278,14 +278,6 @@ describe ApiV1::AgentsController do
         expect(response).to have_api_message_response(400, "Your request could not be processed. The string 'foo' does not look like a boolean.")
       end
     end
-  end
-
-  def actual_response
-    JSON.parse(response.body).deep_symbolize_keys
-  end
-
-  def expected_response(thing, representer)
-    JSON.parse(representer.new(thing).to_hash(url_builder: controller).to_json).deep_symbolize_keys
   end
 
 end

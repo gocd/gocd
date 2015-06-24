@@ -1,4 +1,4 @@
-##########################GO-LICENSE-START################################
+##########################################################################
 # Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 module ApiV1
   class AgentRepresenter < ApiV1::BaseRepresenter
@@ -38,8 +38,16 @@ module ApiV1
     property :getStatusForDisplay, as: :status
     property :getOperatingSystem, as: :operating_system
     property :free_space, exec_context: :decorator
-    property :getResources, as: :resources
-    property :getEnvironments, as: :environments
+    property :resources, exec_context: :decorator
+    property :environments, exec_context: :decorator
+
+    def resources #because you know - java.util.ArrayList
+      agent.getResources().to_a
+    end
+
+    def environments #because you know - java.util.ArrayList
+      agent.getEnvironments().to_a
+    end
 
     def free_space
       if agent.freeDiskSpace() && !agent.freeDiskSpace().isNullDiskspace()

@@ -276,4 +276,13 @@ public class MaterialsTest {
         boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
         assertThat(hasOneMaterialUseBaseFolder, is(true));
     }
+
+    @Test
+    public void shouldReturnTrueForGitMaterial_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        GitMaterial gitMaterial = mock(GitMaterial.class);
+        materials.add(gitMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(false));
+    }
 }

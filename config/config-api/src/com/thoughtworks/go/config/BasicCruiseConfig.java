@@ -74,7 +74,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag(label = "templates") @SkipParameterResolution private TemplatesConfig templatesConfig = new TemplatesConfig();
     @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
     @ConfigSubtag @SkipParameterResolution private Agents agents = new Agents();
-    @ConfigSubtag @SkipParameterResolution private ConfigReposConfig configRepos = new ConfigReposConfig();
+    private ConfigReposConfig configRepos = new ConfigReposConfig();
 
     private CruiseStrategy strategy;
 

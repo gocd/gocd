@@ -52,6 +52,16 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public void validate(ValidationContext validationContext) {
+        CruiseConfig cruiseConfig = validationContext.getCruiseConfig();
+        // each of these references is defined in this.origin
+        for(EnvironmentPipelineConfig pipelineRefConfig : this.pipelines)
+        {
+            PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineRefConfig.getName());
+            if(!cruiseConfig.getConfigRepos().isReferenceAllowed(this.origin,pipelineConfig.getOrigin()))
+                pipelineRefConfig.addError(EnvironmentPipelineConfig.ORIGIN,
+                        String.format("Environment defined in %s cannot reference a pipeline in %s",
+                                this.origin,pipelineConfig.getOrigin()));
+        }
     }
 
     @Override

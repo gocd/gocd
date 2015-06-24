@@ -5,6 +5,7 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.StringUtil;
 
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Map;
  */
 public class ConfigRepoConfig implements Validatable {
     // defines source of configuration. Any will fit
-    private ScmMaterialConfig repo;
+    private MaterialConfig repo;
 
 
     // TODO something must instantiate this name into proper implementation of ConfigProvider
@@ -32,12 +33,12 @@ public class ConfigRepoConfig implements Validatable {
 
     public ConfigRepoConfig(){
     }
-    public ConfigRepoConfig(ScmMaterialConfig repo, String configProviderPluginName){
+    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName){
         this.repo = repo;
         this.configProviderPluginName = configProviderPluginName;
     }
 
-    public ScmMaterialConfig getMaterialConfig() {
+    public MaterialConfig getMaterialConfig() {
         return repo;
     }
 

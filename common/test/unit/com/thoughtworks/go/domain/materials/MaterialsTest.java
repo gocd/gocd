@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -39,12 +36,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 @RunWith(JunitExtRunner.class)
 public class MaterialsTest {
@@ -249,4 +250,39 @@ public class MaterialsTest {
         assertThat(materials.getDependencyMaterial(), is(sameInstance(existingMaterial)));
     }
 
+    @Test
+    public void shouldReturnFalseForDependencyMaterial_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        DependencyMaterial dependencyMaterial = mock(DependencyMaterial.class);
+        materials.add(dependencyMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForPackageMaterial_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        PackageMaterial packageMaterial = mock(PackageMaterial.class);
+        materials.add(packageMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueForSvnMaterial_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        SvnMaterial svnMaterial = mock(SvnMaterial.class);
+        materials.add(svnMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueForGitMaterial_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        GitMaterial gitMaterial = mock(GitMaterial.class);
+        materials.add(gitMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(false));
+    }
 }

@@ -56,7 +56,7 @@ public class SvnLogXmlParser {
         for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
             Element logEntry = (Element) iterator.next();
 
-            modification = parseLogEntry(logEntry, path);
+            Modification modification = parseLogEntry(logEntry, path);
             if (modification != null) {
                 modifications.add(modification);
             }

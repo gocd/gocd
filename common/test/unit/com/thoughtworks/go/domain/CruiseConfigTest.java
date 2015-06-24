@@ -26,10 +26,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
-import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -50,9 +47,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -425,10 +420,58 @@ public class CruiseConfigTest {
         assertThat(config.isPipelineLocked("pipeline-1"), is(true));
     }
 
+
+    @Test
+    public void shouldCollectOriginErrorsFromEnvironments_InMergedConfig() {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
+        partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+        BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uat.addPipeline(new CaseInsensitiveString("pipe2"));
+        cruiseConfig.addEnvironment(uat);
+
+        List<ConfigErrors> allErrors = cruiseConfig.validateAfterPreprocess();
+        assertThat(allErrors.size(), is(1));
+        assertNotNull(allErrors.get(0).on("origin"));
+    }
+
+    @Test
+    public void shouldCollectOriginErrorsFromMaterialConfigs_InMergedConfig() {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
+        partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+        PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        PipelineConfig pipeline2 = PipelineConfigMother.createPipelineConfigWithStage("pipeline2", "stage");
+        pipeline2.setOrigin(new RepoConfigOrigin());
+        partialConfig.getGroups().addPipeline("g2",pipeline2);
+
+        goConfigMother.setDependencyOn(cruiseConfig, pipeline1, "pipeline2", "stage");
+
+        List<ConfigErrors> allErrors = cruiseConfig.validateAfterPreprocess();
+        assertThat(allErrors.size(), is(1));
+        assertNotNull(allErrors.get(0).on("origin"));
+    }
+
     @Test
     public void shouldCollectAllTheErrorsInTheChildren() {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline-1");
 
+        shouldCollectAllTheErrorsInTheChilderHelper(config);
+    }
+    @Test
+    public void shouldCollectAllTheErrorsInTheChildren_InMergedConfig() {
+        BasicCruiseConfig mainCruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
+        partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
+        CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+
+        shouldCollectAllTheErrorsInTheChilderHelper(config);
+    }
+
+    private void shouldCollectAllTheErrorsInTheChilderHelper(CruiseConfig config) {
         config.server().security().ldapConfig().errors().add("uri", "invalid ldap uri");
         config.server().security().ldapConfig().errors().add("searchBase", "invalid search base");
 

@@ -184,7 +184,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
     private class MergeStrategy implements CruiseStrategy {
 
-        private BasicCruiseConfig main;
+        /*
+        Skip validating main configuration when merged. For 2 reasons:
+         - partial configurations may not be valid by themselves
+         - to not duplicate errors copied in final cruise config (main has references
+         to the same instances that are part of merged config - see the constructor)
+
+         Main configuration is still validated within its own scope, explicitly, at the right moment,
+         But that is done higher in services.
+         */
+        @IgnoreTraversal private BasicCruiseConfig main;
         private List<PartialConfig> parts = new ArrayList<PartialConfig>();
 
         public MergeStrategy(BasicCruiseConfig main,List<PartialConfig> parts) {

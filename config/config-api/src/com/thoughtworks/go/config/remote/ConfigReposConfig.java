@@ -55,4 +55,18 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
     public void addError(String fieldName, String message) {
         this.errors().add(fieldName,message);
     }
+
+    public boolean isReferenceAllowed(ConfigOrigin from, ConfigOrigin to) {
+
+        if(isLocal(from) && !isLocal(to))
+            return false;
+        return true;
+    }
+
+    private boolean isLocal(ConfigOrigin from) {
+        // we assume that configuration is local (from file or from UI) when origin is not specified
+        if(from == null)
+            return true;
+        return from.isLocal();
+    }
 }

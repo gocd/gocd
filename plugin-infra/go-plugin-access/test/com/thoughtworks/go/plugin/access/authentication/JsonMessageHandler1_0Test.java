@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.authentication;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.model.User;
-import com.thoughtworks.go.util.json.Json;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
@@ -46,14 +43,14 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldHandleResponseMessageForPluginConfiguration() throws Exception {
-        AuthenticationPluginConfiguration configuration = messageHandler.responseMessageForPluginConfiguration("{\"display-name\":\"display-name\",\"supports-password-based-authentication\":true,\"supports-user-search\":true}");
-        assertThat(configuration, is(new AuthenticationPluginConfiguration("display-name", true, true)));
+        AuthenticationPluginConfiguration configuration = messageHandler.responseMessageForPluginConfiguration("{\"display-name\":\"display-name\",\"display-image-url\":\"display-image-url\",\"supports-web-based-authentication\":true,\"supports-password-based-authentication\":true}");
+        assertThat(configuration, is(new AuthenticationPluginConfiguration("display-name", "display-image-url", true, true)));
     }
 
     @Test
     public void shouldHandleEmptyResponseMessageForPluginConfiguration() throws Exception {
         AuthenticationPluginConfiguration configuration = messageHandler.responseMessageForPluginConfiguration("{}");
-        assertThat(configuration, is(new AuthenticationPluginConfiguration(null, false, false)));
+        assertThat(configuration, is(new AuthenticationPluginConfiguration(null, null, false, false)));
     }
 
     @Test
@@ -115,8 +112,9 @@ public class JsonMessageHandler1_0Test {
     public void shouldValidateIncorrectJsonForPluginConfiguration() {
         assertThat(errorMessageForPluginConfiguration("[]"), is("Plugin configuration should be returned as a map"));
         assertThat(errorMessageForPluginConfiguration("{\"display-name\":true}"), is("Configuration 'display-name' should be of type string"));
+        assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"display-image-url\":true}"), is("Configuration 'display-image-url' should be of type string"));
+        assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"supports-web-based-authentication\":\"test\"}"), is("Configuration 'supports-web-based-authentication' should be of type boolean"));
         assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"supports-password-based-authentication\":\"test\"}"), is("Configuration 'supports-password-based-authentication' should be of type boolean"));
-        assertThat(errorMessageForPluginConfiguration("{\"display-name\":\"name\",\"supports-password-based-authentication\":true,\"supports-user-search\":\"test\"}"), is("Configuration 'supports-user-search' should be of type boolean"));
     }
 
     @Test

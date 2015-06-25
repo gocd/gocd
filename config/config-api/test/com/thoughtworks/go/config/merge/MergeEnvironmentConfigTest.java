@@ -1,86 +1,65 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.collections.map.SingletonMap;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-public class MergeEnvironmentConfigTest {
+public class MergeEnvironmentConfigTest extends EnvironmentConfigBaseTest {
     public MergeEnvironmentConfig singleEnvironmentConfig;
     public MergeEnvironmentConfig pairEnvironmentConfig;
     private static final String AGENT_UUID = "uuid";
 
     @Before
     public void setUp() throws Exception {
-        singleEnvironmentConfig = new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("One")));
-        pairEnvironmentConfig = new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("One")),
-                new BasicEnvironmentConfig(new CaseInsensitiveString("One")));
+        BasicEnvironmentConfig localUatEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        localUatEnv.setOrigins(new FileConfigOrigin());
+
+        singleEnvironmentConfig = new MergeEnvironmentConfig(localUatEnv);
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+        pairEnvironmentConfig = new MergeEnvironmentConfig(
+                uatLocalPart,
+                uatRemotePart);
+
+        super.environmentConfig = pairEnvironmentConfig;
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAllowPartsWithDifferentNames()
     {
-        new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("One")),
+        new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
                 new BasicEnvironmentConfig(new CaseInsensitiveString("Two")));
     }
 
-    @Test
-    public void shouldCreateMatcherWhenNoPipelines() throws Exception {
-        EnvironmentPipelineMatcher pipelineMatcher = singleEnvironmentConfig.createMatcher();
-        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID), is(false));
-    }
 
     @Test
-    public void shouldCreateMatcherWhenPipelinesGiven() throws Exception {
-        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("pipeline"));
-        singleEnvironmentConfig.first().addAgent(AGENT_UUID);
-        EnvironmentPipelineMatcher pipelineMatcher = singleEnvironmentConfig.createMatcher();
-        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID), is(true));
-    }
-
-    @Test
-    public void twoEnvironmentConfigsShouldBeEqualIfNameIsEqual() throws Exception {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("One"));
-        assertThat(another, Matchers.<EnvironmentConfig>is(singleEnvironmentConfig));
-        assertThat(singleEnvironmentConfig, Matchers.<EnvironmentConfig>is(another));
-    }
-
-    @Test
-    public void twoEnvironmentConfigsShouldNotBeEqualIfnameNotEqual() throws Exception {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
-        assertThat(another, Matchers.<EnvironmentConfig>is(Matchers.<EnvironmentConfig>not(singleEnvironmentConfig)));
-    }
-    @Test
-    public void shouldAddEnvironmentVariablesToEnvironmentVariableContext() throws Exception {
-        singleEnvironmentConfig.first().addEnvironmentVariable("variable-name", "variable-value");
-        EnvironmentVariableContext context = singleEnvironmentConfig.createEnvironmentContext();
-        assertThat(context.getProperty("variable-name"), is("variable-value"));
-    }
-
-    @Test
-    public void shouldAddEnvironmentNameToEnvironmentVariableContext() throws Exception {
-        EnvironmentVariableContext context = singleEnvironmentConfig.createEnvironmentContext();
-        assertThat(context.getProperty(EnvironmentVariableContext.GO_ENVIRONMENT_NAME), is("One"));
-    }
-
-    @Test
-    public void shouldReturnPipelineNamesContainedInIt() throws Exception {
-        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("deployment"));
-        singleEnvironmentConfig.first().addPipeline(new CaseInsensitiveString("testing"));
-        List<CaseInsensitiveString> pipelineNames = singleEnvironmentConfig.getPipelineNames();
-        assertThat(pipelineNames.size(), is(2));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("deployment")));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("testing")));
+    public void shouldFailUpdateName() {
+        try {
+            environmentConfig.setConfigAttributes(new SingletonMap(EnvironmentConfig.NAME_FIELD, "PROD"));
+        }
+        catch (RuntimeException ex)
+        {
+            assertThat(ex.getMessage(),is("Cannot update name of environment defined in multiple sources"));
+            return;
+        }
+        fail("should have thrown");
     }
 
     // merges
@@ -176,7 +155,119 @@ public class MergeEnvironmentConfigTest {
         assertThat(pairEnvironmentConfig.errors().on(MergeEnvironmentConfig.CONSISTENT_KV),
                 Matchers.is("Environment variable 'variable-name1' is defined more than once with different values"));
     }
-    //TODO updates
+
+    @Test
+    public void shouldFailUpdatePipelinesWhenRemovingFromNonEditableSource() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+        // add untouchable pipeline
+        uatRemotePart.addPipeline(new CaseInsensitiveString("baz"));
+        pairEnvironmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+
+        try {
+            pairEnvironmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.PIPELINES_FIELD,
+                    Arrays.asList(new SingletonMap("name", "foo"), new SingletonMap("name", "bar"))));
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(), startsWith("Cannot remove pipeline baz from environment UAT because it is defined in non-editable source"));
+        }
+
+        assertThat(pairEnvironmentConfig.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("baz"))));
+    }
+
+    @Test
+    public void shouldFailToRemoveAgentFromEnvironment_WhenSourceIsNonEditable() throws Exception {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        uatRemotePart.addAgent("uuid1");
+        uatRemotePart.addAgent("uuid2");
+        assertThat(environmentConfig.getAgents().size(), is(2));
+        assertThat(environmentConfig.hasAgent("uuid1"), is(true));
+        assertThat(environmentConfig.hasAgent("uuid2"), is(true));
+
+        try {
+            environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.AGENTS_FIELD,
+                    Arrays.asList(new SingletonMap("uuid", "uuid-2"), new SingletonMap("uuid", "uuid-3"))));
+        }
+        catch (Exception ex){
+            assertThat(ex.getMessage(),startsWith("Cannot remove agent uuid1 from environment UAT because it is defined in non-editable source"));
+        }
+
+        assertThat(environmentConfig.getAgents().size(), is(2));
+        assertThat(environmentConfig.hasAgent("uuid1"), is(true));
+        assertThat(environmentConfig.hasAgent("uuid2"), is(true));
+    }
+
+    @Test
+    public void shouldFailToUpdateEnvironmentVariables_WhenSourceIsNonEditable() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        uatRemotePart.addEnvironmentVariable("hello", "world");
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        try {
+            environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
+                    Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(),startsWith("Cannot remove variable hello from environment UAT because it is defined in non-editable source"));
+        }
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "world")));
+        assertThat(environmentConfig.getVariables().size(), is(1));
+    }
 
 
+    @Test
+    public void shouldUpdateEnvironmentVariables_WhenSourceIsNonEditable_ButChangesAreCompatible() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        uatRemotePart.addEnvironmentVariable("hello", "world");
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
+                    Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"),envVar("hello", "world"))));
+
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "world")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat(environmentConfig.getVariables().size(), is(3));
+
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables().size(), is(2));
+    }
+    @Test
+    public void shouldUpdateEnvironmentVariablesWhenSourceIsEditable() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+
+        uatLocalPart.addEnvironmentVariable("hello", "world");
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
+                Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"),envVar("hello", "you"))));
+
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "you")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat(environmentConfig.getVariables().size(), is(3));
+
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "you")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
+        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables().size(), is(3));
+    }
 }

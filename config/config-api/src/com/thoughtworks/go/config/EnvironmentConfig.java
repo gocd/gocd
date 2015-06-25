@@ -13,6 +13,11 @@ import java.util.Set;
  */
 public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
 
+    static final String NAME_FIELD = "name";
+    static final String PIPELINES_FIELD = "pipelines";
+    static final String AGENTS_FIELD = "agents";
+    static final String VARIABLES_FIELD = "variables";
+
     void validate(ValidationContext validationContext);
 
     ConfigErrors errors();

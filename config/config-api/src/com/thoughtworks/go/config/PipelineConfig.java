@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.preprocessor.ParamScope;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.CommentRenderer;
@@ -281,6 +282,37 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 return lastStageConfig;
             }
             lastStageConfig = currentStageConfig;
+        }
+        return null;
+    }
+
+    public boolean isConfigOriginSameAsOneOfMaterials()
+    {
+        if(!(this.origin instanceof RepoConfigOrigin))
+            return false;
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)this.origin;
+        MaterialConfig configMaterial = repoConfigOrigin.getMaterial();
+
+        for(MaterialConfig material : this.materialConfigs())
+        {
+            if(material.equals(configMaterial))
+                return true;
+        }
+        return false;
+    }
+    public boolean isConfigOriginFromRevision(String revision)
+    {
+        if(!(this.origin instanceof RepoConfigOrigin))
+            return false;
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)this.origin;
+        return repoConfigOrigin.isFromRevision(revision);
+    }
+
+    private static <T> T as(Class<T> clazz, Object o){
+        if(clazz.isInstance(o)){
+            return clazz.cast(o);
         }
         return null;
     }

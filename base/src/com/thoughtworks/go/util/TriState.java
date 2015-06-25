@@ -68,7 +68,7 @@ public abstract class TriState {
     }
 
     public static TriState from(String booleanLike) {
-        if (booleanLike == null) {
+        if (StringUtil.isBlank(booleanLike)) {
             return UNSET;
         }
         if (booleanLike.toLowerCase().equals("false")) {
@@ -77,6 +77,6 @@ public abstract class TriState {
         if (booleanLike.toLowerCase().equals("true")) {
             return TRUE;
         }
-        return UNSET;
+        throw new IllegalArgumentException(String.format("The string '%s' does not look like a boolean.", booleanLike));
     }
 }

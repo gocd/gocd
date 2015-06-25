@@ -25,6 +25,8 @@ import com.thoughtworks.go.domain.ConfigErrors;
  */
 @ConfigTag("pipeline")
 public class EnvironmentPipelineConfig implements Validatable{
+    public static final String ORIGIN = "origin";
+
     @ConfigAttribute(value = "name", optional = false) private CaseInsensitiveString pipelineName;
     private ConfigErrors configErrors = new ConfigErrors();
 
@@ -68,7 +70,6 @@ public class EnvironmentPipelineConfig implements Validatable{
     }
 
     public void validate(ValidationContext validationContext) {
-
     }
 
     public ConfigErrors errors() {

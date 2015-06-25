@@ -28,6 +28,8 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.scm.SCMMother;
@@ -39,6 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -106,6 +109,58 @@ Above scenario allowed
 
         pipeline2.materialConfigs().validate(ValidationContext.forChain(cruiseConfig));
         assertThat(pipeline2.materialConfigs().errors().isEmpty(), is(true));
+    }
+    @Test
+    public void shouldNotAllowToDependOnPipelineDefinedInConfigRepository_WhenDownstreamInFile() throws Exception {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
+        goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
+
+        pipeline1.setOrigin(new RepoConfigOrigin());
+        pipeline2.setOrigin(new FileConfigOrigin());
+
+        pipeline1.materialConfigs().validate(ValidationContext.forChain(cruiseConfig,new BasicPipelineConfigs(),pipeline1));
+        assertThat(pipeline1.materialConfigs().errors().isEmpty(), is(true));
+
+        pipeline2.materialConfigs().validate(ValidationContext.forChain(cruiseConfig,new BasicPipelineConfigs(),pipeline2));
+        DependencyMaterialConfig invalidDependency = pipeline2.materialConfigs().findDependencyMaterial(new CaseInsensitiveString("pipeline1"));
+        assertThat(invalidDependency.errors().isEmpty(), is(false));
+        assertThat(invalidDependency.errors().on(DependencyMaterialConfig.ORIGIN),startsWith("Dependency from pipeline defined in"));
+    }
+    @Test
+    public void shouldAllowToDependOnPipelineDefinedInConfigRepository_WhenInConfigRepository() throws Exception {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
+        goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
+
+        pipeline1.setOrigin(new RepoConfigOrigin());
+        pipeline2.setOrigin(new RepoConfigOrigin());
+
+        pipeline1.materialConfigs().validate(ValidationContext.forChain(cruiseConfig,new BasicPipelineConfigs(),pipeline1));
+        assertThat(pipeline1.materialConfigs().errors().isEmpty(), is(true));
+
+        pipeline2.materialConfigs().validate(ValidationContext.forChain(cruiseConfig,new BasicPipelineConfigs(),pipeline2));
+        DependencyMaterialConfig dep = pipeline2.materialConfigs().findDependencyMaterial(new CaseInsensitiveString("pipeline1"));
+        assertThat(dep.errors().isEmpty(), is(true));
+    }
+    @Test
+    public void shouldAllowToDependOnPipelineDefinedInFile_WhenInFile() throws Exception {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
+        goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
+
+        pipeline1.setOrigin(new FileConfigOrigin());
+        pipeline2.setOrigin(new FileConfigOrigin());
+
+        pipeline1.materialConfigs().validate(ValidationContext.forChain(cruiseConfig,new BasicPipelineConfigs(),pipeline1));
+        assertThat(pipeline1.materialConfigs().errors().isEmpty(), is(true));
+
+        pipeline2.materialConfigs().validate(ValidationContext.forChain(cruiseConfig,new BasicPipelineConfigs(),pipeline2));
+        DependencyMaterialConfig dep = pipeline2.materialConfigs().findDependencyMaterial(new CaseInsensitiveString("pipeline1"));
+        assertThat(dep.errors().isEmpty(), is(true));
     }
 
     @Test

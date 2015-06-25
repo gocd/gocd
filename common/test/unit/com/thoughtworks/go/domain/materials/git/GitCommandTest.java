@@ -54,6 +54,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.apache.commons.lang.time.DateUtils.setMilliseconds;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -344,7 +345,7 @@ public class GitCommandTest {
             git.latestModification();
             fail("Should throw exception when repo cannot connected");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("The remote end hung up unexpectedly"));
+            assertThat(e.getMessage(), anyOf(containsString("The remote end hung up unexpectedly"), containsString("Could not read from remote repository")));
         }
     }
 

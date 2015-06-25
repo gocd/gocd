@@ -221,6 +221,8 @@ Go::Application.routes.draw do
       resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
         patch :update, on: :member
       end
+
+      match '*url', via: :all, to: 'errors#not_found'
     end
   end
 

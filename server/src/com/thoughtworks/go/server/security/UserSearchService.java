@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @understands searching for users(from authentication sources)
@@ -111,21 +110,18 @@ public class UserSearchService {
 
     private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {
         List<User> searchResults = new ArrayList<User>();
-        Set<String> pluginsThatSupportsUserSearch = authenticationPluginRegistry.getPluginsThatSupportsUserSearch();
-        if (!pluginsThatSupportsUserSearch.isEmpty()) {
-            for (final String pluginId : pluginsThatSupportsUserSearch) {
-                try {
-                    List<com.thoughtworks.go.plugin.access.authentication.model.User> users = authenticationExtension.searchUser(pluginId, searchText);
-                    if (users != null && !users.isEmpty()) {
-                        for (com.thoughtworks.go.plugin.access.authentication.model.User user : users) {
-                            String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
-                            String emailId = user.getEmailId() == null ? "" : user.getEmailId();
-                            searchResults.add(new User(user.getUsername(), displayName, emailId));
-                        }
+        for (final String pluginId : authenticationPluginRegistry.getAuthenticationPlugins()) {
+            try {
+                List<com.thoughtworks.go.plugin.access.authentication.model.User> users = authenticationExtension.searchUser(pluginId, searchText);
+                if (users != null && !users.isEmpty()) {
+                    for (com.thoughtworks.go.plugin.access.authentication.model.User user : users) {
+                        String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
+                        String emailId = user.getEmailId() == null ? "" : user.getEmailId();
+                        searchResults.add(new User(user.getUsername(), displayName, emailId));
                     }
-                } catch (Exception e) {
-                    LOGGER.warn("Error occurred while performing user search using plugin: " + pluginId, e);
                 }
+            } catch (Exception e) {
+                LOGGER.warn("Error occurred while performing user search using plugin: " + pluginId, e);
             }
         }
         userSearchModels.addAll(convertUsersToUserSearchModel(searchResults, UserSourceType.PLUGIN));

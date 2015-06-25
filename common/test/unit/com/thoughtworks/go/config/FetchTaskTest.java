@@ -22,6 +22,9 @@ import java.util.Date;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.NullStage;
@@ -41,6 +44,7 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
@@ -87,6 +91,50 @@ public class FetchTaskTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(resolver);
+    }
+
+
+    @Test
+    public void validate_shouldErrorWhenReferencingConfigRepositoryPipelineFromFilePipeline() {
+        uppestStream.setOrigin(new RepoConfigOrigin());
+        downstream.setOrigin(new FileConfigOrigin());
+
+        FetchTask task = new FetchTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "src", "dest");
+        task.validate(ValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
+
+        assertThat(task.errors().isEmpty(), is(false));
+        assertThat(task.errors().on(FetchTask.ORIGIN),startsWith("Pipeline \"downstream\" tries to fetch artifact from job \"uppest_stream :: uppest-stage2 :: uppest-job2\" which is defined in"));
+
+    }
+    @Test
+    public void validate_shouldNotErrorWhenReferencingFilePipelineFromConfigRepositoryPipeline() {
+        uppestStream.setOrigin(new FileConfigOrigin());
+        downstream.setOrigin(new RepoConfigOrigin());
+
+        FetchTask task = new FetchTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "src", "dest");
+        task.validate(ValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
+
+        assertThat(task.errors().isEmpty(), is(true));
+    }
+    @Test
+    public void validate_shouldNotErrorWhenReferencingConfigRepositoryPipelineFromConfigRepositoryPipeline() {
+        uppestStream.setOrigin(new RepoConfigOrigin());
+        downstream.setOrigin(new RepoConfigOrigin());
+
+        FetchTask task = new FetchTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "src", "dest");
+        task.validate(ValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
+
+        assertThat(task.errors().isEmpty(), is(true));
+    }
+    @Test
+    public void validate_shouldNotErrorWhenReferencingFilePipelineFromFilePipeline() {
+        uppestStream.setOrigin(new FileConfigOrigin());
+        downstream.setOrigin(new FileConfigOrigin());
+
+        FetchTask task = new FetchTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "src", "dest");
+        task.validate(ValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
+
+        assertThat(task.errors().isEmpty(), is(true));
     }
 
     @Test

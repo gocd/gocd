@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
@@ -34,7 +35,7 @@ public class ProcessManager {
     private static final Logger LOG = Logger.getLogger(ProcessManager.class);
     private static final ProcessManager processManager = new ProcessManager();
 
-    private ConcurrentHashMap<Process, ProcessWrapper> processMap = new ConcurrentHashMap<Process, ProcessWrapper>();
+    private ConcurrentMap<Process, ProcessWrapper> processMap = new ConcurrentHashMap<Process, ProcessWrapper>();
 
     ProcessManager() {
     }

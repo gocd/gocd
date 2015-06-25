@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class JobStatusCache implements JobStatusListener {
-    private ConcurrentHashMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<JobConfigIdentifier, JobInstance>();
+    private ConcurrentMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<JobConfigIdentifier, JobInstance>();
     private final StageDao stageDao;
     private static final NullJobInstance NEVER_RUN = new NullJobInstance("NEVER_RUN");
 

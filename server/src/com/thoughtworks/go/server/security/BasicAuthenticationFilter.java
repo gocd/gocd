@@ -16,13 +16,17 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
+import org.apache.log4j.Logger;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.security.ui.basicauth.BasicProcessingFilter;
+import java.io.IOException;
 
 public class BasicAuthenticationFilter extends BasicProcessingFilter {
 
@@ -32,15 +36,29 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
             return false;
         }
     };
+    private static final Logger LOG = Logger.getLogger(BasicAuthenticationFilter.class);
 
     @Override
     public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
         try {
             isProcessingBasicAuth.set(true);
             super.doFilterHttp(httpRequest, httpResponse, chain);
+        } catch (Exception e) {
+            handleException(httpRequest, httpResponse, e);
         } finally {
             isProcessingBasicAuth.set(false);
         }
+    }
+
+    public void handleException(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Exception e) throws IOException {
+        SecurityContext context = SecurityContextHolder.getContext();
+        String message = "There was an error authenticating you. Please check the server logs, or contact your the go administrator.";
+        httpRequest.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, new RuntimeException(message));
+        httpRequest.setAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED, true);
+        context.setAuthentication(null);
+        httpResponse.sendRedirect("/go/auth/login?login_error=1");
+        LOG.error(e.getMessage());
+        LOG.trace(e.getMessage(), e);
     }
 
     public static boolean isProcessingBasicAuth() {

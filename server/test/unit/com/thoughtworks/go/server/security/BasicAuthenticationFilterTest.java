@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -29,9 +23,19 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.ui.AbstractProcessingFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class BasicAuthenticationFilterTest {
@@ -58,4 +62,22 @@ public class BasicAuthenticationFilterTest {
 
         assertThat(hadBasicMarkOnInsideAuthenticationManager[0], is(true));
     }
+
+    @Test
+    public void shouldHandleException() throws IOException {
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest();
+        MockHttpServletResponse httpResponse = new MockHttpServletResponse();
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
+        SecurityContext context = SecurityContextHolder.getContext();
+        String expected_msg = "There was an error authenticating you. Please check the server logs, or contact your the go administrator.";
+
+        filter.handleException(httpRequest, httpResponse, new Exception("some error"));
+
+        assertThat(((Exception) (httpRequest.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY))).getMessage(), is(expected_msg));
+        assertThat(httpRequest.getAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED).toString(), is("true"));
+        assertThat(context.getAuthentication(), is(nullValue()));
+        assertThat(httpResponse.getRedirectedUrl(), is("/go/auth/login?login_error=1"));
+    }
+
+
 }

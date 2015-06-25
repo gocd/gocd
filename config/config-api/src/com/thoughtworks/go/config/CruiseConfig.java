@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.annotation.PostConstruct;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -80,7 +81,7 @@ public class CruiseConfig implements Validatable {
 
     public static final String WORKING_BASE_DIR = "pipelines/";
 
-    private ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+    private ConcurrentMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
     private List<PipelineConfig> allPipelineConfigs;
 
     public CruiseConfig() {

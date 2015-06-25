@@ -57,6 +57,8 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         for(EnvironmentPipelineConfig pipelineRefConfig : this.pipelines)
         {
             PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineRefConfig.getName());
+            if(pipelineConfig == null)
+                continue;//other rule will error that we reference unknown pipeline
             if(!cruiseConfig.getConfigRepos().isReferenceAllowed(this.origin,pipelineConfig.getOrigin()))
                 pipelineRefConfig.addError(EnvironmentPipelineConfig.ORIGIN,
                         String.format("Environment defined in %s cannot reference a pipeline in %s",

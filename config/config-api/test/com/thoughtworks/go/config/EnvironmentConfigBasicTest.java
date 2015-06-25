@@ -74,6 +74,26 @@ public class EnvironmentConfigBasicTest extends EnvironmentConfigBaseTest {
         passReferenceValidationHelper(pipelineOrigin, envOrigin);
     }
 
+    @Test
+    public void shouldValidateWhenPipelineNotFound()
+    {
+        ConfigOrigin pipelineOrigin = new RepoConfigOrigin();
+        ConfigOrigin envOrigin = new FileConfigOrigin();
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
+        cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+        BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) this.environmentConfig;
+        environmentConfig.setOrigins(envOrigin);
+        environmentConfig.addPipeline(new CaseInsensitiveString("unknown"));
+        cruiseConfig.addEnvironment(environmentConfig);
+
+        environmentConfig.validate(ValidationContext.forChain(cruiseConfig, environmentConfig));
+        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+
+        assertThat(reference.errors().isEmpty(),is(true));
+    }
+
+
     private void passReferenceValidationHelper(ConfigOrigin pipelineOrigin, ConfigOrigin envOrigin) {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
         cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);

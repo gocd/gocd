@@ -30,7 +30,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -56,8 +59,6 @@ public class UserSearchServiceTest {
 
         when(goConfigService.isLdapConfigured()).thenReturn(true);
 
-        when(authenticationPluginRegistry.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<String>());
-
         userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, authenticationPluginRegistry, authenticationExtension, goConfigService);
     }
 
@@ -79,7 +80,7 @@ public class UserSearchServiceTest {
         when(ldapUserSearch.search(searchTerm)).thenReturn(Arrays.asList(foo, bar));
 
         List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
-        when(authenticationPluginRegistry.getPluginsThatSupportsUserSearch()).thenReturn(new LinkedHashSet<String>(pluginIds));
+        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new LinkedHashSet<String>(pluginIds));
         when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
         when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
         when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.model.User>());
@@ -120,17 +121,6 @@ public class UserSearchServiceTest {
         when(passwordFileUserSearch.search("foo")).thenReturn(Arrays.asList(foo));
         userSearchService.search("foo", result);
         verifyNoMoreInteractions(ldapUserSearch);
-    }
-
-    @Test
-    public void search_shouldNotAttemptSearchThroughPluginIfNoPluginSupportsUserSearch() throws Exception {
-        when(goConfigService.isPasswordFileConfigured()).thenReturn(false);
-        when(goConfigService.isLdapConfigured()).thenReturn(false);
-        when(authenticationPluginRegistry.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<String>());
-
-        userSearchService.search("foo", new HttpLocalizedOperationResult());
-
-        verify(authenticationExtension, never()).searchUser(any(String.class), eq("foo"));
     }
 
     @Test

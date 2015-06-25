@@ -1,4 +1,4 @@
-##########################GO-LICENSE-START################################
+##########################################################################
 # Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 module ApiV1
   class AgentsController < ApiV1::BaseController
 
-    before_action :check_user
-    before_action :check_admin_user, except: [:index, :show]
+    before_action :check_user_and_404
+    before_action :check_admin_user_and_401, except: [:index, :show]
 
     before_action :load_agent, only: [:show, :edit, :update, :destroy, :enable, :disable]
 
@@ -38,7 +38,7 @@ module ApiV1
                   else
                     params[:resources]
                   end
-      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], resources, TriState.from(params[:enabled].to_s))
+      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], resources, to_tristate(params[:enabled]))
 
       if result.isSuccess
         load_agent

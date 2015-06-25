@@ -16,7 +16,7 @@
 
 module ApiV1
   module AuthenticationHelper
-    def check_user
+    def check_user_and_404
       return unless security_service.isSecurityEnabled()
       if current_user.try(:isAnonymous)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
@@ -24,10 +24,10 @@ module ApiV1
       end
     end
 
-    def check_admin_user
+    def check_admin_user_and_401
       unless security_service.isUserAdmin(current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-        render_not_found_error
+        render_unauthorized_error
       end
     end
 
@@ -39,6 +39,14 @@ module ApiV1
 
     def render_not_found_error
       render :json_hal_v1 => { :message => 'Either the resource you requested was not found, or you are not authorized to perform this action.' }, :status => 404
+    end
+
+    def render_bad_request(exception)
+      render :json_hal_v1 => { :message => "Your request could not be processed. #{exception.message}" }, :status => 400
+    end
+
+    def render_unauthorized_error
+      render :json_hal_v1 => { :message => 'You are not authorized to perform this action.' }, :status => 401
     end
 
   end

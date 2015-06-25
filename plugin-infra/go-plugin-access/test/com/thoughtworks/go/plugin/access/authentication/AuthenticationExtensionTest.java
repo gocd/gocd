@@ -114,7 +114,7 @@ public class AuthenticationExtensionTest {
 
     @Test
     public void shouldTalkToPluginToGetPluginConfiguration() throws Exception {
-        AuthenticationPluginConfiguration response = new AuthenticationPluginConfiguration("name", true, true);
+        AuthenticationPluginConfiguration response = new AuthenticationPluginConfiguration("name", "image-url", true, true);
         when(jsonMessageHandler.responseMessageForPluginConfiguration(RESPONSE_BODY)).thenReturn(response);
 
         AuthenticationPluginConfiguration deserializedResponse = authenticationExtension.getPluginConfiguration(PLUGIN_ID);

@@ -17,6 +17,9 @@
 module ApiV1
   class BaseController < ::ApplicationController
 
+    class BadRequest < StandardError
+    end
+
     include AuthenticationHelper
 
     FORMATS                = [:json_hal_v1]
@@ -45,8 +48,15 @@ module ApiV1
     end
 
     rescue_from RecordNotFound, with: :render_not_found_error
+    rescue_from BadRequest,     with: :render_bad_request
 
     protected
+
+    def to_tristate(var)
+      TriState.from(var.to_s)
+    rescue => e
+      raise BadRequest.new(e.message)
+    end
 
     def render_http_operation_result(result)
       render json_hal_v1: { message: result.detailedMessage().strip }, status: result.httpCode()

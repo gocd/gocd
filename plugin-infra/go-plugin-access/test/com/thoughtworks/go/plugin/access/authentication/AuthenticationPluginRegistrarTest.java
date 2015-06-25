@@ -55,7 +55,7 @@ public class AuthenticationPluginRegistrarTest {
     public void shouldRegisterAuthenticationPluginOnLoad() {
         String pluginId = "plugin-id-1";
         when(authenticationExtension.isAuthenticationPlugin(pluginId)).thenReturn(true);
-        AuthenticationPluginConfiguration configuration = new AuthenticationPluginConfiguration("plugin 1", true, true);
+        AuthenticationPluginConfiguration configuration = new AuthenticationPluginConfiguration("plugin 1", "image 1", true, true);
         when(authenticationExtension.getPluginConfiguration(pluginId)).thenReturn(configuration);
 
         authenticationPluginRegistrar.pluginLoaded(getPluginDescriptor(pluginId));

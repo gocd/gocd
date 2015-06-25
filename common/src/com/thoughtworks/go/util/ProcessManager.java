@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.util.command.CommandLineException;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.thoughtworks.go.util.command.CommandLineException;
-import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.log4j.Logger;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -87,7 +87,7 @@ public class ProcessManager {
     }
 
     //should be used only for tests
-    ConcurrentHashMap<Process, ProcessWrapper> getProcessMap() {
+    ConcurrentMap<Process, ProcessWrapper> getProcessMap() {
         return processMap;
     }
 

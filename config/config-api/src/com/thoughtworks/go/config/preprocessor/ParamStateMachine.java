@@ -34,8 +34,11 @@ public class ParamStateMachine {
         IN_PATTERN {
             ReaderState interpret(char ch, ParamHandler paramsHandler) {
                 if (ch == CHAR_CURL_CLOSE) {
-                    paramsHandler.handlePatternFound(pattern);
-                    pattern.setLength(0);
+                    try {
+                        paramsHandler.handlePatternFound(pattern);
+                    } finally {
+                        pattern.setLength(0);
+                    }
                     return NOT_IN_PATTERN;
                 } else {
                     pattern.append(ch);

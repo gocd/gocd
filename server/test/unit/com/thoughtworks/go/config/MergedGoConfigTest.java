@@ -77,6 +77,7 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
     {
         ConfigChangedListener listener = mock(ConfigChangedListener.class);
         cachedGoConfig.registerListener(listener);
+        verify(listener, times(1)).onConfigChange(any(CruiseConfig.class));
 
         String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifacts' />"
@@ -86,7 +87,8 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
 
         configHelper.writeXmlToConfigFile(content);
 
-        verify(listener, times(1)).onConfigChange(any(CruiseConfig.class));
+        // once during registerListener call, second when reloaded
+        verify(listener, times(2)).onConfigChange(any(CruiseConfig.class));
     }
 
     @Test

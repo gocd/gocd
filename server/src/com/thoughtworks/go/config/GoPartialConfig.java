@@ -94,7 +94,8 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
             }
         }
         //fire event about changed partials collection
-        this.notifyListeners();
+        if(removedAny)
+            this.notifyListeners();
     }
 
 }

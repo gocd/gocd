@@ -164,6 +164,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelines();
 
+    Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos();
+
     Set<MaterialConfig> getAllUniqueMaterials();
 
     Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig);

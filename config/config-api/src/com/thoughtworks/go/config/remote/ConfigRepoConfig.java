@@ -37,7 +37,7 @@ public class ConfigRepoConfig implements Validatable {
 
     public ConfigRepoConfig(){
     }
-    public ConfigRepoConfig(ScmMaterialConfig repo, String configProviderPluginName){
+    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName){
         this.repo = repo;
         this.configProviderPluginName = configProviderPluginName;
     }

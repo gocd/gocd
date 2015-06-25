@@ -134,13 +134,7 @@
         <property name="authenticationManager">
             <ref bean="goAuthenticationManager"/>
         </property>
-        <property name="authenticationEntryPoint">
-            <bean class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
-                <property name="realmName">
-                    <value>Cruise</value>
-                </property>
-            </bean>
-        </property>
+        <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
     </bean>
 
     <bean id="oauthProcessingFilter" class="com.thoughtworks.go.server.security.OauthAuthenticationFilter">
@@ -283,6 +277,7 @@
                 /api/*/*.xml=ROLE_USER
                 /api/users.xml=ROLE_SUPERVISOR
                 /api/pipelines/*/*.xml=ROLE_USER,ROLE_OAUTH_USER
+                /api/agents/**=ROLE_USER
                 /*/environments/*=ROLE_SUPERVISOR
 
                 /oauth/admin/**=ROLE_SUPERVISOR
@@ -361,10 +356,7 @@
     </bean>
 
     <bean id="basicProcessingFilterEntryPoint"
-          class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
-        <property name="realmName">
-            <value>Cruise</value>
-        </property>
+          class="com.thoughtworks.go.server.security.BasicProcessingFilterEntryPoint">
     </bean>
 
 </beans>

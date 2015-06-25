@@ -44,6 +44,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     public static final String PIPELINE_STAGE_NAME = "pipelineStageName";
     public static final String TYPE = "DependencyMaterial";
     private static final Pattern PIPELINE_STAGE_COMBINATION_PATTERN = Pattern.compile("^(.+) (\\[.+\\])$");
+    public static final String ORIGIN = "origin";
 
     @ConfigAttribute(value = "pipelineName")
     private com.thoughtworks.go.config.CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");

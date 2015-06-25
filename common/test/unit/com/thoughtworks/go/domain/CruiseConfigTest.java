@@ -22,14 +22,12 @@ import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
-import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -51,13 +49,12 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.*;
@@ -442,10 +439,58 @@ public class CruiseConfigTest {
         assertThat(config.isPipelineLocked("pipeline-1"), is(true));
     }
 
+
+    @Test
+    public void shouldCollectOriginErrorsFromEnvironments_InMergedConfig() {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
+        partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+        BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uat.addPipeline(new CaseInsensitiveString("pipe2"));
+        cruiseConfig.addEnvironment(uat);
+
+        List<ConfigErrors> allErrors = cruiseConfig.validateAfterPreprocess();
+        assertThat(allErrors.size(), is(1));
+        assertNotNull(allErrors.get(0).on("origin"));
+    }
+
+    @Test
+    public void shouldCollectOriginErrorsFromMaterialConfigs_InMergedConfig() {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
+        partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+        PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        PipelineConfig pipeline2 = PipelineConfigMother.createPipelineConfigWithStage("pipeline2", "stage");
+        pipeline2.setOrigin(new RepoConfigOrigin());
+        partialConfig.getGroups().addPipeline("g2",pipeline2);
+
+        goConfigMother.setDependencyOn(cruiseConfig, pipeline1, "pipeline2", "stage");
+
+        List<ConfigErrors> allErrors = cruiseConfig.validateAfterPreprocess();
+        assertThat(allErrors.size(), is(1));
+        assertNotNull(allErrors.get(0).on("origin"));
+    }
+
     @Test
     public void shouldCollectAllTheErrorsInTheChildren() {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline-1");
 
+        shouldCollectAllTheErrorsInTheChilderHelper(config);
+    }
+    @Test
+    public void shouldCollectAllTheErrorsInTheChildren_InMergedConfig() {
+        BasicCruiseConfig mainCruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe2", "g2");
+        partialConfig.getGroups().get(0).get(0).setOrigin(new RepoConfigOrigin());
+        CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+
+        shouldCollectAllTheErrorsInTheChilderHelper(config);
+    }
+
+    private void shouldCollectAllTheErrorsInTheChilderHelper(CruiseConfig config) {
         config.server().security().ldapConfig().errors().add("uri", "invalid ldap uri");
         config.server().security().ldapConfig().errors().add("searchBase", "invalid search base");
 
@@ -906,7 +951,7 @@ public class CruiseConfigTest {
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
                 PartialConfigMother.withPipeline("pipe2"));
 
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")),is(false));
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(false));
     }
     @Test
     public void shouldReturnGroupsFrom2Parts()
@@ -926,7 +971,7 @@ public class CruiseConfigTest {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
                 PartialConfigMother.withPipeline("pipe2"));
-        cruiseConfig.addPipeline("group_main",PipelineConfigMother.pipelineConfig("pipe3"));
+        cruiseConfig.addPipeline("group_main", PipelineConfigMother.pipelineConfig("pipe3"));
 
         assertThat(mainCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
         assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
@@ -1044,6 +1089,44 @@ public class CruiseConfigTest {
         assertThat(localCruiseConfig.allPipelines().size(),is(1));
         assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
         assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe2")),is(false));
+    }
+
+    @Test
+    public void shouldGetUniqueMaterialsWithConfigRepos()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        ConfigReposConfig reposConfig = new ConfigReposConfig();
+        GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
+        reposConfig.add(new ConfigRepoConfig(configRepo,"myplug"));
+        mainCruiseConfig.setConfigRepos(reposConfig);
+
+        PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");
+        MaterialConfig pipeRepo = partialConfig.getGroups().get(0).get(0).materialConfigs().get(0);
+
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,  partialConfig);
+
+        Set<MaterialConfig> materials = cruiseConfig.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos();
+        assertThat(materials,hasItem(configRepo));
+        assertThat(materials,hasItem(pipeRepo));
+        assertThat(materials.size(),is(2));
+    }
+    @Test
+    public void shouldGetUniqueMaterialsWithoutConfigRepos()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        ConfigReposConfig reposConfig = new ConfigReposConfig();
+        GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
+        reposConfig.add(new ConfigRepoConfig(configRepo,"myplug"));
+        mainCruiseConfig.setConfigRepos(reposConfig);
+
+        PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");
+        MaterialConfig pipeRepo = partialConfig.getGroups().get(0).get(0).materialConfigs().get(0);
+
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,  partialConfig);
+
+        Set<MaterialConfig> materials = cruiseConfig.getAllUniqueMaterialsBelongingToAutoPipelines();
+        assertThat(materials,hasItem(pipeRepo));
+        assertThat(materials.size(),is(1));
     }
 
     private Role setupSecurityWithRole() {

@@ -34,14 +34,9 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class BasicEnvironmentConfigTest {
+public abstract class EnvironmentConfigBaseTest {
     public EnvironmentConfig environmentConfig;
     private static final String AGENT_UUID = "uuid";
-
-    @Before
-    public void setUp() throws Exception {
-        environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-    }
 
     @Test
     public void shouldCreateMatcherWhenNoPipelines() throws Exception {
@@ -118,12 +113,6 @@ public class BasicEnvironmentConfigTest {
     }
 
     @Test
-    public void shouldUpdateName() {
-        environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
-        assertThat(environmentConfig.name(), is(new CaseInsensitiveString("PROD")));
-    }
-
-    @Test
     public void shouldUpdatePipelines() {
         environmentConfig.addPipeline(new CaseInsensitiveString("baz"));
         environmentConfig.setConfigAttributes(new SingletonMap(BasicEnvironmentConfig.PIPELINES_FIELD, Arrays.asList(new SingletonMap("name", "foo"), new SingletonMap("name", "bar"))));
@@ -164,7 +153,7 @@ public class BasicEnvironmentConfigTest {
         assertThat(environmentConfig, is(beforeUpdate));
     }
 
-    private static Map<String, String> envVar(String name, String value) {
+    protected static Map<String, String> envVar(String name, String value) {
         Map<String, String> map = new HashMap<String, String>();
         map.put(EnvironmentVariableConfig.NAME, name);
         map.put(EnvironmentVariableConfig.VALUE, value);

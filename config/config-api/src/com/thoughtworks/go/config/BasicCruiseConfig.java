@@ -35,10 +35,7 @@ import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
-import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.JobConfigVisitor;
 import com.thoughtworks.go.domain.NullTask;
@@ -243,7 +240,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
     private class MergeStrategy implements CruiseStrategy {
 
-        private BasicCruiseConfig main;
+        /*
+        Skip validating main configuration when merged. For 2 reasons:
+         - partial configurations may not be valid by themselves
+         - to not duplicate errors copied in final cruise config (main has references
+         to the same instances that are part of merged config - see the constructor)
+
+         Main configuration is still validated within its own scope, explicitly, at the right moment,
+         But that is done higher in services.
+         */
+        @IgnoreTraversal private BasicCruiseConfig main;
         private List<PartialConfig> parts = new ArrayList<PartialConfig>();
 
         public MergeStrategy(BasicCruiseConfig main,List<PartialConfig> parts) {
@@ -942,15 +948,20 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelines() {
-        return getUniqueMaterials(true);
+        return getUniqueMaterials(true,true);
+    }
+
+    @Override
+    public Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos() {
+        return getUniqueMaterials(true,false);
     }
 
     @Override
     public Set<MaterialConfig> getAllUniqueMaterials() {
-        return getUniqueMaterials(false);
+        return getUniqueMaterials(false,true);
     }
 
-    private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines) {
+    private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines,boolean ignoreConfigRepos) {
         Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
         Set<Map> uniqueMaterials = new HashSet<Map>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
@@ -961,6 +972,17 @@ public class BasicCruiseConfig implements CruiseConfig {
                     if (ignoreManualPipelines && scmOrPackageMaterial && shouldSkipPolling) {
                         continue;
                     }
+                    materialConfigs.add(materialConfig);
+                    uniqueMaterials.add(materialConfig.getSqlCriteria());
+                }
+            }
+        }
+        if(!ignoreConfigRepos)
+        {
+            for(ConfigRepoConfig configRepo : this.configRepos)
+            {
+                MaterialConfig materialConfig = configRepo.getMaterialConfig();
+                if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
                     materialConfigs.add(materialConfig);
                     uniqueMaterials.add(materialConfig.getSqlCriteria());
                 }

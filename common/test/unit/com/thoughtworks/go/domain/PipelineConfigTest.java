@@ -47,7 +47,11 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.label.PipelineLabel;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.security.GoCipher;
@@ -830,6 +834,54 @@ public class PipelineConfigTest {
 
         assertThat(pluggableSCMMaterialConfigs.size(), is(2));
         assertThat(pluggableSCMMaterialConfigs, hasItems(pluggableSCMMaterialOne, pluggableSCMMaterialTwo));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOrigin()
+    {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
+        MaterialConfig material = pipelineConfig.materialConfigs().first();
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenOneOfPipelineMaterialsIsNotTheSameAsConfigOrigin()
+    {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
+        MaterialConfig material = new GitMaterialConfig("http://git");
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseIfOneOfPipelineMaterialsIsTheSameAsConfigOrigin_WhenOriginIsFile()
+    {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
+        pipelineConfig.setOrigin(new FileConfigOrigin());
+
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenConfigRevisionIsEqualToQuery()
+    {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
+        MaterialConfig material = pipelineConfig.materialConfigs().first();
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+
+        assertThat(pipelineConfig.isConfigOriginFromRevision("1233"),is(true));
+    }
+    @Test
+    public void shouldReturnFalseWhenConfigRevisionIsNotEqualToQuery()
+    {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
+        MaterialConfig material = pipelineConfig.materialConfigs().first();
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+
+        assertThat(pipelineConfig.isConfigOriginFromRevision("32"),is(false));
     }
 
     private StageConfig completedStage() {

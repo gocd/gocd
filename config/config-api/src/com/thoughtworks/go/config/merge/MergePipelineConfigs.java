@@ -76,7 +76,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     {
         for(PipelineConfigs part : parts)
         {
-            if(part.getOrigin() != null && part.getOrigin().canEdit())
+            if(isEditable(part))
                 return  part;
         }
         return  null;
@@ -113,7 +113,26 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void validateNameUniqueness(Map<String, PipelineConfigs> groupNameMap) {
-        throw new RuntimeException("Not implemented");
+        String currentName = sanitizedGroupName(this.getGroup()).toLowerCase();
+        PipelineConfigs groupWithSameName = groupNameMap.get(currentName);
+        if (groupWithSameName == null) {
+            groupNameMap.put(currentName, this);
+        } else {
+            groupWithSameName.addError(GROUP, createNameConflictError());
+            this.nameConflictError();
+        }
+    }
+
+    private void nameConflictError() {
+        this.configErrors.add(GROUP, createNameConflictError());
+    }
+
+    private String createNameConflictError() {
+        return String.format("Group with name '%s' already exists", this.getGroup());
+    }
+
+    public static String sanitizedGroupName(String group) {
+        return StringUtils.isBlank(group) ? DEFAULT_GROUP : group;
     }
 
     @Override
@@ -165,12 +184,26 @@ public class MergePipelineConfigs implements PipelineConfigs {
     @Override
     public void remove(PipelineConfig pipelineConfig) {
         PipelineConfigs part = this.getPartWithPipeline(pipelineConfig.name());
-        throw new RuntimeException("TODO: Not implemented yet");
+        if(!isEditable(part))
+            throw bomb("Cannot remove pipeline fron non-editable configuration source");
+
+        part.remove(pipelineConfig);
     }
 
     @Override
     public PipelineConfig remove(int i) {
-        throw new RuntimeException("TODO: Not implemented yet");
+        if(i < 0)
+            throw new IndexOutOfBoundsException();
+
+        int start =0;
+        for (PipelineConfigs part : this.parts)
+        {
+            int end = start + part.size();
+            if(i < end)
+                return  part.remove(i - start);
+            start = end;
+        }
+        throw new IndexOutOfBoundsException();
     }
 
     @Override
@@ -196,15 +229,37 @@ public class MergePipelineConfigs implements PipelineConfigs {
         return  false;
     }
 
+    public PipelineConfigs getPartWithIndex(int i)
+    {
+        if(i < 0)
+            throw new IndexOutOfBoundsException();
 
-/*
-    @Override
-    public void clear() {
+        int start =0;
         for (PipelineConfigs part : this.parts)
         {
-            part.clear();
+            int end = start + part.size();
+            if(i < end)
+                return  part;
+            start = end;
         }
-    }*/
+        throw new IndexOutOfBoundsException();
+    }
+    public PipelineConfigs getPartWithIndexForInsert(int i)
+    {
+        if(i < 0)
+            throw new IndexOutOfBoundsException();
+
+        int start =0;
+        for (PipelineConfigs part : this.parts)
+        {
+            int end = start + part.size();
+            if(i < end)
+                return  part;
+            start = end;
+        }
+        return  this.parts.get(this.parts.size() -1);
+    }
+
 
     @Override
     public PipelineConfig get(int i) {
@@ -242,7 +297,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
         {
             int end = start + part.size();
             if(i < end) {
-                if(part.getOrigin() != null && part.getOrigin().canEdit()) {
+                if(isEditable(part)) {
                     return part.set(i - start, pipelineConfig);
                 }
                 else {
@@ -262,7 +317,25 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void add(int index, PipelineConfig pipelineConfig) {
-        throw new RuntimeException("TODO: Not implemented yet");
+        PipelineConfigs part = getPartWithIndexForInsert(index);
+        if(!isEditable(part))
+            throw bomb("Cannot add pipeline to non-editable configuration part");
+
+        int start = getFirstIndexInPart(part);
+
+        part.add(index - start, pipelineConfig);
+    }
+
+    private int getFirstIndexInPart(PipelineConfigs p) {
+        int start =0;
+        for (PipelineConfigs part : this.parts)
+        {
+            int end = start + part.size();
+            if(part.equals(p))
+                return  start;
+            start = end;
+        }
+        return  -1;
     }
 
     @Override
@@ -314,10 +387,25 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void setGroup(String group) {
-        if(!group.equals(this.getGroup()))
+        if(group.equals(this.getGroup()))
         {
-            throw bomb("Cannot change group name in configuration merged from many parts");
+            return;
         }
+        for(PipelineConfigs part : this.parts)
+        {
+            if(!isEditable(part))
+            {
+                throw bomb("Cannot update group name because there are non-editable parts");
+            }
+        }
+        for(PipelineConfigs part : this.parts)
+        {
+            part.setGroup(group);
+        }
+    }
+
+    private boolean isEditable(PipelineConfigs part) {
+        return part.getOrigin() != null && part.getOrigin().canEdit();
     }
 
     @Override
@@ -365,7 +453,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void add(List<String> allGroup) {
-        throw new RuntimeException("TODO: Not implemented yet");
+        allGroup.add(this.getGroup());
     }
 
     @Override
@@ -385,27 +473,35 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void accept(PiplineConfigVisitor visitor) {
-        throw new RuntimeException("TODO: Not implemented yet");
+        for (PipelineConfig pipelineConfig : this) {
+            visitor.visit(pipelineConfig);
+        }
     }
-
-
-
 
     @Override
     public boolean hasTemplate() {
-        throw new RuntimeException("TODO: Not implemented yet");
+        for(PipelineConfigs part : this.parts)
+        {
+            if(part.hasTemplate())
+                return  true;
+        }
+        return  false;
     }
 
     @Override
     public PipelineConfigs getCopyForEditing() {
-        throw new RuntimeException("TODO: Not implemented yet");
+        List<PipelineConfigs> parts = new ArrayList<PipelineConfigs>();
+        for(PipelineConfigs part : this.parts)
+        {
+            parts.add(part.getCopyForEditing());
+        }
+        return new MergePipelineConfigs(parts);
     }
 
     @Override
     public boolean isUserAnAdmin(CaseInsensitiveString userName, List<Role> memberRoles) {
-        throw new RuntimeException("TODO: Not implemented yet");
+        return this.getAuthorizationPart().isUserAnAdmin(userName,memberRoles);
     }
-
 
     @Override
     public ConfigErrors errors() {
@@ -414,12 +510,17 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public List<PipelineConfig> getPipelines() {
-        throw new RuntimeException("TODO: Not implemented yet");
+        List<PipelineConfig> list = new ArrayList<PipelineConfig>();
+        for(PipelineConfig pipe : this)
+        {
+            list.add(pipe);
+        }
+        return  list;
     }
 
     @Override
     public void addError(String fieldName, String message) {
-        throw new RuntimeException("Not implemented");
+        configErrors.add(fieldName, message);
     }
 
     @Override

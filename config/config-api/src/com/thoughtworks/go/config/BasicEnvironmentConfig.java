@@ -39,10 +39,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @ConfigSubtag private EnvironmentAgentsConfig agents = new EnvironmentAgentsConfig();
     @ConfigSubtag private EnvironmentPipelinesConfig pipelines = new EnvironmentPipelinesConfig();
 
-    static final String NAME_FIELD = "name";
-    static final String PIPELINES_FIELD = "pipelines";
-    static final String AGENTS_FIELD = "agents";
-    static final String VARIABLES_FIELD = "variables";
+
     private final ConfigErrors configErrors = new ConfigErrors();
     private ConfigOrigin origin;
 
@@ -55,6 +52,18 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public void validate(ValidationContext validationContext) {
+        CruiseConfig cruiseConfig = validationContext.getCruiseConfig();
+        // each of these references is defined in this.origin
+        for(EnvironmentPipelineConfig pipelineRefConfig : this.pipelines)
+        {
+            PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineRefConfig.getName());
+            if(pipelineConfig == null)
+                continue;//other rule will error that we reference unknown pipeline
+            if(!cruiseConfig.getConfigRepos().isReferenceAllowed(this.origin,pipelineConfig.getOrigin()))
+                pipelineRefConfig.addError(EnvironmentPipelineConfig.ORIGIN,
+                        String.format("Environment defined in %s cannot reference a pipeline in %s",
+                                this.origin,pipelineConfig.getOrigin()));
+        }
     }
 
     @Override

@@ -34,10 +34,10 @@ public class AuthenticationPluginRegistryTest {
     @Before
     public void setUp() {
         registry = new AuthenticationPluginRegistry();
-        registry.registerPlugin("plugin-id-1", new AuthenticationPluginConfiguration("plugin 1", true, true));
-        registry.registerPlugin("plugin-id-2", new AuthenticationPluginConfiguration("plugin 2", false, true));
-        registry.registerPlugin("plugin-id-3", new AuthenticationPluginConfiguration("plugin 3", true, false));
-        registry.registerPlugin("plugin-id-4", new AuthenticationPluginConfiguration("plugin 4", false, false));
+        registry.registerPlugin("plugin-id-1", new AuthenticationPluginConfiguration("plugin 1", "image 1", true, true));
+        registry.registerPlugin("plugin-id-2", new AuthenticationPluginConfiguration("plugin 2", null, false, false));
+        registry.registerPlugin("plugin-id-3", new AuthenticationPluginConfiguration("plugin 3", "image 3", true, true));
+        registry.registerPlugin("plugin-id-4", new AuthenticationPluginConfiguration("plugin 4", null, false, false));
     }
 
     @After
@@ -51,29 +51,29 @@ public class AuthenticationPluginRegistryTest {
     }
 
     @Test
+    public void shouldGetAllPluginsThatSupportsWebBasedAuthentication() {
+        verifySetContents(registry.getPluginsThatSupportsWebBasedAuthentication(), "plugin-id-1", "plugin-id-3");
+    }
+
+    @Test
     public void shouldGetAllPluginsThatSupportsPasswordBasedAuthentication() {
         verifySetContents(registry.getPluginsThatSupportsPasswordBasedAuthentication(), "plugin-id-1", "plugin-id-3");
     }
 
     @Test
-    public void shouldGetAllPluginsThatSupportsUserSearch() {
-        verifySetContents(registry.getPluginsThatSupportsUserSearch(), "plugin-id-1", "plugin-id-2");
-    }
-
-    @Test
     public void shouldGetIndividualConfigurationExistingPlugin() {
-        verifyConfigurationFor("plugin-id-1", "plugin 1", true, true);
-        verifyConfigurationFor("plugin-id-2", "plugin 2", false, true);
-        verifyConfigurationFor("plugin-id-3", "plugin 3", true, false);
-        verifyConfigurationFor("plugin-id-4", "plugin 4", false, false);
+        verifyConfigurationFor("plugin-id-1", "plugin 1", "image 1", true, true, true);
+        verifyConfigurationFor("plugin-id-2", "plugin 2", null, false, false, true);
+        verifyConfigurationFor("plugin-id-3", "plugin 3", "image 3", true, true, false);
+        verifyConfigurationFor("plugin-id-4", "plugin 4", null, false, false, false);
     }
 
     @Test
     public void shouldGetIndividualConfigurationForNonExistingPlugin() {
         String pluginId = "non-existing-plugin";
         assertThat(registry.getDisplayNameFor(pluginId), is(nullValue()));
+        assertThat(registry.getDisplayImageURLFor(pluginId), is(nullValue()));
         assertThat(registry.supportsPasswordBasedAuthentication(pluginId), is(false));
-        assertThat(registry.supportsUserSearch(pluginId), is(false));
     }
 
     @Test
@@ -82,8 +82,8 @@ public class AuthenticationPluginRegistryTest {
         registry.deregisterPlugin("plugin-id-3");
 
         verifySetContents(registry.getAuthenticationPlugins(), "plugin-id-1", "plugin-id-4");
+        verifySetContents(registry.getPluginsThatSupportsWebBasedAuthentication(), "plugin-id-1");
         verifySetContents(registry.getPluginsThatSupportsPasswordBasedAuthentication(), "plugin-id-1");
-        verifySetContents(registry.getPluginsThatSupportsUserSearch(), "plugin-id-1");
     }
 
     private void verifySetContents(Set<String> set, String... values) {
@@ -91,9 +91,11 @@ public class AuthenticationPluginRegistryTest {
         assertThat(set, containsInAnyOrder(values));
     }
 
-    private void verifyConfigurationFor(String pluginId, String displayName, boolean supportsPasswordBasedAuthentication, boolean supportsUserSearch) {
+    private void verifyConfigurationFor(String pluginId, String displayName, String displayImageURL, boolean supportsWebBasedAuthentication,
+                                        boolean supportsPasswordBasedAuthentication, boolean supportsUserSearch) {
         assertThat(registry.getDisplayNameFor(pluginId), is(displayName));
+        assertThat(registry.getDisplayImageURLFor(pluginId), is(displayImageURL));
+        assertThat(registry.supportsPasswordBasedAuthentication(pluginId), is(supportsWebBasedAuthentication));
         assertThat(registry.supportsPasswordBasedAuthentication(pluginId), is(supportsPasswordBasedAuthentication));
-        assertThat(registry.supportsUserSearch(pluginId), is(supportsUserSearch));
     }
 }

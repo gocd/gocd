@@ -191,7 +191,7 @@ public class ArtifactsControllerIntegrationTest {
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
-    //2779 
+    //2779
     @Test
     @Ignore
     public void shouldUpdateLastHeardTimeFromAgentForPut() throws Exception {
@@ -447,6 +447,18 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @Test
+    public void testConsoleOutShouldReturn404WhenJobIsNotFound() throws Exception {
+        prepareConsoleOut("");
+        Stage firstStage = pipeline.getFirstStage();
+        int startLineNumber = 0;
+        ModelAndView view = artifactsController.consoleout("snafu", "snafu", "snafu", "build", String.valueOf(firstStage.getCounter()), startLineNumber);
+
+        assertThat(view.getView().getContentType(), is(RESPONSE_CHARSET));
+        assertThat(view.getView(), is(instanceOf((ResponseCodeView.class))));
+        assertThat(((ResponseCodeView) view.getView()).getContent(), containsString("Job snafu/snafu/snafu/1/build not found."));
+    }
+
+    @Test
     public void shouldSaveChecksumFileInTheCruiseOutputFolder() throws Exception {
         File fooFile = createFile(artifactsRoot, "/tmp/foobar.html");
         FileUtils.writeStringToFile(fooFile, "FooBarBaz...");
@@ -456,7 +468,7 @@ public class ArtifactsControllerIntegrationTest {
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
         postFileWithChecksum("baz/foobar.html", multipartRequest);
-        
+
         assertThat(file(artifactsRoot, "baz/foobar.html"), exists());
         File uploadedChecksumFile = file(artifactsRoot, "cruise-output/md5.checksum");
         assertThat(uploadedChecksumFile, exists());
@@ -472,7 +484,7 @@ public class ArtifactsControllerIntegrationTest {
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
-        
+
         postFileWithChecksum("baz/foobar.html", multipartRequest);
 
         assertThat(file(artifactsRoot, "baz/foobar.html"), exists());

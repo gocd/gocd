@@ -3,9 +3,11 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.*;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import org.hamcrest.core.Is;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -125,15 +127,53 @@ public class GoRepoConfigDataSourceTest {
         assertThat(environmentConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
     }
 
-    public void shouldProvideParseContextWhenCallingPluginParse() throws Exception
+
+    @Test
+    public void shouldProvideParseContextWhenCallingPlugin() throws Exception
     {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
+        ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
         configWatchList.onConfigChange(cruiseConfig);
+
+        when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
         verify(plugin,times(1)).Load(eq(folder),notNull(PartialConfigLoadContext.class));
+    }
+
+    @Test
+    public void shouldProvideConfigurationInParseContextWhenCallingPlugin() throws Exception
+    {
+        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
+        configWatchList.onConfigChange(cruiseConfig);
+
+        repoConfig.getConfiguration().addNewConfigurationWithValue("key","value",false);
+
+        plugin = new AssertingConfigPlugin(repoConfig.getConfiguration());
+        when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
+
+        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+    }
+
+    private class AssertingConfigPlugin implements PartialConfigProvider
+    {
+        private Configuration configuration;
+
+        public AssertingConfigPlugin(Configuration configuration) {
+
+            this.configuration = configuration;
+        }
+
+        @Override
+        public PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) throws Exception {
+            Assert.assertThat(context.configuration(),is(configuration));
+            Assert.assertThat(context.configuration().getProperty("key").getValue(),is("value"));
+            return mock(PartialConfig.class);
+        }
     }
 
     @Test

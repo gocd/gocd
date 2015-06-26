@@ -2,10 +2,10 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.*;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,6 +62,67 @@ public class GoRepoConfigDataSourceTest {
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
         verify(plugin,times(1)).Load(eq(folder),any(PartialConfigLoadContext.class));
+    }
+
+    @Test
+    public void shouldAssignConfigOrigin() throws Exception
+    {
+        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
+        configWatchList.onConfigChange(cruiseConfig);
+
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+
+        PartialConfig partialConfig = repoConfigDataSource.latestPartialConfigForMaterial(material);
+        assertNotNull(partialConfig.getOrigin());
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo,"7a8f");
+        assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+    }
+    @Test
+    public void shouldAssignConfigOriginInPipelines() throws Exception
+    {
+        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
+        configWatchList.onConfigChange(cruiseConfig);
+
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+                .thenReturn(PartialConfigMother.withPipeline("pipe1"));
+
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+
+        PartialConfig partialConfig = repoConfigDataSource.latestPartialConfigForMaterial(material);
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo,"7a8f");
+
+        assertNotNull(partialConfig.getOrigin());
+        assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+
+        PipelineConfig pipe = partialConfig.getGroups().get(0).get(0);
+        assertThat(pipe.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+    }
+
+    @Test
+    public void shouldAssignConfigOriginInEnvironments() throws Exception
+    {
+        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
+        configWatchList.onConfigChange(cruiseConfig);
+
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+                .thenReturn(PartialConfigMother.withEnvironment("UAT"));
+
+        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+
+        PartialConfig partialConfig = repoConfigDataSource.latestPartialConfigForMaterial(material);
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo,"7a8f");
+
+        assertNotNull(partialConfig.getOrigin());
+        assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+
+        EnvironmentConfig environmentConfig = partialConfig.getEnvironments().get(0);
+        assertThat(environmentConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
     }
 
     @Test

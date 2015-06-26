@@ -135,7 +135,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                     newPart = new PartialConfig();
                 }
 
-                newPart.setOrigin(new RepoConfigOrigin(repoConfig,revision));
+                newPart.setOrigins(new RepoConfigOrigin(repoConfig,revision));
                 fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(newPart));
                 notifySuccessListeners(repoConfig, newPart);
             }

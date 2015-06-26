@@ -1,6 +1,7 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.Authorization;
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -34,5 +35,13 @@ public class PartialConfigMother {
 
     private static RepoConfigOrigin createRepoOrigin() {
         return new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://some.git"),"myplugin"),"1234fed");
+    }
+
+    public static PartialConfig withEnvironment(String name) {
+        BasicEnvironmentConfig env = EnvironmentConfigMother.environment(name);
+        PartialConfig partialConfig = new PartialConfig();
+        partialConfig.getEnvironments().add(env);
+        partialConfig.setOrigin(createRepoOrigin());
+        return partialConfig;
     }
 }

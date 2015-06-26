@@ -621,7 +621,7 @@ public class GoConfigService implements Initializer {
     }
 
     public Set<MaterialConfig> getSchedulableMaterials() {
-        return getCurrentConfig().getAllUniqueMaterialsBelongingToAutoPipelines();
+        return getCurrentConfig().getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos();
     }
 
     public Stage scheduleStage(String pipelineName, String stageName, SchedulingContext context) {

@@ -346,7 +346,14 @@ public class BuildCauseProducerService {
         public void onMaterialUpdate(MaterialUpdateCompletedMessage message) {
             Material material = message.getMaterial();
 
-            if(this.configMaterial != null &&
+            if (message instanceof MaterialUpdateFailedMessage) {
+                String failureReason = ((MaterialUpdateFailedMessage) message).getReason();
+                LOGGER.error(format("not scheduling pipeline %s after manual-trigger because update of material failed with reason %s", pipelineConfig.name(), failureReason));
+                showError(CaseInsensitiveString.str(pipelineConfig.name()), format("Could not trigger pipeline '%s'", pipelineConfig.name()),
+                        format("Material update failed for material '%s' because: %s", material.getDisplayName(), failureReason));
+                failed = true;
+            }
+            else if(this.configMaterial != null &&
                     material.isSameFlyweight(this.configMaterial))
             {
                 // Then we have just updated configuration material.
@@ -391,13 +398,6 @@ public class BuildCauseProducerService {
 
             pendingMaterials.remove(material.getFingerprint());
 
-            if (message instanceof MaterialUpdateFailedMessage) {
-                String failureReason = ((MaterialUpdateFailedMessage) message).getReason();
-                LOGGER.error(format("not scheduling pipeline %s after manual-trigger because update of material failed with reason %s", pipelineConfig.name(), failureReason));
-                showError(CaseInsensitiveString.str(pipelineConfig.name()), format("Could not trigger pipeline '%s'", pipelineConfig.name()),
-                        format("Material update failed for material '%s' because: %s", material.getDisplayName(), failureReason));
-                failed = true;
-            }
             if (pendingMaterials.isEmpty()) {
                 materialUpdateStatusNotifier.removeListenerFor(pipelineConfig);
                 markPipelineAsCanBeTriggered(pipelineConfig);

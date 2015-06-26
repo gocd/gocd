@@ -23,8 +23,11 @@ import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.ModificationSummaries;
 import com.thoughtworks.go.domain.ModificationVisitorAdapter;
@@ -125,6 +128,33 @@ public class BuildCause implements Serializable {
                 invalid(other);
             }
         }
+    }
+    public void assertPipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig, BuildCause buildCause) {
+        if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
+        {
+            return;
+        }
+        // then config and code revision must both match
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
+
+        MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
+        MaterialRevision revision = buildCause.getMaterialRevisions().findRevisionFor(configAndCodeMaterial);
+
+        String revisionString = revision.getRevision().getRevision();
+        if(pipelineConfig.isConfigOriginFromRevision(revisionString))
+        {
+            return;
+        }
+
+        invalidRevision(repoConfigOrigin.getRevision(),revisionString);
+    }
+
+    private void invalidRevision(String configRevision,String codeRevision) {
+        throw new BuildCauseOutOfDateException(
+                "Illegal build cause - pipeline configuration is from different revision than scm material. "
+                        + "Pipeline configuration revision: " + configRevision + " "
+                        + "while revision to schedule is : " + codeRevision + "");
     }
 
     private void invalid(MaterialConfigs materialsFromConfig) {
@@ -243,4 +273,6 @@ public class BuildCause implements Serializable {
     public void addOverriddenVariables(EnvironmentVariablesConfig variables) {
         this.variables.addAll(variables);
     }
+
+
 }

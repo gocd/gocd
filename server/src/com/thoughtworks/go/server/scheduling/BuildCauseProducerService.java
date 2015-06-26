@@ -385,11 +385,12 @@ public class BuildCauseProducerService {
                         if (!this.pipelineConfig.materialConfigs().hasMaterialWithFingerprint(materialConfig)) {
                             // this is a material added in recent commit, it wasn't in previous config
                             // wait for it
-                            pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), materialConfigConverter.toMaterial(materialConfig));
+                            Material newMaterial = materialConfigConverter.toMaterial(materialConfig);
+                            pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), newMaterial);
                             // and force update of it
-                            materialUpdateService.updateMaterial(material);
+                            materialUpdateService.updateMaterial(newMaterial);
                             LOGGER.info(format("new material %s in %s was added after manual-trigger. Scheduled update for it.",
-                                    material.getDisplayName(), pipelineConfig.name()));
+                                    newMaterial.getDisplayName(), pipelineConfig.name()));
                         }
                     }
                     this.pipelineConfig = newPipelineConfig;

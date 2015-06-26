@@ -32,7 +32,7 @@
     <properties>
         <main.dir>${project.basedir}/..</main.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jetty.version>9.2.3.v20140905</jetty.version>
+        <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>
 
     <dependencies>

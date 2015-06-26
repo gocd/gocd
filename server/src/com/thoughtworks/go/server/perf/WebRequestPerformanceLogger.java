@@ -5,13 +5,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WebRequestPerformanceLogger {
-    private final boolean shouldLog;
     private PerformanceLogger performanceLogger;
 
     @Autowired
     public WebRequestPerformanceLogger(PerformanceLogger performanceLogger) {
         this.performanceLogger = performanceLogger;
-        this.shouldLog = performanceLogger.isLoggingTurnedOn();
     }
 
     public void logRequest(String uri, String requestor, int status, long contentCount, long requestStartTime, long requestEndTime) {
@@ -19,6 +17,6 @@ public class WebRequestPerformanceLogger {
     }
 
     public boolean isLoggingTurnedOn() {
-        return shouldLog;
+        return performanceLogger.isLoggingTurnedOn();
     }
 }

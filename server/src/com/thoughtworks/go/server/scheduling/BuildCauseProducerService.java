@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -126,14 +128,14 @@ public class BuildCauseProducerService {
         }
     }
 
-    public void manualSchedulePipeline(Username username, PipelineConfig pipelineConfig, ScheduleOptions scheduleOptions, OperationResult result) {
-        long trackingId = schedulingPerformanceLogger.manualSchedulePipelineStart(CaseInsensitiveString.str(pipelineConfig.name()));
+    public void manualSchedulePipeline(Username username, String pipelineName, ScheduleOptions scheduleOptions, OperationResult result) {
+        long trackingId = schedulingPerformanceLogger.manualSchedulePipelineStart(pipelineName);
 
         try {
-            WaitForPipelineMaterialUpdate update = new WaitForPipelineMaterialUpdate(pipelineConfig, new ManualBuild(username), scheduleOptions);
+            WaitForPipelineMaterialUpdate update = new WaitForPipelineMaterialUpdate(pipelineName, new ManualBuild(username), scheduleOptions);
             update.start(result);
         } finally {
-            schedulingPerformanceLogger.manualSchedulePipelineFinish(trackingId, CaseInsensitiveString.str(pipelineConfig.name()));
+            schedulingPerformanceLogger.manualSchedulePipelineFinish(trackingId, pipelineName);
         }
     }
 
@@ -285,21 +287,35 @@ public class BuildCauseProducerService {
     }
 
     private class WaitForPipelineMaterialUpdate implements MaterialUpdateStatusListener {
-        private final PipelineConfig pipelineConfig;
+        private PipelineConfig pipelineConfig;
         private final BuildType buildType;
-
         private final ConcurrentMap<String, Material> pendingMaterials;
+        private Material configMaterial;
         private boolean failed;
         private ScheduleOptions scheduleOptions;
 
-        private WaitForPipelineMaterialUpdate(PipelineConfig pipelineConfig, BuildType buildType, ScheduleOptions scheduleOptions) {
-            this.pipelineConfig = pipelineConfig;
+        private WaitForPipelineMaterialUpdate(String pipelineName, BuildType buildType, ScheduleOptions scheduleOptions) {
+            this.pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
             this.buildType = buildType;
             this.scheduleOptions = scheduleOptions;
             pendingMaterials = new ConcurrentHashMap<String, Material>();
-            for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
-                pendingMaterials.put(materialConfig.getFingerprint(), materialConfigConverter.toMaterial(materialConfig));
+
+            if(isConfigurationInMaterials())
+            {
+                // Then we must update config first and then continue as usual.
+                // it is also possible that config will disappear at update
+                RepoConfigOrigin configRepo = (RepoConfigOrigin) this.pipelineConfig.getOrigin();
+                MaterialConfig materialConfig = configRepo.getMaterial();
+                configMaterial = materialConfigConverter.toMaterial(materialConfig);
+                pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), configMaterial);
             }
+            for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
+                pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), materialConfigConverter.toMaterial(materialConfig));
+            }
+        }
+
+        private boolean isConfigurationInMaterials() {
+            return this.pipelineConfig.isConfigOriginSameAsOneOfMaterials();
         }
 
         public void start(OperationResult result) {
@@ -329,7 +345,52 @@ public class BuildCauseProducerService {
 
         public void onMaterialUpdate(MaterialUpdateCompletedMessage message) {
             Material material = message.getMaterial();
+
+            if(this.configMaterial != null &&
+                    material.isSameFlyweight(this.configMaterial))
+            {
+                // Then we have just updated configuration material.
+                // A chance to refresh our config instance.
+                // This does not guarantee that this config is from newest revision:
+                //  - it might have been invalid
+                // then this instance is still like last time.
+                // We have protection (higher) against that so this will eventually not schedule
+                PipelineConfig newPipelineConfig = goConfigService.pipelineConfigNamed(this.pipelineConfig.name());
+                if(pipelineConfig == null)
+                {
+                    // pipeline we just triggered got removed from configuration
+                    LOGGER.error(format("not scheduling pipeline %s after manual-trigger because pipeline's %s configuration was removed from origin repository",
+                            pipelineConfig.name()));
+                    showError(CaseInsensitiveString.str(pipelineConfig.name()), format("Could not trigger pipeline '%s'", pipelineConfig.name()),
+                            format("Pipeline '%s' configuration has been removed from %s", pipelineConfig.name(), configMaterial.getDisplayName()));
+                    failed = true;
+                }
+                //TODO #1133 we could also check if last parsing in the origin repository failed
+
+                ConfigOrigin oldOrigin = this.pipelineConfig.getOrigin();
+                ConfigOrigin newOrigin = newPipelineConfig.getOrigin();
+                if(!oldOrigin.equals(newOrigin)) {
+                    LOGGER.debug(format("Configuration of manually-triggered pipeline %s has been updated.",
+                            pipelineConfig.name()));
+                    // if all seems good:
+                    // In case materials have changed, we should poll new ones as well
+                    for (MaterialConfig materialConfig : newPipelineConfig.materialConfigs()) {
+                        if (!this.pipelineConfig.materialConfigs().hasMaterialWithFingerprint(materialConfig)) {
+                            // this is a material added in recent commit, it wasn't in previous config
+                            // wait for it
+                            pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), materialConfigConverter.toMaterial(materialConfig));
+                            // and force update of it
+                            materialUpdateService.updateMaterial(material);
+                            LOGGER.info(format("new material %s in %s was added after manual-trigger. Scheduled update for it.",
+                                    material.getDisplayName(), pipelineConfig.name()));
+                        }
+                    }
+                    this.pipelineConfig = newPipelineConfig;
+                }
+            }
+
             pendingMaterials.remove(material.getFingerprint());
+
             if (message instanceof MaterialUpdateFailedMessage) {
                 String failureReason = ((MaterialUpdateFailedMessage) message).getReason();
                 LOGGER.error(format("not scheduling pipeline %s after manual-trigger because update of material failed with reason %s", pipelineConfig.name(), failureReason));

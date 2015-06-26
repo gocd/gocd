@@ -18,7 +18,7 @@ public interface PartialConfigProvider {
     // TODO consider: could have Parse() whose result is
     // stored by Go in memory so that single checkout is parsed only once.
 
-    PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context);
+    PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) throws Exception;
 
     // any further elements that could be obtained from config repo
 }

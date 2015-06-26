@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -145,12 +146,15 @@ public class GoConfigFileHelper {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
+            ConfigCache configCache = new ConfigCache();
+            ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), probeService, serverHealthService);
+                    configCache, new ServerVersion(), configElementImplementationRegistry, probeService, serverHealthService);
             dataSource.upgradeIfNecessary();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
-            GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, new GoConfigPluginService(), new ScmMaterialCheckoutService());
+            GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
+                    new GoConfigPluginService(configCache,configElementImplementationRegistry,probeService), new ScmMaterialCheckoutService());
             GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();

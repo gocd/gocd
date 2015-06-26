@@ -77,7 +77,7 @@ public class GoPartialConfigTest {
     }
 
     @Test
-    public void shouldReturnLatestPartialAfterCheckout_AndWatchListNotEmpty()
+    public void shouldReturnLatestPartialAfterCheckout_AndWatchListNotEmpty() throws Exception
     {
         ScmMaterialConfig material = SetOneConfigRepo();
 
@@ -90,7 +90,7 @@ public class GoPartialConfigTest {
         assertThat(partialConfig.lastPartials()[0], is(part));
     }
     @Test
-    public void shouldReturnEmptyArray_WhenFirstParsingFailed()
+    public void shouldReturnEmptyArray_WhenFirstParsingFailed() throws Exception
     {
         ScmMaterialConfig material = SetOneConfigRepo();
 
@@ -105,7 +105,7 @@ public class GoPartialConfigTest {
         assertThat(partialConfig.lastPartials().length,is(0));
     }
     @Test
-    public void shouldReturnFirstPartial_WhenFirstParsedSucceed_ButSecondFailed()
+    public void shouldReturnFirstPartial_WhenFirstParsedSucceed_ButSecondFailed() throws Exception
     {
         ScmMaterialConfig material = SetOneConfigRepo();
 
@@ -125,7 +125,7 @@ public class GoPartialConfigTest {
     }
 
     @Test
-    public void shouldRemovePartialWhenNoLongerInWatchList()
+    public void shouldRemovePartialWhenNoLongerInWatchList() throws Exception
     {
         ScmMaterialConfig material = SetOneConfigRepo();
 

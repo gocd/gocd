@@ -120,6 +120,14 @@ public class BuildCause implements Serializable {
         }
         return true;
     }
+    public boolean pipelineConfigAndMaterialRevisionMatch(PipelineConfig config){
+        try {
+            assertPipelineConfigAndMaterialRevisionMatch(config);
+        } catch (BuildCauseOutOfDateException e) {
+            return false;
+        }
+        return true;
+    }
 
     public void assertMaterialsMatch(MaterialConfigs other) {
         Materials materialsFromBuildCause = materials();
@@ -129,7 +137,7 @@ public class BuildCause implements Serializable {
             }
         }
     }
-    public void assertPipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig, BuildCause buildCause) {
+    public void assertPipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig) {
         if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
         {
             return;
@@ -139,7 +147,7 @@ public class BuildCause implements Serializable {
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
 
         MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
-        MaterialRevision revision = buildCause.getMaterialRevisions().findRevisionFor(configAndCodeMaterial);
+        MaterialRevision revision = this.getMaterialRevisions().findRevisionFor(configAndCodeMaterial);
 
         String revisionString = revision.getRevision().getRevision();
         if(pipelineConfig.isConfigOriginFromRevision(revisionString))

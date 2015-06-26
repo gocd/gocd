@@ -211,17 +211,19 @@ public class BuildCauseProducerService {
             if (buildCause != null) {
                 buildCause.addOverriddenVariables(scheduleOptions.getVariables());
                 updateChangedRevisions(pipelineConfig.name(), buildCause);
-                if (materialConfigurationChanged || buildType.isValidBuildCause(pipelineConfig, buildCause)) {
-                    pipelineScheduleQueue.schedule(pipelineName, buildCause);
+            }
+            if(isGoodReasonToSchedule(pipelineConfig, buildCause, buildType, materialConfigurationChanged))
+            {
+                pipelineScheduleQueue.schedule(pipelineName, buildCause);
 
-                    schedulingPerformanceLogger.sendingPipelineToTheToBeScheduledQueue(trackingId, pipelineName);
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(format("scheduling pipeline %s with build-cause %s", pipelineName, buildCause));
-                    }
-                } else {
-                    buildType.notifyPipelineNotScheduled(pipelineConfig);
+                schedulingPerformanceLogger.sendingPipelineToTheToBeScheduledQueue(trackingId, pipelineName);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(format("scheduling pipeline %s with build-cause %s; config origin %s",
+                            pipelineName, buildCause,pipelineConfig.getOrigin()));
                 }
-            } else {
+            }
+            else
+            {
                 buildType.notifyPipelineNotScheduled(pipelineConfig);
             }
 
@@ -244,6 +246,25 @@ public class BuildCauseProducerService {
             LOGGER.error(message, e);
             return showError(pipelineName, message, e.getMessage());
         }
+    }
+
+    private boolean isGoodReasonToSchedule(PipelineConfig pipelineConfig, BuildCause buildCause, BuildType buildType,
+                                           boolean materialConfigurationChanged) {
+        if(buildCause == null)
+            return false;
+
+        if(pipelineConfig.isConfigOriginSameAsOneOfMaterials())
+        {
+            // then we need config and material revisions to be consistent
+            if(!buildCause.pipelineConfigAndMaterialRevisionMatch(pipelineConfig))
+            {
+                return false;
+            }
+        }
+        if (materialConfigurationChanged || buildType.isValidBuildCause(pipelineConfig, buildCause)) {
+            return true;
+        }
+        return false;
     }
 
     private void updateChangedRevisions(CaseInsensitiveString pipelineName, BuildCause buildCause) {

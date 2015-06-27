@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
@@ -67,6 +68,8 @@ import static org.mockito.Mockito.*;
 public class MaterialUpdateServiceTest {
     private MaterialUpdateQueue queue;
     private MaterialUpdateCompletedTopic completed;
+    private ConfigMaterialUpdateQueue configQueue;
+    private GoConfigWatchList watchList;
     private GoConfigService goConfigService;
     private static final SvnMaterialConfig MATERIAL_CONFIG = MaterialConfigsMother.svnMaterialConfig();
     private static final SvnMaterial MATERIAL = MaterialsMother.svnMaterial();
@@ -84,6 +87,8 @@ public class MaterialUpdateServiceTest {
     @Before
     public void setUp() throws Exception {
         queue = mock(MaterialUpdateQueue.class);
+        configQueue = mock(ConfigMaterialUpdateQueue.class);
+        watchList = mock(GoConfigWatchList.class);
         completed = mock(MaterialUpdateCompletedTopic.class);
         goConfigService = mock(GoConfigService.class);
         postCommitHookMaterialType = mock(PostCommitHookMaterialTypeResolver.class);
@@ -92,7 +97,8 @@ public class MaterialUpdateServiceTest {
         metricsProbeService = mock(MetricsProbeService.class);
         materialConfigConverter = mock(MaterialConfigConverter.class);
         MDUPerformanceLogger mduPerformanceLogger = mock(MDUPerformanceLogger.class);
-        service = new MaterialUpdateService(queue, completed, goConfigService, systemEnvironment, serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
+        service = new MaterialUpdateService(queue,configQueue , completed,watchList, goConfigService, systemEnvironment,
+                serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
         HashSet<MaterialConfig> materialConfigs = new HashSet(Collections.singleton(MATERIAL_CONFIG));
         HashSet<Material> materials = new HashSet(Collections.singleton(MATERIAL));
         when(goConfigService.getSchedulableMaterials()).thenReturn(materialConfigs);

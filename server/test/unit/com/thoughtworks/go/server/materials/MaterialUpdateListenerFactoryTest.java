@@ -48,7 +48,9 @@ public class MaterialUpdateListenerFactoryTest {
     @Mock private ServerHealthService healthService;
     @Mock private LegacyMaterialChecker legacyMaterialChecker;
     @Mock private MaterialUpdateCompletedTopic topic;
+    @Mock private ConfigMaterialUpdateCompletedTopic configTopic;
     @Mock private MaterialUpdateQueue queue;
+    @Mock private ConfigMaterialUpdateQueue configQueue;
     @Mock private DependencyMaterialUpdater dependencyMaterialUpdater;
     @Mock private ScmMaterialUpdater scmMaterialUpdater;
     @Mock private PackageMaterialUpdater packageMaterialUpdater;
@@ -67,8 +69,10 @@ public class MaterialUpdateListenerFactoryTest {
     public void shouldCreateCompetingConsumersForSuppliedQueue() throws Exception {
         when(systemEnvironment.getNumberOfMaterialCheckListener()).thenReturn(NUMBER_OF_CONSUMERS);
 
-        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic, queue, materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
-                transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger);
+        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
+                materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
+                transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger);
         factory.init();
 
         verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));

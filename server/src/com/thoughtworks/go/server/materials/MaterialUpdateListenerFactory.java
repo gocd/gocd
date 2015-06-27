@@ -50,6 +50,7 @@ public class MaterialUpdateListenerFactory {
 
     @Autowired
     public MaterialUpdateListenerFactory(MaterialUpdateCompletedTopic topic,
+                                         ConfigMaterialUpdateCompletedTopic configTopic,
                                          MaterialUpdateQueue queue,
                                          ConfigMaterialUpdateQueue configQueue,
                                          MaterialRepository materialRepository,
@@ -62,6 +63,7 @@ public class MaterialUpdateListenerFactory {
                                          ScmMaterialUpdater scmMaterialUpdater,
                                          PackageMaterialUpdater packageMaterialUpdater, PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService, MDUPerformanceLogger mduPerformanceLogger) {
         this.topic = topic;
+        this.configTopic = configTopic;
         this.queue = queue;
         this.configQueue = configQueue;
         this.materialRepository = materialRepository;

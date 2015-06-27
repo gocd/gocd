@@ -9,8 +9,6 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.server.materials.ScmMaterialCheckoutListener;
-import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,25 +26,21 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * Parses partial configurations and exposes latest configurations as soon as possible.
  */
 @Component
-public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListener, ScmMaterialCheckoutListener {
+public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListener {
     private static final Logger LOGGER = Logger.getLogger(GoRepoConfigDataSource.class);
 
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
-    private ScmMaterialCheckoutService checkoutService;
 
     // value is partial config instance or last exception
     private Map<String,PartialConfigParseResult> fingerprintLatestConfigMap = new ConcurrentHashMap<String,PartialConfigParseResult>();
 
     private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<PartialConfigUpdateCompletedListener>();
 
-    @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService,
-                                             ScmMaterialCheckoutService checkoutService)
+    @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService)
     {
         this.configPluginService = configPluginService;
         this.configWatchList = configWatchList;
-        this.checkoutService = checkoutService;
-        this.checkoutService.registerListener(this);
         this.configWatchList.registerListener(this);
     }
 
@@ -93,7 +87,6 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         //TODO maybe fire event about changed partials collection
     }
 
-    @Override
     public void onCheckoutComplete(MaterialConfig material, File folder, String revision) {
         // called when pipelines/flyweight/[flyweight] has a clean checkout of latest material
 

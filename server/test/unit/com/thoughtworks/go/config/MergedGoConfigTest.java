@@ -7,7 +7,6 @@ import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
-import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -35,7 +34,6 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
 
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
-    private ScmMaterialCheckoutService checkoutService;
     private PartialConfigProvider plugin;
 
     private GoRepoConfigDataSource repoConfigDataSource;
@@ -62,9 +60,8 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
         configWatchList = new GoConfigWatchList(cachedFileGoConfig);
-        checkoutService = mock(ScmMaterialCheckoutService.class);
 
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService,checkoutService);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService);
 
         partials = new GoPartialConfig(repoConfigDataSource,configWatchList);
 

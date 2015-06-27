@@ -52,7 +52,7 @@ describe Admin::ServerController do
     @go_config_service.stub(:getMailHost).and_return(@mail_host)
     @go_config_service.stub(:security).and_return(@security_config)
 
-    @cruise_config = com.thoughtworks.go.config.CruiseConfig.new()
+    @cruise_config = com.thoughtworks.go.config.BasicCruiseConfig.new()
     @cruise_config.setServerConfig(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))
     @cruise_config.server().setJobTimeout("42")
     @cruise_config.server().setCommandRepositoryLocation("foo")

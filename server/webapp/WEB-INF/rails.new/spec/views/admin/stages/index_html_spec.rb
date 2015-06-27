@@ -27,7 +27,7 @@ describe "admin/stages/index.html.erb" do
 
     @dev_stage = @pipeline.get(0)
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
 
     stage_usage = java.util.HashSet.new
@@ -55,7 +55,7 @@ describe "admin/stages/index.html.erb" do
     @pipeline = PipelineConfigMother.pipelineConfigWithTemplate("pipeline-name", "template-name")
     test_template = PipelineTemplateConfigMother.createTemplate("template-name")
     @cruise_config.stub(:getTemplateByName).and_return(test_template)
-    assign(:processed_cruise_config, @processed_cruise_config = CruiseConfig.new)
+    assign(:processed_cruise_config, @processed_cruise_config = BasicCruiseConfig.new)
     @processed_cruise_config.stub(:pipelineConfigByName).and_return(PipelineConfigMother.createPipelineConfigWithStage("pipeline-name", test_template.first().name().toString()))
     assign(:pipeline, @pipeline)
 

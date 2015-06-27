@@ -101,7 +101,7 @@ describe Admin::PipelineGroupsController do
       @security_service.stub(:isUserAdminOfGroup).and_return(true)
       @user = current_user
       @groups = PipelineConfigMother.createGroups(["group1", "group2", "group3"].to_java(java.lang.String))
-      @config = CruiseConfig.new(@groups.to_a.to_java(PipelineConfigs))
+      @config = BasicCruiseConfig.new(@groups.to_a.to_java(PipelineConfigs))
       group_for_edit = ConfigForEdit.new(@groups.get(0), @config, @config)
       @go_config_service.stub(:loadGroupForEditing).and_return(group_for_edit)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
@@ -367,7 +367,7 @@ describe Admin::PipelineGroupsController do
 
       before :each do
         @empty_group = PipelineConfigMother.createGroup("empty_group", [].to_java(java.lang.String))
-        @destroy_group_config = CruiseConfig.new(@empty_group.to_a.to_java(PipelineConfigs))
+        @destroy_group_config = BasicCruiseConfig.new(@empty_group.to_a.to_java(PipelineConfigs))
         @go_config_service.should_receive(:getConfigForEditing).and_return(@destroy_group_config)
         @pipeline_config_service.should_receive(:canDeletePipelines).and_return({
                 "pipeline_1" => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),

@@ -64,7 +64,7 @@ describe Admin::MaterialsController do
 
     before :each do
       controller.stub(:populate_config_validity)
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       @cruise_config_mother = GoConfigMother.new
       @material_config = GitMaterialConfig.new("http://git.thoughtworks.com")
 

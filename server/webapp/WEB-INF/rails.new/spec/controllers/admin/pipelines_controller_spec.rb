@@ -71,7 +71,7 @@ describe Admin::PipelinesController do
     before(:each) do
       pipeline_config = PipelineConfigMother.pipelineConfigWithMingleConfiguration("HelloWorld", "http://mingleurl.com:7823", "go", "'status' > 'In Dev'")
 
-      pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, CruiseConfig.new, CruiseConfig.new)
+      pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, BasicCruiseConfig.new, BasicCruiseConfig.new)
 
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @result = HttpLocalizedOperationResult.new
@@ -97,7 +97,7 @@ describe Admin::PipelinesController do
     before(:each) do
       pipeline_config = PipelineConfigMother.pipelineConfigWithMingleConfiguration("HelloWorld", "http://mingleurl.com:7823", "go", "'status' > 'In Dev'")
       pipeline_config.setLabelTemplate("some_label_template")
-      @pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, CruiseConfig.new, CruiseConfig.new)
+      @pipeline_config_for_edit = ConfigForEdit.new(pipeline_config, BasicCruiseConfig.new, BasicCruiseConfig.new)
 
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
 
@@ -166,7 +166,7 @@ describe Admin::PipelinesController do
     before(:each) do
       controller.stub(:populate_config_validity)
 
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
       @pipeline = cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
 
@@ -291,7 +291,7 @@ describe Admin::PipelinesController do
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:registry)
-      @cruise_config = CruiseConfig.new
+      @cruise_config = BasicCruiseConfig.new
       @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
       @cruise_config_mother = GoConfigMother.new
     end
@@ -337,7 +337,7 @@ describe Admin::PipelinesController do
 
     it "should have pipelines using templates listed in the pipelineStageJsontemplate list assigned" do
       template_name = "someTemplateName"
-      cruise_config_interpolated = CruiseConfig.new
+      cruise_config_interpolated = BasicCruiseConfig.new
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
       @cruise_config_mother.addPipelineWithTemplate(@cruise_config, "someTemplatePipeline", template_name, "stageName", ["jobName"].to_java(java.lang.String))
 
@@ -391,7 +391,7 @@ describe Admin::PipelinesController do
 
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      @cruise_config = CruiseConfig.new
+      @cruise_config = BasicCruiseConfig.new
       @repository1 = PackageRepositoryMother.create("repo-id", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
       @pkg = PackageDefinitionMother.create("pkg-id", "package3-name", Configuration.new([ConfigurationPropertyMother.create("k2", false, "p3v2")].to_java(ConfigurationProperty)), @repository1)
       @repository1.setPackages(Packages.new([@pkg].to_java(PackageDefinition)))
@@ -696,7 +696,7 @@ describe Admin::PipelinesController do
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       controller.stub(:security_service).and_return(@security_service = double('Security Service'))
-      @cruise_config = CruiseConfig.new
+      @cruise_config = BasicCruiseConfig.new
       @pipeline = PipelineConfigMother.pipelineConfig("foo.bar")
       @cruise_config.addPipeline("group1", @pipeline)
       @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)

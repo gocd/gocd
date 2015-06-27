@@ -28,7 +28,7 @@ describe "admin/stages/new.html.erb" do
     @pipeline_config = PipelineConfigMother.createPipelineConfig("pipeline-name", "foo", ["build-1"].to_java(java.lang.String))
     assign(:pipeline_config, @pipeline_config)
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline_config)
 
     set(@cruise_config, "md5", "abc")

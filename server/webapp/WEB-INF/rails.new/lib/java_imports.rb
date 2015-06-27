@@ -35,6 +35,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.LdapConfig unless defined? LdapConfig
   java_import com.thoughtworks.go.config.PasswordFileConfig unless defined? PasswordFileConfig
   java_import com.thoughtworks.go.config.CruiseConfig unless defined? CruiseConfig
+  java_import com.thoughtworks.go.config.BasicCruiseConfig unless defined? BasicCruiseConfig
   java_import com.thoughtworks.go.config.EnvironmentConfig unless defined? EnvironmentConfig
   java_import com.thoughtworks.go.config.BasicEnvironmentConfig unless defined? BasicEnvironmentConfig
   java_import com.thoughtworks.go.config.EnvironmentVariablesConfig unless defined? EnvironmentVariablesConfig

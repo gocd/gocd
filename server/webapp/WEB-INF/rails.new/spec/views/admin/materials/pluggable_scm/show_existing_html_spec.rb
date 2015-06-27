@@ -24,7 +24,7 @@ describe "admin/materials/pluggable_scm/show_existing.html.erb" do
   before :each do
     in_params(:pipeline_name => 'pipeline_name')
 
-    assign(:cruise_config, config = CruiseConfig.new)
+    assign(:cruise_config, config = BasicCruiseConfig.new)
     set(config, 'md5', 'md5-1')
 
     view.stub(:admin_pluggable_scm_choose_existing_path).and_return('admin_pluggable_scm_choose_existing_path')

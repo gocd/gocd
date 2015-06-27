@@ -37,7 +37,7 @@ describe StagesController do
     @shine_dao = double('shine dao')
     @material_service = double('material service')
     @job_presentation_service = double("job presentation service")
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     @go_config_service = double("go config service")
     @user = Username.new(CaseInsensitiveString.new("foo"))
     @status = "status"

@@ -61,7 +61,7 @@ describe Admin::PackageDefinitionsController do
     before(:each) do
       controller.stub(:populate_config_validity)
       controller.stub(:populate_health_messages)
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       @go_config_service = stub_service(:go_config_service)
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)

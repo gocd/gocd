@@ -24,7 +24,7 @@ describe "admin/jobs/new.html.erb" do
 
   before :each do
     view.stub(:url_for).and_return("url_for_new_job")
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
     set(@cruise_config, "md5", "abc")
     in_params(:pipeline_name => "pipeline-name", :action => "index", :controller => "admin/jobs", :stage_name => "stage-name")

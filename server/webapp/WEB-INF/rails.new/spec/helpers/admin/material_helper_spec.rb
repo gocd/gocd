@@ -35,7 +35,7 @@ describe Admin::MaterialHelper do
 
   describe "dropdown options for package repositories" do
     before :each do
-      @original_cruise_config = CruiseConfig.new
+      @original_cruise_config = BasicCruiseConfig.new
       valid_plugin_id = "pluginid"
       invalid_plugin_id = "invalid-pluginid"
       repository1 = PackageRepositoryMother.create("repo1", "repo1-name", valid_plugin_id, "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))

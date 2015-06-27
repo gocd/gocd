@@ -23,7 +23,7 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
     @pipeline_group_one_admin = Username.new(CaseInsensitiveString.new("group-one-admin"))
     @pipeline_group_two_admin = Username.new(CaseInsensitiveString.new("group-two-admin"))
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     security_config = SecurityConfig.new()
     security_config.modifyPasswordFile(PasswordFileConfig.new("/tmp/pass"));
     admin_config = security_config.adminsConfig()

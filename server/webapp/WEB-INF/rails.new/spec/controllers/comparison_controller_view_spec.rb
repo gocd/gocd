@@ -238,7 +238,7 @@ describe ComparisonController, "view" do
 
     it "should render errors when Checkins return an error" do
       config_service = stub_service(:go_config_service)
-      config_service.should_receive(:getCurrentConfig).and_return(new_config = CruiseConfig.new)
+      config_service.should_receive(:getCurrentConfig).and_return(new_config = BasicCruiseConfig.new)
       controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
       controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))

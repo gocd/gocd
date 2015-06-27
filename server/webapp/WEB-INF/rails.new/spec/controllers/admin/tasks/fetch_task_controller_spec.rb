@@ -60,7 +60,7 @@ describe Admin::TasksController, "fetch task" do
       tasks.add(fetch_task)
       @template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template.name"), [stage_one].to_java(StageConfig))
 
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       @cruise_config.addPipeline("my-groups", @pipeline)
       @cruise_config.addPipeline("my-groups", @parent_pipeline)
       @cruise_config.addPipeline("old-groups", @gramp_pipeline)

@@ -41,7 +41,7 @@ describe "admin/pipelines/new.html.erb" do
     assign(:task_view_models, tvms)
     assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
     repository2 = PackageRepositoryMother.create("repo2", "repo2-name", "pluginid", "version", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
     pkg1 = PackageDefinitionMother.create("pkg1", "package1-name", Configuration.new([ConfigurationPropertyMother.create("k2", false, "v2")].to_java(ConfigurationProperty)), repository1)

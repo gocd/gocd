@@ -23,7 +23,7 @@ describe "admin/templates/new.html.erb" do
 
   before(:each) do
     assign(:user, Username.new(CaseInsensitiveString.new("loser")))
-    assign(:cruise_config, cruise_config = CruiseConfig.new)
+    assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
     view.stub(:template_create_path).and_return("template_create_path")
   end

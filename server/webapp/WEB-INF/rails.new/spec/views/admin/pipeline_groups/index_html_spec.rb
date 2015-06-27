@@ -26,7 +26,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     view.stub(:tab_with_display_name).and_return("tab_link")
     view.stub(:mycruise_available?).and_return(false)
     view.stub(:can_view_admin_page?).and_return(true)
-    assign(:cruise_config, cruise_config = CruiseConfig.new)
+    assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
     assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),

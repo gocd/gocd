@@ -41,7 +41,7 @@ describe "admin/pipelines/new.html.erb" do
     assign(:task_view_models, tvms)
     assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     assign(:cruise_config, @cruise_config)
     assign(:original_cruise_config, @cruise_config)
     set(@cruise_config, "md5", "abc")

@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @understands messages about completed material updates
+ * @understands messages about required material updates
  */
 @Component
 public class MaterialUpdateQueue extends GoMessageQueue<MaterialUpdateMessage> {

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
+import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
@@ -28,13 +29,13 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
  * @understands when to trigger updates for materials
  */
 public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateMessage> {
-    private final MaterialUpdateCompletedTopic topic;
+    private final GoMessageTopic<MaterialUpdateCompletedMessage> topic;
     private final MaterialDatabaseUpdater updater;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
-    private GoRepoConfigDataSource repoConfigDataSource;
 
-    public MaterialUpdateListener(MaterialUpdateCompletedTopic topic, MaterialDatabaseUpdater updater, MDUPerformanceLogger mduPerformanceLogger, GoDiskSpaceMonitor diskSpaceMonitor) {
+    public MaterialUpdateListener(GoMessageTopic<MaterialUpdateCompletedMessage> topic, MaterialDatabaseUpdater updater,
+                                  MDUPerformanceLogger mduPerformanceLogger, GoDiskSpaceMonitor diskSpaceMonitor) {
         this.topic = topic;
         this.updater = updater;
         this.mduPerformanceLogger = mduPerformanceLogger;

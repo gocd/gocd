@@ -118,7 +118,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             catch (Exception ex)
             {
                 // TODO make sure this is clearly shown to user
-                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(ex));
+                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(revision,ex));
                 LOGGER.error(String.format("Failed to get config plugin for %s",
                         material.getDisplayName()));
                 notifyFailureListeners(repoConfig, ex);
@@ -137,13 +137,13 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 }
 
                 newPart.setOrigins(new RepoConfigOrigin(repoConfig, revision));
-                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(newPart));
+                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(revision,newPart));
                 notifySuccessListeners(repoConfig, newPart);
             }
             catch (Exception ex)
             {
                 // TODO make sure this is clearly shown to user
-                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(ex));
+                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(revision,ex));
                 LOGGER.error(String.format("Failed to parse configuration material %s by %s",
                         material.getDisplayName(),plugin));
                 notifyFailureListeners(repoConfig, ex);
@@ -181,19 +181,32 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         }
     }
 
+    public String getRevisionAtLastAttempt(MaterialConfig material) {
+        String fingerprint = material.getFingerprint();
+        PartialConfigParseResult result = fingerprintLatestConfigMap.get(fingerprint);
+        if (result == null)
+            return null;
+
+        return result.getRevision();
+    }
 
 
     private  class  PartialConfigParseResult{
+        private final String revision;
         private PartialConfig lastSuccess;
         private Exception lastFailure;
 
-        public PartialConfigParseResult(PartialConfig newPart) {
+        public PartialConfigParseResult(String revision, PartialConfig newPart)
+        {
+            this.revision = revision;
             this.lastSuccess = newPart;
         }
 
-        public PartialConfigParseResult(Exception ex) {
+        public PartialConfigParseResult(String revision,Exception ex) {
+            this.revision = revision;
             this.lastFailure = ex;
         }
+
 
         public PartialConfig getLastSuccess() {
             return lastSuccess;
@@ -209,6 +222,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
         public void setLastFailure(Exception lastFailure) {
             this.lastFailure = lastFailure;
+        }
+
+        public String getRevision() {
+            return revision;
         }
     }
 

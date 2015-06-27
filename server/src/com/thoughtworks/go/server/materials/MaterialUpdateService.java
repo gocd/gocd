@@ -17,6 +17,13 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigWatchList;
+import com.thoughtworks.go.config.GoRepoConfigDataSource;
+import com.thoughtworks.go.config.PartialConfigUpdateCompletedListener;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -28,6 +35,7 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTyp
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTypeResolver;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
+import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -41,6 +49,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -55,10 +64,12 @@ import static java.lang.String.format;
  * @understands when to send requests to update a material on the database
  */
 @Service
-public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCompletedMessage>, ConfigChangedListener {
+public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCompletedMessage>, ConfigChangedListener  {
     private static final Logger LOGGER = Logger.getLogger(MaterialUpdateService.class);
 
     private final MaterialUpdateQueue updateQueue;
+    private final ConfigMaterialUpdateQueue configUpdateQueue;
+    private final GoConfigWatchList watchList;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
     private ServerHealthService serverHealthService;
@@ -74,13 +85,18 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     private Set<Material> schedulableMaterials;
 
     @Autowired
-    public MaterialUpdateService(MaterialUpdateQueue queue, MaterialUpdateCompletedTopic completed, GoConfigService goConfigService,
+    public MaterialUpdateService(MaterialUpdateQueue queue,ConfigMaterialUpdateQueue configUpdateQueue,
+                                 MaterialUpdateCompletedTopic completed,
+                                 GoConfigWatchList watchList,
+                                 GoConfigService goConfigService,
                                  SystemEnvironment systemEnvironment, ServerHealthService serverHealthService,
                                  PostCommitHookMaterialTypeResolver postCommitHookMaterialType,
                                  MDUPerformanceLogger mduPerformanceLogger, MaterialConfigConverter materialConfigConverter) {
+        this.watchList = watchList;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.updateQueue = queue;
+        this.configUpdateQueue = configUpdateQueue;
         this.serverHealthService = serverHealthService;
         this.postCommitHookMaterialType = postCommitHookMaterialType;
         this.mduPerformanceLogger = mduPerformanceLogger;
@@ -145,7 +161,10 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             }
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
-                updateQueue.post(new MaterialUpdateMessage(material, trackingId));
+                if(isConfigMaterial(material))
+                    configUpdateQueue.post(new MaterialUpdateMessage(material, trackingId));
+                else
+                    updateQueue.post(new MaterialUpdateMessage(material, trackingId));
             } catch (RuntimeException e) {
                 inProgress.remove(material);
                 throw e;
@@ -161,6 +180,10 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                         general(scope)));
             }
         }
+    }
+
+    private boolean isConfigMaterial(Material material) {
+        return watchList.hasConfigRepoWithFingerprint(material.getFingerprint());
     }
 
     private Long getMaterialUpdateInActiveTimeoutInMillis() {

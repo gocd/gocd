@@ -3,6 +3,7 @@ package com.thoughtworks.go.config.remote;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -26,6 +27,7 @@ public class ConfigRepoConfig implements Validatable {
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
 
+    public static final String AUTO_UPDATE = "autoUpdate";
     public static final String UNIQUE_REPO = "unique_repo";
     public static final String REPO = "repo";
 
@@ -87,6 +89,8 @@ public class ConfigRepoConfig implements Validatable {
     @Override
     public void validate(ValidationContext validationContext) {
         this.validateRepoIsSet();
+        this.validateAutoUpdateEnabled();
+        this.validateAutoUpdateState(validationContext);
     }
 
     @Override
@@ -113,6 +117,13 @@ public class ConfigRepoConfig implements Validatable {
         map.put(materialFingerprint, this);
     }
 
+    private void validateAutoUpdateEnabled() {
+        if(!this.getMaterialConfig().isAutoUpdate())
+            this.errors.add(AUTO_UPDATE,String.format(
+                    "Configuration repository material %s must have autoUpdate enabled",
+                    this.getMaterialConfig().getDisplayName()));
+    }
+
     private void addMaterialConflictError() {
         this.errors.add(UNIQUE_REPO,String.format(
                 "You have defined multiple configuration repositories with the same repository - %s",
@@ -123,6 +134,23 @@ public class ConfigRepoConfig implements Validatable {
         if (this.getMaterialConfig() == null) {
             this.errors.add(REPO,"Configuration repository material not specified");
         }
+    }
+
+    private void validateAutoUpdateState(ValidationContext validationContext) {
+        if(validationContext == null)
+            return;
+
+        MaterialConfig material  = this.getMaterialConfig();
+
+        MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
+        if (allMaterialsByFingerPrint != null) {
+            for(MaterialConfig other : allMaterialsByFingerPrint)
+            {
+                if(!other.isAutoUpdate())
+                    ((ScmMaterialConfig) other).setAutoUpdateMismatchErrorWithConfigRepo();
+            }
+        }
+
     }
 
 

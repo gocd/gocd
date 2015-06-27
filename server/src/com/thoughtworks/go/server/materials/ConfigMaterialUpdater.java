@@ -40,6 +40,8 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
         this.materialRepository = materialRepository;
         this.configCompleted = configCompletedTopic;
         this.topic = topic;
+
+        this.configCompleted.addListener(this);
     }
 
     @Override
@@ -51,20 +53,28 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
             LOGGER.debug(format("[Config Material Update] Config material update completed for material %s. Starting parse process", material));
         }
         try {
-            File folder = materialRepository.folderFor(material);
-            MaterialRevisions latestModification = materialRepository.findLatestModification(material);
-            String revision = latestModification.latestRevision();
+            if(message instanceof MaterialUpdateFailedMessage)
+            {
+                MaterialUpdateFailedMessage failure = (MaterialUpdateFailedMessage)message;
+                LOGGER.warn(String.format("[Config Material Update] Cannot update configuration part because material update has failed. Reason: ",
+                        failure.getReason()));
+            }
+            else {
+                File folder = materialRepository.folderFor(material);
+                MaterialRevisions latestModification = materialRepository.findLatestModification(material);
+                String revision = latestModification.latestRevision();
 
-            MaterialRevision lastParseRevision = getMaterialRevisionAtLastParseAttempt(message);
-            if (lastParseRevision == null) {
-                //never parsed
-                UpdateConfigurationFromCheckout(folder, revision, material);
-            } else if (latestModification.findRevisionFor(material.config())
-                    .hasChangedSince(lastParseRevision)) {
-                // revision has changed. the config files might have been updated
-                UpdateConfigurationFromCheckout(folder, revision, material);
-            } else {
-                // revision is the same as last time, no need to parse again
+                MaterialRevision lastParseRevision = getMaterialRevisionAtLastParseAttempt(message);
+                if (lastParseRevision == null) {
+                    //never parsed
+                    UpdateConfigurationFromCheckout(folder, revision, material);
+                } else if (latestModification.findRevisionFor(material.config())
+                        .hasChangedSince(lastParseRevision)) {
+                    // revision has changed. the config files might have been updated
+                    UpdateConfigurationFromCheckout(folder, revision, material);
+                } else {
+                    // revision is the same as last time, no need to parse again
+                }
             }
         }
         finally {

@@ -39,6 +39,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MaterialUpdateListenerFactoryTest {
     private static final int NUMBER_OF_CONSUMERS = 5;
+    private static final int NUMBER_OF_CONFIG_CONSUMERS = 1;
 
     @Mock private MaterialService materialService;
     @Mock private MaterialRepository materialRepository;
@@ -76,5 +77,18 @@ public class MaterialUpdateListenerFactoryTest {
         factory.init();
 
         verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
+    }
+
+    @Test
+    public void shouldCreateCompetingConsumersForSuppliedConfigQueue() throws Exception {
+        when(systemEnvironment.getNumberOfConfigMaterialCheckListener()).thenReturn(NUMBER_OF_CONFIG_CONSUMERS);
+
+        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
+                materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
+                transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger);
+        factory.init();
+
+        verify(configQueue, new Times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
     }
 }

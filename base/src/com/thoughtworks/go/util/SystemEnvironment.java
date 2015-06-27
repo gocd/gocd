@@ -394,6 +394,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public int getNumberOfMaterialCheckListener() {
         return Integer.parseInt(getPropertyImpl("material.check.threads", "10"));
     }
+    public int getNumberOfConfigMaterialCheckListener() {
+        return Integer.parseInt(getPropertyImpl("material.config.check.threads", "2"));
+    }
 
     public int getNumberOfPluginNotificationListener() {
         return PLUGIN_NOTIFICATION_LISTENER_COUNT.getValue();

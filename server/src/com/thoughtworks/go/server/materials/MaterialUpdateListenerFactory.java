@@ -81,10 +81,9 @@ public class MaterialUpdateListenerFactory {
     }
 
     public void init(){
-        int numberOfAllListeners = systemEnvironment.getNumberOfMaterialCheckListener();
-        int numberOfConfigListeners = 2; //TODO #1133 systemEnvironment.getNumberOfConfigMaterialCheckListener();
+        int numberOfStandardMaterialListeners = systemEnvironment.getNumberOfMaterialCheckListener();
+        int numberOfConfigListeners = systemEnvironment.getNumberOfConfigMaterialCheckListener();
 
-        int numberOfStandardMaterialListeners = numberOfAllListeners - numberOfConfigListeners;
         for (int i = 0; i < numberOfStandardMaterialListeners; i++) {
             createWorker(this.queue, this.topic);
         }

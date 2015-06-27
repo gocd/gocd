@@ -23,7 +23,7 @@ describe "admin/pipelines/clone.html.erb" do
   it "should have a text box for pipeline name and group name" do
     pipeline = PipelineConfigMother.pipelineConfig("some-pipeline")
     assign(:pipeline, pipeline)
-    pipeline_group = PipelineConfigs.new
+    pipeline_group = BasicPipelineConfigs.new
     pipeline_group.add(pipeline)
     assign(:pipeline_group, pipeline_group)
     assign(:group_name, "")

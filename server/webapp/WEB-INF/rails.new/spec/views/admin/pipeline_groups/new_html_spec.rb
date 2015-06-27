@@ -29,7 +29,7 @@ describe "admin/pipeline_groups/new.html.erb" do
   end
 
   it "should display form to create a new template" do
-    assign(:group, PipelineConfigs.new)
+    assign(:group, BasicPipelineConfigs.new)
 
     render
 

@@ -117,7 +117,7 @@ describe Admin::PipelineGroupsController do
         
         get :new
 
-        assigns[:group].should == PipelineConfigs.new
+        assigns[:group].should == BasicPipelineConfigs.new
         assert_template layout: false
       end
     end
@@ -130,7 +130,7 @@ describe Admin::PipelineGroupsController do
 
       it "should create a new pipeline group with the given name" do
         stub_save_for_success(@config)
-        group = PipelineConfigs.new("name", Authorization.new(), [].to_java(PipelineConfig))
+        group = BasicPipelineConfigs.new("name", Authorization.new(), [].to_java(PipelineConfig))
 
         post :create, :config_md5 => "1234abcd", :group => { :group => "name"}
 

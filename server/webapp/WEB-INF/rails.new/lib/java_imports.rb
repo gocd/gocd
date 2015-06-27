@@ -80,6 +80,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.ParamConfig unless defined? ParamConfig
   java_import com.thoughtworks.go.config.ParamsConfig unless defined? ParamsConfig
   java_import com.thoughtworks.go.config.PipelineConfigs unless defined? PipelineConfigs
+  java_import com.thoughtworks.go.config.BasicPipelineConfigs unless defined? BasicPipelineConfigs
   java_import com.thoughtworks.go.config.PipelineConfig unless defined? PipelineConfig
   java_import com.thoughtworks.go.domain.PipelineGroups unless defined? PipelineGroups
   java_import com.thoughtworks.go.domain.PipelineDependencyGraphOld unless defined? PipelineDependencyGraphOld

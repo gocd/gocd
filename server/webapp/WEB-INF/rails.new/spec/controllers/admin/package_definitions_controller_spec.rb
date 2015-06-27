@@ -192,8 +192,8 @@ describe Admin::PackageDefinitionsController do
         p1 = PipelineConfig.new(CaseInsensitiveString.new("pipeline1"), MaterialConfigs.new([packageOne, packageTwo].to_java(PackageMaterialConfig)), [StageConfig.new].to_java(StageConfig));
         p2 = PipelineConfig.new(CaseInsensitiveString.new("pipeline2"), MaterialConfigs.new([packageTwo].to_java(PackageMaterialConfig)), [StageConfig.new].to_java(StageConfig));
 
-        groupOne = PipelineConfigs.new([p1].to_java(PipelineConfig));
-        groupTwo = PipelineConfigs.new([p2].to_java(PipelineConfig));
+        groupOne = BasicPipelineConfigs.new([p1].to_java(PipelineConfig));
+        groupTwo = BasicPipelineConfigs.new([p2].to_java(PipelineConfig));
 
         @cruise_config.getGroups.add(groupOne)
         @cruise_config.getGroups.add(groupTwo)

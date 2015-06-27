@@ -304,7 +304,7 @@ describe Admin::PipelinesController do
       job_configs = JobConfigs.new
       job_configs.add(JobConfig.new(CaseInsensitiveString.new("defaultJob")))
       pipeline = PipelineConfig.new(CaseInsensitiveString.new(""), MaterialConfigs.new, [StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)].to_java(StageConfig))
-      assigns[:pipeline_group].should == PipelineConfigs.new([pipeline].to_java(PipelineConfig))
+      assigns[:pipeline_group].should == BasicPipelineConfigs.new([pipeline].to_java(PipelineConfig))
       assigns[:pipeline].should == pipeline
       assigns[:all_pipelines].should == java.util.ArrayList.new
       assigns[:cruise_config].should == @cruise_config
@@ -516,7 +516,7 @@ describe Admin::PipelinesController do
       stage_config = StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)
       pipeline_config = PipelineConfig.new(CaseInsensitiveString.new(""), com.thoughtworks.go.config.materials.MaterialConfigs.new, [stage_config].to_java(StageConfig))
       assigns[:pipeline].should == pipeline_config
-      assigns[:pipeline_group].should == PipelineConfigs.new("new-group", Authorization.new, [pipeline_config].to_java(PipelineConfig))
+      assigns[:pipeline_group].should == BasicPipelineConfigs.new("new-group", Authorization.new, [pipeline_config].to_java(PipelineConfig))
       assigns[:group_name].should == "new-group"
       assigns[:task_view_models].should == task_view_models
       list_of_pipelines = java.util.ArrayList.new
@@ -710,7 +710,7 @@ describe Admin::PipelinesController do
 
         clonedPipeline = @pipeline.duplicate()
         assigns[:pipeline].should == clonedPipeline
-        assigns[:pipeline_group].should == PipelineConfigs.new([clonedPipeline].to_java(PipelineConfig))
+        assigns[:pipeline_group].should == BasicPipelineConfigs.new([clonedPipeline].to_java(PipelineConfig))
         assigns[:group_name].should == "group1"
         assigns[:groups_list].should == ["group1", "group2"]
         assigns[:groups_json].should == [{"group" => "group1"}, {"group" => "group2"}].to_json

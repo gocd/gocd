@@ -29,7 +29,7 @@ describe "admin/pipelines/new.html.erb" do
     @material_config.setName(CaseInsensitiveString.new("Svn Material Name"))
     @pipeline.materialConfigs().clear()
     @pipeline.addMaterialConfig(@material_config)
-    @pipeline_group = PipelineConfigs.new
+    @pipeline_group = BasicPipelineConfigs.new
     @pipeline_group.add(@pipeline)
 
     assign(:pipeline, @pipeline)

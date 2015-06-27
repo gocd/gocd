@@ -31,11 +31,11 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
     server_config = ServerConfig.new("artifacts-dir", security_config)
     @cruise_config.setServerConfig(server_config)
 
-    @group_one = PipelineConfigs.new()
+    @group_one = BasicPipelineConfigs.new()
     @group_one.setGroup("group-one")
     @group_one.getAuthorization().getAdminsConfig().add(com.thoughtworks.go.config.AdminUser.new(@pipeline_group_one_admin.getUsername()))
 
-    group_two = PipelineConfigs.new()
+    group_two = BasicPipelineConfigs.new()
     group_two.setGroup("group-two")
     group_two.getAuthorization().getAdminsConfig().add(com.thoughtworks.go.config.AdminUser.new(@pipeline_group_two_admin.getUsername()))
 

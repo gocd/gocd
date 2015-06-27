@@ -32,9 +32,9 @@ describe "admin/package_definitions/show_with_repository_list.html.erb" do
     # package to pipeline usage map setup
     @packageToPipelineMap = HashMap.new
     packageOnePipelines = ArrayList.new
-    packageOnePipelines.add(Pair.new(PipelineConfig.new,PipelineConfigs.new))
+    packageOnePipelines.add(Pair.new(PipelineConfig.new,BasicPipelineConfigs.new))
     packageThreePipelines = ArrayList.new
-    packageThreePipelines.add(Pair.new(PipelineConfig.new,PipelineConfigs.new))
+    packageThreePipelines.add(Pair.new(PipelineConfig.new,BasicPipelineConfigs.new))
     @packageToPipelineMap.put("pid1",packageOnePipelines)
     @packageToPipelineMap.put("pid3",packageThreePipelines)
 

@@ -119,16 +119,25 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldSendMaterialUpdateCheckMessageWhenTimerIsCalled() throws Exception {
+    public void shouldSendMaterialUpdateMessageOnlyToMaterialQueueWhenTimerIsCalled() throws Exception {
         service.onTimer();
         Mockito.verify(queue).post(matchMaterialUpdateMessage(MATERIAL));
+        Mockito.verify(configQueue,times(0)).post(any(MaterialUpdateMessage.class));
+    }
+    @Test
+    public void shouldSendMaterialUpdateMessageOnlyToConfigQueue_WhenTimerIsCalled_AndMaterialIsConfigRepo() throws Exception {
+        when(watchList.hasConfigRepoWithFingerprint(MATERIAL.getFingerprint())).thenReturn(true);
+        service.onTimer();
+        Mockito.verify(configQueue).post(matchMaterialUpdateMessage(MATERIAL));
+        Mockito.verify(queue,times(0)).post(any(MaterialUpdateMessage.class));
     }
 
     @Test
-    public void shouldNotSendMaterialUpdateCheckMessageIfMaterialIsStillBeingChecked() throws Exception {
+    public void shouldNotSendMaterialUpdateMessageIfMaterialIsStillBeingChecked() throws Exception {
         service.onTimer();
         service.onTimer();
         Mockito.verify(queue, new AtMost(1)).post(matchMaterialUpdateMessage(MATERIAL));
+        Mockito.verify(configQueue,times(0)).post(any(MaterialUpdateMessage.class));
     }
 
     @Test

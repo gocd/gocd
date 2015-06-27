@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.materials;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -28,7 +29,7 @@ import org.apache.log4j.Logger;
 @Component
 public class MaterialUpdateStatusNotifier implements GoMessageListener<MaterialUpdateCompletedMessage> {
     private static final Logger LOGGER = Logger.getLogger(MaterialUpdateStatusNotifier.class);
-    private final ConcurrentHashMap<String, MaterialUpdateStatusListener> pending = new ConcurrentHashMap<String, MaterialUpdateStatusListener>();
+    private final ConcurrentMap<String, MaterialUpdateStatusListener> pending = new ConcurrentHashMap<String, MaterialUpdateStatusListener>();
 
     @Autowired
     public MaterialUpdateStatusNotifier(MaterialUpdateCompletedTopic topic) {

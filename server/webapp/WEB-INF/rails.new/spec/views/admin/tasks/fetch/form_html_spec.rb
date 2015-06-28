@@ -21,7 +21,7 @@ describe "admin/tasks/fetch/new.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
-    assign(:cruise_config, config = CruiseConfig.new)
+    assign(:cruise_config, config = BasicCruiseConfig.new)
     set(config, "md5", "abcd1234")
     view.stub(:admin_task_create_path).and_return("task_create_path")
     view.stub(:admin_task_update_path).and_return("task_update_path")

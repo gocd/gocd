@@ -94,7 +94,7 @@ describe Admin::PackageRepositoriesController do
     describe "new" do
       before(:each) do
         controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
-        @cruise_config = CruiseConfig.new
+        @cruise_config = BasicCruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @user = current_user
@@ -117,7 +117,7 @@ describe Admin::PackageRepositoriesController do
     describe "list" do
       before(:each) do
         controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
-        @cruise_config = CruiseConfig.new
+        @cruise_config = BasicCruiseConfig.new
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user
@@ -139,7 +139,7 @@ describe Admin::PackageRepositoriesController do
 
     describe "config" do
       before(:each) do
-        @cruise_config = CruiseConfig.new
+        @cruise_config = BasicCruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
@@ -180,7 +180,7 @@ describe Admin::PackageRepositoriesController do
     describe "create" do
       before(:each) do
         controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
-        @cruise_config = CruiseConfig.new
+        @cruise_config = BasicCruiseConfig.new
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
@@ -218,7 +218,7 @@ describe Admin::PackageRepositoriesController do
     describe "edit" do
       before(:each) do
         controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
-        @cruise_config = CruiseConfig.new
+        @cruise_config = BasicCruiseConfig.new
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
@@ -271,7 +271,7 @@ describe Admin::PackageRepositoriesController do
     describe "update" do
       before(:each) do
         controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
-        @cruise_config = CruiseConfig.new
+        @cruise_config = BasicCruiseConfig.new
         @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user

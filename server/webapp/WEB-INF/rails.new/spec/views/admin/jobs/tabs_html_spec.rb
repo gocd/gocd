@@ -30,7 +30,7 @@ describe "admin/jobs/tabs.html.erb" do
     assign(:stage, stage)
     assign(:job, @job)
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", pipeline)
     set(@cruise_config, "md5", "abc")
     in_params(:stage_parent => "pipelines", :pipeline_name => "pipline-name", :stage_name => "stage-name", :action => "edit", :controller => "admin/jobs", :job_name => "job-name", :current_tab => "tabs")

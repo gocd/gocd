@@ -20,7 +20,7 @@ describe "admin/pipeline_groups/edit.html.erb" do
   include GoUtil, ReflectiveUtil
 
   before(:each) do
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     set(@cruise_config, "md5", "abcd1234")
     @group = PipelineConfigMother.createGroups(["group1"].to_java(java.lang.String)).get(0)
     assign(:group, @group)

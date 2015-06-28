@@ -22,6 +22,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,8 +35,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -128,6 +131,44 @@ public class ConfigMaterialUpdaterIntegrationTest {
         TestRepo.internalTearDown();
         dbHelper.onTearDown();
         configHelper.onTearDown();
+    }
+
+    @Test
+    public void shouldBeInProgressUntilParsedWhenValid() throws Exception
+    {
+        materialUpdateService.updateMaterial(material);
+
+        // because first result of parsing is left in repo data source
+        // and then message is posted to take material from 'in progress' state
+
+        assertInProgressState();
+    }
+    @Test
+    public void shouldBeInProgressUntilParsedWhenInvalid() throws Exception
+    {
+        configTestRepo.addCodeToRepositoryAndPush("bogus.gocd.xml", "added bad config file",
+                "<?xml ve\"?>\n"
+                + "<cru>\n"
+                + "</cruise>");
+
+        materialUpdateService.updateMaterial(material);
+
+        // because first result of parsing is left in repo data source
+        // and then message is posted to take material from 'in progress' state
+
+        assertInProgressState();
+    }
+
+    private void assertInProgressState() throws InterruptedException {
+        int i = 0;
+        while (goRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig) == null) {
+            if(!materialUpdateService.isInProgress(material))
+                Assert.fail("should be still in progress");
+
+            Thread.sleep(1);
+            if(i++ > 10000)
+                fail("material is hung - more than 10 seconds in progress");
+        }
     }
 
     @Test

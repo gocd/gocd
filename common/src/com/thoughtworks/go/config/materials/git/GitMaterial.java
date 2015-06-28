@@ -70,7 +70,8 @@ public class GitMaterial extends ScmMaterial {
 
     @Override
     public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        throw new RuntimeException("Checkout not implemented");
+        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
+        this.updateTo(output,revision,baseDir,execCtx);
     }
 
     public GitMaterial(String url, String branch) {

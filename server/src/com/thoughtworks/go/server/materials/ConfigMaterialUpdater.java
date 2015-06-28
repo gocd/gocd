@@ -39,13 +39,17 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
                                  MaterialRepository materialRepository,
                                  MaterialChecker materialChecker,
                                  ConfigMaterialUpdateCompletedTopic configCompletedTopic,
-                                 MaterialUpdateCompletedTopic topic)
+                                 MaterialUpdateCompletedTopic topic,
+                                 MaterialService materialService,
+                                 SubprocessExecutionContext subprocessExecutionContext)
     {
         this.repoConfigDataSource = repoConfigDataSource;
         this.materialChecker = materialChecker;
         this.materialRepository = materialRepository;
         this.configCompleted = configCompletedTopic;
         this.topic = topic;
+        this.materialService = materialService;
+        this.subprocessExecutionContext = subprocessExecutionContext;
 
         this.configCompleted.addListener(this);
     }

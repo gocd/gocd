@@ -8,7 +8,10 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.MaterialService;
+import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -29,6 +32,7 @@ public class ConfigMaterialUpdaterTest {
     private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
     private ConfigMaterialUpdater configUpdater;
+    private   MaterialService materialService;
 
     private Material material;
     private File folder = new File("checkoutDir");
@@ -42,10 +46,13 @@ public class ConfigMaterialUpdaterTest {
         materialRepository = mock(MaterialRepository.class);
         configCompleted = mock(ConfigMaterialUpdateCompletedTopic.class);
         topic = mock(MaterialUpdateCompletedTopic.class);
+        materialService = mock(MaterialService.class);
 
         material = new SvnMaterial("url","tom","pass",false);
 
         when(materialRepository.folderFor(material)).thenReturn(folder);
+        MaterialPoller poller = mock(MaterialPoller.class);
+        when(materialService.getPollerImplementation(any(Material.class))).thenReturn(poller);
 
         Modification svnModification = new Modification("user", "commend", "em@il", new Date(), "1");
         mods = revisions(material,svnModification);
@@ -54,7 +61,7 @@ public class ConfigMaterialUpdaterTest {
 
         configUpdater = new ConfigMaterialUpdater(
                 repoConfigDataSource,materialRepository,materialChecker,
-                configCompleted,topic);
+                configCompleted,topic,materialService,new TestSubprocessExecutionContext());
     }
     private MaterialRevisions revisions(Material material, Modification modification) {
         return new MaterialRevisions(new MaterialRevision(material, modifications(modification)));

@@ -212,6 +212,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
         PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
+        assertNotNull(partial);
         assertThat(partial.getGroups().get(0).size(),is(1));
         assertThat(partial.getGroups().get(0).get(0), is(pipelineConfig));
     }
@@ -303,6 +304,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
                 + "<pipelines group=\"changed\">\n"
                 + "  <pipeline name=\"badPipe\">\n"
                 + "    <materials>\n"
+                + "      <svn url=\"file:///tmp/foo\" />\n"
                 + "      <svn url=\"file:///tmp/foo\" />\n"
                 + "    </materials>\n"
                 + "  </pipeline>\n"

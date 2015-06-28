@@ -25,6 +25,7 @@ import java.util.Map;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.joda.time.DateTime;
@@ -50,7 +51,8 @@ public class TestingMaterial extends ScmMaterial {
 
     @Override
     public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        throw new RuntimeException("Checkout not implemented");
+        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
+        this.updateTo(output,revision,baseDir,execCtx);
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {

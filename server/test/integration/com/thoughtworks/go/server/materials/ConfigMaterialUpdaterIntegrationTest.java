@@ -87,15 +87,13 @@ public class ConfigMaterialUpdaterIntegrationTest {
     private MetricsProbeService metricsProbeService;
     private MagicalGoConfigXmlWriter xmlWriter;
 
-    File baseDir ;
+    private  ConfigTestRepo configTestRepo;
 
     @Before
     public void setup() throws Exception {
         metricsProbeService = mock(MetricsProbeService.class);
         diskSpaceSimulator = new DiskSpaceSimulator();
         hgRepo = new HgTestRepo("testHgRepo");
-
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -117,10 +115,9 @@ public class ConfigMaterialUpdaterIntegrationTest {
 
         worker = new MaterialUpdateListener(configTopic,materialDatabaseUpdater,logger,goDiskSpaceMonitor);
 
-        material = (HgMaterial)materialConfigConverter.toMaterial(materialConfig);
-
-        baseDir = hgRepo.prepareWorkDirectory();
-        material = hgRepo.updateTo(baseDir);
+        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
+        configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);
+        this.material = configTestRepo.getMaterial();
     }
 
 
@@ -206,7 +203,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
 
-        HgMaterial material = addPipelineToRepositoryAndPush(fileName, pipelineConfig);
+        configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
@@ -225,7 +222,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
 
-        HgMaterial material = addPipelineToRepositoryAndPush(fileName, pipelineConfig);
+        configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
         Assert.assertThat(materialUpdateService.isInProgress(material),is(true));
@@ -244,7 +241,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
 
-        HgMaterial material = addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
+        configTestRepo.addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
@@ -262,13 +259,13 @@ public class ConfigMaterialUpdaterIntegrationTest {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
 
-        HgMaterial material = addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
+        configTestRepo.addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
 
-        material = addPipelineToRepositoryAndPush("pipe2.gocd.xml", pipelineConfig);
+        configTestRepo.addPipelineToRepositoryAndPush("pipe2.gocd.xml", pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
@@ -288,7 +285,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
 
-        HgMaterial material = addPipelineToRepositoryAndPush(fileName, pipelineConfig);
+        configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
@@ -299,7 +296,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()), is(true));
         assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name()),is(pipelineConfig));
 
-        material = addCodeToRepositoryAndPush("badPipe.gocd.xml", "added bad config file", "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        configTestRepo.addCodeToRepositoryAndPush("badPipe.gocd.xml", "added bad config file", "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
                 + "<pipelines group=\"changed\">\n"
                 + "  <pipeline name=\"badPipe\">\n"
@@ -322,23 +319,4 @@ public class ConfigMaterialUpdaterIntegrationTest {
         assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("badPipe")), is(false));
     }
 
-    private HgMaterial addPipelineToRepositoryAndPush(String fileName, PipelineConfig pipelineConfig) throws Exception {
-        PartialConfigHelper partialConfigHelper = new PartialConfigHelper(xmlWriter,baseDir);
-
-        File file = new File(baseDir, fileName);
-        partialConfigHelper.addFileWithPipeline(fileName, pipelineConfig);
-
-        hgRepo.addCommitPush(material, "added pipeline config", baseDir, file);
-        return material;
-    }
-    private HgMaterial addCodeToRepositoryAndPush(String fileName,String comment, String content) throws Exception {
-        PartialConfigHelper partialConfigHelper = new PartialConfigHelper(xmlWriter,baseDir);
-
-
-        File file = new File(baseDir, fileName);
-        partialConfigHelper.writeFileWithContent(fileName, content);
-
-        hgRepo.addCommitPush(material, comment, baseDir, file);
-        return material;
-    }
 }

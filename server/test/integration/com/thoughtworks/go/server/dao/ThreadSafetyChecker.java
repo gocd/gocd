@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertThat;
 public class ThreadSafetyChecker {
     private long testTimeoutTime;
     private List<Operation> operations;
-    private ConcurrentHashMap<Thread, Throwable> exceptions;
+    private ConcurrentMap<Thread, Throwable> exceptions;
 
     public ThreadSafetyChecker(long timeoutInMillisecondsForEveryThreadJoin) {
         this.testTimeoutTime = timeoutInMillisecondsForEveryThreadJoin;

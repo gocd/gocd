@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.plugins.PluginExtensions;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
@@ -38,9 +39,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigElementImplementationRegistry implements ConfigElementRegistry {
 
-    private final ConcurrentHashMap<Class, List<Class>> registry;
-    private final ConcurrentHashMap<String, PluginNamespace> xsdsFor;
-    private final ConcurrentHashMap<Class, PluggableViewModelFactory> viewRegistry;
+    private final ConcurrentMap<Class, List<Class>> registry;
+    private final ConcurrentMap<String, PluginNamespace> xsdsFor;
+    private final ConcurrentMap<Class, PluggableViewModelFactory> viewRegistry;
 
     @Autowired
     public ConfigElementImplementationRegistry(PluginExtensions pluginExtns) {

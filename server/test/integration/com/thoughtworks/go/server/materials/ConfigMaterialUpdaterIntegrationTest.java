@@ -1,8 +1,6 @@
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -12,6 +10,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.parts.PartialConfigHelper;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -21,10 +20,8 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -36,9 +33,11 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import junit.framework.Assert;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +48,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.io.File;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -80,6 +81,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
     @Autowired private GoRepoConfigDataSource goRepoConfigDataSource;
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private MaterialConfigConverter materialConfigConverter;
+    @Autowired private ConfigCache configCache;
 
     @Autowired private MaterialUpdateCompletedTopic topic;
     @Autowired private ConfigMaterialUpdateCompletedTopic configTopic;
@@ -97,11 +99,16 @@ public class ConfigMaterialUpdaterIntegrationTest {
     private MaterialUpdateListener worker;
     private HgTestRepo hgRepo;
     private HgMaterial material;
+    private MetricsProbeService metricsProbeService;
+    private MagicalGoConfigXmlWriter xmlWriter;
 
     @Before
     public void setup() throws Exception {
+        metricsProbeService = mock(MetricsProbeService.class);
         diskSpaceSimulator = new DiskSpaceSimulator();
         hgRepo = new HgTestRepo("testHgRepo");
+
+        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -187,6 +194,29 @@ public class ConfigMaterialUpdaterIntegrationTest {
         Thread.sleep(1000);
         PartialConfig partial2 = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertNotSame(partial, partial2);
-        assertThat("originsShouldDiffer",partial2.getOrigin(),is(not(partial.getOrigin())));
+        assertThat("originsShouldDiffer", partial2.getOrigin(), is(not(partial.getOrigin())));
+    }
+
+    @Test
+    public void shouldParseAndLoadValidPartialConfig() throws Exception
+    {
+        GoConfigMother mother = new GoConfigMother();
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+
+        File baseDir = hgRepo.prepareWorkDirectory();
+        HgMaterial material = hgRepo.updateTo(baseDir);
+        PartialConfigHelper partialConfigHelper = new PartialConfigHelper(xmlWriter,baseDir);
+
+        File file = new File(baseDir, "pipe1.gocd.xml");
+        partialConfigHelper.addFileWithPipeline("pipe1.gocd.xml", pipelineConfig);
+
+        hgRepo.addCommitPush(material, "added valid config file", baseDir, file);
+
+        materialUpdateService.updateMaterial(material);
+        // time for messages to pass through all services
+        Thread.sleep(1000);
+        PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
+        assertThat(partial.getGroups().get(0).size(),is(1));
+        assertThat(partial.getGroups().get(0).get(0),is(pipelineConfig));
     }
 }

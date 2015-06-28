@@ -132,7 +132,8 @@ public class ConfigRepoConfig implements Validatable {
     public boolean hasSameMaterial(MaterialConfig config) {
         if(this.getMaterialConfig() == null)
             return  false;
-        return  this.getMaterialConfig().equals(config);
+        String materialFingerprint = this.getMaterialConfig().getFingerprint();
+        return materialFingerprint.equals(config.getFingerprint());
     }
 
     public boolean hasMaterialWithFingerprint(String fingerprint) {

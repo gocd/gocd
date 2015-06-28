@@ -35,4 +35,9 @@ public class DependencyMaterialPoller implements MaterialPoller<DependencyMateri
     public List<Modification> modificationsSince(DependencyMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         return material.modificationsSince(baseDir, revision, execCtx);
     }
+
+    @Override
+    public void checkout(DependencyMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("not supported");
+    }
 }

@@ -35,4 +35,9 @@ public class P4Poller implements MaterialPoller<P4Material> {
     public List<Modification> modificationsSince(P4Material material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         return material.modificationsSince(baseDir, revision, execCtx);
     }
+
+    @Override
+    public void checkout(P4Material material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        material.checkout(baseDir,revision,execCtx);
+    }
 }

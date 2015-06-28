@@ -81,6 +81,11 @@ public class HgMaterial extends ScmMaterial {
         this.name = config.getName();
     }
 
+
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("Checkout not implemented");
+    }
     @Override
     public MaterialConfig config() {
         return new HgMaterialConfig(url, autoUpdate, filter, folder, name);

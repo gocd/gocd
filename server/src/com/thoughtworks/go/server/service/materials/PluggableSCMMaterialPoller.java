@@ -84,6 +84,11 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
         return getModifications(scmRevisions);
     }
 
+    @Override
+    public void checkout(PluggableSCMMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("not supported");
+    }
+
     private SCMPropertyConfiguration buildSCMPropertyConfigurations(SCM scmConfig) {
         SCMPropertyConfiguration scmPropertyConfiguration = new SCMPropertyConfiguration();
         populateConfiguration(scmConfig.getConfiguration(), scmPropertyConfiguration);

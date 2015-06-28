@@ -68,6 +68,11 @@ public class GitMaterial extends ScmMaterial {
         this.url = new UrlArgument(url);
     }
 
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("Checkout not implemented");
+    }
+
     public GitMaterial(String url, String branch) {
         this(url);
         if (branch != null) {

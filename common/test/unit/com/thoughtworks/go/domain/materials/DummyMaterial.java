@@ -82,6 +82,11 @@ public final class DummyMaterial extends ScmMaterial {
         throw unsupported();
     }
 
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw unsupported();
+    }
+
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         throw unsupported();
     }

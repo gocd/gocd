@@ -86,6 +86,12 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return new TfsMaterialConfig(url, userName, domain, getPassword(), projectPath, goCipher, autoUpdate, filter, folder, name);
     }
 
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("Checkout not implemented");
+    }
+
+
     public String getDomain() {
         return domain;
     }

@@ -64,6 +64,11 @@ public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
         return getModifications(packageRevision);
     }
 
+    @Override
+    public void checkout(PackageMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("not supported");
+    }
+
     private List<Modification> getModifications(PackageRevision packageRevision) {
         if (packageRevision == null) {
             return new Modifications();

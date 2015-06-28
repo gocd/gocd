@@ -48,6 +48,11 @@ public class TestingMaterial extends ScmMaterial {
         this.url = config.getUrl();
     }
 
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("Checkout not implemented");
+    }
+
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
         throw new RuntimeException("NOT USED");
     }

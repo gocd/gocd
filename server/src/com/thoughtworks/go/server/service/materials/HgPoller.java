@@ -35,4 +35,9 @@ public class HgPoller implements MaterialPoller<HgMaterial> {
     public List<Modification> modificationsSince(HgMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         return material.modificationsSince(baseDir, revision, execCtx);
     }
+
+    @Override
+    public void checkout(HgMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        material.checkout(baseDir,revision,execCtx);
+    }
 }

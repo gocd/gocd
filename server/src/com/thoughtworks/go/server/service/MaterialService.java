@@ -110,7 +110,7 @@ public class MaterialService {
         return getPollerImplementation(material).modificationsSince(material, baseDir, revision, execCtx);
     }
 
-    private MaterialPoller getPollerImplementation(Material material) {
+    public MaterialPoller getPollerImplementation(Material material) {
         MaterialPoller materialPoller = materialPollerMap.get(getMaterialClass(material));
         return materialPoller == null ? new NoOpPoller() : materialPoller;
     }

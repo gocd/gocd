@@ -1,11 +1,15 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
+import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.MaterialService;
+import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,8 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
     private MaterialChecker materialChecker;
     private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
+    private MaterialService materialService;
+    private SubprocessExecutionContext subprocessExecutionContext;
 
     @Autowired
     public ConfigMaterialUpdater(GoRepoConfigDataSource repoConfigDataSource,
@@ -62,7 +68,7 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
             else {
                 File folder = materialRepository.folderFor(material);
                 MaterialRevisions latestModification = materialRepository.findLatestModification(material);
-                String revision = latestModification.latestRevision();
+                Revision revision = latestModification.firstModifiedMaterialRevision().getRevision();
 
                 MaterialRevision lastParseRevision = getMaterialRevisionAtLastParseAttempt(message);
                 if (lastParseRevision == null) {
@@ -84,8 +90,10 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    private void UpdateConfigurationFromCheckout(File folder, String revision, Material material) {
-        this.repoConfigDataSource.onCheckoutComplete(material.config(),folder, revision);
+    private void UpdateConfigurationFromCheckout(File folder, Revision revision, Material material) {
+        MaterialPoller poller = this.materialService.getPollerImplementation(material);
+        poller.checkout(material,folder,revision,this.subprocessExecutionContext);
+        this.repoConfigDataSource.onCheckoutComplete(material.config(),folder, revision.getRevision());
     }
 
     private MaterialRevision getMaterialRevisionAtLastParseAttempt(MaterialUpdateCompletedMessage message) {

@@ -109,6 +109,11 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return svnLazyLoaded;
     }
 
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("Checkout not implemented");
+    }
+
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
         return svn().latestModification();
     }

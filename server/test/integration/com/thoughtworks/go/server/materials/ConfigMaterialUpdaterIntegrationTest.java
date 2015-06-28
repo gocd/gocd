@@ -238,6 +238,48 @@ public class ConfigMaterialUpdaterIntegrationTest {
     }
 
     @Test
+    public void shouldCheckoutNewMaterial() throws Exception
+    {
+        GoConfigMother mother = new GoConfigMother();
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+
+        HgMaterial material = addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
+
+        materialUpdateService.updateMaterial(material);
+        // time for messages to pass through all services
+        waitForMaterialNotInProgress();
+
+        File flyweightDir = materialRepository.folderFor(material);
+        Assert.assertThat(flyweightDir.exists(),is(true));
+        Assert.assertThat(new File(flyweightDir,"pipe1.gocd.xml").exists(),is(true));
+    }
+
+
+    @Test
+    public void shouldCheckoutChangedInExistingMaterial() throws Exception
+    {
+        GoConfigMother mother = new GoConfigMother();
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+
+        HgMaterial material = addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
+
+        materialUpdateService.updateMaterial(material);
+        // time for messages to pass through all services
+        waitForMaterialNotInProgress();
+
+        material = addPipelineToRepositoryAndPush("pipe2.gocd.xml", pipelineConfig);
+
+        materialUpdateService.updateMaterial(material);
+        // time for messages to pass through all services
+        waitForMaterialNotInProgress();
+
+        File flyweightDir = materialRepository.folderFor(material);
+        Assert.assertThat(flyweightDir.exists(),is(true));
+        Assert.assertThat(new File(flyweightDir,"pipe1.gocd.xml").exists(),is(true));
+        Assert.assertThat("shouldContainFilesAddedLater",new File(flyweightDir,"pipe2.gocd.xml").exists(),is(true));
+    }
+
+    @Test
     public void shouldNotMergeFromInvalidConfigRepository_AndShouldKeepLastValidPart() throws Exception
     {
         String fileName = "pipe1.gocd.xml";

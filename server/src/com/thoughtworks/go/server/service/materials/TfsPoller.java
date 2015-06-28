@@ -35,4 +35,9 @@ public class TfsPoller implements MaterialPoller<TfsMaterial> {
     public List<Modification> modificationsSince(TfsMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         return material.modificationsSince(baseDir, revision, execCtx);
     }
+
+    @Override
+    public void checkout(TfsMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        material.checkout(baseDir,revision,execCtx);
+    }
 }

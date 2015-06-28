@@ -30,5 +30,6 @@ public interface MaterialPoller<T extends Material> {
 
     public List<Modification> modificationsSince(T material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx);
 
+    void checkout(T material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx);
 }
 

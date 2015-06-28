@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -565,6 +566,13 @@ public class GoConfigFileHelper {
         return load();
     }
 
+
+    public void addConfigRepo(ConfigRepoConfig configRepoConfig) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        cruiseConfig.getConfigRepos().add(configRepoConfig);
+        writeConfigFile(cruiseConfig);
+    }
+
     public void addAgent(String hostname, String uuid) {
         addAgent(new AgentConfig(uuid, hostname, "127.0.0.1"));
     }
@@ -1045,6 +1053,7 @@ public class GoConfigFileHelper {
         };
 
     }
+
 
     /*public void addPipelineGroup(String groupName) {
         CruiseConfig config = loadForEdit();

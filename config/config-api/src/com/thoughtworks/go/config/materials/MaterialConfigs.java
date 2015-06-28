@@ -153,6 +153,8 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     private void validateOrigins(PipelineConfig currentPipeline, CruiseConfig cruiseConfig) {
         for (DependencyMaterialConfig material : filterDependencyMaterials()) {
             PipelineConfig upstream = cruiseConfig.getPipelineConfigByName(material.getPipelineName());
+            if(upstream == null)
+                continue; // other rule validates existence of upstream
             ConfigOrigin myOrigin = currentPipeline.getOrigin();
             ConfigOrigin upstreamOrigin = upstream.getOrigin();
             if(!cruiseConfig.getConfigRepos().isReferenceAllowed(myOrigin, upstreamOrigin))

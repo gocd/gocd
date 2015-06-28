@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigUpdateCompletedListener;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -250,5 +251,15 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         if (forceLoad || schedulableMaterials == null) {
             schedulableMaterials = materialConfigConverter.toMaterials(goConfigService.getSchedulableMaterials());
         }
+    }
+
+    //used in tests
+    public boolean isInProgress(Material material) {
+        for(Material m : this.inProgress.keySet())
+        {
+            if(m.isSameFlyweight(material))
+                return true;
+        }
+        return false;
     }
 }

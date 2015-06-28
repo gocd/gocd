@@ -73,6 +73,12 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
         this.tryAssembleMergedConfig(this.fileService.currentConfig(),partials);
     }
 
+    //used in tests to force immediate merge
+    public void tryAssembleMergedConfig()
+    {
+        this.tryAssembleMergedConfig(this.fileService.currentConfig(),this.partialConfig.lastPartials());
+    }
+
     /**
      * attempts to create a new merged cruise config
     */

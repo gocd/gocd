@@ -114,7 +114,7 @@ public class Materials extends BaseCollection<Material> {
     }
 
     public void cleanUp(File baseFolder, ConsoleOutputStreamConsumer consumer) {
-        if (hasOneMaterialUseBaseFolder()) {
+        if (hasMaterialsWithNoDestinationFolder()) {
             return;
         }
 
@@ -134,7 +134,7 @@ public class Materials extends BaseCollection<Material> {
         return allowed;
     }
 
-    boolean hasOneMaterialUseBaseFolder() {
+    boolean hasMaterialsWithNoDestinationFolder() {
         for (Material material : this) {
             if (!((AbstractMaterial) material).hasDestinationFolder()) {
                 return true;

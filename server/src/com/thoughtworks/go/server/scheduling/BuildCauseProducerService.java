@@ -362,38 +362,39 @@ public class BuildCauseProducerService {
                 //  - it might have been invalid
                 // then this instance is still like last time.
                 // We have protection (higher) against that so this will eventually not schedule
-                PipelineConfig newPipelineConfig = goConfigService.pipelineConfigNamed(this.pipelineConfig.name());
-                if(pipelineConfig == null)
+                if(!goConfigService.hasPipelineNamed(this.pipelineConfig.name()))
                 {
                     // pipeline we just triggered got removed from configuration
                     LOGGER.error(format("not scheduling pipeline %s after manual-trigger because pipeline's %s configuration was removed from origin repository",
-                            pipelineConfig.name()));
+                            pipelineConfig.name(), pipelineConfig.name()));
                     showError(CaseInsensitiveString.str(pipelineConfig.name()), format("Could not trigger pipeline '%s'", pipelineConfig.name()),
                             format("Pipeline '%s' configuration has been removed from %s", pipelineConfig.name(), configMaterial.getDisplayName()));
                     failed = true;
                 }
-                //TODO #1133 we could also check if last parsing in the origin repository failed
-
-                ConfigOrigin oldOrigin = this.pipelineConfig.getOrigin();
-                ConfigOrigin newOrigin = newPipelineConfig.getOrigin();
-                if(!oldOrigin.equals(newOrigin)) {
-                    LOGGER.debug(format("Configuration of manually-triggered pipeline %s has been updated.",
-                            pipelineConfig.name()));
-                    // if all seems good:
-                    // In case materials have changed, we should poll new ones as well
-                    for (MaterialConfig materialConfig : newPipelineConfig.materialConfigs()) {
-                        if (!this.pipelineConfig.materialConfigs().hasMaterialWithFingerprint(materialConfig)) {
-                            // this is a material added in recent commit, it wasn't in previous config
-                            // wait for it
-                            Material newMaterial = materialConfigConverter.toMaterial(materialConfig);
-                            pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), newMaterial);
-                            // and force update of it
-                            materialUpdateService.updateMaterial(newMaterial);
-                            LOGGER.info(format("new material %s in %s was added after manual-trigger. Scheduled update for it.",
-                                    newMaterial.getDisplayName(), pipelineConfig.name()));
+                else {
+                    //TODO #1133 we could also check if last parsing in the origin repository failed
+                    PipelineConfig newPipelineConfig = goConfigService.pipelineConfigNamed(this.pipelineConfig.name());
+                    ConfigOrigin oldOrigin = this.pipelineConfig.getOrigin();
+                    ConfigOrigin newOrigin = newPipelineConfig.getOrigin();
+                    if (!oldOrigin.equals(newOrigin)) {
+                        LOGGER.debug(format("Configuration of manually-triggered pipeline %s has been updated.",
+                                pipelineConfig.name()));
+                        // if all seems good:
+                        // In case materials have changed, we should poll new ones as well
+                        for (MaterialConfig materialConfig : newPipelineConfig.materialConfigs()) {
+                            if (!this.pipelineConfig.materialConfigs().hasMaterialWithFingerprint(materialConfig)) {
+                                // this is a material added in recent commit, it wasn't in previous config
+                                // wait for it
+                                Material newMaterial = materialConfigConverter.toMaterial(materialConfig);
+                                pendingMaterials.putIfAbsent(materialConfig.getFingerprint(), newMaterial);
+                                // and force update of it
+                                materialUpdateService.updateMaterial(newMaterial);
+                                LOGGER.info(format("new material %s in %s was added after manual-trigger. Scheduled update for it.",
+                                        newMaterial.getDisplayName(), pipelineConfig.name()));
+                            }
                         }
+                        this.pipelineConfig = newPipelineConfig;
                     }
-                    this.pipelineConfig = newPipelineConfig;
                 }
             }
 

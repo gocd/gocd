@@ -256,6 +256,26 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     }
 
     @Test
+    public void shouldNotScheduleWhenPipelineRemovedFromConfigRepoWhenManuallyTriggered() throws Exception
+    {
+        configTestRepo.addCodeToRepositoryAndPush(fileName, "removed pipeline from configuration",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
+                + "</cruise>");
+
+        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+        waitForMaterialNotInProgress();
+        // config is correct
+        mergedGoConfig.throwExceptionIfExists();
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(PIPELINE_NAME)));
+        assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()),is(false));
+    }
+
+
+    @Test
     public void shouldReloadPipelineConfigurationAndUpdateNewMaterialWhenManuallyTriggered() throws Exception
     {
         GitTestRepo otherGitRepo = new GitTestRepo();

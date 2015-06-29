@@ -6,6 +6,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
@@ -30,6 +31,7 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.core.IsNot;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,6 +90,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
     @Autowired private TransactionTemplate transactionTemplate;
 
+    private GoDiskSpaceMonitor goDiskSpaceMonitor;
+
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private MetricsProbeService metricsProbeService;
@@ -102,7 +106,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     private HgMaterial material;
     private Pipeline latestPipeline;
     private PipelineConfig pipelineConfig;
+    MaterialRevisions firstRevisions;
     private String PIPELINE_NAME;
+    String fileName = "pipe1.gocd.xml";
 
     @Before
     public void setup() throws Exception {
@@ -123,7 +129,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         SystemDiskSpaceChecker mockDiskSpaceChecker = Mockito.mock(SystemDiskSpaceChecker.class);
         StageService stageService = mock(StageService.class);
         ConfigDbStateRepository configDbStateRepository = mock(ConfigDbStateRepository.class);
-        GoDiskSpaceMonitor goDiskSpaceMonitor = new GoDiskSpaceMonitor(goConfigService, systemEnvironment,
+        goDiskSpaceMonitor = new GoDiskSpaceMonitor(goConfigService, systemEnvironment,
                 serverHealthService, emailSender, mockDiskSpaceChecker, mock(ArtifactsService.class),
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
@@ -133,8 +139,6 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);
         this.material = (HgMaterial)materialConfigConverter.toMaterial(materialConfig);
-
-        String fileName = "pipe1.gocd.xml";
 
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();
@@ -154,8 +158,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         //check test setup
         Materials materials = materialConfigConverter.toMaterials(pipelineConfig.materialConfigs());
         MaterialRevisions peggedRevisions = new MaterialRevisions();
-        MaterialRevisions revisions = materialChecker.findLatestRevisions(peggedRevisions, materials);
-        assertThat(revisions.isMissingModifications(),is(false));
+        firstRevisions = materialChecker.findLatestRevisions(peggedRevisions, materials);
+        assertThat(firstRevisions.isMissingModifications(),is(false));
     }
 
     @After
@@ -203,6 +207,50 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
         assertThat(scheduleHelper.waitForAnyScheduled(5).keySet(), hasItem(PIPELINE_NAME));
+    }
+
+    @Test
+    public void shouldNotSchedulePipelineWhenConfigAndMaterialRevisionsMismatch() throws Exception {
+        // we will use this worker to force material update without updating config
+        MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor);
+        List<Modification> mod = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
+        byPassWorker.onMessage(new MaterialUpdateMessage(material,123));
+        //now db should have been updated, but config is still old
+        RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
+        assertThat(configOrigin.getRevision(),is(firstRevisions.latestRevision()));
+
+        buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(PIPELINE_NAME)));
+    }
+
+    @Test
+    public void shouldReloadPipelineConfigurationWhenManuallyTriggered() throws Exception
+    {
+        // we change configuration of the pipeline by pushing new stage to config repo
+        pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test","newStage");
+        pipelineConfig.materialConfigs().clear();
+        pipelineConfig.materialConfigs().add(materialConfig);
+
+        List<Modification> mod = configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
+
+        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+
+        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
+
+        PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
+        RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
+
+        String lastPushedRevision = mod.get(0).getRevision();
+        assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
+                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+        assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
+                cause.getMaterialRevisions().latestRevision(),is(lastPushedRevision));
     }
 
 }

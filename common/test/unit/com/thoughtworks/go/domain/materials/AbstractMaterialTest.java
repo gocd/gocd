@@ -16,19 +16,23 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
+import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
@@ -43,7 +47,7 @@ public class AbstractMaterialTest {
         public static int PIPELINE_UNIQUE_ATTRIBUTE_ADDED = 0;
 
         public TestMaterial(String displayName) {
-            super(displayName);
+            super(displayName, false);
 
             this.displayName = displayName;
         }
@@ -180,4 +184,39 @@ public class AbstractMaterialTest {
         assertThat(material.getTruncatedDisplayName(), is("foo_bar_ba..._ban_pavan"));
     }
 
+    @Test
+    public void shouldReturnFalseForAnScmWithNoDestinationFolder_hasDestination() throws Exception {
+        AbstractMaterial material = new GitMaterial("http://some-url.com", "some-branch");
+        assertThat(material.hasDestinationFolder(), is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueForAnScmWithDestinationFolder_hasDestination() throws Exception {
+        AbstractMaterial material = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
+        assertThat(material.hasDestinationFolder(), is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueForAnScmMaterial_requiresFolder() throws Exception {
+        AbstractMaterial material = new GitMaterial("some-url");
+        assertThat(material.requiresDestinationFolder(), is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueForPluggableScmMaterial_requiresFolder() throws Exception {
+        AbstractMaterial material = new PluggableSCMMaterial();
+        assertThat(material.requiresDestinationFolder(), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseForDependencyMaterial_requiresFolder() throws Exception {
+        AbstractMaterial material = new DependencyMaterial();
+        assertThat(material.requiresDestinationFolder(), is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForPackageMaterial_requiresFolder() throws Exception {
+        AbstractMaterial material = new PackageMaterial();
+        assertThat(material.requiresDestinationFolder(), is(false));
+    }
 }

@@ -134,9 +134,9 @@ public class Materials extends BaseCollection<Material> {
         return allowed;
     }
 
-    public boolean hasOneMaterialUseBaseFolder() {
+    boolean hasOneMaterialUseBaseFolder() {
         for (Material material : this) {
-            if (material.getFolder() == null && (material instanceof ScmMaterial || material instanceof PluggableSCMMaterial)) {
+            if (((AbstractMaterial) material).requiresDestinationFolder() && !((AbstractMaterial) material).hasDestinationFolder()) {
                 return true;
             }
         }
@@ -202,7 +202,7 @@ public class Materials extends BaseCollection<Material> {
 
     public boolean scmMaterialsHaveDestination() {
         for (ScmMaterial scmMaterial : filterScmMaterials()) {
-            if (!scmMaterial.hasDestination()) {
+            if (!scmMaterial.hasDestinationFolder()) {
                 return false;
             }
         }

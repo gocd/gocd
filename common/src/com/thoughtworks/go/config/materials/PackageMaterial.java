@@ -57,7 +57,7 @@ public class PackageMaterial extends AbstractMaterial {
     private String fingerprint;
 
     public PackageMaterial() {
-        super(TYPE);
+        super(TYPE, false);
     }
 
     public PackageMaterial(String packageId) {
@@ -66,7 +66,7 @@ public class PackageMaterial extends AbstractMaterial {
     }
 
     public PackageMaterial(PackageMaterialConfig config) {
-        super(TYPE);
+        super(TYPE, false);
         this.name = config.getName();
         this.packageId = config.getPackageId();
         this.packageDefinition = config.getPackageDefinition();

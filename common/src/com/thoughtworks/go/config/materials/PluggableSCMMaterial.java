@@ -62,7 +62,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     private String fingerprint;
 
     public PluggableSCMMaterial() {
-        super(TYPE);
+        super(TYPE, true);
     }
 
     public PluggableSCMMaterial(String scmId) {

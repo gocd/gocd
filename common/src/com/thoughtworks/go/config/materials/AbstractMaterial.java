@@ -16,18 +16,15 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ListUtil;
+import com.thoughtworks.go.util.StringUtil;
+
+import java.util.*;
 
 /**
  * @understands material configuration
@@ -42,13 +39,15 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     protected CaseInsensitiveString name;
     protected String type;
+    private boolean requiresDestinationFolder;
     private Map<String, Object> sqlCriteria;
     private Map<String, Object> attributesForXml;
     private String pipelineUniqueFingerprint;
     private String fingerprint;
 
-    public AbstractMaterial(String typeName) {
+    public AbstractMaterial(String typeName, boolean requiresDestinationFolder) {
         type = typeName;
+        this.requiresDestinationFolder = requiresDestinationFolder;
     }
 
     public CaseInsensitiveString getName() {
@@ -186,5 +185,13 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
         throw new RuntimeException("You need to implement this");
+    }
+
+    public boolean hasDestinationFolder() {
+        return !StringUtil.isBlank(getFolder());
+    }
+
+    public boolean requiresDestinationFolder() {
+        return requiresDestinationFolder;
     }
 }

@@ -29,7 +29,6 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
@@ -252,51 +251,6 @@ public class MaterialsTest {
         DependencyMaterial existingMaterial = new DependencyMaterial(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"));
         materials.add(existingMaterial);
         assertThat(materials.getDependencyMaterial(), is(sameInstance(existingMaterial)));
-    }
-
-    @Test
-    public void shouldReturnFalseForDependencyMaterialAndAnScmWithDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
-        Materials materials = new Materials();
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"));
-        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
-        materials.add(dependencyMaterial);
-        materials.add(gitMaterial);
-        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
-        assertThat(hasOneMaterialUseBaseFolder, is(false));
-    }
-
-    @Test
-    public void shouldReturnFalseForPackageMaterialAndAnScmWithDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
-        Materials materials = new Materials();
-        PackageMaterial packageMaterial = new PackageMaterial();
-        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
-        materials.add(packageMaterial);
-        materials.add(gitMaterial);
-        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
-        assertThat(hasOneMaterialUseBaseFolder, is(false));
-    }
-
-    @Test
-    public void shouldReturnTrueForScmMaterialWithNoDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
-        Materials materials = new Materials();
-        PackageMaterial packageMaterial = new PackageMaterial();
-        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");
-        materials.add(packageMaterial);
-        materials.add(gitMaterial);
-        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
-        assertThat(hasOneMaterialUseBaseFolder, is(true));
-    }
-
-    @Test
-    public void shouldReturnTrueForPluggableScmMaterialWithNoDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
-        Materials materials = new Materials();
-        PackageMaterial packageMaterial = new PackageMaterial();
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("some-name"), mock(SCM.class), null, mock(Filter.class));
-        PluggableSCMMaterial pluggableSCMMaterial = new PluggableSCMMaterial(pluggableSCMMaterialConfig);
-        materials.add(pluggableSCMMaterial);
-        materials.add(packageMaterial);
-        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
-        assertThat(hasOneMaterialUseBaseFolder, is(true));
     }
 
     @Test

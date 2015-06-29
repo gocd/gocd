@@ -48,7 +48,7 @@ public class DependencyMaterial extends AbstractMaterial {
     private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");
 
     public DependencyMaterial() {
-        super("DependencyMaterial");
+        super("DependencyMaterial", false);
     }
 
     public DependencyMaterial(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {

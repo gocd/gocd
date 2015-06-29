@@ -187,7 +187,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     public boolean hasDestinationFolder() {
-        return requiresDestinationFolder() && !StringUtil.isBlank(getFolder());
+        return !StringUtil.isBlank(getFolder());
     }
 
     protected boolean requiresDestinationFolder() {

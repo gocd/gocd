@@ -136,7 +136,8 @@ public class Materials extends BaseCollection<Material> {
 
     boolean hasMaterialsWithNoDestinationFolder() {
         for (Material material : this) {
-            if (!((AbstractMaterial) material).hasDestinationFolder()) {
+            AbstractMaterial abstractMaterial = (AbstractMaterial) material;
+            if (abstractMaterial.requiresDestinationFolder() && !abstractMaterial.hasDestinationFolder()) {
                 return true;
             }
         }

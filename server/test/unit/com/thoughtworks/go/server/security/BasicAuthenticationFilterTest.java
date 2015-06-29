@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.security;
 
 import org.apache.commons.codec.binary.Base64;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -36,9 +37,23 @@ import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class BasicAuthenticationFilterTest {
+    private String errorMessage;
+    private MockHttpServletRequest httpRequest;
+    private MockHttpServletResponse httpResponse;
+    private BasicAuthenticationFilter filter;
+
+    @Before
+    public void setUp() throws Exception {
+        errorMessage = "There was an error authenticating you. Please check the server logs, or contact your the go administrator.";
+        httpRequest = new MockHttpServletRequest();
+        httpResponse = new MockHttpServletResponse();
+        filter = new BasicAuthenticationFilter();
+    }
+
     @Test
     public void shouldConvey_itsBasicProcessingFilter() throws IOException, ServletException {
         BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
@@ -64,20 +79,50 @@ public class BasicAuthenticationFilterTest {
     }
 
     @Test
-    public void shouldHandleException() throws IOException {
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest();
-        MockHttpServletResponse httpResponse = new MockHttpServletResponse();
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
+    public void testShouldRender500WithHTMLTextBodyWithApiAcceptHeaderWithHTML() throws IOException {
+
+        httpRequest.addHeader("Accept", "text/html");
+
         SecurityContext context = SecurityContextHolder.getContext();
-        String expected_msg = "There was an error authenticating you. Please check the server logs, or contact your the go administrator.";
 
         filter.handleException(httpRequest, httpResponse, new Exception("some error"));
 
-        assertThat(((Exception) (httpRequest.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY))).getMessage(), is(expected_msg));
+        assertThat(((Exception) (httpRequest.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY))).getMessage(), is(errorMessage));
         assertThat(httpRequest.getAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED).toString(), is("true"));
         assertThat(context.getAuthentication(), is(nullValue()));
         assertThat(httpResponse.getRedirectedUrl(), is("/go/auth/login?login_error=1"));
     }
 
+    @Test
+    public void testShouldRender500WithJSONBodyWithApiAcceptHeaderWithJSON() throws Exception {
+        httpRequest.addHeader("Accept", "application/vnd.go.cd.v1+json");
+
+        filter.handleException(httpRequest, httpResponse, null);
+
+        assertEquals("application/vnd.go.cd.v1+json; charset=utf-8", httpResponse.getContentType());
+        assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
+        assertEquals(500, httpResponse.getStatus());
+        assertEquals(httpResponse.getContentAsString(), String.format("{\n \"message\": \"%s\"\n}\n", errorMessage));
+    }
+
+    @Test
+    public void testShouldRender500WithXMLBodyWithApiAcceptHeaderWithXML() throws Exception {
+        httpRequest.addHeader("Accept", "application/XML");
+
+        filter.handleException(httpRequest, httpResponse, null);
+
+        assertEquals("application/xml; charset=utf-8", httpResponse.getContentType());
+        assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
+        assertEquals(500, httpResponse.getStatus());
+        assertEquals(httpResponse.getContentAsString(), String.format("<message>%s</message>\n", errorMessage));
+    }
+
+    @Test
+    public void testShouldRender500WithWithHTMLWithNoAcceptHeader() throws Exception {
+
+        filter.handleException(httpRequest, httpResponse, new Exception("foo"));
+        assertEquals(500, httpResponse.getStatus());
+        assertEquals("foo", httpResponse.getErrorMessage());
+    }
 
 }

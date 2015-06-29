@@ -16,17 +16,18 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.DummyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -122,5 +123,17 @@ public class ScmMaterialTest {
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_FOLDER_NAME"), is("value"));
         assertThat(context.getProperty("GO_PROPERTY"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnFalseForAnScmWithNoDestinationFolder_hasDestinationFolder() throws Exception {
+        ScmMaterial material = new GitMaterial("http://some-url.com", "some-branch");
+        assertThat(material.hasDestinationFolder(), is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueForAnScmWithDestinationFolder_hasDestinationFolder() throws Exception {
+        ScmMaterial material = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
+        assertThat(material.hasDestinationFolder(), is(true));
     }
 }

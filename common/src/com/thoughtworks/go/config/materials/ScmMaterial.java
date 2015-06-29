@@ -48,7 +48,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
     protected boolean autoUpdate = true;
 
     public ScmMaterial(String typeName) {
-        super(typeName, true);
+        super(typeName);
     }
 
     @Override protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
@@ -216,5 +216,10 @@ public abstract class ScmMaterial extends AbstractMaterial {
 
     public Revision oldestRevision(Modifications modifications) {
         return Modification.oldestRevision(modifications);
+    }
+
+    @Override
+    public boolean requiresDestinationFolder() {
+        return true;
     }
 }

@@ -62,7 +62,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     private String fingerprint;
 
     public PluggableSCMMaterial() {
-        super(TYPE, true);
+        super(TYPE);
     }
 
     public PluggableSCMMaterial(String scmId) {
@@ -324,5 +324,10 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     @Override
     public String toString() {
         return String.format("'PluggableSCMMaterial{%s}'", getLongDescription());
+    }
+
+    @Override
+    public boolean requiresDestinationFolder() {
+        return true;
     }
 }

@@ -3,6 +3,7 @@ package com.thoughtworks.go.config.materials.scm;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
@@ -463,6 +464,19 @@ public class PluggableSCMMaterialTest {
         when(scmView.displayValue()).thenReturn("scm-name");
         SCMMetadataStore.getInstance().addMetadataFor("plugin", null, scmView);
         assertThat(pluggableSCMMaterial.getTypeForDisplay(), is("scm-name"));
+    }
+
+    @Test
+    public void shouldReturnFalseForPluggableScmMaterialWithoutDestinationFolder_hasDestinationFolder() throws Exception {
+        PluggableSCMMaterial material = new PluggableSCMMaterial();
+        assertThat(material.hasDestinationFolder(), is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueForPluggableScmMaterial_hasDestinationFolder() throws Exception {
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("some-name"), null, "some-folder", null);
+        PluggableSCMMaterial material = new PluggableSCMMaterial(pluggableSCMMaterialConfig);
+        assertThat(material.hasDestinationFolder(), is(true));
     }
 
     private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {

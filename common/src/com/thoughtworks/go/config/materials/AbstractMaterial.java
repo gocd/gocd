@@ -39,15 +39,14 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     protected CaseInsensitiveString name;
     protected String type;
-    private boolean requiresDestinationFolder;
+    private boolean requiresDestinationFolder = false;
     private Map<String, Object> sqlCriteria;
     private Map<String, Object> attributesForXml;
     private String pipelineUniqueFingerprint;
     private String fingerprint;
 
-    public AbstractMaterial(String typeName, boolean requiresDestinationFolder) {
+    public AbstractMaterial(String typeName) {
         type = typeName;
-        this.requiresDestinationFolder = requiresDestinationFolder;
     }
 
     public CaseInsensitiveString getName() {
@@ -188,10 +187,10 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     public boolean hasDestinationFolder() {
-        return !StringUtil.isBlank(getFolder());
+        return requiresDestinationFolder() && !StringUtil.isBlank(getFolder());
     }
 
-    public boolean requiresDestinationFolder() {
+    protected boolean requiresDestinationFolder() {
         return requiresDestinationFolder;
     }
 }

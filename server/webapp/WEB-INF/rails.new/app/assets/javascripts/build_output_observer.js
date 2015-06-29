@@ -18,6 +18,7 @@ var BuildOutputObserver = Class.create();
 
 BuildOutputObserver.prototype = {
     initialize: function(buildLocator, name, options) {
+        var self = this;
         this.name = name;
         this.buildLocator = buildLocator;
         this.start_line_number = 0;
@@ -26,7 +27,43 @@ BuildOutputObserver.prototype = {
         this.is_completed = false;
         this.ansi_up = ansi_up.ansi_to_html_obj();
         options = options || {};
+        this.enableTailing = options.enableTailing || false;
+        this.originalWindowScrollTop = jQuery(window).scrollTop();
         this.chosen_update_of_live_output = options.colorize == true ? this._update_live_output_color : this._update_live_output_raw;
+        this.autoScrollButton = jQuery('.auto-scroll');
+        this.autoScrollButton.toggleClass('tailing', this.enableTailing);
+        this.autoScrollButton.on('click', function(){
+            self.enableTailing = !self.enableTailing;
+            self.initializeScroll();
+        });
+    },
+    initializeScroll: function(){
+      if(this.enableTailing){
+        this.startScroll();
+      } else {
+        this.stopScroll();
+      }
+    },
+    startScroll: function(){
+        this.autoScrollButton.toggleClass('tailing', this.enableTailing);
+        var self = this;
+        this.scrollToBottom();
+        jQuery(window).on('scroll.autoScroll resize.autoScroll', jQuery.throttle(200, function () {
+            var windowScrollTop = jQuery(window).scrollTop();
+            if (self.originalWindowScrollTop - windowScrollTop > 0) {
+                self.stopScroll();
+            }
+        }));
+    },
+    stopScroll: function(){
+        jQuery(window).off('scroll.autoScroll resize.autoScroll');
+        this.enableTailing = false;
+        this.autoScrollButton.toggleClass('tailing', this.enableTailing);
+    },
+    scrollToBottom: function(){
+        var consoleElement = jQuery('.buildoutput_pre');
+        jQuery('body,html').stop(true).animate({scrollTop: consoleElement.outerHeight()}, 100);
+        this.originalWindowScrollTop = jQuery(window).scrollTop();
     },
     notify : function(jsonArray) {
         for (var i = 0; i < jsonArray.length; i++) {
@@ -114,6 +151,11 @@ BuildOutputObserver.prototype = {
                 consoleElement.append(htmlContents);
             }
         }
+
+        if (this.enableTailing){
+            this.scrollToBottom(consoleElement);
+        }
+
         return is_output_empty;
     },
 

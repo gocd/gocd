@@ -147,7 +147,7 @@ public class BuildCause implements Serializable {
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
 
         MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
-        MaterialRevision revision = this.getMaterialRevisions().findRevisionFor(configAndCodeMaterial);
+        MaterialRevision revision = this.getMaterialRevisions().findRevisionForFingerPrint(configAndCodeMaterial.getFingerprint());
 
         String revisionString = revision.getRevision().getRevision();
         if(pipelineConfig.isConfigOriginFromRevision(revisionString))

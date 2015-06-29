@@ -212,6 +212,18 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     }
 
     @Test
+    public void shouldNotSchedulePipelineWhenPartIsInvalid() throws Exception {
+        configTestRepo.addCodeToRepositoryAndPush(fileName, "added broken config file","bad bad config");
+        materialUpdateService.updateMaterial(material);
+        waitForMaterialNotInProgress();
+
+        assertThat(goRepoConfigDataSource.latestParseHasFailedForMaterial(material.config()),is(true));
+
+        buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME, new ServerHealthStateOperationResult(), 123);
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(PIPELINE_NAME)));
+    }
+
+    @Test
     public void shouldNotSchedulePipelineWhenConfigAndMaterialRevisionsMismatch() throws Exception {
         // we will use this worker to force material update without updating config
         MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor);

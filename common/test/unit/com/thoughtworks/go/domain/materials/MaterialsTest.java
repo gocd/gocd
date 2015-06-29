@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -32,12 +29,19 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -45,6 +49,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 @RunWith(JunitExtRunner.class)
 public class MaterialsTest {
@@ -249,4 +254,78 @@ public class MaterialsTest {
         assertThat(materials.getDependencyMaterial(), is(sameInstance(existingMaterial)));
     }
 
+    @Test
+    public void shouldReturnFalseForDependencyMaterialAndAnScmWithDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"));
+        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
+        materials.add(dependencyMaterial);
+        materials.add(gitMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForPackageMaterialAndAnScmWithDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        PackageMaterial packageMaterial = new PackageMaterial();
+        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
+        materials.add(packageMaterial);
+        materials.add(gitMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueForScmMaterialWithNoDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        PackageMaterial packageMaterial = new PackageMaterial();
+        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");
+        materials.add(packageMaterial);
+        materials.add(gitMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueForPluggableScmMaterialWithNoDestinationFolderSpecified_hasOneMaterialUseBaseFolder() throws Exception {
+        Materials materials = new Materials();
+        PackageMaterial packageMaterial = new PackageMaterial();
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("some-name"), mock(SCM.class), null, mock(Filter.class));
+        PluggableSCMMaterial pluggableSCMMaterial = new PluggableSCMMaterial(pluggableSCMMaterialConfig);
+        materials.add(pluggableSCMMaterial);
+        materials.add(packageMaterial);
+        boolean hasOneMaterialUseBaseFolder = materials.hasOneMaterialUseBaseFolder();
+        assertThat(hasOneMaterialUseBaseFolder, is(true));
+    }
+
+    @Test
+    public void shouldRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
+        TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File junkFolder = temporaryFolder.newFolder("junk-folder");
+        Materials materials = new Materials();
+        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
+        materials.add(gitMaterial);
+
+        materials.cleanUp(temporaryFolder.getRoot(), mock(ConsoleOutputStreamConsumer.class));
+
+        assertThat(junkFolder.exists(), is(false));
+        temporaryFolder.delete();
+    }
+
+    @Test
+    public void shouldNotRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
+        TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File junkFolder = temporaryFolder.newFolder("junk-folder");
+        Materials materials = new Materials();
+        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");
+        materials.add(gitMaterial);
+
+        materials.cleanUp(temporaryFolder.getRoot(), mock(ConsoleOutputStreamConsumer.class));
+
+        assertThat(junkFolder.exists(), is(true));
+        temporaryFolder.delete();
+    }
 }

@@ -29,6 +29,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.mock;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -179,6 +181,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Test
     public void shouldSchedulePipelineWhenManuallyTriggered() throws Exception {
         configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
+        materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
         final HashMap<String, String> revisions = new HashMap<String, String>();
@@ -195,6 +198,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Test
     public void shouldSchedulePipeline() throws Exception {
         configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file","some java code");
+        materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);

@@ -26,9 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by tomzo on 6/11/15.
- */
 public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Validatable,
         ParamsAttributeAware, ConfigOriginTraceable {
 

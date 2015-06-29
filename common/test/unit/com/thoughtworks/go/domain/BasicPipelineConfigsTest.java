@@ -33,9 +33,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-/**
- * Created by tomzo on 6/23/15.
- */
 public class BasicPipelineConfigsTest extends PipelineConfigsBaseTest {
 
     @Override

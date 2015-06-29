@@ -27,9 +27,6 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * Created by tomzo on 6/22/15.
- */
 public class EnvironmentConfigBasicTest extends EnvironmentConfigBaseTest {
     @Before
     public void setUp() throws Exception {

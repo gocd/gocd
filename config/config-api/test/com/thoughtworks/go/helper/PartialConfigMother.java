@@ -21,9 +21,6 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 
-/**
- * Created by tomzo on 6/13/15.
- */
 public class PartialConfigMother {
     public static PartialConfig empty() {
         return  new PartialConfig();

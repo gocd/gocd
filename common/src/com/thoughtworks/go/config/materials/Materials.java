@@ -149,10 +149,10 @@ public class Materials extends BaseCollection<Material> {
         }
     }
 
-    public int count(Class<? extends Material> materiaClass) {
+    public int count(Class<? extends Material> materialClass) {
         int count = 0;
         for (Material material : this) {
-            if (materiaClass.isInstance(material)) {
+            if (materialClass.isInstance(material)) {
                 count++;
             }
         }

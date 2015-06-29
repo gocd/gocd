@@ -2,16 +2,18 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
@@ -251,6 +253,48 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
         assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
                 cause.getMaterialRevisions().latestRevision(),is(lastPushedRevision));
+    }
+
+    @Test
+    public void shouldReloadPipelineConfigurationAndUpdateNewMaterialWhenManuallyTriggered() throws Exception
+    {
+        GitTestRepo otherGitRepo = new GitTestRepo();
+
+        pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
+        pipelineConfig.materialConfigs().clear();
+        materialConfig = hgRepo.createMaterialConfig("dest1");
+        pipelineConfig.materialConfigs().add(materialConfig);
+        // new material is added
+        GitMaterial gitMaterial = otherGitRepo.createMaterial("dest2");
+        MaterialConfig otherMaterialConfig = gitMaterial.config();
+        pipelineConfig.materialConfigs().add(otherMaterialConfig);
+
+        List<Modification> mod = configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
+
+        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+        mergedGoConfig.throwExceptionIfExists();
+
+        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(20);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
+
+        PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
+        RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
+
+        String lastPushedRevision = mod.get(0).getRevision();
+        assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
+                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+        assertThat(pipelineConfig.materialConfigs(), hasItem(otherMaterialConfig));
+        assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
+                cause.getMaterialRevisions().latestRevision(),is(lastPushedRevision));
+
+        // update of commited material happened during manual trigger
+        MaterialRevisions modificationsInDb = materialRepository.findLatestModification(gitMaterial);
+        assertThat(modificationsInDb.latestRevision(),is(otherGitRepo.latestModification().getRevision()));
     }
 
 }

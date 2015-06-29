@@ -126,6 +126,13 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
         return validationErrors;
     }
 
+    //used in tests
+    public void throwExceptionIfExists() {
+        if (lastException != null) {
+            throw bomb("Invalid config file", lastException);
+        }
+    }
+
     // used in tests
     public void forceReload() {
         this.fileService.onTimer();

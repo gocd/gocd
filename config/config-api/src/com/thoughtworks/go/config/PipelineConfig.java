@@ -307,7 +307,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
         for(MaterialConfig material : this.materialConfigs())
         {
-            if(material.equals(configMaterial))
+            if(material.getFingerprint().equals(configMaterial.getFingerprint()))
                 return true;
         }
         return false;

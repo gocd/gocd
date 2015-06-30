@@ -783,27 +783,19 @@ a.collapse-all {
   top: 0;
   bottom: 0;
   right: -$sidebar-width + $sidebar-border - $page-margin;
-  z-index: 1;
-
-  @mixin hide-handle {
-    border-color: transparent;
-  }
+  z-index: 110;
 
   .sidebar-handle {
-    position: fixed;
-    @include apply-transition;
     width: 0;
     height: 0;
-    right: $sidebar-border;
-    top: 235px;
     overflow: visible;
+    z-index: 2;
     border-width: 25px 15px;
     border-style: solid;
     border-color: transparent $sidebar-color transparent transparent;
     cursor: pointer;
-
-    &.hide-handle {
-      @include hide-handle;
+    &.scroll-to-fixed-fixed {
+      margin-left: -30px !important;
     }
   }
 
@@ -811,7 +803,8 @@ a.collapse-all {
     right: -$page-margin;
 
     .sidebar-handle {
-      @include hide-handle;
+      border-color: transparent;
+      display: none;
     }
   }
 }

@@ -37,7 +37,7 @@
         bottomActionBar            = $('.console-footer-action-bar'),
         historySidebarContainer    = $('.sidebar_history'),
         historySidebarHandle       = $('.sidebar-handle'),
-        historySidebarHandleHeight = $('.sidebar-handle').outerHeight(true),
+        historySidebarHandleHeight = historySidebarHandle.outerHeight(true),
         historySidebar             = $('#build_history_holder'),
         sidebarPin                 = $('.sidebar-pin'),
         sidebarTop                 = historySidebar.offset().top,
@@ -48,12 +48,10 @@
     topActionBar.scrollToFixed({marginTop: 90, zIndex: 100});
     // and the other action bar to bottom
     bottomActionBar.scrollToFixed({bottom: 0, limit: bottomActionBar.offset().top, zIndex: 100});
-
-    $(window).on('scroll resize', function (evt) {
-      var delta                 = 5;
-      var currentHandlePosition = historySidebarHandle.position().top;
-      var shouldHideHandle      = currentHandlePosition + historySidebarHandleHeight + delta > sidebarBottom;
-      historySidebarHandle.toggleClass('hide-handle', shouldHideHandle);
+    historySidebarHandle.scrollToFixed({
+      marginTop: 170,
+      zIndex:    100,
+      limit:     sidebarBottom - historySidebarHandleHeight
     });
 
     // hide the global "back to top" link, because the one on the console log goes well with the console log

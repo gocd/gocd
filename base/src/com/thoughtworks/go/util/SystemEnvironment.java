@@ -593,7 +593,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean enforceFanInFallbackBehaviour() {
         if (enforceFanInFallbackTriangle == null) {
-            enforceFanInFallbackTriangle = CONFIGURATION_YES.equals(getPropertyImpl(RESOLVE_FANIN_FALLBACK_TRIANGLE, CONFIGURATION_YES));
+            enforceFanInFallbackTriangle = CONFIGURATION_YES.equals(getPropertyImpl(RESOLVE_FANIN_FALLBACK_TRIANGLE, CONFIGURATION_NO));
         }
         return enforceFanInFallbackTriangle;
     }

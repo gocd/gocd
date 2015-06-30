@@ -37,6 +37,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>database</artifactId>
             <version>${project.parent.version}</version>

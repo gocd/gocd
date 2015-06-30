@@ -160,6 +160,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
     public static GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
+    public static GoSystemProperty<String> GO_SSL_CONFIG_FILE_PATH = new GoStringSystemProperty("go.ssl.config.path", "/ssl.config");
+    public static GoSystemProperty<String> USER_CONFIGURED_SSL_CONFIG_FILE_PATH = new GoStringSystemProperty("user.ssl.config.path", "user.ssl.config");
+
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;

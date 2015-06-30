@@ -65,21 +65,6 @@
           p:targetObject-ref="materialUpdateService"
           p:targetMethod="onTimer"/>
 
-    <bean id="checkLicenseViolation" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="licenseViolationChecker"
-          p:targetMethod="checkForViolation"/>
-
-    <bean name="licenseViolationCheckerThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
-                      p:delay="60000"
-                      p:period="300000"
-                      p:timerTask-ref="checkLicenseViolation"/>
-            </list>
-        </property>
-    </bean>
-
     <!-- auto build cause producing thread -->
     <bean name="produceBuildCausesThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
         <property name="scheduledTimerTasks">

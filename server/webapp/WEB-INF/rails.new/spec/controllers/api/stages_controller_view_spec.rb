@@ -23,7 +23,6 @@ describe Api::StagesController do
     controller.go_cache.clear
     controller.stub(:stage_service).and_return(@stage_service = double())
     controller.stub(:set_locale)
-    controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
 
   end

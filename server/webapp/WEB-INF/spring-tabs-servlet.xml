@@ -38,9 +38,6 @@
           class="com.thoughtworks.go.server.web.InterceptorInjector">
         <property name="interceptors">
             <list>
-                <ref bean="licenseInterceptor"/>
-                <ref bean="licenseExpiryInterceptor"/>
-                <ref bean="licensedAgentInterceptor"/>
                 <ref bean="authorizationInterceptor"/>
                 <ref bean="tabInterceptor"/>
                 <ref bean="myGoInterceptor"/>

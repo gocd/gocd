@@ -344,10 +344,6 @@ Go::Application.routes.draw do
     get ''=>'users#users', as: :user_listing
   end
 
-  defaults :no_layout => true do
-    post '/users/dismiss_license_expiry_warning' => 'admin/users#dismiss_license_expiry_warning', as: :dismiss_license_expiry_warning
-  end
-
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail
   get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent
 

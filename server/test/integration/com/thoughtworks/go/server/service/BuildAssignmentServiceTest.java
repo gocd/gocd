@@ -119,7 +119,6 @@ public class BuildAssignmentServiceTest {
     @Autowired private StageDao stageDao;
     @Autowired private JobInstanceService jobInstanceService;
     @Autowired private PipelineService pipelineService;
-    @Autowired private GoLicenseService licenseService;
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private TimeProvider timeProvider;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -302,7 +301,7 @@ public class BuildAssignmentServiceTest {
             }
         };
 
-        final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService, licenseService,
+        final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
                 agentService, environmentConfigService, timeProvider, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory);
 
         final Throwable[] fromThread = new Throwable[1];
@@ -345,7 +344,7 @@ public class BuildAssignmentServiceTest {
         configHelper.removePipeline(fixture.pipelineName, config);
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
-        buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, licenseService, agentService, environmentConfigService, timeProvider,
+        buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, timeProvider,
                 transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory);
         buildAssignmentService.onTimer();
 

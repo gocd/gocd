@@ -202,13 +202,6 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldReturnTheNumberOfDaysBelowWhichWarningPopupShouldShowForLicenseExpiry() {
-        assertThat(systemEnvironment.getLicenseExpiryWarningTime(), is(30));
-        System.setProperty(SystemEnvironment.NUMBER_OF_DAYS_TO_EXPIRY_PROPERTY, "2");
-        assertThat(systemEnvironment.getLicenseExpiryWarningTime(), is(2));
-    }
-
-    @Test
     public void shouldGetPluginEnabledStatusAsFalseIfNoEnvironmentVariableSet() {
         assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_FALSE));
     }

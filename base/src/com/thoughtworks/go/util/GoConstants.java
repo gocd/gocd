@@ -55,13 +55,6 @@ public class GoConstants {
     public static final String CRUISE_JOB_ID = "cruise_job_id";
     public static final String CRUISE_TIMESTAMP = "cruise_timestamp_";
     public static final String THOUGHTWORKS_LICENSE_URL = "http://www.thoughtworks.com/products/go-continuous-delivery/compare";
-    public static final String CRUISE_FREE = "<a href='" + THOUGHTWORKS_LICENSE_URL
-            + "' target='_license'>Go Community Edition</a>";
-    public static final String EXPIRY_DATE = "expiry_date";
-    public static final String MAX_AGENTS = "max_agents";
-    public static final String MAX_USERS = "max_users";
-    public static final String EDITION = "edition";
-    public static final String SUCCESSFULLY_CHANGED_LICENSE = "Your license has been updated successfully.";
 
     public static final String PRODUCT_NAME = "go";
 

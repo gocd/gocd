@@ -1894,32 +1894,6 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    public void shouldAllowConfigWithEnvironmentsForFreeCruiseEdition() throws Exception {
-        String configNoLicense = ConfigFileFixture.configWithEnvironments("<environments><environment name='foo' /></environments>");
-        String configString = ConfigFileFixture.addLicense(configNoLicense, ConfigFileFixture.TWO_USER_LICENSE_USER, ConfigFileFixture.TWO_USER_LICENSE);
-
-        assertThat(ConfigMigrator.loadWithMigration(configString), is(not(nullValue())));
-    }
-
-    @Test
-    public void shouldNotAllowConfigWithTemplatesForFreeCruiseEdition() throws Exception {
-        String configNoLicense = ConfigFileFixture.configWithTemplates(
-                "<templates>"
-                        + "  <pipeline name='erbshe'>"
-                        + "    <stage name='stage1'>"
-                        + "      <jobs>"
-                        + "        <job name='job1' />"
-                        + "      </jobs>"
-                        + "    </stage>"
-                        + "  </pipeline>"
-                        + "</templates>"
-        );
-        String configString = ConfigFileFixture.addLicense(configNoLicense, ConfigFileFixture.TWO_USER_LICENSE_USER, ConfigFileFixture.TWO_USER_LICENSE);
-
-        assertThat(ConfigMigrator.loadWithMigration(configString), is(not(nullValue())));
-    }
-
-    @Test
     public void shouldValidateTimerSpec() throws Exception {
         String content = ConfigFileFixture.configWithPipeline(
                 "<pipeline name='pipeline1'>"

@@ -53,7 +53,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private GoConfigService goConfigService;
     private JobInstanceService jobInstanceService;
     private ScheduleService scheduleService;
-    private GoLicenseService licenseService;
     private AgentService agentService;
     private EnvironmentConfigService environmentConfigService;
     private TimeProvider timeProvider;
@@ -66,12 +65,11 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
-                                  GoLicenseService licenseService, AgentService agentService, EnvironmentConfigService environmentConfigService, TimeProvider timeProvider,
+                                  AgentService agentService, EnvironmentConfigService environmentConfigService, TimeProvider timeProvider,
                                   TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
-        this.licenseService = licenseService;
         this.agentService = agentService;
         this.environmentConfigService = environmentConfigService;
         this.timeProvider = timeProvider;
@@ -92,10 +90,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
     Work assignWorkToAgent(final AgentInstance agent) {
         if (!agent.isRegistered()) {
             return new UnregisteredAgentWork(agent.getUuid());
-        }
-
-        if (agent.isFromRemoteHost() && hasRemoteAgentReachedLimit()) {
-            return NO_WORK;
         }
 
         if (agent.isDisabled()) {
@@ -174,11 +168,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
         } catch (Exception e) {
             LOGGER.warn(String.format("Unable to remove plan %s from queue that no longer exists in the config", jobPlan));
         }
-    }
-
-    private boolean hasRemoteAgentReachedLimit() {
-        int buildingRemoteAgents = agentService.numberOfActiveRemoteAgents();
-        return buildingRemoteAgents >= licenseService.getNumberOfLicensedRemoteAgents();
     }
 
     private Work createWork(final AgentInstance agent, final JobPlan job) {

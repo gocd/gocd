@@ -199,7 +199,6 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static ResponseAssertion PIPELINE_GROUP_EDIT = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/pipeline_group/group.name?foo=bar&baz=quux", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipeline_group/group.name?foo=bar&baz=quux", true);
     @DataPoint public static ResponseAssertion PIPELINE_GROUP_CREATE = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/pipeline_group", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipeline_group", true);
     @DataPoint public static ResponseAssertion TEMPLATES_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/templates?foo=bar&baz=quux", "http://127.1.1.1:" + HTTP + "/go/rails/admin/templates?foo=bar&baz=quux", true);
-    @DataPoint public static ResponseAssertion USER_DISMISS_LICENSE_EXPIRY_WARNING = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/users/dismiss_license_expiry_warning?foo=bar&baz=quux", "http://127.1.1.1:" + HTTP + "/go/rails/users/dismiss_license_expiry_warning?foo=bar&baz=quux");
     @DataPoint public static ResponseAssertion CONFIG_VIEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/config_view/templates/template_name", "http://127.1.1.1:" + HTTP + "/go/rails/config_view/templates/template_name");
 
     @DataPoint public static ResponseAssertion PIPELINE_NEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/pipeline/new", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipeline/new", true);

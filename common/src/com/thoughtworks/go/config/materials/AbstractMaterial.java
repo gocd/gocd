@@ -39,7 +39,6 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     protected CaseInsensitiveString name;
     protected String type;
-    private boolean requiresDestinationFolder = false;
     private Map<String, Object> sqlCriteria;
     private Map<String, Object> attributesForXml;
     private String pipelineUniqueFingerprint;
@@ -191,6 +190,6 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     protected boolean requiresDestinationFolder() {
-        return requiresDestinationFolder;
+        return false;
     }
 }

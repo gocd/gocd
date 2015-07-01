@@ -143,10 +143,17 @@ public class BuildCause implements Serializable {
             return;
         }
         // then config and code revision must both match
+        if(this.trigger.isForced())
+        {
+            // we should not check when manual trigger because of re-runs
+            // and possibility to specify revisions to run with
+            return;
+        }
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
 
         MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
+        //TODO if revision in any of the pipelines match
         MaterialRevision revision = this.getMaterialRevisions().findRevisionForFingerPrint(configAndCodeMaterial.getFingerprint());
 
         String revisionString = revision.getRevision().getRevision();

@@ -145,7 +145,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
-        PIPELINE_NAME = pipelineConfig.name().toString();
+        PIPELINE_NAME = CaseInsensitiveString.str(pipelineConfig.name());
 
         configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
@@ -220,7 +220,23 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         assertThat(goRepoConfigDataSource.latestParseHasFailedForMaterial(material.config()),is(true));
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME, new ServerHealthStateOperationResult(), 123);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(PIPELINE_NAME)));
+        scheduleHelper.waitForNotScheduled(5, PIPELINE_NAME);
+    }
+
+    @Test
+    public void shouldNotSchedulePipelineWhenPartIsInvalid_AndManuallyTriggered() throws Exception {
+        configTestRepo.addCodeToRepositoryAndPush(fileName, "added broken config file","bad bad config");
+        materialUpdateService.updateMaterial(material);
+        waitForMaterialNotInProgress();
+
+        assertThat(goRepoConfigDataSource.latestParseHasFailedForMaterial(material.config()),is(true));
+
+        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+
+        scheduleHelper.waitForNotScheduled(5,PIPELINE_NAME);
     }
 
     @Test
@@ -234,8 +250,26 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         assertThat(configOrigin.getRevision(),is(firstRevisions.latestRevision()));
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(PIPELINE_NAME)));
+        scheduleHelper.waitForNotScheduled(5,PIPELINE_NAME);
     }
+
+    @Test
+    public void shouldNotSchedulePipelineWhenConfigAndMaterialRevisionsMismatch_AndManuallyTriggered() throws Exception {
+        // we will use this worker to force material update without updating config
+        MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor);
+        List<Modification> mod = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
+        byPassWorker.onMessage(new MaterialUpdateMessage(material,123));
+        //now db should have been updated, but config is still old
+        RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
+        assertThat(configOrigin.getRevision(),is(firstRevisions.latestRevision()));
+
+        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+        scheduleHelper.waitForNotScheduled(5,PIPELINE_NAME);
+    }
+
 
     @Test
     public void shouldReloadPipelineConfigurationWhenManuallyTriggered() throws Exception
@@ -327,6 +361,112 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         // update of commited material happened during manual trigger
         MaterialRevisions modificationsInDb = materialRepository.findLatestModification(gitMaterial);
         assertThat(modificationsInDb.latestRevision(),is(otherGitRepo.latestModification().getRevision()));
+    }
+
+
+    @Test
+    public void shouldSchedulePipelineRerunWithSpecifiedRevisions() throws Exception
+    {
+        List<Modification> firstBuildModifications = configTestRepo.addCodeToRepositoryAndPush("a.java", "added first code file", "some java code");
+        materialUpdateService.updateMaterial(material);
+        waitForMaterialNotInProgress();
+        mergedGoConfig.throwExceptionIfExists();
+
+        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+        mergedGoConfig.throwExceptionIfExists();
+
+        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
+
+        List<Modification> secondBuildModifications = configTestRepo.addCodeToRepositoryAndPush("a.java", "added second code file", "some java code");
+        materialUpdateService.updateMaterial(material);
+        waitForMaterialNotInProgress();
+
+        pipelineScheduleQueue.clear();
+
+        // revision will be older by 1 commit -
+        // formally this is scm-config-consistency violation but we let this schedule because of manual trigger
+        String explicitRevision = firstBuildModifications.get(0).getRevision();
+        revisions.put(materialConfig.getPipelineUniqueFingerprint(), explicitRevision);
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("Admin")),
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+        mergedGoConfig.throwExceptionIfExists();
+
+        afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by Admin"));
+
+        PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
+        RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
+
+        String lastPushedRevision = secondBuildModifications.get(0).getRevision();
+        assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
+                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+        assertThat("buildCauseRevisionShouldMatchSpecifiedRevision",
+                cause.getMaterialRevisions().latestRevision(),is(explicitRevision));
+    }
+
+    @Test
+    public void shouldSchedulePipelineWithSameMaterialIn2DestinationsWhenManuallyTriggered_WithSpecifiedRevisions() throws Exception
+    {
+        pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
+        pipelineConfig.materialConfigs().clear();
+        materialConfig = hgRepo.createMaterialConfig("dest1");
+        // new material is added
+        MaterialConfig otherMaterialConfig = hgRepo.createMaterialConfig("dest2");
+
+        pipelineConfig.materialConfigs().add(materialConfig);
+        pipelineConfig.materialConfigs().add(otherMaterialConfig);
+
+        List<Modification> firstBuildModifications = configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
+        materialUpdateService.updateMaterial(material);
+        waitForMaterialNotInProgress();
+        mergedGoConfig.throwExceptionIfExists();
+
+        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+        mergedGoConfig.throwExceptionIfExists();
+
+        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
+
+        List<Modification> secondBuildModifications = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
+        materialUpdateService.updateMaterial(material);
+        waitForMaterialNotInProgress();
+
+        pipelineScheduleQueue.clear();
+
+        // revision in dest 1 will be older by 1 commit - this is kind of scm-config-consistency violation
+        String explicitRevision = firstBuildModifications.get(0).getRevision();
+        revisions.put(materialConfig.getPipelineUniqueFingerprint(), explicitRevision);
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("Admin")),
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+        mergedGoConfig.throwExceptionIfExists();
+
+        afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by Admin"));
+
+        PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
+        RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
+
+        String lastPushedRevision = secondBuildModifications.get(0).getRevision();
+        assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
+                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+        assertThat(pipelineConfigAfterSchedule.materialConfigs(), hasItem(otherMaterialConfig));
+        assertThat("buildCauseRevisionShouldMatchSpecifiedRevision",
+                cause.getMaterialRevisions().latestRevision(),is(explicitRevision));
     }
 
 }

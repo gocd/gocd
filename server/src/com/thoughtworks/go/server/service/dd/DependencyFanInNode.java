@@ -36,7 +36,6 @@ import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.Revision
 public class DependencyFanInNode extends FanInNode {
     private static final Logger LOGGER = Logger.getLogger(DependencyFanInNode.class);
 
-    private static List<Class<? extends MaterialConfig>> DEPENDENCY_NODE_TYPES = new ArrayList<Class<? extends MaterialConfig>>();
     private int totalInstanceCount = Integer.MAX_VALUE;
     private int maxBackTrackLimit = Integer.MAX_VALUE;
     private int currentCount;
@@ -49,22 +48,11 @@ public class DependencyFanInNode extends FanInNode {
     }
 
     enum RevisionAlteration {
-        NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED,
-        NEED_MORE_REVISIONS
-    }
-
-    static {
-        DEPENDENCY_NODE_TYPES.add(DependencyMaterialConfig.class);
+        NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED, NEED_MORE_REVISIONS
     }
 
     DependencyFanInNode(MaterialConfig material) {
         super(material);
-        for (Class<? extends MaterialConfig> clazz : DEPENDENCY_NODE_TYPES) {
-            if (clazz.isAssignableFrom(material.getClass())) {
-                return;
-            }
-        }
-        throw new RuntimeException("Not a valid root node material type");
     }
 
     public void populateRevisions(CaseInsensitiveString pipelineName, FanInGraphContext context) {

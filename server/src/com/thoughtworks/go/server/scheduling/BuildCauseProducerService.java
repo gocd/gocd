@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -214,7 +215,7 @@ public class BuildCauseProducerService {
                 buildCause.addOverriddenVariables(scheduleOptions.getVariables());
                 updateChangedRevisions(pipelineConfig.name(), buildCause);
             }
-            if(isGoodReasonToSchedule(pipelineConfig, buildCause, buildType, materialConfigurationChanged))
+            if(isGoodReasonToSchedule(pipelineConfig, buildCause, buildType, materialConfigurationChanged,peggedRevisions))
             {
                 pipelineScheduleQueue.schedule(pipelineName, buildCause);
 
@@ -251,22 +252,43 @@ public class BuildCauseProducerService {
     }
 
     private boolean isGoodReasonToSchedule(PipelineConfig pipelineConfig, BuildCause buildCause, BuildType buildType,
-                                           boolean materialConfigurationChanged) {
+                                           boolean materialConfigurationChanged,MaterialRevisions peggedRevisions) {
         if(buildCause == null)
             return false;
 
+        boolean validCause = buildType.isValidBuildCause(pipelineConfig, buildCause);
+
         if(pipelineConfig.isConfigOriginSameAsOneOfMaterials())
         {
+            /*
+            if(!peggedRevisions.isEmpty())
+            {//then user wants to force revision, we should loose scm-config consistency in this case
+                //we must just check if specific revision was selected for config repo material
+                MaterialConfig configRepo = ((RepoConfigOrigin)pipelineConfig.getOrigin()).getMaterial();
+                for(MaterialRevision revision : peggedRevisions)
+                {
+                    if(revision.getMaterial().hasSameFingerprint(configRepo))
+                        return validCause;
+                }
+            }
+            */
+            if(buildCause.isForced())
+            {
+                // build is manual - skip scm-config consistency
+                return validCause;
+            }
             // then we need config and material revisions to be consistent
             if(!buildCause.pipelineConfigAndMaterialRevisionMatch(pipelineConfig))
             {
                 return false;
             }
+
+            return validCause;
         }
-        if (materialConfigurationChanged || buildType.isValidBuildCause(pipelineConfig, buildCause)) {
-            return true;
+        else
+        {
+            return materialConfigurationChanged || validCause;
         }
-        return false;
     }
 
     private void updateChangedRevisions(CaseInsensitiveString pipelineName, BuildCause buildCause) {

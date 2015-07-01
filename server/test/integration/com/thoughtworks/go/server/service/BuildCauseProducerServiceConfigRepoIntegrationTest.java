@@ -224,8 +224,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     }
 
     @Test
-    public void shouldNotSchedulePipelineWhenPartIsInvalid_AndManuallyTriggered() throws Exception {
-        configTestRepo.addCodeToRepositoryAndPush(fileName, "added broken config file","bad bad config");
+    public void shouldSchedulePipelineWhenPartIsInvalid_AndManuallyTriggered() throws Exception {
+        List<Modification> lastPush = configTestRepo.addCodeToRepositoryAndPush(fileName, "added broken config file", "bad bad config");
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
@@ -236,7 +236,19 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
 
-        scheduleHelper.waitForNotScheduled(5,PIPELINE_NAME);
+        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
+
+        PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
+        RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
+
+        String lastValidPushedRevision = this.firstRevisions.latestRevision();
+        assertThat("revisionOfPipelineConfigOriginShouldMatchLastValidPushedCommit",
+                configOriginAfterSchedule.getRevision(),is(lastValidPushedRevision));
+        assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
+                cause.getMaterialRevisions().latestRevision(), is(lastPush.get(0).getRevision()));
     }
 
     @Test
@@ -250,14 +262,16 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         assertThat(configOrigin.getRevision(),is(firstRevisions.latestRevision()));
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
-        scheduleHelper.waitForNotScheduled(5,PIPELINE_NAME);
+        scheduleHelper.waitForNotScheduled(5, PIPELINE_NAME);
     }
 
     @Test
-    public void shouldNotSchedulePipelineWhenConfigAndMaterialRevisionsMismatch_AndManuallyTriggered() throws Exception {
+    // unfortunately there is no way to know why revisions would mismatch during manual trigger.
+    // We already let all manual triggers to bypass revision match check
+    public void shouldSchedulePipelineWhenConfigAndMaterialRevisionsMismatch_AndManuallyTriggered() throws Exception {
         // we will use this worker to force material update without updating config
         MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor);
-        List<Modification> mod = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
+        List<Modification> lastPush = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
         byPassWorker.onMessage(new MaterialUpdateMessage(material,123));
         //now db should have been updated, but config is still old
         RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
@@ -267,7 +281,14 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         final HashMap<String, String> environmentVariables = new HashMap<String, String>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
-        scheduleHelper.waitForNotScheduled(5,PIPELINE_NAME);
+
+        Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
+        assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
+        BuildCause cause = afterLoad.get(PIPELINE_NAME);
+        assertThat(cause.getBuildCauseMessage(), containsString("Forced by anonymous"));
+
+        assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
+                cause.getMaterialRevisions().latestRevision(), is(lastPush.get(0).getRevision()));
     }
 
 

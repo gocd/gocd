@@ -120,13 +120,25 @@ public class BuildCause implements Serializable {
         }
         return true;
     }
-    public boolean pipelineConfigAndMaterialRevisionMatch(PipelineConfig config){
-        try {
-            assertPipelineConfigAndMaterialRevisionMatch(config);
-        } catch (BuildCauseOutOfDateException e) {
-            return false;
+    public boolean pipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig){
+        if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
+        {
+            return true;
         }
-        return true;
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
+
+        MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
+        //TODO if revision in any of the pipelines match
+        MaterialRevision revision = this.getMaterialRevisions().findRevisionForFingerPrint(configAndCodeMaterial.getFingerprint());
+
+        String revisionString = revision.getRevision().getRevision();
+        if(pipelineConfig.isConfigOriginFromRevision(revisionString))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public void assertMaterialsMatch(MaterialConfigs other) {

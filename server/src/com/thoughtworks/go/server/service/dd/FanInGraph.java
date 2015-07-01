@@ -82,11 +82,11 @@ public class FanInGraph {
     private void buildGraph(PipelineConfig target) {
         nodes.add(this.root);
         final Set<String> scmMaterials = new HashSet<String>();
-        buildRestOfTheGraph(this.root, target, scmMaterials);
+        buildRestOfTheGraph(this.root, target, scmMaterials, new HashSet<CaseInsensitiveString>());
         dependencyMaterialFingerprintMap.put((DependencyMaterialConfig) this.root.materialConfig, scmMaterials);
     }
 
-    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet) {
+    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet, Set<CaseInsensitiveString> visitedNodes) {
         for (MaterialConfig material : target.materialConfigs()) {
             FanInNode node = createNode(material);
             root.children.add(node);
@@ -94,7 +94,7 @@ public class FanInGraph {
             if (node instanceof DependencyFanInNode) {
                 DependencyMaterialConfig dependencyMaterial = (DependencyMaterialConfig) material;
                 fingerprintDepMaterialMap.put(dependencyMaterial.getFingerprint(), dependencyMaterial);
-                handleDependencyMaterial(scmMaterialSet, dependencyMaterial, (DependencyFanInNode) node);
+                handleDependencyMaterial(scmMaterialSet, dependencyMaterial, (DependencyFanInNode) node, visitedNodes);
             } else {
                 handleScmMaterial(scmMaterialSet, material);
             }
@@ -107,9 +107,15 @@ public class FanInGraph {
         fingerprintScmMaterialMap.put(fingerprint, material);
     }
 
-    private void handleDependencyMaterial(Set<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node) {
+    private void handleDependencyMaterial(Set<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node, Set<CaseInsensitiveString> visitedNodes) {
+        if (visitedNodes.contains(depMaterial.getPipelineName())) {
+            scmMaterialSet.addAll(dependencyMaterialFingerprintMap.get(depMaterial));
+            return;
+        }
+        visitedNodes.add(depMaterial.getPipelineName());
+
         final Set<String> scmMaterialFingerprintSet = new HashSet<String>();
-        buildRestOfTheGraph(node, cruiseConfig.pipelineConfigByName(depMaterial.getPipelineName()), scmMaterialFingerprintSet);
+        buildRestOfTheGraph(node, cruiseConfig.pipelineConfigByName(depMaterial.getPipelineName()), scmMaterialFingerprintSet, visitedNodes);
         dependencyMaterialFingerprintMap.put(depMaterial, scmMaterialFingerprintSet);
         scmMaterialSet.addAll(scmMaterialFingerprintSet);
     }

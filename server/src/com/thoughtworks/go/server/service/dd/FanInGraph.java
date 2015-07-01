@@ -154,7 +154,7 @@ public class FanInGraph {
         Map<DependencyMaterialConfig, Set<MaterialConfig>> dependencyMaterialListMap = new HashMap<DependencyMaterialConfig, Set<MaterialConfig>>();
 
         for (Map.Entry<DependencyMaterialConfig, Set<String>> materialSetEntry : dependencyMaterialFingerprintMap.entrySet()) {
-            HashSet<MaterialConfig> scmMaterials = new HashSet<MaterialConfig>();
+            Set<MaterialConfig> scmMaterials = new HashSet<MaterialConfig>();
             for (String fingerprint : materialSetEntry.getValue()) {
                 scmMaterials.add(fingerprintScmMaterialMap.get(fingerprint));
             }

@@ -185,11 +185,11 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         throw new RuntimeException("You need to implement this");
     }
 
-    public boolean hasDestinationFolder() {
+    protected boolean hasDestinationFolder() {
         return !StringUtil.isBlank(getFolder());
     }
 
-    protected boolean requiresDestinationFolder() {
+    public boolean supportsDestinationFolder() {
         return false;
     }
 }

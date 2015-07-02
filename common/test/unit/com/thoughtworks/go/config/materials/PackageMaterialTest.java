@@ -443,8 +443,8 @@ public class PackageMaterialTest {
     }
 
     @Test
-    public void shouldReturnFalseForPackageMaterial_hasDestinationFolder() throws Exception {
+    public void shouldReturnFalseForPackageMaterial_supportsDestinationFolder() throws Exception {
         PackageMaterial material = new PackageMaterial();
-        assertThat(material.hasDestinationFolder(), is(false));
+        assertThat(material.supportsDestinationFolder(), is(false));
     }
 }

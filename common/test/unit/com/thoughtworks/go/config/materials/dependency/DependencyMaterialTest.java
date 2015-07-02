@@ -210,8 +210,8 @@ public class DependencyMaterialTest {
     }
 
     @Test
-    public void shouldReturnFalseForDependencyMaterial_hasDestinationFolder() throws Exception {
+    public void shouldReturnFalseForDependencyMaterial_supportsDestinationFolder() throws Exception {
         DependencyMaterial material = new DependencyMaterial();
-        assertThat(material.hasDestinationFolder(), is(false));
+        assertThat(material.supportsDestinationFolder(), is(false));
     }
 }

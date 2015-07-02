@@ -126,14 +126,8 @@ public class ScmMaterialTest {
     }
 
     @Test
-    public void shouldReturnFalseForAnScmWithNoDestinationFolder_hasDestinationFolder() throws Exception {
+    public void shouldReturnTrueForAnScmMaterial_supportsDestinationFolder() throws Exception {
         ScmMaterial material = new GitMaterial("http://some-url.com", "some-branch");
-        assertThat(material.hasDestinationFolder(), is(false));
-    }
-
-    @Test
-    public void shouldReturnTrueForAnScmWithDestinationFolder_hasDestinationFolder() throws Exception {
-        ScmMaterial material = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
-        assertThat(material.hasDestinationFolder(), is(true));
+        assertThat(material.supportsDestinationFolder(), is(true));
     }
 }

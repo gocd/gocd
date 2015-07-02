@@ -327,7 +327,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     }
 
     @Override
-    public boolean requiresDestinationFolder() {
+    public boolean supportsDestinationFolder() {
         return true;
     }
 }

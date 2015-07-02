@@ -25,6 +25,7 @@ module ApiV1
     end
 
     def check_admin_user_and_401
+      return unless security_service.isSecurityEnabled()
       unless security_service.isUserAdmin(current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
         render_unauthorized_error

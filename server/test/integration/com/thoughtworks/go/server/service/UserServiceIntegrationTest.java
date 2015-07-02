@@ -16,18 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.domain.NotificationFilter;
-import com.thoughtworks.go.domain.NullUser;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.exception.ValidationException;
@@ -50,6 +40,7 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.TriState;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -62,6 +53,11 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
@@ -146,7 +142,7 @@ public class UserServiceIntegrationTest {
     public void addUserIfDoesNotExist_shouldNotAddUserIfExists() throws Exception {
         User user = new User("old_user");
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("old_user"), "credentials", new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
-        userDao.saveOrUpdate(user);
+        addUser(user);
         userService.addUserIfDoesNotExist(UserHelper.getUserName(auth));
     }
 
@@ -195,7 +191,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void shouldRemoveNotificationFilterForUser() throws ValidationException {
         User user = new User("jez", new String[]{"jez"}, "user@mail.com", true);
-        userDao.saveOrUpdate(user);
+        addUser(user);
         user = userDao.findUser(user.getName());
         NotificationFilter filter = new NotificationFilter("cruise", "dev", StageEvent.Fixed, false);
         userService.addNotificationFilter(user.getId(), filter);
@@ -310,8 +306,8 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void disableUsers_shouldAlsoExpireOauthTokens() throws Exception {
-        userDao.saveOrUpdate(new User("user_one"));
-        userDao.saveOrUpdate(new User("user_two"));
+        addUser(new User("user_one"));
+        addUser(new User("user_two"));
 
         generateOauthTokenFor("user_one");
 
@@ -341,7 +337,7 @@ public class UserServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         User user1 = new User("user_one");
         user1.disable();
-        userDao.saveOrUpdate(user1);
+        addUser(user1);
 
         createDisabledUser("user_two");
 
@@ -355,8 +351,8 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldKnowEnabledAndDisbaledUsersCount() throws Exception {
-        userDao.saveOrUpdate(new User("user_one"));
-        userDao.saveOrUpdate(new User("user_three"));
+        addUser(new User("user_one"));
+        addUser(new User("user_three"));
 
         createDisabledUser("user_two");
 
@@ -412,7 +408,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void modifyRoles_shouldAddUserToExistingRole() throws Exception {
         configFileHelper.addRole(new Role(new CaseInsensitiveString("dev")));
-        userDao.saveOrUpdate(new User("user-1"));
+        addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
         CruiseConfig cruiseConfig = goConfigFileDao.load();
@@ -422,7 +418,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void modifyRoles_shouldNotAddUserToExistingRoleIfAlreadyAMember() throws Exception {
-        userDao.saveOrUpdate(new User("user-1"));
+        addUser(new User("user-1"));
         // first time
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         // second time
@@ -433,7 +429,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void modifyRoles_shouldCreateRoleAndAddUserIfRoleDoesntExist() throws Exception {
-        userDao.saveOrUpdate(new User("user-1"));
+        addUser(new User("user-1"));
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         CruiseConfig cruiseConfig = goConfigFileDao.load();
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("dev")).hasMember(new CaseInsensitiveString("user-1")), is(true));
@@ -441,7 +437,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void modifyRoles_shouldNotCreateRoleIfItHasInvalidCharacters() throws Exception {
-        userDao.saveOrUpdate(new User("user-1"));
+        addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection(".dev+", TriStateSelection.Action.add)), result);
@@ -452,7 +448,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void modifyRoles_shouldRemoveUserFromRole() throws Exception {
-        userDao.saveOrUpdate(new User("user-1"));
+        addUser(new User("user-1"));
         // add it first
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         // now remove it
@@ -463,7 +459,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void modifyRoles_shouldNotModifyRolesWhenActionIsNoChange() throws Exception {
-        userDao.saveOrUpdate(new User("user-1"));
+        addUser(new User("user-1"));
         // add it first
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         // no change
@@ -487,7 +483,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void shouldModifyRolesAndAdminPrivilegeAtTheSameTime() throws Exception {
         configFileHelper.addRole(new Role(new CaseInsensitiveString("dev")));
-        userDao.saveOrUpdate(new User("user-1"));
+        addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
         CruiseConfig cruiseConfig = goConfigFileDao.load();
@@ -498,9 +494,9 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldAddAdminPrivilegeToMultipleUsers() throws Exception {
-        userDao.saveOrUpdate(new User("user"));
-        userDao.saveOrUpdate(new User("loser"));
-        userDao.saveOrUpdate(new User("boozer"));
+        addUser(new User("user"));
+        addUser(new User("loser"));
+        addUser(new User("boozer"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), new ArrayList<TriStateSelection>(), result);
         CruiseConfig cruiseConfig = goConfigFileDao.load();
@@ -516,9 +512,9 @@ public class UserServiceIntegrationTest {
         configFileHelper.addAdmins("user", "boozer");
         configFileHelper.addRole(new Role(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
         configFileHelper.addAdminRoles("mastersOfTheWorld");
-        userDao.saveOrUpdate(new User("user"));
-        userDao.saveOrUpdate(new User("loser"));
-        userDao.saveOrUpdate(new User("boozer"));
+        addUser(new User("user"));
+        addUser(new User("loser"));
+        addUser(new User("boozer"));
 
         CruiseConfig cruiseConfig = goConfigFileDao.load();
         SecurityConfig securityConfig = cruiseConfig.server().security();
@@ -548,9 +544,9 @@ public class UserServiceIntegrationTest {
         configFileHelper.addAdmins("user", "boozer");
         configFileHelper.addRole(new Role(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
         configFileHelper.addAdminRoles("mastersOfTheWorld");
-        userDao.saveOrUpdate(new User("user"));
-        userDao.saveOrUpdate(new User("loser"));
-        userDao.saveOrUpdate(new User("boozer"));
+        addUser(new User("user"));
+        addUser(new User("loser"));
+        addUser(new User("boozer"));
 
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -571,9 +567,9 @@ public class UserServiceIntegrationTest {
         configFileHelper.addRole(new Role(new CaseInsensitiveString("boy")));
         configFileHelper.addRole(new Role(new CaseInsensitiveString("girl")));
         configFileHelper.addRole(new Role(new CaseInsensitiveString("none")));
-        userDao.saveOrUpdate(new User("yogi"));
-        userDao.saveOrUpdate(new User("shilpa"));
-        userDao.saveOrUpdate(new User("pavan"));
+        addUser(new User("yogi"));
+        addUser(new User("shilpa"));
+        addUser(new User("pavan"));
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("yogi", "shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("girl", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("yogi"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("boy", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
@@ -609,6 +605,136 @@ public class UserServiceIntegrationTest {
         assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo", "quux")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add, false)));
     }
 
+    @Test
+    public void shouldUpdateEnabledStateToFalse() throws Exception {
+        User user = new User("user-1");
+        user.enable();
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.FALSE, TriState.UNSET, null, null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.isEnabled(), is(false));
+    }
+
+    @Test
+    public void shouldUpdateEnabledStateToTrue() throws Exception {
+        User user = new User("user-1");
+        user.disable();
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.TRUE, TriState.UNSET, null, null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.isEnabled(), is(true));
+    }
+
+    @Test
+    public void shouldNotUpdateEnabledStateWhenAskedToBeLeftUnset() throws Exception {
+        User user = new User("user-1");
+        user.disable();
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        assertThat(user.isEnabled(), is(false));
+    }
+
+    @Test
+    public void updateShouldUpdateEmailMeStateToTrue() throws Exception {
+        User user = new User("user-1");
+        user.enable();
+        user.setEmailMe(false);
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.TRUE, null, null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.isEmailMe(), is(true));
+    }
+
+
+    @Test
+    public void updateShouldUpdateEmailMeStateToFalse() throws Exception {
+        User user = new User("user-1");
+        user.enable();
+        user.setEmailMe(true);
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.FALSE, null, null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.isEmailMe(), is(false));;
+    }
+
+    @Test
+    public void updateShouldUpdateEmailMeStateWHenAskedToBeLeftUnset() throws Exception {
+        User user = new User("user-1");
+        user.enable();
+        user.setEmailMe(true);
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        assertThat(user.isEmailMe(), is(true));
+    }
+
+    @Test
+    public void updateShouldUpdateEmail() throws Exception {
+        User user = new User("user-1");
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.UNSET, "foo@example.com", null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.getEmail(), is("foo@example.com"));
+
+        result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.TRUE, TriState.UNSET, "", null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.getEmail(), is(""));
+    }
+
+    @Test
+    public void updateShouldNotUpdateEmailWhenNull() throws Exception {
+        User user = new User("user-1");
+        user.setEmail("foo@example.com");
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.getEmail(), is("foo@example.com"));
+    }
+
+    @Test
+    public void updateShouldUpdateMatcher() throws Exception {
+        User user = new User("user-1");
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.UNSET, null, "foo,bar", result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.getMatcher(), is("foo,bar"));
+
+        result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.UNSET, null, "", result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.getMatcher(), is(""));
+    }
+
+    @Test
+    public void updateShouldNotUpdateMatcherWhenNull() throws Exception {
+        User user = new User("user-1");
+        user.setMatcher("foo,bar");
+        addUser(user);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(user.getMatcher(), is("foo,bar"));
+    }
+
     private void assertRoleSelection(TriStateSelection selection, String roleName, TriStateSelection.Action action) {
         assertThat(selection.getValue(), is(roleName));
         assertThat(selection.getAction(), is(action));
@@ -617,7 +743,7 @@ public class UserServiceIntegrationTest {
     private void createDisabledUser(String username) {
         User user = new User(username);
         user.disable();
-        userDao.saveOrUpdate(user);
+        addUser(user);
     }
 
     private List<UserSearchModel> users(String... usernames) {
@@ -643,7 +769,7 @@ public class UserServiceIntegrationTest {
         for (NotificationFilter filter : filters) {
             user.addNotificationFilter(filter);
         }
-        userDao.saveOrUpdate(user);
+        addUser(user);
     }
 
     private Matcher<? super User> isANullUser() {

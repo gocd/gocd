@@ -57,6 +57,7 @@ module ApiSpecHelper
 
   def login_as_anonymous
     controller.stub(:current_user).and_return(@user = Username::ANONYMOUS)
+    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
   end
 
   def actual_response

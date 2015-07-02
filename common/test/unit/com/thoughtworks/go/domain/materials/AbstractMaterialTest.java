@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -29,6 +25,10 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
@@ -179,5 +179,4 @@ public class AbstractMaterialTest {
         AbstractMaterial material = new TestMaterial("foo_bar_baz_quuz_ban_pavan");
         assertThat(material.getTruncatedDisplayName(), is("foo_bar_ba..._ban_pavan"));
     }
-
 }

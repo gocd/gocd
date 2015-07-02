@@ -465,6 +465,12 @@ public class PluggableSCMMaterialTest {
         assertThat(pluggableSCMMaterial.getTypeForDisplay(), is("scm-name"));
     }
 
+    @Test
+    public void shouldReturnTrueForPluggableScmMaterial_supportsDestinationFolder() throws Exception {
+        PluggableSCMMaterial material = new PluggableSCMMaterial();
+        assertThat(material.supportsDestinationFolder(), is(true));
+    }
+
     private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);

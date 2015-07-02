@@ -16,49 +16,38 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.util.json.JsonMap;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
-import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class PackageMaterialTest {
     @Test
@@ -451,5 +440,11 @@ public class PackageMaterialTest {
         material.getPackageDefinition().getConfiguration().addNewConfigurationWithValue("k4", "package-v2", false);
         material.getPackageDefinition().getConfiguration().get(1).handleSecureValueConfiguration(true);
         return material;
+    }
+
+    @Test
+    public void shouldReturnFalseForPackageMaterial_supportsDestinationFolder() throws Exception {
+        PackageMaterial material = new PackageMaterial();
+        assertThat(material.supportsDestinationFolder(), is(false));
     }
 }

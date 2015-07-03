@@ -82,11 +82,11 @@ public class FanInGraph {
     private void buildGraph(PipelineConfig target) {
         nodes.put(this.root.materialConfig.getFingerprint(), this.root);
         final Set<String> scmMaterials = new HashSet<String>();
-        buildRestOfTheGraph(this.root, target, scmMaterials, new HashSet<CaseInsensitiveString>());
+        buildRestOfTheGraph(this.root, target, scmMaterials, new HashSet<DependencyMaterialConfig>());
         dependencyMaterialFingerprintMap.put((DependencyMaterialConfig) this.root.materialConfig, scmMaterials);
     }
 
-    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet, Set<CaseInsensitiveString> visitedNodes) {
+    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet, Set<DependencyMaterialConfig> visitedNodes) {
         for (MaterialConfig material : target.materialConfigs()) {
             FanInNode node = createNode(material);
             root.children.add(node);
@@ -107,12 +107,12 @@ public class FanInGraph {
         fingerprintScmMaterialMap.put(fingerprint, material);
     }
 
-    private void handleDependencyMaterial(Set<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node, Set<CaseInsensitiveString> visitedNodes) {
-        if (visitedNodes.contains(depMaterial.getPipelineName())) {
+    private void handleDependencyMaterial(Set<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node, Set<DependencyMaterialConfig> visitedNodes) {
+        if (visitedNodes.contains(depMaterial)) {
             scmMaterialSet.addAll(dependencyMaterialFingerprintMap.get(depMaterial));
             return;
         }
-        visitedNodes.add(depMaterial.getPipelineName());
+        visitedNodes.add(depMaterial);
 
         final Set<String> scmMaterialFingerprintSet = new HashSet<String>();
         buildRestOfTheGraph(node, cruiseConfig.pipelineConfigByName(depMaterial.getPipelineName()), scmMaterialFingerprintSet, visitedNodes);

@@ -26,7 +26,7 @@ module ApiV1
     end
 
     link :doc do
-      'http://api.go.cd/#backup'
+      'http://api.go.cd/#backups'
     end
 
     property :getTime, as: :time

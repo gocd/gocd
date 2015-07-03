@@ -30,6 +30,8 @@ import java.io.IOException;
 public class XmlPartialConfigProvider implements PartialConfigProvider {
     private static final Logger LOGGER = Logger.getLogger(XmlPartialConfigProvider.class);
 
+    public static final String ProviderName = "gocd-xml";
+
     private final String defaultPatter = "**/*.gocd.xml";
 
     private MagicalGoConfigXmlLoader loader;

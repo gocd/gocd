@@ -218,6 +218,8 @@ Go::Application.routes.draw do
 
   scope :api, as: :apiv1 do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
+      resources :backups, only: [:create]
+
       resources :users,  param: :login_name, only: [:index, :show, :destroy] do
         patch :update, on: :member
       end

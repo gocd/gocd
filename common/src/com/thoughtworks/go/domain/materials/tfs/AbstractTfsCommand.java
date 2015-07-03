@@ -20,12 +20,17 @@ package com.thoughtworks.go.domain.materials.tfs;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.CommandArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +79,8 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
         return domain;
     }
 
-    @Override public final void checkout(File workDir, Revision revision) {
+    @Override
+    public final void checkout(File workDir, Revision revision) {
         try {
             if (workDir.exists()) {
                 FileUtils.deleteQuietly(workDir);
@@ -95,7 +101,8 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
         }
     }
 
-    @Override public final List<Modification> latestModification(File workDir) {
+    @Override
+    public final List<Modification> latestModification(File workDir) {
         try {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(String.format("[TFS] History for Workspace: %s, Working Folder: %s, Latest Revision: null, RevToLoad: 1", workspace, workDir));
@@ -110,7 +117,8 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
         }
     }
 
-    @Override public final List<Modification> modificationsSince(File workDir, Revision revision) {
+    @Override
+    public final List<Modification> modificationsSince(File workDir, Revision revision) {
         try {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(String.format("[TFS] Modification check for Workspace: %s, Working Folder %s, Revision %s ", workspace, workDir, revision));
@@ -118,7 +126,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
             return modificationsSinceRevInHistory(revision);
         } catch (Exception e) {
             String message = String.format("Failed while checking for modifications since revision %s on Server: %s, Project Path: %s, Username: %s, Domain: %s,"
-                    + " Root Cause: %s",
+                            + " Root Cause: %s",
                     revision.getRevision(),
                     url, projectPath,
                     userName,
@@ -127,7 +135,8 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
         }
     }
 
-    @Override public final void checkConnection() {
+    @Override
+    public final void checkConnection() {
         LOGGER.info(String.format("[TFS] Checking Connection: Server %s, Domain %s, User %s, Project Path %s",
                 url, domain, userName, projectPath));
         try {
@@ -138,7 +147,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
         } catch (Exception e) {
             String message = String.format("Failed while checking connection using Url: %s, Project Path: %s, Username: %s, Domain: %s, Root Cause: %s", url, projectPath,
                     userName,
-                    domain,e.getMessage());
+                    domain, e.getMessage());
             throw new RuntimeException(message, e);
         }
     }
@@ -231,6 +240,24 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
         result = 31 * result + (workspace != null ? workspace.hashCode() : 0);
         result = 31 * result + (projectPath != null ? projectPath.hashCode() : 0);
         return result;
+    }
+
+    protected URI getUri() {
+        try {
+            return new URL(url.toString()).toURI();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(String.format("[TFS] Failed when converting the url string to a uri: %s, Project Path: %s, Username: %s, Domain: %s", url, projectPath, userName, domain), e);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(String.format("[TFS] Failed when converting the url string to a uri: %s, Project Path: %s, Username: %s, Domain: %s", url, projectPath, userName, domain), e);
+        }
+    }
+
+    protected String usernameWithDomain() {
+        if (StringUtil.isBlank(domain)) {
+            return getUserName();
+        } else {
+            return String.format("%s\\%s", getDomain(), getUserName());
+        }
     }
 
     protected abstract List<Modification> history(final String beforeRevision, final long revsToLoad);

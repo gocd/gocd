@@ -38,18 +38,18 @@ import org.apache.log4j.Logger;
 public class NestedJarClassLoader extends ClassLoader {
 
     private static final Logger LOGGER = Logger.getLogger(NestedJarClassLoader.class);
-    private final ClassLoader loaderForJar;
-    private final ClassLoader myLoader;
+    private final ClassLoader jarClassLoader;
+    private final ClassLoader parentClassLoader;
     private final String[] excludes;
 
     public NestedJarClassLoader(URL jarURL, String... excludes) {
         this(jarURL, NestedJarClassLoader.class.getClassLoader(), excludes);
     }
 
-    NestedJarClassLoader(URL jarURL, ClassLoader parent, String... excludes) {
+    NestedJarClassLoader(URL jarURL, ClassLoader parentClassLoader, String... excludes) {
         super(null);
-        myLoader = parent;
-        loaderForJar = createLoaderForJar(jarURL);
+        this.parentClassLoader = parentClassLoader;
+        this.jarClassLoader = createLoaderForJar(jarURL);
         this.excludes = excludes;
     }
 
@@ -99,9 +99,9 @@ public class NestedJarClassLoader extends ClassLoader {
 
     @Override public Class<?> loadClass(String name) throws ClassNotFoundException {
         if (existsInTfsJar(name)) {
-            return loaderForJar.loadClass(name);
+            return jarClassLoader.loadClass(name);
         }
-        return myLoader.loadClass(name);
+        return parentClassLoader.loadClass(name);
     }
 
     @Override protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
@@ -116,8 +116,8 @@ public class NestedJarClassLoader extends ClassLoader {
             LOGGER.debug(String.format("Invoking parent classloader for %s with resolve %s", name, resolve));
         }
         try {
-            Method loadClass = findNonPublicMethod("loadClass", myLoader.getClass(), String.class, boolean.class);
-            return (Class<?>) loadClass.invoke(myLoader, name, (Boolean) resolve);
+            Method loadClass = findNonPublicMethod("loadClass", parentClassLoader.getClass(), String.class, boolean.class);
+            return (Class<?>) loadClass.invoke(parentClassLoader, name, (Boolean) resolve);
         } catch (InvocationTargetException e) {
             handleClassNotFound(e);
             throw new RuntimeException("Failed to invoke parent classloader", e);
@@ -143,14 +143,14 @@ public class NestedJarClassLoader extends ClassLoader {
     }
 
     private boolean existsInTfsJar(String name) {
-        if (loaderForJar == null) {
+        if (jarClassLoader == null) {
             return false;
         }
         String classAsResourceName = name.replace('.', '/') + ".class";
         if (isExcluded(classAsResourceName)) {
             return false;
         }
-        URL url = loaderForJar.getResource(classAsResourceName);
+        URL url = jarClassLoader.getResource(classAsResourceName);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("Loading %s from jar returned %s for url: %s  ", name, url != null, url));
         }
@@ -159,7 +159,7 @@ public class NestedJarClassLoader extends ClassLoader {
 
     @Override public URL getResource(String name) {
         if (isExcluded(name)) {
-            return myLoader.getResource(name);
+            return parentClassLoader.getResource(name);
         }
         return null;
     }

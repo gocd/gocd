@@ -36,6 +36,7 @@ import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -58,10 +59,14 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     private String encryptedPassword;
     private String projectPath;
     private final GoCipher goCipher;
+    // ugly hack, on the server side, this will get serialized base on the value of the system property
+    // on the agent side, this will get de-serialized with the value that the server serialized it with.
+    private Boolean useOldTfs = new SystemEnvironment().get(SystemEnvironment.TFS_SDK_10);
 
     public TfsMaterial(GoCipher goCipher) {
         super(TYPE);
         this.goCipher = goCipher;
+        new SystemEnvironment().get(SystemEnvironment.TFS_SDK_10);
     }
 
     public TfsMaterial(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
@@ -149,6 +154,10 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         File workingDir = workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[TFS] Updating to revision: " + revision + " in workingdirectory " + workingDir);
+        }
+        if(this.useOldTfs) {
+            LOGGER.debug("[TFS] Using old TFS version (10.1.0)");
+            new SystemEnvironment().set(SystemEnvironment.TFS_SDK_10, true);
         }
         outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
         tfs(execCtx).checkout(workingDir, revision);

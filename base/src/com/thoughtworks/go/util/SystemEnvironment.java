@@ -23,6 +23,9 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
@@ -156,6 +159,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String JETTY6 = "com.thoughtworks.go.server.Jetty6Server";
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
     public static GoSystemProperty<String> APP_SERVER = new CachedProperty<String>(new GoStringSystemProperty("app.server", JETTY9));
+
+    public static GoSystemProperty<Boolean> TFS_SDK_10 = new CachedProperty<Boolean>(new GoBooleanSystemProperty("tfs.sdk.old", false));
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
@@ -754,12 +759,14 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             super(propertyName, defaultValue);
         }
 
+        private List<String> YES_VALUES = Arrays.asList("y", "yes", "true", "t");
+
         @Override
         protected Boolean convertValue(String propertyValueFromSystem, Boolean defaultValue) {
             if (propertyValueFromSystem == null) {
                 return defaultValue;
             }
-            return "Y".equalsIgnoreCase(propertyValueFromSystem);
+            return YES_VALUES.contains(propertyValueFromSystem.toLowerCase());
         }
     }
 

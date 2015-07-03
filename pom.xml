@@ -104,7 +104,8 @@
         <module>agent-common</module>
         <module>test-agent</module>
 
-        <module>tfs-impl</module>
+        <module>tfs-impl/tfs-impl-10</module>
+        <module>tfs-impl/tfs-impl-12</module>
 
         <module>agent</module>
         <module>agent-launcher</module>
@@ -133,7 +134,7 @@
                 <repository>
                     <id>go-maven-output-dir</id>
                     <name>go-maven-output-repository</name>
-                    <url>file:${main.dir}/maven-output-dir</url>
+                    <url>file:${project.parent.relativePath}/maven-output-dir</url>
                 </repository>
             </repositories>
         </profile>

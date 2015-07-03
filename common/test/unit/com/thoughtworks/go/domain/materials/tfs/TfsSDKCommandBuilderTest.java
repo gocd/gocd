@@ -34,6 +34,7 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -55,14 +56,15 @@ public class TfsSDKCommandBuilderTest {
 
     @Test
     public void shouldLoadTheCorrectImplementationOfSDKCommandViaTheNestedClassLoader() throws Exception {
-        when(mockSdkLoader.loadClass("com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter")).thenThrow(new RuntimeException());
+        String tfsSdkCommandTCLAdapterClassName= builder.tfsSdkCommandTCLAdapterClassName();
+        when(mockSdkLoader.loadClass(tfsSdkCommandTCLAdapterClassName)).thenThrow(new RuntimeException());
         try {
             builder.buildTFSSDKCommand(null,new UrlArgument("url"), DOMAIN, USERNAME, PASSWORD, computedWorkspaceName, "$/project");
             fail("should have failed to load class as we are not wiring any dependencies");
         } catch (Exception e) {
             //Do not worry about load class failing. We're only asserting that load class is invoked with the right FQN for TFSSDKCommand
         }
-        verify(mockSdkLoader, times(1)).loadClass("com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter");
+        verify(mockSdkLoader, times(1)).loadClass(tfsSdkCommandTCLAdapterClassName);
     }
 
     @Test

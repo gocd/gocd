@@ -24,13 +24,17 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.NestedJarClassLoader;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -70,13 +74,21 @@ class TfsSDKCommandBuilder {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(sdkLoader);
-            Class<?> adapterClass = Class.forName("com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter", true, sdkLoader);
+            Class<?> adapterClass = Class.forName(tfsSdkCommandTCLAdapterClassName(), true, sdkLoader);
             Constructor<?> constructor = adapterClass.getConstructor(String.class, CommandArgument.class, String.class, String.class, String.class, String.class, String.class);
             return (TfsCommand) constructor.newInstance(materialFingerPrint, url, domain, userName, password, computedWorkspaceName, projectPath);
         } finally {
             Thread.currentThread().setContextClassLoader(tcl);
         }
 
+    }
+
+    String tfsSdkCommandTCLAdapterClassName() {
+        String className = "com.thoughtworks.go.tfssdk12.TfsSDKCommandTCLAdapter";
+        if (new SystemEnvironment().get(SystemEnvironment.TFS_SDK_10)){
+            className = "com.thoughtworks.go.tfssdk10.TfsSDKCommandTCLAdapter";
+        }
+        return className;
     }
 
     static TfsSDKCommandBuilder getBuilder() throws IOException, URISyntaxException {
@@ -91,7 +103,7 @@ class TfsSDKCommandBuilder {
     }
 
     private ClassLoader initSdkLoader() throws URISyntaxException, IOException {
-        URL jarURL = urlForSDKJar("lib/tfs-impl.jar");
+        URL jarURL = urlForSDKJar(tfsImplJar());
         URL expandedJarUrl = expandJarAndReturnURL(jarURL);
         File tempFolder = FileUtil.createTempFolder();
         tempFolder.deleteOnExit();
@@ -101,8 +113,16 @@ class TfsSDKCommandBuilder {
         return new NestedJarClassLoader(expandedJarUrl, useTheParentLog4jConfiguration);
     }
 
+    private String tfsImplJar() {
+        String jarFile = "lib/tfs-impl-12.jar";
+        if (new SystemEnvironment().get(SystemEnvironment.TFS_SDK_10)){
+            jarFile = "lib/tfs-impl-10.jar";
+        }
+        return jarFile;
+    }
+
     private void setNativePath(File tempFolder) {
-        String sdkNativePath = tempFolder.getAbsolutePath() + File.separator + "tfssdk" + File.separator + "native";
+        String sdkNativePath = Paths.get(tempFolder.getAbsolutePath(), "tfssdk", "native").toString();
         LOGGER.info("[TFS SDK] Setting native lib path, com.microsoft.tfs.jni.native.base-directory=" + sdkNativePath);
         System.setProperty("com.microsoft.tfs.jni.native.base-directory", sdkNativePath);
     }

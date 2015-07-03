@@ -54,7 +54,7 @@ public class FanInGraph {
     private final MaterialRepository materialRepository;
     private MaterialConfigConverter materialConfigConverter;
 
-    private final List<FanInNode> nodes = new ArrayList<FanInNode>();
+    private final Map<String, FanInNode> nodes = new HashMap<String, FanInNode>();
     private final Map<String, MaterialConfig> fingerprintScmMaterialMap = new HashMap<String, MaterialConfig>();
     private final Map<String, DependencyMaterialConfig> fingerprintDepMaterialMap = new HashMap<String, DependencyMaterialConfig>();
     private final Map<DependencyMaterialConfig, Set<String>> dependencyMaterialFingerprintMap = new HashMap<DependencyMaterialConfig, Set<String>>();
@@ -80,13 +80,13 @@ public class FanInGraph {
     }
 
     private void buildGraph(PipelineConfig target) {
-        nodes.add(this.root);
+        nodes.put(this.root.materialConfig.getFingerprint(), this.root);
         final Set<String> scmMaterials = new HashSet<String>();
-        buildRestOfTheGraph(this.root, target, scmMaterials);
+        buildRestOfTheGraph(this.root, target, scmMaterials, new HashSet<CaseInsensitiveString>());
         dependencyMaterialFingerprintMap.put((DependencyMaterialConfig) this.root.materialConfig, scmMaterials);
     }
 
-    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet) {
+    private void buildRestOfTheGraph(DependencyFanInNode root, PipelineConfig target, Set<String> scmMaterialSet, Set<CaseInsensitiveString> visitedNodes) {
         for (MaterialConfig material : target.materialConfigs()) {
             FanInNode node = createNode(material);
             root.children.add(node);
@@ -94,7 +94,7 @@ public class FanInGraph {
             if (node instanceof DependencyFanInNode) {
                 DependencyMaterialConfig dependencyMaterial = (DependencyMaterialConfig) material;
                 fingerprintDepMaterialMap.put(dependencyMaterial.getFingerprint(), dependencyMaterial);
-                handleDependencyMaterial(scmMaterialSet, dependencyMaterial, (DependencyFanInNode) node);
+                handleDependencyMaterial(scmMaterialSet, dependencyMaterial, (DependencyFanInNode) node, visitedNodes);
             } else {
                 handleScmMaterial(scmMaterialSet, material);
             }
@@ -107,25 +107,26 @@ public class FanInGraph {
         fingerprintScmMaterialMap.put(fingerprint, material);
     }
 
-    private void handleDependencyMaterial(Set<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node) {
+    private void handleDependencyMaterial(Set<String> scmMaterialSet, DependencyMaterialConfig depMaterial, DependencyFanInNode node, Set<CaseInsensitiveString> visitedNodes) {
+        if (visitedNodes.contains(depMaterial.getPipelineName())) {
+            scmMaterialSet.addAll(dependencyMaterialFingerprintMap.get(depMaterial));
+            return;
+        }
+        visitedNodes.add(depMaterial.getPipelineName());
+
         final Set<String> scmMaterialFingerprintSet = new HashSet<String>();
-        buildRestOfTheGraph(node, cruiseConfig.pipelineConfigByName(depMaterial.getPipelineName()), scmMaterialFingerprintSet);
+        buildRestOfTheGraph(node, cruiseConfig.pipelineConfigByName(depMaterial.getPipelineName()), scmMaterialFingerprintSet, visitedNodes);
         dependencyMaterialFingerprintMap.put(depMaterial, scmMaterialFingerprintSet);
         scmMaterialSet.addAll(scmMaterialFingerprintSet);
     }
 
     private FanInNode createNode(MaterialConfig material) {
-        FanInNode node = getNodeIfExists(material);
+        FanInNode node = nodes.get(material.getFingerprint());
         if (node == null) {
             node = FanInNodeFactory.create(material);
-            nodes.add(node);
+            nodes.put(material.getFingerprint(), node);
         }
         return node;
-    }
-
-    private FanInNode getNodeIfExists(MaterialConfig material) {
-        int i = nodes.indexOf(FanInNodeFactory.create(material));
-        return i == -1 ? null : nodes.get(i);
     }
 
     @Deprecated
@@ -136,7 +137,7 @@ public class FanInGraph {
     //Used in test Only
     List<ScmMaterialConfig> getScmMaterials() {
         List<ScmMaterialConfig> scmMaterials = new ArrayList<ScmMaterialConfig>();
-        for (FanInNode node : nodes) {
+        for (FanInNode node : nodes.values()) {
             if (node.materialConfig instanceof ScmMaterialConfig) {
                 scmMaterials.add((ScmMaterialConfig) node.materialConfig);
             }
@@ -148,7 +149,7 @@ public class FanInGraph {
         Map<DependencyMaterialConfig, Set<MaterialConfig>> dependencyMaterialListMap = new HashMap<DependencyMaterialConfig, Set<MaterialConfig>>();
 
         for (Map.Entry<DependencyMaterialConfig, Set<String>> materialSetEntry : dependencyMaterialFingerprintMap.entrySet()) {
-            HashSet<MaterialConfig> scmMaterials = new HashSet<MaterialConfig>();
+            Set<MaterialConfig> scmMaterials = new HashSet<MaterialConfig>();
             for (String fingerprint : materialSetEntry.getValue()) {
                 scmMaterials.add(fingerprintScmMaterialMap.get(fingerprint));
             }

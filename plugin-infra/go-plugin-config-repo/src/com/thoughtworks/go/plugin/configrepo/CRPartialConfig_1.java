@@ -15,6 +15,8 @@ public class CRPartialConfig_1 extends CRBase {
 
     // temporarily removed private Collection<CRPipelineGroup> groups;
 
+
+
     @Override
     public void getErrors(ErrorCollection errors) {
         this.validateEnvironmentNameUniqueness(errors);
@@ -60,4 +62,7 @@ public class CRPartialConfig_1 extends CRBase {
         return result;
     }
 
+    public Collection<CREnvironment_1> getEnvironments() {
+        return environments;
+    }
 }

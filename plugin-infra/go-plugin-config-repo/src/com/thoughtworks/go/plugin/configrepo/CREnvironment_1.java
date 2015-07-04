@@ -150,4 +150,12 @@ public class CREnvironment_1 extends CRBase {
     public void addPipeline(String pipeline1) {
         this.pipelines.add(pipeline1);
     }
+
+    public String validateNameUniqueness(HashSet<String> keys) {
+        if(keys.contains(this.getName()))
+            return String.format("Environment %s is defined more than once",this.getName());
+        else
+            keys.add(this.getName());
+        return null;
+    }
 }

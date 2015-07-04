@@ -4,6 +4,8 @@ import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import java.util.HashSet;
+
 public class CREnvironmentVariable_1 extends CRBase {
     private String name;
     private String value;
@@ -92,5 +94,13 @@ public class CREnvironmentVariable_1 extends CRBase {
 
     public void setEncryptedValue(String encryptedValue) {
         this.encryptedValue = encryptedValue;
+    }
+
+    public String validateNameUniqueness(HashSet<String> keys) {
+        if(keys.contains(this.getName()))
+            return String.format("Environment variable %s defined more than once",this.getName());
+        else
+            keys.add(this.getName());
+        return null;
     }
 }

@@ -8,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,7 +32,7 @@ public abstract class CRBaseTest<T extends CRBase> {
         gson = codec.getGson();
     }
 
-    public abstract void addExamples(Map<String, T> examples);
+    public abstract void addGoodExamples(Map<String, T> examples);
     public abstract void addBadExamples(Map<String, T> examples);
 
     /**
@@ -43,17 +41,17 @@ public abstract class CRBaseTest<T extends CRBase> {
     public Map<String,T> getExamples()
     {
         Map<String, T> examples = new HashMap<String, T>();
-        this.addExamples(examples);
+        this.addGoodExamples(examples);
         this.addBadExamples(examples);
         return examples;
     }
     /**
-     * Gets collection of example instances. Key is name of example to identify it during tests.
+     * Gets collection of good example instances. Key is name of example to identify it during tests.
      */
     public Map<String,T> getGoodExamples()
     {
         Map<String, T> examples = new HashMap<String, T>();
-        this.addExamples(examples);
+        this.addGoodExamples(examples);
         return examples;
     }
 

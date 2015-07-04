@@ -26,7 +26,7 @@ public class CREnvironmentVariable_1Test extends CRBaseTest<CREnvironmentVariabl
     }
 
     @Override
-    public void addExamples(Map<String, CREnvironmentVariable_1> examples) {
+    public void addGoodExamples(Map<String, CREnvironmentVariable_1> examples) {
         examples.put("key1", key1);
     }
 

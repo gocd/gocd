@@ -91,6 +91,7 @@
         <module>plugin-infra/go-plugin-api</module>
         <module>plugin-infra/go-plugin-activator</module>
         <module>plugin-infra/go-plugin-infra</module>
+        <module>plugin-infra/go-plugin-config-repo</module>
         <module>plugin-infra/go-plugin-access</module>
 
         <module>config/config-api</module>

@@ -1,5 +1,7 @@
 package com.thoughtworks.go.plugin.configrepo;
 
+import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,18 @@ public class ErrorCollection {
         List<String> itemErrors = getErrorsFor(item);
         itemErrors.add(error);
     }
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        if(this.isEmpty())
+            builder.append("No errors");
+        else {
+            builder.append(this.getErrorCount());
+            builder.append(" errors in partial configuration");
+        }
+        return builder.toString();
+    }
 
     public List<String> getErrorsFor(CRBase item) {
         return errors.get(item);
@@ -23,5 +37,14 @@ public class ErrorCollection {
 
     public boolean isEmpty() {
         return errors.isEmpty();
+    }
+
+    public int getErrorCount() {
+        int count = 0;
+        for(List<String> entry : this.errors.values())
+        {
+            count += entry.size();
+        }
+        return  count;
     }
 }

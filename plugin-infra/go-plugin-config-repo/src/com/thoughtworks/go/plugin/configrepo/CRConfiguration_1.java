@@ -1,9 +1,17 @@
-package com.thoughtworks.go.plugin.access.configrepo.contract;
+package com.thoughtworks.go.plugin.configrepo;
 
-public class CRConfiguration {
+public class CRConfiguration_1 {
     private String key;
     private String value;
     private String encryptedValue;
+
+    public CRConfiguration_1() {
+    }
+    public CRConfiguration_1(String key,String value,String encryptedValue){
+        this.key = key;
+        this.value = value;
+        this.encryptedValue = encryptedValue;
+    }
 
     public String getKey() {
         return key;

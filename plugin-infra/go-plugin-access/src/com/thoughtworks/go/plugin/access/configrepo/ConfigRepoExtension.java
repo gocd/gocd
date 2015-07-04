@@ -9,6 +9,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 
-@Extension
+@Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
     public static final String EXTENSION_NAME = "configrepo";
     public static final String REQUEST_PARSE_DIRECTORY = "parse-directory";

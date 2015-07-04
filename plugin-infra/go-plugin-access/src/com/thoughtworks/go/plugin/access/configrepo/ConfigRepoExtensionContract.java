@@ -11,5 +11,5 @@ import java.util.Collection;
  */
 public interface ConfigRepoExtensionContract {
 
-    CRPartialConfig ParseCheckout(String pluginId, final String destinationFolder, final Collection<CRConfiguration>configurations);
+    CRPartialConfig parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfiguration> configurations);
 }

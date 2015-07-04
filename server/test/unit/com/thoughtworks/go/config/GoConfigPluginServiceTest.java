@@ -1,7 +1,6 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.plugin.ConfigRepoPlugin;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
@@ -33,7 +32,7 @@ public class GoConfigPluginServiceTest {
                 mock(MetricsProbeService.class));
         partialConfig = new CRPartialConfig();
 
-        when(extension.ParseCheckout(any(String.class),any(String.class),any(Collection.class)))
+        when(extension.parseDirectory(any(String.class), any(String.class), any(Collection.class)))
         .thenReturn(partialConfig);
     }
 

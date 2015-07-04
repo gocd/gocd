@@ -32,7 +32,7 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     }
 
     public CRPartialConfig parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfiguration> cRconfigurations) {
-        return this.crExtension.ParseCheckout(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
+        return this.crExtension.parseDirectory(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
     }
 
     public static List<CRConfiguration> getCrConfigurations(Configuration configuration) {

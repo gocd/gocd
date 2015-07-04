@@ -35,7 +35,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     @Override
-    public CRPartialConfig ParseCheckout(String pluginId, final String destinationFolder, final Collection<CRConfiguration> configurations) {
+    public CRPartialConfig parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfiguration> configurations) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new PluginInteractionCallback<CRPartialConfig>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

@@ -49,7 +49,7 @@ public class ConfigRepoExtensionTest {
         CRPartialConfig deserializedResponse = new CRPartialConfig();
         when(jsonMessageHandler.responseMessageForParseDirectory(responseBody)).thenReturn(deserializedResponse);
 
-        CRPartialConfig response = extension.ParseCheckout(PLUGIN_ID, "dir", null);
+        CRPartialConfig response = extension.parseDirectory(PLUGIN_ID, "dir", null);
 
         assertRequest(requestArgumentCaptor.getValue(), ConfigRepoExtension.EXTENSION_NAME, "1.0", ConfigRepoExtension.REQUEST_PARSE_DIRECTORY, null);
         verify(jsonMessageHandler).responseMessageForParseDirectory(responseBody);

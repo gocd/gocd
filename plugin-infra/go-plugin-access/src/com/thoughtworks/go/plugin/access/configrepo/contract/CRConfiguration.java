@@ -5,6 +5,14 @@ public class CRConfiguration {
     private String value;
     private String encryptedValue;
 
+    public CRConfiguration(String configKeyName) {
+        this.key = configKeyName;
+    }
+    public CRConfiguration(String configKeyName, String value) {
+        this.key = configKeyName;
+        this.value = value;
+    }
+
     public String getKey() {
         return key;
     }

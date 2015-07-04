@@ -4,12 +4,15 @@ import com.thoughtworks.go.config.PartialConfigLoadContext;
 import com.thoughtworks.go.config.PartialConfigProvider;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfiguration;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class ConfigRepoPlugin implements PartialConfigProvider {
     private ConfigRepoExtension crExtension;
@@ -32,7 +35,20 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return this.crExtension.ParseCheckout(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
     }
 
-    private Collection<CRConfiguration> getCrConfigurations(Configuration configuration) {
-        throw  new RuntimeException("not implemented");
+    public static List<CRConfiguration> getCrConfigurations(Configuration configuration) {
+        List<CRConfiguration> config = new ArrayList<>();
+        for(ConfigurationProperty prop : configuration)
+        {
+            String configKeyName = prop.getConfigKeyName();
+            if(!prop.isSecure())
+                config.add(new CRConfiguration(configKeyName,prop.getValue()));
+            else
+            {
+                CRConfiguration crProp = new CRConfiguration(configKeyName);
+                crProp.setEncryptedValue(prop.getEncryptedValue().getValue());
+                config.add(crProp);
+            }
+        }
+        return config;
     }
 }

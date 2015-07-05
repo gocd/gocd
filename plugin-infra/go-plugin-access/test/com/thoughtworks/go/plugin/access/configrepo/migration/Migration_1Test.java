@@ -2,7 +2,10 @@ package com.thoughtworks.go.plugin.access.configrepo.migration;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironmentVariable;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
+import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,5 +54,17 @@ public class Migration_1Test {
         dev.addPipeline("pipe1");
         CREnvironment result = migration.migrate(dev);
         assertThat(result.getPipelines(),hasItem("pipe1"));
+    }
+
+    @Test
+    public void shouldMigrateDependencyMaterial()
+    {
+        CRDependencyMaterial_1 dependencyMaterial_1 = new CRDependencyMaterial_1("pipe1","pipelineA","test");
+        CRMaterial result = migration.migrate(dependencyMaterial_1);
+        assertThat(result.getName(),is("pipe1"));
+        assertThat(result instanceof CRDependencyMaterial,is(true));
+        CRDependencyMaterial crDependencyMaterial = (CRDependencyMaterial)result;
+        assertThat(crDependencyMaterial.getPipelineName(),is("pipelineA"));
+        assertThat(crDependencyMaterial.getStageName(),is("test"));
     }
 }

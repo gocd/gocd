@@ -1,5 +1,8 @@
 package com.thoughtworks.go.plugin.configrepo.material;
 
+import com.thoughtworks.go.plugin.configrepo.ErrorCollection;
+import com.thoughtworks.go.util.StringUtil;
+
 public class CRDependencyMaterial_1 extends CRMaterial_1 {
     public static final String TYPE_NAME = "pipeline";
     private String pipelineName ;
@@ -11,6 +14,11 @@ public class CRDependencyMaterial_1 extends CRMaterial_1 {
 
     public CRDependencyMaterial_1(String name,String pipelineName,String stageName) {
         super(TYPE_NAME,name);
+        this.pipelineName = pipelineName;
+        this.stageName = stageName;
+    }
+    public CRDependencyMaterial_1(String pipelineName,String stageName) {
+        type = TYPE_NAME;
         this.pipelineName = pipelineName;
         this.stageName = stageName;
     }
@@ -65,5 +73,21 @@ public class CRDependencyMaterial_1 extends CRMaterial_1 {
     @Override
     public String typeName() {
         return TYPE_NAME;
+    }
+
+    @Override
+    public void getErrors(ErrorCollection errors) {
+        validatePipelineName(errors);
+        validateStageName(errors);
+    }
+
+    private void validateStageName(ErrorCollection errors) {
+        if(StringUtil.isBlank(stageName))
+            errors.add(this,"material's stage name not set. You must specify on which stage in pipeline to depend on.");
+    }
+
+    private void validatePipelineName(ErrorCollection errors) {
+        if(StringUtil.isBlank(pipelineName))
+            errors.add(this,"material's pipeline name not set. You must specify on which pipeline to depend on.");
     }
 }

@@ -18,11 +18,6 @@ public abstract class CRMaterial_1 extends CRBase {
         this.materialName = name;
     }
 
-    @Override
-    public void getErrors(ErrorCollection errors) {
-
-    }
-
     public String getName() {
         return materialName;
     }

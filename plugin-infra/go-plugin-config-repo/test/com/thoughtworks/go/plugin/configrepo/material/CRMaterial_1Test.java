@@ -1,6 +1,7 @@
-package com.thoughtworks.go.plugin.configrepo;
+package com.thoughtworks.go.plugin.configrepo.material;
 
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.plugin.configrepo.CRBaseTest;
 import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRMaterial_1;
 import org.junit.Test;

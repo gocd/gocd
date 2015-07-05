@@ -1,10 +1,7 @@
 package com.thoughtworks.go.plugin.configrepo.codec;
 
 import com.google.gson.*;
-import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
-import com.thoughtworks.go.plugin.configrepo.material.CRMaterial_1;
-import com.thoughtworks.go.plugin.configrepo.material.CRPackageMaterial_1;
-import com.thoughtworks.go.plugin.configrepo.material.CRPluggableScmMaterial_1;
+import com.thoughtworks.go.plugin.configrepo.material.*;
 
 import java.lang.reflect.Type;
 
@@ -33,6 +30,8 @@ public class MaterialTypeAdapter implements JsonDeserializer<CRMaterial_1> {
             return CRPackageMaterial_1.class;
         if(typeName.equals(CRPluggableScmMaterial_1.TYPE_NAME))
             return CRPluggableScmMaterial_1.class;
+        if(typeName.equals(CRGitMaterial_1.TYPE_NAME))
+            return CRGitMaterial_1.class;
         else
             throw new JsonParseException(
                     String.format("Invalid or unknown material type '%s'",typeName));

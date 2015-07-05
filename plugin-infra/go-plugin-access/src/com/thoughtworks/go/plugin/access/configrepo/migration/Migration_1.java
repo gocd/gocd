@@ -2,17 +2,11 @@ package com.thoughtworks.go.plugin.access.configrepo.migration;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPackageMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPluggableScmMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.configrepo.CREnvironmentVariable_1;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
 import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
-import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
-import com.thoughtworks.go.plugin.configrepo.material.CRMaterial_1;
-import com.thoughtworks.go.plugin.configrepo.material.CRPackageMaterial_1;
-import com.thoughtworks.go.plugin.configrepo.material.CRPluggableScmMaterial_1;
+import com.thoughtworks.go.plugin.configrepo.material.*;
 
 /**
  * Migrates configuration from 1.0 to current extension contract.
@@ -69,6 +63,8 @@ public class Migration_1 {
     public CRMaterial migrate(CRMaterial_1 material_1)
     {
         String typeName = material_1.typeName();
+        if(typeName == null)
+            throw new IllegalArgumentException("material has returned null type");
         switch (typeName){
             case CRDependencyMaterial_1.TYPE_NAME:
                 CRDependencyMaterial_1 dependencyMaterial_1 = (CRDependencyMaterial_1)material_1;
@@ -88,6 +84,15 @@ public class Migration_1 {
                         crPluggableScmMaterial_1.getScmId(),
                         crPluggableScmMaterial_1.getDirectory(),
                         crPluggableScmMaterial_1.getFilter());
+            case CRGitMaterial_1.TYPE_NAME:
+                CRGitMaterial_1 crGitMaterial_1 = (CRGitMaterial_1)material_1;
+                return new CRGitMaterial(
+                        crGitMaterial_1.getName(),
+                        crGitMaterial_1.getDirectory(),
+                        crGitMaterial_1.isAutoUpdate(),
+                        crGitMaterial_1.getFilter(),
+                        crGitMaterial_1.getUrl(),
+                        crGitMaterial_1.getBranch());
             default:
                 throw new CRMigrationException(
                         String.format("Invalid or unknown material type %s",typeName));

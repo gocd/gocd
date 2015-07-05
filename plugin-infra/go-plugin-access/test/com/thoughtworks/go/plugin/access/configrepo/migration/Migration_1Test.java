@@ -2,12 +2,10 @@ package com.thoughtworks.go.plugin.access.configrepo.migration;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironmentVariable;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPackageMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPluggableScmMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
+import com.thoughtworks.go.plugin.configrepo.material.CRGitMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRPackageMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRPluggableScmMaterial_1;
 import org.junit.Before;
@@ -97,5 +95,24 @@ public class Migration_1Test {
         assertThat(crPluggableScmMaterial.getDirectory(),is("destinationDir"));
         assertThat(crPluggableScmMaterial.getFilter(),hasItem("dir1"));
         assertThat(crPluggableScmMaterial.getFilter(),hasItem("dir2"));
+    }
+
+
+    @Test
+    public void shouldMigrateGitMaterial()
+    {
+        CRGitMaterial_1 scmMaterial = new CRGitMaterial_1("gitMaterial1","dir1",false,"url1","branch","externals","tools");
+
+        CRMaterial result = migration.migrate(scmMaterial);
+        assertThat(result.getName(),is("gitMaterial1"));
+        assertThat(result instanceof CRGitMaterial,is(true));
+        CRGitMaterial gitMaterial = (CRGitMaterial)result;
+
+        assertThat(gitMaterial.getUrl(),is("url1"));
+        assertThat(gitMaterial.getBranch(),is("branch"));
+        assertThat(gitMaterial.getName(),is("gitMaterial1"));
+        assertThat(gitMaterial.getFolder(), is("dir1"));
+        assertThat(gitMaterial.getFilter(),hasItem("externals"));
+        assertThat(gitMaterial.getFilter(),hasItem("tools"));
     }
 }

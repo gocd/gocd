@@ -1,8 +1,14 @@
 package com.thoughtworks.go.plugin.configrepo.material;
 
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.CRBaseTest;
+import org.junit.Test;
 
 import java.util.Map;
+
+import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 public class CRDependencyMaterial_1Test extends CRBaseTest<CRDependencyMaterial_1> {
 
@@ -33,6 +39,26 @@ public class CRDependencyMaterial_1Test extends CRBaseTest<CRDependencyMaterial_
     public void addBadExamples(Map<String, CRDependencyMaterial_1> examples) {
         examples.put("invalidNoPipeline",invalidNoPipeline);
         examples.put("invalidNoStage",invalidNoStage);
+    }
+
+
+    @Test
+    public void shouldAppendTypeFieldWhenSerializingMaterials()
+    {
+        CRMaterial_1 value = dependsOnPipeline;
+        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        assertThat(jsonObject.get("type").getAsString(), is(CRDependencyMaterial_1.TYPE_NAME));
+    }
+
+    @Test
+    public void shouldHandlePolymorphismWhenDeserializing()
+    {
+        CRMaterial_1 value = dependsOnPipeline;
+        String json = gson.toJson(value);
+
+        CRDependencyMaterial_1 deserializedValue = (CRDependencyMaterial_1)gson.fromJson(json,CRMaterial_1.class);
+        assertThat(String.format("Deserialized value should equal to value before serialization"),
+                deserializedValue,is(value));
     }
 
 }

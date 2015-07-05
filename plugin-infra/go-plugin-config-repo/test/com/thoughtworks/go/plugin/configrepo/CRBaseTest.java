@@ -67,6 +67,23 @@ public abstract class CRBaseTest<T extends CRBase> {
     }
 
     @Test
+    public void shouldHaveEqualsImplementedForTests()
+    {
+        //just try equality of each example with other
+        for(Object o : getExamples().entrySet()) {
+            Map.Entry<String, T> right = (Map.Entry<String, T>) o;
+            for (Map.Entry<String, T> left : getExamples().entrySet()) {
+                if (left.getValue() == right.getValue())
+                    assertThat(String.format("example '%s' should equal to itself", left.getKey()),
+                            left.getValue().equals(right.getValue()), is(true));
+                else
+                    assertThat(String.format("example '%s' should not equal to '%s'", left.getKey(), right.getKey()),
+                            left.getValue().equals(right.getValue()), is(false));
+            }
+        }
+    }
+
+    @Test
     public void shouldSerializeToJson()
     {
         Map<String,T> examples = getExamples();

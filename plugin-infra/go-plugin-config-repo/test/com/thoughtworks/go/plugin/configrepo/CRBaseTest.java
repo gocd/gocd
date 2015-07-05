@@ -1,9 +1,9 @@
 package com.thoughtworks.go.plugin.configrepo;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -84,6 +85,22 @@ public abstract class CRBaseTest<T extends CRBase> {
     }
 
     @Test
+    public void shouldIgnoreWhenJsonHasUnknownElements()
+    {
+        Map<String,T> examples = getExamples();
+        for(Map.Entry<String,T> example : examples.entrySet()) {
+            T value = example.getValue();
+            JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+            jsonObject.add("extraProperty", new JsonPrimitive("This is not part of message type"));
+            String json = gson.toJson(jsonObject);
+
+            T deserializedValue = (T)gson.fromJson(json,value.getClass());
+            assertThat(String.format("Example %s - Deserialized value should equal to value before serialization", example.getKey()),
+                    deserializedValue, is(value));
+        }
+    }
+
+    @Test
     public void shouldSerializeToJsonAndDeserialize()
     {
         Map<String,T> examples = getExamples();
@@ -97,6 +114,27 @@ public abstract class CRBaseTest<T extends CRBase> {
             T deserializedValue = (T)gson.fromJson(json,value.getClass());
             assertThat(String.format("Example %s - Deserialized value should equal to value before serialization",example.getKey()),
                     deserializedValue,is(value));
+        }
+    }
+    @Test
+    public void shouldThrowWhenJsonFormatIsInvalid()
+    {
+        Map<String,T> examples = getExamples();
+        for(Map.Entry<String,T> example : examples.entrySet())
+        {
+            T value = example.getValue();
+            String json = gson.toJson(value);
+
+            json += "some extra non-json content";
+
+            try {
+                gson.fromJson(json, value.getClass());
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
+            fail("Should have thrown invalid format for " + example.getKey());
         }
     }
 

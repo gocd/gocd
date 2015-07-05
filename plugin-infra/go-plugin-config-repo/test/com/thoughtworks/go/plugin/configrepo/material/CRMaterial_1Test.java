@@ -16,15 +16,18 @@ import static org.hamcrest.core.Is.is;
 public class CRMaterial_1Test extends CRBaseTest<CRMaterial_1> {
 
     private CRDependencyMaterial_1 dependsOnPipeline;
+    private CRPackageMaterial_1 packageMaterial ;
 
     public CRMaterial_1Test()
     {
         dependsOnPipeline = new CRDependencyMaterial_1("pipe1","pipeline1","build");
+        packageMaterial = new CRPackageMaterial_1("apt-repo-id");
     }
 
     @Override
     public void addGoodExamples(Map<String, CRMaterial_1> examples) {
         examples.put("dependsOnPipeline",dependsOnPipeline);
+        examples.put("packageMaterial",packageMaterial);
     }
 
     @Override
@@ -46,16 +49,22 @@ public class CRMaterial_1Test extends CRBaseTest<CRMaterial_1> {
     @Test
     public void shouldHandlePolymorphismWhenDeserializing_CRDependencyMaterial_1()
     {
-        Map<String, CRMaterial_1> examples = getExamples();
-        for(Map.Entry<String,CRMaterial_1> example : examples.entrySet())
-        {
-            CRMaterial_1 value = example.getValue();
-            String json = gson.toJson(value);
+        CRMaterial_1 value = dependsOnPipeline;
+        String json = gson.toJson(value);
 
-            CRDependencyMaterial_1 deserializedValue = (CRDependencyMaterial_1)gson.fromJson(json,CRMaterial_1.class);
-            assertThat(String.format("Example %s - Deserialized value should equal to value before serialization",example.getKey()),
-                    deserializedValue,is(value));
-        }
+        CRDependencyMaterial_1 deserializedValue = (CRDependencyMaterial_1)gson.fromJson(json,CRMaterial_1.class);
+        assertThat(String.format("Deserialized value should equal to value before serialization"),
+                deserializedValue,is(value));
+    }
+    @Test
+    public void shouldHandlePolymorphismWhenDeserializing_CRPackageMaterial_1()
+    {
+        CRMaterial_1 value = packageMaterial;
+        String json = gson.toJson(value);
+
+        CRPackageMaterial_1 deserializedValue = (CRPackageMaterial_1)gson.fromJson(json,CRMaterial_1.class);
+        assertThat(String.format("Deserialized value should equal to value before serialization"),
+                deserializedValue,is(value));
     }
 
 }

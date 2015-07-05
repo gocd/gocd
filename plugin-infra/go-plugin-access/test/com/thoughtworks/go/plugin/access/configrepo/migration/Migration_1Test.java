@@ -4,8 +4,10 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironmentVariable;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPackageMaterial;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
+import com.thoughtworks.go.plugin.configrepo.material.CRPackageMaterial_1;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -66,5 +68,16 @@ public class Migration_1Test {
         CRDependencyMaterial crDependencyMaterial = (CRDependencyMaterial)result;
         assertThat(crDependencyMaterial.getPipelineName(),is("pipelineA"));
         assertThat(crDependencyMaterial.getStageName(),is("test"));
+    }
+
+    @Test
+    public void shouldMigratePackageMaterial()
+    {
+        CRPackageMaterial_1 packageMaterial = new CRPackageMaterial_1("myapt", "apt-package-plugin-id");
+        CRMaterial result = migration.migrate(packageMaterial);
+        assertThat(result.getName(),is("myapt"));
+        assertThat(result instanceof CRPackageMaterial,is(true));
+        CRPackageMaterial crDependencyMaterial = (CRPackageMaterial)result;
+        assertThat(crDependencyMaterial.getPackageId(),is("apt-package-plugin-id"));
     }
 }

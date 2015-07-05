@@ -4,11 +4,13 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPackageMaterial;
 import com.thoughtworks.go.plugin.configrepo.CREnvironmentVariable_1;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
 import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRMaterial_1;
+import com.thoughtworks.go.plugin.configrepo.material.CRPackageMaterial_1;
 
 /**
  * Migrates configuration from 1.0 to current extension contract.
@@ -72,6 +74,11 @@ public class Migration_1 {
                         dependencyMaterial_1.getName(),
                         dependencyMaterial_1.getPipelineName(),
                         dependencyMaterial_1.getStageName());
+            case CRPackageMaterial_1.TYPE_NAME:
+                CRPackageMaterial_1 crPackageMaterial_1  = (CRPackageMaterial_1)material_1;
+                return new CRPackageMaterial(
+                        crPackageMaterial_1.getName(),
+                        crPackageMaterial_1.getPackageId());
             default:
                 throw new CRMigrationException(
                         String.format("Invalid or unknown material type %s",typeName));

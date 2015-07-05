@@ -5,12 +5,14 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPackageMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPluggableScmMaterial;
 import com.thoughtworks.go.plugin.configrepo.CREnvironmentVariable_1;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
 import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRPackageMaterial_1;
+import com.thoughtworks.go.plugin.configrepo.material.CRPluggableScmMaterial_1;
 
 /**
  * Migrates configuration from 1.0 to current extension contract.
@@ -79,6 +81,13 @@ public class Migration_1 {
                 return new CRPackageMaterial(
                         crPackageMaterial_1.getName(),
                         crPackageMaterial_1.getPackageId());
+            case CRPluggableScmMaterial_1.TYPE_NAME:
+                CRPluggableScmMaterial_1 crPluggableScmMaterial_1 = (CRPluggableScmMaterial_1)material_1;
+                return new CRPluggableScmMaterial(
+                        crPluggableScmMaterial_1.getName(),
+                        crPluggableScmMaterial_1.getScmId(),
+                        crPluggableScmMaterial_1.getDirectory(),
+                        crPluggableScmMaterial_1.getFilter());
             default:
                 throw new CRMigrationException(
                         String.format("Invalid or unknown material type %s",typeName));

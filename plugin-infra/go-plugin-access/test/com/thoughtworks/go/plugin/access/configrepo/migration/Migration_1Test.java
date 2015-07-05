@@ -5,9 +5,11 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironmentVariab
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPackageMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPluggableScmMaterial;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRPackageMaterial_1;
+import com.thoughtworks.go.plugin.configrepo.material.CRPluggableScmMaterial_1;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,5 +81,21 @@ public class Migration_1Test {
         assertThat(result instanceof CRPackageMaterial,is(true));
         CRPackageMaterial crDependencyMaterial = (CRPackageMaterial)result;
         assertThat(crDependencyMaterial.getPackageId(),is("apt-package-plugin-id"));
+    }
+
+    @Test
+    public void shouldMigratePluggableScmMaterial()
+    {
+        CRPluggableScmMaterial_1 scmMaterial = new CRPluggableScmMaterial_1("myPluggableGit",
+                "someScmGitRepositoryId","destinationDir","dir1","dir2");
+        CRMaterial result = migration.migrate(scmMaterial);
+        assertThat(result.getName(),is("myPluggableGit"));
+        assertThat(result instanceof CRPluggableScmMaterial,is(true));
+        CRPluggableScmMaterial crPluggableScmMaterial = (CRPluggableScmMaterial)result;
+        assertThat(crPluggableScmMaterial.getScmId(),is("someScmGitRepositoryId"));
+        assertThat(crPluggableScmMaterial.getName(),is("myPluggableGit"));
+        assertThat(crPluggableScmMaterial.getDirectory(),is("destinationDir"));
+        assertThat(crPluggableScmMaterial.getFilter(),hasItem("dir1"));
+        assertThat(crPluggableScmMaterial.getFilter(),hasItem("dir2"));
     }
 }

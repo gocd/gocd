@@ -1,8 +1,10 @@
 package com.thoughtworks.go.plugin.configrepo.codec;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
+import com.thoughtworks.go.plugin.configrepo.material.CRMaterial_1;
+
+import java.lang.reflect.Field;
 
 public class GsonCodec {
     private Gson gson;
@@ -14,6 +16,7 @@ public class GsonCodec {
     public GsonCodec(GsonBuilder builder)
     {
         //TODO register extra configurations, policies, adapters
+        builder.registerTypeAdapter(CRMaterial_1.class,new MaterialTypeAdapter());
 
         gson = builder.create();
     }

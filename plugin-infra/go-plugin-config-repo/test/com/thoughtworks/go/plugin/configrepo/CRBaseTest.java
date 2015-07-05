@@ -18,7 +18,7 @@ import static org.hamcrest.core.Is.is;
 public abstract class CRBaseTest<T extends CRBase> {
 
     private boolean printExamples = true;
-    private Gson gson;
+    protected Gson gson;
 
     @Before
     public void SetUp()

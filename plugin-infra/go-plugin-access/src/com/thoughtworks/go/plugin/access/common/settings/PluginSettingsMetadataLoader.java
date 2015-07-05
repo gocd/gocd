@@ -16,6 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -33,7 +39,6 @@ import static org.apache.log4j.Logger.getLogger;
 public class PluginSettingsMetadataLoader implements PluginChangeListener {
     private static final Logger LOGGER = getLogger(PluginSettingsMetadataLoader.class);
     private final List<GoPluginExtension> extensions;
-
     private PluginSettingsMetadataStore metadataStore = PluginSettingsMetadataStore.getInstance();
 
     @Autowired

@@ -57,4 +57,8 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public Map<String, JsonMessageHandler> getMessageHandlerMap() {
         return messageHandlerMap;
     }
+
+    public boolean isConfigRepoPlugin(String pluginId) {
+        return pluginManager.isPluginOfType(ConfigRepoExtension.EXTENSION_NAME, pluginId);
+    }
 }

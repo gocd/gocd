@@ -65,11 +65,16 @@ public class PluginService {
         PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
         ValidationResult result = null;
 
+        boolean anyExtensionSupportsPluginId = false;
         for (GoPluginExtension extension : extensions) {
             if (extension.canHandlePlugin(pluginId)) {
                 result = extension.validatePluginSettings(pluginId, configuration);
+                anyExtensionSupportsPluginId = true;
             }
         }
+        if(!anyExtensionSupportsPluginId)
+            throw new IllegalArgumentException(String.format(
+                    "Plugin '%s' is not supported by any extension point",pluginId));
 
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {

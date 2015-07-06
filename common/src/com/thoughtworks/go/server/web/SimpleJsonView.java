@@ -27,6 +27,8 @@ import com.thoughtworks.go.util.json.JsonAware;
 import com.thoughtworks.go.util.json.JsonMap;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
+
 import org.springframework.web.servlet.View;
 
 public class SimpleJsonView implements View {
@@ -40,7 +42,7 @@ public class SimpleJsonView implements View {
 
 
     public String getContentType() {
-        return RESPONSE_CHARSET;
+        return RESPONSE_CHARSET_JSON;
     }
 
     public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -51,7 +53,7 @@ public class SimpleJsonView implements View {
         GoRequestContext goRequestContext = new GoRequestContext(request);
         response.addHeader("Cache-Control", GoConstants.CACHE_CONTROL);
         response.setStatus(status);
-        response.setContentType(RESPONSE_CHARSET);
+        response.setContentType(getContentType());
         Json json = jsonAware.toJson();
         PrintWriter writer = response.getWriter();
         JsonRenderer renderer = new JsonStreamRenderer(goRequestContext, writer);

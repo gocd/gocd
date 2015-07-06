@@ -60,6 +60,7 @@ public class NewImprovedSSLConfigTest {
         assertThat(config.getCipherSuitesToBeIncluded().length, is(0));
         assertThat(config.getCipherSuitesToBeExcluded().length, is(0));
         assertThat(config.getProtocolsToBeExcluded().length, is(0));
+        assertThat(config.getProtocolsToBeIncluded().length, is(0));
         assertThat(config.isRenegotiationAllowed(), is(false));
     }
 
@@ -92,6 +93,14 @@ public class NewImprovedSSLConfigTest {
         assertThat(config.getProtocolsToBeExcluded()[0], is("SSLv3"));
         assertThat(config.getProtocolsToBeExcluded()[1], is("SSLv1"));
     }
+    @Test
+    public void shouldGetConfiguredProtocolsToBeIncluded() {
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
+
+        NewImprovedSSLConfig config = new NewImprovedSSLConfig(systemEnvironment);
+        assertThat(config.getProtocolsToBeIncluded().length, is(1));
+        assertThat(config.getProtocolsToBeIncluded()[0], is("TLSv1.2"));
+    }
 
     @Test
     public void shouldGetRenegotiationAllowed() {
@@ -123,7 +132,7 @@ public class NewImprovedSSLConfigTest {
     }
 
     @Test
-    public void shouldBeAbleToOverrideProtocols() {
+    public void shouldBeAbleToOverrideExcludedProtocols() {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
@@ -132,6 +141,17 @@ public class NewImprovedSSLConfigTest {
         assertThat(userOverriddenConfig.getProtocolsToBeExcluded().length, is(1));
         assertThat(userOverriddenConfig.getProtocolsToBeExcluded()[0], is("WEAK_PROTOCOL"));
     }
+    @Test
+    public void shouldBeAbleToOverrideIncludedProtocols() {
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
+
+        when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
+
+        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        assertThat(userOverriddenConfig.getProtocolsToBeIncluded().length, is(1));
+        assertThat(userOverriddenConfig.getProtocolsToBeIncluded()[0], is("STRONG_PROTOCOL"));
+    }
+
     @Test
     public void shouldBeAbleToOverrideRenegotiationAllowed() {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
@@ -143,7 +163,7 @@ public class NewImprovedSSLConfigTest {
     }
 
     @Test
-    public void shouldNotOverrideProtocolsIfNotSpecifiedInOverridesFile() throws IOException {
+    public void shouldNotOverrideExcludedProtocolsIfNotSpecifiedInOverridesFile() throws IOException {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
         NewImprovedSSLConfig systemConfigured = new NewImprovedSSLConfig(systemEnvironment);
         FileUtils.writeStringToFile(overrideFile, org.apache.commons.io.IOUtils.toString(getClass().getResourceAsStream(partialConfig)));
@@ -152,6 +172,17 @@ public class NewImprovedSSLConfigTest {
 
         NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
         assertThat(userOverriddenConfig.getProtocolsToBeExcluded(), is(systemConfigured.getProtocolsToBeExcluded()));
+    }
+    @Test
+    public void shouldNotOverrideIncludedProtocolsIfNotSpecifiedInOverridesFile() throws IOException {
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
+        NewImprovedSSLConfig systemConfigured = new NewImprovedSSLConfig(systemEnvironment);
+        FileUtils.writeStringToFile(overrideFile, org.apache.commons.io.IOUtils.toString(getClass().getResourceAsStream(partialConfig)));
+
+        when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
+
+        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        assertThat(userOverriddenConfig.getProtocolsToBeIncluded(), is(systemConfigured.getProtocolsToBeIncluded()));
     }
 
     @Test

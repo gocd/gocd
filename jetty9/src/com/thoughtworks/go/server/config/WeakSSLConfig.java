@@ -48,12 +48,17 @@ public class WeakSSLConfig implements SSLConfig {
 
     @Override
     public String[] getCipherSuitesToBeExcluded() {
-        return new String[0];
+        return null;
     }
 
     @Override
     public String[] getProtocolsToBeExcluded() {
-        return new String[0];
+        return null;
+    }
+
+    @Override
+    public String[] getProtocolsToBeIncluded() {
+        return null;
     }
 
     @Override

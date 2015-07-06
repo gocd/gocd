@@ -47,6 +47,11 @@ public class GoSSLConfig implements SSLConfig {
     }
 
     @Override
+    public String[] getProtocolsToBeIncluded() {
+        return config.getProtocolsToBeIncluded();
+    }
+
+    @Override
     public boolean isRenegotiationAllowed() {
         return config.isRenegotiationAllowed();
     }

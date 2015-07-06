@@ -21,7 +21,9 @@ import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -68,12 +70,15 @@ public class GoSslSocketConnector implements GoSocketConnector {
         sslContextFactory.setTrustStorePath(truststore.getPath());
         sslContextFactory.setTrustStorePassword(password);
         sslContextFactory.setWantClientAuth(true);
-        sslContextFactory.setIncludeCipherSuites(goSSLConfig.getCipherSuitesToBeIncluded());
-        sslContextFactory.setExcludeCipherSuites(goSSLConfig.getCipherSuitesToBeExcluded());
-        sslContextFactory.addExcludeProtocols(goSSLConfig.getProtocolsToBeExcluded());
+
+        if(!ArrayUtils.isEmpty(goSSLConfig.getCipherSuitesToBeIncluded())) sslContextFactory.setIncludeCipherSuites(goSSLConfig.getCipherSuitesToBeIncluded());
+        if(!ArrayUtils.isEmpty(goSSLConfig.getCipherSuitesToBeExcluded())) sslContextFactory.setExcludeCipherSuites(goSSLConfig.getCipherSuitesToBeExcluded());
+        if(!ArrayUtils.isEmpty(goSSLConfig.getProtocolsToBeExcluded())) sslContextFactory.setExcludeProtocols(goSSLConfig.getProtocolsToBeExcluded());
+        if(!ArrayUtils.isEmpty(goSSLConfig.getProtocolsToBeIncluded())) sslContextFactory.setIncludeProtocols(goSSLConfig.getProtocolsToBeIncluded());
         sslContextFactory.setRenegotiationAllowed(goSSLConfig.isRenegotiationAllowed());
         LOGGER.info("Included ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeIncluded()));
         LOGGER.info("Excluded ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeExcluded()));
+        LOGGER.info("Included protocols: {}", ArrayUtil.join(goSSLConfig.getProtocolsToBeIncluded()));
         LOGGER.info("Excluded protocols: {}", ArrayUtil.join(goSSLConfig.getProtocolsToBeExcluded()));
         LOGGER.info("Renegotiation Allowed: {}", goSSLConfig.isRenegotiationAllowed());
         ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));

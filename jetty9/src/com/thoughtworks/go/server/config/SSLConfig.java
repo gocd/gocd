@@ -23,5 +23,7 @@ public interface SSLConfig {
 
     String[] getProtocolsToBeExcluded();
 
+    String[] getProtocolsToBeIncluded();
+
     boolean isRenegotiationAllowed();
 }

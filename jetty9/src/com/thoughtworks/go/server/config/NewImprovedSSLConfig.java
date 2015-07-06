@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.config;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.server.config.SSLConfig;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
@@ -40,14 +39,14 @@ public class NewImprovedSSLConfig implements SSLConfig {
             config = new Gson().fromJson(json, Config.class).setDefaults();
 
             if (!StringUtil.isBlank(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH))) {
-                File userConfiguredSslConfigFile = new File(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH));
-                if(userConfiguredSslConfigFile.exists()){
+                File userConfiguredSslConfigFile = new File(systemEnvironment.configDir(), systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH));
+                if (userConfiguredSslConfigFile.exists()) {
                     Config userDefinedConfig = new Gson().fromJson(IOUtils.toString(new FileInputStream(userConfiguredSslConfigFile)), Config.class);
                     config.overrideWith(userDefinedConfig).setDefaults();
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -64,6 +63,11 @@ public class NewImprovedSSLConfig implements SSLConfig {
     @Override
     public String[] getProtocolsToBeExcluded() {
         return config.getExcludedProtocols();
+    }
+
+    @Override
+    public String[] getProtocolsToBeIncluded() {
+        return config.getIncludedProtocols();
     }
 
     @Override
@@ -106,6 +110,10 @@ public class NewImprovedSSLConfig implements SSLConfig {
             return protocols.excludes;
         }
 
+        private String[] getIncludedProtocols() {
+            return protocols.includes;
+        }
+
         private boolean isRenegotiationAllowed() {
             return "true".equalsIgnoreCase(renegotiationAllowed);
         }
@@ -122,6 +130,7 @@ public class NewImprovedSSLConfig implements SSLConfig {
             }
             return this;
         }
+
 
         private class Ciphers {
             @Expose()
@@ -150,15 +159,23 @@ public class NewImprovedSSLConfig implements SSLConfig {
             @Expose()
             @SerializedName("excludes")
             private String[] excludes;
+            @Expose()
+            @SerializedName("includes")
+            private String[] includes;
 
             public void setDefaults() {
                 if (excludes == null)
                     excludes = new String[0];
+                if (includes == null)
+                    includes = new String[0];
             }
 
             public void overrideWith(Protocols protocols) {
                 if (protocols.excludes != null) {
                     this.excludes = protocols.excludes;
+                }
+                if (protocols.includes != null) {
+                    this.includes = protocols.includes;
                 }
             }
         }

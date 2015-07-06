@@ -93,6 +93,83 @@ public class Migration_1 {
                         crGitMaterial_1.getFilter(),
                         crGitMaterial_1.getUrl(),
                         crGitMaterial_1.getBranch());
+            case CRHgMaterial_1.TYPE_NAME:
+                CRHgMaterial_1 crHgMaterial_1 = (CRHgMaterial_1)material_1;
+                return new CRHgMaterial(
+                        crHgMaterial_1.getName(),
+                        crHgMaterial_1.getDirectory(),
+                        crHgMaterial_1.isAutoUpdate(),
+                        crHgMaterial_1.getFilter(),
+                        crHgMaterial_1.getUrl());
+            case CRSvnMaterial_1.TYPE_NAME:
+                CRSvnMaterial_1 crSvnMaterial_1 = (CRSvnMaterial_1)material_1;
+                if(crSvnMaterial_1.hasEncryptedPassword())
+                    return CRSvnMaterial.withEncryptedPassword(crSvnMaterial_1.getName(),
+                            crSvnMaterial_1.getDirectory(),
+                            crSvnMaterial_1.isAutoUpdate(),
+                            crSvnMaterial_1.getFilter(),
+                            crSvnMaterial_1.getUrl(),
+                            crSvnMaterial_1.getUserName(),
+                            crSvnMaterial_1.getEncryptedPassword(),
+                            crSvnMaterial_1.isCheckExternals());
+                else
+                    return new CRSvnMaterial(
+                        crSvnMaterial_1.getName(),
+                        crSvnMaterial_1.getDirectory(),
+                        crSvnMaterial_1.isAutoUpdate(),
+                        crSvnMaterial_1.getFilter(),
+                        crSvnMaterial_1.getUrl(),
+                        crSvnMaterial_1.getUserName(),
+                        crSvnMaterial_1.getPassword(),
+                        crSvnMaterial_1.isCheckExternals());
+            case CRP4Material_1.TYPE_NAME:
+                CRP4Material_1 crp4Material_1 = (CRP4Material_1)material_1;
+                if(crp4Material_1.hasEncryptedPassword())
+                    return CRP4Material.withEncryptedPassword(
+                        crp4Material_1.getName(),
+                        crp4Material_1.getDirectory(),
+                        crp4Material_1.isAutoUpdate(),
+                        crp4Material_1.getFilter(),
+                        crp4Material_1.getServerAndPort(),
+                        crp4Material_1.getUserName(),
+                        crp4Material_1.getEncryptedPassword(),
+                        crp4Material_1.getUseTickets(),
+                        crp4Material_1.getView());
+                else
+                    return CRP4Material.withPlainPassword(
+                            crp4Material_1.getName(),
+                            crp4Material_1.getDirectory(),
+                            crp4Material_1.isAutoUpdate(),
+                            crp4Material_1.getFilter(),
+                            crp4Material_1.getServerAndPort(),
+                            crp4Material_1.getUserName(),
+                            crp4Material_1.getPassword(),
+                            crp4Material_1.getUseTickets(),
+                            crp4Material_1.getView());
+            case CRTfsMaterial_1.TYPE_NAME:
+                CRTfsMaterial_1 crTfsMaterial_1 = (CRTfsMaterial_1)material_1;
+                if(crTfsMaterial_1.hasEncryptedPassword())
+                    return CRTfsMaterial.withEncryptedPassword(
+                            crTfsMaterial_1.getName(),
+                            crTfsMaterial_1.getDirectory(),
+                            crTfsMaterial_1.isAutoUpdate(),
+                            crTfsMaterial_1.getFilter(),
+                            crTfsMaterial_1.getUrl(),
+                            crTfsMaterial_1.getDomain(),
+                            crTfsMaterial_1.getUserName(),
+                            crTfsMaterial_1.getEncryptedPassword(),
+                            crTfsMaterial_1.getProjectPath());
+                else
+                    return CRTfsMaterial.withPlainPassword(
+                            crTfsMaterial_1.getName(),
+                            crTfsMaterial_1.getDirectory(),
+                            crTfsMaterial_1.isAutoUpdate(),
+                            crTfsMaterial_1.getFilter(),
+                            crTfsMaterial_1.getUrl(),
+                            crTfsMaterial_1.getDomain(),
+                            crTfsMaterial_1.getUserName(),
+                            crTfsMaterial_1.getPassword(),
+                            crTfsMaterial_1.getProjectPath());
             default:
                 throw new CRMigrationException(
                         String.format("Invalid or unknown material type %s",typeName));

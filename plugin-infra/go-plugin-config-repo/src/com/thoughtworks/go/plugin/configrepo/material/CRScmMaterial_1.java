@@ -2,15 +2,17 @@ package com.thoughtworks.go.plugin.configrepo.material;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class CRScmMaterial_1 extends CRMaterial_1 {
-    protected List<String> filter;
+    protected List<String> filter  = new ArrayList<String>();
     protected String folder;
     protected boolean autoUpdate = true;
 
-    public CRScmMaterial_1() {}
+    public CRScmMaterial_1() {
+    }
     public CRScmMaterial_1(String type,String materialName,String folder,boolean autoUpdate, String... filters)
     {
         super(type,materialName);

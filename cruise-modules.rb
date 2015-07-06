@@ -178,6 +178,7 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'server', "**/GoServer*.class")
     include_fileset_from_target(jar, 'server', "**/DeploymentContextWriter*.class")
     include_fileset_from_target(jar, 'server', "**/BaseUrlProvider*.class")
+    include_fileset_from_target(jar, 'server', "**/ssl.config")
 
     include_fileset_from_target(jar, 'app-server', "**/StopJettyFromLocalhostServlet*.class")
     include_fileset_from_target(jar, 'app-server', "**/AppServer.class")
@@ -189,7 +190,10 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'jetty9', "**/GoSslSocketConnector.class")
     include_fileset_from_target(jar, 'jetty9', "**/GoPlainSocketConnector.class")
     include_fileset_from_target(jar, 'jetty9', "**/GoSocketConnector.class")
-    include_fileset_from_target(jar, 'jetty9', "**/GoCipherSuite.class")
+    include_fileset_from_target(jar, 'jetty9', "**/GoSSLConfig.class")
+    include_fileset_from_target(jar, 'jetty9', "**/NewImprovedSSLConfig*.class")
+    include_fileset_from_target(jar, 'jetty9', "**/SSLConfig.class")
+    include_fileset_from_target(jar, 'jetty9', "**/WeakSSLConfig.class")
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Server*.class")
     include_fileset_from_target(jar, 'jetty9', "**/GoWebXmlConfiguration*.class")
     include_fileset_from_target(jar, 'jetty9', "**/AssetsContextHandler*.class")
@@ -234,6 +238,8 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'base', "**/InMemoryConsumer.class")
     include_fileset_from_target(jar, 'base', "**/InMemoryStreamConsumer.class")
     include_fileset_from_target(jar, 'base', "**/ConsoleOutputStreamConsumer.class")
+    include_fileset_from_target(jar, 'base', "**/ArrayUtil.class")
+    include_fileset_from_target(jar, 'base', "**/StringUtil.class")
 
     exclude_fileset_from_target(jar, 'common', "**/domain/*.class")
     exclude_fileset_from_target(jar, 'common', "**/validation/*.class")

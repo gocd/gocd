@@ -72,4 +72,11 @@ public class ArrayUtil {
         }
         return list.toArray();
     }
+
+    public static <T> boolean isEmpty(T[] array) {
+        if (array == null || array.length == 0) {
+            return true;
+        }
+        return false;
+    }
 }

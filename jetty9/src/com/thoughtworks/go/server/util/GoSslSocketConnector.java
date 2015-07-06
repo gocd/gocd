@@ -21,10 +21,7 @@ import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -71,10 +68,10 @@ public class GoSslSocketConnector implements GoSocketConnector {
         sslContextFactory.setTrustStorePassword(password);
         sslContextFactory.setWantClientAuth(true);
 
-        if(!ArrayUtils.isEmpty(goSSLConfig.getCipherSuitesToBeIncluded())) sslContextFactory.setIncludeCipherSuites(goSSLConfig.getCipherSuitesToBeIncluded());
-        if(!ArrayUtils.isEmpty(goSSLConfig.getCipherSuitesToBeExcluded())) sslContextFactory.setExcludeCipherSuites(goSSLConfig.getCipherSuitesToBeExcluded());
-        if(!ArrayUtils.isEmpty(goSSLConfig.getProtocolsToBeExcluded())) sslContextFactory.setExcludeProtocols(goSSLConfig.getProtocolsToBeExcluded());
-        if(!ArrayUtils.isEmpty(goSSLConfig.getProtocolsToBeIncluded())) sslContextFactory.setIncludeProtocols(goSSLConfig.getProtocolsToBeIncluded());
+        if(!ArrayUtil.isEmpty(goSSLConfig.getCipherSuitesToBeIncluded())) sslContextFactory.setIncludeCipherSuites(goSSLConfig.getCipherSuitesToBeIncluded());
+        if(!ArrayUtil.isEmpty(goSSLConfig.getCipherSuitesToBeExcluded())) sslContextFactory.setExcludeCipherSuites(goSSLConfig.getCipherSuitesToBeExcluded());
+        if(!ArrayUtil.isEmpty(goSSLConfig.getProtocolsToBeExcluded())) sslContextFactory.setExcludeProtocols(goSSLConfig.getProtocolsToBeExcluded());
+        if(!ArrayUtil.isEmpty(goSSLConfig.getProtocolsToBeIncluded())) sslContextFactory.setIncludeProtocols(goSSLConfig.getProtocolsToBeIncluded());
         sslContextFactory.setRenegotiationAllowed(goSSLConfig.isRenegotiationAllowed());
         LOGGER.info("Included ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeIncluded()));
         LOGGER.info("Excluded ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeExcluded()));

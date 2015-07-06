@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class NewImprovedSSLConfigTest {
+public class ConfigurableSSLSettingsTest {
     private final String blankConfig = "/blank.ssl.config";
     private final String defaultSSLConfig = "/ssl.config";
     @Rule
@@ -56,7 +56,7 @@ public class NewImprovedSSLConfigTest {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(blankConfig);
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn("junk");
 
-        NewImprovedSSLConfig config = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings config = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(config.getCipherSuitesToBeIncluded().length, is(0));
         assertThat(config.getCipherSuitesToBeExcluded().length, is(0));
         assertThat(config.getProtocolsToBeExcluded().length, is(0));
@@ -68,7 +68,7 @@ public class NewImprovedSSLConfigTest {
     public void shouldGetConfiguredCipherSuitesToBeIncluded() {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
 
-        NewImprovedSSLConfig config = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings config = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(config.getCipherSuitesToBeIncluded().length, is(2));
         assertThat(config.getCipherSuitesToBeIncluded()[0], is("TLS_DHE_RSA.*"));
         assertThat(config.getCipherSuitesToBeIncluded()[1], is("TLS_ECDHE.*"));
@@ -78,7 +78,7 @@ public class NewImprovedSSLConfigTest {
     public void shouldGetConfiguredCipherSuitesToBeExcluded() {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
 
-        NewImprovedSSLConfig config = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings config = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(config.getCipherSuitesToBeExcluded().length, is(2));
         assertThat(config.getCipherSuitesToBeExcluded()[0], is(".*NULL.*"));
         assertThat(config.getCipherSuitesToBeExcluded()[1], is(".*RC4.*"));
@@ -88,7 +88,7 @@ public class NewImprovedSSLConfigTest {
     public void shouldGetConfiguredProtocolsToBeExcluded() {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
 
-        NewImprovedSSLConfig config = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings config = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(config.getProtocolsToBeExcluded().length, is(2));
         assertThat(config.getProtocolsToBeExcluded()[0], is("SSLv3"));
         assertThat(config.getProtocolsToBeExcluded()[1], is("SSLv1"));
@@ -97,7 +97,7 @@ public class NewImprovedSSLConfigTest {
     public void shouldGetConfiguredProtocolsToBeIncluded() {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
 
-        NewImprovedSSLConfig config = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings config = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(config.getProtocolsToBeIncluded().length, is(1));
         assertThat(config.getProtocolsToBeIncluded()[0], is("TLSv1.2"));
     }
@@ -106,7 +106,7 @@ public class NewImprovedSSLConfigTest {
     public void shouldGetRenegotiationAllowed() {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
 
-        NewImprovedSSLConfig config = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings config = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(config.isRenegotiationAllowed(), is(true));
     }
 
@@ -116,7 +116,7 @@ public class NewImprovedSSLConfigTest {
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getCipherSuitesToBeIncluded().length, is(1));
         assertThat(userOverriddenConfig.getCipherSuitesToBeIncluded()[0], is("STRONG_CIPHER"));
     }
@@ -126,7 +126,7 @@ public class NewImprovedSSLConfigTest {
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getCipherSuitesToBeExcluded().length, is(1));
         assertThat(userOverriddenConfig.getCipherSuitesToBeExcluded()[0], is("WEAK_CIPHER"));
     }
@@ -137,7 +137,7 @@ public class NewImprovedSSLConfigTest {
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getProtocolsToBeExcluded().length, is(1));
         assertThat(userOverriddenConfig.getProtocolsToBeExcluded()[0], is("WEAK_PROTOCOL"));
     }
@@ -147,7 +147,7 @@ public class NewImprovedSSLConfigTest {
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getProtocolsToBeIncluded().length, is(1));
         assertThat(userOverriddenConfig.getProtocolsToBeIncluded()[0], is("STRONG_PROTOCOL"));
     }
@@ -158,66 +158,66 @@ public class NewImprovedSSLConfigTest {
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.isRenegotiationAllowed(), is(false));
     }
 
     @Test
     public void shouldNotOverrideExcludedProtocolsIfNotSpecifiedInOverridesFile() throws IOException {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
-        NewImprovedSSLConfig systemConfigured = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings systemConfigured = new ConfigurableSSLSettings(systemEnvironment);
         FileUtils.writeStringToFile(overrideFile, org.apache.commons.io.IOUtils.toString(getClass().getResourceAsStream(partialConfig)));
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getProtocolsToBeExcluded(), is(systemConfigured.getProtocolsToBeExcluded()));
     }
     @Test
     public void shouldNotOverrideIncludedProtocolsIfNotSpecifiedInOverridesFile() throws IOException {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
-        NewImprovedSSLConfig systemConfigured = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings systemConfigured = new ConfigurableSSLSettings(systemEnvironment);
         FileUtils.writeStringToFile(overrideFile, org.apache.commons.io.IOUtils.toString(getClass().getResourceAsStream(partialConfig)));
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getProtocolsToBeIncluded(), is(systemConfigured.getProtocolsToBeIncluded()));
     }
 
     @Test
     public void shouldNotOverrideExcludedCiphersIfNotSpecifiedInOverridesFile() throws IOException {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
-        NewImprovedSSLConfig systemConfigured = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings systemConfigured = new ConfigurableSSLSettings(systemEnvironment);
         FileUtils.writeStringToFile(overrideFile, org.apache.commons.io.IOUtils.toString(getClass().getResourceAsStream(partialConfig)));
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getCipherSuitesToBeExcluded(), is(systemConfigured.getCipherSuitesToBeExcluded()));
     }
 
     @Test
     public void shouldNotOverrideIncludedCiphersIfNotSpecifiedInOverridesFile() throws IOException {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
-        NewImprovedSSLConfig systemConfigured = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings systemConfigured = new ConfigurableSSLSettings(systemEnvironment);
 
         FileUtils.writeStringToFile(overrideFile, org.apache.commons.io.IOUtils.toString(getClass().getResourceAsStream(partialConfig)));
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.getCipherSuitesToBeExcluded(), is(systemConfigured.getCipherSuitesToBeExcluded()));
     }
 
     @Test
     public void shouldNotOverrideRenegotiationFlagIfNotSpecifiedInOverridesFile() throws IOException {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn(defaultSSLConfig);
-        NewImprovedSSLConfig systemConfigured = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings systemConfigured = new ConfigurableSSLSettings(systemEnvironment);
         FileUtils.writeStringToFile(overrideFile, org.apache.commons.io.IOUtils.toString(getClass().getResourceAsStream(partialConfig)));
 
         when(systemEnvironment.get(SystemEnvironment.USER_CONFIGURED_SSL_CONFIG_FILE_PATH)).thenReturn(overrideFile.getAbsolutePath());
 
-        NewImprovedSSLConfig userOverriddenConfig = new NewImprovedSSLConfig(systemEnvironment);
+        ConfigurableSSLSettings userOverriddenConfig = new ConfigurableSSLSettings(systemEnvironment);
         assertThat(userOverriddenConfig.isRenegotiationAllowed(), is(systemConfigured.isRenegotiationAllowed()));
     }
 }

@@ -28,10 +28,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class NewImprovedSSLConfig implements SSLConfig {
+public class ConfigurableSSLSettings implements SSLConfig {
     private final Config config;
 
-    public NewImprovedSSLConfig(SystemEnvironment systemEnvironment) {
+    public ConfigurableSSLSettings(SystemEnvironment systemEnvironment) {
         try {
             String systemConfiguredSslConfigFile = systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH);
             InputStream sslConfigStream = getClass().getResourceAsStream(systemConfiguredSslConfigFile);

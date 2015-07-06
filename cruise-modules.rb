@@ -191,7 +191,7 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'jetty9', "**/GoPlainSocketConnector.class")
     include_fileset_from_target(jar, 'jetty9', "**/GoSocketConnector.class")
     include_fileset_from_target(jar, 'jetty9', "**/GoSSLConfig.class")
-    include_fileset_from_target(jar, 'jetty9', "**/NewImprovedSSLConfig*.class")
+    include_fileset_from_target(jar, 'jetty9', "**/ConfigurableSSLSettings*.class")
     include_fileset_from_target(jar, 'jetty9', "**/SSLConfig.class")
     include_fileset_from_target(jar, 'jetty9', "**/WeakSSLConfig.class")
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Server*.class")

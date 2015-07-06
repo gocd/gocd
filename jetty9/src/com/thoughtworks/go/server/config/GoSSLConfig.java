@@ -24,8 +24,8 @@ public class GoSSLConfig implements SSLConfig {
     private final SSLConfig config;
 
     public GoSSLConfig(SSLSocketFactory socketFactory, SystemEnvironment systemEnvironment) {
-        if ("Y".equals(systemEnvironment.getPropertyImpl("sslconfig"))) {
-            config = new NewImprovedSSLConfig(systemEnvironment);
+        if (SystemEnvironment.CONFIGURATION_YES.equalsIgnoreCase(systemEnvironment.get(SystemEnvironment.ALLOW_SSL_CONFIGURATION))) {
+            config = new ConfigurableSSLSettings(systemEnvironment);
         } else {
             config = new WeakSSLConfig(socketFactory);
         }

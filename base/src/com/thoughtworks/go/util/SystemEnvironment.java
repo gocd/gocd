@@ -163,6 +163,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> GO_SSL_CONFIG_FILE_PATH = new GoStringSystemProperty("go.ssl.config.path", "/ssl.config");
     public static GoSystemProperty<String> USER_CONFIGURED_SSL_CONFIG_FILE_PATH = new GoStringSystemProperty("user.ssl.config.path", "user.ssl.config");
     public static GoSystemProperty<String> TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT = new GoStringSystemProperty("agent.transport.protocol", "TLSv1.2");
+    public static GoSystemProperty<String> ALLOW_SSL_CONFIGURATION = new GoStringSystemProperty("allow.ssl.config", CONFIGURATION_YES);
 
 
     private volatile static Integer agentConnectionTimeout;

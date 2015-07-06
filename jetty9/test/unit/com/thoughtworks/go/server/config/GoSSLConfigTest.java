@@ -36,12 +36,12 @@ public class GoSSLConfigTest {
     }
 
     @Test
-    public void shouldUseNewImprovedConfigWhenSslConfigFlagTurnedOn() {
+    public void shouldUseConfigurableSSLSettingsgWhenAllowSslConfigFlagIsTurnedOn() {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.getPropertyImpl("sslconfig")).thenReturn("Y");
+        when(systemEnvironment.get(SystemEnvironment.ALLOW_SSL_CONFIGURATION)).thenReturn("Y");
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_FILE_PATH)).thenReturn("/ssl.config");
         GoSSLConfig goSSLConfig = new GoSSLConfig(mock(SSLSocketFactory.class), systemEnvironment);
         SSLConfig config = (SSLConfig) ReflectionUtil.getField(goSSLConfig, "config");
-        assertThat(config instanceof NewImprovedSSLConfig, is(true));
+        assertThat(config instanceof ConfigurableSSLSettings, is(true));
     }
 }

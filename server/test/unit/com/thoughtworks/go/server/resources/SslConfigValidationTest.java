@@ -1,7 +1,7 @@
 package com.thoughtworks.go.server.resources;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.server.config.NewImprovedSSLConfig;
+import com.thoughtworks.go.server.config.ConfigurableSSLSettings;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class SslConfigValidationTest {
         String config = FileUtils.readFileToString(actualConfigFile);
 
         try {
-            new Gson().fromJson(config, NewImprovedSSLConfig.Config.class);
+            new Gson().fromJson(config, ConfigurableSSLSettings.Config.class);
         } catch (Exception e) {
             fail("Invalid content in ssl.config file. " + e.getMessage());
         }

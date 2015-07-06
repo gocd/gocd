@@ -42,6 +42,7 @@ public class ArrayUtil {
     }
 
     public static <T> String join(T[] array, String separator) {
+        if(array == null) return null;
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < array.length; i++) {
             T t = array[i];

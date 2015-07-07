@@ -383,9 +383,12 @@ module WinPackageHelper
       cp win_pkg_src(package, 'cruisewrapper.exe'), win_pkg_content_dir(package_name)
       disable_logging_value = ENV['DISABLE_WIN_INSTALLER_LOGGING'] || "false"
       Buildr.ant('win') do |win|
-        win.get :src => ENV['WINDOWS_JRE_LOCATION'], :dest => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
-        win.gunzip :src => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
-        win.untar :src => "#{_(:target)}/jre-7u9-windows-i586.tar", :dest => windows_dir
+        jre_tar_gz = ENV['WINDOWS_JRE_LOCATION'].match("jre-.*$").to_s
+        jre_tar = jre_tar_gz.gsub(".gz", "")
+
+        win.get :src => ENV['WINDOWS_JRE_LOCATION'], :dest => "#{_(:target)}/#{jre_tar_gz}"
+        win.gunzip :src => "#{_(:target)}/#{jre_tar_gz}"
+        win.untar :src => "#{_(:target)}/#{jre_tar}", :dest => windows_dir
         win.copy :file => from_root('LICENSE'), :tofile => win_pkg_dest("LICENSE.dos")
         win.fixcrlf :file => win_pkg_dest("LICENSE.dos"), :eol => "dos"
         copy_dir win, package, package_name, 'lib'

@@ -4,9 +4,8 @@ import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfiguration;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
-import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     @Override
-    public CRPartialConfig parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfiguration> configurations) {
+    public CRPartialConfig parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new PluginInteractionCallback<CRPartialConfig>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

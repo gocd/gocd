@@ -1,12 +1,17 @@
 package com.thoughtworks.go.plugin.access.configrepo.migration;
 
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPluginConfiguration;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
-import com.thoughtworks.go.plugin.configrepo.CREnvironmentVariable_1;
-import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
-import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
+import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
+import com.thoughtworks.go.plugin.configrepo.*;
 import com.thoughtworks.go.plugin.configrepo.material.*;
+import com.thoughtworks.go.plugin.configrepo.tasks.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Migrates configuration from 1.0 to current extension contract.
@@ -175,5 +180,103 @@ public class Migration_1 {
                         String.format("Invalid or unknown material type %s",typeName));
         }
 
+    }
+
+    public CRTask migrate(CRTask_1 crTask_1) {
+        String typeName = crTask_1.typeName();
+        if(typeName == null)
+            throw new CRMigrationException("task is missing type");
+        switch (typeName) {
+            case CRExecTask_1.TYPE_NAME:
+                CRExecTask_1 execTask_1 = (CRExecTask_1) crTask_1;
+                return new CRExecTask(
+                        migrate(execTask_1.getRunIf()),
+                        execTask_1.getOnCancel() != null ?  migrate(execTask_1.getOnCancel()) : null,
+                        execTask_1.getCommand(),
+                        execTask_1.getWorkingDirectory(),
+                        execTask_1.getTimeout(),
+                        execTask_1.getArgs());
+            case CRBuildTask_1.RAKE_TYPE_NAME:
+                CRBuildTask_1 crRakeTask_1 = (CRBuildTask_1)crTask_1;
+                return CRBuildTask.rake(
+                        migrate(crRakeTask_1.getRunIf()),
+                        crRakeTask_1.getOnCancel() != null ? migrate(crRakeTask_1.getOnCancel()) : null,
+                        crRakeTask_1.getBuildFile(),
+                        crRakeTask_1.getTarget(),
+                        crRakeTask_1.getWorkingDirectory());
+            case CRBuildTask_1.ANT_TYPE_NAME:
+                CRBuildTask_1 crAntTask_1 = (CRBuildTask_1)crTask_1;
+                return CRBuildTask.ant(
+                        migrate(crAntTask_1.getRunIf()),
+                        crAntTask_1.getOnCancel() != null ? migrate(crAntTask_1.getOnCancel()) : null,
+                        crAntTask_1.getBuildFile(),
+                        crAntTask_1.getTarget(),
+                        crAntTask_1.getWorkingDirectory());
+            case CRBuildTask_1.NANT_TYPE_NAME:
+                CRNantTask_1 crNantTask_1 = (CRNantTask_1)crTask_1;
+                return new CRNantTask(
+                        migrate(crNantTask_1.getRunIf()),
+                        crNantTask_1.getOnCancel() != null ? migrate(crNantTask_1.getOnCancel()) : null,
+                        crNantTask_1.getBuildFile(),
+                        crNantTask_1.getTarget(),
+                        crNantTask_1.getWorkingDirectory(),
+                        crNantTask_1.getNantPath());
+            case CRFetchArtifactTask_1.TYPE_NAME:
+                CRFetchArtifactTask_1 crFetchArtifactTask_1 = (CRFetchArtifactTask_1)crTask_1;
+                return new CRFetchArtifactTask(
+                        migrate(crFetchArtifactTask_1.getRunIf()),
+                        crFetchArtifactTask_1.getOnCancel() != null ? migrate(crFetchArtifactTask_1.getOnCancel()) : null,
+                        crFetchArtifactTask_1.getPipelineName(),
+                        crFetchArtifactTask_1.getStage(),
+                        crFetchArtifactTask_1.getJob(),
+                        crFetchArtifactTask_1.getSource(),
+                        crFetchArtifactTask_1.getDestination(),
+                        crFetchArtifactTask_1.sourceIsDirectory());
+            case CRPluggableTask_1.TYPE_NAME:
+                CRPluggableTask_1 crPluggableTask_1 = (CRPluggableTask_1)crTask_1;
+                return new CRPluggableTask(
+                        migrate(crPluggableTask_1.getRunIf()),
+                        crPluggableTask_1.getOnCancel() != null ? migrate(crPluggableTask_1.getOnCancel()) : null,
+                        migrate(crPluggableTask_1.getPluginConfiguration()),
+                        crPluggableTask_1.getConfiguration() != null ? migrate(crPluggableTask_1.getConfiguration()) : null);
+
+            default:
+                throw new CRMigrationException(
+                        String.format("Invalid or unknown task type %s",typeName));
+        }
+
+    }
+
+    private Collection<CRConfigurationProperty> migrate(Collection<CRConfigurationProperty_1> configuration) {
+        ArrayList<CRConfigurationProperty> configs = new ArrayList<>();
+        for(CRConfigurationProperty_1 p : configuration)
+        {
+            configs.add(new CRConfigurationProperty(p.getKey(),p.getValue(),p.getEncryptedValue()));
+        }
+        return  configs;
+    }
+
+    public CRPluginConfiguration migrate(CRPluginConfiguration_1 pluginConfiguration) {
+        if(pluginConfiguration == null)
+            throw new CRMigrationException(
+                    String.format("Plugin configuration cannot be null"));
+        return new CRPluginConfiguration(pluginConfiguration.getId(),pluginConfiguration.getVersion());
+    }
+
+    private CRRunIf migrate(CRRunIf_1 runIf) {
+        if(runIf == null)
+            return CRRunIf.passed;
+
+        switch (runIf){
+            case any:
+                return CRRunIf.any;
+            case passed:
+                return CRRunIf.passed;
+            case failed:
+                return CRRunIf.failed;
+            default:
+                throw new CRMigrationException(
+                        String.format("Invalid or unknown task run-if condition %s",runIf));
+        }
     }
 }

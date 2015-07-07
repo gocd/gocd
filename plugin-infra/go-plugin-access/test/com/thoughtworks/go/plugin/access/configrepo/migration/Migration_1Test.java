@@ -1,12 +1,18 @@
 package com.thoughtworks.go.plugin.access.configrepo.migration;
 
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironmentVariable;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
+import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
+import com.thoughtworks.go.plugin.configrepo.CRConfigurationProperty_1;
 import com.thoughtworks.go.plugin.configrepo.CREnvironment_1;
 import com.thoughtworks.go.plugin.configrepo.material.*;
+import com.thoughtworks.go.plugin.configrepo.tasks.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collection;
 
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -278,6 +284,148 @@ public class Migration_1Test {
         assertThat(tfsMaterial.getProjectPath(), is("projectDir"));
         assertThat(tfsMaterial.getFilter(),hasItem("tools"));
         assertThat(tfsMaterial.getFilter(),hasItem("externals"));
+    }
+
+
+    @Test
+    public void shouldMigrateExecTask()
+    {
+        CRExecTask_1 crExecTask_1 =  new CRExecTask_1("rake","dir",120L, CRRunIf_1.any, new CRExecTask_1("cleanup"),"-f","Rakefile.rb");
+        CRTask result = migration.migrate(crExecTask_1);
+        assertThat(result instanceof CRExecTask,is(true));
+        CRExecTask crExecTask = (CRExecTask)result;
+
+        assertThat(crExecTask.getCommand(),is("rake"));
+        assertThat(crExecTask.getWorkingDirectory(),is("dir"));
+        assertThat(crExecTask.getTimeout(),is(120L));
+        assertThat(crExecTask.getRunIf(),is(CRRunIf.any));
+        assertThat(((CRExecTask)crExecTask.getOnCancel()).getCommand(),is("cleanup"));
+        assertThat(crExecTask.getArgs(),hasItem("-f"));
+        assertThat(crExecTask.getArgs(),hasItem("Rakefile.rb"));
+    }
+
+    @Test
+    public void shouldMigrateRakeTask()
+    {
+        CRBuildTask_1 crBuildTask_1 = CRBuildTask_1.rake("Rakefile.rb", "build", "src/tasks");
+        crBuildTask_1.setRunIf(CRRunIf_1.any);
+        crBuildTask_1.setOnCancel(new CRExecTask_1("cleanup"));
+
+        CRTask result = migration.migrate(crBuildTask_1);
+        assertThat(result instanceof CRBuildTask,is(true));
+
+        CRBuildTask crBuildTask = (CRBuildTask)result;
+
+        assertThat(crBuildTask.getRunIf(),is(CRRunIf.any));
+        assertThat(((CRExecTask)crBuildTask.getOnCancel()).getCommand(),is("cleanup"));
+
+        assertThat(crBuildTask.getBuildFile(),is("Rakefile.rb"));
+        assertThat(crBuildTask.getTarget(),is("build"));
+        assertThat(crBuildTask.getWorkingDirectory(),is("src/tasks"));
+
+        assertThat(crBuildTask.getType(),is(CRBuildFramework.rake));
+    }
+
+    @Test
+    public void shouldMigrateAntTask()
+    {
+        CRBuildTask_1 crBuildTask_1 = CRBuildTask_1.ant("build.xml", "build", "src/tasks");
+        crBuildTask_1.setRunIf(CRRunIf_1.any);
+        crBuildTask_1.setOnCancel(new CRExecTask_1("cleanup"));
+
+        CRTask result = migration.migrate(crBuildTask_1);
+        assertThat(result instanceof CRBuildTask,is(true));
+
+        CRBuildTask crBuildTask = (CRBuildTask)result;
+
+        assertThat(crBuildTask.getRunIf(),is(CRRunIf.any));
+        assertThat(((CRExecTask)crBuildTask.getOnCancel()).getCommand(),is("cleanup"));
+
+        assertThat(crBuildTask.getBuildFile(),is("build.xml"));
+        assertThat(crBuildTask.getTarget(),is("build"));
+        assertThat(crBuildTask.getWorkingDirectory(),is("src/tasks"));
+
+        assertThat(crBuildTask.getType(),is(CRBuildFramework.ant));
+    }
+
+
+    @Test
+    public void shouldMigrateNantTask()
+    {
+        CRBuildTask_1 crBuildTask_1 = CRBuildTask_1.nant("build.xml", "build", "src/tasks", "path");
+        crBuildTask_1.setRunIf(CRRunIf_1.any);
+        crBuildTask_1.setOnCancel(new CRExecTask_1("cleanup"));
+
+        CRTask result = migration.migrate(crBuildTask_1);
+        assertThat(result instanceof CRNantTask,is(true));
+
+        CRNantTask crBuildTask = (CRNantTask)result;
+
+        assertThat(crBuildTask.getRunIf(),is(CRRunIf.any));
+        assertThat(((CRExecTask)crBuildTask.getOnCancel()).getCommand(),is("cleanup"));
+
+        assertThat(crBuildTask.getBuildFile(),is("build.xml"));
+        assertThat(crBuildTask.getTarget(),is("build"));
+        assertThat(crBuildTask.getWorkingDirectory(),is("src/tasks"));
+        assertThat(crBuildTask.getNantPath(),is("path"));
+
+        assertThat(crBuildTask.getType(),is(CRBuildFramework.nant));
+    }
+
+    @Test
+    public void shouldMigrateFetchTask()
+    {
+        CRFetchArtifactTask_1 crFetchArtifactTask_1 = new CRFetchArtifactTask_1("build","buildjob","bin");
+        crFetchArtifactTask_1.setPipelineName("upstream");
+        crFetchArtifactTask_1.setDestination("dest");
+        crFetchArtifactTask_1.setSourceIsDirectory(true);
+
+        crFetchArtifactTask_1.setRunIf(CRRunIf_1.any);
+        crFetchArtifactTask_1.setOnCancel(new CRExecTask_1("cleanup"));
+
+        CRTask result = migration.migrate(crFetchArtifactTask_1);
+        assertThat(result instanceof CRFetchArtifactTask,is(true));
+
+        CRFetchArtifactTask crFetchArtifactTask = (CRFetchArtifactTask)result;
+
+        assertThat(crFetchArtifactTask.getRunIf(),is(CRRunIf.any));
+        assertThat(((CRExecTask)crFetchArtifactTask.getOnCancel()).getCommand(),is("cleanup"));
+
+        assertThat(crFetchArtifactTask.getPipelineName(),is("upstream"));
+        assertThat(crFetchArtifactTask.getStage(),is("build"));
+        assertThat(crFetchArtifactTask.getJob(),is("buildjob"));
+        assertThat(crFetchArtifactTask.getSource(),is("bin"));
+        assertThat(crFetchArtifactTask.getDestination(),is("dest"));
+        assertThat(crFetchArtifactTask.sourceIsDirectory(),is(true));
+    }
+
+    @Test
+    public void shouldMigratePluggableTask()
+    {
+        CRPluggableTask_1 crPluggableTask_1 = new CRPluggableTask_1("curl.task.plugin","1",
+                new CRConfigurationProperty_1("Url","http://www.google.com"),
+                new CRConfigurationProperty_1("SecureConnection","no"),
+                new CRConfigurationProperty_1("RequestType","no")
+        );
+
+        crPluggableTask_1.setRunIf(CRRunIf_1.any);
+        crPluggableTask_1.setOnCancel(new CRExecTask_1("cleanup"));
+
+        CRTask result = migration.migrate(crPluggableTask_1);
+        assertThat(result instanceof CRPluggableTask,is(true));
+
+        CRPluggableTask crPluggableTask = (CRPluggableTask)result;
+
+        assertThat(crPluggableTask.getRunIf(),is(CRRunIf.any));
+        assertThat(((CRExecTask)crPluggableTask.getOnCancel()).getCommand(),is("cleanup"));
+
+        assertThat(crPluggableTask.getPluginConfiguration().getId(),is("curl.task.plugin"));
+        assertThat(crPluggableTask.getPluginConfiguration().getVersion(),is("1"));
+
+        Collection<CRConfigurationProperty> configuration = crPluggableTask.getConfiguration();
+        assertThat(configuration.size(),is(3));
+
+        assertThat(crPluggableTask.getPropertyByKey("Url").getValue(),is("http://www.google.com"));
     }
 
 }

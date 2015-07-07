@@ -1,7 +1,7 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfiguration;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.migration.Migration_1;
 import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
@@ -22,14 +22,14 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String requestMessageForParseDirectory(String destinationFolder, Collection<CRConfiguration> configurations) {
+    public String requestMessageForParseDirectory(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
         ParseDirectoryMessage_1 requestMessage = prepareMessage_1(destinationFolder, configurations);
         return codec.getGson().toJson(requestMessage);
     }
 
-    private ParseDirectoryMessage_1 prepareMessage_1(String destinationFolder, Collection<CRConfiguration> configurations) {
+    private ParseDirectoryMessage_1 prepareMessage_1(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
         ParseDirectoryMessage_1 requestMessage = new ParseDirectoryMessage_1(destinationFolder);
-        for(CRConfiguration conf : configurations)
+        for(CRConfigurationProperty conf : configurations)
         {
             requestMessage.addConfiguration(conf.getKey(),conf.getValue(),conf.getEncryptedValue());
         }

@@ -6,7 +6,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfiguration;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 
 import java.io.File;
@@ -31,20 +31,20 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return ConfigConverter.toPartialConfig(crPartialConfig);
     }
 
-    public CRPartialConfig parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfiguration> cRconfigurations) {
+    public CRPartialConfig parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {
         return this.crExtension.parseDirectory(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
     }
 
-    public static List<CRConfiguration> getCrConfigurations(Configuration configuration) {
-        List<CRConfiguration> config = new ArrayList<>();
+    public static List<CRConfigurationProperty> getCrConfigurations(Configuration configuration) {
+        List<CRConfigurationProperty> config = new ArrayList<>();
         for(ConfigurationProperty prop : configuration)
         {
             String configKeyName = prop.getConfigKeyName();
             if(!prop.isSecure())
-                config.add(new CRConfiguration(configKeyName,prop.getValue()));
+                config.add(new CRConfigurationProperty(configKeyName,prop.getValue()));
             else
             {
-                CRConfiguration crProp = new CRConfiguration(configKeyName);
+                CRConfigurationProperty crProp = new CRConfigurationProperty(configKeyName);
                 crProp.setEncryptedValue(prop.getEncryptedValue().getValue());
                 config.add(crProp);
             }

@@ -352,6 +352,10 @@ module WinPackageHelper
     File.join(windows_dir, file_name)
   end
 
+  def windows_dir_file_matching file_name
+    Dir[windows_dir_file(file_name)].first
+  end
+
   def win_pkg_src package, file_name
     project(@metadata_src).path_to("../installers/#{package}/win", file_name)
   end
@@ -404,7 +408,7 @@ module WinPackageHelper
           padded_release_revision = "#{RELEASE_REVISION}".rjust(5,'0')
           exec.env :key => "REGVER", :value => "#{VERSION_NUMBER}#{padded_release_revision}".gsub(/\./, '')
           exec.env :key => "JAVA", :value => windows_java
-          exec.env :key => "JAVASRC", :value => windows_dir_file("jre1.7.0_09")
+          exec.env :key => "JAVASRC", :value => windows_dir_file_matching("jre*")
           exec.env :key => "DISABLE_LOGGING", :value => disable_logging_value
           exec.arg :line => "-NOCD #{win_pkg_src(package, package_name + '.nsi')}"
         end

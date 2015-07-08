@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
@@ -272,6 +273,25 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
             resetPassword(passwordToSet);
         }
         this.checkExternals  = "true".equals(map.get(CHECK_EXTERNALS));
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "svn");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        if (addSecureFields) {
+            configurationMap.put("url", url.forCommandline());
+        } else {
+            configurationMap.put("url", url.forDisplay());
+        }
+        configurationMap.put("username", userName);
+        if (addSecureFields) {
+            configurationMap.put("password", getPassword());
+        }
+        configurationMap.put("check-externals", checkExternals);
+        materialMap.put("svn-configuration", configurationMap);
+        return materialMap;
     }
 
     @Override

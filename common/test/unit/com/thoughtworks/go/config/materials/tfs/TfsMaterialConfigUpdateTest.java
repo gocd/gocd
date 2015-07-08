@@ -210,4 +210,32 @@ public class TfsMaterialConfigUpdateTest {
             assertThat(e.getMessage(), is("Password encryption failed. Please verify your cipher key."));
         }
     }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("tfs"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:password@tfsrepo.com"));
+        assertThat((String) configuration.get("domain"), is("domain"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat((String) configuration.get("password"), is("password"));
+        assertThat((String) configuration.get("project-path"), is("$project/path/"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("tfs"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:******@tfsrepo.com"));
+        assertThat((String) configuration.get("domain"), is("domain"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat((String) configuration.get("password"), is(nullValue()));
+        assertThat((String) configuration.get("project-path"), is("$project/path/"));
+    }
 }

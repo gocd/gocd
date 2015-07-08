@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -293,6 +294,16 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         } else {
             map.put(new CaseInsensitiveString(scmId), this);
         }
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "scm");
+        materialMap.put("plugin-id", getPluginId());
+        Map<String, Object> configurationMap = scmConfig.getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("scm-configuration", configurationMap);
+        return materialMap;
     }
 
     @Override

@@ -42,6 +42,7 @@ public class ArrayUtil {
     }
 
     public static <T> String join(T[] array, String separator) {
+        if(array == null) return null;
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < array.length; i++) {
             T t = array[i];
@@ -70,5 +71,12 @@ public class ArrayUtil {
             list.add(StringUtils.capitalize(t.toString()));
         }
         return list.toArray();
+    }
+
+    public static <T> boolean isEmpty(T[] array) {
+        if (array == null || array.length == 0) {
+            return true;
+        }
+        return false;
     }
 }

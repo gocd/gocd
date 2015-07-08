@@ -14,13 +14,10 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class StageConfigAPIModel
-  attr_reader :name, :jobs
+class JobConfigAPIModel
+  attr_reader :name
 
-  def initialize(stage_config_model)
-    @name = stage_config_model.name().to_s unless stage_config_model.name() == nil
-    @jobs = stage_config_model.getJobs().collect do |job_config_model|
-      JobConfigAPIModel.new(job_config_model)
-    end
+  def initialize(job_config_model)
+    @name = job_config_model.name().to_s unless job_config_model.name() == nil
   end
 end

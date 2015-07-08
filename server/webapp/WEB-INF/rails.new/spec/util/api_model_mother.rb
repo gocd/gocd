@@ -375,9 +375,16 @@ module APIModelMother
     @pipeline_status_model
   end
 
+  def create_job_config_model
+    @job_config_view_model = double('JobConfigViewModel')
+    @job_config_view_model.stub(:name).and_return('stage name')
+    @job_config_view_model
+  end
+
   def create_stage_config_model
     @stage_config_view_model = double('StageConfigViewModel')
     @stage_config_view_model.stub(:name).and_return('stage name')
+    @stage_config_view_model.stub(:getJobs).and_return([create_job_config_model])
     @stage_config_view_model
   end
 

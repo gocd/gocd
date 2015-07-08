@@ -150,7 +150,7 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
 
     private SSLContext createSSLContext(boolean certAuth) {
         try {
-            SSLContext context = SSLContext.getInstance(systemEnvironment.get(SystemEnvironment.TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT));
+            SSLContext context = SSLContext.getInstance(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT));
             KeyManager[] keyManagers = keyManagerFactory == null ? null : keyManagerFactory.keyManagers();
             TrustManager[] trustManagers = trustManagerFactory == null ? null : trustManagerFactory.trustManagers();
             context.init(certAuth ? keyManagers : null, trustManagers, null);

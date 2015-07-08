@@ -34,7 +34,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(org.jmock.integration.junit4.JMock.class)
 public class AuthSSLProtocolSocketFactoryTest {
@@ -67,7 +66,7 @@ public class AuthSSLProtocolSocketFactoryTest {
 
         SSLContext newSslContext = factory.getSSLContext();
         assertThat(oldSslContext, not(newSslContext));
-        assertThat(newSslContext.getProtocol(), is(new SystemEnvironment().get(SystemEnvironment.TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT)));
+        assertThat(newSslContext.getProtocol(), is(new SystemEnvironment().get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT)));
     }
 
 }

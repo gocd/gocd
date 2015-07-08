@@ -391,8 +391,7 @@ module APIModelMother
   def create_material_config_model
     @material_config_view_model = double('MaterialConfigViewModel')
     @material_config_view_model.stub(:getFingerprint).and_return('fingerprint')
-    @material_config_view_model.stub(:getTypeForDisplay).and_return('git')
-    @material_config_view_model.stub(:getLongDescription).and_return('URL: http://test.com Branch: master')
+    @material_config_view_model.stub(:getAttributes).and_return({:type => 'git', 'git-configuration' => {:url => 'http://git-scm.com'}})
     @material_config_view_model
   end
 

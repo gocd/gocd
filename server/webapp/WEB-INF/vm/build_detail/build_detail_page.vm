@@ -117,17 +117,13 @@
                                     <div class="clear"></div>
 
                                     #set($buildoutput_extra_attrs="")
-                                    <span class='console_tab_content_container'>
-                                        #parse("build_detail/_buildoutput.vm")
-                                    </span>
+                                    #parse("build_detail/_buildoutput.vm")
 
                                     #set($tests_extra_attrs="style='display:none'")
                                     #parse("build_detail/_tests.vm")
 
                                     #set($errors_extra_attrs="style='display:none'")
-                                    <span class='failures_tab_content_container'>
-                                        #parse("build_detail/_failures.vm")
-                                    </span>
+                                    #parse("build_detail/_failures.vm")
 
                                     #set($artifacts_extra_attrs="style='display:none'")
                                     #parse("build_detail/_artifacts.vm")

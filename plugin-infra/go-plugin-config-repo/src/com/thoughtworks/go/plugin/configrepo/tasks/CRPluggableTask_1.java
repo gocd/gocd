@@ -50,6 +50,7 @@ public class CRPluggableTask_1 extends CRTask_1 {
         }
         validateType(errors);
         validateKeyUniqueness(errors);
+        validateOnCancel(errors);
     }
     private void validateKeyUniqueness(ErrorCollection errors) {
         if(this.configuration == null)

@@ -66,6 +66,7 @@ public class CRExecTask_1 extends CRTask_1 {
     @Override
     public void getErrors(ErrorCollection errors) {
         validateCommand(errors);
+        validateOnCancel(errors);
     }
 
     private void validateCommand(ErrorCollection errors) {

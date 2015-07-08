@@ -21,6 +21,10 @@ public abstract class CRTask_1 extends CRBase {
         this.onCancel = onCancel;
     }
 
+    public void validateOnCancel(ErrorCollection errors) {
+        if(this.onCancel != null)
+            this.onCancel.getErrors(errors);
+    }
     public void validateType(ErrorCollection errors) {
         if (StringUtils.isBlank(type)) {
             errors.add(this, "Task must have specified type");

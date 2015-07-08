@@ -141,5 +141,6 @@ public class CRBuildTask_1 extends CRTask_1 {
     @Override
     public void getErrors(ErrorCollection errors) {
         validateType(errors);
+        validateOnCancel(errors);
     }
 }

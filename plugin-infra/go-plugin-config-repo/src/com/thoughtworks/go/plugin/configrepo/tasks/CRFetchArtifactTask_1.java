@@ -30,6 +30,7 @@ public class CRFetchArtifactTask_1 extends CRTask_1 {
         validateSource(errors);
         validateStage(errors);
         validateJob(errors);
+        validateOnCancel(errors);
     }
 
     private void validateJob(ErrorCollection errors) {

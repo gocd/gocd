@@ -5,7 +5,7 @@ import com.thoughtworks.go.plugin.configrepo.tasks.*;
 
 import java.lang.reflect.Type;
 
-public class TaskTypeAdapter implements JsonDeserializer<CRTask_1> {
+public class TaskTypeAdapter implements JsonDeserializer<CRTask_1>, JsonSerializer<CRTask_1> {
     private static final String TYPE = "type";
 
     @Override
@@ -31,5 +31,17 @@ public class TaskTypeAdapter implements JsonDeserializer<CRTask_1> {
         else
             throw new JsonParseException(
                     String.format("Invalid or unknown material type '%s'",typeName));
+    }
+
+    @Override
+    public JsonElement serialize(CRTask_1 crTask_1, Type type, JsonSerializationContext context) {
+        JsonObject retValue = context.serialize(crTask_1).getAsJsonObject();
+        CRTask_1 onCancel = crTask_1.getOnCancel();
+        if(onCancel != null) {
+            retValue.remove("onCancel");
+            retValue.add("onCancel", context.serialize(onCancel));
+        }
+
+        return retValue;
     }
 }

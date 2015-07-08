@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.config;
 
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -28,16 +29,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GoSSLConfigTest {
+    private SystemEnvironment systemEnvironment;
+
+    @Before
+    public void setUp() throws Exception {
+        systemEnvironment = mock(SystemEnvironment.class);
+    }
+
     @Test
     public void shouldUseWeakConfigWhenSslConfigFlagTurnedOff() {
-        GoSSLConfig goSSLConfig = new GoSSLConfig(mock(SSLSocketFactory.class), mock(SystemEnvironment.class));
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(false);
+        GoSSLConfig goSSLConfig = new GoSSLConfig(mock(SSLSocketFactory.class), systemEnvironment);
         SSLConfig config = (SSLConfig) ReflectionUtil.getField(goSSLConfig, "config");
         assertThat(config instanceof WeakSSLConfig, is(true));
     }
 
     @Test
     public void shouldUseConfigurableSSLSettingsWhenAllowSslConfigFlagIsTurnedOn() {
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(true);
         GoSSLConfig goSSLConfig = new GoSSLConfig(mock(SSLSocketFactory.class), systemEnvironment);
         SSLConfig config = (SSLConfig) ReflectionUtil.getField(goSSLConfig, "config");

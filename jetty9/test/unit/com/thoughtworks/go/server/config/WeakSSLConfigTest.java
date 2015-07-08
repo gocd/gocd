@@ -30,13 +30,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class WeakSSLConfigTest {
-    private SystemEnvironment systemEnvironment;
-
-    @Before
-    public void setUp() throws Exception {
-        systemEnvironment = mock(SystemEnvironment.class);
-    }
-
     @Test
     public void shouldIncludeTheMagicThreeWhichAreSupportedByOurJetty() throws Exception {
         SSLSocketFactory socketFactory = mock(SSLSocketFactory.class);
@@ -54,9 +47,9 @@ public class WeakSSLConfigTest {
                 , "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
                 , "SSL_RSA_WITH_RC4_128_MD5"
                 , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"});
-        GoSSLConfig goSSLConfig = new GoSSLConfig(socketFactory, systemEnvironment);
+        WeakSSLConfig sslConfig = new WeakSSLConfig(socketFactory);
 
-        assertThat(Arrays.asList(goSSLConfig.getCipherSuitesToBeIncluded()), is(Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5")));
+        assertThat(Arrays.asList(sslConfig.getCipherSuitesToBeIncluded()), is(Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5")));
     }
 
     @Test
@@ -74,7 +67,7 @@ public class WeakSSLConfigTest {
                 , "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
                 , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"};
         when(socketFactory.getSupportedCipherSuites()).thenReturn(supportedSuites);
-        GoSSLConfig goSSLConfig = new GoSSLConfig(socketFactory, systemEnvironment);
+        WeakSSLConfig goSSLConfig = new WeakSSLConfig(socketFactory);
 
         List<String> includedSuites = Arrays.asList(goSSLConfig.getCipherSuitesToBeIncluded());
         assertThat(includedSuites.size(), is(supportedSuites.length));

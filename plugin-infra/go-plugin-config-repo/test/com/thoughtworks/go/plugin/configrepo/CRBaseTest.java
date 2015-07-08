@@ -168,6 +168,13 @@ public abstract class CRBaseTest<T extends CRBase> {
     }
     @Test
     public void shouldNotErrorWhenGoodExample(){
-
+        Map<String,T> examples = getGoodExamples();
+        for(Map.Entry<String,T> example : examples.entrySet())
+        {
+            ErrorCollection errorCollection = new ErrorCollection();
+            example.getValue().getErrors(errorCollection);
+            assertThat(String.format("Example %s - valid value should not return errors",example.getKey()),
+                    errorCollection.isEmpty(),is(true));
+        }
     }
 }

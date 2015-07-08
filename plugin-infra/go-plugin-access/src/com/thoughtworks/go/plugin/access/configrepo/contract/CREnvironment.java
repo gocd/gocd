@@ -1,5 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -10,7 +11,7 @@ public class CREnvironment {
     private Collection<String> pipelines;
 
     public CREnvironment() {
-        environmentVariables = new CREnvironmentVariables();
+        environmentVariables = new ArrayList<>();
         agents = new HashSet<>();
         pipelines = new HashSet<>();
     }
@@ -31,7 +32,7 @@ public class CREnvironment {
         return environmentVariables;
     }
 
-    public void setEnvironmentVariables(CREnvironmentVariables environmentVariables) {
+    public void setEnvironmentVariables(Collection<CREnvironmentVariable> environmentVariables) {
         this.environmentVariables = environmentVariables;
     }
 

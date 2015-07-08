@@ -1,9 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo.migration;
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPluginConfiguration;
+import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.plugin.configrepo.*;
@@ -12,6 +9,7 @@ import com.thoughtworks.go.plugin.configrepo.tasks.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Migrates configuration from 1.0 to current extension contract.
@@ -278,5 +276,119 @@ public class Migration_1 {
                 throw new CRMigrationException(
                         String.format("Invalid or unknown task run-if condition %s",runIf));
         }
+    }
+
+    public CRJob migrate(CRJob_1 crJob_1) {
+        return new CRJob(
+                crJob_1.getName(),
+                migrateEnvironmentVariables(crJob_1.getEnvironmentVariables()),
+                migrateTabs(crJob_1.getTabs()),
+                crJob_1.getResources() != null ? crJob_1.getResources() : new ArrayList<String>(),
+                migrateArtifacts(crJob_1.getArtifacts()),
+                migrateProperties(crJob_1.getArtifactPropertiesGenerators()),
+                crJob_1.isRunOnAllAgents(),
+                crJob_1.getRunInstanceCount(),
+                crJob_1.getTimeout(),
+                migrate(crJob_1.getTasks()));
+    }
+
+    public List<CRTask> migrate(List<CRTask_1> tasks_1) {
+        List<CRTask> tasks = new ArrayList<>();
+        if(tasks_1 == null)
+            return tasks;
+        for(CRTask_1 task : tasks_1)
+        {
+            tasks.add(migrate(task));
+        }
+        return tasks;
+    }
+
+    public Collection<CRPropertyGenerator> migrateProperties(Collection<CRPropertyGenerator_1> artifactPropertiesGenerators_1) {
+        List<CRPropertyGenerator> props = new ArrayList<>();
+        if(artifactPropertiesGenerators_1 == null)
+            return props;
+        for(CRPropertyGenerator_1 prop : artifactPropertiesGenerators_1)
+        {
+            props.add(migrate(prop));
+        }
+        return props;
+    }
+
+    public CRPropertyGenerator migrate(CRPropertyGenerator_1 prop) {
+        return new CRPropertyGenerator(prop.getName(),prop.getSrc(),prop.getXpath());
+    }
+
+    public Collection<CRArtifact> migrateArtifacts(Collection<CRArtifact_1> artifacts1) {
+        List<CRArtifact> artifacts = new ArrayList<>();
+        for(CRArtifact_1 artifact1 : artifacts1)
+        {
+            artifacts.add(migrate(artifact1));
+        }
+        return artifacts;
+    }
+
+    public CRArtifact migrate(CRArtifact_1 artifact1) {
+        return new CRArtifact(artifact1.getSource(),artifact1.getDestination());
+    }
+
+    public Collection<CRTab> migrateTabs(Collection<CRTab_1> tabs1) {
+        List<CRTab> tabs = new ArrayList<>();
+        if(tabs1 == null)
+            return tabs;
+        for(CRTab_1 tab1 : tabs1)
+        {
+            tabs.add(migrate(tab1));
+        }
+        return tabs;
+    }
+
+    public CRTab migrate(CRTab_1 tab1) {
+        return new CRTab(tab1.getName(),tab1.getPath());
+    }
+
+    public Collection<CREnvironmentVariable> migrateEnvironmentVariables(Collection<CREnvironmentVariable_1> environmentVariables) {
+        List<CREnvironmentVariable> result = new ArrayList<>();
+        if(environmentVariables == null)
+            return result;
+        for(CREnvironmentVariable_1 var_1 : environmentVariables)
+        {
+            result.add(migrate(var_1));
+        }
+        return result;
+    }
+
+    public CREnvironmentVariable migrate(CREnvironmentVariable_1 var_1) {
+        return new CREnvironmentVariable(var_1.getName(), var_1.getValue(), var_1.getEncryptedValue());
+    }
+
+    public CRApproval migrate(CRApproval_1 approval_1) {
+        if(approval_1 == null)
+            return new CRApproval(CRApprovalCondition.success,new ArrayList<String>(),new ArrayList<String>());
+        return new CRApproval(
+                approval_1.getType() != null ? CRApprovalCondition.valueOf(approval_1.getType()) : CRApprovalCondition.success,
+                approval_1.getAuthorizedRoles() != null ? approval_1.getAuthorizedRoles() : new ArrayList<String>(),
+                approval_1.getAuthorizedUsers() != null ? approval_1.getAuthorizedUsers() : new ArrayList<String>());
+    }
+
+    public CRStage migrate(CRStage_1 stage_1) {
+        return new CRStage(stage_1.getName(),
+                stage_1.isFetchMaterials(),
+                stage_1.isArtifactCleanupProhibited(),
+                stage_1.isCleanWorkingDir(),
+                migrate(stage_1.getApproval()),
+                migrateEnvironmentVariables(stage_1.getEnvironmentVariables()),
+                migrateJobs(stage_1.getJobs()));
+    }
+
+    public Collection<CRJob> migrateJobs(Collection<CRJob_1> jobs1) {
+        List<CRJob> jobs = new ArrayList<>();
+        if(jobs1 == null || jobs1.isEmpty())
+            throw new CRMigrationException(
+                    String.format("Jobs cannot be empty or null"));
+        for(CRJob_1 job1 : jobs1)
+        {
+            jobs.add(migrate(job1));
+        }
+        return jobs;
     }
 }

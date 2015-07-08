@@ -15,7 +15,7 @@ public class CRPipeline {
     private CRTrackingTool trackingTool;
     private CRMingle mingle;
     private CRTimer timer;
-    private CREnvironmentVariables environmentVariables;
+    private Collection<CREnvironmentVariable> environmentVariables;
     private Collection<CRMaterial> materials;
-    private List<CRStages> stages;
+    private List<CRStage> stages;
 }

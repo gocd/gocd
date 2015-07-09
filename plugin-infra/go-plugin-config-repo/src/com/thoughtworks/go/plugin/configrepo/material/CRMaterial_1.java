@@ -3,6 +3,8 @@ package com.thoughtworks.go.plugin.configrepo.material;
 import com.thoughtworks.go.plugin.configrepo.CRBase;
 import com.thoughtworks.go.plugin.configrepo.ErrorCollection;
 
+import java.util.HashSet;
+
 public abstract class CRMaterial_1 extends CRBase {
     private String materialName;
     protected String type;
@@ -52,4 +54,14 @@ public abstract class CRMaterial_1 extends CRBase {
 
 
     public abstract String typeName();
+
+    public String validateNameUniqueness(HashSet<String> keys) {
+        if(this.getName() == null)
+            return String.format("Material has no name when there is more than one material in pipeline");
+        else if(keys.contains(this.getName()))
+            return String.format("Material named %s is defined more than once",this.getName());
+        else
+            keys.add(this.getName());
+        return null;
+    }
 }

@@ -391,4 +391,56 @@ public class Migration_1 {
         }
         return jobs;
     }
+
+    public CRPipeline migrate(CRPipeline_1 pipeline1) {
+        return new CRPipeline(pipeline1.getName(),pipeline1.getLabelTemplate(),pipeline1.isLocked(),
+                migrate(pipeline1.getTrackingTool()),
+                migrate(pipeline1.getMingle()),
+                migrate(pipeline1.getTimer()),
+                migrateEnvironmentVariables(pipeline1.getEnvironmentVariables()),
+                migrateMaterials(pipeline1.getMaterials()),
+                migrateStages(pipeline1.getStages()));
+    }
+
+    private CRTimer migrate(CRTimer_1 timer) {
+        if(timer == null)
+            return null;
+        return  new CRTimer(timer.getTimerSpec(),timer.isOnlyOnChanges());
+    }
+
+    private CRMingle migrate(CRMingle_1 mingle) {
+        if(mingle == null)
+            return null;
+        return  new CRMingle(mingle.getBaseUrl(),mingle.getProjectId(),mingle.getMql());
+    }
+
+    private CRTrackingTool migrate(CRTrackingTool_1 trackingTool) {
+        if(trackingTool == null)
+            return  null;
+        return new CRTrackingTool(trackingTool.getLink(),trackingTool.getRegex());
+    }
+
+    private List<CRStage> migrateStages(List<CRStage_1> stages1) {
+        List<CRStage> stages = new ArrayList<>();
+        if(stages1 == null || stages1.isEmpty())
+            throw new CRMigrationException(
+                    String.format("Stages cannot be empty or null"));
+        for(CRStage_1 stage1 : stages1)
+        {
+            stages.add(migrate(stage1));
+        }
+        return stages;
+    }
+
+    private Collection<CRMaterial> migrateMaterials(Collection<CRMaterial_1> materials1) {
+        List<CRMaterial> materials = new ArrayList<>();
+        if(materials1 == null || materials1.isEmpty())
+            throw new CRMigrationException(
+                    String.format("Materials cannot be empty or null"));
+        for(CRMaterial_1 material1 : materials1)
+        {
+            materials.add(migrate(material1));
+        }
+        return materials;
+    }
 }

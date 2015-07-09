@@ -547,4 +547,37 @@ public class Migration_1Test {
         assertThat(stage_1.isFetchMaterials(),is(true));
     }
 
+    @Test
+    public void shouldMigratePipeline()
+    {
+        CRJob_1 crJob_1 = new CRJob_1("buildjob",
+                new CRFetchArtifactTask_1("build","buildjob","bin"));
+
+        CRStage_1 stage_1 = new CRStage_1("build",crJob_1);
+
+        stage_1.addEnvironmentVariable("key1", "value1");
+
+        CRApproval_1 approval_1 = new CRApproval_1("manual");
+
+        CRSvnMaterial_1 material = new CRSvnMaterial_1("svnMaterial1", "destDir1", false,
+                "http://svn", "user1", "pass1", true, "tools", "lib");
+        CRPipeline_1 customPipeline = new CRPipeline_1("pipe2", material, stage_1);
+        customPipeline.addMaterial(new CRDependencyMaterial_1("pipe1","pipe1","build"));
+        customPipeline.setLabelTemplate("foo-1.0-${COUNT}");
+        customPipeline.setIsLocked(true);
+        customPipeline.setMingle( new CRMingle_1("http://mingle.example.com","my_project"));
+        customPipeline.setTimer(new CRTimer_1("0 15 10 * * ? *"));
+        customPipeline.addEnvironmentVariable("key2","value2");
+
+        CRPipeline result = migration.migrate(customPipeline);
+
+        assertThat(result.getName(),is("pipe2"));
+        assertThat(result.getMaterials().size(),is(2));
+        assertThat(result.getEnvironmentVariables().size(),is(1));
+        assertThat(result.getLabelTemplate(),is("foo-1.0-${COUNT}"));
+        assertThat(result.isLocked(),is(true));
+        assertThat(result.getMingle().getBaseUrl(),is("http://mingle.example.com"));
+        assertThat(result.getStages().size(),is(1));
+    }
+
 }

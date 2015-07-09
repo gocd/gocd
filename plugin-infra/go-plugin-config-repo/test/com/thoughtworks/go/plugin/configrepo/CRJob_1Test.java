@@ -62,10 +62,12 @@ public class CRJob_1Test extends CRBaseTest<CRJob_1> {
     @Test
     public void shouldHandlePolymorphismWhenDeserializingTasks()
     {
-        String json = gson.toJson(buildRake);
+        String json = gson.toJson(build2Rakes);
 
         CRJob_1 deserializedValue = (CRJob_1)gson.fromJson(json,CRJob_1.class);
 
-        assertThat(deserializedValue.getTasks().get(0) instanceof CRBuildTask_1,is(true));
+        CRTask_1 task1 = deserializedValue.getTasks().get(1);
+        assertThat(task1 instanceof CRBuildTask_1,is(true));
+        assertThat(((CRBuildTask_1)task1).getBuildFile(),is("Rakefile.rb"));
     }
 }

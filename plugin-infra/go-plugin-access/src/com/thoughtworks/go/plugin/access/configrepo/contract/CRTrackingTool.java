@@ -1,9 +1,19 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
-/**
- * Created by tomzo on 7/2/15.
- */
 public class CRTrackingTool {
-    private String link;
-    private String regex;
+    private final String link;
+    private final String regex;
+
+    public CRTrackingTool(String link, String regex) {
+        this.link = link;
+        this.regex = regex;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public String getRegex() {
+        return regex;
+    }
 }

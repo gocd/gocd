@@ -5,7 +5,7 @@ import com.thoughtworks.go.plugin.configrepo.material.*;
 
 import java.lang.reflect.Type;
 
-public class MaterialTypeAdapter implements JsonDeserializer<CRMaterial_1> {
+public class MaterialTypeAdapter implements JsonDeserializer<CRMaterial_1>, JsonSerializer<CRMaterial_1>  {
 
     private static final String TYPE = "type";
 
@@ -43,5 +43,10 @@ public class MaterialTypeAdapter implements JsonDeserializer<CRMaterial_1> {
         else
             throw new JsonParseException(
                     String.format("Invalid or unknown material type '%s'",typeName));
+    }
+
+    @Override
+    public JsonElement serialize(CRMaterial_1 material_1, Type type, JsonSerializationContext context) {
+        return context.serialize(material_1);
     }
 }

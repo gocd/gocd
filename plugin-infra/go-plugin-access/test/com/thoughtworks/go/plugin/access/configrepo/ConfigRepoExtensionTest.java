@@ -1,5 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -46,10 +47,10 @@ public class ConfigRepoExtensionTest {
 
     @Test
     public void shouldTalkToPluginToGetParsedDirectory() throws Exception {
-        CRPartialConfig deserializedResponse = new CRPartialConfig();
+        CRParseResult deserializedResponse = new CRParseResult(null,"test");
         when(jsonMessageHandler.responseMessageForParseDirectory(responseBody)).thenReturn(deserializedResponse);
 
-        CRPartialConfig response = extension.parseDirectory(PLUGIN_ID, "dir", null);
+        CRParseResult response = extension.parseDirectory(PLUGIN_ID, "dir", null);
 
         assertRequest(requestArgumentCaptor.getValue(), ConfigRepoExtension.EXTENSION_NAME, "1.0", ConfigRepoExtension.REQUEST_PARSE_DIRECTORY, null);
         verify(jsonMessageHandler).responseMessageForParseDirectory(responseBody);

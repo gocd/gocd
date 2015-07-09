@@ -5,6 +5,7 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,8 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     @Override
-    public CRPartialConfig parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new PluginInteractionCallback<CRPartialConfig>() {
+    public CRParseResult parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new PluginInteractionCallback<CRParseResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseDirectory(destinationFolder,configurations);
@@ -47,7 +48,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             }
 
             @Override
-            public CRPartialConfig onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public CRParseResult onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForParseDirectory(responseBody);
             }
         });

@@ -3,6 +3,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.plugin.ConfigRepoPlugin;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Before;
@@ -22,6 +23,7 @@ public class GoConfigPluginServiceTest {
 
     private ConfigRepoExtension extension;
     private GoConfigPluginService service;
+    private CRParseResult parseResult;
     private CRPartialConfig partialConfig;
 
     @Before
@@ -31,9 +33,10 @@ public class GoConfigPluginServiceTest {
         service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 mock(MetricsProbeService.class));
         partialConfig = new CRPartialConfig();
+        parseResult = new CRParseResult(partialConfig);
 
         when(extension.parseDirectory(any(String.class), any(String.class), any(Collection.class)))
-        .thenReturn(partialConfig);
+        .thenReturn(parseResult);
     }
 
     @Test
@@ -41,6 +44,6 @@ public class GoConfigPluginServiceTest {
         PartialConfigProvider plugin = service.partialConfigProviderFor("plugin-id");
         assertThat(plugin instanceof ConfigRepoPlugin,is(true));
         CRPartialConfig loaded = ((ConfigRepoPlugin)plugin).parseDirectory(new File("dir"), mock(Collection.class));
-        assertSame(loaded,partialConfig);
+        assertSame(loaded, parseResult.getPartialConfig());
     }
 }

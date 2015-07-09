@@ -47,4 +47,17 @@ public class ErrorCollection {
         }
         return  count;
     }
+
+    public List<CRError_1> getErrorMessages() {
+        List<CRError_1> errors = new ArrayList<CRError_1>();
+        for(Map.Entry<CRBase,List<String>> e : this.errors.entrySet())
+        {
+            List<String> errorList = e.getValue();
+            for(String message : errorList)
+            {
+                errors.add(new CRError_1(e.getKey().getLocation(), message));
+            }
+        }
+        return errors;
+    }
 }

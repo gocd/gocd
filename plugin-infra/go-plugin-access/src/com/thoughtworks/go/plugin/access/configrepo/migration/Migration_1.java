@@ -465,4 +465,19 @@ public class Migration_1 {
         }
         return materials;
     }
+
+    public List<CRError> migrateErrors(List<CRError_1> errors1) {
+        List<CRError> errors = new ArrayList<>();
+        if(errors1 == null || errors1.isEmpty())
+            return errors;
+        for(CRError_1 err : errors1)
+        {
+            errors.add(migrate(err));
+        }
+        return errors;
+    }
+
+    private CRError migrate(CRError_1 err) {
+        return new CRError(err.getMessage(),err.getLocation());
+    }
 }

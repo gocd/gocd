@@ -32,10 +32,21 @@ public class ConfigConverter {
         return partialConfig;
     }
 
-    private EnvironmentConfig toEnvironmentConfig(CREnvironment crEnvironment) {
+    public BasicEnvironmentConfig toEnvironmentConfig(CREnvironment crEnvironment) {
         BasicEnvironmentConfig basicEnvironmentConfig =
                 new BasicEnvironmentConfig(new CaseInsensitiveString(crEnvironment.getName()));
-        //TODO set other elements
+        for(String pipeline : crEnvironment.getPipelines())
+        {
+            basicEnvironmentConfig.addPipeline(new CaseInsensitiveString(pipeline));
+        }
+        for(String agent : crEnvironment.getAgents())
+        {
+            basicEnvironmentConfig.addAgent(agent);
+        }
+        for(CREnvironmentVariable var : crEnvironment.getEnvironmentVariables())
+        {
+            basicEnvironmentConfig.getVariables().add(toEnvironmentVariableConfig(var));
+        }
 
         return basicEnvironmentConfig;
     }

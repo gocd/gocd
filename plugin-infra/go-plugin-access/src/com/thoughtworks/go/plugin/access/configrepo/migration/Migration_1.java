@@ -55,34 +55,13 @@ public class Migration_1 {
     }
 
     public CREnvironment migrate(CREnvironment_1 env_1) {
-        CREnvironment result = new CREnvironment(env_1.getName());
-
-        addEnvironmentVariables(env_1, result);
-        addAgents(env_1, result);
-        addPipelines(env_1, result);
+        CREnvironment result = new CREnvironment(
+                env_1.getName(),
+                migrateEnvironmentVariables(env_1.getEnvironmentVariables()),
+                env_1.getAgents(),
+                env_1.getPipelines());
 
         return result;
-    }
-
-    private void addEnvironmentVariables(CREnvironment_1 env_1, CREnvironment result) {
-        for(CREnvironmentVariable_1 var_1 : env_1.getEnvironmentVariables())
-        {
-            result.addVariable(var_1.getName(),var_1.getValue(),var_1.getEncryptedValue());
-        }
-    }
-
-    private void addAgents(CREnvironment_1 env_1, CREnvironment result) {
-        for(String agent : env_1.getAgents())
-        {
-            result.addAgent(agent);
-        }
-    }
-
-    private void addPipelines(CREnvironment_1 env_1, CREnvironment result) {
-        for(String pipeline : env_1.getPipelines())
-        {
-            result.addPipeline(pipeline);
-        }
     }
 
     public CRMaterial migrate(CRMaterial_1 material_1)

@@ -75,6 +75,12 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         this.isSecure = isSecure;
         setValue(value);
     }
+    public EnvironmentVariableConfig(GoCipher goCipher, String name, String encryptedValue) {
+        this(goCipher);
+        this.name = name;
+        this.isSecure = true;
+        this.setEncryptedValue(new EncryptedVariableValueConfig(encryptedValue));
+    }
 
     public EnvironmentVariableConfig(EnvironmentVariableConfig variable) {
         this(variable.goCipher, variable.name, variable.getValue(), variable.isSecure);

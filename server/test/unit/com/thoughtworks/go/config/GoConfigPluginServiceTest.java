@@ -1,6 +1,5 @@
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.plugin.ConfigRepoPlugin;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;

@@ -16,10 +16,10 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
-import com.thoughtworks.go.config.plugin.ConfigRepoPlugin;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.security.GoCipher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +31,7 @@ public class GoConfigPluginService {
 
     private final ConfigRepoExtension crExtension;
     private final XmlPartialConfigProvider embeddedXmlPlugin;
+    private ConfigConverter configConverter = new ConfigConverter(new GoCipher());
 
     @Autowired public GoConfigPluginService(ConfigRepoExtension configRepoExtension,
             ConfigCache configCache,ConfigElementImplementationRegistry configElementImplementationRegistry)
@@ -50,6 +51,6 @@ public class GoConfigPluginService {
         if(pluginId == null || pluginId.equals(XmlPartialConfigProvider.ProviderName))
             return embeddedXmlPlugin;
 
-        return new ConfigRepoPlugin(crExtension,pluginId);
+        return new ConfigRepoPlugin(configConverter,crExtension,pluginId);
     }
 }

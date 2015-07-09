@@ -1,5 +1,6 @@
-package com.thoughtworks.go.config.plugin;
+package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.ConfigConverter;
 import com.thoughtworks.go.config.PartialConfigLoadContext;
 import com.thoughtworks.go.config.PartialConfigProvider;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -18,11 +19,12 @@ import java.util.Collection;
 import java.util.List;
 
 public class ConfigRepoPlugin implements PartialConfigProvider {
+    private ConfigConverter configConverter ;
     private ConfigRepoExtension crExtension;
     private String pluginId;
 
-    public ConfigRepoPlugin(ConfigRepoExtension crExtension, String pluginId) {
-
+    public ConfigRepoPlugin(ConfigConverter configConverter,ConfigRepoExtension crExtension, String pluginId) {
+        this.configConverter = configConverter;
         this.crExtension = crExtension;
         this.pluginId = pluginId;
     }
@@ -31,7 +33,7 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) throws Exception {
         Collection<CRConfiguration> cRconfigurations = getCrConfigurations(context.configuration());
         CRPartialConfig crPartialConfig = parseDirectory(configRepoCheckoutDirectory, cRconfigurations);
-        return ConfigConverter.toPartialConfig(crPartialConfig);
+        return configConverter.toPartialConfig(crPartialConfig);
     }
 
     public CRPartialConfig parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {

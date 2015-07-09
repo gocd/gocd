@@ -25,8 +25,7 @@
     #end
 #end
 <div id="build_history_holder" class="sidebar-container">
-    <div class="sidebar-handle"></div>
-    <h4 class="entity_title">Job History<span class="pin sidebar-pin">pin</span></h4>
+    <h4 class="entity_title">Job History</h4>
     <div id="buildlist-container" class="round-content">
         #if($presenter.recent25.size() == 0)
             <p class="text-only">No jobs found.</p>

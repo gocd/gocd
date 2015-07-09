@@ -2,15 +2,15 @@
 #if($color_logs_feature_toggle_key)
 <div class="console-action-bar">
     <div>
-        <a class='change-theme' href="javascript:void(0);">Change theme</a>
+        <a class="auto-scroll" title="Scroll to bottom">Scroll to end of logs</a>
         <a href="$req.getContextPath()/files/${presenter.consoleoutLocator}">Raw output</a>
-        <a class="auto-scroll" title="Scroll to bottom">&nbsp;<span class="scroll-help-text">Scroll to end of logs</span><span class="scroll-dot"></span></a>
+        <a class='change-theme' href="javascript:void(0);">Change theme</a>
     </div>
 </div>
 <pre class="buildoutput_pre #if(!$color_logs_feature_toggle_key) white-theme #end"></pre>
 <div class="console-footer-action-bar">
     <div>
-        <a href="javascript:(0)" class="back-to-top-in-console">Back to top</a>
+        <a href="javascript:void(0)" class="back-to-top-in-console"><span class="back-to-top-icon"></span>Back to top</a>
     </div>
 </div>
 #end

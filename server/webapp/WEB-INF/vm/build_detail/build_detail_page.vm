@@ -46,9 +46,6 @@
 
                     <div class="maincol build_detail">
                         #parse("shared/_flash_message.vm")
-                        <div class="sidebar_history clear_float">
-                            #parse("sidebar/_sidebar_build_list.vm")
-                        </div>
                         #set($jobConfigName = $presenter.buildName)
                         <div id="build_detail_summary_container" class="build_detail_summary">
                             <h3>$presenter.buildLocatorForDisplay job <span id="build_name_status">Status loading...</span></h3>
@@ -73,6 +70,10 @@
                         </div>
 
 
+
+                        <div class="sidebar_history">
+                            #parse("sidebar/_sidebar_build_list.vm")
+                        </div>
                         <div class="job_details_content">
                             <div class="sub_tabs_container">
                                 <ul>
@@ -163,8 +164,7 @@
 
     var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}');
     var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}', {
-        colorize:      $color_logs_feature_toggle_key,
-        enableTailing: !${presenter.isCompleted()}
+        colorize:      $color_logs_feature_toggle_key
     });
     dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
     dashboard_periodical_executer.start();
@@ -173,12 +173,7 @@
 
     jQuery(function(){
         jQuery(document).on('click.changeTheme', '.change-theme', function(evt){
-            if (jQuery('.buildoutput_pre').length === 0){
-                return; // there's no theme to change
-            }
-            jQuery('.buildoutput_pre').toggleClass('white-theme');
-            jQuery('.console-action-bar').toggleClass('white-theme');
-            jQuery('.console-footer-action-bar').toggleClass('white-theme');
+            jQuery('.sub_tab_container_content').toggleClass('white-theme')
         });
     });
 

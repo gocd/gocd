@@ -24,32 +24,10 @@
       return;
     }
 
-    autoScrollButton.on('mouseenter', function () {
-      $('.scroll-help-text').show()
-    });
-
-    autoScrollButton.on('mouseleave', function () {
-      $('.scroll-help-text').hide();
-    });
-
-    var globalBackToTopButton      = $('#back_to_top'),
-        historySidebarContainer    = $('.sidebar_history'),
-        historySidebarHandle       = $('.sidebar-handle'),
-        historySidebarHandleHeight = historySidebarHandle.outerHeight(true),
-        historySidebar             = $('#build_history_holder'),
-        sidebarPin                 = $('.sidebar-pin'),
-        sidebarTop                 = historySidebar.offset().top,
-        consoleTab                 = $('#tab-content-of-console'),
-        failuresTab                = $('#tab-content-of-failures'),
-        sidebarBottom              = sidebarTop + historySidebar.get(0).getBoundingClientRect().height
+    var globalBackToTopButton = $('#back_to_top'),
+        consoleTab            = $('#tab-content-of-console'),
+        failuresTab           = $('#tab-content-of-failures')
       ;
-
-    $(window).on('scroll resize', function (evt) {
-      var delta                 = 5;
-      var currentHandlePosition = historySidebarHandle.position().top;
-      var shouldHideHandle      = currentHandlePosition + historySidebarHandleHeight + delta > sidebarBottom;
-      historySidebarHandle.toggleClass('hide-handle', shouldHideHandle);
-    });
 
     // hide the global "back to top" link, because the one on the console log goes well with the console log
     function maybeHideGlobalBackToTopButton() {
@@ -91,18 +69,5 @@
       window.setTimeout(maybeHideGlobalBackToTopButton, 50);
     });
 
-    var currentPinned = localStorage && localStorage.getItem('job-detail-sidebar-collapsed') === 'true';
-
-    sidebarPin.on('click', function () {
-      historySidebarContainer.toggleClass('pin-this');
-
-      $(this).toggleClass('pinned');
-      if (localStorage) {
-        localStorage.setItem('job-detail-sidebar-collapsed', $('.sidebar_history').hasClass('pin-this'));
-      }
-    });
-
-    sidebarPin.toggleClass('pinned', currentPinned);
-    historySidebarContainer.toggleClass('pin-this', currentPinned);
   });
 })(jQuery);

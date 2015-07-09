@@ -33,21 +33,16 @@
     });
 
     var globalBackToTopButton      = $('#back_to_top'),
-        topActionBar               = $('.console-action-bar'),
-        bottomActionBar            = $('.console-footer-action-bar'),
         historySidebarContainer    = $('.sidebar_history'),
         historySidebarHandle       = $('.sidebar-handle'),
-        historySidebarHandleHeight = $('.sidebar-handle').outerHeight(true),
+        historySidebarHandleHeight = historySidebarHandle.outerHeight(true),
         historySidebar             = $('#build_history_holder'),
         sidebarPin                 = $('.sidebar-pin'),
         sidebarTop                 = historySidebar.offset().top,
+        consoleTab                 = $('#tab-content-of-console'),
+        failuresTab                = $('#tab-content-of-failures'),
         sidebarBottom              = sidebarTop + historySidebar.get(0).getBoundingClientRect().height
       ;
-
-    // pin the console action bar on top
-    topActionBar.scrollToFixed({marginTop: 90, zIndex: 100});
-    // and the other action bar to bottom
-    bottomActionBar.scrollToFixed({bottom: 0, limit: bottomActionBar.offset().top, zIndex: 100});
 
     $(window).on('scroll resize', function (evt) {
       var delta                 = 5;
@@ -57,15 +52,43 @@
     });
 
     // hide the global "back to top" link, because the one on the console log goes well with the console log
-    function hideGlobalBackToTopButton() {
-      var consoleTab = $('#tab-content-of-console');
-      globalBackToTopButton.toggleClass('back_to_top', !consoleTab.is(':visible'));
+    function maybeHideGlobalBackToTopButton() {
+      var hideGlobalBackToTopButton = false,
+          topActionBar,
+          bottomActionBar;
+
+      if (consoleTab.is(':visible')) {
+        hideGlobalBackToTopButton = true;
+        if (!consoleTab.data('enable-scroll-to-fixed')) {
+          consoleTab.data('enable-scroll-to-fixed', true);
+          topActionBar    = consoleTab.find('.console-action-bar');
+          bottomActionBar = consoleTab.find('.console-footer-action-bar');
+        }
+      }
+
+      if (failuresTab.is(':visible')) {
+        hideGlobalBackToTopButton = true;
+        if (!failuresTab.data('enable-scroll-to-fixed')) {
+          failuresTab.data('enable-scroll-to-fixed', true);
+          topActionBar    = failuresTab.find('.console-action-bar');
+          bottomActionBar = failuresTab.find('.console-footer-action-bar');
+        }
+      }
+
+      if (topActionBar && bottomActionBar && topActionBar.length === 1 && bottomActionBar.length === 1) {
+        // pin the console action bar on top
+        topActionBar.scrollToFixed({marginTop: 90, zIndex: 100});
+        // and the other action bar to bottom
+        bottomActionBar.scrollToFixed({bottom: 0, limit: bottomActionBar.offset().top, zIndex: 100});
+      }
+
+      globalBackToTopButton.toggleClass('back_to_top', !hideGlobalBackToTopButton);
     }
 
-    hideGlobalBackToTopButton();
+    maybeHideGlobalBackToTopButton();
 
     $('.sub_tabs_container a').on('click', function () {
-      hideGlobalBackToTopButton();
+      window.setTimeout(maybeHideGlobalBackToTopButton, 50);
     });
 
     var currentPinned = localStorage && localStorage.getItem('job-detail-sidebar-collapsed') === 'true';

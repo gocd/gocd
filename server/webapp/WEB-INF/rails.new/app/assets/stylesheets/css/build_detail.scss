@@ -277,7 +277,7 @@ div.build_detail_container_content {
 }
 
 .ansi-color-toggle-true {
-  margin-top: -10px;
+  margin-top: -10px !important;
 }
 
 .ansi-color-toggle-false .buildoutput_pre {
@@ -304,7 +304,7 @@ div.build_detail_container_content {
   border: none;
 }
 
-#tab-content-of-console {
+.console-area {
   background-color: #333;
 }
 
@@ -377,7 +377,7 @@ div.build_detail_container_content {
     padding: 0px 15px 15px 15px;
   }
   .back-to-top-in-console {
-    padding-right: 70px; // push aside because of the red "server error messages"
+    padding-right: 170px; // push aside because of the red "server error messages"
   }
 }
 
@@ -764,8 +764,6 @@ a.collapse-all {
 
 .job_details_content {
   margin-right: 20px;
-  overflow: hidden;
-  overflow-y: scroll;
 }
 
 @mixin apply-transition() {

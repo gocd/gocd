@@ -26,38 +26,50 @@
 
     var globalBackToTopButton = $('#back_to_top'),
         consoleTab            = $('#tab-content-of-console'),
-        failuresTab           = $('#tab-content-of-failures')
+        failuresTab           = $('#tab-content-of-failures'),
+        $window               = $(window)
       ;
+
 
     // hide the global "back to top" link, because the one on the console log goes well with the console log
     function maybeHideGlobalBackToTopButton() {
       var hideGlobalBackToTopButton = false,
-          topActionBar,
-          bottomActionBar;
+          activeTab;
 
       if (consoleTab.is(':visible')) {
         hideGlobalBackToTopButton = true;
-        if (!consoleTab.data('enable-scroll-to-fixed')) {
-          consoleTab.data('enable-scroll-to-fixed', true);
-          topActionBar    = consoleTab.find('.console-action-bar');
-          bottomActionBar = consoleTab.find('.console-footer-action-bar');
-        }
+        activeTab                 = consoleTab;
       }
 
       if (failuresTab.is(':visible')) {
         hideGlobalBackToTopButton = true;
-        if (!failuresTab.data('enable-scroll-to-fixed')) {
-          failuresTab.data('enable-scroll-to-fixed', true);
-          topActionBar    = failuresTab.find('.console-action-bar');
-          bottomActionBar = failuresTab.find('.console-footer-action-bar');
-        }
+        activeTab                 = failuresTab;
       }
 
-      if (topActionBar && bottomActionBar && topActionBar.length === 1 && bottomActionBar.length === 1) {
-        // pin the console action bar on top
-        topActionBar.scrollToFixed({marginTop: 90, zIndex: 100});
-        // and the other action bar to bottom
-        bottomActionBar.scrollToFixed({bottom: 0, limit: bottomActionBar.offset().top, zIndex: 100});
+      if (!activeTab) {
+        return;
+      }
+
+      if (!activeTab.data('enable-scroll-to-fixed')) {
+        activeTab.data('enable-scroll-to-fixed', true);
+        var topActionBar    = activeTab.find('.console-action-bar'),
+            bottomActionBar = activeTab.find('.console-footer-action-bar');
+
+        topActionBar.pinOnScroll({
+          'z-index':      100,
+          top:            90,
+          requiredScroll: 199
+        });
+
+        bottomActionBar.pinOnScroll({
+          'z-index':      100,
+          requiredScroll: 0,
+          bottomLimit:    function () {
+            return Math.min($window.height(), bottomActionBar.parent().get(0).getBoundingClientRect().bottom) - bottomActionBar.outerHeight(true);
+          }
+        });
+      } else {
+        return;
       }
 
       globalBackToTopButton.toggleClass('back_to_top', !hideGlobalBackToTopButton);

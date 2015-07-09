@@ -14,7 +14,7 @@
 //= require "lib/jquery-1.7.2.js"
 //= require "lib/jquery.timeago-1.2.3.js"
 //= require "lib/jquery.url-1.0.js"
-//= require "lib/jquery-scrolltofixed.js"
+//= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"
 //= require "lib/prototype-1.6.0.js"
 //= require "lib/scriptaculous-1.8.0.js"

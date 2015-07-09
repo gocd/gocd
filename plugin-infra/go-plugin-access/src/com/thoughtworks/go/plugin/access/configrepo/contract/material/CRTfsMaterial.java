@@ -4,14 +4,14 @@ import java.util.List;
 
 public class CRTfsMaterial extends CRScmMaterial {
 
-    public static CRMaterial withEncryptedPassword(String name, String directory, boolean autoUpdate,
+    public static CRTfsMaterial withEncryptedPassword(String name, String directory, boolean autoUpdate,
                                                    List<String> filter,String url, String domain, String userName,
                                                    String encryptedPassword, String projectPath) {
         return new CRTfsMaterial(name,directory,autoUpdate,filter,
                 url,userName,null,encryptedPassword,projectPath,domain);
     }
 
-    public static CRMaterial withPlainPassword(String name, String directory, boolean autoUpdate,
+    public static CRTfsMaterial withPlainPassword(String name, String directory, boolean autoUpdate,
                                                List<String> filter, String url, String domain, String userName,
                                                String password, String projectPath) {
         return new CRTfsMaterial(name,directory,autoUpdate,filter,

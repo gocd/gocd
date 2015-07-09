@@ -30,7 +30,7 @@ public class GoConfigPluginServiceTest {
     {
         extension = mock(ConfigRepoExtension.class);
         service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                mock(MetricsProbeService.class));
+                mock(MetricsProbeService.class),mock(CachedFileGoConfig.class));
         partialConfig = new CRPartialConfig();
         parseResult = new CRParseResult(partialConfig);
 

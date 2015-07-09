@@ -1,19 +1,30 @@
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
+import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.Packages;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.access.configrepo.contract.*;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.command.HgUrlArgument;
+import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,10 +35,12 @@ import java.util.List;
 public class ConfigConverter {
 
     private final GoCipher cipher;
+    private final CachedFileGoConfig cachedFileGoConfig;
 
-    public ConfigConverter(GoCipher goCipher)
+    public ConfigConverter(GoCipher goCipher,CachedFileGoConfig cachedFileGoConfig)
     {
         this.cipher = goCipher;
+        this.cachedFileGoConfig = cachedFileGoConfig;
     }
 
     public PartialConfig toPartialConfig(CRPartialConfig crPartialConfig) {
@@ -198,6 +211,171 @@ public class ConfigConverter {
     public PluginConfiguration toPluginConfiguration(CRPluginConfiguration pluginConfiguration) {
         return new PluginConfiguration(pluginConfiguration.getId(),pluginConfiguration.getVersion());
     }
+
+    public DependencyMaterialConfig toDependencyMaterialConfig(CRDependencyMaterial crDependencyMaterial) {
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(
+                new CaseInsensitiveString(crDependencyMaterial.getPipelineName()),
+                new CaseInsensitiveString(crDependencyMaterial.getStageName()));
+        setCommonMaterialMembers(dependencyMaterialConfig,crDependencyMaterial);
+        return dependencyMaterialConfig;
+    }
+
+    private void setCommonMaterialMembers(AbstractMaterialConfig materialConfig, CRMaterial crMaterial) {
+        materialConfig.setName(new CaseInsensitiveString(crMaterial.getName()));
+    }
+
+    public MaterialConfig toMaterialConfig(CRMaterial crMaterial) {
+        if(crMaterial == null)
+            throw new ConfigConvertionException("material cannot be null");
+
+        if(crMaterial instanceof CRDependencyMaterial)
+            return toDependencyMaterialConfig((CRDependencyMaterial)crMaterial);
+        else if(crMaterial instanceof CRScmMaterial)
+        {
+            CRScmMaterial crScmMaterial = (CRScmMaterial)crMaterial;
+            return toScmMaterialConfig(crScmMaterial);
+        }
+        else if(crMaterial instanceof CRPluggableScmMaterial)
+        {
+            CRPluggableScmMaterial crPluggableScmMaterial = (CRPluggableScmMaterial)crMaterial;
+            return toPluggableScmMaterialConfig(crPluggableScmMaterial);
+        }
+        else if(crMaterial instanceof CRPackageMaterial)
+        {
+            CRPackageMaterial crPackageMaterial = (CRPackageMaterial)crMaterial;
+            return toPackageMaterial(crPackageMaterial);
+        }
+        else
+            throw new ConfigConvertionException(
+                    String.format("unknown material type '%s'",crMaterial));
+    }
+
+    public PackageMaterialConfig toPackageMaterial(CRPackageMaterial crPackageMaterial) {
+        PackageDefinition packageDefinition = getPackageDefinition(crPackageMaterial.getPackageId());
+        return new PackageMaterialConfig(new CaseInsensitiveString(crPackageMaterial.getName()),crPackageMaterial.getPackageId(),packageDefinition);
+    }
+
+    private PackageDefinition getPackageDefinition(String packageId) {
+        PackageRepository packageRepositoryHaving = this.cachedFileGoConfig.currentConfig().getPackageRepositories().findPackageRepositoryHaving(packageId);
+        if(packageRepositoryHaving == null)
+            throw new ConfigConvertionException(
+                    String.format("Failed to find package repository with package id '%s'",packageId));
+        return packageRepositoryHaving.findPackage(packageId);
+    }
+
+    private PluggableSCMMaterialConfig toPluggableScmMaterialConfig(CRPluggableScmMaterial crPluggableScmMaterial) {
+        SCMs scms = getSCMs();
+        String id = crPluggableScmMaterial.getScmId();
+        SCM scmConfig = scms.find(id);
+        if(scmConfig == null)
+            throw new ConfigConvertionException(
+                    String.format("Failed to find referenced scm '%s'",id));
+
+        return new PluggableSCMMaterialConfig(new CaseInsensitiveString(crPluggableScmMaterial.getName()),
+                scmConfig,crPluggableScmMaterial.getDirectory(),
+                toFilter(crPluggableScmMaterial.getFilter()));
+    }
+
+    private SCMs getSCMs() {
+        return this.cachedFileGoConfig.currentConfig().getSCMs();
+    }
+
+    private ScmMaterialConfig toScmMaterialConfig(CRScmMaterial crScmMaterial) {
+        if(crScmMaterial instanceof CRGitMaterial)
+        {
+            CRGitMaterial git = (CRGitMaterial)crScmMaterial;
+            Filter filter = toFilter(crScmMaterial);
+            return new GitMaterialConfig(new UrlArgument(git.getUrl()),git.getBranch(),
+                    null,git.isAutoUpdate(), filter,crScmMaterial.getFolder(),
+                    new CaseInsensitiveString(crScmMaterial.getName()));
+        }
+        else if(crScmMaterial instanceof CRHgMaterial)
+        {
+            CRHgMaterial hg = (CRHgMaterial)crScmMaterial;
+            return new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
+            hg.isAutoUpdate(), toFilter(crScmMaterial), hg.getFolder(),
+                    new CaseInsensitiveString(crScmMaterial.getName()));
+        }
+        else if(crScmMaterial instanceof CRP4Material)
+        {
+            CRP4Material crp4Material = (CRP4Material)crScmMaterial;
+            P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(crp4Material.getServerAndPort(), crp4Material.getView(), cipher);
+            if(crp4Material.getEncryptedPassword() != null)
+            {
+                p4MaterialConfig.setEncryptedPassword(crp4Material.getEncryptedPassword());
+            }
+            else
+            {
+                p4MaterialConfig.setPassword(crp4Material.getPassword());
+            }
+            p4MaterialConfig.setUserName(crp4Material.getUserName());
+            p4MaterialConfig.setUseTickets(crp4Material.getUseTickets());
+            setCommonMaterialMembers(p4MaterialConfig, crScmMaterial);
+            setCommonScmMaterialMembers(p4MaterialConfig,crp4Material);
+            return p4MaterialConfig;
+        }
+        else if(crScmMaterial instanceof CRSvnMaterial)
+        {
+            CRSvnMaterial crSvnMaterial = (CRSvnMaterial)crScmMaterial;
+            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(
+                    crSvnMaterial.getUrl(), crSvnMaterial.getUsername(), crSvnMaterial.isCheckExternals(), cipher);
+            if(crSvnMaterial.getEncryptedPassword() != null)
+            {
+                svnMaterialConfig.setEncryptedPassword(crSvnMaterial.getEncryptedPassword());
+            }
+            else
+            {
+                svnMaterialConfig.setPassword(crSvnMaterial.getPassword());
+            }
+            setCommonMaterialMembers(svnMaterialConfig, crScmMaterial);
+            setCommonScmMaterialMembers(svnMaterialConfig,crSvnMaterial);
+            return svnMaterialConfig;
+        }
+        else if(crScmMaterial instanceof CRTfsMaterial)
+        {
+            CRTfsMaterial crTfsMaterial = (CRTfsMaterial)crScmMaterial;
+            TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(cipher,
+                    new UrlArgument(crTfsMaterial.getUrl()),
+                    crTfsMaterial.getUserName(),
+                    crTfsMaterial.getDomain(),
+                    crTfsMaterial.getProjectPath());
+            if(crTfsMaterial.getEncryptedPassword() != null)
+            {
+                tfsMaterialConfig.setEncryptedPassword(crTfsMaterial.getEncryptedPassword());
+            }
+            else
+            {
+                tfsMaterialConfig.setPassword(crTfsMaterial.getPassword());
+            }
+            setCommonMaterialMembers(tfsMaterialConfig, crTfsMaterial);
+            setCommonScmMaterialMembers(tfsMaterialConfig,crTfsMaterial);
+            return tfsMaterialConfig;
+        }
+        else
+            throw new ConfigConvertionException(
+                    String.format("unknown scm material type '%s'",crScmMaterial));
+    }
+
+    private void setCommonScmMaterialMembers(ScmMaterialConfig scmMaterialConfig, CRScmMaterial crScmMaterial) {
+        scmMaterialConfig.setFolder(crScmMaterial.getFolder());
+        scmMaterialConfig.setAutoUpdate(crScmMaterial.isAutoUpdate());
+        scmMaterialConfig.setFilter(toFilter(crScmMaterial));
+    }
+
+    private Filter toFilter(CRScmMaterial crScmMaterial) {
+        List<String> filterList = crScmMaterial.getFilter();
+        return toFilter(filterList);
+    }
+
+    private Filter toFilter(List<String> filterList) {
+        Filter filter = new Filter();
+        for(String pattern : filterList)
+        {
+            filter.add(new IgnoredFiles(pattern));
+        }
+        return filter;
+    }
+
 
     //TODO #1133 convert each config element
 }

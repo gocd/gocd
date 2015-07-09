@@ -4,14 +4,9 @@ import java.util.List;
 
 
 public class CRPluggableScmMaterial extends CRMaterial {
-    private String scmId;
-    private CRScmConfig scmConfig;
-    protected String folder;
-    private List<String> filter;
-
-    public CRPluggableScmMaterial(String name) {
-        super(name);
-    }
+    private final String scmId;
+    private final String folder;
+    private final List<String> filter;
 
     public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter) {
         super(name);

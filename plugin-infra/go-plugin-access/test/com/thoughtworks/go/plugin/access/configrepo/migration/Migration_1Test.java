@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -578,6 +579,33 @@ public class Migration_1Test {
         assertThat(result.isLocked(),is(true));
         assertThat(result.getMingle().getBaseUrl(),is("http://mingle.example.com"));
         assertThat(result.getStages().size(),is(1));
+    }
+
+    @Test
+    public void shouldMigratePartialConfig()
+    {
+        CRPartialConfig_1 crPartialConfig = new CRPartialConfig_1();
+
+        CREnvironment_1 devEnvironment = new CREnvironment_1("dev");
+        devEnvironment.addEnvironmentVariable("key1","value1");
+        devEnvironment.addAgent("123-745");
+        devEnvironment.addPipeline("pipeline1");
+
+        crPartialConfig.addEnvironment(devEnvironment);
+
+        CRBuildTask_1 rakeTask = CRBuildTask_1.rake();
+        CRJob_1 buildRake = new CRJob_1("build", rakeTask);
+        CRGitMaterial_1 veryCustomGit = new CRGitMaterial_1("gitMaterial1", "dir1", false, "gitrepo", "feature12", "externals", "tools");
+        CRStage_1 buildStage = new CRStage_1("build", buildRake);
+        CRPipeline_1 pipe1 = new CRPipeline_1("pipe1", veryCustomGit, buildStage);
+        CRPipelineGroup_1 group1 = new CRPipelineGroup_1("group1",pipe1);
+        crPartialConfig.addGroup(group1);
+
+        CRPartialConfig result = migration.migrate(crPartialConfig);
+        CRPipelineGroup group = result.getGroup("group1");
+        assertNotNull(group);
+        assertThat(group.getPipelines().size(),is(1));
+        assertThat(result.getEnvironments().size(),is(1));
     }
 
 }

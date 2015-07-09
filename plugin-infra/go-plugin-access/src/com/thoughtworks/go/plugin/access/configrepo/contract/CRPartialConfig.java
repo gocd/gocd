@@ -24,4 +24,17 @@ public class CRPartialConfig {
     public void addEnvironment(CREnvironment environment) {
         this.environments.add(environment);
     }
+
+    public CRPipelineGroup getGroup(String name) {
+        for(CRPipelineGroup g : groups)
+        {
+            if(g.getName().equals(name))
+                return g;
+        }
+        return null;
+    }
+
+    public void addGroup(CRPipelineGroup group) {
+        this.groups.add(group);
+    }
 }

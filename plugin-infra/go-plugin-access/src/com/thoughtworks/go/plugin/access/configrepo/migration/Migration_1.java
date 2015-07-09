@@ -20,9 +20,31 @@ public class Migration_1 {
         CRPartialConfig result = new CRPartialConfig();
 
         addEnvironments(partialConfig1, result);
+        addGroups(partialConfig1,result);
 
-        //TODO add groups
         return result;
+    }
+
+    private void addGroups(CRPartialConfig_1 partialConfig1, CRPartialConfig result) {
+        for(CRPipelineGroup_1 group1 : partialConfig1.getGroups())
+        {
+            result.addGroup(migrate(group1));
+        }
+    }
+
+    private CRPipelineGroup migrate(CRPipelineGroup_1 group1) {
+        return new CRPipelineGroup(group1.getName(),migratePipelines(group1.getPipelines()));
+    }
+
+    private List<CRPipeline> migratePipelines(List<CRPipeline_1> pipelines1) {
+        List<CRPipeline> pipelineList = new ArrayList<>();
+        if(pipelines1 == null)
+            return pipelineList;
+        for(CRPipeline_1 pipeline1 : pipelines1)
+        {
+            pipelineList.add(migrate(pipeline1));
+        }
+        return pipelineList;
     }
 
     private void addEnvironments(CRPartialConfig_1 partialConfig1, CRPartialConfig result) {

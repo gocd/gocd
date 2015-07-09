@@ -134,6 +134,22 @@ public abstract class CRBaseTest<T extends CRBase> {
         }
     }
     @Test
+    public void shouldGetErrorsWhenDeserializedFromEmptyBlock()
+    {
+        String json = "{}";
+
+        Class<? extends CRBase> typeOfT = null;
+        for(T example : getGoodExamples().values()) {
+            typeOfT = example.getClass();
+            break;
+        }
+
+        T deserializedValue = (T)gson.fromJson(json,typeOfT);
+
+        ErrorCollection errorCollection = new ErrorCollection();
+        deserializedValue.getErrors(errorCollection);
+    }
+    @Test
     public void shouldThrowWhenJsonFormatIsInvalid()
     {
         Map<String,T> examples = getExamples();

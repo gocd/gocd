@@ -57,6 +57,7 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.readFileToString;
@@ -64,6 +65,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
@@ -246,6 +248,13 @@ public class ArtifactsControllerIntegrationTest {
 
         ModelAndView mav = getFileAsHtml("/foo");
         assertThat(mav.getViewName(), is("rest/html"));
+    }
+
+    @Test public void shouldReturnFolderInJsonView() throws Exception {
+        createFile(artifactsRoot, "foo/bar.xml");
+
+        ModelAndView mav = getFolderAsJson("/foo");
+        assertEquals(RESPONSE_CHARSET_JSON, mav.getView().getContentType());
     }
 
     @Test public void shouldReturnFolderInHtmlViewWithPathBasedRepository() throws Exception {
@@ -524,6 +533,10 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView getFileAsHtml(String file) throws Exception {
         return artifactsController.getArtifactAsHtml(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null, null);
+    }
+
+    private ModelAndView getFolderAsJson(String file) throws Exception {
+        return artifactsController.getArtifactAsJson(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null);
     }
 
     private ModelAndView postFile(String file) throws Exception {

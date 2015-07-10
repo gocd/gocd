@@ -325,4 +325,9 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     public String toString() {
         return String.format("'PluggableSCMMaterial{%s}'", getLongDescription());
     }
+
+    @Override
+    public boolean supportsDestinationFolder() {
+        return true;
+    }
 }

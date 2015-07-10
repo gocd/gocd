@@ -100,17 +100,17 @@ public class BackupService implements BackupStatusProvider {
         mailSender = goConfigService.getMailSender();
     }
 
-    public void startBackup(Username username, HttpLocalizedOperationResult result) {
+    public ServerBackup startBackup(Username username, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_BACKUP"), HealthStateType.unauthorised());
-            return;
+            return null;
         }
         synchronized (BACKUP_MUTEX) {
             DateTime now = timeProvider.currentDateTime();
             final File destDir = new File(backupLocation(), BACKUP + now.toString("YYYYMMdd-HHmmss"));
             if (!destDir.mkdirs()) {
                 result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", "Could not create the backup directory."));
-                return;
+                return null;
             }
 
             try {
@@ -124,9 +124,11 @@ public class BackupService implements BackupStatusProvider {
                     }
                 });
                 backupDb(destDir);
-                serverBackupRepository.save(new ServerBackup(destDir.getAbsolutePath(), now.toDate(), username.getUsername().toString()));
+                ServerBackup serverBackup = new ServerBackup(destDir.getAbsolutePath(), now.toDate(), username.getUsername().toString());
+                serverBackupRepository.save(serverBackup);
                 mailSender.send(EmailMessageDrafter.backupSuccessfullyCompletedMessage(destDir.getAbsolutePath(), goConfigService.adminEmail(), username));
                 result.setMessage(LocalizedMessage.string("BACKUP_COMPLETED_SUCCESSFULLY"));
+                return serverBackup;
             } catch (Exception e) {
                 FileUtils.deleteQuietly(destDir);
                 result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", e.getMessage()));
@@ -136,6 +138,7 @@ public class BackupService implements BackupStatusProvider {
                 backupRunningSince = null;
                 backupStartedBy = null;
             }
+            return null;
         }
     }
 

@@ -162,7 +162,7 @@
 
                     </div>
                 </div>
-                
+
                <div id="footer">
                 <ul class="copyright" onclick="dashboard_periodical_executer.stop();">
                     <li>Copyright &copy; 2015 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
@@ -171,7 +171,7 @@
                     <li class="last">$l.localize("GO_VERSION"): #include("admin/admin_version.txt.vm")</li>
                 </ul>
                 <ul class="links">
-                    <li><a target="_blank" href="http://www.go.cd/documentation/user/current/api/go_api.html">$l.localize("APIS")</a></li>
+                    <li><a target="_blank" href="http://api.go.cd">$l.localize("APIS")</a></li>
                     <li><a target="_blank" href="http://www.go.cd/community/plugins.html">$l.localize("PLUGINS")</a></li>
                     <li><a target="_blank" href="http://www.go.cd/community/resources.html">$l.localize("COMMUNITY")</a></li>
                     <li class="last"><a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a></li>

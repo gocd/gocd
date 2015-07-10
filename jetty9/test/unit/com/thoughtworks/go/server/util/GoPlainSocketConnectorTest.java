@@ -36,7 +36,9 @@ public class GoPlainSocketConnectorTest {
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
         when(systemEnvironment.getListenHost()).thenReturn("foo");
-        Jetty9Server server = new Jetty9Server(mock(SystemEnvironment.class), null, mock(SSLSocketFactory.class));
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(true);
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
+        Jetty9Server server = new Jetty9Server(systemEnvironment, null, mock(SSLSocketFactory.class));
 
         ServerConnector connector = (ServerConnector) new GoPlainSocketConnector(server, systemEnvironment).getConnector();
 

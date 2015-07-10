@@ -37,10 +37,12 @@ import static org.junit.Assert.assertThat;
 public class SystemEnvironmentTest {
     static final Cloner CLONER = new Cloner();
     private Properties original;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void before() {
         original = CLONER.deepClone(System.getProperties());
+        systemEnvironment = new SystemEnvironment();
     }
 
     @After
@@ -51,7 +53,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldDisableNewFeaturesByDefault() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature"), is(false));
     }
 
@@ -65,7 +66,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldFindJettyConfigInTheConfigDir() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty.xml")));
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
         assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty6.xml")));
@@ -73,14 +73,12 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldUnderstandOperatingSystem() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getOperatingSystemName(), is(System.getProperty("os.name")));
     }
 
 
     @Test
     public void shouldUnderstandWetherToUseCompressedJs() throws Exception {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.useCompressedJs(), is(true));
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.FALSE.toString());
         assertThat(systemEnvironment.useCompressedJs(), is(false));
@@ -90,19 +88,16 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldHaveBaseUrl() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getBaseUrlForShine(), is("http://localhost:8153/go"));
     }
 
     @Test
     public void shouldHaveBaseUrlSsl() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getBaseSslUrlForShine(), is("https://localhost:8154/go"));
     }
 
     @Test
     public void shouldCacheAgentConnectionSystemPropertyOnFirstAccess() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "1");
         assertThat(systemEnvironment.getAgentConnectionTimeout(), is(1));
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "2");
@@ -111,7 +106,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldCacheSslPortSystemPropertyOnFirstAccess() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "8154");
         assertThat(systemEnvironment.getSslServerPort(), is(8154));
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "20000");
@@ -120,7 +114,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldCacheConfigDirOnFirstAccess() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getConfigDir(), is("config"));
         System.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, "raghu");
         assertThat(systemEnvironment.getConfigDir(), is("config"));
@@ -128,7 +121,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldCacheConfigFilePathOnFirstAccess() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.configDir(), is(new File("config")));
         System.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, "foo");
         assertThat(systemEnvironment.getConfigDir(), is("config"));
@@ -137,7 +129,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldCacheDatabaseDiskFullOnFirstAccess() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "100");
         assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit(), is(100L));
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "50M");
@@ -146,7 +137,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldCacheArtifactDiskFullOnFirstAccess() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
         assertThat(systemEnvironment.getArtifactReposiotryFullLimit(), is(100L));
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50M");
@@ -155,7 +145,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldClearCachedValuesOnSettingNewProperty() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
         assertThat(systemEnvironment.getArtifactReposiotryFullLimit(), is(100L));
         systemEnvironment.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50");
@@ -164,7 +153,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldPrefixApplicationPathWithContext() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.pathFor("foo/bar"), is("/go/foo/bar"));
         assertThat(systemEnvironment.pathFor("/baz/quux"), is("/go/baz/quux"));
     }
@@ -180,7 +168,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldUnderstandMaterialUpdateInterval() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getMaterialUpdateIdleInterval(), is(60000L));
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "20");
         assertThat(systemEnvironment.getMaterialUpdateIdleInterval(), is(20L));
@@ -188,7 +175,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldUnderstandH2CacheSize() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(128 * 1024)));
         System.setProperty(SystemEnvironment.CRUISE_DB_CACHE_SIZE, String.valueOf(512 * 1024));
         assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(512 * 1024)));
@@ -196,7 +182,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldUnderstandLazyLoadXslTransformerRegistryCacheSize() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getShineXslTransformerRegistryCacheSize(), is(20));
         systemEnvironment.setProperty(SystemEnvironment.SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE, "50");
         assertThat(systemEnvironment.getShineXslTransformerRegistryCacheSize(), is(50));
@@ -204,7 +189,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldReturnTheJobWarningLimit() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold(), is(5 * 60 * 1000L));
         System.setProperty(SystemEnvironment.UNRESPONSIVE_JOB_WARNING_THRESHOLD, "30");
         assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold(), is(30 * 60 * 1000L));
@@ -212,7 +196,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldReturnTheDefaultValueForActiveMqUseJMX() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getActivemqUseJmx(), is(false));
         System.setProperty(SystemEnvironment.ACTIVEMQ_USE_JMX, "true");
         assertThat(systemEnvironment.getActivemqUseJmx(), is(true));
@@ -220,7 +203,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldReturnTheNumberOfDaysBelowWhichWarningPopupShouldShowForLicenseExpiry() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getLicenseExpiryWarningTime(), is(30));
         System.setProperty(SystemEnvironment.NUMBER_OF_DAYS_TO_EXPIRY_PROPERTY, "2");
         assertThat(systemEnvironment.getLicenseExpiryWarningTime(), is(2));
@@ -228,35 +210,30 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldGetPluginEnabledStatusAsFalseIfNoEnvironmentVariableSet() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_FALSE));
     }
 
     @Test
     public void shouldGetPluginEnabledStatusAsFalseIfPropertyIsSetToN() {
         System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "N");
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_FALSE));
     }
 
     @Test
     public void shouldGetPluginEnabledStatusAsTrueIfPropertyIsSetToY() {
         System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "Y");
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_TRUE));
     }
 
     @Test
     public void shouldReturnTrueWhenPluginsAreEnabled() {
         System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "Y");
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.isPluginsEnabled(), is(true));
     }
 
     @Test
     public void shouldReturnFalseWhenPluginsAreNotEnabled() {
         System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "N");
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.isPluginsEnabled(), is(false));
     }
 
@@ -264,7 +241,6 @@ public class SystemEnvironmentTest {
     public void shouldReadAgentBootstrapperVersion() {
         try {
             System.setProperty(GoConstants.AGENT_LAUNCHER_VERSION, "12.2");
-            SystemEnvironment systemEnvironment = new SystemEnvironment();
             assertThat(systemEnvironment.getAgentLauncherVersion(), is("12.2"));
         } finally {
             System.setProperty(GoConstants.AGENT_LAUNCHER_VERSION, "");
@@ -273,7 +249,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldDefaultAgentBootstrapperVersionToEmptyString() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getAgentLauncherVersion(), is(""));
     }
 
@@ -332,7 +307,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldGetTfsSocketTimeOut() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.getTfsSocketTimeout(), is(SystemEnvironment.TFS_SOCKET_TIMEOUT_IN_MILLISECONDS));
         System.setProperty(SystemEnvironment.TFS_SOCKET_TIMEOUT_PROPERTY, "100000000");
         assertThat(systemEnvironment.getTfsSocketTimeout(), is(100000000));
@@ -340,13 +314,11 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldGiveINFOAsTheDefaultLevelOfAPluginWithoutALoggingLevelSet() throws Exception {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-1"), is(Level.INFO));
     }
 
     @Test
     public void shouldGiveINFOAsTheDefaultLevelOfAPluginWithAnInvalidLoggingLevelSet() throws Exception {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         System.setProperty("plugin.some-plugin-2.log.level", "SOME-INVALID-LOG-LEVEL");
 
         assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-2"), is(Level.INFO));
@@ -354,7 +326,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldGiveTheLevelOfAPluginWithALoggingLevelSet() throws Exception {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         System.setProperty("plugin.some-plugin-3.log.level", "DEBUG");
         System.setProperty("plugin.some-plugin-4.log.level", "INFO");
         System.setProperty("plugin.some-plugin-5.log.level", "WARN");
@@ -369,7 +340,6 @@ public class SystemEnvironmentTest {
     @Test
     @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
     public void shouldGetGoDatabaseProvider() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat("default provider should be h2db", systemEnvironment.getDatabaseProvider(), is("com.thoughtworks.go.server.database.H2Database"));
         System.setProperty("go.database.provider", "foo");
         assertThat(systemEnvironment.getDatabaseProvider(), is("foo"));
@@ -377,7 +347,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldFindGoServerStatusToBeActiveByDefault() throws Exception {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.isServerActive(), is(true));
     }
 
@@ -386,7 +355,6 @@ public class SystemEnvironmentTest {
         String key = "go.server.state";
         try {
             System.setProperty(key, "passive");
-            SystemEnvironment systemEnvironment = new SystemEnvironment();
             systemEnvironment.switchToActiveState();
             assertThat(systemEnvironment.isServerActive(), is(true));
         } finally {
@@ -399,7 +367,6 @@ public class SystemEnvironmentTest {
         String key = "go.server.state";
         try {
             System.setProperty(key, "active");
-            SystemEnvironment systemEnvironment = new SystemEnvironment();
             systemEnvironment.switchToPassiveState();
             assertThat(systemEnvironment.isServerActive(), is(false));
         } finally {
@@ -420,7 +387,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldUseJetty9ByDefault() {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
         assertThat(systemEnvironment.usingJetty9(), is(true));
 
@@ -430,7 +396,6 @@ public class SystemEnvironmentTest {
 
     @Test
     public void shouldGetDefaultLandingPageAsPipelines() throws Exception {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         String landingPage = systemEnvironment.landingPage();
         assertThat(landingPage, is("/pipelines"));
     }
@@ -439,11 +404,87 @@ public class SystemEnvironmentTest {
     public void shouldAbleToOverrideDefaultLandingPageAsPipelines() throws Exception {
         try {
             System.setProperty("go.landing.page", "/admin/pipelines");
-            SystemEnvironment systemEnvironment = new SystemEnvironment();
             String landingPage = systemEnvironment.landingPage();
             assertThat(landingPage, is("/admin/pipelines"));
         } finally {
             System.clearProperty("go.landing.page");
         }
+    }
+
+    @Test
+    public void shouldAllowSSLConfigurationByDefault() {
+        assertThat(SystemEnvironment.GO_SSL_CONFIG_ALLOW.propertyName(), is("go.ssl.config.allow"));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW), is(true));
+        System.setProperty(SystemEnvironment.GO_SSL_CONFIG_ALLOW.propertyName(), "false");
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW), is(false));
+    }
+
+    @Test
+    public void shouldSetTLS1Dot2AsDefaultTransportProtocolForAgent() {
+        assertThat(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT.propertyName(), is("go.ssl.agent.protocol"));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT), is("TLSv1.2"));
+        System.setProperty(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT.propertyName(), "SSL");
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT), is("SSL"));
+    }
+
+    @Test
+    public void shouldGetIncludedCiphersForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS.propertyName(), is("go.ssl.ciphers.include"));
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS), is(nullValue()));
+    }
+
+    @Test
+    public void shouldGetExcludedCiphersForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS.propertyName(), is("go.ssl.ciphers.exclude"));
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS), is(nullValue()));
+    }
+
+    @Test
+    public void shouldGetExcludedProtocolsForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS.propertyName(), is("go.ssl.protocols.exclude"));
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS), is(nullValue()));
+    }
+
+    @Test
+    public void shouldGetIncludedProtocolsForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS.propertyName(), is("go.ssl.protocols.include"));
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS), is(nullValue()));
+    }
+
+    @Test
+    public void shouldGetRenegotiationAllowedFlagForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED.propertyName(), is("go.ssl.renegotiation.allowed"));
+        boolean defaultValue = true;
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(defaultValue));
+        System.clearProperty("go.ssl.renegotiation.allowed");
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(defaultValue));
+        System.setProperty("go.ssl.renegotiation.allowed", "false");
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(false));
+    }
+
+    @Test
+    public void ShouldRemoveWhiteSpacesForStringArraySystemProperties() {
+        String[] defaultValue = {"junk", "funk"};
+        String propertyName = "property.name";
+        SystemEnvironment.GoStringArraySystemProperty property = new SystemEnvironment.GoStringArraySystemProperty(propertyName, defaultValue);
+        System.setProperty(propertyName, " foo    ,  bar  ");
+        assertThat(systemEnvironment.get(property).length, is(2));
+        assertThat(systemEnvironment.get(property)[0], is("foo"));
+        assertThat(systemEnvironment.get(property)[1], is("bar"));
+    }
+
+    @Test
+    public void ShouldUseDefaultValueForStringArraySystemPropertiesWhenTheValueIsSetToEmptyString() {
+        String[] defaultValue = {"junk", "funk"};
+        String propertyName = "property.name";
+        SystemEnvironment.GoStringArraySystemProperty property = new SystemEnvironment.GoStringArraySystemProperty(propertyName, defaultValue);
+        System.clearProperty(propertyName);
+        assertThat(systemEnvironment.get(property), is(defaultValue));
+        System.setProperty(propertyName, " ");
+        assertThat(systemEnvironment.get(property), is(defaultValue));
     }
 }

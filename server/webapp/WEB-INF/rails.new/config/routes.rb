@@ -218,6 +218,12 @@ Go::Application.routes.draw do
 
   scope :api, as: :apiv1 do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
+      resources :backups, only: [:create]
+
+      resources :users,  param: :login_name, only: [:index, :show, :destroy] do
+        patch :update, on: :member
+      end
+
       resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
         patch :update, on: :member
       end
@@ -286,6 +292,7 @@ Go::Application.routes.draw do
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
+        get 'fanin_debug/:name/(:index)' => 'fanin_trace#fanin_debug', constraints: {name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}
         get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
       end
 

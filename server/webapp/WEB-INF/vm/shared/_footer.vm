@@ -23,7 +23,7 @@
                 </ul>
                 <ul class="links">
                     <li><a target="_blank" href="$req.getContextPath()/cctray.xml">(cc) $l.localize("CCTRAY_FEED")</a></li>
-                    <li><a target="_blank" href="http://www.go.cd/documentation/user/current/api/go_api.html">$l.localize("APIS")</a></li>
+                    <li><a target="_blank" href="http://api.go.cd">$l.localize("APIS")</a></li>
                     <li><a target="_blank" href="http://www.go.cd/community/plugins.html">$l.localize("PLUGINS")</a></li>
                     <li><a target="_blank" href="http://www.go.cd/community/resources.html">$l.localize("COMMUNITY")</a></li>
                     <li><a href="$req.getContextPath()/about">$l.localize("SERVER_DETAILS")</a></li>
@@ -35,9 +35,9 @@
             </div>
         </div>
         <!-- end content -->
-    
+
     </div></div></div><!-- end of body_bg, body_hightlight, body_wrapper-->
-            <div class="back_to_top" title="Scroll to Top">Top</div>
+           <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
     </body>
     <script type="text/javascript">
         restoreSidebarStatus();
@@ -50,7 +50,7 @@
         }
 
         new AjaxRefresher("$req.getContextPath()/server/messages.json", "$req.getContextPath()/auth/login", {executeImmediately: true});
-        
+
         #if($global_error_message && $global_error_message != "")
             FlashMessageLauncher.warn("$esc.javascript("$global_error_message")", null, true);
         #end

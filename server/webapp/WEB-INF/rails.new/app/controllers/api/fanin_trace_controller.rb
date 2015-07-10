@@ -20,13 +20,20 @@ class Api::FaninTraceController < Api::ApiController
     pipeline_name = params[:name]
     reporting_fanin_graph = ReportingFanInGraph.new(cruise_config, pipeline_name, pipeline_sql_map_dao)
     @str = reporting_fanin_graph.computeRevisions(pipeline_service.getPipelineTimeline())
-    render text: "<pre>" + @str + "</pre>"
+    render text: @str
+  end
+
+  def fanin_debug
+    pipeline_name = params[:name]
+    index = params[:index].to_i
+    data = pipeline_service.getRevisionsBasedOnDependenciesForDebug(CaseInsensitiveString.new(pipeline_name), index)
+    render json: data
   end
 
   def fanin
     cruise_config = go_config_service.getCurrentConfig()
     pipeline_name = params[:name]
-    output = "<pre>" + "\n"
+    output = ""
     revisions = pipeline_service.getRevisionsBasedOnDependenciesForReporting(cruise_config, CaseInsensitiveString.new(pipeline_name))
     render text: "No Fan-In" and return unless revisions
     revisions.each do |rev|
@@ -42,7 +49,7 @@ class Api::FaninTraceController < Api::ApiController
       end
       output = output + "---\n\n"
     end
-    output = output + "</pre>"
+    output = output
     render text: output
   end
 end

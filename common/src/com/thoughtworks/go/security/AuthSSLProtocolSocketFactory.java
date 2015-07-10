@@ -45,6 +45,7 @@
 
 package com.thoughtworks.go.security;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -112,6 +113,7 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
 
     private final AuthSSLX509TrustManagerFactory trustManagerFactory;
     private final AuthSSLKeyManagerFactory keyManagerFactory;
+    private final SystemEnvironment systemEnvironment;
     private SSLContext sslContextWithKeyStore = null;
     private SSLContext sslContext = null;
 
@@ -122,12 +124,14 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
         super();
         this.trustManagerFactory = trustManagerFactory;
         this.keyManagerFactory = keyManagerFactory;
+        systemEnvironment = new SystemEnvironment();
     }
 
     public AuthSSLProtocolSocketFactory(File trustFile, File certificateFile, String storePassword) {
         super();
         this.trustManagerFactory = new AuthSSLX509TrustManagerFactory(trustFile, storePassword);
         this.keyManagerFactory = new AuthSSLKeyManagerFactory(certificateFile, storePassword);
+        systemEnvironment = new SystemEnvironment();
     }
 
     public void registerAsHttpsProtocol() {
@@ -146,7 +150,7 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
 
     private SSLContext createSSLContext(boolean certAuth) {
         try {
-            SSLContext context = SSLContext.getInstance("SSL");
+            SSLContext context = SSLContext.getInstance(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT));
             KeyManager[] keyManagers = keyManagerFactory == null ? null : keyManagerFactory.keyManagers();
             TrustManager[] trustManagers = trustManagerFactory == null ? null : trustManagerFactory.trustManagers();
             context.init(certAuth ? keyManagers : null, trustManagers, null);

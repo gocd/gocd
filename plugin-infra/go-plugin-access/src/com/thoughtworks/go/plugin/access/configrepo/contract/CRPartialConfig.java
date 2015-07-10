@@ -37,4 +37,8 @@ public class CRPartialConfig {
     public void addGroup(CRPipelineGroup group) {
         this.groups.add(group);
     }
+
+    public Collection<CRPipelineGroup> getGroups() {
+        return groups;
+    }
 }

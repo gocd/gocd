@@ -10,6 +10,7 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -543,6 +544,40 @@ public class ConfigConverterTest {
         assertThat(pipelineConfig.trackingTool().getLink(),is("link"));
         assertThat(pipelineConfig.getTimer().getTimerSpec(),is("timer"));
         assertThat(pipelineConfig.getLabelTemplate(),is("label"));
+    }
+
+    @Test
+    public void shouldConvertPipelineGroup()
+    {
+        List<CRPipeline> pipelines = new ArrayList<>();
+        pipelines.add(new CRPipeline("pipename","label",true,
+                trackingTool,null,timer,environmentVariables,materials,stages));
+        CRPipelineGroup crPipelineGroup = new CRPipelineGroup("group",pipelines);
+        assertThat(crPipelineGroup.getName(),is("group"));
+        assertThat(crPipelineGroup.getPipelines().size(),is(1));
+    }
+
+    @Test
+    public void shouldConvertPartialConfigWithGroupsAndEnvironments()
+    {
+        List<CRPipeline> pipelines = new ArrayList<>();
+        pipelines.add(new CRPipeline("pipename","label",true,
+                trackingTool,null,timer,environmentVariables,materials,stages));
+        CRPipelineGroup crPipelineGroup = new CRPipelineGroup("group",pipelines);
+
+        ArrayList<String> agents = new ArrayList<>();
+        agents.add("12");
+        ArrayList<String> pipelineNames = new ArrayList<>();
+        pipelineNames.add("pipename");
+        CREnvironment crEnvironment = new CREnvironment("dev", environmentVariables, agents, pipelineNames);
+
+        CRPartialConfig crPartialConfig = new CRPartialConfig();
+        crPartialConfig.addEnvironment(crEnvironment);
+        crPartialConfig.addGroup(crPipelineGroup);
+
+        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig);
+        assertThat(partialConfig.getGroups().size(),is(1));
+        assertThat(partialConfig.getEnvironments().size(),is(1));
     }
 
 }

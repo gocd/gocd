@@ -50,8 +50,22 @@ public class ConfigConverter {
             EnvironmentConfig environment = toEnvironmentConfig(crEnvironment);
             partialConfig.getEnvironments().add(environment);
         }
-        //TODO set other elements
+        for(CRPipelineGroup crPipelineGroup : crPartialConfig.getGroups())
+        {
+            BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup);
+            partialConfig.getGroups().add(pipelineConfigs);
+        }
         return partialConfig;
+    }
+
+    public BasicPipelineConfigs toBasicPipelineConfigs(CRPipelineGroup crPipelineGroup) {
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs(
+                crPipelineGroup.getName(),new Authorization());
+        for(CRPipeline crPipeline : crPipelineGroup.getPipelines())
+        {
+            pipelineConfigs.add(toPipelineConfig(crPipeline));
+        }
+        return pipelineConfigs;
     }
 
     public BasicEnvironmentConfig toEnvironmentConfig(CREnvironment crEnvironment) {

@@ -12,7 +12,11 @@ public class WebRequestPerformanceLogger {
         this.performanceLogger = performanceLogger;
     }
 
-    public void logRequest(String uri, String requestor, int status, long contentCount, long amountOfTimeItTookInMilliseconds) {
-        performanceLogger.log("WEB-REQUEST {} {} {} {} {}", status, uri, requestor, contentCount, amountOfTimeItTookInMilliseconds);
+    public void logRequest(String uri, String requestor, int status, long contentCount, long requestStartTime, long requestEndTime) {
+        performanceLogger.log("WEB-REQUEST {} {} {} {} {} {}", status, uri, requestor, contentCount, requestStartTime, requestEndTime);
+    }
+
+    public boolean isLoggingTurnedOn() {
+        return performanceLogger.isLoggingTurnedOn();
     }
 }

@@ -23,9 +23,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class PerformanceLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger("PerformanceLogger");
+    private final boolean isDebuggingTurnedOn;
+
+    public PerformanceLogger() {
+        isDebuggingTurnedOn = LOGGER.isDebugEnabled();
+    }
 
     public void log(String format, Object... arguments) {
         LOGGER.debug(format, arguments);
+    }
+
+    public boolean isLoggingTurnedOn() {
+        return isDebuggingTurnedOn;
     }
 }
 
@@ -37,5 +46,5 @@ log4j.appender.PerformanceLoggerAppender.File=go-perf.log
 log4j.appender.PerformanceLoggerAppender.MaxFileSize=10240KB
 log4j.appender.PerformanceLoggerAppender.MaxBackupIndex=50
 log4j.appender.PerformanceLoggerAppender.layout=org.apache.log4j.PatternLayout
-log4j.appender.PerformanceLoggerAppender.layout.conversionPattern=%d{ISO8601} |%t| %m%n
+log4j.appender.PerformanceLoggerAppender.layout.conversionPattern=%d{yyyy-MM-dd HH:mm:ss,SSSZ} |%t| %m%n
 */

@@ -98,7 +98,7 @@ public class MultipleMaterialsWithFilterTest {
         fixture.checkInToFirstMaterial("a.doc");
         fixture.checkInToSecondMaterial("b.java");
         buildCauseProducerService.autoSchedulePipeline(fixture.pipelineName, new ServerHealthStateOperationResult(), 12345);
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(fixture.pipelineName);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(fixture.pipelineName).last();
         assertThat(buildCause, instanceOf(BuildCause.class));
 
         MaterialRevisions actual = buildCause.getMaterialRevisions();

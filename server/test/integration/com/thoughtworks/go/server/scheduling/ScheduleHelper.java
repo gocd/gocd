@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,9 +113,9 @@ public class ScheduleHelper {
         return result.getServerHealthState();
     }
 
-    public Map<String, BuildCause> waitForAnyScheduled(int seconds) {
+    public Map<String, Pair<Long, BuildCause>> waitForAnyScheduled(int seconds) {
         int count = 0;
-        Map<String, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
+        Map<String, Pair<Long, BuildCause>> afterLoad = pipelineScheduleQueue.toBeScheduled();
         while (afterLoad.isEmpty()) {
             try {
                 Thread.sleep(1000);

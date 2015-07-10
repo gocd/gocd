@@ -16,20 +16,21 @@
 
 package com.thoughtworks.go.remote;
 
-import static java.lang.String.format;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.BuildRepositoryService;
-import com.thoughtworks.go.server.service.AgentWithDuplicateUUIDException;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
+import com.thoughtworks.go.server.perf.AgentCommunicationPerformanceLogger;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.AgentWithDuplicateUUIDException;
+import com.thoughtworks.go.server.service.BuildRepositoryService;
 import org.apache.log4j.Logger;
-import org.springframework.remoting.RemoteAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.remoting.RemoteAccessException;
+
+import static java.lang.String.format;
 
 public class BuildRepositoryRemoteImpl {
     private static final Logger LOGGER = Logger.getLogger(BuildRepositoryRemoteImpl.class);
@@ -37,18 +38,23 @@ public class BuildRepositoryRemoteImpl {
     private AgentService agentService;
     private BuildRepositoryService buildRepositoryService;
     private JobStatusTopic jobStatusTopic;
+    private AgentCommunicationPerformanceLogger performanceLogger;
 
     @Autowired
-    BuildRepositoryRemoteImpl(BuildRepositoryService buildRepositoryService, AgentService agentService, JobStatusTopic jobStatusTopic) {
+    BuildRepositoryRemoteImpl(BuildRepositoryService buildRepositoryService, AgentService agentService, JobStatusTopic jobStatusTopic,
+                              AgentCommunicationPerformanceLogger performanceLogger) {
         this.buildRepositoryService = buildRepositoryService;
         this.agentService = agentService;
         this.jobStatusTopic = jobStatusTopic;
+        this.performanceLogger = performanceLogger;
     }
 
     public AgentInstruction ping(AgentRuntimeInfo info) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(info + " ping received.");
         }
+
+        long start = System.currentTimeMillis();
         try {
             agentService.updateRuntimeInfo(info);
             return new AgentInstruction(agentService.findAgentAndRefreshStatus(info.getUUId()).isCancelled());
@@ -57,6 +63,8 @@ public class BuildRepositoryRemoteImpl {
         } catch (Exception e) {
             LOGGER.error("Error occurred in " + info + " ping.", e);
             throw wrappedException(e);
+        } finally {
+            performanceLogger.logPing(info.getUUId(), start, System.currentTimeMillis());
         }
     }
 
@@ -85,8 +93,9 @@ public class BuildRepositoryRemoteImpl {
     public void reportCompleted(final AgentRuntimeInfo agentRuntimeInfo, final JobIdentifier jobIdentifier, final JobResult result) {
         final JobState state = JobState.Completed;
 
-        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "status and result", String.format("%s, %s",state, result), new ReportingAction() {
-            @Override public void call() throws Exception {
+        handleFailuresDuringReporting(agentRuntimeInfo, jobIdentifier, "status and result", String.format("%s, %s", state, result), new ReportingAction() {
+            @Override
+            public void call() throws Exception {
 
                 //TODO: may be i don't belong here, ping already updates agent runtime info
                 agentService.updateRuntimeInfo(agentRuntimeInfo);
@@ -100,6 +109,7 @@ public class BuildRepositoryRemoteImpl {
     }
 
     private void handleFailuresDuringReporting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, final String thingBeingReported, String changedValue, ReportingAction action) {
+        long start = System.currentTimeMillis();
         String agentDebugString = agentRuntimeInfo.agentInfoDebugString();
         LOGGER.info(format("[%s] is reporting %s [%s] for [%s]", agentDebugString, thingBeingReported, changedValue, jobIdentifier.toFullString()));
         try {
@@ -110,14 +120,19 @@ public class BuildRepositoryRemoteImpl {
             LOGGER.error(format("Exception occurred when [%s] tries to report " + thingBeingReported + " [%s] for [%s]",
                     agentDebugString, changedValue, jobIdentifier.toFullString()), e);
             throw wrappedException(e);
+        } finally {
+            performanceLogger.logReporting(agentRuntimeInfo.getUUId(), jobIdentifier, thingBeingReported, start, System.currentTimeMillis());
         }
     }
 
     public boolean isIgnored(JobIdentifier jobIdentifier) {
+        long start = System.currentTimeMillis();
         try {
             return buildRepositoryService.isCancelledOrRescheduled(jobIdentifier.getBuildId());
         } catch (Exception e) {
             throw wrappedException(e);
+        } finally {
+            performanceLogger.logIsIgnoredCheck(jobIdentifier, start, System.currentTimeMillis());
         }
     }
 

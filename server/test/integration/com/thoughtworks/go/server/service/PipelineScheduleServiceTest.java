@@ -396,8 +396,8 @@ public class PipelineScheduleServiceTest {
 
     @Test
     public void shouldConsumeAllBuildCausesInServerHealth() throws Exception {
-        pipelineScheduleQueue.schedule("mingle", BuildCause.createManualForced(modifyOneFile(mingleConfig), Username.ANONYMOUS));
-        pipelineScheduleQueue.schedule("evolve", BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS));
+        pipelineScheduleQueue.schedule("mingle", BuildCause.createManualForced(modifyOneFile(mingleConfig), Username.ANONYMOUS), -1L);
+        pipelineScheduleQueue.schedule("evolve", BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS), -1L);
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(0));

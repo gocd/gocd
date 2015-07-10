@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigFileDao;
@@ -49,10 +44,7 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +54,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -202,7 +199,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     private BuildCause buildCauseForPipeline() {
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(PIPELINE_NAME);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(PIPELINE_NAME).last();
         assertThat("Should be scheduled", buildCause, is(not(nullValue())));
         return buildCause;
     }
@@ -224,15 +221,15 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         return BuildCause.createWithModifications(materialRevisions, "");
     }
 
-    private void verifyBuildCauseHasModificationsWith(Map<String, BuildCause> load, boolean changed) {
-        for (BuildCause buildCause : load.values()) {
-            assertBuildCauseWithModificationHasChangedStatus(changed, buildCause);
+    private void verifyBuildCauseHasModificationsWith(Map<String, Pair<Long, BuildCause>> load, boolean changed) {
+        for (Pair<Long, BuildCause> buildCause : load.values()) {
+            assertBuildCauseWithModificationHasChangedStatus(changed, buildCause.last());
         }
     }
 
-    private void assertModificationChangedStateBasedOnMaterial(Map<String, BuildCause> load) {
-        for (BuildCause buildCause : load.values()) {
-            for (MaterialRevision revision : buildCause.getMaterialRevisions()) {
+    private void assertModificationChangedStateBasedOnMaterial(Map<String, Pair<Long, BuildCause>> load) {
+        for (Pair<Long, BuildCause> buildCause : load.values()) {
+            for (MaterialRevision revision : buildCause.last().getMaterialRevisions()) {
                 if (revision.getMaterial() instanceof HgMaterial) {
                     assertThat(revision.isChanged(), is(false));
                 } else {

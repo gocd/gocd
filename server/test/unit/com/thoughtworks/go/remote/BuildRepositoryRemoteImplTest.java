@@ -16,17 +16,10 @@
 
 package com.thoughtworks.go.remote;
 
-import java.util.Arrays;
-import java.util.List;
-
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
+import com.thoughtworks.go.server.perf.AgentCommunicationPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.BuildRepositoryService;
@@ -39,15 +32,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.remoting.RemoteAccessException;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class BuildRepositoryRemoteImplTest {
     private BuildRepositoryService repositoryService;
@@ -62,7 +55,7 @@ public class BuildRepositoryRemoteImplTest {
         repositoryService = mock(BuildRepositoryService.class);
         agentService = mock(AgentService.class);
         jobStatusTopic = mock(JobStatusTopic.class);
-        buildRepository = new BuildRepositoryRemoteImpl(repositoryService, agentService, jobStatusTopic);
+        buildRepository = new BuildRepositoryRemoteImpl(repositoryService, agentService, jobStatusTopic, mock(AgentCommunicationPerformanceLogger.class));
         logFixture = LogFixture.startListening(Level.TRACE);
         info = AgentRuntimeInfo.fromAgent(new AgentIdentifier("host", "192.168.1.1", "uuid"), "cookie", null);
     }

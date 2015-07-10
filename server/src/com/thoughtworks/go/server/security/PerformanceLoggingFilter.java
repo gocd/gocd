@@ -31,7 +31,7 @@ import java.io.IOException;
 public class PerformanceLoggingFilter implements Filter {
     private static final Log LOGGER = LogFactory.getLog(PerformanceLoggingFilter.class);
     private final boolean usingJetty9;
-    private boolean logRequestTimings;
+    private final boolean logRequestTimings;
     private WebRequestPerformanceLogger webRequestPerformanceLogger;
 
     public PerformanceLoggingFilter(WebRequestPerformanceLogger webRequestPerformanceLogger) {
@@ -45,12 +45,12 @@ public class PerformanceLoggingFilter implements Filter {
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        long start = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
-            if (logRequestTimings) {
-                long amountOfTimeItTookInMilliseconds = System.currentTimeMillis() - start;
+            if (webRequestPerformanceLogger.isLoggingTurnedOn()) {
+                long endTime = System.currentTimeMillis();
                 String requestURI = ((HttpServletRequest) servletRequest).getRequestURI();
                 String requestor = servletRequest.getRemoteAddr();
 
@@ -58,8 +58,7 @@ public class PerformanceLoggingFilter implements Filter {
                 int status = response.getStatus();
                 long contentCount = response.getContentCount();
 
-                webRequestPerformanceLogger.logRequest(requestURI, requestor, status, contentCount, amountOfTimeItTookInMilliseconds);
-                LOGGER.warn(requestURI + " took: " + amountOfTimeItTookInMilliseconds + " ms");
+                webRequestPerformanceLogger.logRequest(requestURI, requestor, status, contentCount, startTime, endTime);
             }
         }
     }

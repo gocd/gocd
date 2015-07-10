@@ -35,16 +35,16 @@ public class WorkAssignmentPerformanceLogger {
 
     public void retrievedWorkForAgent(AgentRuntimeInfo agentRuntimeInfo, Work work, long retrieveWorkStartTime, long retrieveWorkEndTime) {
         if (work == null || !(work instanceof BuildWork)) {
-            performanceLogger.log("WORK-NOWORK {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), retrieveWorkStartTime, retrieveWorkEndTime);
+            performanceLogger.log("WORK-NOWORK {} {} {} {}", agentRuntimeInfo.getUUId(), retrieveWorkStartTime, retrieveWorkEndTime, "NOJOB");
             return;
         }
         BuildWork buildWork = (BuildWork) work;
 
-        performanceLogger.log("WORK-RETRIEVED {} {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), buildWork.identifierForLogging(), retrieveWorkStartTime, retrieveWorkEndTime);
+        performanceLogger.log("WORK-RETRIEVED {} {} {} {}", agentRuntimeInfo.getUUId(), retrieveWorkStartTime, retrieveWorkEndTime, buildWork.identifierForLogging());
     }
 
     public void agentReportedCompletion(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, long reportCompletionStartTime, long reportCompletionEndTime) {
-        performanceLogger.log("WORK-COMPLETED {} {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), jobIdentifier, reportCompletionStartTime, reportCompletionEndTime);
+        performanceLogger.log("WORK-COMPLETED {} {} {} {}", agentRuntimeInfo.getUUId(), reportCompletionStartTime, reportCompletionEndTime, jobIdentifier);
     }
 
     public void assignedWorkToAgent(Work work, AgentIdentifier agentIdentifier, long assignWorkStartTime, long assignWorkEndTime) {
@@ -53,6 +53,6 @@ public class WorkAssignmentPerformanceLogger {
         }
         BuildWork buildWork = (BuildWork) work;
 
-        performanceLogger.log("WORK-ASSIGNED {} {} {} {}", agentIdentifier.getUuid(), buildWork.identifierForLogging(), assignWorkStartTime, assignWorkEndTime);
+        performanceLogger.log("WORK-ASSIGNED {} {} {} {}", agentIdentifier.getUuid(), assignWorkStartTime, assignWorkEndTime, buildWork.identifierForLogging());
     }
 }

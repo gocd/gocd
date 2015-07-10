@@ -131,7 +131,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
 
     @Test
     public void shouldUpdateServerHealthWhenSchedulePipelineFails() throws Exception {
-        pipelineScheduleQueue.schedule("blahPipeline", saveMaterials(modifySomeFiles(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline")))));
+        pipelineScheduleQueue.schedule("blahPipeline", saveMaterials(modifySomeFiles(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline")))), -1L);
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         List<ServerHealthState> stateList = serverHealthService.filterByScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
         assertThat(stateList.size(), is(1));

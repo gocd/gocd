@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mortbay.jetty.Response;
 
+import javax.servlet.ServletResponseWrapper;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -44,6 +46,15 @@ public class Jetty6ResponseTest {
     @Test
     public void shouldGetResponseContentCount() {
         when(response.getContentCount()).thenReturn(2000l);
+        assertThat(jetty6Response.getContentCount(), is(2000l));
+    }
+
+    @Test
+    public void shouldHandleWrappedResponse() throws Exception {
+        ServletResponseWrapper wrappedResponse = mock(ServletResponseWrapper.class);
+        when(wrappedResponse.getResponse()).thenReturn(response);
+        when(response.getContentCount()).thenReturn(2000l);
+
         assertThat(jetty6Response.getContentCount(), is(2000l));
     }
 }

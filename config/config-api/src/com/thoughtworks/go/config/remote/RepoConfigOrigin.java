@@ -42,7 +42,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
     }
 
     public int hashCode() {
-        return revision.hashCode();
+        return revision != null ? revision.hashCode() : 0;
     }
 
     @Override

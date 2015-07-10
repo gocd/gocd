@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.presentation.models.StageCctrayPresentationModel;
 import com.thoughtworks.go.server.util.CollectionUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.core.Is;
@@ -56,9 +57,22 @@ public class ConfigConverterTest {
     Collection<CRArtifact> artifacts = new ArrayList<>();
     Collection<CRPropertyGenerator> artifactPropertiesGenerators = new ArrayList<>();
     List<CRTask> tasks = new ArrayList<>();
+    ArrayList<String> authorizedRoles;
+    ArrayList<String> authorizedUsers;
+    ArrayList<CRJob> jobs;
 
     @Before
     public void setUp() throws InvalidCipherTextException {
+        environmentVariables = new ArrayList<>();
+        tabs = new ArrayList<>();
+        resources = new ArrayList<>();
+        artifacts = new ArrayList<>();
+        artifactPropertiesGenerators = new ArrayList<>();
+        tasks = new ArrayList<>();
+        authorizedRoles = new ArrayList<>();
+        authorizedUsers = new ArrayList<>();
+        jobs = new ArrayList<>();
+
         cachedFileGoConfig = mock(CachedFileGoConfig.class);
         goCipher = mock(GoCipher.class);
         configConverter = new ConfigConverter(goCipher,cachedFileGoConfig);
@@ -77,6 +91,13 @@ public class ConfigConverterTest {
 
         tasks.add(new CRFetchArtifactTask(CRRunIf.failed, null,
                 "upstream", "stage", "job", "src", "dest", false));
+
+        jobs.add(new CRJob("name",environmentVariables, tabs,
+                resources, artifacts, artifactPropertiesGenerators,
+                true, 5, 120, tasks));
+
+        authorizedUsers.add("authUser");
+        authorizedRoles.add("authRole");
     }
 
     @Test
@@ -438,6 +459,54 @@ public class ConfigConverterTest {
         assertThat(jobConfig.getRunInstanceCount(),is("5"));
         assertThat(jobConfig.getTimeout(),is("120"));
         assertThat(jobConfig.getTasks().size(),is(1));
+    }
+
+    @Test
+    public void shouldConvertApprovalWhenManualAndAuth()
+    {
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual, authorizedRoles, authorizedUsers);
+
+        Approval approval = configConverter.toApproval(crApproval);
+        assertThat(approval.isManual(),is(true));
+        assertThat(approval.isAuthorizationDefined(),is(true));
+        assertThat(approval.getAuthConfig().getRoles(),hasItem(new AdminRole(new CaseInsensitiveString("authRole"))));
+        assertThat(approval.getAuthConfig().getUsers(),hasItem(new AdminUser(new CaseInsensitiveString("authUser"))));
+    }
+
+    @Test
+    public void shouldConvertApprovalWhenManualAndNoAuth()
+    {
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual, new ArrayList<String>(), new ArrayList<String>());
+
+        Approval approval = configConverter.toApproval(crApproval);
+        assertThat(approval.isManual(),is(true));
+        assertThat(approval.isAuthorizationDefined(),is(false));
+    }
+    @Test
+    public void shouldConvertApprovalWhenSuccess()
+    {
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.success, new ArrayList<String>(), new ArrayList<String>());
+
+        Approval approval = configConverter.toApproval(crApproval);
+        assertThat(approval.isManual(),is(false));
+        assertThat(approval.isAuthorizationDefined(),is(false));
+    }
+
+    @Test
+    public void shouldConvertStage()
+    {
+        CRApproval approval = new CRApproval(CRApprovalCondition.manual, authorizedRoles, authorizedUsers);
+
+        CRStage crStage = new CRStage("stageName",true,true,true, approval,environmentVariables,jobs);
+
+        StageConfig stageConfig = configConverter.toStage(crStage);
+
+        assertThat(stageConfig.name().toLower(),is("stagename"));
+        assertThat(stageConfig.isFetchMaterials(),is(true));
+        assertThat(stageConfig.isCleanWorkingDir(),is(true));
+        assertThat(stageConfig.isArtifactCleanupProhibited(),is(true));
+        assertThat(stageConfig.getVariables().hasVariable("key"),is(true));
+        assertThat(stageConfig.getJobs().size(),is(1));
     }
 
 }

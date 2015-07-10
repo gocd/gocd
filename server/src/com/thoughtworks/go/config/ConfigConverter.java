@@ -431,6 +431,47 @@ public class ConfigConverter {
         return new Tab(crTab.getName(),crTab.getPath());
     }
 
+    public StageConfig toStage(CRStage crStage) {
+        Approval approval = toApproval(crStage.getApproval());
+        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString(crStage.getName()), crStage.isFetchMaterials(),
+                crStage.isCleanWorkingDir(), approval, crStage.isArtifactCleanupProhibited(), toJobConfigs(crStage.getJobs()));
+        EnvironmentVariablesConfig environmentVariableConfigs = stageConfig.getVariables();
+        for(CREnvironmentVariable crEnvironmentVariable : crStage.getEnvironmentVariables())
+        {
+            environmentVariableConfigs.add(toEnvironmentVariableConfig(crEnvironmentVariable));
+        }
+        return stageConfig;
+    }
+
+    public Approval toApproval(CRApproval crApproval) {
+        Approval approval;
+        if(crApproval.getType() == CRApprovalCondition.manual)
+            approval = Approval.manualApproval();
+        else
+            approval = Approval.automaticApproval();
+
+        AuthConfig authConfig = approval.getAuthConfig();
+        for(String user : crApproval.getAuthorizedUsers())
+        {
+            authConfig.add(new AdminUser(new CaseInsensitiveString(user)));
+        }
+        for(String user : crApproval.getAuthorizedRoles())
+        {
+            authConfig.add(new AdminRole(new CaseInsensitiveString(user)));
+        }
+
+        return approval;
+    }
+
+    private JobConfigs toJobConfigs(Collection<CRJob> jobs) {
+        JobConfigs jobConfigs = new JobConfigs();
+        for(CRJob crJob : jobs)
+        {
+            jobConfigs.add(toJobConfig(crJob));
+        }
+        return jobConfigs;
+    }
+
 
     //TODO #1133 convert each config element
 }

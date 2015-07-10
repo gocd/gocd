@@ -295,6 +295,32 @@ public class ConfigConverterTest {
         assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
         assertThat(hgMaterialConfig.getUrl(), is("url"));
     }
+    @Test
+    public void shouldConvertHgMaterialWhenNullName() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, filter, "url");
+
+        HgMaterialConfig hgMaterialConfig =
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
+
+        assertNull(hgMaterialConfig.getName());
+        assertThat(hgMaterialConfig.getFolder(), is("folder"));
+        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(hgMaterialConfig.getUrl(), is("url"));
+    }
+    @Test
+    public void shouldConvertHgMaterialWhenEmptyName() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial("", "folder", true, filter, "url");
+
+        HgMaterialConfig hgMaterialConfig =
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
+
+        assertNull(hgMaterialConfig.getName());
+        assertThat(hgMaterialConfig.getFolder(), is("folder"));
+        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(hgMaterialConfig.getUrl(), is("url"));
+    }
 
     @Test
     public void shouldConvertP4MaterialWhenEncryptedPassword()

@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -236,7 +237,7 @@ public class ConfigConverter {
     }
 
     private void setCommonMaterialMembers(AbstractMaterialConfig materialConfig, CRMaterial crMaterial) {
-        materialConfig.setName(new CaseInsensitiveString(crMaterial.getName()));
+        materialConfig.setName(toMaterialName(crMaterial.getName()));
     }
 
     public MaterialConfig toMaterialConfig(CRMaterial crMaterial) {
@@ -267,7 +268,7 @@ public class ConfigConverter {
 
     public PackageMaterialConfig toPackageMaterial(CRPackageMaterial crPackageMaterial) {
         PackageDefinition packageDefinition = getPackageDefinition(crPackageMaterial.getPackageId());
-        return new PackageMaterialConfig(new CaseInsensitiveString(crPackageMaterial.getName()),crPackageMaterial.getPackageId(),packageDefinition);
+        return new PackageMaterialConfig(toMaterialName(crPackageMaterial.getName()),crPackageMaterial.getPackageId(),packageDefinition);
     }
 
     private PackageDefinition getPackageDefinition(String packageId) {
@@ -286,7 +287,7 @@ public class ConfigConverter {
             throw new ConfigConvertionException(
                     String.format("Failed to find referenced scm '%s'",id));
 
-        return new PluggableSCMMaterialConfig(new CaseInsensitiveString(crPluggableScmMaterial.getName()),
+        return new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
                 scmConfig,crPluggableScmMaterial.getDirectory(),
                 toFilter(crPluggableScmMaterial.getFilter()));
     }
@@ -296,20 +297,21 @@ public class ConfigConverter {
     }
 
     private ScmMaterialConfig toScmMaterialConfig(CRScmMaterial crScmMaterial) {
+        String materialName = crScmMaterial.getName();
         if(crScmMaterial instanceof CRGitMaterial)
         {
             CRGitMaterial git = (CRGitMaterial)crScmMaterial;
             Filter filter = toFilter(crScmMaterial);
             return new GitMaterialConfig(new UrlArgument(git.getUrl()),git.getBranch(),
                     null,git.isAutoUpdate(), filter,crScmMaterial.getFolder(),
-                    new CaseInsensitiveString(crScmMaterial.getName()));
+                    toMaterialName(materialName));
         }
         else if(crScmMaterial instanceof CRHgMaterial)
         {
             CRHgMaterial hg = (CRHgMaterial)crScmMaterial;
             return new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
             hg.isAutoUpdate(), toFilter(crScmMaterial), hg.getFolder(),
-                    new CaseInsensitiveString(crScmMaterial.getName()));
+                    toMaterialName(materialName));
         }
         else if(crScmMaterial instanceof CRP4Material)
         {
@@ -369,6 +371,12 @@ public class ConfigConverter {
         else
             throw new ConfigConvertionException(
                     String.format("unknown scm material type '%s'",crScmMaterial));
+    }
+
+    private CaseInsensitiveString toMaterialName(String materialName) {
+        if(StringUtils.isBlank(materialName))
+            return null;
+        return new CaseInsensitiveString(materialName);
     }
 
     private void setCommonScmMaterialMembers(ScmMaterialConfig scmMaterialConfig, CRScmMaterial crScmMaterial) {

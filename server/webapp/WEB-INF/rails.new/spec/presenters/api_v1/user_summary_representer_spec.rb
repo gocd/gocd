@@ -15,20 +15,22 @@
 ##########################################################################
 
 
-module ApiV1
-  class BackupsController < ApiV1::BaseController
-    before_action :check_admin_user_and_401
+require 'spec_helper'
 
-    def create
-      result = HttpLocalizedOperationResult.new
-      backup = backup_service.startBackup(current_user, result)
+describe ApiV1::UserSummaryRepresenter do
 
-      if result.isSuccessful
-        render :json_hal_v1 => BackupRepresenter.new(backup).to_hash(url_builder: self)
-      else
-        render_http_operation_result(result)
-      end
-    end
+  it 'renders a user summary' do
+    presenter = ApiV1::UserSummaryRepresenter.new("jdoe")
+    actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
+    expect(actual_json).to have_links(:self, :find, :doc)
+
+    expect(actual_json).to have_link(:self).with_url('http://test.host/api/users/jdoe')
+    expect(actual_json).to have_link(:find).with_url('http://test.host/api/users/:login_name')
+    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#users')
+
+    actual_json.delete(:_links)
+    expect(actual_json).to eq({login_name: 'jdoe'})
   end
+
 end

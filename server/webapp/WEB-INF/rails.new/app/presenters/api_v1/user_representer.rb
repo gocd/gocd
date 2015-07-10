@@ -15,23 +15,14 @@
 ##########################################################################
 
 module ApiV1
-  class UserRepresenter < ApiV1::BaseRepresenter
+  class UserRepresenter < ApiV1::UserSummaryRepresenter
+  attr_reader :user
 
-    alias_method :user, :represented
-
-    link :doc do
-      'http://api.go.cd/#users'
+    def initialize(user)
+      @user = user
+      super(user.name)
     end
 
-    link :self do |opts|
-      opts[:url_builder].apiv1_user_url(user.getName)
-    end
-
-    link :find do |opts|
-      opts[:url_builder].apiv1_user_url(':login_name')
-    end
-
-    property :getName, as: :login_name
     property :displayName, as: :display_name
     property :isEnabled, as: :enabled
     property :email, exec_context: :decorator
@@ -44,6 +35,10 @@ module ApiV1
 
     def checkin_aliases
       user.getMatchers().to_a
+    end
+
+    def represented
+      user
     end
   end
 end

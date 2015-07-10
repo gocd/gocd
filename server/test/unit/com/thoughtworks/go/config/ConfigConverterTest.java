@@ -1,5 +1,6 @@
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -280,6 +281,20 @@ public class ConfigConverterTest {
         assertThat(gitMaterialConfig.getFilterAsString(), is("filter"));
         assertThat(gitMaterialConfig.getUrl(), is("url"));
         assertThat(gitMaterialConfig.getBranch(), is("branch"));
+    }
+    @Test
+    public void shouldConvertGitMaterialWhenNulls() {
+        CRGitMaterial crGitMaterial = new CRGitMaterial(null, null, false, null, "url", null);
+
+        GitMaterialConfig gitMaterialConfig =
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
+
+        assertNull(crGitMaterial.getName());
+        assertNull(crGitMaterial.getFolder());
+        assertThat(gitMaterialConfig.getAutoUpdate(), is(false));
+        assertThat(gitMaterialConfig.filter(), is(new Filter()));
+        assertThat(gitMaterialConfig.getUrl(), is("url"));
+        assertThat(gitMaterialConfig.getBranch(), is("master"));
     }
 
     @Test

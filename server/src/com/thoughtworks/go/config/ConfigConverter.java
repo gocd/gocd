@@ -302,7 +302,10 @@ public class ConfigConverter {
         {
             CRGitMaterial git = (CRGitMaterial)crScmMaterial;
             Filter filter = toFilter(crScmMaterial);
-            return new GitMaterialConfig(new UrlArgument(git.getUrl()),git.getBranch(),
+            String gitBranch = git.getBranch();
+            if(StringUtils.isBlank(gitBranch))
+                gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
+            return new GitMaterialConfig(new UrlArgument(git.getUrl()), gitBranch,
                     null,git.isAutoUpdate(), filter,crScmMaterial.getFolder(),
                     toMaterialName(materialName));
         }
@@ -392,6 +395,8 @@ public class ConfigConverter {
 
     private Filter toFilter(List<String> filterList) {
         Filter filter = new Filter();
+        if(filterList == null)
+            return filter;
         for(String pattern : filterList)
         {
             filter.add(new IgnoredFiles(pattern));

@@ -553,8 +553,31 @@ public class ConfigConverterTest {
         pipelines.add(new CRPipeline("pipename","label",true,
                 trackingTool,null,timer,environmentVariables,materials,stages));
         CRPipelineGroup crPipelineGroup = new CRPipelineGroup("group",pipelines);
-        assertThat(crPipelineGroup.getName(),is("group"));
-        assertThat(crPipelineGroup.getPipelines().size(),is(1));
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
+        assertThat(pipelineConfigs.getGroup(),is("group"));
+        assertThat(pipelineConfigs.getPipelines().size(),is(1));
+    }
+    @Test
+    public void shouldConvertPipelineGroupWhenNoName()
+    {
+        List<CRPipeline> pipelines = new ArrayList<>();
+        pipelines.add(new CRPipeline("pipename","label",true,
+                trackingTool,null,timer,environmentVariables,materials,stages));
+        CRPipelineGroup crPipelineGroup = new CRPipelineGroup(null,pipelines);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
+        assertThat(pipelineConfigs.getGroup(),is(PipelineConfigs.DEFAULT_GROUP));
+        assertThat(pipelineConfigs.getPipelines().size(),is(1));
+    }
+    @Test
+    public void shouldConvertPipelineGroupWhenEmptyName()
+    {
+        List<CRPipeline> pipelines = new ArrayList<>();
+        pipelines.add(new CRPipeline("pipename","label",true,
+                trackingTool,null,timer,environmentVariables,materials,stages));
+        CRPipelineGroup crPipelineGroup = new CRPipelineGroup("",pipelines);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
+        assertThat(pipelineConfigs.getGroup(),is(PipelineConfigs.DEFAULT_GROUP));
+        assertThat(pipelineConfigs.getPipelines().size(),is(1));
     }
 
     @Test

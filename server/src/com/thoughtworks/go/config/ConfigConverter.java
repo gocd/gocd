@@ -59,8 +59,9 @@ public class ConfigConverter {
     }
 
     public BasicPipelineConfigs toBasicPipelineConfigs(CRPipelineGroup crPipelineGroup) {
-        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs(
-                crPipelineGroup.getName(),new Authorization());
+        String name = crPipelineGroup.getName();
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
+        pipelineConfigs.setGroup(name);
         for(CRPipeline crPipeline : crPipelineGroup.getPipelines())
         {
             pipelineConfigs.add(toPipelineConfig(crPipeline));

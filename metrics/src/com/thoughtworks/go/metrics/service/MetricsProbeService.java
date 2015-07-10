@@ -43,7 +43,7 @@ public class MetricsProbeService {
             map.put(ProbeType.SAVE_CONFIG_XML_THROUGH_XML_TAB, new TimerProbe(ProbeType.SAVE_CONFIG_XML_THROUGH_XML_TAB, "AdminService.updateConfig"));
             map.put(ProbeType.SAVE_CONFIG_XML_THROUGH_CLICKY_ADMIN, new TimerProbe(ProbeType.SAVE_CONFIG_XML_THROUGH_CLICKY_ADMIN, "GoConfigService.updateConfigFromUI"));
             map.put(ProbeType.SAVE_CONFIG_XML_THROUGH_SERVER_CONFIGURATION_TAB, new TimerProbe(ProbeType.SAVE_CONFIG_XML_THROUGH_SERVER_CONFIGURATION_TAB, "ServerConfigService.updateServerConfig"));
-            map.put(ProbeType.UPDATE_CONFIG, new TimerProbe(ProbeType.UPDATE_CONFIG, "GoConfigFileDao.updateConfig"));
+            map.put(ProbeType.UPDATE_CONFIG, new TimerProbe(ProbeType.UPDATE_CONFIG, "GoConfigDao.updateConfig"));
             map.put(ProbeType.CONVERTING_CONFIG_XML_TO_OBJECT, new TimerProbe(ProbeType.CONVERTING_CONFIG_XML_TO_OBJECT, "MagicalGoConfigXmlLoader.loadConfigHolder"));
             map.put(ProbeType.PREPROCESS_AND_VALIDATE, new TimerProbe(ProbeType.PREPROCESS_AND_VALIDATE, "MagicalGoConfigXmlLoader"));
             map.put(ProbeType.VALIDATING_CONFIG, new TimerProbe(ProbeType.VALIDATING_CONFIG, "MagicalGoConfigXmlLoader"));

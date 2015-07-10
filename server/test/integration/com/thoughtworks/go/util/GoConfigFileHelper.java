@@ -200,7 +200,7 @@ public class GoConfigFileHelper {
         this(xml, createTestingDao(partials));
     }
 
-    public GoConfigDao getGoConfigFileDao() {
+    public GoConfigDao getGoConfigDao() {
         return goConfigDao;
     }
 

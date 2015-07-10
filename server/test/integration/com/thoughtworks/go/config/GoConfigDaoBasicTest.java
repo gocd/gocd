@@ -10,15 +10,12 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * Created by tomzo on 6/20/15.
- */
 public class GoConfigDaoBasicTest extends GoConfigDaoBaseTest {
 
     public  GoConfigDaoBasicTest()
     {
         configHelper = new GoConfigFileHelper();
-        goConfigDao = configHelper.getGoConfigFileDao();
+        goConfigDao = configHelper.getGoConfigDao();
         cachedGoConfig = configHelper.getCachedGoConfig();
     }
 

@@ -1047,7 +1047,7 @@ public class FaninDependencyResolutionTest {
                 u.mr(p3, true, p3_1),
                 u.mr(p4, true, p4_1));
 
-        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigFileDao.load(), given);
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.load(), given);
         assertThat(revisionsBasedOnDependencies, is(given));
     }
 

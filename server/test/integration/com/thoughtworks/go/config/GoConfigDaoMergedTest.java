@@ -41,7 +41,7 @@ public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
         when(partials.lastPartials()).thenReturn(parts);
 
         configHelper = new GoConfigFileHelper(partials);
-        goConfigDao = configHelper.getGoConfigFileDao();
+        goConfigDao = configHelper.getGoConfigDao();
         cachedGoConfig = configHelper.getCachedGoConfig();
     }
 

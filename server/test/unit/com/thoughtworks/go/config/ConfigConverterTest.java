@@ -18,10 +18,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironmentVariable;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPluginConfiguration;
+import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
@@ -53,6 +50,13 @@ public class ConfigConverterTest {
     private List<String> filter = new ArrayList<>();
     private CachedFileGoConfig cachedFileGoConfig;
 
+    Collection<CREnvironmentVariable> environmentVariables = new ArrayList<>();
+    Collection<CRTab> tabs = new ArrayList<>();
+    Collection<String> resources = new ArrayList<>();
+    Collection<CRArtifact> artifacts = new ArrayList<>();
+    Collection<CRPropertyGenerator> artifactPropertiesGenerators = new ArrayList<>();
+    List<CRTask> tasks = new ArrayList<>();
+
     @Before
     public void setUp() throws InvalidCipherTextException {
         cachedFileGoConfig = mock(CachedFileGoConfig.class);
@@ -64,6 +68,15 @@ public class ConfigConverterTest {
 
         filter = new ArrayList<>();
         filter.add("filter");
+
+        environmentVariables.add(new CREnvironmentVariable("key", "value"));
+        tabs.add(new CRTab("tabname","tabpath"));
+        resources.add("resource1");
+        artifacts.add(new CRArtifact("src","dest"));
+        artifactPropertiesGenerators.add(new CRPropertyGenerator("name","src","path"));
+
+        tasks.add(new CRFetchArtifactTask(CRRunIf.failed, null,
+                "upstream", "stage", "job", "src", "dest", false));
     }
 
     @Test
@@ -404,6 +417,27 @@ public class ConfigConverterTest {
         assertThat(packageMaterialConfig.getName().toLower(),is("name"));
         assertThat(packageMaterialConfig.getPackageId(),is("package-id"));
         assertThat(packageMaterialConfig.getPackageDefinition(),is(definition));
+    }
+
+    @Test
+    public void shouldConvertJob()
+    {
+        CRJob crJob = new CRJob("name",environmentVariables, tabs,
+                 resources, artifacts, artifactPropertiesGenerators,
+                true, 5, 120, tasks);
+
+        JobConfig jobConfig = configConverter.toJobConfig(crJob);
+
+        assertThat(jobConfig.name().toLower(),is("name"));
+        assertThat(jobConfig.hasVariable("key"),is(true));
+        assertThat(jobConfig.getTabs().first().getName(),is("tabname"));
+        assertThat(jobConfig.resources(),hasItem(new Resource("resource1")));
+        assertThat(jobConfig.artifactPlans(),hasItem(new ArtifactPlan("src", "dest")));
+        assertThat(jobConfig.getProperties(),hasItem(new ArtifactPropertiesGenerator("name","src","path")));
+        assertThat(jobConfig.isRunOnAllAgents(),is(true));
+        assertThat(jobConfig.getRunInstanceCount(),is("5"));
+        assertThat(jobConfig.getTimeout(),is("120"));
+        assertThat(jobConfig.getTasks().size(),is(1));
     }
 
 }

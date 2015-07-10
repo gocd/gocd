@@ -376,6 +376,61 @@ public class ConfigConverter {
         return filter;
     }
 
+    public JobConfig toJobConfig(CRJob crJob) {
+        JobConfig jobConfig = new JobConfig(crJob.getName());
+        for(CREnvironmentVariable crEnvironmentVariable : crJob.getEnvironmentVariables())
+        {
+            jobConfig.getVariables().add(toEnvironmentVariableConfig(crEnvironmentVariable));
+        }
+
+        List<CRTask> crTasks = crJob.getTasks();
+        Tasks tasks = jobConfig.getTasks();
+        for(CRTask crTask : crTasks)
+        {
+            tasks.add(toAbstractTask(crTask));
+        }
+
+        Tabs tabs = jobConfig.getTabs();
+        for(CRTab crTab : crJob.getTabs())
+        {
+            tabs.add(toTab(crTab));
+        }
+
+        Resources resources = jobConfig.resources();
+        for(String crResource : crJob.getResources())
+        {
+            resources.add(new Resource(crResource));
+        }
+
+        ArtifactPlans artifactPlans = jobConfig.artifactPlans();
+        for(CRArtifact crArtifact : crJob.getArtifacts())
+        {
+            artifactPlans.add(toArtifactPlan(crArtifact));
+        }
+
+        ArtifactPropertiesGenerators artifactPropertiesGenerators = jobConfig.getProperties();
+        for(CRPropertyGenerator crPropertyGenerator : crJob.getArtifactPropertiesGenerators())
+        {
+            artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator(
+                    crPropertyGenerator.getName(),crPropertyGenerator.getSrc(),crPropertyGenerator.getXpath()));
+        }
+
+        jobConfig.setRunOnAllAgents(crJob.isRunOnAllAgents());
+        jobConfig.setRunInstanceCount(crJob.getRunInstanceCount());
+        jobConfig.setTimeout(Integer.toString(crJob.getTimeout()));
+
+        return jobConfig;
+    }
+
+    private ArtifactPlan toArtifactPlan(CRArtifact crArtifact) {
+        // artifact type is not set here. is this OK?
+        return new ArtifactPlan(crArtifact.getSrc(),crArtifact.getDest());
+    }
+
+    private Tab toTab(CRTab crTab) {
+        return new Tab(crTab.getName(),crTab.getPath());
+    }
+
 
     //TODO #1133 convert each config element
 }

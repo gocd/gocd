@@ -61,6 +61,13 @@ public class ConfigConverterTest {
     ArrayList<String> authorizedUsers;
     ArrayList<CRJob> jobs;
 
+    private CRStage crStage;
+    private CRTrackingTool trackingTool;
+    private CRTimer timer;
+    private ArrayList<CRMaterial> materials;
+    private List<CRStage> stages;
+    private CRGitMaterial git;
+
     @Before
     public void setUp() throws InvalidCipherTextException {
         environmentVariables = new ArrayList<>();
@@ -72,6 +79,8 @@ public class ConfigConverterTest {
         authorizedRoles = new ArrayList<>();
         authorizedUsers = new ArrayList<>();
         jobs = new ArrayList<>();
+        stages = new ArrayList<>();
+        materials = new ArrayList<>();
 
         cachedFileGoConfig = mock(CachedFileGoConfig.class);
         goCipher = mock(GoCipher.class);
@@ -98,6 +107,17 @@ public class ConfigConverterTest {
 
         authorizedUsers.add("authUser");
         authorizedRoles.add("authRole");
+
+        CRApproval approval = new CRApproval(CRApprovalCondition.manual, authorizedRoles, authorizedUsers);
+
+        crStage = new CRStage("stageName",true,true,true, approval,environmentVariables,jobs);
+        stages.add(crStage);
+
+        git = new CRGitMaterial("name", "folder", true, filter, "url", "branch");
+        materials.add(git);
+
+        trackingTool = new CRTrackingTool("link","regex");
+        timer = new CRTimer("timer",true);
     }
 
     @Test
@@ -507,6 +527,22 @@ public class ConfigConverterTest {
         assertThat(stageConfig.isArtifactCleanupProhibited(),is(true));
         assertThat(stageConfig.getVariables().hasVariable("key"),is(true));
         assertThat(stageConfig.getJobs().size(),is(1));
+    }
+
+    @Test
+    public void shouldConvertPipeline()
+    {
+        CRPipeline crPipeline = new CRPipeline("pipename","label",true,
+                trackingTool,null,timer,environmentVariables,materials,stages);
+
+        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline);
+        assertThat(pipelineConfig.name().toLower(),is("pipename"));
+        assertThat(pipelineConfig.materialConfigs().first() instanceof GitMaterialConfig,is(true));
+        assertThat(pipelineConfig.first().name().toLower(),is("stagename"));
+        assertThat(pipelineConfig.getVariables().hasVariable("key"),is(true));
+        assertThat(pipelineConfig.trackingTool().getLink(),is("link"));
+        assertThat(pipelineConfig.getTimer().getTimerSpec(),is("timer"));
+        assertThat(pipelineConfig.getLabelTemplate(),is("label"));
     }
 
 }

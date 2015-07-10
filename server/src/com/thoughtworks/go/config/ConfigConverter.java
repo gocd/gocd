@@ -472,6 +472,58 @@ public class ConfigConverter {
         return jobConfigs;
     }
 
+    public PipelineConfig toPipelineConfig(CRPipeline crPipeline) {
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        for(CRMaterial crMaterial : crPipeline.getMaterials())
+        {
+            materialConfigs.add(toMaterialConfig(crMaterial));
+        }
+
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(crPipeline.getName()),materialConfigs);
+
+        for(CRStage crStage : crPipeline.getStages())
+        {
+            pipelineConfig.add(toStage(crStage));
+        }
+
+        if(crPipeline.getLabelTemplate() != null)
+            pipelineConfig.setLabelTemplate(crPipeline.getLabelTemplate());
+
+        CRTrackingTool crTrackingTool = crPipeline.getTrackingTool();
+        if(crTrackingTool != null)
+        {
+            pipelineConfig.setTrackingTool(toTrackingTool(crTrackingTool));
+        }
+        CRMingle crMingle = crPipeline.getMingle();
+        if(crMingle != null)
+        {
+            pipelineConfig.setMingleConfig(toMingleConfig(crMingle));
+        }
+
+        CRTimer crTimer = crPipeline.getTimer();
+        if(crTimer != null) {
+            pipelineConfig.setTimer(new TimerConfig(crTimer.getTimerSpec(), crTimer.isOnlyOnChanges()));
+        }
+
+        EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
+        for(CREnvironmentVariable crEnvironmentVariable : crPipeline.getEnvironmentVariables())
+        {
+            variables.add(toEnvironmentVariableConfig(crEnvironmentVariable));
+        }
+
+        pipelineConfig.setLock(crPipeline.isLocked());
+
+        return pipelineConfig;
+    }
+
+    private MingleConfig toMingleConfig(CRMingle crMingle) {
+        return new MingleConfig(crMingle.getBaseUrl(),crMingle.getProjectId(),crMingle.getMql());
+    }
+
+    private TrackingTool toTrackingTool(CRTrackingTool crTrackingTool) {
+        return new TrackingTool(crTrackingTool.getLink(), crTrackingTool.getRegex());
+    }
+
 
     //TODO #1133 convert each config element
 }

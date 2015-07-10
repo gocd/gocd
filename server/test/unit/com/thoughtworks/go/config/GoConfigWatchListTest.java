@@ -28,9 +28,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by tomzo on 6/15/15.
- */
 public class GoConfigWatchListTest {
 
     private CachedFileGoConfig cachedGoConfig;

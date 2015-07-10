@@ -19,9 +19,6 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by tomzo on 6/18/15.
- */
 public class GoPartialConfigTest {
 
     private GoConfigPluginService configPluginService;

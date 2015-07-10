@@ -26,9 +26,6 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by tomzo on 6/19/15.
- */
 public class MergedGoConfigTest extends CachedGoConfigBaseTest {
 
     private CachedFileGoConfig cachedFileGoConfig;

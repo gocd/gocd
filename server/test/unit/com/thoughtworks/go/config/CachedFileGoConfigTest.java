@@ -15,9 +15,6 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by tomzo on 6/20/15.
- */
 public class CachedFileGoConfigTest extends CachedGoConfigBaseTest {
     @Before
     public void setUp() throws Exception {

@@ -3,9 +3,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 
-/**
- * Created by tomzo on 6/20/15.
- */
 public interface CachedGoConfig {
     CruiseConfig loadForEditing();
 

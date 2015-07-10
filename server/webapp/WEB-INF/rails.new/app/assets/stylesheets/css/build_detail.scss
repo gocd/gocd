@@ -35,7 +35,6 @@ $page-margin: 15px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  margin-right: $sidebar-border * 2;
 }
 
 #build_detail_summary_container h3 {
@@ -306,80 +305,69 @@ div.build_detail_container_content {
 
 .console-area {
   background-color: #333;
+  .white-theme & {
+    background-color: white;
+  }
 }
 
 @mixin console-action() {
-  min-height: 20px;
-  padding: 5px;
+  min-height: 25px;
   background-color: rgba(#333, 0.6);
-
   div {
     float: right;
+    width: 350px;
     background-color: transparent;
   }
 
-  .scroll-dot {
-    cursor: pointer;
-    @include rounded(10px);
-    @include box-shadow(1px, 1px, 1px 0, #999, true);
-    width: 10px;
-    height: 10px;
-    background: #ccc;
+  .auto-scroll {
+    background: image-url('scroll_off.png') no-repeat scroll 0 50% / 10px auto;
+    padding-left: 15px;
+
+    &.tailing {
+      background-image: image-url('scroll_on.png');
+      color: #79f582;
+    }
+  }
+
+  .back-to-top-in-console {
+
+    .back-to-top-icon {
+      margin-right: 8px;
+      display: inline-block;
+      vertical-align: middle;
+      width: 10px;
+      height: 20px;
+      background: image-url('scroll_off.png') no-repeat scroll 0 50% / 10px auto;
+
+      -moz-transform: rotate(180deg);
+      -webkit-transform: rotate(180deg);
+      -o-transform: rotate(180deg);
+      -ms-transform: rotate(180deg);
+      transform: rotate(180deg);
+    }
+
+  }
+
+  div > a {
+    color: #cadddc;
     display: inline-block;
-    vertical-align: middle;
-    margin-left: 5px;
+    padding: 5px 0;
+    margin-right: 20px;
+    float: right;
   }
 
-  .tailing {
-    .scroll-dot {
-      background: #00e616;
-      @include box-shadow(0, 0, 6px 2px, #00e616);
-      animation: pulsate 3s linear infinite;
-      -webkit-animation: pulsate 3s linear infinite;
-      -o-animation: pulsate 3s linear infinite;
-      -ms-animation: pulsate 3s linear infinite;
+  .white-theme & {
+    div > a {
+      color: white;
     }
   }
 
-  .scroll-help-text {
-    display: none;
-  }
-
-  div > a, div > .scroll-dot {
-    color: yellow;
-    vertical-align: middle;
-  }
-
-  &.white-theme {
-    background-color: white;
-    div > a, div > .scroll-dot {
-      color: #1F66BD;
-    }
-
-    &.scroll-to-fixed-fixed {
-      background-color: rgba(white, 0.2);
-    }
-  }
 }
 
 .console-action-bar, .console-footer-action-bar {
   @include console-action;
 }
 
-.console-action-bar {
-  div > a, div > .scroll-dot {
-    padding: 10px 15px 0 15px;
-  }
-}
-
-.console-footer-action-bar {
-  div > a, div > .scroll-dot {
-    padding: 0px 15px 15px 15px;
-  }
-  .back-to-top-in-console {
-    padding-right: 170px; // push aside because of the red "server error messages"
-  }
-}
 
 @-moz-keyframes pulsate {
   0% {
@@ -456,13 +444,6 @@ div.build_detail_container_content {
   }
 }
 
-.auto-scroll {
-  .scroll-dot {
-
-  }
-
-}
-
 .buildoutput_pre {
   $height-of-non-console-log-elements: 500px;
   overflow: auto;
@@ -481,7 +462,7 @@ div.build_detail_container_content {
   background-color: #333;
   color: white;
 
-  &.white-theme {
+  .white-theme & {
     background-color: white;
     color: black;
   }
@@ -762,73 +743,32 @@ a.collapse-all {
   display: block;
 }
 
-.job_details_content {
-  margin-right: 20px;
+#build-status-panel .job_details_content {
+  /*margin-right: 260px;*/
+  overflow: hidden;
 }
 
-@mixin apply-transition() {
-  -webkit-transition: all 200ms ease;
-  -moz-transition: all 200ms ease;
-  -ms-transition: all 200ms ease;
-  -o-transition: all 200ms ease;
-  transition: all 200ms ease;
-}
-
-.content_wrapper_inner {
-  overflow-x: hidden;
+#build-status-panel .sub_tabs_container,
+#build-status-panel .sub_tab_container {
+  margin-right: 15px;
 }
 
 .sidebar_history {
-  position: absolute;
-  width: $sidebar-width;
-  top: 0;
-  bottom: 0;
-  right: -$sidebar-width + $sidebar-border - $page-margin;
-  z-index: 1;
-
-  @mixin hide-handle {
-    border-color: transparent;
-  }
-
-  .sidebar-handle {
-    position: fixed;
-    @include apply-transition;
-    width: 0;
-    height: 0;
-    right: $sidebar-border;
-    top: 235px;
-    overflow: visible;
-    border-width: 25px 15px;
-    border-style: solid;
-    border-color: transparent $sidebar-color transparent transparent;
-    cursor: pointer;
-
-    &.hide-handle {
-      @include hide-handle;
-    }
-  }
-
-  &:hover, &.pin-this {
-    right: -$page-margin;
-
-    .sidebar-handle {
-      @include hide-handle;
-    }
-  }
-}
-
-.job_details_content, .job_details_content:after, #build_detail_summary_container, #build_detail_summary_container:after, .sidebar_history, .sidebar_history {
-  @include apply-transition;
+  float: right;
+  width: 257px;
+  border-left: 0;
 }
 
 .sidebar_history #build_history_holder {
-  border: $sidebar-border solid $sidebar-color;
+  border: 1px solid #ccc;
   background-color: #eee;
   padding: 15px 0px;
   margin-left: 0;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
+  box-shadow: 0 0 4px #ddd;
+  -webkit-box-shadow: 0 0 4px #ddd;
   overflow: hidden;
 }
 
@@ -843,10 +783,6 @@ a.collapse-all {
   margin-bottom: 0;
   background-image: none;
   border-bottom: 1px solid #ccc;
-
-  .sidebar-pin {
-    margin-top: 0;
-  }
 }
 
 .sidebar_history .passed .color_code_small /* legacy velocity style */

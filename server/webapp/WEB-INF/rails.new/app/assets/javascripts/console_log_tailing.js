@@ -24,62 +24,52 @@
       return;
     }
 
-    autoScrollButton.on('mouseenter', function () {
-      $('.scroll-help-text').show()
-    });
-
-    autoScrollButton.on('mouseleave', function () {
-      $('.scroll-help-text').hide();
-    });
-
-    var globalBackToTopButton      = $('#back_to_top'),
-        historySidebarContainer    = $('.sidebar_history'),
-        historySidebarHandle       = $('.sidebar-handle'),
-        historySidebarHandleHeight = historySidebarHandle.outerHeight(true),
-        historySidebar             = $('#build_history_holder'),
-        sidebarPin                 = $('.sidebar-pin'),
-        sidebarTop                 = historySidebar.offset().top,
-        consoleTab                 = $('#tab-content-of-console'),
-        failuresTab                = $('#tab-content-of-failures'),
-        sidebarBottom              = sidebarTop + historySidebar.get(0).getBoundingClientRect().height
+    var globalBackToTopButton = $('#back_to_top'),
+        consoleTab            = $('#tab-content-of-console'),
+        failuresTab           = $('#tab-content-of-failures'),
+        $window               = $(window)
       ;
 
-    $(window).on('scroll resize', function (evt) {
-      var delta                 = 5;
-      var currentHandlePosition = historySidebarHandle.position().top;
-      var shouldHideHandle      = currentHandlePosition + historySidebarHandleHeight + delta > sidebarBottom;
-      historySidebarHandle.toggleClass('hide-handle', shouldHideHandle);
-    });
 
     // hide the global "back to top" link, because the one on the console log goes well with the console log
     function maybeHideGlobalBackToTopButton() {
       var hideGlobalBackToTopButton = false,
-          topActionBar,
-          bottomActionBar;
+          activeTab;
 
       if (consoleTab.is(':visible')) {
         hideGlobalBackToTopButton = true;
-        if (!consoleTab.data('enable-scroll-to-fixed')) {
-          consoleTab.data('enable-scroll-to-fixed', true);
-          topActionBar    = consoleTab.find('.console-action-bar');
-          bottomActionBar = consoleTab.find('.console-footer-action-bar');
-        }
+        activeTab                 = consoleTab;
       }
 
       if (failuresTab.is(':visible')) {
         hideGlobalBackToTopButton = true;
-        if (!failuresTab.data('enable-scroll-to-fixed')) {
-          failuresTab.data('enable-scroll-to-fixed', true);
-          topActionBar    = failuresTab.find('.console-action-bar');
-          bottomActionBar = failuresTab.find('.console-footer-action-bar');
-        }
+        activeTab                 = failuresTab;
       }
 
-      if (topActionBar && bottomActionBar && topActionBar.length === 1 && bottomActionBar.length === 1) {
-        // pin the console action bar on top
-        topActionBar.scrollToFixed({marginTop: 90, zIndex: 100});
-        // and the other action bar to bottom
-        bottomActionBar.scrollToFixed({bottom: 0, limit: bottomActionBar.offset().top, zIndex: 100});
+      if (!activeTab) {
+        return;
+      }
+
+      if (!activeTab.data('enable-scroll-to-fixed')) {
+        activeTab.data('enable-scroll-to-fixed', true);
+        var topActionBar    = activeTab.find('.console-action-bar'),
+            bottomActionBar = activeTab.find('.console-footer-action-bar');
+
+        topActionBar.pinOnScroll({
+          'z-index':      100,
+          top:            90,
+          requiredScroll: 199
+        });
+
+        bottomActionBar.pinOnScroll({
+          'z-index':      100,
+          requiredScroll: 0,
+          bottomLimit:    function () {
+            return Math.min($window.height(), bottomActionBar.parent().get(0).getBoundingClientRect().bottom) - bottomActionBar.outerHeight(true);
+          }
+        });
+      } else {
+        return;
       }
 
       globalBackToTopButton.toggleClass('back_to_top', !hideGlobalBackToTopButton);
@@ -91,18 +81,5 @@
       window.setTimeout(maybeHideGlobalBackToTopButton, 50);
     });
 
-    var currentPinned = localStorage && localStorage.getItem('job-detail-sidebar-collapsed') === 'true';
-
-    sidebarPin.on('click', function () {
-      historySidebarContainer.toggleClass('pin-this');
-
-      $(this).toggleClass('pinned');
-      if (localStorage) {
-        localStorage.setItem('job-detail-sidebar-collapsed', $('.sidebar_history').hasClass('pin-this'));
-      }
-    });
-
-    sidebarPin.toggleClass('pinned', currentPinned);
-    historySidebarContainer.toggleClass('pin-this', currentPinned);
   });
 })(jQuery);

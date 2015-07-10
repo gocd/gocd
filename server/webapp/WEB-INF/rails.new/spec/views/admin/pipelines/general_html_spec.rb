@@ -23,7 +23,7 @@ describe "admin/pipelines/general.html.erb" do
     @pipeline = PipelineConfigMother.pipelineConfigWithTimer("pipeline-name", "1 1 1 1 1 1 1")
     assign(:pipeline, @pipeline)
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
 
     set(@cruise_config, "md5", "abc")
@@ -79,7 +79,7 @@ describe "admin/pipelines/general.html.erb" do
   end
 
   it "should render form with approval type as disabled if pipeline refers to a template" do
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     @pipeline = GoConfigMother.new.addPipelineWithTemplate(@cruise_config, "pipeline", "template", "stage", ["job"].to_java(java.lang.String))
     assign(:pipeline, @pipeline)
     assign(:cruise_config, @cruise_config)

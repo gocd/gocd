@@ -18,31 +18,33 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.Jetty9Server;
+import com.thoughtworks.go.server.config.GoSSLConfig;
+import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class GoSslSocketConnector implements GoSocketConnector {
-    private static Logger LOGGER = Logger.getLogger(GoSslSocketConnector.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GoSslSocketConnector.class.getName());
     private final String password;
     private final SystemEnvironment systemEnvironment;
-    private final GoCipherSuite goCipherSuite;
+    private final GoSSLConfig goSSLConfig;
     private final File keystore;
     private final File truststore;
     private final File agentKeystore;
     private final Connector connector;
 
-    public GoSslSocketConnector(Jetty9Server server, String password, SystemEnvironment systemEnvironment, GoCipherSuite goCipherSuite) {
+    public GoSslSocketConnector(Jetty9Server server, String password, SystemEnvironment systemEnvironment, GoSSLConfig goSSLConfig) {
         this.password = password;
         this.systemEnvironment = systemEnvironment;
-        this.goCipherSuite = goCipherSuite;
+        this.goSSLConfig = goSSLConfig;
         this.keystore = systemEnvironment.keystore();
         this.truststore = systemEnvironment.truststore();
         this.agentKeystore = systemEnvironment.agentkeystore();
@@ -65,8 +67,17 @@ public class GoSslSocketConnector implements GoSocketConnector {
         sslContextFactory.setTrustStorePath(truststore.getPath());
         sslContextFactory.setTrustStorePassword(password);
         sslContextFactory.setWantClientAuth(true);
-        sslContextFactory.setIncludeCipherSuites(goCipherSuite.getCipherSuitsToBeIncluded());
 
+        if(!ArrayUtil.isEmpty(goSSLConfig.getCipherSuitesToBeIncluded())) sslContextFactory.setIncludeCipherSuites(goSSLConfig.getCipherSuitesToBeIncluded());
+        if(!ArrayUtil.isEmpty(goSSLConfig.getCipherSuitesToBeExcluded())) sslContextFactory.setExcludeCipherSuites(goSSLConfig.getCipherSuitesToBeExcluded());
+        if(!ArrayUtil.isEmpty(goSSLConfig.getProtocolsToBeExcluded())) sslContextFactory.setExcludeProtocols(goSSLConfig.getProtocolsToBeExcluded());
+        if(!ArrayUtil.isEmpty(goSSLConfig.getProtocolsToBeIncluded())) sslContextFactory.setIncludeProtocols(goSSLConfig.getProtocolsToBeIncluded());
+        sslContextFactory.setRenegotiationAllowed(goSSLConfig.isRenegotiationAllowed());
+        LOGGER.info("Included ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeIncluded()));
+        LOGGER.info("Excluded ciphers: {}", ArrayUtil.join(goSSLConfig.getCipherSuitesToBeExcluded()));
+        LOGGER.info("Included protocols: {}", ArrayUtil.join(goSSLConfig.getProtocolsToBeIncluded()));
+        LOGGER.info("Excluded protocols: {}", ArrayUtil.join(goSSLConfig.getProtocolsToBeExcluded()));
+        LOGGER.info("Renegotiation Allowed: {}", goSSLConfig.isRenegotiationAllowed());
         ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
         https.setHost(systemEnvironment.getListenHost());
         https.setPort(systemEnvironment.getSslServerPort());

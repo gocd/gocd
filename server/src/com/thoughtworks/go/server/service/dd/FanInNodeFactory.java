@@ -22,11 +22,12 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-public class FanInNodeFactory{
-    public static FanInNode create(MaterialConfig material){
+public class FanInNodeFactory {
+    public static FanInNode create(MaterialConfig material) {
         if (material instanceof ScmMaterialConfig || material instanceof PackageMaterialConfig || material instanceof PluggableSCMMaterialConfig)
             return new RootFanInNode(material);
-        if(material instanceof DependencyMaterialConfig) return new DependencyFanInNode(material);
+        if (material instanceof DependencyMaterialConfig)
+            return new DependencyFanInNode(material);
         throw new RuntimeException("Not a valid material type");
     }
 }

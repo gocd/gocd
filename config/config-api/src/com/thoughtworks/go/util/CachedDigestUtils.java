@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.util.pool.DigestObjectPools;
 import org.apache.commons.codec.binary.Hex;
@@ -36,7 +37,7 @@ public class CachedDigestUtils {
 
     private static final int STREAM_BUFFER_LENGTH = 1024;
     private static DigestObjectPools objectPools = new DigestObjectPools();
-    private static ConcurrentHashMap<String, String> shaDigestCache = new ConcurrentHashMap<String, String>();
+    private static ConcurrentMap<String, String> shaDigestCache = new ConcurrentHashMap<String, String>();
 
     public static String sha256Hex(String string) {
         if (shaDigestCache.containsKey(string)) {

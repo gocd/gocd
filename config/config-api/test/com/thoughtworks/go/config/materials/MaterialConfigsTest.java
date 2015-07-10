@@ -195,8 +195,8 @@ Above scenario allowed
     public void shouldReturnTrueWhenDependencyPipelineDoesNotExist() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
-        goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
-        pipelineConfig.materialConfigs().validate(ValidationContext.forChain(cruiseConfig));
+        goConfigMother.setDependencyOn(cruiseConfig,pipelineConfig, "pipeline2", "stage");
+        pipelineConfig.materialConfigs().validate(ValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(),pipelineConfig));
         assertThat(pipelineConfig.materialConfigs().errors().isEmpty(), is(true));
     }
 

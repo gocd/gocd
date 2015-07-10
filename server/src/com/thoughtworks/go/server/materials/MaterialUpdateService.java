@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
@@ -63,8 +64,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     private final SystemEnvironment systemEnvironment;
     private ServerHealthService serverHealthService;
 
-    private ConcurrentHashMap<Material, Date> inProgress = new ConcurrentHashMap<Material, Date>();
-    private ConcurrentHashMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<Material, Long>();
+    private ConcurrentMap<Material, Date> inProgress = new ConcurrentHashMap<Material, Date>();
+    private ConcurrentMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<Material, Long>();
 
     private final PostCommitHookMaterialTypeResolver postCommitHookMaterialType;
     private final MDUPerformanceLogger mduPerformanceLogger;

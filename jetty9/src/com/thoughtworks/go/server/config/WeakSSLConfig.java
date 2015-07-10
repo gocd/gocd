@@ -14,23 +14,23 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.server.util;
+package com.thoughtworks.go.server.config;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GoCipherSuite {
+public class WeakSSLConfig implements SSLConfig {
     private final SSLSocketFactory socketFactory;
     private List<String> cipherSuitesSupportedByGo = Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5");
 
-    public GoCipherSuite(SSLSocketFactory socketFactory) {
+    public WeakSSLConfig(SSLSocketFactory socketFactory) {
         this.socketFactory = socketFactory;
     }
 
-    public String[] getCipherSuitsToBeIncluded() {
-
+    @Override
+    public String[] getCipherSuitesToBeIncluded() {
         String[] supportedCipherSuites = socketFactory.getSupportedCipherSuites();
 
         ArrayList<String> suitesToBeIncluded = new ArrayList<String>();
@@ -44,5 +44,25 @@ public class GoCipherSuite {
             return supportedCipherSuites;
         }
         return cipherSuitesSupportedByGo.toArray(new String[cipherSuitesSupportedByGo.size()]);
+    }
+
+    @Override
+    public String[] getCipherSuitesToBeExcluded() {
+        return null;
+    }
+
+    @Override
+    public String[] getProtocolsToBeExcluded() {
+        return null;
+    }
+
+    @Override
+    public String[] getProtocolsToBeIncluded() {
+        return null;
+    }
+
+    @Override
+    public boolean isRenegotiationAllowed() {
+        return true;
     }
 }

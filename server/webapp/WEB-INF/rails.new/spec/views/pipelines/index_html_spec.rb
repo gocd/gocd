@@ -35,7 +35,7 @@ describe "pipelines/index.html.erb" do
     @pipeline_group_model_empty = PipelineGroupModel.new("group-3-empty")
     assign(:pipeline_selections, PipelineSelections.new())
     assign(:pipeline_groups, [@pipeline_group_model, @pipeline_group_model_other, @pipeline_group_model_empty])
-    assign(:pipeline_configs, PipelineConfigs.new)
+    assign(:pipeline_configs, BasicPipelineConfigs.new)
     class << view
       include StagesHelper
     end

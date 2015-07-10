@@ -281,7 +281,7 @@ describe Admin::Materials::PluggableScmController do
   def setup_data
     controller.stub(:populate_config_validity)
 
-    @cruise_config = CruiseConfig.new()
+    @cruise_config = BasicCruiseConfig.new()
     scms = com.thoughtworks.go.domain.scm.SCMs.new
     scms.add(@material.getSCMConfig())
     @cruise_config.setSCMs(scms)

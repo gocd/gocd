@@ -70,7 +70,7 @@ describe Admin::TasksController do
       @user = current_user
       @result = stub_localized_result
 
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       @cruise_config.addPipeline("my-groups", @pipeline)
       set(@cruise_config, "md5", "abcd1234")
 

@@ -67,7 +67,7 @@ describe Admin::JobsController do
     before(:each) do
       controller.stub(:populate_config_validity)
 
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       @pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-1", "job-2", "job-3"].to_java(java.lang.String))
       @cruise_config.addPipeline("defaultGroup", @pipeline)
 

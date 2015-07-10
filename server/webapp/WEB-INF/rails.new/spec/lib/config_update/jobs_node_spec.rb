@@ -21,7 +21,7 @@ describe ::ConfigUpdate::JobsNode do
 
   before(:each) do
     allow(self).to receive(:params).and_return(@params = {})
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     @cruise_config.addPipeline("go-group", pipeline = PipelineConfigMother.createPipelineConfig("pipeline", "stage", ["foo", "bar", "baz"].to_java(java.lang.String)))
     @jobs = pipeline.getStage(CaseInsensitiveString.new("stage")).getJobs()
   end

@@ -26,7 +26,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     view.stub(:tab_with_display_name).and_return("tab_link")
     view.stub(:mycruise_available?).and_return(false)
     view.stub(:can_view_admin_page?).and_return(true)
-    assign(:cruise_config, cruise_config = CruiseConfig.new)
+    assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
     assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_2_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
@@ -46,7 +46,7 @@ describe "admin/pipeline_groups/index.html.erb" do
       pipeline_one = PipelineConfigMother.pipelineConfig("pipeline_in_#{name}")
       pipeline_two = PipelineConfigMother.pipelineConfig("pipeline_2_in_#{name}")
       pipeline_three = PipelineConfigMother.pipelineConfigWithTemplate("pipeline_with_template_in_#{name}", "some_template")
-      PipelineConfigs.new(name, Authorization.new, [pipeline_one, pipeline_two, pipeline_three].to_java(PipelineConfig))
+      BasicPipelineConfigs.new(name, Authorization.new, [pipeline_one, pipeline_two, pipeline_three].to_java(PipelineConfig))
     end
   end
 
@@ -57,7 +57,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   end
 
   it "should display a message if the pipeline group is empty" do
-    assign(:groups, [PipelineConfigs.new("group", Authorization.new, [].to_java(PipelineConfig))])
+    assign(:groups, [BasicPipelineConfigs.new("group", Authorization.new, [].to_java(PipelineConfig))])
     assign(:pipeline_to_can_delete, {})
 
     render
@@ -123,7 +123,7 @@ describe "admin/pipeline_groups/index.html.erb" do
 
   describe "delete pipeline" do
     it "should display delete link next to an empty pipeline group" do
-      assign(:groups, [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
+      assign(:groups, [BasicPipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
       render
 
       Capybara.string(response.body).find('div.group_pipelines').tap do |div|
@@ -140,7 +140,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should not display delete link if user is group admin" do
-      assign(:groups, [PipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
+      assign(:groups, [BasicPipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
       view.stub(:is_user_an_admin?).and_return(false)
 
       render
@@ -300,7 +300,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should display link when no pipelines exist for a group" do
-      assign(:groups, [PipelineConfigs.new("some-group", Authorization.new, [].to_java(PipelineConfig))])
+      assign(:groups, [BasicPipelineConfigs.new("some-group", Authorization.new, [].to_java(PipelineConfig))])
 
       render
 

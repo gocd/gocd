@@ -20,7 +20,7 @@ describe "environments/edit_variables.html.erb" do
   include GoUtil, FormUI, ReflectiveUtil
   
   before do
-    @environment = EnvironmentConfig.new()
+    @environment = BasicEnvironmentConfig.new()
     @environment.addEnvironmentVariable("plain_name", "plain_value")
     assign(:environment, @environment)
 

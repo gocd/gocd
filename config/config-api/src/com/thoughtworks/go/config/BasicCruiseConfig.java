@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.annotation.PostConstruct;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -83,7 +84,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     private String md5;
     private ConfigErrors errors = new ConfigErrors();
 
-    private ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+    private ConcurrentMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
     private List<PipelineConfig> allPipelineConfigs;
 
     public BasicCruiseConfig() {

@@ -71,6 +71,8 @@ public class Jetty9ServerTest {
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
         when(systemEnvironment.configDir()).thenReturn(configDir = temporaryFolder.newFile());
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_ALLOW)).thenReturn(true);
+        when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
 
         sslSocketFactory = mock(SSLSocketFactory.class);

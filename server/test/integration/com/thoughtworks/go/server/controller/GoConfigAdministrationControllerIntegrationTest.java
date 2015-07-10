@@ -16,12 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigSchema;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
@@ -29,7 +24,6 @@ import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.json.Json;
 import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.util.json.JsonString;
@@ -50,12 +44,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
+import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.lang.StringEscapeUtils.unescapeJavaScript;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
@@ -180,7 +176,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 4, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Build does not exist.',"
@@ -236,7 +232,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'JobConfig changed successfully.' }"
@@ -249,7 +245,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String newXml = "<job name=\"build3\" />";
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : '" + ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH + "',"
@@ -263,7 +259,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 4, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Build does not exist.',"
@@ -277,7 +273,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         JsonMap expected = new JsonMap();
         expected.put("result", "Duplicate unique value [build2] declared for identity constraint \"uniqueJob\" of element \"jobs\".");
@@ -291,7 +287,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Error on line 1 of document  : The markup in the document preceding the root element must be well-formed. Nested exception: The markup in the document preceding the root element must be well-formed.',"
@@ -309,7 +305,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         JsonValue jsonValue = JsonUtils.from(json);
         assertThat(unescapeJavaScript(jsonValue.getString("originalContent")), is(badXml));
@@ -405,7 +401,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postStageAsXmlPartial("pipeline", 0, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Stage changed successfully.' }"
@@ -418,7 +414,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         assertResponseMessage(mav, "Group changed successfully.");
     }
 
@@ -432,7 +428,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
         assertResponseMessage(mav, "Group changed successfully.");
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
     }
 
     @Test
@@ -444,7 +440,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         ModelAndView mav = controller.postGroupAsXmlPartial("Pipeline Templates", newXml, md5, response);
         assertResponseMessage(mav, "Template changed successfully.");
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         assertThat(configHelper.currentConfig().getTemplates().size(), is(1));
     }
 
@@ -457,7 +453,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         ModelAndView mav = controller.postGroupAsXmlPartial("Pipeline Templates", newXml, md5, response);
         assertResponseMessage(mav, "Template changed successfully.");
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         assertThat(configHelper.currentConfig().getTemplates().size(), is(1));
     }
 
@@ -474,7 +470,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         assertResponseMessage(mav, "Group changed successfully.");
 
     }
@@ -485,7 +481,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postStageAsXmlPartial("pipeline", 4, NEW_STAGE, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         JsonMap jsonMap = new JsonMap();
         jsonMap.put("result", "Stage does not exist.");
@@ -499,7 +495,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postStageAsXmlPartial("pipeline", 0, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Error on line 1 of document  : The markup in the document preceding the root element must be well-formed. Nested exception: The markup in the document preceding the root element must be well-formed.',"
@@ -567,7 +563,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         ModelAndView mav = controller.postPipelineAsXmlPartial(0, groupName, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Pipeline changed successfully.' }"
@@ -731,7 +727,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postPipelineAsXmlPartial(4, groupName, NEW_PIPELINE, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         JsonMap jsonMap = new JsonMap();
         jsonMap.put("result", "Pipeline does not exist.");
@@ -746,7 +742,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postPipelineAsXmlPartial(0, groupName, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         Json json = (Json) mav.getModel().get("json");
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Error on line 1 of document  : The markup in the document preceding the root element must be well-formed. Nested exception: The markup in the document preceding the root element must be well-formed.',"
@@ -771,7 +767,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postPipelineAsXmlPartial(0, groupName, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET));
+        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
         JsonMap json = (JsonMap) mav.getModel().get("json");
         assertThat(json.get("result").toString(), containsString("Label is invalid"));
         assertThat(json.get("originalContent"), is((Json) new JsonString(badXml)));

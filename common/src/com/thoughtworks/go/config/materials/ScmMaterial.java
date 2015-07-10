@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.io.File;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -26,11 +23,13 @@ import com.thoughtworks.go.domain.materials.MatchedRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.UrlArgument;
 import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 
@@ -202,14 +201,9 @@ public abstract class ScmMaterial extends AbstractMaterial {
         return result;
     }
 
-    public boolean hasDestination() {
-        return !StringUtil.isBlank(folder);
-    }
-
     public static String changesetUrl(Modification modification, String baseUrl, final long id) {
         return baseUrl + "/api/materials/" + id + "/changeset/" + modification.getRevision() + ".xml";
     }
-
 
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         return false;
@@ -222,5 +216,10 @@ public abstract class ScmMaterial extends AbstractMaterial {
 
     public Revision oldestRevision(Modifications modifications) {
         return Modification.oldestRevision(modifications);
+    }
+
+    @Override
+    public boolean supportsDestinationFolder() {
+        return true;
     }
 }

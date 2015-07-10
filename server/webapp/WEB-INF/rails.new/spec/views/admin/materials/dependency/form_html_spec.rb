@@ -23,7 +23,7 @@ describe "_form.html.erb" do
     @material_config = DependencyMaterialConfig.new(CaseInsensitiveString.new("up-pipeline"), CaseInsensitiveString.new("up-stage"))
     @material_config.setName(CaseInsensitiveString.new("Dependency Material Name"))
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     set(@cruise_config, "md5", "abc")
   end
 

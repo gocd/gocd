@@ -32,7 +32,7 @@ describe "admin/pipelines/environment_variables.html.erb" do
     @pipeline.setVariables(@variables)
     assign(:pipeline, @pipeline)
 
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
 
     assign(:cruise_config, @cruise_config)
     @cruise_config.addPipeline("group-1", @pipeline)

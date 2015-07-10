@@ -33,7 +33,7 @@ describe "admin/stages/environment_variables.html.erb" do
     assign(:pipeline, pipeline)
     assign(:stage, @stage)
 
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     assign(:cruise_config, @cruise_config)
     @cruise_config.addPipeline("group-1", pipeline)
 

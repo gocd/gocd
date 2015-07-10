@@ -23,7 +23,7 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
     @pipeline_group_one_admin = Username.new(CaseInsensitiveString.new("group-one-admin"))
     @pipeline_group_two_admin = Username.new(CaseInsensitiveString.new("group-two-admin"))
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     security_config = SecurityConfig.new()
     security_config.modifyPasswordFile(PasswordFileConfig.new("/tmp/pass"));
     admin_config = security_config.adminsConfig()
@@ -31,11 +31,11 @@ describe "admin/package_definitions/pipelines_used_in.html.erb" do
     server_config = ServerConfig.new("artifacts-dir", security_config)
     @cruise_config.setServerConfig(server_config)
 
-    @group_one = PipelineConfigs.new()
+    @group_one = BasicPipelineConfigs.new()
     @group_one.setGroup("group-one")
     @group_one.getAuthorization().getAdminsConfig().add(com.thoughtworks.go.config.AdminUser.new(@pipeline_group_one_admin.getUsername()))
 
-    group_two = PipelineConfigs.new()
+    group_two = BasicPipelineConfigs.new()
     group_two.setGroup("group-two")
     group_two.getAuthorization().getAdminsConfig().add(com.thoughtworks.go.config.AdminUser.new(@pipeline_group_two_admin.getUsername()))
 

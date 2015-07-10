@@ -16,34 +16,16 @@
 
 package com.thoughtworks.go.server.service.dd;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-public class RootFanInNode extends FanInNode {
-    private static List<Class<? extends MaterialConfig>> ROOT_NODE_TYPES = new ArrayList<Class<? extends MaterialConfig>>();
-    PipelineTimelineEntry.Revision scmRevision;
+import java.util.Set;
 
-    static {
-        ROOT_NODE_TYPES.add(ScmMaterialConfig.class);
-        ROOT_NODE_TYPES.add(PackageMaterialConfig.class);
-        ROOT_NODE_TYPES.add(PluggableSCMMaterialConfig.class);
-    }
+public class RootFanInNode extends FanInNode {
+    PipelineTimelineEntry.Revision scmRevision;
 
     RootFanInNode(MaterialConfig material) {
         super(material);
-        for (Class<? extends MaterialConfig> clazz : ROOT_NODE_TYPES) {
-            if (clazz.isAssignableFrom(material.getClass())) {
-                return;
-            }
-        }
-        throw new RuntimeException("Not a valid root node material type");
     }
 
     public void setScmRevision(Set<FaninScmMaterial> allScmMaterials) {
@@ -54,5 +36,4 @@ public class RootFanInNode extends FanInNode {
             }
         }
     }
-
 }

@@ -16,22 +16,16 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helpers.GraphGenerator;
 import com.thoughtworks.go.junitext.DatabaseChecker;
 import com.thoughtworks.go.junitext.GoJUnitExtSpringRunner;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -50,6 +44,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -60,16 +57,22 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ValueStreamMapPerformanceTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private ValueStreamMapService valueStreamMapService;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ValueStreamMapService valueStreamMapService;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     private GoConfigFileHelper configHelper;
     private ScheduleTestUtil u;
-
+    private GraphGenerator graphGenerator;
 
     @Before
     public void setup() throws Exception {
@@ -79,6 +82,7 @@ public class ValueStreamMapPerformanceTest {
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
+        graphGenerator = new GraphGenerator(configHelper, u);
     }
 
     @After
@@ -128,67 +132,18 @@ public class ValueStreamMapPerformanceTest {
         String[] svn_revs = {"svn_1"};
         u.checkinInOrder(svn, svn_revs);
 
-        PipelineConfig upstreamConfig = createPipelineWithInstances("upstream", new ArrayList<PipelineConfig>(), 1);
-        PipelineConfig currentConfig = createMesh(upstreamConfig, "current", "up", numberOfInstancesForUpstream, numberOfNodesPerLevel, numberOfLevels);
-        createMesh(currentConfig, "downstream", "down", numberOfInstancesForDownstream, numberOfNodesPerLevel, numberOfLevels);
+        PipelineConfig upstreamConfig = graphGenerator.createPipelineWithInstances("upstream", new ArrayList<PipelineConfig>(), 1);
+        PipelineConfig currentConfig = graphGenerator.createMesh(upstreamConfig, "current", "up", numberOfInstancesForUpstream, numberOfNodesPerLevel, numberOfLevels);
+        graphGenerator.createMesh(currentConfig, "downstream", "down", numberOfInstancesForDownstream, numberOfNodesPerLevel, numberOfLevels);
 
         long start = System.currentTimeMillis();
-        valueStreamMapService.getValueStreamMap("current", 1, Username.ANONYMOUS, new DefaultLocalizedOperationResult());
+        DefaultLocalizedOperationResult result = new DefaultLocalizedOperationResult();
+        ValueStreamMapPresentationModel presentationModel = valueStreamMapService.getValueStreamMap("current", 1, Username.ANONYMOUS, result);
         long timeTaken = (System.currentTimeMillis() - start) / 1000;
         assertThat(String.format("VSM took %ds. Should have been generated in 30s.", timeTaken), timeTaken, Matchers.lessThan(30l));
-    }
 
-    private PipelineConfig createMesh(PipelineConfig startNode, String endNodeName, String pipelineNameSuffix, int numberOfInstances, int numberOfNodesPerLevel, int numberOfLevels) {
-        List<PipelineConfig> previousNodes = new ArrayList<PipelineConfig>();
-        previousNodes.add(startNode);
-        List<PipelineConfig> currentNodes = new ArrayList<PipelineConfig>();
-        for (int i = 1; i <= numberOfLevels; i++) {
-            for (int j = 1; j <= numberOfNodesPerLevel; j++) {
-                String pipelineName = String.format("pipeline_%s_%d_%d", pipelineNameSuffix, i, j);
-                PipelineConfig pipelineConfig = createPipelineWithInstances(pipelineName, previousNodes, numberOfInstances);
-                currentNodes.add(pipelineConfig);
-            }
-            previousNodes = currentNodes;
-            currentNodes = new ArrayList<PipelineConfig>();
-        }
-        return createPipelineWithInstances(endNodeName, previousNodes, numberOfInstances);
-    }
-
-    private PipelineConfig createPipelineWithInstances(String pipelineName, List<PipelineConfig> previousNodes, int numberOfInstances) {
-        PipelineConfig pipelineConfig = getPipelineWithName(pipelineName, previousNodes);
-        configHelper.addPipeline(pipelineConfig);
-
-        createInstances(numberOfInstances, previousNodes, pipelineConfig);
-        return pipelineConfig;
-    }
-
-    private void createInstances(int numberOfInstances, List<PipelineConfig> previousNodes, PipelineConfig pipelineConfig) {
-        for (int k = 1; k <= numberOfInstances; k++) {
-            List<String> previousRevisions = new ArrayList<String>();
-            previousRevisions.add("svn_1");
-            int instanceCount = previousNodes.size() == 1 ? 1 : k;
-            for (int x = 0; x < previousNodes.size(); x++) {
-                previousRevisions.add(String.format("%s/%d/stage/1", previousNodes.get(x).name().toString(), instanceCount));
-            }
-            u.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), new CaseInsensitiveString("stage"))),
-                    previousRevisions.toArray(new String[previousRevisions.size()]));
-        }
-    }
-
-    private void addDependencyMaterials(PipelineConfig pipelineConfig, List<PipelineConfig> pipelineDependencies) {
-        for (PipelineConfig pipelineDependency : pipelineDependencies) {
-            pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(pipelineDependency.name(), new CaseInsensitiveString("stage")));
-        }
-    }
-
-    private PipelineConfig getPipelineWithName(String startNode) {
-        return PipelineMother.createPipelineConfig(startNode, MaterialConfigsMother.defaultMaterialConfigs(), "stage");
-    }
-
-    private PipelineConfig getPipelineWithName(String startNode, List<PipelineConfig> materials) {
-        PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig(startNode, MaterialConfigsMother.defaultMaterialConfigs(), "stage");
-        addDependencyMaterials(pipelineConfig, materials);
-        return pipelineConfig;
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(presentationModel.getNodesAtEachLevel().size(), is(14));
     }
 
     private void doRun(int numberOfDownstreamPipelines, CruiseConfig cruiseConfig, String threadName) throws InterruptedException {
@@ -226,6 +181,4 @@ public class ValueStreamMapPerformanceTest {
         }
         return goConfigDao.load();
     }
-
-
 }

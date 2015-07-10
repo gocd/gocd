@@ -274,10 +274,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         }
     }
 
-    public boolean hasDestination() {
-        return !StringUtil.isBlank(folder);
-    }
-
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         return false;
     }

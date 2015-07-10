@@ -16,17 +16,6 @@
 
 package com.thoughtworks.go.server.service.dd;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
@@ -39,14 +28,14 @@ import com.thoughtworks.go.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
-import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALL_OPTIONS_EXHAUSTED;
-import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.ALTERED_TO_CORRECT_REVISION;
-import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.NEED_MORE_REVISIONS;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.*;
 
 public class DependencyFanInNode extends FanInNode {
     private static final Logger LOGGER = Logger.getLogger(DependencyFanInNode.class);
 
-    private static List<Class<? extends MaterialConfig>> DEPENDENCY_NODE_TYPES = new ArrayList<Class<? extends MaterialConfig>>();
     private int totalInstanceCount = Integer.MAX_VALUE;
     private int maxBackTrackLimit = Integer.MAX_VALUE;
     private int currentCount;
@@ -59,22 +48,11 @@ public class DependencyFanInNode extends FanInNode {
     }
 
     enum RevisionAlteration {
-        NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED,
-        NEED_MORE_REVISIONS
-    }
-
-    static {
-        DEPENDENCY_NODE_TYPES.add(DependencyMaterialConfig.class);
+        NOT_APPLICABLE, SAME_AS_CURRENT_REVISION, ALTERED_TO_CORRECT_REVISION, ALL_OPTIONS_EXHAUSTED, NEED_MORE_REVISIONS
     }
 
     DependencyFanInNode(MaterialConfig material) {
         super(material);
-        for (Class<? extends MaterialConfig> clazz : DEPENDENCY_NODE_TYPES) {
-            if (clazz.isAssignableFrom(material.getClass())) {
-                return;
-            }
-        }
-        throw new RuntimeException("Not a valid root node material type");
     }
 
     public void populateRevisions(CaseInsensitiveString pipelineName, FanInGraphContext context) {
@@ -160,9 +138,11 @@ public class DependencyFanInNode extends FanInNode {
         DependencyMaterialConfig dependencyMaterial = (DependencyMaterialConfig) materialConfig;
         PipelineTimelineEntry entry = pipelineTimeline.instanceFor(dependencyMaterial.getPipelineName(), totalInstanceCount - n);
 
+        Set<CaseInsensitiveString> visitedNodes = new HashSet<CaseInsensitiveString>();
+
         StageIdentifier dependentStageIdentifier = dependentStageIdentifier(context, entry, CaseInsensitiveString.str(dependencyMaterial.getStageName()));
         if (!StageIdentifier.NULL.equals(dependentStageIdentifier)) {
-            addToRevisionQueue(entry, revisionQueue, scmMaterials, context);
+            addToRevisionQueue(entry, revisionQueue, scmMaterials, context, visitedNodes);
         } else {
             return null;
         }
@@ -170,7 +150,7 @@ public class DependencyFanInNode extends FanInNode {
             PipelineTimelineEntry.Revision revision = revisionQueue.poll();
             DependencyMaterialRevision dmr = DependencyMaterialRevision.create(revision.revision, null);
             PipelineTimelineEntry pte = pipelineTimeline.getEntryFor(new CaseInsensitiveString(dmr.getPipelineName()), dmr.getPipelineCounter());
-            addToRevisionQueue(pte, revisionQueue, scmMaterials, context);
+            addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes);
         }
 
         return new Pair<StageIdentifier, List<FaninScmMaterial>>(dependentStageIdentifier, scmMaterials);
@@ -224,7 +204,7 @@ public class DependencyFanInNode extends FanInNode {
     }
 
     private void addToRevisionQueue(PipelineTimelineEntry entry, Queue<PipelineTimelineEntry.Revision> revisionQueue, List<FaninScmMaterial> scmMaterials,
-                                    FanInGraphContext context) {
+                                    FanInGraphContext context, Set<CaseInsensitiveString> visitedNodes) {
         for (Map.Entry<String, List<PipelineTimelineEntry.Revision>> revisionList : entry.revisions().entrySet()) {
             String fingerprint = revisionList.getKey();
             PipelineTimelineEntry.Revision revision = revisionList.getValue().get(0);
@@ -233,8 +213,9 @@ public class DependencyFanInNode extends FanInNode {
                 continue;
             }
 
-            if (isDependencyMaterial(fingerprint, context)) {
+            if (isDependencyMaterial(fingerprint, context) && !visitedNodes.contains(new CaseInsensitiveString(revision.revision))) {
                 revisionQueue.add(revision);
+                visitedNodes.add(new CaseInsensitiveString(revision.revision));
             }
         }
     }
@@ -261,7 +242,7 @@ public class DependencyFanInNode extends FanInNode {
         if (!stageIdentifierScmMaterial.get(currentRevision).contains(revisionToSet.faninScmMaterial)) {
             return RevisionAlteration.NOT_APPLICABLE;
         }
-        ArrayList<StageIdentifier> stageIdentifiers = new ArrayList<StageIdentifier>(stageIdentifierScmMaterial.keySet());
+        List<StageIdentifier> stageIdentifiers = new ArrayList<StageIdentifier>(stageIdentifierScmMaterial.keySet());
         int currentRevIndex = stageIdentifiers.indexOf(currentRevision);
         for (int i = currentRevIndex; i < stageIdentifiers.size(); i++) {
             final StageIdentifier key = stageIdentifiers.get(i);

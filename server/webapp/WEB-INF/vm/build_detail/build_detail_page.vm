@@ -118,17 +118,13 @@
                                     <div class="clear"></div>
 
                                     #set($buildoutput_extra_attrs="")
-                                    <span class='console_tab_content_container'>
-                                        #parse("build_detail/_buildoutput.vm")
-                                    </span>
+                                    #parse("build_detail/_buildoutput.vm")
 
                                     #set($tests_extra_attrs="style='display:none'")
                                     #parse("build_detail/_tests.vm")
 
                                     #set($errors_extra_attrs="style='display:none'")
-                                    <span class='failures_tab_content_container'>
-                                        #parse("build_detail/_failures.vm")
-                                    </span>
+                                    #parse("build_detail/_failures.vm")
 
                                     #set($artifacts_extra_attrs="style='display:none'")
                                     #parse("build_detail/_artifacts.vm")
@@ -167,7 +163,9 @@
     var tabsManager = new TabsManager(undefined, 'build', '${presenter.pipelineName}-${presenter.stageName}-${presenter.buildName}', 'console', subtab_callback_map);
 
     var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}');
-    var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}', {colorize: $color_logs_feature_toggle_key});
+    var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}', {
+        colorize:      $color_logs_feature_toggle_key
+    });
     dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
     dashboard_periodical_executer.start();
 
@@ -175,11 +173,7 @@
 
     jQuery(function(){
         jQuery(document).on('click.changeTheme', '.change-theme', function(evt){
-            if (jQuery('.buildoutput_pre').length === 0){
-                return; // there's no theme to change
-            }
-            jQuery('.buildoutput_pre').toggleClass('white-theme');
-            jQuery('.console-action-bar').toggleClass('white-theme');
+            jQuery('.sub_tab_container_content').toggleClass('white-theme')
         });
     });
 

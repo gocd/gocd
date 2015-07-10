@@ -14,19 +14,22 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.server;
+package com.thoughtworks.go.server.config;
 
-import com.thoughtworks.go.server.util.GoCipherSuite;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.Before;
 import org.junit.Test;
+
 import javax.net.ssl.SSLSocketFactory;
 import java.util.Arrays;
 import java.util.List;
+
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class GoCipherSuiteTest {
+public class WeakSSLConfigTest {
     @Test
     public void shouldIncludeTheMagicThreeWhichAreSupportedByOurJetty() throws Exception {
         SSLSocketFactory socketFactory = mock(SSLSocketFactory.class);
@@ -44,9 +47,9 @@ public class GoCipherSuiteTest {
                 , "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
                 , "SSL_RSA_WITH_RC4_128_MD5"
                 , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"});
-        GoCipherSuite goCipherSuite = new GoCipherSuite(socketFactory);
+        WeakSSLConfig sslConfig = new WeakSSLConfig(socketFactory);
 
-        assertThat(Arrays.asList(goCipherSuite.getCipherSuitsToBeIncluded()), is(Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5")));
+        assertThat(Arrays.asList(sslConfig.getCipherSuitesToBeIncluded()), is(Arrays.asList("SSL_RSA_WITH_RC4_128_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_RC4_128_MD5")));
     }
 
     @Test
@@ -64,9 +67,9 @@ public class GoCipherSuiteTest {
                 , "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA"
                 , "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"};
         when(socketFactory.getSupportedCipherSuites()).thenReturn(supportedSuites);
-        GoCipherSuite goCipherSuite = new GoCipherSuite(socketFactory);
+        WeakSSLConfig goSSLConfig = new WeakSSLConfig(socketFactory);
 
-        List<String> includedSuites = Arrays.asList(goCipherSuite.getCipherSuitsToBeIncluded());
+        List<String> includedSuites = Arrays.asList(goSSLConfig.getCipherSuitesToBeIncluded());
         assertThat(includedSuites.size(), is(supportedSuites.length));
 
         for (String cipherSuite : includedSuites) {

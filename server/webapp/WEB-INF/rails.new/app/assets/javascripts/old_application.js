@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -397,7 +397,7 @@ function iframeResizer(Iframe){
  }
 
 //Back to top button
-jQuery(function(){
+jQuery(function () {
     //user drop-down  starts
     new UserOptionsOnHeader().init();
     //user drop-down  ends
@@ -416,9 +416,8 @@ jQuery(function(){
             jQuery('.back_to_top').fadeOut(200);
 
     });
-    jQuery('.back_to_top').click(function(){
-        jQuery('body,html').animate({scrollTop : 0},'fast');
-
+    jQuery('.back_to_top,.back-to-top-in-console').click(function(){
+        jQuery('body,html').stop(true).animate({scrollTop : 0},'fast');
     });
 });
 

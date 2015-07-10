@@ -45,6 +45,7 @@ public class GoConstants {
     public static final String ERROR_FOR_GLOBAL_MESSAGE = "global_error_message";
     public static final String SUCCESS_MESSAGE = "success_message";
     public static final String RESPONSE_CHARSET = "text/plain; charset=utf-8";
+    public static final String RESPONSE_CHARSET_JSON = "application/json; charset=utf-8";
     public static final String CRUISE_PIPELINE_LABEL = "cruise_pipeline_label";
     public static final String CRUISE_PIPELINE_COUNTER = "cruise_pipeline_counter";
     public static final String CRUISE_STAGE_COUNTER = "cruise_stage_counter";

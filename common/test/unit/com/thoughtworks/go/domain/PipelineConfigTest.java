@@ -295,6 +295,20 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax() throws Exception {
+        String labelFormat = "pipeline-${COUNT}-${git[:0]}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.",labelFormat,pipelineConfig.name())));
+    }
+
+    @Test
+    public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax2() throws Exception {
+        String labelFormat = "pipeline-${COUNT}-${git[:0]}${one[:00]}-alpha";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.",labelFormat,pipelineConfig.name())));
+    }
+
+    @Test
     public void shouldSupportTruncationSyntax() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
         pipelineConfig.setLabelTemplate("pipeline-${COUNT}-${git[:7]}-alpha");

@@ -278,6 +278,7 @@
                 /api/users.xml=ROLE_SUPERVISOR
                 /api/pipelines/*/*.xml=ROLE_USER,ROLE_OAUTH_USER
                 /api/agents/**=ROLE_USER
+                /api/users/**=ROLE_USER
                 /*/environments/*=ROLE_SUPERVISOR
 
                 /oauth/admin/**=ROLE_SUPERVISOR

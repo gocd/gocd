@@ -160,6 +160,14 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
     public static GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
+    public static GoSystemProperty<String> GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT = new GoStringSystemProperty("go.ssl.agent.protocol", "TLSv1.2");
+    public static GoSystemProperty<Boolean> GO_SSL_CONFIG_ALLOW = new GoBooleanSystemProperty("go.ssl.config.allow", true);
+    public static GoSystemProperty<String[]> GO_SSL_INCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.include", null);
+    public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.exclude", null);
+    public static GoSystemProperty<String[]> GO_SSL_INCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.include", null);
+    public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.exclude", null);
+    public static GoSystemProperty<Boolean> GO_SSL_RENEGOTIATION_ALLOWED = new GoBooleanSystemProperty("go.ssl.renegotiation.allowed", true);
+
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
@@ -593,7 +601,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean enforceFanInFallbackBehaviour() {
         if (enforceFanInFallbackTriangle == null) {
-            enforceFanInFallbackTriangle = CONFIGURATION_YES.equals(getPropertyImpl(RESOLVE_FANIN_FALLBACK_TRIANGLE, CONFIGURATION_YES));
+            enforceFanInFallbackTriangle = CONFIGURATION_YES.equals(getPropertyImpl(RESOLVE_FANIN_FALLBACK_TRIANGLE, CONFIGURATION_NO));
         }
         return enforceFanInFallbackTriangle;
     }
@@ -724,6 +732,17 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         @Override
         protected String convertValue(String propertyValueFromSystem, String defaultValue) {
             return propertyValueFromSystem == null ? defaultValue : propertyValueFromSystem;
+        }
+    }
+
+    protected static class GoStringArraySystemProperty extends GoSystemProperty<String[]> {
+        public GoStringArraySystemProperty(String propertyName, String[] defaultValue) {
+            super(propertyName, defaultValue);
+        }
+
+        @Override
+        protected String[] convertValue(String propertyValueFromSystem, String[] defaultValue) {
+            return StringUtil.isBlank(propertyValueFromSystem) ? defaultValue : propertyValueFromSystem.trim().split("(\\s*)?,(\\s*)?");
         }
     }
 

@@ -352,6 +352,10 @@ module WinPackageHelper
     File.join(windows_dir, file_name)
   end
 
+  def windows_dir_file_matching file_name
+    Dir[windows_dir_file(file_name)].first
+  end
+
   def win_pkg_src package, file_name
     project(@metadata_src).path_to("../installers/#{package}/win", file_name)
   end
@@ -383,9 +387,12 @@ module WinPackageHelper
       cp win_pkg_src(package, 'cruisewrapper.exe'), win_pkg_content_dir(package_name)
       disable_logging_value = ENV['DISABLE_WIN_INSTALLER_LOGGING'] || "false"
       Buildr.ant('win') do |win|
-        win.get :src => ENV['WINDOWS_JRE_LOCATION'], :dest => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
-        win.gunzip :src => "#{_(:target)}/jre-7u9-windows-i586.tar.gz"
-        win.untar :src => "#{_(:target)}/jre-7u9-windows-i586.tar", :dest => windows_dir
+        jre_tar_gz = ENV['WINDOWS_JRE_LOCATION'].match("jre-.*$").to_s
+        jre_tar = jre_tar_gz.gsub(".gz", "")
+
+        win.get :src => ENV['WINDOWS_JRE_LOCATION'], :dest => "#{_(:target)}/#{jre_tar_gz}"
+        win.gunzip :src => "#{_(:target)}/#{jre_tar_gz}"
+        win.untar :src => "#{_(:target)}/#{jre_tar}", :dest => windows_dir
         win.copy :file => from_root('LICENSE'), :tofile => win_pkg_dest("LICENSE.dos")
         win.fixcrlf :file => win_pkg_dest("LICENSE.dos"), :eol => "dos"
         copy_dir win, package, package_name, 'lib'
@@ -401,7 +408,7 @@ module WinPackageHelper
           padded_release_revision = "#{RELEASE_REVISION}".rjust(5,'0')
           exec.env :key => "REGVER", :value => "#{VERSION_NUMBER}#{padded_release_revision}".gsub(/\./, '')
           exec.env :key => "JAVA", :value => windows_java
-          exec.env :key => "JAVASRC", :value => windows_dir_file("jre1.7.0_09")
+          exec.env :key => "JAVASRC", :value => windows_dir_file_matching("jre*")
           exec.env :key => "DISABLE_LOGGING", :value => disable_logging_value
           exec.arg :line => "-NOCD #{win_pkg_src(package, package_name + '.nsi')}"
         end

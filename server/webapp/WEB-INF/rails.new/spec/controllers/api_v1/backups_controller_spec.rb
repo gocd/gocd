@@ -37,7 +37,7 @@ describe ApiV1::BackupsController do
         controller.stub(:backup_service).and_return(@backup_service)
         post_with_api_header :create
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response([backup, john], ApiV1::BackupRepresenter))
+        expect(actual_response).to eq(expected_response(backup, ApiV1::BackupRepresenter))
       end
     end
 

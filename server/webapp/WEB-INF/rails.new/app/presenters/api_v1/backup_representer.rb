@@ -16,14 +16,7 @@
 
 module ApiV1
   class BackupRepresenter < ApiV1::BaseRepresenter
-    attr_reader :user
     alias_method :backup, :represented
-
-    def initialize(backup_and_user)
-      backup, user = *backup_and_user
-      super(backup)
-      @user = user
-    end
 
     link :doc do
       'http://api.go.cd/#backups'
@@ -31,6 +24,11 @@ module ApiV1
 
     property :getTime, as: :time
     property :getPath, as: :path
-    property :user, exec_context: :decorator, decorator: UserRepresenter
+    property :user, exec_context: :decorator, decorator: UserSummaryRepresenter
+
+    def user
+      backup.getUsername
+    end
+
   end
 end

@@ -14,21 +14,24 @@
 # limitations under the License.
 ##########################################################################
 
-
 module ApiV1
-  class BackupsController < ApiV1::BaseController
-    before_action :check_admin_user_and_401
+  class UserSummaryRepresenter < ApiV1::BaseRepresenter
 
-    def create
-      result = HttpLocalizedOperationResult.new
-      backup = backup_service.startBackup(current_user, result)
+    alias_method :login_name, :represented
 
-      if result.isSuccessful
-        render :json_hal_v1 => BackupRepresenter.new(backup).to_hash(url_builder: self)
-      else
-        render_http_operation_result(result)
-      end
+    link :doc do
+      'http://api.go.cd/#users'
     end
+
+    link :self do |opts|
+      opts[:url_builder].apiv1_user_url(login_name)
+    end
+
+    link :find do |opts|
+      opts[:url_builder].apiv1_user_url(':login_name')
+    end
+
+    property :login_name, exec_context: :decorator
 
   end
 end

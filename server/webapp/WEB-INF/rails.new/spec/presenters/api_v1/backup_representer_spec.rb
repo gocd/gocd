@@ -19,11 +19,10 @@ require 'spec_helper'
 describe ApiV1::BackupRepresenter do
   it 'renders a ServerBackup' do
 
-    jdoe        = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
     backup_time = java.util.Date.new
-    backup      = com.thoughtworks.go.server.domain.ServerBackup.new("/foo/bar", backup_time, jdoe.name)
+    backup      = com.thoughtworks.go.server.domain.ServerBackup.new("/foo/bar", backup_time, "jdoe")
 
-    presenter   = ApiV1::BackupRepresenter.new([backup, jdoe])
+    presenter   = ApiV1::BackupRepresenter.new(backup)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:doc)
@@ -34,7 +33,7 @@ describe ApiV1::BackupRepresenter do
     expect(actual_json).to eq({
                                 time: backup_time,
                                 path: '/foo/bar',
-                                user: ApiV1::UserRepresenter.new(jdoe).to_hash(url_builder: UrlBuilder.new)
+                                user: ApiV1::UserSummaryRepresenter.new(backup.getUsername).to_hash(url_builder: UrlBuilder.new)
                               })
   end
 end

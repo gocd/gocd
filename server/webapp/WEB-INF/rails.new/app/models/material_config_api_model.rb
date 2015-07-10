@@ -14,17 +14,25 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class PipelineConfigAPIModel
-  attr_reader :name, :label, :materials, :stages
+class MaterialConfigAPIModel
+  def initialize(material_config_model)
+    @attributes = Hash.new
+    @attributes[:fingerprint] = material_config_model.getFingerprint()
+    populate_map(@attributes, material_config_model.getAttributes(false))
+  end
 
-  def initialize(pipeline_config_model)
-    @name = pipeline_config_model.name().to_s unless pipeline_config_model.name() == nil
-    @label = pipeline_config_model.getLabelTemplate()
-    @materials = pipeline_config_model.materialConfigs().collect do |material_config_model|
-      MaterialConfigAPIModel.new(material_config_model)
+  def populate_map(ruby_map, java_map)
+    java_map.each do |key, value|
+      if (value.instance_of? java.util.HashMap)
+        ruby_map[key] = Hash.new
+        populate_map(ruby_map[key], value)
+      else
+        ruby_map[key] = value
+      end
     end
-    @stages = pipeline_config_model.getStages().collect do |stage_config_model|
-      StageConfigAPIModel.new(stage_config_model)
-    end
+  end
+
+  def as_json(options = {})
+    @attributes
   end
 end

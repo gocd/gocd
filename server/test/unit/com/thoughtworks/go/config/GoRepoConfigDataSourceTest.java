@@ -36,9 +36,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by tomzo on 6/18/15.
- */
 public class GoRepoConfigDataSourceTest {
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;

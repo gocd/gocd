@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.config.materials.dependency;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.FetchTask;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -34,12 +28,12 @@ import com.thoughtworks.go.util.json.JsonString;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.*;
+
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -213,5 +207,11 @@ public class DependencyMaterialTest {
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("pipeline-configuration");
         assertThat((String) configuration.get("pipeline-name"), is("pipeline-name"));
         assertThat((String) configuration.get("stage-name"), is("stage-name"));
+    }
+
+    @Test
+    public void shouldReturnFalseForDependencyMaterial_supportsDestinationFolder() throws Exception {
+        DependencyMaterial material = new DependencyMaterial();
+        assertThat(material.supportsDestinationFolder(), is(false));
     }
 }

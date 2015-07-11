@@ -1020,6 +1020,37 @@ public class FaninDependencyResolutionTest {
         assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
     }
 
+    @Test
+    public void shouldResolveDiamondDependencyWithChildrenDependingOnDifferentStageDependency() throws Exception {
+        /*
+               +---> P3 ---+
+               |           v
+        pkg -> P2          P5
+               |           ^
+               +--> P4 ----+
+        */
+        GitMaterial git = u.wf(new GitMaterial("git"), "f");
+        u.checkinInOrder(git, "g1");
+
+        ScheduleTestUtil.AddedPipeline p2_s1 = u.saveConfigWith("p2", "s1", u.m(git));
+        ScheduleTestUtil.AddedPipeline p2_s2 = u.addStageToPipeline(p2_s1.config.name(), "s2");
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(new DependencyMaterial(p2_s1.config.name(), new CaseInsensitiveString("s1"))));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(new DependencyMaterial(p2_s1.config.name(), new CaseInsensitiveString("s2"))));
+        ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(p3), u.m(p4));
+
+        String p2_s1_1 = u.runAndPass(p2_s1, "g1");
+        String p2_s2_1 = u.runAndPass(p2_s2, "g1");
+        String p3_1 = u.runAndPass(p3, p2_s1_1);
+        String p4_1 = u.runAndPass(p4, p2_s2_1);
+
+        MaterialRevisions given = u.mrs(
+                u.mr(p3, true, p3_1),
+                u.mr(p4, true, p4_1));
+
+        MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.load(), given);
+        assertThat(revisionsBasedOnDependencies, is(given));
+    }
+
     private BuildCause getBuildCause(ScheduleTestUtil.AddedPipeline staging, MaterialRevisions given, MaterialRevisions previous) {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, staging.config.name().toString(), systemEnvironment, materialChecker, serverHealthService);
         pipelineTimeline.update();

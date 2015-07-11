@@ -22,7 +22,7 @@ describe "admin/materials/hg/new.html.erb" do
 
   before :each do
     assign(:material, @material = HgMaterial.new("url", nil))
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     ReflectionUtil.setField(@cruise_config, "md5", "abc")
   end
 

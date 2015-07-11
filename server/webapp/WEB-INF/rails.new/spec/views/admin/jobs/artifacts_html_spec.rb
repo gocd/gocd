@@ -27,7 +27,7 @@ describe "admin/jobs/artifacts.html.erb" do
     assign(:stage, stage)
     assign(:job, @job)
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", pipeline)
 
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :job_name => "foo_bar_baz", :current_tab => "environment_variables")

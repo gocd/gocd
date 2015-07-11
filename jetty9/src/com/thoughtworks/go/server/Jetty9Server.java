@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.server.util.GoCipherSuite;
+import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.server.util.GoPlainSocketConnector;
 import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.util.FileUtil;
@@ -57,7 +57,7 @@ public class Jetty9Server extends AppServer {
     private Server server;
     private WebAppContext webAppContext;
     private static final Logger LOG = Logger.getLogger(Jetty9Server.class);
-    private GoCipherSuite goCipherSuite;
+    private GoSSLConfig goSSLConfig;
 
     public Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
         this(systemEnvironment, password, sslSocketFactory, new Server());
@@ -67,7 +67,7 @@ public class Jetty9Server extends AppServer {
         super(systemEnvironment, password, sslSocketFactory);
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, JETTY_XML);
         this.server = server;
-        goCipherSuite = new GoCipherSuite(sslSocketFactory);
+        goSSLConfig = new GoSSLConfig(sslSocketFactory, systemEnvironment);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class Jetty9Server extends AppServer {
     }
 
     private Connector sslConnector() {
-        return new GoSslSocketConnector(this, password, systemEnvironment, goCipherSuite).getConnector();
+        return new GoSslSocketConnector(this, password, systemEnvironment, goSSLConfig).getConnector();
     }
 
     class GoServerWelcomeFileHandler extends ContextHandler {

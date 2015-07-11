@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
@@ -63,7 +63,7 @@ public class ProcessManagerTest {
         when(processTwo.getInputStream()).thenReturn(mock(InputStream.class));
         when(processTwo.getErrorStream()).thenReturn(mock(InputStream.class));
         when(processTwo.getOutputStream()).thenReturn(mock(OutputStream.class));
-        ConcurrentHashMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
+        ConcurrentMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
         wrapperForProcessOne = new ProcessWrapper(processOne, "tag1", null, inMemoryConsumer(), null, "ERROR: ");
         processMap.put(processOne, wrapperForProcessOne);
         wrapperForProcessTwo = new ProcessWrapper(processTwo, "tag2", null, inMemoryConsumer(), null, "ERROR: ");
@@ -91,7 +91,7 @@ public class ProcessManagerTest {
         Process processOne = mock(Process.class);
         ProcessWrapper processWrapperTwo = mock(ProcessWrapper.class);
         Process processTwo = mock(Process.class);
-        ConcurrentHashMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
+        ConcurrentMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
         processMap.put(processOne, processWrapperOne);
         processMap.put(processTwo, processWrapperTwo);
 
@@ -111,7 +111,7 @@ public class ProcessManagerTest {
         Process processOne = mock(Process.class);
         ProcessWrapper processWrapperTwo = mock(ProcessWrapper.class);
         Process processTwo = mock(Process.class);
-        ConcurrentHashMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
+        ConcurrentMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
         processMap.put(processOne, processWrapperOne);
         processMap.put(processTwo, processWrapperTwo);
 

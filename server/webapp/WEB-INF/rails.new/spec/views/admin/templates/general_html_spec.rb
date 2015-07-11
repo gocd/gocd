@@ -24,7 +24,7 @@ describe "admin/templates/general.html.erb" do
   before(:each) do
     template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template1"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
     assign(:pipeline, template)
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     set(@cruise_config, "md5", "abc")
     in_params(:pipeline_name => "template1")
   end

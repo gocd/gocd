@@ -106,7 +106,7 @@ describe Admin::StagesController do
     before(:each) do
       controller.stub(:populate_config_validity)
       
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
       @pipeline_template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template-name"), [StageConfigMother.manualStage("template-stage-name")].to_java(StageConfig))
       @cruise_config.addTemplate(@pipeline_template)

@@ -68,12 +68,14 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String TIMER_CONFIG = "timer";
     public static final String ENVIRONMENT_VARIABLES = "variables";
     public static final String PARAMS = "params";
+    private static final String LABEL_TEMPLATE_ZERO_TRUNC_BLOCK = "(\\[:0+\\])";
     private static final String LABEL_TEMPLATE_TRUNC_BLOCK = "(\\[:\\d+\\])?";
     private static final String LABEL_TEMPLATE_CHARACTERS = "[a-zA-Z0-9_\\-.!~*'()#:]"; // why a '#'?
     private static final String LABEL_TEMPLATE_VARIABLE_REGEX = "[$]\\{(" + LABEL_TEMPLATE_CHARACTERS + "+)" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}";
     public static final String LABEL_TEMPLATE_FORMAT = "((" + LABEL_TEMPLATE_CHARACTERS + ")*[$]"
             + "\\{" + LABEL_TEMPLATE_CHARACTERS + "+" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}(" + LABEL_TEMPLATE_CHARACTERS + ")*)+";
     private static final Pattern LABEL_TEMPLATE_FORMAT_REGEX = Pattern.compile(String.format("^(%s)$", LABEL_TEMPLATE_FORMAT));
+    public static final Pattern LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN = Pattern.compile(LABEL_TEMPLATE_ZERO_TRUNC_BLOCK);
     public static final String TEMPLATE_NAME = "templateName";
     public static final String LOCK = "lock";
     public static final String CONFIGURATION_TYPE = "configurationType";
@@ -182,6 +184,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             return;
         }
 
+        if(validateLabelTemplateTruncation(labelTemplate)){
+            addError("labelTemplate", String.format("Length of zero not allowed on label %s defined on pipeline %s.",labelTemplate,name));
+            return;
+        }
+
         Set<String> templateVariables = getTemplateVariables();
         List<String> materialNames = allowedTemplateVariables();
         for (final String templateVariable : templateVariables) {
@@ -189,6 +196,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 addError("labelTemplate", String.format(ERR_TEMPLATE, name(), templateVariable));
             }
         }
+    }
+
+    private boolean validateLabelTemplateTruncation(String labelTemplate) {
+        return LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN.matcher(labelTemplate).find();
     }
 
     private Predicate withNameSameAs(final String templateVariable) {

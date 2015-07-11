@@ -1,6 +1,22 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -30,6 +46,7 @@ public class ConfigRepoConfig implements Validatable {
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
 
+    public static final String AUTO_UPDATE = "autoUpdate";
     public static final String UNIQUE_REPO = "unique_repo";
     public static final String REPO = "repo";
 
@@ -46,7 +63,7 @@ public class ConfigRepoConfig implements Validatable {
         return repo;
     }
 
-    public void setMaterialConfig(ScmMaterialConfig config) {
+    public void setMaterialConfig(MaterialConfig config) {
         this.repo = config;
     }
 
@@ -91,6 +108,8 @@ public class ConfigRepoConfig implements Validatable {
     @Override
     public void validate(ValidationContext validationContext) {
         this.validateRepoIsSet();
+        this.validateAutoUpdateEnabled();
+        this.validateAutoUpdateState(validationContext);
     }
 
     @Override
@@ -117,6 +136,13 @@ public class ConfigRepoConfig implements Validatable {
         map.put(materialFingerprint, this);
     }
 
+    private void validateAutoUpdateEnabled() {
+        if(!this.getMaterialConfig().isAutoUpdate())
+            this.errors.add(AUTO_UPDATE,String.format(
+                    "Configuration repository material %s must have autoUpdate enabled",
+                    this.getMaterialConfig().getDisplayName()));
+    }
+
     private void addMaterialConflictError() {
         this.errors.add(UNIQUE_REPO,String.format(
                 "You have defined multiple configuration repositories with the same repository - %s",
@@ -141,6 +167,23 @@ public class ConfigRepoConfig implements Validatable {
         }
         String materialFingerprint = this.getMaterialConfig().getFingerprint();
         return materialFingerprint.equals(fingerprint);
+    }
+
+    private void validateAutoUpdateState(ValidationContext validationContext) {
+        if(validationContext == null)
+            return;
+
+        MaterialConfig material  = this.getMaterialConfig();
+
+        MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
+        if (allMaterialsByFingerPrint != null) {
+            for(MaterialConfig other : allMaterialsByFingerPrint)
+            {
+                if(!other.isAutoUpdate())
+                    ((ScmMaterialConfig) other).setAutoUpdateMismatchErrorWithConfigRepo();
+            }
+        }
+
     }
 
     public Configuration getConfiguration() {

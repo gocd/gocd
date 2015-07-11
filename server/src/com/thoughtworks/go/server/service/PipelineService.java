@@ -16,9 +16,13 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -28,6 +32,8 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.dd.DependencyFanInNode;
+import com.thoughtworks.go.server.service.dd.FanInEventListener;
 import com.thoughtworks.go.server.service.dd.FanInGraph;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -43,7 +49,6 @@ import java.util.Queue;
 
 @Service
 public class PipelineService implements UpstreamPipelineResolver {
-
     private static final Logger LOGGER = Logger.getLogger(PipelineService.class);
 
     private TransactionTemplate transactionTemplate;
@@ -230,6 +235,46 @@ public class PipelineService implements UpstreamPipelineResolver {
         final MaterialRevisions computedRevisions = fanInGraph.computeRevisions(actualRevisions, pipelineTimeline);
         fillUpNonOverridableRevisions(actualRevisions, computedRevisions);
         return restoreOriginalMaterialConfigAndMaterialOrderUsingFingerprint(actualRevisions, computedRevisions);
+    }
+
+    // This is for debugging purposes
+    public String getRevisionsBasedOnDependenciesForDebug(CaseInsensitiveString pipelineName, final Integer targetIterationCount) {
+        CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
+        FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, systemEnvironment, materialConfigConverter);
+        final String[] iterationData = {null};
+        fanInGraph.setFanInEventListener(new FanInEventListener() {
+            @Override
+            public void iterationComplete(int iterationCount, List<DependencyFanInNode> dependencyFanInNodes) {
+                if (iterationCount == targetIterationCount) {
+                    iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(dependencyFanInNodes);
+                }
+            }
+        });
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);
+        Materials materials = materialConfigConverter.toMaterials(pipelineConfig.materialConfigs());
+        MaterialRevisions actualRevisions = new MaterialRevisions();
+        for (Material material : materials) {
+            actualRevisions.addAll(materialRepository.findLatestModification(material));
+        }
+        MaterialRevisions materialRevisions = fanInGraph.computeRevisions(actualRevisions, pipelineTimeline);
+        if (iterationData[0] == null) {
+            iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(materialRevisions);
+        }
+        return iterationData[0];
+    }
+
+    private ExclusionStrategy getGsonExclusionStrategy() {
+        return new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes f) {
+                return f.getName().equals("materialConfig") || f.getName().equals("parents") || f.getName().equals("children");
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+        };
     }
 
     //This whole method is repeated for reporting and it does not use actual revisions for determining final revisions

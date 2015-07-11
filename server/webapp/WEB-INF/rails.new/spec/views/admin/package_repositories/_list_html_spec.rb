@@ -35,10 +35,10 @@ describe "list.html.erb" do
     packageOnePipelines = ArrayList.new
     @pipeline = PipelineConfig.new
     @another_pipeline = PipelineConfig.new
-    packageOnePipelines.add(Pair.new(@pipeline,PipelineConfigs.new))
+    packageOnePipelines.add(Pair.new(@pipeline,BasicPipelineConfigs.new))
 
     packageThreePipelines = ArrayList.new
-    packageThreePipelines.add(Pair.new(@another_pipeline,PipelineConfigs.new))
+    packageThreePipelines.add(Pair.new(@another_pipeline,BasicPipelineConfigs.new))
 
     @packageToPipelineMap.put("pid1",packageOnePipelines)
     @packageToPipelineMap.put("pid3",packageThreePipelines)

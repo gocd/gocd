@@ -15,16 +15,5 @@
  *************************GO-LICENSE-END***********************************#
 
 <div id="tab-content-of-console" class="ansi-color-toggle-$color_logs_feature_toggle_key" $buildoutput_extra_attrs>
-    #if($color_logs_feature_toggle_key)
-        <div class="console-action-bar">
-            <div>
-                <a class='change-theme' href="javascript:void(0);">Change theme</a>
-                <a href="$req.getContextPath()/files/${presenter.consoleoutLocator}">Raw output</a>
-            </div>
-        </div>
-    #end
-    <pre class="buildoutput_pre #if(!$color_logs_feature_toggle_key) white-theme #end"></pre>
-    #if($presenter.isCompleted())
-        <div class="widget" id="build-output-console-warnning" style="display: none;">No console output.</div>
-    #end
+    #parse("build_detail/_build_output_raw.vm")
 </div>

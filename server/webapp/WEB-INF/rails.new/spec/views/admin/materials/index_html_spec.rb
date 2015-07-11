@@ -34,7 +34,7 @@ describe "admin/materials/index.html.erb" do
     @pipeline_config = PipelineConfigMother.pipelineConfig("pipeline-name", "foo", material_configs, ["build-1"].to_java(java.lang.String))
     assign(:pipeline_config, @pipeline_config)
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline_config)
 
     ReflectionUtil.setField(@cruise_config, "md5", "abc")

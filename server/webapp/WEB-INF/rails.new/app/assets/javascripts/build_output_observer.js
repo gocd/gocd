@@ -18,6 +18,7 @@ var BuildOutputObserver = Class.create();
 
 BuildOutputObserver.prototype = {
     initialize: function(buildLocator, name, options) {
+        var self = this;
         this.name = name;
         this.buildLocator = buildLocator;
         this.start_line_number = 0;
@@ -26,7 +27,59 @@ BuildOutputObserver.prototype = {
         this.is_completed = false;
         this.ansi_up = ansi_up.ansi_to_html_obj();
         options = options || {};
+        this.enableTailing = true;
+        this.window = jQuery(window);
+        this.originalWindowScrollTop = this.window.scrollTop();
+        this.consoleElement = jQuery('.buildoutput_pre');
         this.chosen_update_of_live_output = options.colorize == true ? this._update_live_output_color : this._update_live_output_raw;
+        this.autoScrollButton = jQuery('.auto-scroll');
+        this.autoScrollButton.toggleClass('tailing', this.enableTailing);
+        this.autoScrollButton.on('click', function(){
+            self.enableTailing = !self.enableTailing;
+            self.initializeScroll();
+        });
+        this.initializeScroll();
+    },
+    initializeScroll: function(){
+      if(this.enableTailing){
+        this.startScroll();
+      } else {
+        this.stopScroll();
+      }
+    },
+    startScroll: function(){
+        this.autoScrollButton.toggleClass('tailing', this.enableTailing);
+        var self = this;
+        this.scrollToBottom(0);
+        this.window.on('scroll.autoScroll resize.autoScroll', jQuery.throttle(200, function () {
+            var windowScrollTop = self.window.scrollTop();
+            if (self.originalWindowScrollTop - windowScrollTop > 5) {
+                self.stopScroll();
+            }
+        }));
+    },
+    stopScroll: function(){
+        this.window.off('scroll.autoScroll resize.autoScroll');
+        this.enableTailing = false;
+        this.autoScrollButton.toggleClass('tailing', this.enableTailing);
+    },
+    scrollToBottom: function(delay){
+        var self = this;
+        var captureScrollTop = function () {
+          self.originalWindowScrollTop = self.window.scrollTop();
+        };
+
+        jQuery('body,html').stop(true).animate(
+            {
+                scrollTop: this.consoleElement.outerHeight()
+            },
+            {
+                duration: delay || 100,
+                start: captureScrollTop, // start is not support with the current version, but we'll be upgrading
+                complete: captureScrollTop,
+                step: captureScrollTop
+            }
+        );
     },
     notify : function(jsonArray) {
         for (var i = 0; i < jsonArray.length; i++) {
@@ -102,7 +155,6 @@ BuildOutputObserver.prototype = {
     _update_live_output_color: function(build_output) {
         var is_output_empty = !build_output;
         if (!is_output_empty) {
-            var consoleElement = jQuery('.buildoutput_pre');
 
             // parsing the entier console output and building HTML is computationally expensive and blows up memory
             // we therefore chunk the console output into 1000 lines each and hand it over to the parser, and also insert it into the DOM.
@@ -111,9 +163,14 @@ BuildOutputObserver.prototype = {
             while(lines.length){
                 var slice = lines.splice(0, 1000);
                 var htmlContents = this.ansi_up.ansi_to_html(slice.join("").escapeHTML(), {use_classes: true});
-                consoleElement.append(htmlContents);
+                this.consoleElement.append(htmlContents);
             }
         }
+
+        if (this.enableTailing){
+            this.scrollToBottom();
+        }
+
         return is_output_empty;
     },
 

@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static javax.servlet.http.HttpServletResponse.SC_CREATED;
@@ -140,7 +141,7 @@ public class JsonAction implements RestfulAction {
             // logic to an intercepter.
             response.addHeader("Cache-Control", GoConstants.CACHE_CONTROL);
             response.setStatus(status);
-            response.setContentType(RESPONSE_CHARSET);
+            response.setContentType(RESPONSE_CHARSET_JSON);
         }
     }
 

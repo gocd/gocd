@@ -140,7 +140,7 @@ shared_examples_for :task_controller  do
 
       @template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template.name"), [StageConfigMother.stageWithTasks("stage_one"), StageConfigMother.stageWithTasks("stage_two")].to_java(StageConfig))
 
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       @cruise_config.addPipeline("my-groups", @pipeline)
       @cruise_config.addTemplate(@template)
       set(@cruise_config, "md5", "abcd1234")

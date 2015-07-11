@@ -181,7 +181,7 @@ describe EnvironmentsController do
       @environment_service = Object.new
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       controller.stub(:security_service).and_return(@security_service = Object.new)
       allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
@@ -234,7 +234,7 @@ describe EnvironmentsController do
       @environment_service = Object.new
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(@user)
       controller.stub(:security_service).and_return(@security_service = Object.new)
       @security_service.stub(:canViewAdminPage).with(@user).and_return(true)
@@ -318,7 +318,7 @@ describe EnvironmentsController do
       result = HttpLocalizedOperationResult.new()
       result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)),LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,any_args).and_return(result)
-      environment_service.should_receive(:forEdit).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(EnvironmentConfig.new(),"md5"))
+      environment_service.should_receive(:forEdit).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(),"md5"))
       environment_service.should_receive(:getAllPipelinesForUser).with(any_args).and_return([])
 
 
@@ -342,7 +342,7 @@ describe EnvironmentsController do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       controller.stub(:security_service).and_return(@security_service = Object.new)
       @security_service.stub(:canViewAdminPage).with(user).and_return(true)
@@ -434,7 +434,7 @@ describe EnvironmentsController do
     before do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       controller.stub(:security_service).and_return(@security_service = Object.new)
       @security_service.stub(:canViewAdminPage).with(user).and_return(true)

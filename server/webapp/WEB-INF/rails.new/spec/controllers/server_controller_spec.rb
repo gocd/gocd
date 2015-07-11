@@ -30,7 +30,7 @@ describe ServerController do
     second = ServerHealthState.error("second error", "second description", HealthStateType.invalidConfig())
     third = ServerHealthState.warning("first warning", "third description", HealthStateType.artifactsDirChanged())
     states = ServerHealthStates.new([first, second, third])
-    config = CruiseConfig.new()
+    config = BasicCruiseConfig.new()
 
     @server_health_service = double('server health service')
     @go_config_service = double('go config service')

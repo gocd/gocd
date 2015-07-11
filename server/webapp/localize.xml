@@ -418,7 +418,7 @@
     <entry key="TOOLTIP_TABS">Lets you add new tabs within the Job Details page. <![CDATA[<a class='' href='http://www.go.cd/documentation/user/current/faq/dev_see_artifact_as_tab.html' target='_blank'>More...</a>]]></entry>
     <entry key="TOOLTIP_TAB_NAME">Name of the tab which will appear in the Job Detail Page.</entry>
     <entry key="TOOLTIP_TAB_PATH">The artifact that will be rendered in the custom tab. This is typically a html or xml file.</entry>
-    <entry key="TOOLTIP_RUN_ON_ALL"> Job will run on all agents that match its resources (if any). If you’re using the Enterprise Edition, only agents in the same environment as this job’s pipeline will pick up the job. This option is particularly useful when deploying to multiple servers.</entry>
+    <entry key="TOOLTIP_RUN_ON_ALL"> Job will run on all agents that match its resources (if any) and are in the same environment as this job’s pipeline. This option is particularly useful when deploying to multiple servers.</entry>
     <entry key="TOOLTIP_RUN_MULTIPLE_INSTANCE"> Specified number of instances of job will be created during schedule time.</entry>
     <entry key="TOOLTIP_ARTIFACT_SOURCE">The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).</entry>
     <entry key="TOOLTIP_ARTIFACT_DESTINATION">The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory</entry>

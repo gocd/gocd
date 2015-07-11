@@ -24,9 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public abstract class ClassAttributeCache<K, T> {
-    private ConcurrentHashMap<K, T> valueCache = new ConcurrentHashMap<K, T>();
+    private ConcurrentMap<K, T> valueCache = new ConcurrentHashMap<K, T>();
 
     public T valuesFor(K key) {
         T value = valueCache.get(key);

@@ -78,7 +78,7 @@ class EnvironmentsController < ApplicationController
   private
 
   def load_new_environment
-    @environment = EnvironmentConfig.new
+    @environment = BasicEnvironmentConfig.new
   end
 
   def load_existing_environment

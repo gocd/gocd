@@ -30,7 +30,7 @@ describe Admin::StagesController, "view" do
       controller.stub(:populate_config_validity)
       controller.stub(:checkConfigFileValid)
 
-      @cruise_config = CruiseConfig.new()
+      @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
       @pipeline = cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       second_stage = StageConfig.new(CaseInsensitiveString.new("stage-second"), JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("build-2")), JobConfig.new(CaseInsensitiveString.new("build-3"))].to_java(JobConfig)))

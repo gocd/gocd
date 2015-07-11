@@ -30,7 +30,7 @@ describe "admin/jobs/index.html.erb" do
     assign(:pipeline, @pipeline)
     assign(:stage, @pipeline.get(0))
     assign(:jobs, @pipeline.get(0).getJobs())
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     @cruise_config.addPipeline("group-1", @pipeline)
     set(@cruise_config, "md5", "abc")
     in_params(:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :action => "index", :controller => "admin/jobs", :stage_name => "stage-name")

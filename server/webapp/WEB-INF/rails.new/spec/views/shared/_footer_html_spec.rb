@@ -40,7 +40,7 @@ describe "/shared/_footer.html" do
 
     Capybara.string(response.body).all('ul.links li').tap do |links_li|
       expect(links_li[0]).to have_selector("a[href='/cctray.xml']", text: "(cc) CCTray Feed")
-      expect(links_li[1]).to have_selector("a[href='http://www.go.cd/documentation/user/current/api/go_api.html']", text: 'APIs')
+      expect(links_li[1]).to have_selector("a[href='http://api.go.cd']", text: 'APIs')
       expect(links_li[2]).to have_selector("a[href='http://www.go.cd/community/plugins.html']", text: 'Plugins')
       expect(links_li[3]).to have_selector("a[href='http://www.go.cd/community/resources.html']", text: 'Community')
       expect(links_li[4]).to have_selector("a[href='/about']", text: 'Server Details')

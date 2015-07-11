@@ -36,20 +36,19 @@
         <Arg>30000000</Arg>
     </Call>
 
-    <!--<Call name="addBean">-->
-        <!--<Arg>-->
-            <!--<New class="org.eclipse.jetty.server.LowResourceMonitor">-->
-                <!--<Arg><Ref id="Server"/></Arg>-->
-                <!--<Set name="period"><Property name="lowresources.period" default="1000"/></Set>-->
-                <!--<Set name="lowResourcesIdleTimeout"><Property name="lowresources.lowResourcesIdleTimeout" default="1000"/></Set>-->
-                <!--<Set name="monitorThreads"><Property name="lowresources.monitorThreads" default="true"/></Set>-->
-                <!--<Set name="maxConnections"><Property name="lowresources.maxConnections" default="0"/></Set>-->
-                <!--<Set name="maxMemory"><Property name="lowresources.maxMemory" default="0"/></Set>-->
-                <!--<Set name="maxLowResourcesTime"><Property name="lowresources.maxLowResourcesTime" default="5000"/></Set>-->
-            <!--</New>-->
-        <!--</Arg>-->
-    <!--</Call>-->
-
+    <Call name="addBean">
+        <Arg>
+            <New class="org.eclipse.jetty.server.LowResourceMonitor">
+                <Arg><Ref id="Server"/></Arg>
+                <Set name="period"><Property name="jetty.lowresources.period" default="1000"/></Set>
+                <Set name="lowResourcesIdleTimeout"><Property name="jetty.lowresources.idleTimeout" default="500"/></Set>
+                <Set name="monitorThreads"><Property name="jetty.lowresources.monitorThreads"  default="true"/></Set>
+                <Set name="maxConnections"><Property name="jetty.lowresources.maxConnections"  default="0"/></Set>
+                <Set name="maxMemory"><Property name="jetty.lowresources.maxMemory"  default="0"/></Set>
+                <Set name="maxLowResourcesTime"><Property name="jetty.lowresources.maxLowResourcesTime" default="5000"/></Set>
+            </New>
+        </Arg>
+    </Call>
 
     <!-- =========================================================== -->
     <!-- Logging                                                     -->

@@ -16,16 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.NotificationFilter;
@@ -53,11 +43,14 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Filter;
+import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.util.*;
 
 @Service
 public class UserService {
@@ -129,6 +122,40 @@ public class UserService {
             }
         }
         return false;
+    }
+
+    public User update(final User user, TriState enabled, TriState emailMe, String email, String checkinAliases, LocalizedOperationResult result) {
+        if (enabled.isTrue()) {
+            user.enable();
+        }
+
+        if (enabled.isFalse()) {
+            user.disable();
+        }
+
+        if (email != null) {
+            user.setEmail(email);
+        }
+
+        if (checkinAliases != null) {
+            user.setMatcher(checkinAliases);
+        }
+
+        if (emailMe.isTrue()) {
+            user.setEmailMe(true);
+        }
+
+        if (emailMe.isFalse()) {
+            user.setEmailMe(false);
+        }
+
+        try {
+            saveOrUpdate(user);
+        } catch (ValidationException e) {
+            result.badRequest(LocalizedMessage.string("USER_FIELD_VALIDATIONS_FAILED", e.getMessage()));
+        }
+
+        return user;
     }
 
     public void enable(List<String> usernames, LocalizedOperationResult result) {

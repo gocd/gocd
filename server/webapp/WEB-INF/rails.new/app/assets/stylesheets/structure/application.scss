@@ -14,12 +14,12 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-/** 
+/**
  * Application.css
  *
  * application-wide style standards, mostly related to html elements but also layouts
  */
- 
+
 /**
  * TABLE OF CONTENTS
  *
@@ -42,6 +42,7 @@
  * ==IE7 FLOAT CLEARING HACK STANDARDS
  */
 
+@import "css_sass/base/mixins";
 
 /**
  * =BODY
@@ -151,8 +152,8 @@ textarea {
 button a {
   color: #FFF;
 }
-input[type="text"], 
-input[type="password"], 
+input[type="text"],
+input[type="password"],
 input[type="file"],
 input[type="url"],
 textarea {
@@ -197,7 +198,7 @@ a{
 }
 a:hover{
     color: #2980EC;
-} 
+}
 /*
 
 a.icon {
@@ -295,7 +296,7 @@ th {
 .hidden {
   display: none;
 }
- 
+
 /**
  * =LAYOUTS
  */
@@ -376,35 +377,41 @@ th {
 }
 
 /**
- * ==IE7 FLOAT CLEARING HACK 
+ * ==IE7 FLOAT CLEARING HACK
  */
 *+html .clear_float {
   display: inline-block;
   zoom: 1;
 }
 
-.back_to_top{
-    padding: 10px;
-    border-radius: 10px;
-    padding-top: 30px;
-    background-position: center 10px;
-    background-repeat: no-repeat;
-    background-image: image_url('back-to-top.png');
-    background-color: #000000;
-    color: #ffffff;
-    bottom: 60px;
-    right: 20px;
-    z-index: 10000;
-    display: none;
-    width: 30px;
-    text-align: center;
-    position: fixed;
-    opacity: 0.8;
-}
-.back_to_top:hover{
+@mixin floating-button($bottom: 60px) {
+  border-radius: 10px;
+  padding: 10px;
+  background-color: #000000;
+  color: #ffffff;
+  bottom: $bottom;
+  right: 20px;
+  z-index: 10000;
+  display: none;
+  width: 30px;
+  text-align: center;
+  position: fixed;
+  opacity: 0.8;
+
+  &:hover {
     opacity: 1;
     cursor: pointer;
+  }
 }
+
+.back_to_top {
+  @include floating-button($bottom: 120px);
+  background: #000000 image_url('back-to-top.png') no-repeat center 10px;
+  padding-top: 30px;
+
+  color: white;
+}
+
 #stage_job_form .form_item_block{
     width: 720px;
 }

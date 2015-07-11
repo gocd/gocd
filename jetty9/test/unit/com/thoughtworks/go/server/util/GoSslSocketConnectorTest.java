@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.server.Jetty9Server;
+import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -47,9 +48,9 @@ public class GoSslSocketConnectorTest {
     public void setUp() throws Exception {
         keystore = folder.newFile("keystore");
         truststore = folder.newFile("truststore");
-        GoCipherSuite cipherSuite = mock(GoCipherSuite.class);
+        GoSSLConfig cipherSuite = mock(GoSSLConfig.class);
         String[] cipherSuitesToBeIncluded = {"FOO"};
-        when(cipherSuite.getCipherSuitsToBeIncluded()).thenReturn(cipherSuitesToBeIncluded);
+        when(cipherSuite.getCipherSuitesToBeIncluded()).thenReturn(cipherSuitesToBeIncluded);
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getSslServerPort()).thenReturn(1234);
         when(systemEnvironment.keystore()).thenReturn(keystore);

@@ -59,7 +59,11 @@ module ApiV1
     end
 
     def render_http_operation_result(result)
-      render json_hal_v1: { message: result.detailedMessage().strip }, status: result.httpCode()
+      if result.instance_of?(HttpOperationResult)
+        render json_hal_v1: { message: result.detailedMessage().strip }, status: result.httpCode()
+      else
+        render json_hal_v1: { message: result.message(Spring.bean('localizer')).strip }, status: result.httpCode()
+      end
     end
   end
 end

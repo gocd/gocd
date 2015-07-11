@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.scheduling;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -266,7 +267,7 @@ public class BuildCauseProducerService {
         private final PipelineConfig pipelineConfig;
         private final BuildType buildType;
 
-        private final ConcurrentHashMap<String, Material> pendingMaterials;
+        private final ConcurrentMap<String, Material> pendingMaterials;
         private boolean failed;
         private ScheduleOptions scheduleOptions;
 

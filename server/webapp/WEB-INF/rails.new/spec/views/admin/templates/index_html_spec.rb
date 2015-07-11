@@ -33,7 +33,7 @@ describe "admin/templates/index.html.erb" do
     view.stub(:can_view_admin_page?).and_return(true)
     view.stub(:is_user_a_template_admin?).and_return(false)
     view.stub(:is_user_an_admin?).and_return(true)
-    assign(:cruise_config, cruise_config = CruiseConfig.new)
+    assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
   end
 

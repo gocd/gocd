@@ -206,7 +206,7 @@ describe ApplicationController do
     it "should populate server-health-messages for every request" do
       health_service = stub_service(:server_health_service)
       config_service = stub_service(:go_config_service)
-      config_service.should_receive(:getCurrentConfig).and_return(new_config = CruiseConfig.new)
+      config_service.should_receive(:getCurrentConfig).and_return(new_config = BasicCruiseConfig.new)
       config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       health_service.should_receive(:getAllValidLogs).with(new_config).and_return(:all_health_messages)
 

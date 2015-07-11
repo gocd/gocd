@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -42,7 +43,7 @@ public class ConsoleActivityMonitor {
     private final ServerHealthService serverHealthService;
     private final GoConfigService goConfigService;
     private ConsoleService consoleService;
-    private final ConcurrentHashMap<JobIdentifier, Long> jobLastActivityMap;
+    private final ConcurrentMap<JobIdentifier, Long> jobLastActivityMap;
     private final long warningThreshold;
 
     @Autowired

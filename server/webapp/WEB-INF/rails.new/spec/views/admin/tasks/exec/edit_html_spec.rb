@@ -20,7 +20,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
   include GoUtil, TaskMother, FormUI
 
   before :each do
-    assign(:cruise_config, config = CruiseConfig.new)
+    assign(:cruise_config, config = BasicCruiseConfig.new)
     set(config, "md5", "abcd1234")
 
     assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))

@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>descriptor-hash-plugin</artifactId>
-    <version>15.2.0</version>
+    <version>15.3.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

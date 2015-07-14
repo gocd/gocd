@@ -23,7 +23,7 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>go-sample-plugins</artifactId>
-    <version>15.2.0</version>
+    <version>15.3.0</version>
     <name>Sample plugins for ThoughtWorks Go</name>
     <packaging>pom</packaging>
 

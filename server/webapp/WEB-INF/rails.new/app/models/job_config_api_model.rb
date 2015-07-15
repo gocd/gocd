@@ -18,6 +18,6 @@ class JobConfigAPIModel
   attr_reader :name
 
   def initialize(job_config_model)
-    @name = job_config_model.name().to_s unless job_config_model.name() == nil
+    @name = job_config_model.name().to_s
   end
 end

@@ -18,7 +18,7 @@ class StageConfigAPIModel
   attr_reader :name, :jobs
 
   def initialize(stage_config_model)
-    @name = stage_config_model.name().to_s unless stage_config_model.name() == nil
+    @name = stage_config_model.name().to_s
     @jobs = stage_config_model.getJobs().collect do |job_config_model|
       JobConfigAPIModel.new(job_config_model)
     end

@@ -399,6 +399,7 @@ module APIModelMother
     @pipeline_config_view_model = double('PipelineConfigViewModel')
     @pipeline_config_view_model.stub(:name).and_return('pipeline name')
     @pipeline_config_view_model.stub(:getLabelTemplate).and_return('label')
+    @pipeline_config_view_model.stub(:getTemplateName).and_return('template name')
     @pipeline_config_view_model.stub(:materialConfigs).and_return([create_material_config_model])
     @pipeline_config_view_model.stub(:getStages).and_return([create_stage_config_model])
     @pipeline_config_view_model

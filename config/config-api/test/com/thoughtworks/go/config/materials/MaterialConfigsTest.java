@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -135,8 +136,8 @@ Above scenario allowed
         PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
         goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
 
-        pipeline1.setOrigin(new RepoConfigOrigin());
-        pipeline2.setOrigin(new RepoConfigOrigin());
+        pipeline1.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new SvnMaterialConfig("http://mysvn", false), "myplugin"), "123"));
+        pipeline2.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new SvnMaterialConfig("http://othersvn", false), "myplugin"), "2222"));
 
         pipeline1.materialConfigs().validate(ValidationContext.forChain(cruiseConfig,new BasicPipelineConfigs(),pipeline1));
         assertThat(pipeline1.materialConfigs().errors().isEmpty(), is(true));

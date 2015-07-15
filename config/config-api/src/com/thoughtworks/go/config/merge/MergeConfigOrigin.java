@@ -45,4 +45,16 @@ public class MergeConfigOrigin extends BaseCollection<ConfigOrigin> implements C
     public boolean isLocal() {
         return false;
     }
+
+    @Override
+    public String displayName() {
+        StringBuilder b = new StringBuilder("Merged: [ ");
+        for(ConfigOrigin origin : this)
+        {
+            b.append(origin.displayName());
+            b.append("; ");
+        }
+        b.append("]");
+        return b.toString();
+    }
 }

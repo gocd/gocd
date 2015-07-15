@@ -350,7 +350,7 @@ public class FetchTask extends AbstractTask implements Serializable {
         PipelineConfig srcPipeline = cruiseConfig.getPipelineConfigByName(pipelineName.getAncestorName());
         if (!cruiseConfig.getConfigRepos().isReferenceAllowed(currentPipeline.getOrigin(),srcPipeline.getOrigin())) {
             addError(ORIGIN, String.format("Pipeline \"%s\" tries to fetch artifact from job \"%s :: %s :: %s\" which is defined in %s - reference is not allowed",
-                    currentPipeline.name(), pipelineName.getAncestorName(), stage, job,srcPipeline.getOrigin()));
+                    currentPipeline.name(), pipelineName.getAncestorName(), stage, job,srcPipeline.getOrigin().displayName()));
             return true;
         }
 

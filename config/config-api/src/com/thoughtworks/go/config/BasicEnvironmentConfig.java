@@ -62,7 +62,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
             if(!cruiseConfig.getConfigRepos().isReferenceAllowed(this.origin,pipelineConfig.getOrigin()))
                 pipelineRefConfig.addError(EnvironmentPipelineConfig.ORIGIN,
                         String.format("Environment defined in %s cannot reference a pipeline in %s",
-                                this.origin,pipelineConfig.getOrigin()));
+                                this.origin,pipelineConfig.getOrigin().displayName()));
         }
     }
 

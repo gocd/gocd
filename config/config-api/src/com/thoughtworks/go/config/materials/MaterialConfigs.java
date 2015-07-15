@@ -161,7 +161,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
             {
                 material.addError(DependencyMaterialConfig.ORIGIN,
                         String.format("Dependency from pipeline defined in %s to pipeline defined in %s is not allowed",
-                                myOrigin,upstreamOrigin));
+                                myOrigin.displayName(),upstreamOrigin.displayName()));
             }
         }
     }

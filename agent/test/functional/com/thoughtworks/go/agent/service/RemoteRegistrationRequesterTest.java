@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.thoughtworks.go.config.AgentRegistrationPropertiesReader;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -60,12 +59,12 @@ public class RemoteRegistrationRequesterTest {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
 
-        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentRegistrationPropertiesReader(properties));
+        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationProperties(null, properties));
         verify(httpClient).executeMethod(argThat(hasAllParams(defaultAgentRegistry.uuid())));
     }
 

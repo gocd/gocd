@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.io.File;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -92,7 +93,7 @@ public class ArtifactsDiskSpaceFullCheckerTest {
 
     private static CruiseConfig configWithSiteUrl() {
         ServerConfig serverConfig = new ServerConfig(null, null, new ServerSiteUrlConfig("http://test.host"), new ServerSiteUrlConfig("https://test.host"));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);
         return cruiseConfig;
     }

@@ -389,7 +389,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = new SecurityConfig(null, new PasswordFileConfig("path"), true, null);
         securityConfig.addRole(new Role(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
                 new RoleUser(new CaseInsensitiveString("user3"))));
@@ -422,7 +422,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldGetAllUsernamesIfNoSecurityHasBeenDefinedOnTheGroup() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
         securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
@@ -444,7 +444,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldNotGetAnyUsernamesIfOnlyViewAndAdminPermissionsHaveBeenDefinedOnTheGroup() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
         config.setServerConfig(new ServerConfig(null, securityConfig));
@@ -465,7 +465,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldGetAllRolesWithOperatePermissionFromPipelineGroups() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
         securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
@@ -488,7 +488,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldNotGetAnyRolesWhenGroupHasOnlyViewAndAdminPermissionDefined() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
         securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
@@ -512,7 +512,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldGetAllRolesFromConfigWhenGroupDoesNotHaveAnyPermissionsDefined() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
         securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");

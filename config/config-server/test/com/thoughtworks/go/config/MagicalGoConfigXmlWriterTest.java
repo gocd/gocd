@@ -157,7 +157,7 @@ public class MagicalGoConfigXmlWriterTest {
         String xml = ConfigFileFixture.CONFIG_WITH_NANT_AND_EXEC_BUILDER;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
-        cruiseConfig.addEnvironment(new EnvironmentConfig());
+        cruiseConfig.addEnvironment(new BasicEnvironmentConfig());
         try {
             xmlWriter.write(cruiseConfig, output, false);
             fail("Should not be able to save config when the environment name is not set");
@@ -722,7 +722,7 @@ public class MagicalGoConfigXmlWriterTest {
         LdapConfig ldapConfig = new LdapConfig("url", "managerDn", "managerPassword", "managerPassword", false, basesConfig, "filter");
         SecurityConfig securityConfig = new SecurityConfig(ldapConfig, new PasswordFileConfig("some_path"), false);
         ServerConfig serverConfig = new ServerConfig(securityConfig, new MailHost(new GoCipher()));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);
 
         xmlWriter.write(cruiseConfig, output, false);
@@ -734,7 +734,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteRepositoryConfigurationWithPackages() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setId("id");
@@ -764,7 +764,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteRepositoryConfigurationWithPackagesWhenNoRepoAndPkgIdIsProvided() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setName("name");
@@ -791,7 +791,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowMultipleRepositoriesWithSameId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id-1", "version", "id", "name1", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
@@ -812,7 +812,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowMultiplePackagesWithSameId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
         PackageRepository packageRepository = createPackageRepository("plugin-id-1", "version", "id1", "name1", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
 
@@ -830,7 +830,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldAllowPackageTypeMaterialForPipeline() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setId("id");
@@ -859,7 +859,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldFailValidationIfPackageTypeMaterialForPipelineHasARefToNonExistantPackage() throws Exception {
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
         String packageId = "does-not-exist";
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageId);
         PackageRepository repository = com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create("k1", false, "v1")));
@@ -879,7 +879,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowMultipleRepositoriesWithSameName() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id1", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id1", "name1", packageConfiguration)));
@@ -902,7 +902,7 @@ public class MagicalGoConfigXmlWriterTest {
         Configuration packageConfiguration1 = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration packageConfiguration2 = new Configuration(getConfigurationProperty("name2", false, "go-server"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id1", "name", packageConfiguration1), new PackageDefinition("id2", "name", packageConfiguration2)));
@@ -920,7 +920,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesRepositoryWithInvalidId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id wth space", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
@@ -938,7 +938,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesRepositoryWithInvalidName() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name with space", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name", packageConfiguration)));
@@ -957,7 +957,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesWithInvalidId() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id with space", "name", packageConfiguration)));
@@ -974,7 +974,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldNotWriteToFileWithDefaultValueOfTrueForPackageDefinitionAutoUpdateWhenTrue() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         Packages packages = new Packages();
         PackageRepository repository = createPackageRepository("plugin-id", "version", "id", "name", configuration, packages);
         PackageDefinition aPackage = new PackageDefinition("package-id", "package-name", configuration);
@@ -991,7 +991,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteToFileWithValueOfFalseForPackageDefinitionAutoUpdateWhenFalse() throws Exception {
         Configuration configuration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         Packages packages = new Packages();
         PackageDefinition aPackage = new PackageDefinition("package-id", "package-name", configuration);
         aPackage.setAutoUpdate(false);
@@ -1008,7 +1008,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowPackagesWithInvalidName() throws Exception {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
-        CruiseConfig configToSave = new CruiseConfig();
+        CruiseConfig configToSave = new BasicCruiseConfig();
 
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", repositoryConfiguration,
                 new Packages(new PackageDefinition("id", "name with space", packageConfiguration)));
@@ -1025,7 +1025,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldNotWriteEmptyAuthorizationUnderEachTemplateTagOntoConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineTemplateConfig template = com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate("template-name", new Authorization(new AdminsConfig()), com.thoughtworks.go.helper.StageConfigMother.manualStage("stage-name"));
         cruiseConfig.addTemplate(template);
 

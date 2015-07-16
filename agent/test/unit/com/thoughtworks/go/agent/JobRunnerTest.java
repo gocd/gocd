@@ -22,17 +22,7 @@ import java.util.List;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.Tasks;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
@@ -149,11 +139,11 @@ public class JobRunnerTest {
     }
 
     private BuildWork getWork(JobConfig jobConfig) {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("logs");
         String stageName = "mingle";
         String pipelineName = "pipeline1";
-        config.addPipeline(PipelineConfigs.DEFAULT_GROUP, new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(), new StageConfig(
+        config.addPipeline(BasicPipelineConfigs.DEFAULT_GROUP, new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(), new StageConfig(
                 new CaseInsensitiveString(stageName), new JobConfigs(jobConfig))));
 
         String pipelineLabel = "100";

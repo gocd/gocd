@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.valuestreammap;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -105,7 +106,7 @@ public class UnrunStagesPopulatorTest {
         addRevisions(p2_node);
         addRevisions(p3_node);
 
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         String grp = "first";
         cruiseConfig.addPipeline(grp, pipelineConfig("p"));
         cruiseConfig.addPipeline(grp, pipelineConfig("p1"));
@@ -137,7 +138,7 @@ public class UnrunStagesPopulatorTest {
 
         addRevisions(p1_node);
 
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         String group = "first";
         cruiseConfig.addPipeline(group, pipelineConfig("p"));
         cruiseConfig.addPipeline(group, pipelineConfig("p1"));
@@ -169,7 +170,7 @@ public class UnrunStagesPopulatorTest {
 		addRevisions(p1_node);
 		addRevisions(p3_node);
 
-		CruiseConfig cruiseConfig = new CruiseConfig();
+		CruiseConfig cruiseConfig = new BasicCruiseConfig();
 		String group = "first";
 		cruiseConfig.addPipeline(group, pipelineConfig("p"));
 		cruiseConfig.addPipeline(group, pipelineConfig("p1"));

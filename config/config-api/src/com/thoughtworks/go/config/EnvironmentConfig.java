@@ -13,221 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
-
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
-import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @understands the current persistent information related to a logical grouping of machines
  */
-@ConfigTag("environment")
-public class EnvironmentConfig implements ParamsAttributeAware, Validatable, EnvironmentVariableScope {
-    @ConfigAttribute(value = NAME_FIELD, optional = false) private CaseInsensitiveString name;
-    @ConfigSubtag private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
-    @ConfigSubtag private EnvironmentAgentsConfig agents = new EnvironmentAgentsConfig();
-    @ConfigSubtag private EnvironmentPipelinesConfig pipelines = new EnvironmentPipelinesConfig();
+public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
 
     static final String NAME_FIELD = "name";
     static final String PIPELINES_FIELD = "pipelines";
     static final String AGENTS_FIELD = "agents";
     static final String VARIABLES_FIELD = "variables";
-    private final ConfigErrors configErrors = new ConfigErrors();
 
-    public EnvironmentConfig() {
-    }
+    void validate(ValidationContext validationContext);
 
-    public EnvironmentConfig(final CaseInsensitiveString name) {
-        this.name = name;
-    }
+    ConfigErrors errors();
 
-    public void validate(ValidationContext validationContext) {
-    }
+    void addError(String fieldName, String message);
 
-    public ConfigErrors errors() {
-        return configErrors;
-    }
+    EnvironmentPipelineMatcher createMatcher();
 
-    public void addError(String fieldName, String message) {
-        configErrors.add(fieldName, message);
-    }
+    boolean hasAgent(String uuid);
 
-    public EnvironmentPipelineMatcher createMatcher() {
-        return new EnvironmentPipelineMatcher(name, agents.getUuids(), pipelines);
-    }
+    void validateContainsOnlyUuids(Set<String> uuids);
 
-    public boolean hasAgent(String uuid) {
-        for (EnvironmentAgentConfig agent : agents) {
-            if (agent.hasUuid(uuid)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    boolean containsPipeline(CaseInsensitiveString pipelineName);
 
-    public void validateContainsOnlyUuids(Set<String> uuids) {
-        for (EnvironmentAgentConfig agent : agents) {
-            agent.validateUuidPresent(name, uuids);
-        }
-    }
+    void addAgent(String uuid);
 
-    public boolean containsPipeline(final CaseInsensitiveString pipelineName) {
-        return pipelines.containsPipelineNamed(pipelineName);
-    }
+    void addAgentIfNew(String uuid);
 
-    public void addAgent(String uuid) {
-        agents.add(new EnvironmentAgentConfig(uuid));
-    }
+    void removeAgent(String uuid);
 
-    public void addAgentIfNew(String uuid) {
-        EnvironmentAgentConfig agentConfig = new EnvironmentAgentConfig(uuid);
-        if (!agents.contains(agentConfig)) {
-            agents.add(agentConfig);
-        }
-    }
+    boolean hasName(CaseInsensitiveString environmentName);
 
-    public void removeAgent(String uuid) {
-        agents.remove(new EnvironmentAgentConfig(uuid));
-    }
+    void addPipeline(CaseInsensitiveString pipelineName);
 
-    public boolean hasName(final CaseInsensitiveString environmentName) {
-        return name.equals(environmentName);
-    }
+    boolean contains(String pipelineName);
 
-    public void addPipeline(final CaseInsensitiveString pipelineName) {
-        pipelines.add(new EnvironmentPipelineConfig(pipelineName));
-    }
+    void validateContainsOnlyPipelines(List<CaseInsensitiveString> pipelineNames);
 
-    public boolean contains(String pipelineName) {
-        return pipelines.containsPipelineNamed(new CaseInsensitiveString(pipelineName));
-    }
+    boolean hasSamePipelinesAs(EnvironmentConfig other);
 
-    public void validateContainsOnlyPipelines(List<CaseInsensitiveString> pipelineNames) {
-        pipelines.validateContainsOnlyPipelines(name, pipelineNames);
-    }
+    CaseInsensitiveString name();
 
-    public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        for (EnvironmentPipelineConfig pipeline : pipelines) {
-            if (other.pipelines.containsPipelineNamed(pipeline.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
+    EnvironmentAgentsConfig getAgents();
 
-    public CaseInsensitiveString name() {
-        return name;
-    }
+    void addEnvironmentVariable(String name, String value);
 
-    public EnvironmentAgentsConfig getAgents() {
-        return agents;
-    }
+    EnvironmentVariableContext createEnvironmentContext();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+    List<CaseInsensitiveString> getPipelineNames();
 
-        EnvironmentConfig that = (EnvironmentConfig) o;
+    EnvironmentPipelinesConfig getPipelines();
 
-        if (agents != null ? !agents.equals(that.agents) : that.agents != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (pipelines != null ? !pipelines.equals(that.pipelines) : that.pipelines != null) {
-            return false;
-        }
-        if (variables != null ? !variables.equals(that.variables) : that.variables != null) {
-            return false;
-        }
+    boolean hasVariable(String variableName);
 
-        return true;
-    }
+    EnvironmentVariablesConfig getVariables();
 
-    @Override
-    public int hashCode() {
-        int result = (name != null ? name.hashCode() : 0);
-        result = 31 * result + (agents != null ? agents.hashCode() : 0);
-        result = 31 * result + (pipelines != null ? pipelines.hashCode() : 0);
-        result = 31 * result + (variables != null ? variables.hashCode() : 0);
-        return result;
-    }
+    void setConfigAttributes(Object attributes);
 
-    @Override public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+    EnvironmentVariablesConfig getPlainTextVariables();
 
-    public void addEnvironmentVariable(String name, String value) {
-        variables.add(new EnvironmentVariableConfig(name.trim(), value));
-    }
+    EnvironmentVariablesConfig getSecureVariables();
 
-    public EnvironmentVariableContext createEnvironmentContext() {
-        EnvironmentVariableContext context = new EnvironmentVariableContext(GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(name));
-        variables.addTo(context);
-        return context;
-
-    }
-
-    public List<CaseInsensitiveString> getPipelineNames() {
-        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<CaseInsensitiveString>();
-        for (EnvironmentPipelineConfig pipeline : pipelines) {
-            pipelineNames.add(pipeline.getName());
-        }
-        return pipelineNames;
-    }
-
-    public EnvironmentPipelinesConfig getPipelines() {
-        return pipelines;
-    }
-
-    public boolean hasVariable(String variableName) {
-        return variables.hasVariable(variableName);
-    }
-
-    public EnvironmentVariablesConfig getVariables() {
-        return variables;
-    }
-
-    public EnvironmentVariablesConfig getPlainTextVariables() {
-        return variables.getPlainTextVariables();
-    }
-
-    public EnvironmentVariablesConfig getSecureVariables() {
-        return variables.getSecureVariables();
-    }
-
-    public void setConfigAttributes(Object attributes) {
-        if (attributes == null) {
-            return;
-        }
-        Map attributeMap = (Map) attributes;
-        if (attributeMap.containsKey(NAME_FIELD)) {
-            name = new CaseInsensitiveString((String) attributeMap.get(NAME_FIELD));
-        }
-        if (attributeMap.containsKey(PIPELINES_FIELD)) {
-            pipelines.setConfigAttributes(attributeMap.get(PIPELINES_FIELD));
-        }
-        if (attributeMap.containsKey(AGENTS_FIELD)) {
-            agents.setConfigAttributes(attributeMap.get(AGENTS_FIELD));
-        }
-        if (attributeMap.containsKey(VARIABLES_FIELD)) {
-            variables.setConfigAttributes(attributeMap.get(VARIABLES_FIELD));
-        }
-    }
 }

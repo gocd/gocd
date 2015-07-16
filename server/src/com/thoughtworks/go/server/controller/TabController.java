@@ -21,8 +21,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UserHelper;
@@ -48,7 +48,7 @@ public class TabController {
     public ModelAndView handleOldPipelineTab(HttpServletRequest request,
                                           HttpServletResponse response) throws IOException {
         if (goConfigService.isPipelineEmpty() && goConfigService.isAdministrator(CaseInsensitiveString.str(UserHelper.getUserName().getUsername()))) {
-            response.sendRedirect(String.format("admin/pipeline/new?group=%s", PipelineConfigs.DEFAULT_GROUP));
+            response.sendRedirect(String.format("admin/pipeline/new?group=%s", BasicPipelineConfigs.DEFAULT_GROUP));
             return null;
         }
         return new ModelAndView(TAB_PLACEHOLDER,  new HashMap() { { put("l", localizer); } });

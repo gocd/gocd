@@ -35,7 +35,9 @@ module JavaImports
   java_import com.thoughtworks.go.config.LdapConfig unless defined? LdapConfig
   java_import com.thoughtworks.go.config.PasswordFileConfig unless defined? PasswordFileConfig
   java_import com.thoughtworks.go.config.CruiseConfig unless defined? CruiseConfig
+  java_import com.thoughtworks.go.config.BasicCruiseConfig unless defined? BasicCruiseConfig
   java_import com.thoughtworks.go.config.EnvironmentConfig unless defined? EnvironmentConfig
+  java_import com.thoughtworks.go.config.BasicEnvironmentConfig unless defined? BasicEnvironmentConfig
   java_import com.thoughtworks.go.config.EnvironmentVariablesConfig unless defined? EnvironmentVariablesConfig
   java_import com.thoughtworks.go.config.ExecTask unless defined? ExecTask
   java_import com.thoughtworks.go.domain.feed.FeedEntries unless defined? FeedEntries
@@ -80,6 +82,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.ParamConfig unless defined? ParamConfig
   java_import com.thoughtworks.go.config.ParamsConfig unless defined? ParamsConfig
   java_import com.thoughtworks.go.config.PipelineConfigs unless defined? PipelineConfigs
+  java_import com.thoughtworks.go.config.BasicPipelineConfigs unless defined? BasicPipelineConfigs
   java_import com.thoughtworks.go.config.PipelineConfig unless defined? PipelineConfig
   java_import com.thoughtworks.go.domain.PipelineGroups unless defined? PipelineGroups
   java_import com.thoughtworks.go.domain.PipelineDependencyGraphOld unless defined? PipelineDependencyGraphOld

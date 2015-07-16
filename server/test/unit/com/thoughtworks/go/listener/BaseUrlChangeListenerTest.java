@@ -18,6 +18,7 @@ package com.thoughtworks.go.listener;
 
 import java.io.IOException;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -34,7 +35,7 @@ public class BaseUrlChangeListenerTest {
     public void shouldFlushCacheWhenBaseUrlConfigChanges() throws IOException {
         GoCache cache = mock(GoCache.class);
         BaseUrlChangeListener listener = new BaseUrlChangeListener(serverConfigWith("", ""), cache);
-        CruiseConfig newCruiseConfig = new CruiseConfig();
+        CruiseConfig newCruiseConfig = new BasicCruiseConfig();
         newCruiseConfig.setServerConfig(serverConfigWith("http://blah.com","https://blah.com"));
 
         listener.onConfigChange(newCruiseConfig);
@@ -46,7 +47,7 @@ public class BaseUrlChangeListenerTest {
     public void shouldNotFlushCacheWhenBaseUrlConfigIsNotChanged() {
         GoCache cache = mock(GoCache.class);
         BaseUrlChangeListener listener = new BaseUrlChangeListener(serverConfigWith("", ""), cache);
-        CruiseConfig newCruiseConfig = new CruiseConfig();
+        CruiseConfig newCruiseConfig = new BasicCruiseConfig();
         newCruiseConfig.setServerConfig(serverConfigWith("",""));
 
         listener.onConfigChange(newCruiseConfig);

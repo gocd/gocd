@@ -38,6 +38,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -314,7 +315,7 @@ public class CachedGoConfigTest {
     public void shouldReturnDefaultCruiseConfigIfLoadingTheConfigFailsForTheFirstTime() throws Exception {
         configHelper.writeXmlToConfigFile("invalid-xml");
         cachedGoConfig = new CachedGoConfig(dataSource, new ServerHealthService());
-        assertThat(cachedGoConfig.currentConfig(), is(new CruiseConfig()));
+        assertThat(cachedGoConfig.currentConfig(), Matchers.<CruiseConfig>is(new BasicCruiseConfig()));
     }
 
     @Test
@@ -418,7 +419,7 @@ public class CachedGoConfigTest {
         cachedGoConfig.registerListener(listener);
         cachedGoConfig.writeWithLock(updateFirstAgentResources("osx"));
 
-        verify(listener,times(2)).onConfigChange(any(CruiseConfig.class));
+        verify(listener,times(2)).onConfigChange(any(BasicCruiseConfig.class));
     }
 
     @Test public void shouldNotNotifyWhenConfigIsNullDuringRegistration() throws Exception {

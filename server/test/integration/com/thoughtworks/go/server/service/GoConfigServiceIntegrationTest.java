@@ -146,7 +146,7 @@ public class GoConfigServiceIntegrationTest {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
         configHelper.addSecurity(securityConfig);
         configHelper.addPipeline("my-pipeline", "my-stage");
-        configHelper.setAdminPermissionForGroup(PipelineConfigs.DEFAULT_GROUP, "pipeline_admin");
+        configHelper.setAdminPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, "pipeline_admin");
     }
 
     @Test

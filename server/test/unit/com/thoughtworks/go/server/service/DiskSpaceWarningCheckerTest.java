@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
@@ -66,7 +67,7 @@ public class DiskSpaceWarningCheckerTest {
     @Test
     public void shouldUseWarningLimit() {
         new SystemEnvironment().setProperty(SystemEnvironment.ARTIFACT_WARNING_SIZE_LIMIT, "1M");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(".", new SecurityConfig()));
 
         ArtifactsDiskSpaceWarningChecker fullChecker = new ArtifactsDiskSpaceWarningChecker(new SystemEnvironment(), sender, goConfigService, new SystemDiskSpaceChecker(), serverHealthService);

@@ -127,7 +127,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldUnderstandIfAnEnvironmentVariableIsConfiguredForAPipeline() throws Exception {
-        final PipelineConfigs newPipeline = new PipelineConfigs();
+        final PipelineConfigs newPipeline = new BasicPipelineConfigs();
 
         PipelineConfig otherPipeline = createPipelineConfig("pipeline_other", "stage_other", "plan_other");
         otherPipeline.setVariables(GoConfigFileHelper.env("OTHER_PIPELINE_LEVEL", "other pipeline"));
@@ -143,7 +143,7 @@ public class GoConfigServiceTest {
         newPipeline.add(pipelineConfig);
         newPipeline.add(otherPipeline);
 
-        CruiseConfig cruiseConfig = new CruiseConfig(newPipeline);
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(newPipeline);
         EnvironmentConfig environmentConfig = cruiseConfig.addEnvironment("uat");
         environmentConfig.addPipeline(new CaseInsensitiveString("pipeline"));
         environmentConfig.addEnvironmentVariable("ENV_LEVEL", "env value");
@@ -172,7 +172,7 @@ public class GoConfigServiceTest {
         StageConfig stage = pipeline.first();
         stage.setFetchMaterials(false);
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(pipeline));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline));
         expectLoad(cruiseConfig);
 
         assertThat(goConfigService.shouldFetchMaterials("cruise", "dev"), is(false));
@@ -192,29 +192,29 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldGetAllStagesWithOne() throws Exception {
-        final PipelineConfigs newPipeline = new PipelineConfigs();
+        final PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline.add(pipelineConfig);
-        expectLoad(new CruiseConfig(newPipeline));
+        expectLoad(new BasicCruiseConfig(newPipeline));
         assertThat(goConfigService.stageConfigNamed("pipeline", "name"), is(pipelineConfig.findBy(new CaseInsensitiveString("name"))));
     }
 
     @Test
     public void shouldTellIfAnUSerIsGroupAdministrator() throws Exception {
-        final PipelineConfigs newPipeline = new PipelineConfigs();
+        final PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline.add(pipelineConfig);
         newPipeline.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("dawg")))));
-        expectLoad(new CruiseConfig(newPipeline));
+        expectLoad(new BasicCruiseConfig(newPipeline));
         final Username dawg = new Username(new CaseInsensitiveString("dawg"));
         assertThat(goConfigService.isGroupAdministrator(dawg.getUsername()), is(true));
     }
 
     @Test
     public void shouldTellIfAnEnvironmentExists() throws Exception {
-        EnvironmentConfig first = new EnvironmentConfig(new CaseInsensitiveString("first"));
-        EnvironmentConfig second = new EnvironmentConfig(new CaseInsensitiveString("second"));
-        CruiseConfig config = new CruiseConfig();
+        BasicEnvironmentConfig first = new BasicEnvironmentConfig(new CaseInsensitiveString("first"));
+        BasicEnvironmentConfig second = new BasicEnvironmentConfig(new CaseInsensitiveString("second"));
+        CruiseConfig config = new BasicCruiseConfig();
         config.addEnvironment(first);
         config.addEnvironment(second);
         expectLoad(config);
@@ -227,7 +227,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldTellIfOnlyKnownUsersAreAllowedToLogin() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().security().setAllowOnlyKnownUsersToLogin(true);
         expectLoad(config);
 
@@ -236,7 +236,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldTellIfAnAgentExists() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.agents().add(new AgentConfig("uuid"));
         expectLoad(config);
 
@@ -246,55 +246,55 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() throws Exception {
-        PipelineConfigs newPipelines = new PipelineConfigs();
+        PipelineConfigs newPipelines = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.unit));
         pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.file));
         newPipelines.add(pipelineConfig);
-        expectLoad(new CruiseConfig(newPipelines));
+        expectLoad(new BasicCruiseConfig(newPipelines));
         assertThat(goConfigService.stageHasTests("pipeline", "stage1"), is(true));
         assertThat(goConfigService.stageHasTests("pipeline", "stage2"), is(false));
     }
 
     @Test
     public void shouldGetCommentRenderer() throws Exception {
-        PipelineConfigs newPipeline = new PipelineConfigs();
+        PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
         newPipeline.add(pipelineConfig);
-        expectLoad(new CruiseConfig(newPipeline));
+        expectLoad(new BasicCruiseConfig(newPipeline));
         assertEquals(goConfigService.getCommentRendererFor("pipeline"), new TrackingTool("link", "regex"));
 
         pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setMingleConfig(new MingleConfig("baseUrl", "projIdentifier", "mql"));
-        newPipeline = new PipelineConfigs();
+        newPipeline = new BasicPipelineConfigs();
         newPipeline.add(pipelineConfig);
-        expectLoad(new CruiseConfig(newPipeline));
+        expectLoad(new BasicCruiseConfig(newPipeline));
         assertEquals(goConfigService.getCommentRendererFor("pipeline"), new MingleConfig("baseUrl", "projIdentifier", "mql"));
 
         pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
-        newPipeline = new PipelineConfigs();
+        newPipeline = new BasicPipelineConfigs();
         newPipeline.add(pipelineConfig);
-        expectLoad(new CruiseConfig(newPipeline));
+        expectLoad(new BasicCruiseConfig(newPipeline));
         assertEquals(goConfigService.getCommentRendererFor("pipeline"), new TrackingTool());
     }
 
     @Test
     public void shouldUnderstandIfAPipelineIsLockable() throws Exception {
-        PipelineConfigs group = new PipelineConfigs();
+        PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
-        expectLoad(new CruiseConfig(group));
+        expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isLockable("pipeline"), is(false));
 
         pipelineConfig.lockExplicitly();
-        expectLoad(new CruiseConfig(group));
+        expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isLockable("pipeline"), is(true));
     }
 
     @Test
     public void shouldUnderstandIfLdapIsConfigured() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.setServerConfig(new ServerConfig(null, new SecurityConfig(new LdapConfig("test", "test", "test", null, true, new BasesConfig(new BaseConfig("test")), "test"), null, true, null)));
         expectLoad(config);
         assertThat("Ldap is configured", goConfigService.isLdapConfigured(), is(true));
@@ -333,7 +333,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldReturnInvalidWhenTemplatesPartialIsInvalid() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("/var/logs");
         config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
 
@@ -354,7 +354,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldClearExistingTemplateDefinitionWhenAnEmptyStringIsPosted() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("/var/logs");
         config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
         when(goConfigFileDao.loadForEditing()).thenReturn(config);
@@ -365,7 +365,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldBombWithErrorMessageWhenNoPipelinesExistAndATemplateIsConfigured() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("/var/logs");
         when(goConfigFileDao.loadForEditing()).thenReturn(config);
         String templateContent = "<templates>"
@@ -383,7 +383,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldPersistTheNewAndValidTemplateDefinition() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("/var/logs");
         config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
 
@@ -403,7 +403,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldReturnInvalidWhenIndividualTemplatePartialIsInvalid() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("/var/logs");
         config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
 
@@ -890,9 +890,9 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldDetermineIfStageExistsInCurrentConfig() throws Exception {
-        PipelineConfigs pipelineConfigs = new PipelineConfigs();
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.add(createPipelineConfig("pipeline", "stage", "job"));
-        expectLoad(new CruiseConfig(pipelineConfigs));
+        expectLoad(new BasicCruiseConfig(pipelineConfigs));
         assertThat(goConfigService.stageExists("pipeline", "randomstage"), is(false));
         assertThat(goConfigService.stageExists("pipeline", "stage"), is(true));
     }
@@ -1106,7 +1106,7 @@ public class GoConfigServiceTest {
                 return true;
             }
         };
-        CruiseConfig after = new CruiseConfig();
+        CruiseConfig after = new BasicCruiseConfig();
         command.afterUpdate(after);
         assertThat(command.configAfter(), sameInstance(after));
     }
@@ -1117,7 +1117,7 @@ public class GoConfigServiceTest {
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser");
         String md5 = "foo-md5";
 
-        CruiseConfig config = mock(CruiseConfig.class);
+        CruiseConfig config = mock(BasicCruiseConfig.class);
         when(config.pipelineConfigByName(new CaseInsensitiveString("foo-pipeline"))).thenReturn(pipelineConfig);
         when(config.getMd5()).thenReturn(md5);
         when(goConfigFileDao.load()).thenReturn(config);
@@ -1187,7 +1187,7 @@ public class GoConfigServiceTest {
     public void shouldReturnValidOnUpdateXml() throws Exception {
         String groupName = "group_name";
         String md5 = "md5";
-        cruiseConfig = new CruiseConfig();
+        cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
@@ -1205,7 +1205,7 @@ public class GoConfigServiceTest {
     public void shouldReturnInvalidWhenPipelineGroupPartialIsInvalid() throws Exception {
         String groupName = "group_name";
         String md5 = "md5";
-        cruiseConfig = new CruiseConfig();
+        cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
@@ -1222,7 +1222,7 @@ public class GoConfigServiceTest {
     public void shouldReturnInvalidWhenPipelineGroupPartialHasInvalidAttributeValue() throws Exception {
         String groupName = "group_name";
         String md5 = "md5";
-        cruiseConfig = new CruiseConfig();
+        cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
@@ -1239,7 +1239,7 @@ public class GoConfigServiceTest {
     public void shouldReturnInvalidWhenPipelineGroupPartialXmlIsInvalid() throws Exception {
         String groupName = "group_name";
         String md5 = "md5";
-        cruiseConfig = new CruiseConfig();
+        cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
@@ -1317,7 +1317,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void configShouldContainOldMD5_WhenConfigMergeFailed(){
-        when(goConfigFileDao.loadForEditing()).thenReturn(new CruiseConfig());
+        when(goConfigFileDao.loadForEditing()).thenReturn(new BasicCruiseConfig());
         when(goConfigFileDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "old-md5", new Username(new CaseInsensitiveString("user")),
                 new HttpLocalizedOperationResult());
@@ -1354,7 +1354,7 @@ public class GoConfigServiceTest {
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingEnvironment() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
         when(goConfigFileDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateEnvironment("env", new EnvironmentConfig(), "md5");
+        ConfigSaveState configSaveState = goConfigService.updateEnvironment("env", new BasicEnvironmentConfig(), "md5");
         assertThat(configSaveState, is(expectedSaveState));
     }
 
@@ -1369,7 +1369,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsAnAdminOfThisTemplate() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         String templateName = "template";
         CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
 
@@ -1385,7 +1385,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldSayThatAUserIsAuthorizedToViewAndEditTemplatesWhenTheUserHasPermissionsForAtLeastOneTemplate() throws Exception {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         String theSuperAdmin = "theSuperAdmin";
         String templateName = "template";
         String secondTemplateName = "secondTemplate";
@@ -1420,7 +1420,7 @@ public class GoConfigServiceTest {
 
 	@Test
 	public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
-		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		expectLoad(cruiseConfig);
 		goConfigService.getAllPipelinesInGroup("group");
 		verify(cruiseConfig).pipelines("group");
@@ -1518,7 +1518,7 @@ public class GoConfigServiceTest {
         configErrors.add("command", "command cannot be empty");
         ArrayList<ConfigErrors> list = new ArrayList<ConfigErrors>();
         list.add(configErrors);
-        return new GoConfigInvalidException(new CruiseConfig(), list);
+        return new GoConfigInvalidException(new BasicCruiseConfig(), list);
     }
 
     private Matcher<UpdateConfigCommand> cruiseConfigIsUpdatedWith(final String groupName, final String newPipelineName, final String labelTemplate) {

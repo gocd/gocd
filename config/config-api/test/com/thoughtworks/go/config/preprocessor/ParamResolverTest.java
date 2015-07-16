@@ -19,28 +19,7 @@ package com.thoughtworks.go.config.preprocessor;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
-import com.thoughtworks.go.config.AuthConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.MailHost;
-import com.thoughtworks.go.config.ParamConfig;
-import com.thoughtworks.go.config.ParamsConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RoleUser;
-import com.thoughtworks.go.config.RunIfConfig;
-import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -283,7 +262,7 @@ public class ParamResolverTest {
 
         PipelineConfig withoutParams = PipelineConfigMother.createPipelineConfig("mingle", "dev", "ant");
 
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addPipeline("group", withParams);
         cruiseConfig.addPipeline("group", withoutParams);
         cruiseConfig.server().setArtifactsDir("/#{foo}/#{bar}");
@@ -305,11 +284,11 @@ public class ParamResolverTest {
     @Test
     public void shouldSkipResolution() throws NoSuchFieldException {
         Object[] specs = new Object[] {
-            CruiseConfig.class, "serverConfig",
-            CruiseConfig.class, "templatesConfig",
-            CruiseConfig.class, "environments",
-            CruiseConfig.class, "agents",
-            PipelineConfigs.class, "authorization",
+            BasicCruiseConfig.class, "serverConfig",
+            BasicCruiseConfig.class, "templatesConfig",
+            BasicCruiseConfig.class, "environments",
+            BasicCruiseConfig.class, "agents",
+            BasicPipelineConfigs.class, "authorization",
             PipelineConfig.class, "name",
             PipelineConfig.class, "params",
             PipelineConfig.class, "templateName",

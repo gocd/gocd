@@ -89,7 +89,7 @@ describe PipelinesController do
     it "should load the dashboard" do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new)
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
 
       get :index
@@ -109,7 +109,7 @@ describe PipelinesController do
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new())
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
       controller.stub(:url_for_path).with("/admin/pipeline/new?group=defaultGroup").and_return("/admin/pipeline/new?group=defaultGroup")
 
@@ -123,7 +123,7 @@ describe PipelinesController do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(false)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new())
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
 
       get :index
 
@@ -153,7 +153,7 @@ describe PipelinesController do
     it "should load pipeline information" do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new)
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
 
       get :dashboard, :format => "json"
 
@@ -171,7 +171,7 @@ describe PipelinesController do
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new())
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
 
       get :dashboard, :format => "json"
 
@@ -291,7 +291,7 @@ describe PipelinesController do
     before do
       @go_config_service.should_receive(:isSecurityEnabled).and_return(false)
     end
-    
+
     it "should set cookies for a selected pipelines" do
       @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
       controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
@@ -338,7 +338,7 @@ describe PipelinesController do
     before do
       @go_config_service.should_receive(:isSecurityEnabled).and_return(true)
     end
-    
+
     it "should not update set cookies for selected pipelines when security enabled" do
       @go_config_service.should_receive(:persistSelectedPipelines).with("456", @user_id, ["pipeline1", "pipeline2"], true).and_return(1234)
       controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => "456"})
@@ -362,7 +362,7 @@ describe PipelinesController do
     it "should set tab name" do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=PipelineConfigs.new)
+      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
 
       get :index

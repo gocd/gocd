@@ -157,7 +157,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return edit;
     }
 
-    public void createEnvironment(final EnvironmentConfig config, Username user, final LocalizedOperationResult result) {
+    public void createEnvironment(final BasicEnvironmentConfig config, Username user, final LocalizedOperationResult result) {
         Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", user.getDisplayName());
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
         editEnvironments(new EditEnvironments() {

@@ -34,7 +34,7 @@ module Admin
       @pipeline = empty_pipeline
       @group_name = params[:group]
       @all_pipelines = @cruise_config.getAllPipelineNames()
-      @pipeline_group = PipelineConfigs.new([@pipeline].to_java(PipelineConfig))
+      @pipeline_group = BasicPipelineConfigs.new([@pipeline].to_java(PipelineConfig))
       @original_cruise_config = @cruise_config
       assert_load :task_view_models, task_view_service.getTaskViewModels()
       load_autocomplete_suggestions
@@ -151,7 +151,7 @@ module Admin
       if @cruise_config.hasPipelineNamed(pipelineName)
         @pipeline = @cruise_config.pipelineConfigByName(pipelineName).duplicate()
         @group_name = params[:group]
-        @pipeline_group = PipelineConfigs.new([@pipeline].to_java(PipelineConfig))
+        @pipeline_group = BasicPipelineConfigs.new([@pipeline].to_java(PipelineConfig))
         load_group_list
         render layout: false
       else

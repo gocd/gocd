@@ -23,12 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -39,7 +34,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Pair;
 
-@ConfigCollection(value = PipelineConfigs.class)
+@ConfigCollection(value = BasicPipelineConfigs.class)
 public class PipelineGroups extends BaseCollection<PipelineConfigs> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
     private Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap;
@@ -61,7 +56,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     public void addPipeline(String groupName, PipelineConfig pipeline) {
-        String sanitizedGroupName = PipelineConfigs.sanitizedGroupName(groupName);
+        String sanitizedGroupName = BasicPipelineConfigs.sanitizedGroupName(groupName);
         if (!this.hasGroup(sanitizedGroupName)) {
             createNewGroup(sanitizedGroupName, pipeline);
             return;
@@ -83,7 +78,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     private void createNewGroup(String sanitizedGroupName, PipelineConfig pipeline) {
-        PipelineConfigs configs = new PipelineConfigs(pipeline);
+        PipelineConfigs configs = new BasicPipelineConfigs(pipeline);
         configs.setGroup(sanitizedGroupName);
         this.add(0, configs);
     }
@@ -188,7 +183,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                                 if (!packageToPipelineMap.containsKey(packageId)) {
                                     packageToPipelineMap.put(packageId, new ArrayList<Pair<PipelineConfig, PipelineConfigs>>());
                                 }
-                                packageToPipelineMap.get(packageId).add(new Pair<PipelineConfig, PipelineConfigs>(pipelineConfig, pipelineConfigs));
+                                packageToPipelineMap.get(packageId).add(new Pair<PipelineConfig,PipelineConfigs>(pipelineConfig, pipelineConfigs));
                             }
                         }
                     }

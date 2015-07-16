@@ -19,9 +19,10 @@ package com.thoughtworks.go.server.service;
 import static java.util.Arrays.asList;
 import java.util.List;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
@@ -85,8 +86,8 @@ public class TimerSchedulerQuartzIntegrationTest {
         TimerScheduler timerScheduler = new TimerScheduler(quartzSchedulerFactory, goConfigService, buildCauseProducerService, null);
         timerScheduler.initialize();
 
-        CruiseConfig cruiseConfig = new CruiseConfig();
-        cruiseConfig.getGroups().add(new PipelineConfigs(uat));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.getGroups().add(new BasicPipelineConfigs(uat));
         timerScheduler.onConfigChange(cruiseConfig);
 
         pauseForScheduling();

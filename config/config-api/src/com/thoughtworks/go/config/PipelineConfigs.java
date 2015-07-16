@@ -13,338 +13,112 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
-
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
-import com.thoughtworks.go.config.validation.NameTypeValidator;
-import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
-import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Validatable,
+        ParamsAttributeAware, ConfigOriginTraceable {
 
-@ConfigTag("pipelines")
-@ConfigCollection(value = PipelineConfig.class, asFieldName = "pipelines")
-public class PipelineConfigs extends BaseCollection<PipelineConfig> implements Validatable, ParamsAttributeAware {
     public static final String DEFAULT_GROUP = "defaultGroup";
-
     public static final String GROUP = "group";
-    @ConfigAttribute(value = "group", optional = true) @SkipParameterResolution
-    private String group;
-
     public static final String AUTHORIZATION = "authorization";
-    @ConfigSubtag @SkipParameterResolution
-    private Authorization authorization = new Authorization();
+    public static final String NO_REMOTE_AUTHORIZATION = "no_remote_authorization";
 
-    private final ConfigErrors configErrors = new ConfigErrors();
+    int size();
 
+    boolean contains(PipelineConfig pipelineConfig);
 
-    public PipelineConfigs() {
-    }
+    boolean isEmpty();
 
-    public PipelineConfigs(PipelineConfig... pipelineConfigs) {
-        this(new Authorization(), pipelineConfigs);
-    }
+    ConfigOrigin getOrigin();
 
-    public PipelineConfigs(Authorization authorization, PipelineConfig... pipelineConfigs) {
-        super(pipelineConfigs);
-        this.authorization = authorization;
-    }
+    PipelineConfig findBy(CaseInsensitiveString pipelineName);
 
-    public PipelineConfigs(String group, Authorization authorization, PipelineConfig... pipelineConfigs) {
-        super(pipelineConfigs);
-        this.group = group;
-        this.authorization = authorization;
-    }
+    boolean add(PipelineConfig pipelineConfig);
 
-    public PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
-        for (int i=0; i< this.size(); i++) {
-            PipelineConfig pipelineConfig = this.get(i);
-            if (pipelineConfig.name().equals(pipelineName)) {
-                return pipelineConfig;
-            }
-        }
-        return null;
-    }
+    boolean addWithoutValidation(PipelineConfig pipelineConfig);
 
-    public boolean add(PipelineConfig pipelineConfig) {
-        verifyUniqueName(pipelineConfig);
-        return addWithoutValidation(pipelineConfig);
-    }
+    PipelineConfig set(int index, PipelineConfig pipelineConfig);
 
-    public boolean addWithoutValidation(PipelineConfig pipelineConfig) {
-        return super.add(pipelineConfig);
-    }
+    void addToTop(PipelineConfig pipelineConfig);
 
-    public PipelineConfig set(int index, PipelineConfig pipelineConfig) {
-        verifyUniqueName(pipelineConfig, index);
-        return super.set(index, pipelineConfig);
-    }
+    void add(int index, PipelineConfig pipelineConfig);
 
-    public void addToTop(PipelineConfig pipelineConfig) {
-        this.add(0, pipelineConfig);
-    }
+    String getGroup();
 
-    public void add(int index, PipelineConfig pipelineConfig) {
-        verifyUniqueName(pipelineConfig);
-        super.add(index, pipelineConfig);
-    }
+    void setGroup(String group);
 
-    private void verifyUniqueName(PipelineConfig pipelineConfig) {
-        if (alreadyContains(pipelineConfig)) {
-            throw bomb("You have defined multiple pipelines called '" + pipelineConfig.name() + "'. Pipeline names must be unique.");
-        }
-    }
+    boolean isNamed(String groupName);
 
-    private void verifyUniqueName(PipelineConfig pipelineConfig, int index) {
-        if (pipelineConfig.name().equals(super.get(index).name())) {
-            return;
-        }
-        verifyUniqueName(pipelineConfig);
-    }
+    void update(String groupName, PipelineConfig pipeline, String pipelineName);
 
+    boolean save(PipelineConfig pipeline, String groupName);
 
-    private boolean alreadyContains(PipelineConfig pipelineConfig) {
-        return findBy(pipelineConfig.name()) != null;
-    }
+    void add(List<String> allGroup);
 
-    public String getGroup() {
-        return group;
-    }
+    boolean exist(int pipelineIndex);
 
-    public void setGroup(String group) {
-        this.group = sanitizedGroupName(group);
-    }
+    boolean hasPipeline(CaseInsensitiveString pipelineName);
 
-    public static String sanitizedGroupName(String group) {
-        return StringUtils.isBlank(group) ? DEFAULT_GROUP : group;
-    }
+    Authorization getAuthorization();
 
-    public boolean isNamed(String groupName) {
-        return group.equals(groupName);
-    }
+    void accept(PiplineConfigVisitor visitor);
 
+    void setAuthorization(Authorization authorization);
 
-    public void update(String groupName, PipelineConfig pipeline, String pipelineName) {
-        if (!isSameGroup(groupName)) {
-            return;
-        }
-        this.set(getIndex(pipelineName), pipeline);
-    }
+    boolean hasViewPermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher);
 
-    private int getIndex(String pipelineName) {
-        return this.indexOf(this.findBy(new CaseInsensitiveString(pipelineName)));
-    }
+    boolean hasViewPermissionDefined();
 
-    public boolean save(PipelineConfig pipeline, String groupName) {
-        if (isSameGroup(groupName)) {
-            this.addToTop(pipeline);
-            return true;
-        } else {
-            return false;
-        }
-    }
+    boolean hasOperationPermissionDefined();
 
-    private boolean isSameGroup(String groupName) {
-        return StringUtils.equals(groupName, this.getGroup());
-    }
+    boolean hasOperatePermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher);
 
-    public void add(List<String> allGroup) {
-        allGroup.add(group);
-    }
+    boolean hasAuthorizationDefined();
 
-    public boolean exist(int pipelineIndex) {
-        return pipelineIndex < this.size();
-    }
+    boolean hasTemplate();
 
-    public boolean hasPipeline(CaseInsensitiveString pipelineName) {
-        for (PipelineConfig pipelineConfig : this) {
-            if (pipelineConfig.name().equals(pipelineName)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    PipelineConfigs getCopyForEditing();
 
-    public Authorization getAuthorization() {
-        return this.authorization;
-    }
+    boolean isUserAnAdmin(CaseInsensitiveString userName, List<Role> memberRoles);
 
-    public void accept(PiplineConfigVisitor visitor) {
-        for (PipelineConfig pipelineConfig : this) {
-            visitor.visit(pipelineConfig);
-        }
-    }
+    void validate(ValidationContext validationContext);
 
-    public void setAuthorization(Authorization authorization) {
-        this.authorization = authorization;
-    }
+    void validateNameUniqueness(Map<String, PipelineConfigs> groupNameMap);
 
-    public boolean hasViewPermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
-        return !hasAuthorizationDefined() || authorization.hasViewPermission(username, userRoleMatcher);
-    }
+    ConfigErrors errors();
 
-    public boolean hasViewPermissionDefined() {
-        return authorization.hasViewPermissionDefined();
-    }
+    List<PipelineConfig> getPipelines();
 
-    public boolean hasOperationPermissionDefined() {
-        return authorization.hasOperationPermissionDefined();
-    }
+    void addError(String fieldName, String message);
 
-    public boolean hasOperatePermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
-        return !hasAuthorizationDefined() || authorization.hasOperatePermission(username, userRoleMatcher);
-    }
+    List<AdminUser> getOperateUsers();
 
-    public boolean hasAuthorizationDefined() {
-        return !authorization.equals(new Authorization());
-    }
+    List<AdminRole> getOperateRoles();
 
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+    List<String> getOperateRoleNames();
 
-        PipelineConfigs pipelines = (PipelineConfigs) o;
+    List<String> getOperateUserNames();
 
-        if (authorization != null ? !authorization.equals(pipelines.authorization) : pipelines.authorization != null) {
-            return false;
-        }
-        if (group != null ? !group.equals(pipelines.group) : pipelines.group != null) {
-            return false;
-        }
+    void setConfigAttributes(Object attributes);
 
-        return true;
-    }
+    void cleanupAllUsagesOfRole(Role roleToDelete);
 
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (group != null ? group.hashCode() : 0);
-        result = 31 * result + (authorization != null ? authorization.hashCode() : 0);
-        return result;
-    }
+    int indexOf(PipelineConfig pipelineConfig);
 
-    public boolean hasTemplate() {
-        for (PipelineConfig pipelineConfig : this) {
-            if (pipelineConfig.hasTemplate()) { return true; }
-        }
-        return false;
-    }
+    PipelineConfig get(int i);
 
-    public PipelineConfigs getCopyForEditing() {
-        PipelineConfigs clone = (PipelineConfigs) clone();
-        clone.clear();
-        for (PipelineConfig pipeline : this) {
-            clone.add(pipeline.getCopyForEditing());
-        }
-        return clone;
-    }
+    void remove(PipelineConfig pipelineConfig);
 
-    public boolean isUserAnAdmin(final CaseInsensitiveString userName, List<Role> memberRoles) {
-        return authorization.hasAdminsDefined() && authorization.isUserAnAdmin(userName, memberRoles);
-    }
-
-    public void validate(ValidationContext validationContext) {
-        if (StringUtils.isBlank(group) || !new NameTypeValidator().isNameValid(group)) {
-            this.configErrors.add(GROUP, NameTypeValidator.errorMessage("group", group));
-        }
-
-        verifyPipelineNameUniqueness();
-    }
-
-    private void verifyPipelineNameUniqueness() {
-        HashMap<String, PipelineConfig> hashMap = new HashMap<String, PipelineConfig>();
-        for(PipelineConfig pipelineConfig : this){
-            pipelineConfig.validateNameUniqueness(hashMap);
-        }
-    }
-
-    public void validateNameUniqueness(Map<String, PipelineConfigs> groupNameMap) {
-        String currentName = group.toLowerCase();
-        PipelineConfigs groupWithSameName = groupNameMap.get(currentName);
-        if (groupWithSameName == null) {
-            groupNameMap.put(currentName, this);
-        } else {
-            groupWithSameName.nameConflictError();
-            this.nameConflictError();
-        }
-    }
-
-    private void nameConflictError() {
-        this.configErrors.add(GROUP, String.format("Group with name '%s' already exists", group));
-    }
-
-    public ConfigErrors errors() {
-        return configErrors;
-    }
-
-	public List<PipelineConfig> getPipelines() {
-		return this;
-	}
-
-    public void addError(String fieldName, String message) {
-        configErrors.add(fieldName, message);
-    }
-
-    public List<AdminUser> getOperateUsers() {
-        return authorization.getOperationConfig().getUsers();
-    }
-
-    public List<AdminRole> getOperateRoles() {
-        return authorization.getOperationConfig().getRoles();
-    }
-
-    public List<String> getOperateRoleNames() {
-        List<String> roles = new ArrayList<String>();
-        for (AdminRole role : getOperateRoles()) {
-            roles.add(CaseInsensitiveString.str(role.getName()));
-        }
-        return roles;
-    }
-
-    public List<String> getOperateUserNames() {
-        List<String> users = new ArrayList<String>();
-        for (AdminUser user : getOperateUsers()) {
-            users.add(CaseInsensitiveString.str(user.getName()));
-        }
-        return users;
-    }
-
-    public void setConfigAttributes(Object attributes) {
-        Map attributeMap = (Map) attributes;
-        if (attributeMap == null) {
-            return;
-        }
-        if (attributeMap.containsKey(GROUP)) {
-            this.group = (String) attributeMap.get(GROUP);
-        }
-        if (attributeMap.containsKey(AUTHORIZATION)) {
-            this.authorization = new Authorization();
-            this.authorization.setConfigAttributes(attributeMap.get(AUTHORIZATION));
-        }
-        else {
-            this.authorization = new Authorization();
-        }
-    }
-
-
-    public void cleanupAllUsagesOfRole(Role roleToDelete) {
-        getAuthorization().removeAllUsagesOfRole(roleToDelete);
-        for (PipelineConfig pipelineConfig : this){
-            pipelineConfig.cleanupAllUsagesOfRole(roleToDelete);
-        }
-    }
+    PipelineConfig remove(int i);
 }

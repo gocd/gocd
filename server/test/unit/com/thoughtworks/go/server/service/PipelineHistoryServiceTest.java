@@ -808,7 +808,7 @@ public class PipelineHistoryServiceTest {
 
 	@Test
 	public void shouldPopulateDataCorrectly_getPipelineStatus() {
-		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		PipelineConfig pipelineConfig = new PipelineConfig();
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
@@ -826,7 +826,7 @@ public class PipelineHistoryServiceTest {
 
 	@Test
 	public void shouldPopulateResultAsNotFound_getPipelineStatus() {
-		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(null);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
@@ -839,7 +839,7 @@ public class PipelineHistoryServiceTest {
 
 	@Test
 	public void shouldPopulateResultAsUnauthorized_getPipelineStatus() {
-		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		PipelineConfig pipelineConfig = new PipelineConfig();
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
@@ -855,7 +855,7 @@ public class PipelineHistoryServiceTest {
 	@Test
 	public void shouldPopulateResultAsNotFoundWhenPipelineNotFound_loadMinimalData() {
 		String pipelineName = "unknown-pipeline";
-		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
@@ -872,7 +872,7 @@ public class PipelineHistoryServiceTest {
 		String noAccessUserName = "foo";
 		String withAccessUserName = "admin";
 		String pipelineName = "no-access-pipeline";
-		CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 

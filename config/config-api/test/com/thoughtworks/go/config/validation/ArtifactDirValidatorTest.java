@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.validation;
 
 import java.io.File;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 
@@ -29,7 +30,7 @@ import org.junit.Test;
 public class ArtifactDirValidatorTest {
     @Test
     public void shouldThrowExceptionWhenUserProvidesDot() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(".", null));
 
         ArtifactDirValidator dirValidator = new ArtifactDirValidator();
@@ -42,7 +43,7 @@ public class ArtifactDirValidatorTest {
 
     @Test
     public void shouldThrowExceptionWhenUserProvidesEmtpty() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig("", null));
 
         ArtifactDirValidator dirValidator = new ArtifactDirValidator();
@@ -56,7 +57,7 @@ public class ArtifactDirValidatorTest {
 
     @Test
     public void shouldThrowExceptionWhenUserProvidesNull() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(null, SecurityConfigMother.securityConfigWithRole("role", "user")));
 
         ArtifactDirValidator dirValidator = new ArtifactDirValidator();
@@ -70,7 +71,7 @@ public class ArtifactDirValidatorTest {
     @Test
     public void shouldThrowExceptionWhenUserProvidesPathPointToServerSandBox() {
         File file = new File("");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(file.getAbsolutePath(), null));
 
         ArtifactDirValidator dirValidator = new ArtifactDirValidator();
@@ -85,7 +86,7 @@ public class ArtifactDirValidatorTest {
     @Test
     public void shouldNotThrowExceptionWhenUserProvidesValidPath() throws Exception {
         File file = new File("");
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(new ServerConfig(file.getAbsolutePath() + "/logs", null));
 
         ArtifactDirValidator dirValidator = new ArtifactDirValidator();

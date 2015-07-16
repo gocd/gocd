@@ -16,14 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.GoConfigMigration;
-import com.thoughtworks.go.config.OperationConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
@@ -65,14 +58,14 @@ public class PipelinePauseServiceTest {
 
     private void setUpValidPipelineWithAuth() {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(VALID_USER.getUsername())));
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
         when(goConfigFileDao.load()).thenReturn(cruiseConfig);
         when(securityService.hasOperatePermissionForGroup(eq(VALID_USER.getUsername()), any(String.class))).thenReturn(true);
     }
 
     private void setUpValidPipelineWithInvalidAuth() {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(INVALID_USER.getUsername())));
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
         when(goConfigFileDao.load()).thenReturn(cruiseConfig);
         when(securityService.hasOperatePermissionForGroup(eq(INVALID_USER.getUsername()), any(String.class))).thenReturn(false);
     }
@@ -109,7 +102,7 @@ public class PipelinePauseServiceTest {
     @Test
     public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForPause() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(goConfigFileDao.load()).thenReturn(new CruiseConfig());
+        when(goConfigFileDao.load()).thenReturn(new BasicCruiseConfig());
 
         pipelinePauseService.pause(INVALID_PIPELINE, "cause", VALID_USER, result);
 
@@ -121,7 +114,7 @@ public class PipelinePauseServiceTest {
     @Test
     public void shouldPopulateHttpResult404WhenPipelineIsNotFoundForUnpause() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(goConfigFileDao.load()).thenReturn(new CruiseConfig());
+        when(goConfigFileDao.load()).thenReturn(new BasicCruiseConfig());
 
         pipelinePauseService.unpause(INVALID_PIPELINE, VALID_USER, result);
 

@@ -20,7 +20,7 @@ describe "admin/pipelines/template_form.html.erb" do
 
   before(:each) do
     @pipeline = PipelineConfigMother.createPipelineConfig("", "defaultStage", ["defaultJob"].to_java(java.lang.String))
-    @pipeline_group = PipelineConfigs.new
+    @pipeline_group = BasicPipelineConfigs.new
     @pipeline_group.add(@pipeline)
     @template1 = PipelineTemplateConfigMother.createTemplateWithParams("template.name", ["foo", "bar", "blah"].to_java(java.lang.String))
     @template2 = PipelineTemplateConfigMother.createTemplateWithParams("template.name.2", ["foo2"].to_java(java.lang.String))

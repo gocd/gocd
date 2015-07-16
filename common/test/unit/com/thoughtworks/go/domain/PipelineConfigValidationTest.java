@@ -19,14 +19,7 @@ package com.thoughtworks.go.domain;
 import java.util.Arrays;
 import java.util.List;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -60,7 +53,7 @@ public class PipelineConfigValidationTest {
 
     @Test
     public void shouldEnsureStageNameUniqueness() {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         JobConfig jobConfig = new JobConfig("my-build");
         jobConfig.addTask(new ExecTask("ls", "-la", "tmp"));

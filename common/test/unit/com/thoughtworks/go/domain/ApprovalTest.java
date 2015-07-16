@@ -20,20 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PasswordFileConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RoleUser;
-import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.TemplatesConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -70,7 +57,7 @@ public class ApprovalTest {
         Approval approval = new Approval();
         approval.setConfigAttributes(new SingletonMap(Approval.TYPE, "not-manual-or-success"));
         assertThat(approval.getType(), is("not-manual-or-success"));
-        approval.validate(ValidationContext.forChain(new CruiseConfig(), new PipelineConfigs()));
+        approval.validate(ValidationContext.forChain(new BasicCruiseConfig(), new BasicPipelineConfigs()));
         assertThat(approval.errors().firstError(), is("You have defined approval type as 'not-manual-or-success'. Approval can only be of the type 'manual' or 'success'."));
     }
 

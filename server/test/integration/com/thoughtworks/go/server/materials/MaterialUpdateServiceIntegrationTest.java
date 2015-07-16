@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -66,7 +67,7 @@ public class MaterialUpdateServiceIntegrationTest {
     }
 
     private CruiseConfig configWithMaterial(SvnMaterialConfig goodMaterial) {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         new GoConfigMother().addPipeline(config, "good-pipeline", "first-stage", new MaterialConfigs(goodMaterial));
         return config;
     }

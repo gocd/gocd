@@ -22,21 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.RunOnAllAgentsJobTypeConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.Tasks;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import org.apache.commons.collections.map.SingletonMap;
@@ -222,7 +208,7 @@ public class StageConfigTest {
 
     @Test
     public void shouldPopulateErrorMessagesWhenHasJobNamesRepeated() {
-        CruiseConfig config = new CruiseConfig();
+        CruiseConfig config = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage-1", "con-job");
         config.addPipeline("group-foo", pipelineConfig);
         StageConfig stageConfig = pipelineConfig.get(0);

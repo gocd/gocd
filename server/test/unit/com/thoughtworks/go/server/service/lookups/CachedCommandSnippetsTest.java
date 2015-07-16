@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -180,7 +181,7 @@ public class CachedCommandSnippetsTest {
     }
 
     private void setupAFakeCommandRepoLocation(final String location, final String... otherLocations) {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         ServerConfig serverConfig = mock(ServerConfig.class);
 
         when(systemEnvironment.get(COMMAND_REPOSITORY_DIRECTORY)).thenReturn("some-directory");

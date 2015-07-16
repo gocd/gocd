@@ -253,7 +253,7 @@ public class AgentServiceIntegrationTest {
     public void shouldFindAnAgentForAGivenUUID() {
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
-        EnvironmentConfig foo = new EnvironmentConfig(new CaseInsensitiveString("foo"));
+        BasicEnvironmentConfig foo = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
         foo.addAgent(UUID);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.createEnvironment(foo, Username.ANONYMOUS, result);

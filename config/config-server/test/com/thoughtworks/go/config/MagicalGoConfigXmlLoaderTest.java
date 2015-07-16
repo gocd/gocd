@@ -1819,7 +1819,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDenied='true' />"
                         + "</agents>");
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
-        EnvironmentConfig element = new EnvironmentConfig(new CaseInsensitiveString("uat"));
+        EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("VAR_NAME_1", "variable_name_value_1");
         element.addEnvironmentVariable("CRUISE_ENVIRONEMNT_NAME", "variable_name_value_2");
         assertThat(config.getEnvironments(), hasItem(element));
@@ -1865,7 +1865,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDenied='true' />"
                         + "</agents>");
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
-        EnvironmentConfig element = new EnvironmentConfig(new CaseInsensitiveString("uat"));
+        EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("cdata", multiLinedata);
         assertThat(config.getEnvironments().get(0), is(element));
     }
@@ -2278,8 +2278,8 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSupportEmptyPipelineGroup() throws Exception {
-        PipelineConfigs group = new PipelineConfigs("defaultGroup", new Authorization());
-        CruiseConfig config = new CruiseConfig(group);
+        PipelineConfigs group = new BasicPipelineConfigs("defaultGroup", new Authorization());
+        CruiseConfig config = new BasicCruiseConfig(group);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(config, stream, true);
         GoConfigHolder configHolder = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService)
@@ -2352,7 +2352,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldAllowResourcesWithParamsForJobs() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template"), stageWithJobResource("#{PLATFORM}")));
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
@@ -2367,7 +2367,7 @@ public class MagicalGoConfigXmlLoaderTest {
     //BUG: #5209
     @Test
     public void shouldAllowRoleWithParamsForStageInTemplate() throws Exception {
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.server().security().addRole(new Role(new CaseInsensitiveString("role")));
 
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template"), stageWithAuth("#{ROLE}")));
@@ -2734,7 +2734,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </stage>\n"
                 + "  </pipeline>\n"
                 + "</pipelines>";
-        PipelineConfigs pipelineConfigs = xmlLoader.fromXmlPartial(partialXml, PipelineConfigs.class);
+        PipelineConfigs pipelineConfigs = xmlLoader.fromXmlPartial(partialXml, BasicPipelineConfigs.class);
         PipelineConfig pipeline = pipelineConfigs.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline, is(notNullValue()));
         assertThat(pipeline.materialConfigs().size(), is(1));

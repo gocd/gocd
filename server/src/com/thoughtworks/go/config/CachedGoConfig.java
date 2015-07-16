@@ -59,7 +59,7 @@ public class CachedGoConfig {
 
     public CruiseConfig currentConfig() {
         if (currentConfig == null) {
-            return new CruiseConfig();
+            return new BasicCruiseConfig();
         }
         return currentConfig;
     }

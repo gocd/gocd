@@ -18,10 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.util.Map;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -41,7 +38,7 @@ public class PipelineConfigServiceTest {
     public void shouldBeAbleToGetTheCanDeleteStatusOfAllPipelines() {
         PipelineConfigs configs = createGroup("group", "pipeline", "in_env");
         downstream(configs);
-        CruiseConfig cruiseConfig = new CruiseConfig(configs);
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(configs);
         cruiseConfig.addEnvironment(environment("foo", "in_env"));
 
         GoConfigService service = mock(GoConfigService.class);

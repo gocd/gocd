@@ -16,11 +16,7 @@
 
 package com.thoughtworks.go.serverhealth;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -80,15 +76,15 @@ public class ServerHealthServiceTest {
         serverHealthService.update(expiresInThreeMins);
         serverHealthService.update(expiresInNintySecs);
         serverHealthService.update(expiresNever);
-        ServerHealthStates logs = serverHealthService.getAllValidLogs(new CruiseConfig());
+        ServerHealthStates logs = serverHealthService.getAllValidLogs(new BasicCruiseConfig());
         assertThat(logs.size(), is(3));
         assertThat(logs, hasItems(expiresInThreeMins,expiresInNintySecs, expiresNever));
         testingClock.addSeconds(100);
-        logs = serverHealthService.getAllValidLogs(new CruiseConfig());
+        logs = serverHealthService.getAllValidLogs(new BasicCruiseConfig());
         assertThat(logs.size(), is(2));
         assertThat(logs,hasItems(expiresInThreeMins, expiresNever));
         testingClock.addMillis((int) Timeout.TWO_MINUTES.inMillis());
-        logs = serverHealthService.getAllValidLogs(new CruiseConfig());        
+        logs = serverHealthService.getAllValidLogs(new BasicCruiseConfig());
         assertThat(logs.size(), is(1));
         assertThat(logs,hasItem(expiresNever));
     }
@@ -98,7 +94,7 @@ public class ServerHealthServiceTest {
         serverHealthService.update(ServerHealthState.error("hg-message", "description", HealthStateType.general(forMaterial(MaterialsMother.hgMaterial()))));
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         serverHealthService.update(ServerHealthState.error("svn-message", "description", HealthStateType.general(forMaterialConfig(svnMaterialConfig))));
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addPipeline("defaultGroup", new PipelineConfig(new CaseInsensitiveString("dev"), new MaterialConfigs(svnMaterialConfig), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs())));
         assertThat(serverHealthService.getAllValidLogs(cruiseConfig).size(), is(1));
     }
@@ -108,21 +104,21 @@ public class ServerHealthServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", pipelineId));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline("other"))));
 
-        assertThat(serverHealthService.getAllValidLogs(new CruiseConfig()).size(), is(0));
+        assertThat(serverHealthService.getAllValidLogs(new BasicCruiseConfig()).size(), is(0));
     }
 
     @Test
     public void shouldRemoveErrorLogWhenCorrespondingGroupIsMissing() throws Exception {
         serverHealthService.update(ServerHealthState.error("message", "description", groupId));
 
-        assertThat(serverHealthService.getAllValidLogs(new CruiseConfig()).size(), is(0));
+        assertThat(serverHealthService.getAllValidLogs(new BasicCruiseConfig()).size(), is(0));
     }
 
     @Test
     public void shouldReturnErrorLogs() throws Exception {
         serverHealthService.update(ServerHealthState.error("message", "description", pipelineId));
 
-        CruiseConfig cruiseConfig = new CruiseConfig();
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
         new GoConfigMother().addPipeline(cruiseConfig, PIPELINE_NAME, "stageName", "jon");
         assertThat(serverHealthService.getAllValidLogs(cruiseConfig).size(), is(1));
     }

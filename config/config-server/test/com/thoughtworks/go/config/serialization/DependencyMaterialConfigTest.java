@@ -109,7 +109,7 @@ public class DependencyMaterialConfigTest {
     @Test
     public void shouldAddErrorForInvalidMaterialName() {
         DependencyMaterialConfig materialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("wrong name"), new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
-        materialConfig.validate(ValidationContext.forChain(new CruiseConfig()));
+        materialConfig.validate(ValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(materialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME), is("Invalid material name 'wrong name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
@@ -129,7 +129,7 @@ public class DependencyMaterialConfigTest {
     @Test
     public void shouldNotBombValidationWhenMaterialNameIsNotSet() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
-        dependencyMaterialConfig.validate(ValidationContext.forChain(new CruiseConfig()));
+        dependencyMaterialConfig.validate(ValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(dependencyMaterialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME), is(nullValue()));
     }
 

@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.helper;
 
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 
 public class EnvironmentConfigMother {
@@ -31,20 +31,20 @@ public class EnvironmentConfigMother {
         return environmentsConfig;
     }
 
-    private static EnvironmentConfig env(String name) {
-        return new EnvironmentConfig(new CaseInsensitiveString(name));
+    private static BasicEnvironmentConfig env(String name) {
+        return new BasicEnvironmentConfig(new CaseInsensitiveString(name));
     }
 
-    public static EnvironmentConfig environment(String name) {
-        EnvironmentConfig uat = new EnvironmentConfig(new CaseInsensitiveString(name));
+    public static BasicEnvironmentConfig environment(String name) {
+        BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
         uat.addPipeline(new CaseInsensitiveString(name + "-pipeline"));
         uat.addAgent(name + "-agent");
         uat.addAgent(OMNIPRESENT_AGENT);
         return uat;
     }
 
-    public static EnvironmentConfig environment(String name, String... pipelines) {
-        EnvironmentConfig config = env(name);
+    public static BasicEnvironmentConfig environment(String name, String... pipelines) {
+        BasicEnvironmentConfig config = env(name);
         for (String pipeline : pipelines) {
             config.addPipeline(new CaseInsensitiveString(pipeline));
         }

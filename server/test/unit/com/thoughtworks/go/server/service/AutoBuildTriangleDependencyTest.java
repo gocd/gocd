@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -60,7 +61,7 @@ public class AutoBuildTriangleDependencyTest {
 
     @Before public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
-        cruiseConfig = mock(CruiseConfig.class);
+        cruiseConfig = mock(BasicCruiseConfig.class);
         pipelineService = mock(PipelineService.class);
         materialChecker = mock(MaterialChecker.class);
         materialRepository = mock(MaterialRepository.class);
@@ -96,7 +97,7 @@ public class AutoBuildTriangleDependencyTest {
         BuildCause buildCause = spyAutoBuild.onModifications(originalRevisions, false, null);
 
         verify(pipelineService).getRevisionsBasedOnDependencies(dependencyGraph, originalRevisions);
-        verify(pipelineService, never()).getRevisionsBasedOnDependencies(any(MaterialRevisions.class), any(CruiseConfig.class), any(CaseInsensitiveString.class));
+        verify(pipelineService, never()).getRevisionsBasedOnDependencies(any(MaterialRevisions.class), any(BasicCruiseConfig.class), any(CaseInsensitiveString.class));
         assertThat(buildCause.getMaterialRevisions(), is(recomputedRevisions));
     }
 }

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.messaging;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.config.MailHost;
@@ -48,7 +49,7 @@ public class EmailNotificationListenerTest {
         context.checking(new Expectations() {
             {
                 allowing(goConfigService).currentCruiseConfig();
-                will(returnValue(new CruiseConfig()));
+                will(returnValue(new BasicCruiseConfig()));
             }
         });
         emailNotificationListener.onMessage(null);

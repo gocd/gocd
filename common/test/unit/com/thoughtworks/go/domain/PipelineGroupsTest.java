@@ -20,11 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -90,8 +86,8 @@ public class PipelineGroupsTest {
         PipelineConfigs dup = createGroup("first", "pipeline");
         PipelineGroups groups = new PipelineGroups(first, dup);
         groups.validate(null);
-        assertThat(first.errors().on(PipelineConfigs.GROUP), is("Group with name 'first' already exists"));
-        assertThat(dup.errors().on(PipelineConfigs.GROUP), is("Group with name 'first' already exists"));
+        assertThat(first.errors().on(BasicPipelineConfigs.GROUP), is("Group with name 'first' already exists"));
+        assertThat(dup.errors().on(BasicPipelineConfigs.GROUP), is("Group with name 'first' already exists"));
     }
 
     @Test
@@ -183,7 +179,7 @@ public class PipelineGroupsTest {
         final PipelineConfig p4 = PipelineConfigMother.pipelineConfig("pipeline4", new MaterialConfigs(p4MaterialConfig, pluggableSCMMaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
         final PipelineConfig p5 = PipelineConfigMother.pipelineConfig("pipeline5", new MaterialConfigs(svnMaterialConfigWithAutoUpdate, tfsMaterialConfig),
                 new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineGroups groups = new PipelineGroups(new PipelineConfigs(p1, p2, p3, p4, p5));
+        final PipelineGroups groups = new PipelineGroups(new BasicPipelineConfigs(p1, p2, p3, p4, p5));
 
         final Set<MaterialConfig> materials = groups.getAllUniquePostCommitSchedulableMaterials();
 
@@ -200,8 +196,8 @@ public class PipelineGroupsTest {
         final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
 
         PipelineGroups groups = new PipelineGroups();
-        PipelineConfigs groupOne = new PipelineConfigs(p1);
-        PipelineConfigs groupTwo = new PipelineConfigs(p2);
+        PipelineConfigs groupOne = new BasicPipelineConfigs(p1);
+        PipelineConfigs groupTwo = new BasicPipelineConfigs(p2);
         groups.addAll(asList(groupOne, groupTwo));
 
         Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> packageToPipelineMap = groups.getPackageUsageInPipelines();
@@ -220,7 +216,7 @@ public class PipelineGroupsTest {
         final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
 
         PipelineGroups groups = new PipelineGroups();
-        groups.addAll(asList(new PipelineConfigs(p1), new PipelineConfigs(p2)));
+        groups.addAll(asList(new BasicPipelineConfigs(p1), new BasicPipelineConfigs(p2)));
 
         Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> result1 = groups.getPackageUsageInPipelines();
         Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> result2 = groups.getPackageUsageInPipelines();
@@ -235,8 +231,8 @@ public class PipelineGroupsTest {
         final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
 
         PipelineGroups groups = new PipelineGroups();
-        PipelineConfigs groupOne = new PipelineConfigs(p1);
-        PipelineConfigs groupTwo = new PipelineConfigs(p2);
+        PipelineConfigs groupOne = new BasicPipelineConfigs(p1);
+        PipelineConfigs groupTwo = new BasicPipelineConfigs(p2);
         groups.addAll(asList(groupOne, groupTwo));
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesOne = groups.getPluggableSCMMaterialUsageInPipelines();

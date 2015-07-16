@@ -19,9 +19,10 @@ package com.thoughtworks.go.server.service.dd;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -46,7 +47,7 @@ public class FanInGraphTest {
         DependencyMaterialConfig p3Dep = new DependencyMaterialConfig(p3.name(), p3.get(0).name());
         PipelineConfig p4 = PipelineConfigMother.pipelineConfig("p4", new MaterialConfigs(p2Dep, p3Dep));
 
-        CruiseConfig cruiseConfig = new CruiseConfig(new PipelineConfigs(p1, p2, p3, p4));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1, p2, p3, p4));
         FanInGraph faninGraph = new FanInGraph(cruiseConfig, p4.name(), null, null, null, null);
         List<ScmMaterialConfig> scmMaterialNodes = faninGraph.getScmMaterials();
         List<String> scmMaterialUrls = new ArrayList<String>();

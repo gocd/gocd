@@ -18,18 +18,14 @@ package com.thoughtworks.go.config.materials;
 
 import java.util.*;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.ParamsAttributeAware;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -146,6 +142,32 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         for (DependencyMaterialConfig material : filterDependencyMaterials()) {
             material.validateUniqueness(dependencies);
         }
+
+        if (validationContext.isWithinPipelines()) {
+            PipelineConfig currentPipeline = validationContext.getPipeline();
+            CruiseConfig cruiseConfig = validationContext.getCruiseConfig();
+            validateOrigins(currentPipeline, cruiseConfig);
+        }
+    }
+
+    private void validateOrigins(PipelineConfig currentPipeline, CruiseConfig cruiseConfig) {
+        for (DependencyMaterialConfig material : filterDependencyMaterials()) {
+            PipelineConfig upstream = cruiseConfig.getPipelineConfigByName(material.getPipelineName());
+            if(upstream == null)
+                continue; // other rule validates existence of upstream
+            ConfigOrigin myOrigin = currentPipeline.getOrigin();
+            ConfigOrigin upstreamOrigin = upstream.getOrigin();
+            if(!cruiseConfig.getConfigRepos().isReferenceAllowed(myOrigin, upstreamOrigin))
+            {
+                material.addError(DependencyMaterialConfig.ORIGIN,
+                        String.format("Dependency from pipeline defined in %s to pipeline defined in %s is not allowed",
+                                displayNameFor(myOrigin), displayNameFor(upstreamOrigin)));
+            }
+        }
+    }
+
+    private String displayNameFor(ConfigOrigin origin) {
+        return origin != null ? origin.displayName() : "cruise-config.xml";
     }
 
     private void validateScmMaterials() {

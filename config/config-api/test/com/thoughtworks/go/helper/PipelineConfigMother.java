@@ -22,22 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 public class PipelineConfigMother {
     public static PipelineConfigs studiosAndEvolve() {
-        return new PipelineConfigs(pipelineConfig("studios"), pipelineConfig("evolve"));
+        return new BasicPipelineConfigs(pipelineConfig("studios"), pipelineConfig("evolve"));
     }
 
     public static PipelineConfig pipelineConfig(String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) {
@@ -83,7 +75,7 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfigs createGroup(String groupName, PipelineConfig... pipelineConfigs) {
-        return new PipelineConfigs(groupName, new Authorization(), pipelineConfigs);
+        return new BasicPipelineConfigs(groupName, new Authorization(), pipelineConfigs);
     }
 
     public static PipelineConfigs createGroup(String groupName, String... pipelineConfigs) {
@@ -135,7 +127,7 @@ public class PipelineConfigMother {
         for (String user : users) {
             authorization.getOperationConfig().add(new AdminUser(new CaseInsensitiveString(user)));
         }
-        return new PipelineConfigs("defaultGroup", authorization, pipelineConfig);
+        return new BasicPipelineConfigs("defaultGroup", authorization, pipelineConfig);
     }
 
     public static PipelineConfig pipelineConfigWithTemplate(String name, String templateName) {

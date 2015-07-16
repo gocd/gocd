@@ -39,6 +39,7 @@ import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -223,7 +224,7 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), new ArrayList<Map<String, String>>(), selectedAgents), user, result);
 
         assertThat(result.isSuccessful(), is(true));
-        verify(mockGoConfigService).addEnvironment(new EnvironmentConfig(new CaseInsensitiveString(environmentName)));
+        verify(mockGoConfigService).addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
     }
 
     @Test
@@ -237,7 +238,7 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), new ArrayList<Map<String, String>>(), Arrays.asList(new String[]{"agent-guid-1"})), user, result);
 
         assertThat(result.isSuccessful(), is(true));
-        EnvironmentConfig envConfig = new EnvironmentConfig(new CaseInsensitiveString(environmentName));
+        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         envConfig.addAgent("agent-guid-1");
         verify(mockGoConfigService).addEnvironment(envConfig);
     }
@@ -255,7 +256,7 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), environmentVariables, selectedAgents), user, result);
 
         assertThat(result.isSuccessful(), is(true));
-        EnvironmentConfig expectedConfig = new EnvironmentConfig(new CaseInsensitiveString(environmentName));
+        BasicEnvironmentConfig expectedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         expectedConfig.addEnvironmentVariable("SHELL", "/bin/zsh");
         expectedConfig.addEnvironmentVariable("HOME", "/home/cruise");
         verify(mockGoConfigService).addEnvironment(expectedConfig);
@@ -279,7 +280,7 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.createEnvironment(env(environmentName, selectedPipelines, new ArrayList<Map<String, String>>(), new ArrayList<String>()), user, result);
 
         assertThat(result.isSuccessful(), is(true));
-        EnvironmentConfig config = new EnvironmentConfig(new CaseInsensitiveString(environmentName));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         config.addPipeline(new CaseInsensitiveString("first"));
         config.addPipeline(new CaseInsensitiveString("second"));
         verify(mockGoConfigService).addEnvironment(config);
@@ -345,21 +346,21 @@ public class EnvironmentConfigServiceTest {
     @Test
     public void shouldReturnEnvironmentConfigForEdit() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        CruiseConfig config = new CruiseConfig();
-        EnvironmentConfig env = new EnvironmentConfig(new CaseInsensitiveString("foo"));
+        CruiseConfig config = new BasicCruiseConfig();
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
         env.addPipeline(new CaseInsensitiveString("bar"));
         env.addAgent("baz");
         env.addEnvironmentVariable("quux", "bang");
         config.getEnvironments().add(env);
         when(mockGoConfigService.getConfigForEditing()).thenReturn(config);
-        assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), is(env));
+        assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), Is.<EnvironmentConfig>is(env));
         assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
     public void shouldReturnResultWithMessageThatConfigWasMerged_WhenMergingEnvironmentChanges() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new EnvironmentConfig(new CaseInsensitiveString(environmentName));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         String md5 = "md5";
         Username user = new Username(new CaseInsensitiveString("user"));
 
@@ -375,7 +376,7 @@ public class EnvironmentConfigServiceTest {
     @Test
     public void shouldReturnResultWithMessageThatConfigisUpdated_WhenUpdatingLatestConfiguration() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new EnvironmentConfig(new CaseInsensitiveString(environmentName));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         String md5 = "md5";
         Username user = new Username(new CaseInsensitiveString("user"));
 
@@ -389,7 +390,7 @@ public class EnvironmentConfigServiceTest {
 
     private EnvironmentsConfig environmentsConfig(String envName, String pipelineName) {
         EnvironmentsConfig environments = new EnvironmentsConfig();
-        EnvironmentConfig config = new EnvironmentConfig(new CaseInsensitiveString(envName));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
         config.addPipeline(new CaseInsensitiveString(pipelineName));
         environments.add(config);
         return environments;
@@ -408,8 +409,8 @@ public class EnvironmentConfigServiceTest {
         return new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier);
     }
 
-    public static EnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
-        EnvironmentConfig config = new EnvironmentConfig(new CaseInsensitiveString(name));
+    public static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
         for (String selectedPipeline : selectedPipelines) {
             config.addPipeline(new CaseInsensitiveString(selectedPipeline));
         }

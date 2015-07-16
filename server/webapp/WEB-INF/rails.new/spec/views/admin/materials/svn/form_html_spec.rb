@@ -26,7 +26,7 @@ describe "_form.html.erb" do
     @ignored_file = IgnoredFiles.new("/sugar")
     @material_config.setFilter(Filter.new([@ignored_file, IgnoredFiles.new("/jaggery")].to_java(IgnoredFiles)))
 
-    assign(:cruise_config, @cruise_config = CruiseConfig.new)
+    assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     set(@cruise_config, "md5", "abc")
   end
 

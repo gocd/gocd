@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -57,7 +57,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
         configHelper.addPipeline("cruise", "stage", "unit", "functional");
         configHelper.turnOnSecurity();
         configHelper.addAdmins("super_hero");
-        configHelper.setViewPermissionForGroup(PipelineConfigs.DEFAULT_GROUP, "sindbad");
+        configHelper.setViewPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, "sindbad");
 
         goConfigService.forceNotifyListeners();
     }

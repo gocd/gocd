@@ -24,6 +24,9 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.ParamResolver;
 import com.thoughtworks.go.config.preprocessor.ParamScope;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.CommentRenderer;
@@ -54,7 +57,8 @@ import static org.apache.commons.collections.CollectionUtils.select;
  */
 @ConfigTag("pipeline")
 @ConfigCollection(value = StageConfig.class, asFieldName = "Stages")
-public class PipelineConfig extends BaseCollection<StageConfig> implements ParamScope, ParamsAttributeAware, Validatable, EnvironmentVariableScope {
+public class PipelineConfig extends BaseCollection<StageConfig> implements ParamScope, ParamsAttributeAware,
+        Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
     private static final Cloner CLONER = new Cloner();
 
     private static final String ERR_TEMPLATE = "You have defined a label template in pipeline %s that refers to a material called %s, but no material with this name is defined.";
@@ -112,6 +116,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigAttribute(value = "template", optional = true, allowNull = true)
     private CaseInsensitiveString templateName;
 
+    private ConfigOrigin origin;
+
     private boolean templateApplied;
 
     private ConfigErrors errors = new ConfigErrors();
@@ -143,6 +149,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             this.timer = new TimerConfig(cronSpec, timerShouldTriggerOnlyOnMaterialChanges);
         }
     }
+
+
 
     public void validate(ValidationContext validationContext) {
         validateLabelTemplate();
@@ -285,6 +293,37 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 return lastStageConfig;
             }
             lastStageConfig = currentStageConfig;
+        }
+        return null;
+    }
+
+    public boolean isConfigOriginSameAsOneOfMaterials()
+    {
+        if(!(this.origin instanceof RepoConfigOrigin))
+            return false;
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)this.origin;
+        MaterialConfig configMaterial = repoConfigOrigin.getMaterial();
+
+        for(MaterialConfig material : this.materialConfigs())
+        {
+            if(material.equals(configMaterial))
+                return true;
+        }
+        return false;
+    }
+    public boolean isConfigOriginFromRevision(String revision)
+    {
+        if(!(this.origin instanceof RepoConfigOrigin))
+            return false;
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)this.origin;
+        return repoConfigOrigin.isFromRevision(revision);
+    }
+
+    private static <T> T as(Class<T> clazz, Object o){
+        if(clazz.isInstance(o)){
+            return clazz.cast(o);
         }
         return null;
     }
@@ -843,5 +882,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 return materialConfig instanceof PluggableSCMMaterialConfig;
             }
         }));
+    }
+
+    public ConfigOrigin getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(ConfigOrigin origin) {
+        this.origin = origin;
     }
 }

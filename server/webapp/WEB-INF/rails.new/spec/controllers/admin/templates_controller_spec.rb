@@ -73,7 +73,7 @@ describe Admin::TemplatesController do
   describe :action do
     before :each do
       @pipeline = PipelineTemplateConfig.new(CaseInsensitiveString.new("some_template"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
-      @cruise_config = CruiseConfig.new
+      @cruise_config = BasicCruiseConfig.new
       @cruise_config.addTemplate(@pipeline)
       @user = current_user
       @result = stub_localized_result

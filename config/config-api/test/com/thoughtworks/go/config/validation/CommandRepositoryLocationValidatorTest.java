@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.validation;
 
 import java.io.File;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -41,7 +42,7 @@ public class CommandRepositoryLocationValidatorTest {
     @Before public void setUp() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         validator = new CommandRepositoryLocationValidator(systemEnvironment);
-        cruiseConfig = mock(CruiseConfig.class);
+        cruiseConfig = mock(BasicCruiseConfig.class);
         serverConfig = mock(ServerConfig.class);
         when(cruiseConfig.server()).thenReturn(serverConfig);
         when(systemEnvironment.get(COMMAND_REPOSITORY_DIRECTORY)).thenReturn("db/task_repository");

@@ -54,10 +54,10 @@ public class TwoPipelineGroups implements PreCondition {
     }
 
     public String pipelineInFirstGroup() {
-        return CaseInsensitiveString.str(configHelper.currentConfig().getGroups().first().first().name());
+        return CaseInsensitiveString.str(configHelper.currentConfig().getGroups().get(0).get(0).name());
     }
 
     public String pipelineInSecondGroup() {
-        return CaseInsensitiveString.str(configHelper.currentConfig().getGroups().get(1).first().name());
+        return CaseInsensitiveString.str(configHelper.currentConfig().getGroups().get(1).get(0).name());
     }
 }

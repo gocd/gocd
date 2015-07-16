@@ -19,10 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.util.Date;
 import java.util.concurrent.Semaphore;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.CannotScheduleException;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
@@ -127,7 +124,7 @@ public class JobRerunScheduleServiceTest {
     }
 
     private void stubConfigMd5Cal(String latestMd5) {
-        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(cruiseConfig.getMd5()).thenReturn(latestMd5);
     }

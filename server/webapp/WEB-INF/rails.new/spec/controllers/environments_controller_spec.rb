@@ -318,7 +318,7 @@ describe EnvironmentsController do
       result = HttpLocalizedOperationResult.new()
       result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)),LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,any_args).and_return(result)
-      environment_service.should_receive(:forEdit).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(EnvironmentConfig.new(),"md5"))
+      environment_service.should_receive(:forEdit).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(),"md5"))
       environment_service.should_receive(:getAllPipelinesForUser).with(any_args).and_return([])
 
 

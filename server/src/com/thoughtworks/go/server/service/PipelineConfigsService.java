@@ -66,7 +66,7 @@ public class PipelineConfigsService {
         Localizable savedSuccessMessage = LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY");
         Localizable localizableMessage = goConfigValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, LocalizedMessage.string("CONFIG_MERGED")) : savedSuccessMessage;
         result.setMessage(localizableMessage);
-        PipelineConfigs pipelineConfigs = magicalGoConfigXmlLoader.fromXmlPartial(xmlPartial, PipelineConfigs.class);
+        PipelineConfigs pipelineConfigs = magicalGoConfigXmlLoader.fromXmlPartial(xmlPartial, BasicPipelineConfigs.class);
         return new GoConfigOperationalResponse<PipelineConfigs>(goConfigValidity, pipelineConfigs);
     }
 

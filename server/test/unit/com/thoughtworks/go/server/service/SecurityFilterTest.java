@@ -18,13 +18,8 @@ package com.thoughtworks.go.server.service;
 
 import java.util.ArrayList;
 
-import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
-import com.thoughtworks.go.config.AdminUser;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.ClassMockery;
 import org.jmock.Mockery;
@@ -55,7 +50,7 @@ public class SecurityFilterTest {
 
     @Test
     public void shouldVisitPipelineConfigsIfPassViewPermissionCheck() {
-        final PipelineConfigs group = new PipelineConfigs("group1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline1"));
+        final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline1"));
 
         when(securityService.hasViewPermissionForGroup("anyone", "group1")).thenReturn(true);
         securityFilter.visit(group);
@@ -64,7 +59,7 @@ public class SecurityFilterTest {
 
     @Test
     public void shouldNotVisitPipelineConfigsIfNotPassViewPermissionCheck() {
-        final PipelineConfigs group = new PipelineConfigs("group1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline1"));
+        final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline1"));
 
         when(securityService.hasViewPermissionForGroup("anyone", "group1")).thenReturn(false);
         securityFilter.visit(group);
@@ -73,7 +68,7 @@ public class SecurityFilterTest {
     
     @Test
     public void shouldCallBackOnTheVisitorIfTheUserIsAPipelineGroupAdmin() throws Exception {
-        final PipelineConfigs group = new PipelineConfigs("group1", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("anyone")))), PipelineConfigMother.pipelineConfig("pipeline1"));
+        final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("anyone")))), PipelineConfigMother.pipelineConfig("pipeline1"));
 
         when(securityService.hasViewPermissionForGroup("anyone", "group1")).thenReturn(true);
         when(goConfigService.rolesForUser(new CaseInsensitiveString("anyone"))).thenReturn(new ArrayList<Role>());

@@ -240,7 +240,7 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfig addPipeline(String pipelineName, String stageName, String... buildNames) {
-        return addPipelineWithGroup(PipelineConfigs.DEFAULT_GROUP, pipelineName, stageName, buildNames);
+        return addPipelineWithGroup(BasicPipelineConfigs.DEFAULT_GROUP, pipelineName, stageName, buildNames);
     }
 
     public PipelineTemplateConfig addTemplate(String pipelineName, String stageName) {

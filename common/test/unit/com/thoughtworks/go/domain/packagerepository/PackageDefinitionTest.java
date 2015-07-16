@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain.packagerepository;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
@@ -235,7 +235,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
     @Test
     public void shouldValidateIfNameIsMissing() {
         PackageDefinition packageDefinition = new PackageDefinition();
-        packageDefinition.validate(new ValidationContext(new CruiseConfig(), null));
+        packageDefinition.validate(new ValidationContext(new BasicCruiseConfig(), null));
         assertThat(packageDefinition.errors().isEmpty(), is(false));
         assertThat(packageDefinition.errors().getAllOn("name"), is(asList("Package name is mandatory")));
     }

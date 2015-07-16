@@ -86,7 +86,7 @@ public class GoConfigParallelGraphWalkerTest {
 
         AValidatableObjectWithAField goodObjectWithNonNullField = new AValidatableObjectWithAField(new SomeOtherObject("1"));
 
-        CruiseConfig.copyErrors(badObjectWithNullField, goodObjectWithNonNullField);
+        BasicCruiseConfig.copyErrors(badObjectWithNullField, goodObjectWithNonNullField);
 
         assertThat(goodObjectWithNonNullField.errors().getAll().size(), is(1));
         assertThat(goodObjectWithNonNullField.errors().firstError(), is("Bad"));
@@ -105,7 +105,7 @@ public class GoConfigParallelGraphWalkerTest {
         AValidatableObjectWithAList goodObjectWith2ObjectsInList = new AValidatableObjectWithAList();
         goodObjectWith2ObjectsInList.add(new SomeOtherObject("2"));
 
-        CruiseConfig.copyErrors(badObjectWith2ObjectsInList, goodObjectWith2ObjectsInList);
+        BasicCruiseConfig.copyErrors(badObjectWith2ObjectsInList, goodObjectWith2ObjectsInList);
 
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().size(), is(1));
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().get(0).errors().getAll().size(), is(1));

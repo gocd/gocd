@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -112,7 +113,7 @@ public class PackageMaterialAddWithNewPackageDefinitionCommandTest extends Packa
         Map params = new HashMap();
         params.put("package_definition", repositoryIdMap);
 
-        CruiseConfig config = mock(CruiseConfig.class);
+        CruiseConfig config = mock(BasicCruiseConfig.class);
         PackageRepositories packageRepositories = mock(PackageRepositories.class);
         when(packageRepositories.find(repoId)).thenReturn(mock(PackageRepository.class));
         when(config.getPackageRepositories()).thenReturn(packageRepositories);

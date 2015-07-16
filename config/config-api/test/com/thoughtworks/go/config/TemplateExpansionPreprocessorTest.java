@@ -38,7 +38,7 @@ public class TemplateExpansionPreprocessorTest {
     public void shouldThrowExceptionWhenAPipelineHasNoStages() throws Exception {
         PipelineConfig pipelineConfigWithNoStages = pipelineConfigWithGivenStages();
         try {
-            preprocessor.process(new CruiseConfig(new PipelineConfigs(pipelineConfigWithGivenStages("foo"), pipelineConfigWithNoStages)));
+            preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfigWithGivenStages("foo"), pipelineConfigWithNoStages)));
             fail("should fail when no stages");
         } catch (Exception expected) {
             assertThat(expected.getMessage(), is("Pipeline 'pipeline' does not have any stages configured. A pipeline must have at least one stage."));
@@ -48,7 +48,7 @@ public class TemplateExpansionPreprocessorTest {
     @Test
     public void shouldNotThrowAnExceptionWhenAPipelineHasAtLeastOneStage() throws Exception {
         PipelineConfig pipelineConfig = pipelineConfigWithGivenStages("foo");
-        preprocessor.process(new CruiseConfig(new PipelineConfigs(pipelineConfig)));
+        preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
     }
 
     @Test

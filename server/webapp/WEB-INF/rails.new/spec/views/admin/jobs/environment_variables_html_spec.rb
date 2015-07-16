@@ -35,7 +35,7 @@ describe "admin/jobs/environment_variables.html.erb" do
     assign(:stage, stage)
     assign(:job, @job)
 
-    @cruise_config = CruiseConfig.new
+    @cruise_config = BasicCruiseConfig.new
     assign(:cruise_config, @cruise_config)
     @cruise_config.addPipeline("group-1", pipeline)
 

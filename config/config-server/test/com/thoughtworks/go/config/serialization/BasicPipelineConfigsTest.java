@@ -31,7 +31,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class PipelineConfigsTest {
+public class BasicPipelineConfigsTest {
     private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     private static final String PIPELINES_WITH_PERMISSION = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -84,7 +84,7 @@ public class PipelineConfigsTest {
                 new CaseInsensitiveString("mingle")));
         Authorization authorization = new Authorization(operationConfig);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
-        PipelineConfigs pipelineConfigs = new PipelineConfigs(authorization, pipelineConfig);
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(authorization, pipelineConfig);
         MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 metricsProbeService);
         String xml = xmlWriter.toXmlPartial(pipelineConfigs);

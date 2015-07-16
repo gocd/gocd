@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
@@ -32,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 
 @ConfigTag(value = "fetchartifact")
 public class FetchTask extends AbstractTask implements Serializable {
+
     @ConfigAttribute(value = "pipeline", allowNull = true)
     private PathFromAncestor pipelineName;
     @ConfigAttribute(value = "stage")
@@ -52,6 +54,7 @@ public class FetchTask extends AbstractTask implements Serializable {
     public static final String JOB = "job";
     public static final String DEST = "dest";
     public static final String SRC = "src";
+    public static final String ORIGIN = "origin";
 
     public static final String IS_SOURCE_A_FILE = "isSourceAFile";
     private final String FETCH_ARTIFACT = "Fetch Artifact";
@@ -219,7 +222,7 @@ public class FetchTask extends AbstractTask implements Serializable {
             if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath())) {
                 pipelineName = new PathFromAncestor(currentPipeline.name());
             }
-            if (validateExistence(currentPipeline, cruiseConfig, validationContext)) {
+            if (validateExistenceAndOrigin(currentPipeline, cruiseConfig, validationContext)) {
                 return;
             }
             if(pipelineName.isAncestor()){
@@ -333,7 +336,7 @@ public class FetchTask extends AbstractTask implements Serializable {
         }
     }
 
-    private boolean validateExistence(PipelineConfig currentPipeline, CruiseConfig cruiseConfig, ValidationContext validationContext) {
+    private boolean validateExistenceAndOrigin(PipelineConfig currentPipeline, CruiseConfig cruiseConfig, ValidationContext validationContext) {
         if (!cruiseConfig.hasStageConfigNamed(pipelineName.getAncestorName(), stage, true)) {
             addError(STAGE, String.format("Pipeline \"%s\" tries to fetch artifact from stage \"%s :: %s\" which does not exist. It is used in stage \"%s\" inside job \"%s\"."
                     , currentPipeline.name(), pipelineName.getAncestorName(), stage, validationContext.getStage().name(), validationContext.getJob().name()));
@@ -344,7 +347,19 @@ public class FetchTask extends AbstractTask implements Serializable {
             addError(JOB, String.format("Pipeline \"%s\" tries to fetch artifact from job \"%s :: %s :: %s\" which does not exist.", currentPipeline.name(), pipelineName.getAncestorName(), stage, job));
             return true;
         }
+
+        PipelineConfig srcPipeline = cruiseConfig.getPipelineConfigByName(pipelineName.getAncestorName());
+        if (!cruiseConfig.getConfigRepos().isReferenceAllowed(currentPipeline.getOrigin(),srcPipeline.getOrigin())) {
+            addError(ORIGIN, String.format("Pipeline \"%s\" tries to fetch artifact from job \"%s :: %s :: %s\" which is defined in %s - reference is not allowed",
+                    currentPipeline.name(), pipelineName.getAncestorName(), stage, job,displayNameFor(srcPipeline.getOrigin())));
+            return true;
+        }
+
         return false;
+    }
+
+    private String displayNameFor(ConfigOrigin origin) {
+        return origin != null ? origin.displayName() : "cruise-config.xml";
     }
 
     public boolean isFetchPipeline(final CaseInsensitiveString caseInsensitiveString) {

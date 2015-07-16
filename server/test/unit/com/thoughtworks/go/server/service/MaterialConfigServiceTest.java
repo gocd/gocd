@@ -1,5 +1,21 @@
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -36,7 +52,7 @@ public class MaterialConfigServiceTest {
 		when(securityService.hasViewPermissionForGroup(user, "group2")).thenReturn(false);
 		when(securityService.hasViewPermissionForGroup(user, "group3")).thenReturn(true);
 
-		PipelineConfigs pipelineGroup1 = new PipelineConfigs();
+		PipelineConfigs pipelineGroup1 = new BasicPipelineConfigs();
 		pipelineGroup1.setGroup("group1");
 		PipelineConfig pipelineConfig1 = new PipelineConfig();
 		GitMaterialConfig gitMaterialConfig1 = new GitMaterialConfig("http://test.com");
@@ -45,14 +61,14 @@ public class MaterialConfigServiceTest {
 		pipelineConfig1.addMaterialConfig(getMaterialConfig2);
 		pipelineGroup1.add(pipelineConfig1);
 
-		PipelineConfigs pipelineGroup2 = new PipelineConfigs();
+		PipelineConfigs pipelineGroup2 = new BasicPipelineConfigs();
 		pipelineGroup2.setGroup("group2");
 		PipelineConfig pipelineConfig2 = new PipelineConfig();
 		GitMaterialConfig gitMaterialConfig3 = new GitMaterialConfig("http://another.com");
 		pipelineConfig2.addMaterialConfig(gitMaterialConfig3);
 		pipelineGroup2.add(pipelineConfig2);
 
-		PipelineConfigs pipelineGroup3 = new PipelineConfigs();
+		PipelineConfigs pipelineGroup3 = new BasicPipelineConfigs();
 		pipelineGroup3.setGroup("group3");
 		PipelineConfig pipelineConfig3 = new PipelineConfig();
 		GitMaterialConfig gitMaterialConfig4 = new GitMaterialConfig("http://test.com");

@@ -191,7 +191,7 @@ public class GoConfigFileDaoTest {
         goConfigFileDao.addAgent(agentConfig1);
         goConfigFileDao.addAgent(new AgentConfig("uuid2", "hostname", "127.0.0.1"));
 
-        EnvironmentConfig env = new EnvironmentConfig(new CaseInsensitiveString("foo-environment"));
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment"));
         env.addAgent("uuid1");
         env.addAgent("uuid2");
         goConfigFileDao.addEnvironment(env);
@@ -259,7 +259,7 @@ public class GoConfigFileDaoTest {
                 }
 
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    cruiseConfig.getEnvironments().add(new EnvironmentConfig(new CaseInsensitiveString("foo")));
+                    cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
                     return cruiseConfig;
                 }
             });
@@ -274,7 +274,7 @@ public class GoConfigFileDaoTest {
         try {
             goConfigFileDao.updateConfig(new UpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    cruiseConfig.getEnvironments().add(new EnvironmentConfig(new CaseInsensitiveString("foo")));
+                    cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
                     return cruiseConfig;
                 }
             });
@@ -338,7 +338,7 @@ public class GoConfigFileDaoTest {
     public void shouldAddEnvironmentToConfigFile() throws Exception {
         CruiseConfig cruiseConfig = goConfigFileDao.load();
         int oldsize = cruiseConfig.getEnvironments().size();
-        goConfigFileDao.addEnvironment(new EnvironmentConfig(new CaseInsensitiveString("foo-environment")));
+        goConfigFileDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")));
 
         cruiseConfig = goConfigFileDao.load();
         assertThat(cruiseConfig.getEnvironments().size(), is(oldsize + 1));

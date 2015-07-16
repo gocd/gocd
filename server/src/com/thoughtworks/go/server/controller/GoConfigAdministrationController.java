@@ -84,7 +84,7 @@ public class GoConfigAdministrationController {
         if (isTemplate(groupName)) {
             getXmlPartial(groupName, md5, goConfigService.templateSaver(pipelineIndex)).respond(response);
         } else {
-            getXmlPartial(groupName, md5, goConfigService.pipelineSaver(defaultString(groupName, PipelineConfigs.DEFAULT_GROUP), pipelineIndex)).respond(response);
+            getXmlPartial(groupName, md5, goConfigService.pipelineSaver(defaultString(groupName, BasicPipelineConfigs.DEFAULT_GROUP), pipelineIndex)).respond(response);
         }
     }
 
@@ -157,7 +157,7 @@ public class GoConfigAdministrationController {
         if (isTemplate(groupName)) {
             return postXmlPartial(groupName, goConfigService.templateSaver(pipelineIndex), xmlPartial, "Template changed successfully.", md5).respond(response);
         } else {
-            String actualName = defaultString(groupName, PipelineConfigs.DEFAULT_GROUP);
+            String actualName = defaultString(groupName, BasicPipelineConfigs.DEFAULT_GROUP);
             return postXmlPartial(groupName, goConfigService.pipelineSaver(actualName, pipelineIndex), xmlPartial, "Pipeline changed successfully.", md5).respond(response);
         }
 

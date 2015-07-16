@@ -90,7 +90,7 @@ public class NotificationExtension extends AbstractExtension {
     }
 
     public boolean isNotificationPlugin(String pluginId) {
-        return pluginManager.isPluginOfType(EXTENSION_NAME, pluginId);
+        return isPluginOfType(pluginId, EXTENSION_NAME);
     }
 
     Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {

@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
@@ -84,7 +85,11 @@ public class BuildAssignmentService implements ConfigChangedListener {
         goConfigService.register(this);
     }
 
-    public Work assignWorkToAgent(final AgentInstance agent) {
+    public Work assignWorkToAgent(AgentIdentifier agent) {
+        return assignWorkToAgent(agentService.findAgentAndRefreshStatus(agent.getUuid()));
+    }
+
+    Work assignWorkToAgent(final AgentInstance agent) {
         if (!agent.isRegistered()) {
             return new UnregisteredAgentWork(agent.getUuid());
         }

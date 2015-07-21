@@ -235,18 +235,14 @@
             <value><![CDATA[
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
-                /auth/*=IS_AUTHENTICATED_ANONYMOUSLY
+                /auth/login=IS_AUTHENTICATED_ANONYMOUSLY
+                /auth/logout=IS_AUTHENTICATED_ANONYMOUSLY
+                /auth/security_check=IS_AUTHENTICATED_ANONYMOUSLY
                 /api/server.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /shine/sparql.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /compressed/*=IS_AUTHENTICATED_ANONYMOUSLY
                 /assets/**=IS_AUTHENTICATED_ANONYMOUSLY
-                /css/**=IS_AUTHENTICATED_ANONYMOUSLY
-                /**/*.css=IS_AUTHENTICATED_ANONYMOUSLY
-                /**/*.js=IS_AUTHENTICATED_ANONYMOUSLY
-                /stylesheets/**=IS_AUTHENTICATED_ANONYMOUSLY
-                /images/**=IS_AUTHENTICATED_ANONYMOUSLY
-                /help/**=IS_AUTHENTICATED_ANONYMOUSLY
-                /static/**=IS_AUTHENTICATED_ANONYMOUSLY
+                /static/backup_in_progress.html=IS_AUTHENTICATED_ANONYMOUSLY
                 /is_backup_finished.json=IS_AUTHENTICATED_ANONYMOUSLY
                 /images/cruise.ico=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent=IS_AUTHENTICATED_ANONYMOUSLY

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.agent.service;
 
-import com.thoughtworks.go.config.AgentRegistrationPropertiesReader;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.AuthSSLProtocolSocketFactory;
@@ -106,26 +106,14 @@ public class SslInfrastructureService {
         String hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         Registration keyEntry = null;
         while (keyEntry == null || keyEntry.getChain().length == 0) {
-            File autoRegisterPropertiesFile = new File("config", "autoregister.properties");
-            AgentRegistrationPropertiesReader agentRegistrationPropertiesReader = new AgentRegistrationPropertiesReader(autoRegisterPropertiesFile);
+            AgentAutoRegistrationProperties agentAutoRegistrationProperties = new AgentAutoRegistrationProperties(new File("config", "autoregister.properties"));
             try {
-                keyEntry = remoteRegistrationRequester.requestRegistration(hostName, agentRegistrationPropertiesReader);
+                keyEntry = remoteRegistrationRequester.requestRegistration(hostName, agentAutoRegistrationProperties);
             } catch (Exception e) {
-                LOGGER.error("[Agent Registration] Problems getting the Agent Certificate from Go Server", e);
+                LOGGER.error("[Agent Registration] There was a problem registering with the go server.", e);
                 throw e;
             } finally {
-                agentRegistrationPropertiesReader = null;
-                if (autoRegisterPropertiesFile != null && autoRegisterPropertiesFile.exists()) {
-                    if (FileUtils.deleteQuietly(autoRegisterPropertiesFile)) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("[Agent Auto Registration] Successfully deleted auto registration properties file on agent.");
-                        }
-                    } else {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("[Agent Auto Registration] Failed deleting auto registration properties file on agent.");
-                        }
-                    }
-                }
+                agentAutoRegistrationProperties.scrubRegistrationProperties();
             }
 
             try {
@@ -184,7 +172,7 @@ public class SslInfrastructureService {
             this.agentRegistry = agentRegistry;
         }
 
-        protected Registration requestRegistration(String agentHostName, AgentRegistrationPropertiesReader agentAutoRegisterProperties) throws IOException, ClassNotFoundException {
+        protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties) throws IOException, ClassNotFoundException {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(String.format("[Agent Registration] Using URL %s to register.", serverUrl));
             }
@@ -196,10 +184,10 @@ public class SslInfrastructureService {
             postMethod.addParameter("usablespace",
                     String.valueOf(AgentRuntimeInfo.usableSpace(workingdir)));
             postMethod.addParameter("operating_system", new SystemEnvironment().getOperatingSystemName());
-            postMethod.addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.getAgentAutoRegisterKey());
-            postMethod.addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.getAgentAutoRegisterResources());
-            postMethod.addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.getAgentAutoRegisterEnvironments());
-            postMethod.addParameter("agentAutoRegisterHostname", agentAutoRegisterProperties.getAgentAutoRegisterHostname());
+            postMethod.addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.agentAutoRegisterKey());
+            postMethod.addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources());
+            postMethod.addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.agentAutoRegisterEnvironments());
+            postMethod.addParameter("agentAutoRegisterHostname", agentAutoRegisterProperties.agentAutoRegisterHostname());
             try {
                 httpClient.executeMethod(postMethod);
                 InputStream is = postMethod.getResponseBodyAsStream();

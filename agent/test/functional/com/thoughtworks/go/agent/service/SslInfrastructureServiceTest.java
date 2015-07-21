@@ -17,6 +17,7 @@
 
 package com.thoughtworks.go.agent.service;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
@@ -36,7 +37,9 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.util.TestUtils.exists;
@@ -51,6 +54,8 @@ public class SslInfrastructureServiceTest {
     private SslInfrastructureService sslInfrastructureService;
     private boolean remoteCalled;
     private HttpConnectionManagerParams httpConnectionManagerParams = new HttpConnectionManagerParams();
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void setup() throws Exception {
@@ -72,17 +77,20 @@ public class SslInfrastructureServiceTest {
 
     @Test
     public void shouldInvalidateKeystore() throws Exception {
+        folder.create();
+        File configFile = folder.newFile();
+
         shouldCreateSslInfrastucture();
 
-        sslInfrastructureService.registerIfNecessary();
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationProperties(configFile));
         assertThat(SslInfrastructureService.AGENT_CERTIFICATE_FILE, exists());
         assertRemoteCalled();
 
-        sslInfrastructureService.registerIfNecessary();
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationProperties(configFile));
         assertRemoteNotCalled();
 
         sslInfrastructureService.invalidateAgentCertificate();
-        sslInfrastructureService.registerIfNecessary();
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationProperties(configFile));
         assertRemoteCalled();
     }
 

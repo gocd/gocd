@@ -33,6 +33,8 @@ public class AgentAutoRegistrationProperties {
     public static final String AGENT_AUTO_REGISTER_RESOURCES = "agent.auto.register.resources";
     public static final String AGENT_AUTO_REGISTER_ENVIRONMENTS = "agent.auto.register.environments";
     public static final String AGENT_AUTO_REGISTER_HOSTNAME = "agent.auto.register.hostname";
+    public static final String AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID = "agent.auto.register.elasticAgent.pluginId";
+    public static final String AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID = "agent.auto.register.elasticAgent.agentId";
 
     private final File configFile;
     private final Properties properties;
@@ -41,7 +43,7 @@ public class AgentAutoRegistrationProperties {
         this(config, new Properties());
     }
 
-    AgentAutoRegistrationProperties(File config, Properties properties) {
+    public AgentAutoRegistrationProperties(File config, Properties properties) {
         this.configFile = config;
         this.properties = properties;
     }
@@ -51,19 +53,27 @@ public class AgentAutoRegistrationProperties {
     }
 
     public String agentAutoRegisterKey() {
-        return getProperty(AGENT_AUTO_REGISTER_KEY);
+        return getProperty(AGENT_AUTO_REGISTER_KEY, "");
     }
 
     public String agentAutoRegisterResources() {
-        return getProperty(AGENT_AUTO_REGISTER_RESOURCES);
+        return getProperty(AGENT_AUTO_REGISTER_RESOURCES, "");
     }
 
     public String agentAutoRegisterEnvironments() {
-        return getProperty(AGENT_AUTO_REGISTER_ENVIRONMENTS);
+        return getProperty(AGENT_AUTO_REGISTER_ENVIRONMENTS, "");
+    }
+
+    public String getAgentAutoRegisterElasticPluginId() {
+        return getProperty(AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID, null);
+    }
+
+    public String getAgentAutoRegisterElasticAgentId() {
+        return getProperty(AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID, null);
     }
 
     public String agentAutoRegisterHostname() {
-        return getProperty(AGENT_AUTO_REGISTER_HOSTNAME);
+        return getProperty(AGENT_AUTO_REGISTER_HOSTNAME, "");
     }
 
     public void scrubRegistrationProperties() {
@@ -83,8 +93,8 @@ public class AgentAutoRegistrationProperties {
         }
     }
 
-    private String getProperty(String property) {
-        return properties().getProperty(property, "");
+    private String getProperty(String property, String defaultValue) {
+        return properties().getProperty(property, defaultValue);
     }
 
     private Properties properties() {

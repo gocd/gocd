@@ -18,6 +18,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
@@ -65,5 +66,10 @@ public class ElasticAgentRuntimeInfo implements Serializable {
         int result = agentId != null ? agentId.hashCode() : 0;
         result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

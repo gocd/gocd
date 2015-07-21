@@ -51,6 +51,7 @@ describe ApiV1::AgentRepresenter do
       status:           'Idle',
       operating_system: 'Linux',
       free_space:       10.gigabytes,
+      elastic:          false,
       resources:        ['firefox', 'linux'],
       environments:     ['load_test', 'uat']
     }

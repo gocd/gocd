@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.DiskSpace;
 import com.thoughtworks.go.domain.IpAddress;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 import info.aduna.text.NumericStringComparator;
 import org.apache.commons.lang.StringUtils;
@@ -222,6 +223,10 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         int result = agentInstance != null ? agentInstance.hashCode() : 0;
         result = 31 * result + (environments != null ? environments.hashCode() : 0);
         return result;
+    }
+
+    public ElasticAgentRuntimeInfo getElasticAgentRuntimeInfo(){
+        return this.agentInstance.getElasticAgentRuntimeInfo();
     }
 
     public boolean needsUpgrade() {

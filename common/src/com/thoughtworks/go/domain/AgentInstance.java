@@ -27,6 +27,7 @@ import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
@@ -342,6 +343,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public boolean needsUpgrade() {
         if(isMissing()) return false;
         return StringUtil.isBlank(agentRuntimeInfo.getAgentLauncherVersion());
+    }
+
+    public ElasticAgentRuntimeInfo getElasticAgentRuntimeInfo(){
+        return agentRuntimeInfo.getElasticAgentRuntimeInfo();
     }
 
     public static enum AgentType {

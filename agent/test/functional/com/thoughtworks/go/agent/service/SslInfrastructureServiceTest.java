@@ -20,6 +20,7 @@ package com.thoughtworks.go.agent.service;
 import java.io.IOException;
 
 import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.AuthSSLProtocolSocketFactory;

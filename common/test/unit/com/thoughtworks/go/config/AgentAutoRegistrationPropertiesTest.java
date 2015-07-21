@@ -15,7 +15,7 @@
  *
  */
 
-package com.thoughtworks.go.agent.service;
+package com.thoughtworks.go.config;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;

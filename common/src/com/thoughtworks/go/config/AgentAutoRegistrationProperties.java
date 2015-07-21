@@ -15,7 +15,7 @@
  *
  */
 
-package com.thoughtworks.go.agent.service;
+package com.thoughtworks.go.config;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.util.Properties;
 
-class AgentAutoRegistrationProperties {
+public class AgentAutoRegistrationProperties {
     private static final Logger LOG = Logger.getLogger(AgentAutoRegistrationProperties.class);
 
     public static final String AGENT_AUTO_REGISTER_KEY = "agent.auto.register.key";
@@ -41,7 +41,7 @@ class AgentAutoRegistrationProperties {
         this(config, new Properties());
     }
 
-    public AgentAutoRegistrationProperties(File config, Properties properties) {
+    AgentAutoRegistrationProperties(File config, Properties properties) {
         this.configFile = config;
         this.properties = properties;
     }
@@ -51,19 +51,19 @@ class AgentAutoRegistrationProperties {
     }
 
     public String agentAutoRegisterKey() {
-        return properties().getProperty(AGENT_AUTO_REGISTER_KEY, "");
+        return getProperty(AGENT_AUTO_REGISTER_KEY);
     }
 
     public String agentAutoRegisterResources() {
-        return properties().getProperty(AGENT_AUTO_REGISTER_RESOURCES, "");
+        return getProperty(AGENT_AUTO_REGISTER_RESOURCES);
     }
 
     public String agentAutoRegisterEnvironments() {
-        return properties().getProperty(AGENT_AUTO_REGISTER_ENVIRONMENTS, "");
+        return getProperty(AGENT_AUTO_REGISTER_ENVIRONMENTS);
     }
 
     public String agentAutoRegisterHostname() {
-        return properties().getProperty(AGENT_AUTO_REGISTER_HOSTNAME, "");
+        return getProperty(AGENT_AUTO_REGISTER_HOSTNAME);
     }
 
     public void scrubRegistrationProperties() {
@@ -77,20 +77,30 @@ class AgentAutoRegistrationProperties {
             layout.setLineSeparator("\n");
             layout.load(reader());
             layout.save(new FileWriter(this.configFile));
+            loadProperties();
         } catch (ConfigurationException | IOException e) {
             LOG.warn("[Agent Auto Registration] Unable to scrub registration key.", e);
         }
     }
 
+    private String getProperty(String property) {
+        return properties().getProperty(property, "");
+    }
+
     private Properties properties() {
         if (this.properties.isEmpty()) {
-            try {
-                this.properties.load(reader());
-            } catch (IOException e) {
-                LOG.debug("[Agent Auto Registration] Unable to load agent auto register properties file. This agent will not auto-register.", e);
-            }
+            loadProperties();
         }
         return this.properties;
+    }
+
+    private void loadProperties() {
+        try {
+            this.properties.clear();
+            this.properties.load(reader());
+        } catch (IOException e) {
+            LOG.debug("[Agent Auto Registration] Unable to load agent auto register properties file. This agent will not auto-register.", e);
+        }
     }
 
     private StringReader reader() throws IOException {

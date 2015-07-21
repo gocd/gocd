@@ -66,7 +66,7 @@ class AgentAutoRegistrationProperties {
         return properties().getProperty(AGENT_AUTO_REGISTER_HOSTNAME, "");
     }
 
-    public void scrubRegistrationKey() {
+    public void scrubRegistrationProperties() {
         if (!exist()) {
             return;
         }
@@ -105,10 +105,19 @@ class AgentAutoRegistrationProperties {
             @Override
             public void writeProperty(String key, Object value, boolean forceSingleLine) throws IOException {
                 if (key.equals(AGENT_AUTO_REGISTER_KEY)) {
-                    writeln("# The autoregister key has been intentionally removed by Go as a security measure.");
-                    write("# ");
+                    scrubWithMessage("The autoregister key has been intentionally removed by Go as a security measure.");
+                }
+
+                if (key.equals(AGENT_AUTO_REGISTER_RESOURCES) || key.equals(AGENT_AUTO_REGISTER_ENVIRONMENTS) || key.equals(AGENT_AUTO_REGISTER_HOSTNAME)) {
+                    scrubWithMessage("This property has been removed by Go after attempting to auto-register with the Go server.");
                 }
                 super.writeProperty(key, value, forceSingleLine);
+            }
+
+            private void scrubWithMessage(String message) throws IOException {
+                write("# ");
+                writeln(message);
+                write("# ");
             }
         }
 

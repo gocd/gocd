@@ -113,7 +113,7 @@ public class SslInfrastructureService {
                 LOGGER.error("[Agent Registration] There was a problem registering with the go server.", e);
                 throw e;
             } finally {
-                agentAutoRegistrationProperties.scrubRegistrationKey();
+                agentAutoRegistrationProperties.scrubRegistrationProperties();
             }
 
             try {

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.agent.service;
 
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.AuthSSLProtocolSocketFactory;

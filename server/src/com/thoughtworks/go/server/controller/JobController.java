@@ -83,7 +83,7 @@ public class JobController {
         this.localizer = localizer;
     }
 
-    @RequestMapping(value = "/build/recent", method = RequestMethod.GET)
+    @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
     public ModelAndView jobDetail(@RequestParam("pipelineName") String pipelineName,
                                   @RequestParam("label") String counterOrLabel,
                                   @RequestParam("stageName") String stageName,

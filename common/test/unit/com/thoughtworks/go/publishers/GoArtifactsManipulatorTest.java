@@ -1,37 +1,29 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.publishers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-import javax.servlet.http.HttpServletResponse;
-
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.ArtifactMd5Checksums;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub;
 import com.thoughtworks.go.remote.work.GoArtifactsManipulatorStub;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.io.FileUtils;
@@ -41,15 +33,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GoArtifactsManipulatorTest {
 
@@ -67,7 +63,7 @@ public class GoArtifactsManipulatorTest {
         tempFile = TestFileUtil.createTestFile(artifactFolder, "file.txt");
         goArtifactsManipulatorStub = new GoArtifactsManipulatorStub(httpService);
         jobIdentifier = new JobIdentifier("pipeline1", 1, "label-1", "stage1", "1", "job1");
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("h", "1", "u"));
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("h", "1", "u"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null);
         goPublisher = new DefaultGoPublisher(goArtifactsManipulatorStub, jobIdentifier, new BuildRepositoryRemoteStub(), agentRuntimeInfo);
     }
 

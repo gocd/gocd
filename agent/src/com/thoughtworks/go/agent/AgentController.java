@@ -1,25 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -33,6 +36,7 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -71,6 +75,7 @@ public class AgentController {
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private AgentWebsocketService websocketService;
+    private final AgentAutoRegistrationProperties agentAutoRegistrationProperties;
 
     @Autowired
     public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
@@ -91,6 +96,7 @@ public class AgentController {
         this.subprocessLogger = subprocessLogger;
         this.systemEnvironment = systemEnvironment;
         PluginManagerReference.reference().setPluginManager(pluginManager);
+        this.agentAutoRegistrationProperties = new AgentAutoRegistrationProperties(new File("config", "autoregister.properties"));
     }
 
     void init() throws IOException {
@@ -98,7 +104,12 @@ public class AgentController {
         createPipelinesFolderIfNotExist();
         sslInfrastructureService.createSslInfrastructure();
         AgentIdentifier identifier = agentIdentifier();
-        agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, systemEnvironment.getAgentLauncherVersion());
+        if (agentAutoRegistrationProperties.isElastic()) {
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion(), agentAutoRegistrationProperties.getAgentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.getAgentAutoRegisterElasticPluginId());
+        } else {
+            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion());
+        }
+
         subprocessLogger.registerAsExitHook("Following processes were alive at shutdown: ");
     }
 
@@ -144,7 +155,7 @@ public class AgentController {
         try {
             LOG.debug("[Agent Loop] Trying to retrieve work.");
             agentUpgradeService.checkForUpgrade();
-            sslInfrastructureService.registerIfNecessary();
+            sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
             retrieveCookieIfNecessary();
             retrieveWork();
             LOG.debug("[Agent Loop] Successfully retrieved work.");
@@ -175,9 +186,9 @@ public class AgentController {
         }
         sslInfrastructureService.invalidateAgentCertificate();
         LOG.error("There has been a problem with one of Go's SSL certificates." +
-                " This can be caused by a man-in-the-middle attack, or by pointing the agent to a new server, or by" +
-                " deleting and re-installing Go Server. Go will ask for a new certificate. If this" +
-                " fails to solve the problem, try deleting config/trust.jks in Go Agent's home directory.",
+                        " This can be caused by a man-in-the-middle attack, or by pointing the agent to a new server, or by" +
+                        " deleting and re-installing Go Server. Go will ask for a new certificate. If this" +
+                        " fails to solve the problem, try deleting config/trust.jks in Go Agent's home directory.",
                 e);
     }
 
@@ -221,14 +232,11 @@ public class AgentController {
         }
     }
 
-    public AgentRuntimeInfo getAgentRuntimeInfo() {
-        return agentRuntimeInfo;
-    }
 
     public void websocketPing() {
         try {
             agentUpgradeService.checkForUpgrade();
-            sslInfrastructureService.registerIfNecessary();
+            sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
             if (sslInfrastructureService.isRegistered()) {
                 if (!websocketService.isRunning()) {
                     websocketService.start();
@@ -302,4 +310,11 @@ public class AgentController {
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 
+    protected AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
+        return agentAutoRegistrationProperties;
+    }
+
+    protected AgentRuntimeInfo getAgentRuntimeInfo() {
+        return agentRuntimeInfo;
+    }
 }

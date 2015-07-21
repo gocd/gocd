@@ -86,12 +86,12 @@ public class SslInfrastructureService {
         }
     }
 
-    public void registerIfNecessary() throws Exception {
+    public void registerIfNecessary(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
         registered = keyStoreManager.hasCertificates(CHAIN_ALIAS, AGENT_CERTIFICATE_FILE,
                 AGENT_STORE_PASSWORD) && GuidService.guidPresent();
         if (!registered) {
             LOGGER.info("[Agent Registration] Starting to register agent");
-            register();
+            register(agentAutoRegistrationProperties);
             createSslInfrastructure();
             registered = true;
             LOGGER.info("[Agent Registration] Successfully registered agent");
@@ -102,11 +102,10 @@ public class SslInfrastructureService {
         return registered;
     }
 
-    private void register() throws Exception {
+    private void register(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
         String hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         Registration keyEntry = null;
         while (keyEntry == null || keyEntry.getChain().length == 0) {
-            AgentAutoRegistrationProperties agentAutoRegistrationProperties = new AgentAutoRegistrationProperties(new File("config", "autoregister.properties"));
             try {
                 keyEntry = remoteRegistrationRequester.requestRegistration(hostName, agentAutoRegistrationProperties);
             } catch (Exception e) {
@@ -183,11 +182,13 @@ public class SslInfrastructureService {
             postMethod.addParameter("location", workingdir);
             postMethod.addParameter("usablespace",
                     String.valueOf(AgentRuntimeInfo.usableSpace(workingdir)));
-            postMethod.addParameter("operating_system", new SystemEnvironment().getOperatingSystemName());
+            postMethod.addParameter("operatingSystem", new SystemEnvironment().getOperatingSystemName());
             postMethod.addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.agentAutoRegisterKey());
             postMethod.addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources());
             postMethod.addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.agentAutoRegisterEnvironments());
             postMethod.addParameter("agentAutoRegisterHostname", agentAutoRegisterProperties.agentAutoRegisterHostname());
+            postMethod.addParameter("elasticAgentId", agentAutoRegisterProperties.getAgentAutoRegisterElasticAgentId());
+            postMethod.addParameter("elasticPluginId", agentAutoRegisterProperties.getAgentAutoRegisterElasticPluginId());
             try {
                 httpClient.executeMethod(postMethod);
                 InputStream is = postMethod.getResponseBodyAsStream();

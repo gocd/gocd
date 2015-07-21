@@ -1,26 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.io.Serializable;
-
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.DiskSpace;
@@ -31,7 +27,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
 
-import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import java.io.File;
+import java.io.Serializable;
+
 import static java.lang.String.format;
 
 public class AgentRuntimeInfo implements Serializable {
@@ -45,21 +43,21 @@ public class AgentRuntimeInfo implements Serializable {
     private volatile String cookie;
     private volatile String agentLauncherVersion;
 
-    private AgentRuntimeInfo(AgentIdentifier identifier, AgentStatus status, String location, String cookie) {
-        this(identifier, status, location, cookie, null);
-    }
-
     private AgentRuntimeInfo(AgentIdentifier identifier, AgentStatus status, String location) {
-        this(identifier, status, location, null, null);
+        this(identifier, status.getRuntimeStatus(), location, null, null);
     }
 
-    private AgentRuntimeInfo(AgentIdentifier identifier, AgentStatus status, String location, String cookie, String agentLauncherVersion) {
+    public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String agentLauncherVersion) {
         this.identifier = identifier;
-        this.runtimeStatus = status.getRuntimeStatus();
+        this.runtimeStatus = runtimeStatus;
         this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
         this.location = location;
         this.cookie = cookie;
         this.agentLauncherVersion = agentLauncherVersion;
+    }
+
+    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, String agentLauncherVersion) {
+        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null, agentLauncherVersion).refreshOperatingSystem().refreshUsableSpace();
     }
 
     public static AgentRuntimeInfo fromServer(AgentConfig agentConfig, boolean registeredAlready, String location,
@@ -68,7 +66,7 @@ public class AgentRuntimeInfo implements Serializable {
         if (StringUtils.isEmpty(location)) {
             throw new RuntimeException("Agent should not register without installation path.");
         }
-        AgentStatus status = AgentStatus.fromConfig(AgentConfigStatus.Pending);
+        AgentStatus status = AgentStatus.Pending;
         if (SystemUtil.isLocalIpAddress(agentConfig.getIpAddress()) || registeredAlready) {
             status = AgentStatus.Idle;
         }
@@ -77,33 +75,6 @@ public class AgentRuntimeInfo implements Serializable {
         agentRuntimeInfo.setUsableSpace(usablespace);
         agentRuntimeInfo.operatingSystemName = operatingSystem;
         return agentRuntimeInfo;
-    }
-
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier agentIdentifier) {
-        return fromAgent(agentIdentifier, null, null);
-    }
-
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, String agentLauncherVersion) {
-        return fromAgent(identifier, null, agentLauncherVersion);
-    }
-
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, String cookie, String agentLauncherVersion,String workingDirectory) {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(identifier, AgentStatus.Idle, workingDirectory, cookie, agentLauncherVersion);
-        agentRuntimeInfo.refresh();
-        return agentRuntimeInfo;
-    }
-
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier agentIdentifier, String cookie, String agentLauncherVersion) {
-        return fromAgent(agentIdentifier,cookie,agentLauncherVersion,currentWorkingDirectory());
-    }
-
-    private void refresh() {
-        refreshUsableSpace();
-        refreshOperatingSystem();
-    }
-
-    private void refreshOperatingSystem() {
-        operatingSystemName = new SystemEnvironment().getOperatingSystemName();
     }
 
     public static AgentRuntimeInfo initialState(AgentConfig agentConfig) {
@@ -223,9 +194,14 @@ public class AgentRuntimeInfo implements Serializable {
         this.location = location;
     }
 
+    public AgentRuntimeInfo refreshOperatingSystem() {
+        setOperatingSystem(new SystemEnvironment().getOperatingSystemName());
+        return this;
+    }
 
-    public void refreshUsableSpace() {
+    public AgentRuntimeInfo refreshUsableSpace() {
         setUsableSpace(usableSpace(location));
+        return this;
     }
 
     public static long usableSpace(String currentWorkingDir) {
@@ -319,4 +295,5 @@ public class AgentRuntimeInfo implements Serializable {
     public void setAgentLauncherVersion(String agentLauncherVersion) {
         this.agentLauncherVersion = agentLauncherVersion;
     }
+
 }

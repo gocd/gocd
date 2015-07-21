@@ -1,26 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
-
-import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -39,6 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
+
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -86,7 +88,7 @@ public class UpdateAgentStatusTest {
         assertThat(oldIp, is("10.81.2.1"));
 
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = AgentRuntimeInfo.fromAgent(agentIdentifier1, "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
@@ -101,7 +103,7 @@ public class UpdateAgentStatusTest {
     @Test
     public void shouldUpdateAgentWorkingDirWhenItChanges() throws Exception {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = AgentRuntimeInfo.fromAgent(agentIdentifier1, "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
         agentRuntimeInfo1.setLocation("/myDirectory");
 
@@ -114,7 +116,7 @@ public class UpdateAgentStatusTest {
     @Test
     public void shouldLogWarningWhenIPAddressChanges() throws Exception {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = AgentRuntimeInfo.fromAgent(agentIdentifier1, "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
         agentRuntimeInfo1.setLocation("/myDirectory");
 

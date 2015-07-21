@@ -40,6 +40,7 @@
                 <ref bean="licenseInterceptor"/>
             </list>
         </property>
+        <property name="alwaysUseFullPath" value="true"></property>
     </bean>
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">

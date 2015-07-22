@@ -38,6 +38,14 @@ module ApiSpecHelper
     @security_service.stub(:isUserAdmin).with(@user).and_return(false)
   end
 
+  def allow_current_user_to_access_pipeline(pipeline_name)
+    @security_service.stub(:hasViewPermissionForPipeline).with(controller.string_username, pipeline_name).and_return(true)
+  end
+
+  def allow_current_user_to_not_access_pipeline(pipeline_name)
+    @security_service.stub(:hasViewPermissionForPipeline).with(controller.string_username, pipeline_name).and_return(false)
+  end
+
   def disable_security
     controller.stub(:security_service).and_return(@security_service = double('security-service'))
     @security_service.stub(:isSecurityEnabled).and_return(false)
@@ -66,6 +74,10 @@ module ApiSpecHelper
 
   def expected_response(thing, representer)
     JSON.parse(representer.new(thing).to_hash(url_builder: controller).to_json).deep_symbolize_keys
+  end
+
+  def expected_response_with_options(thing, opts=[], representer)
+    JSON.parse(representer.new(thing, opts).to_hash(url_builder: controller).to_json).deep_symbolize_keys
   end
 end
 

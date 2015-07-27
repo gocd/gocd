@@ -133,6 +133,14 @@ public class BasicCruiseConfig implements CruiseConfig {
         CruiseConfig getLocal();
 
         List<PartialConfig> getMergedPartials();
+
+        void addPipeline(String groupName, PipelineConfig pipelineConfig);
+
+        void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig);
+
+        void update(String groupName, String pipelineName, PipelineConfig pipeline);
+
+        List<PipelineConfig> getAllLocalPipelineConfigs();
     }
 
     private class BasicStrategy implements CruiseStrategy {
@@ -169,7 +177,30 @@ public class BasicCruiseConfig implements CruiseConfig {
             return new ArrayList<>();
         }
 
+        @Override
+        public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
+            groups.addPipeline(groupName, pipelineConfig);
+        }
 
+        @Override
+        public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
+            groups.addPipelineWithoutValidation(sanitizedGroupName(groupName), pipelineConfig);
+        }
+
+        @Override
+        public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
+            if (groups.isEmpty()) {
+                PipelineConfigs configs = new BasicPipelineConfigs();
+                configs.add(pipeline);
+                groups.add(configs);
+            }
+            groups.update(groupName, pipelineName, pipeline);
+        }
+
+        @Override
+        public List<PipelineConfig> getAllLocalPipelineConfigs() {
+            return getAllPipelineConfigs();
+        }
     }
 
     private class MergeStrategy implements CruiseStrategy {
@@ -282,6 +313,31 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public List<PartialConfig> getMergedPartials() {
             return this.parts;
+        }
+
+        @Override
+        public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
+            groups.addPipeline(groupName, pipelineConfig);
+        }
+
+        @Override
+        public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
+            groups.addPipelineWithoutValidation(sanitizedGroupName(groupName), pipelineConfig);
+        }
+
+        @Override
+        public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
+            if (groups.isEmpty()) {
+                PipelineConfigs configs = new BasicPipelineConfigs();
+                configs.add(pipeline);
+                groups.add(configs);
+            }
+            groups.update(groupName, pipelineName, pipeline);
+        }
+
+        @Override
+        public List<PipelineConfig> getAllLocalPipelineConfigs() {
+            return this.main.getAllPipelineConfigs();
         }
     }
 
@@ -621,22 +677,17 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
-        groups.addPipeline(groupName, pipelineConfig);
+        this.strategy.addPipeline(groupName, pipelineConfig);
     }
 
     @Override
     public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
-        groups.addPipelineWithoutValidation(sanitizedGroupName(groupName), pipelineConfig);
+        this.strategy.addPipelineWithoutValidation(groupName, pipelineConfig);
     }
 
     @Override
     public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
-        if (groups.isEmpty()) {
-            PipelineConfigs configs = new BasicPipelineConfigs();
-            configs.add(pipeline);
-            groups.add(configs);
-        }
-        groups.update(groupName, pipelineName, pipeline);
+        this.strategy.update(groupName,pipelineName,pipeline);
     }
 
     @Override
@@ -1251,6 +1302,10 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PartialConfig> getMergedPartials() {
         return strategy.getMergedPartials();
+    }
+
+    public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        return strategy.getAllLocalPipelineConfigs();
     }
 
     @Override

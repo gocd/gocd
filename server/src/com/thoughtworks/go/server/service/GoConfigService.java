@@ -525,6 +525,9 @@ public class GoConfigService implements Initializer {
     public List<PipelineConfig> getAllPipelineConfigs() {
         return getCurrentConfig().getAllPipelineConfigs();
     }
+    public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        return getCurrentConfig().getAllLocalPipelineConfigs();
+    }
 
     public List<PipelineConfig> getAllPipelineConfigsForEdit() {
         return getConfigForEditing().getAllPipelineConfigs();

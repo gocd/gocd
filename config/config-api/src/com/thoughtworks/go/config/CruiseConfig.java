@@ -262,4 +262,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     List<PartialConfig> getPartials();
 
     List<PartialConfig> getMergedPartials();
+
+    List<PipelineConfig> getAllLocalPipelineConfigs();
 }

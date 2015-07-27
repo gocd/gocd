@@ -104,7 +104,7 @@ class EnvironmentsController < ApplicationController
   end
 
   def load_pipelines_and_agents
-    pipelines = environment_config_service.getAllPipelinesForUser(current_user)
+    pipelines = environment_config_service.getAllLocalPipelinesForUser(current_user)
 
     @unavailable_pipelines = []
     @available_pipelines = []

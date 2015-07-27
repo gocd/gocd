@@ -506,6 +506,7 @@
     <entry key="DELETED_SUCCESSFULLY">Deleted successfully.</entry>
     <entry key="ADMINISTRATION">Administration</entry>
     <entry key="NUMBER_OF_JOBS">{0} Jobs</entry>
+    <entry key="CANNOT_DELETE_REMOTE_PIPELINE">Cannot delete pipeline ''{0}'' defined in configuration repository ''{1}''</entry>
     <entry key="CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT">Cannot delete pipeline ''{0}'' as it is present in environment ''{1}''</entry>
     <entry key="CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS">Cannot delete pipeline ''{0}'' as pipeline ''{1}'' depends on it</entry>
     <entry key="CAN_DELETE_PIPELINE">Delete this pipeline</entry>

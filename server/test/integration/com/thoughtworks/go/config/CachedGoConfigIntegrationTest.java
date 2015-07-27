@@ -132,6 +132,15 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
     }
 
+    @Test
+    public void shouldReturnRemotePipelinesAmongAllPipelinesInConfigForEdit() throws Exception
+    {
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
+
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+        assertThat(cachedGoConfig.loadForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+    }
+
     private ArrayList<ServerHealthState> findMessageFor(final HealthStateType type) {
         return ListUtil.filterInto(new ArrayList<ServerHealthState>(), serverHealthService.getAllLogs(), new Filter<ServerHealthState>() {
             @Override

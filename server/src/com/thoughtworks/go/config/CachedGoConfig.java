@@ -99,6 +99,10 @@ public class CachedGoConfig {
     }
 
     public CruiseConfig loadForEditing() {
+        //TODO: tomzo merge using mergeForEdit strategy
+        // don't know yet if partials can be returned like this in all cases. We may want to narrow it down
+        if(currentConfigForEdit != null && currentConfig != null)
+            currentConfigForEdit.merge(currentConfig.getMergedPartials());
         return currentConfigForEdit;
     }
 

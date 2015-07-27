@@ -131,6 +131,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         void setOrigins(ConfigOrigin origins);
 
         CruiseConfig getLocal();
+
+        List<PartialConfig> getMergedPartials();
     }
 
     private class BasicStrategy implements CruiseStrategy {
@@ -160,6 +162,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public CruiseConfig getLocal() {
             return BasicCruiseConfig.this;
+        }
+
+        @Override
+        public List<PartialConfig> getMergedPartials() {
+            return new ArrayList<>();
         }
 
 
@@ -270,6 +277,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public CruiseConfig getLocal() {
             return this.main;
+        }
+
+        @Override
+        public List<PartialConfig> getMergedPartials() {
+            return this.parts;
         }
     }
 
@@ -1234,6 +1246,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PartialConfig> getPartials() {
         return partials;
+    }
+
+    @Override
+    public List<PartialConfig> getMergedPartials() {
+        return strategy.getMergedPartials();
     }
 
     @Override

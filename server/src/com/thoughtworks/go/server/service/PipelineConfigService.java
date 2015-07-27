@@ -16,12 +16,18 @@
 
 package com.thoughtworks.go.server.service;
 
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -83,19 +89,33 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         List<CaseInsensitiveString> pipelineNames = cruiseConfig.getAllPipelineNames();
 
         for (CaseInsensitiveString pipelineName : pipelineNames) {
-            CaseInsensitiveString envName = environmentUsedIn(cruiseConfig, pipelineName);
-            if (envName != null) {
-                nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", pipelineName, envName)));
-            } else {
-                CaseInsensitiveString downStream = downstreamOf(hashtable, pipelineName);
-                if (downStream != null) {
-                    nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", pipelineName, downStream)));
+            ConfigOrigin origin = pipelineConfigOrigin(cruiseConfig,pipelineName);
+            if(origin != null && !origin.isLocal())
+            {
+                nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_REMOTE_PIPELINE", pipelineName, origin.displayName())));
+            }
+            else {
+                CaseInsensitiveString envName = environmentUsedIn(cruiseConfig, pipelineName);
+                if (envName != null) {
+                    nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", pipelineName, envName)));
                 } else {
-                    nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")));
+                    CaseInsensitiveString downStream = downstreamOf(hashtable, pipelineName);
+                    if (downStream != null) {
+                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", pipelineName, downStream)));
+                    } else {
+                        nameToCanDeleteIt.put(pipelineName, new CanDeleteResult(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")));
+                    }
                 }
             }
         }
         return nameToCanDeleteIt;
+    }
+
+    private ConfigOrigin pipelineConfigOrigin(CruiseConfig cruiseConfig,final CaseInsensitiveString pipelineName) {
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(pipelineName);
+        if(pipelineConfig == null)
+            return null;
+        return pipelineConfig.getOrigin();
     }
 
     private CaseInsensitiveString downstreamOf(Hashtable<CaseInsensitiveString, Node> pipelineToUpstream, final CaseInsensitiveString pipelineName) {

@@ -40,11 +40,14 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -819,6 +822,78 @@ public abstract class CruiseConfigTestBase {
     public void shouldReturnFalseWhenDoesNotHaveGroup()
     {
         assertThat(cruiseConfig.hasPipelineGroup("non_existing_group"),is(false));
+    }
+
+    @Test
+    public void getAllLocalPipelines_shouldReturnPipelinesOnlyFromMainPart()
+    {
+        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipe1");
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), pipe1);
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+
+        assertThat(cruiseConfig.getAllLocalPipelineConfigs().size(), is(1));
+        assertThat(cruiseConfig.getAllLocalPipelineConfigs(),hasItem(pipe1));
+    }
+
+    @Test
+    public void shouldReturnTrueHasPipelinesFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe2")),is(true));
+    }
+    @Test
+    public void shouldReturnFalseWhenHasNotPipelinesFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(false));
+    }
+    @Test
+    public void shouldReturnGroupsFrom2Parts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipelineInGroup("pipe2", "g2"));
+
+        assertThat(cruiseConfig.hasPipelineGroup("g2"),is(true));
+    }
+    @Test
+    public void shouldAddPipelineToMain()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        pipelines.setOrigin(new FileConfigOrigin());
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipeline("pipe2"));
+        cruiseConfig.addPipeline("group_main", PipelineConfigMother.pipelineConfig("pipe3"));
+
+        assertThat(mainCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
+
+    }
+    @Test
+    public void shouldgetAllPipelineNamesFromAllParts()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
+                PartialConfigMother.withPipelineInGroup("pipe2", "g2"),PartialConfigMother.withPipelineInGroup("pipe3", "g3"));
+
+        assertThat(cruiseConfig.getAllPipelineNames(), contains(
+                new CaseInsensitiveString("pipe2"),
+                new CaseInsensitiveString("pipe1"),
+                new CaseInsensitiveString("pipe3")));
     }
 
     @Test

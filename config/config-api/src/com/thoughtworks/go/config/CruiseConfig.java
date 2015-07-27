@@ -251,4 +251,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     boolean canDeletePackageRepository(PackageRepository repository);
 
     boolean canDeletePluggableSCMMaterial(SCM scmConfig);
+
+    List<PipelineConfig> getAllLocalPipelineConfigs();
 }

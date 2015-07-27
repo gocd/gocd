@@ -141,6 +141,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig);
 
         void update(String groupName, String pipelineName, PipelineConfig pipeline);
+
+        List<PipelineConfig> getAllLocalPipelineConfigs();
     }
     private class BasicStrategy implements CruiseStrategy {
 
@@ -223,6 +225,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 groups.add(configs);
             }
             groups.update(groupName, pipelineName, pipeline);
+        }
+
+        @Override
+        public List<PipelineConfig> getAllLocalPipelineConfigs() {
+            return getAllPipelineConfigs();
         }
     }
     private class MergeStrategy implements CruiseStrategy {
@@ -416,6 +423,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
             // this was called only from tests
             throw bomb("Cannot update pipeline group in merged configuration");
+        }
+
+        @Override
+        public List<PipelineConfig> getAllLocalPipelineConfigs() {
+            return this.main.getAllPipelineConfigs();
         }
     }
 
@@ -1352,6 +1364,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public boolean canDeletePluggableSCMMaterial(SCM scmConfig) {
         return groups.canDeletePluggableSCMMaterial(scmConfig);
+    }
+
+    @Override
+    public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        return strategy.getAllLocalPipelineConfigs();
     }
 
     @Override

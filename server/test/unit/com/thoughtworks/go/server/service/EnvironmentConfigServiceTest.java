@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
@@ -325,18 +326,18 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void getAllPipelinesForUser_shouldReturnAllPipelinesToWhichAlongWithTheEnvironmentsToWhichTheyBelong() {
+    public void getAllLocalPipelinesForUser_shouldReturnAllPipelinesToWhichAlongWithTheEnvironmentsToWhichTheyBelong() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
 
-        when(mockGoConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
+        when(mockGoConfigService.getAllLocalPipelineConfigs()).thenReturn(asList(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
 
         when(securityService.hasViewPermissionForPipeline(user, "foo")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(user, "bar")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(user, "baz")).thenReturn(false);
 
         environmentConfigService.sync(environmentsConfig("foo-env", "foo"));
-        List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllPipelinesForUser(user);
+        List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllLocalPipelinesForUser(user);
 
 
         assertThat(pipelines.size(), is(2));

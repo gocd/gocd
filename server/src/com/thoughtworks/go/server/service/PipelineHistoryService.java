@@ -504,7 +504,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             }
 
             for (PipelineModel pipelineModel : groupModel.getPipelineModels()) {
-                pipelineModel.updateAdministrability(true);
+                if(goConfigService.isPipelineEditableViaUI(pipelineModel.getName()))
+                    pipelineModel.updateAdministrability(true);
             }
         }
     }
@@ -562,7 +563,10 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             populateLockStatus(instanceModel.getName(), username, instanceModel);
             pipelineModel.addPipelineInstance(instanceModel);
             String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-            pipelineModel.updateAdministrability(goConfigService.isUserAdminOfGroup(username.getUsername(), groupName));
+            if(goConfigService.isPipelineEditableViaUI(pipelineName))
+                pipelineModel.updateAdministrability(goConfigService.isUserAdminOfGroup(username.getUsername(), groupName));
+            else
+                pipelineModel.updateAdministrability(false);
             return pipelineModel;
         }
         return null;

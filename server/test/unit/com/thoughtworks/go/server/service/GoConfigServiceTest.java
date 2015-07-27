@@ -24,6 +24,9 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
@@ -71,6 +74,7 @@ import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemp
 import static java.lang.String.format;
 import static org.apache.commons.httpclient.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.commons.httpclient.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -1183,6 +1187,27 @@ public class GoConfigServiceTest {
 
         verify(pipelineRepository).findPipelineSelectionsByUserId(1L);
         verify(pipelineRepository, times(1)).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipeline1", "pipeline2", "pipelineNew")));
+    }
+
+
+    @Test
+    public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() throws Exception
+    {
+        PipelineConfigs group = new BasicPipelineConfigs();
+        PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
+        pipelineConfig.setOrigin(new RepoConfigOrigin());
+        group.add(pipelineConfig);
+        expectLoad(new BasicCruiseConfig(group));
+        assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(false));
+    }
+    @Test
+    public void pipelineEditableViaUI_shouldReturnTrueWhenPipelineIsLocal() throws Exception
+    {
+        PipelineConfigs group = new BasicPipelineConfigs();
+        PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
+        group.add(pipelineConfig);
+        expectLoad(new BasicCruiseConfig(group));
+        assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(true));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

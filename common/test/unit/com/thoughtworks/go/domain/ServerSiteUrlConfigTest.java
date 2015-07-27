@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.domain;
 
-import java.net.URISyntaxException;
-
 import org.junit.Test;
+
+import java.net.URISyntaxException;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -70,5 +70,17 @@ public class ServerSiteUrlConfigTest {
         ServerSiteUrlConfig url = new ServerSiteUrlConfig("http://someurl.com");
         assertThat(url.siteUrlFor("http://admin:badger@test.host/foo"), is("http://admin:badger@someurl.com/foo"));
         assertThat(url.siteUrlFor("http://admin@test.host/foo"), is("http://admin@someurl.com/foo"));
+    }
+
+    @Test
+    public void shouldReturnUrlForToString() throws Exception {
+        ServerSiteUrlConfig url = new ServerSiteUrlConfig("http://someurl.com");
+        assertThat(url.toString(), is("http://someurl.com"));
+    }
+
+    @Test
+    public void shouldReturnEmptyStringForToStringWhenTheUrlIsNotSet() throws Exception {
+        ServerSiteUrlConfig url = new ServerSiteUrlConfig();
+        assertThat(url.toString(), is(""));
     }
 }

@@ -263,7 +263,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
     }
 
     @Test
-    public void shouldDelegateWritePipelineConfigCallToFileService(){
+    public void shouldDelegateWritePipelineConfigCallToFileService() {
         CachedFileGoConfig fileService = mock(CachedFileGoConfig.class);
         PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
         MergedGoConfig mergedGoConfig = new MergedGoConfig(mock(ServerHealthService.class), fileService, mock(GoPartialConfig.class));
@@ -280,5 +280,21 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
         assertThat(mergedGoConfig.currentConfig(), is(savedConfig.config));
         assertThat(mergedGoConfig.loadForEditing(), is(savedConfig.configForEdit));
         verify(fileService).writePipelineWithLock(pipelineConfig, holderBeforeUpdate, saveCommand, user);
+    }
+
+    @Test
+    public void shouldReturnRemotePipelinesAmongAllPipelinesInConfigForEdit() throws Exception
+    {
+        assertThat(configWatchList.getCurrentConfigRepos().size(),is(1));
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        PartialConfig part1 = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
+        when(plugin.load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(
+                part1
+        );
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
+        assertThat(repoConfigDataSource.latestPartialConfigForMaterial(configRepo.getMaterialConfig()),is(part1));
+        assertThat(cachedGoConfig.loadForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
+
     }
 }

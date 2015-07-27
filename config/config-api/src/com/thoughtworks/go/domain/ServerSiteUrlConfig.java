@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.ConfigAttributeValue;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import com.thoughtworks.go.config.ConfigAttributeValue;
 
 @ConfigAttributeValue(fieldName = "url")
 public class ServerSiteUrlConfig {
@@ -110,5 +110,10 @@ public class ServerSiteUrlConfig {
 
     interface Getter {
         String get(URI uri);
+    }
+
+    @Override
+    public String toString() {
+        return hasNonNullUrl() ? url: "";
     }
 }

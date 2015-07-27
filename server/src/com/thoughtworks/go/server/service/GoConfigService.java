@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.*;
@@ -1044,6 +1045,18 @@ public class GoConfigService implements Initializer {
             currentSelections.addPipelineToSelections(pipelineToAdd);
             pipelineRepository.saveSelectedPipelines(currentSelections);
         }
+    }
+
+    public boolean isPipelineEditableViaUI(String pipelineName) {
+        PipelineConfig pipelineConfig = this.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        if(pipelineConfig == null)
+            return false;
+        return isOriginLocal(pipelineConfig.getOrigin());
+    }
+
+    private boolean isOriginLocal(ConfigOrigin origin) {
+        // when null we assume that it comes from file or UI
+        return origin == null || origin.isLocal();
     }
 
     public abstract class XmlPartialSaver<T> {

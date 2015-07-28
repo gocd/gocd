@@ -39,6 +39,30 @@ public abstract class EnvironmentConfigTestBase {
     private static final String AGENT_UUID = "uuid";
 
     @Test
+    public void shouldReturnTrueWhenIsEmpty()
+    {
+        assertThat(environmentConfig.isEnvironmentEmpty(),is(true));
+    }
+    @Test
+    public void shouldReturnFalseThatNotEmptyWhenHasPipeline()
+    {
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(environmentConfig.isEnvironmentEmpty(), is(false));
+    }
+    @Test
+    public void shouldReturnFalseThatNotEmptyWhenHasAgent()
+    {
+        environmentConfig.addAgent("agent");
+        assertThat(environmentConfig.isEnvironmentEmpty(), is(false));
+    }
+    @Test
+    public void shouldReturnFalseThatNotEmptyWhenHasVariable()
+    {
+        environmentConfig.addEnvironmentVariable("k","v");
+        assertThat(environmentConfig.isEnvironmentEmpty(), is(false));
+    }
+
+    @Test
     public void shouldCreateMatcherWhenNoPipelines() throws Exception {
         EnvironmentPipelineMatcher pipelineMatcher = environmentConfig.createMatcher();
         assertThat(pipelineMatcher.match("pipeline", AGENT_UUID), is(false));

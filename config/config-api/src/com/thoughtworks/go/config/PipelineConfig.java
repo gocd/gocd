@@ -943,4 +943,5 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public boolean isLocal() {
         return origin == null || this.origin.isLocal();
     }
+
 }

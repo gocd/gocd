@@ -14,24 +14,22 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-var DashboardPeriodicalExecuter = Class.create();
+function DashboardPeriodicalExecuter(url, pause_condition) {
+    this.setUrl(url);
+    this.sequenceNumber = 0;
+    this.frequency = 5000; //milli-seconds;
+    this.observers = [];
+    this.is_execution_start = false;
+    this.is_paused = false;
+    this.pause_condition = pause_condition;
+}
 
 DashboardPeriodicalExecuter.prototype = {
-    initialize: function(url, frequency) {
-        this.setUrl(url);
-        this.sequenceNumber = 0;
-        if (typeof frequency == "undefined") {
-            frequency = 5; //seconds
-        }
-        this.frequency = frequency;
-        this.observers = [];
-        this.is_execution_start = false;
-        this.is_paused = false;
-        this.ignore_duplicate_response = true;
-    },
     start: function() {
-        this.is_execution_start = true;
-        this.onRequest();
+        if(!this.is_paused) {
+            this.is_execution_start = true;
+            this.onRequest();
+        }
     },
     stop: function() {
         clearTimeout(this.timer);
@@ -58,76 +56,69 @@ DashboardPeriodicalExecuter.prototype = {
                 this.ongoingRequest.transport.abort();
             }catch(e){}
         }
-        this.onRequest();
+        this.start();
     },
-    onRequest: function(){
+
+    onRequest: function() {
         var executer = this;
         var requestSequenceNumber = this.generateSequenceNumber();
-        this.ongoingRequest = new Ajax.Request(this.url, {
-            method: 'GET',
-            onSuccess: function(transport){
-                executer._loop_observers(transport, requestSequenceNumber);
+        this.ongoingRequest = jQuery.ajax({
+            url: executer.url,
+            dataType: "json",
+            success: function(json_array) {
+                executer._loop_observers(json_array, requestSequenceNumber);
+                if (executer.pause_condition && executer.pause_condition(json_array)) {
+                    executer.is_paused = true;
+                }
             },
-            onException: function(transport, exception){
-                executer.showError('Server cannot be reached (exception). Either there is a network problem or the server is down.', exception.toString());
+            error: function(jqXHR, textStatus) {
+                if(textStatus == "parsererror"){
+                    executer.showError('The server encountered a problem (json error).');
+                }
+                else {
+                    executer.showError('Server cannot be reached (failure). Either there is a network problem or the server is down.', textStatus);
+                }
             },
-            on404: function(){
-                executer.showError('Server cannot be reached (404). Either there is a network problem or the server is down.');
-            },
-            on401: function(){
-                executer.redirectToLoginPage();
-            },
-            on402: function(){
-                executer.redirectToAboutPage();
-            },
-            on500: function(transport){
-                executer.showError('The server encountered an internal problem.', transport.responseText);
-            },
-            onFailure: function(){
-                //onFailure means http response a header code (< 200) or (> 300)
-                executer.showError('Server cannot be reached (failure). Either there is a network problem or the server is down.');
-            },
-            onComplete: function(){
-                executer.onRequestComplete.apply(executer);
+            complete : function() {
+                //makes sure only 1 timer in this executor
+                clearTimeout(executer.timer);
+                delete executer.timer;
+
+                if(!executer.is_paused) {
+                    executer.timer = setTimeout(executer.onRequest.bind(executer), executer.frequency);
+                }
                 //avoid memory leak
                 executer = null;
                 requestSequenceNumber = null;
+            },
+            statusCode: {
+                401: function () {
+                    executer.redirectToLoginPage();
+                },
+                402: function () {
+                    executer.redirectToAboutPage();
+                },
+                404: function () {
+                    executer.showError('Server cannot be reached (404). Either there is a network problem or the server is down.');
+                },
+                500: function (jqXHR) {
+                    executer.showError('The server encountered an internal problem.', jqXHR.responseText);
+                }
             }
         });
-    },
-    onRequestComplete: function(){
-        //makes sure only 1 timer in this executer
-        clearTimeout(this.timer);
-        this.timer = this.onRequest.bind(this).delay(this.frequency);
+
     },
     showError: function(title, body){
         FlashMessageLauncher.error(title, body);
     },
-    _loop_observers : function(transport, requestSequenceNumber) {
-        if(!transport || !transport.responseText){                                                
-            return;
-        }
-        
-        var jsonText = transport.responseText;
-        //ignore json if there is no changes, you can set ignore_duplicate_response to false when in debug mode 
-        this._json_text_cache = jsonText;
-
-        var json;
-
-        try{
-            json = eval('('+jsonText+')');
-        } catch(e){
-            json = [];
-            this.showError('The server encountered a problem (json error).', e.toString());
-        }
-        
+    _loop_observers : function(json, requestSequenceNumber) {
         if(json.error){
             this.showError('The server encountered a problem.', json.error);
         }
-        
+
         for(var index = 0; index < this.observers.length; index++){
             var observer = this.observers[index];
-            
+
             if(!observer.notify) return;
 
             if(observer.dropExpiredCallback && !this.isSequenceNumberValid(requestSequenceNumber)){
@@ -157,6 +148,7 @@ DashboardPeriodicalExecuter.prototype = {
     clean : function() {
         this.observers = [];
         this._json_text_cache = undefined;
+        this.is_paused = false;
     },
     pause : function() {
         this.is_paused = true;

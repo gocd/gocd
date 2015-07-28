@@ -82,6 +82,10 @@
                                                <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE") -%>">
                                                    <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
                                                </span>
+																						<% elsif !pipeline.isLocal() %>
+	                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE_FROM_REMOTE") -%>">
+	                                                   <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
+	                                               </span>
                                             <% else %>
                                                 <span class="title_secondary_info extract_template_for_pipeline_<%=pipeline.name()-%>">
                                                 <a href="#" class="add_link" onclick="Util.ajax_modal('<%= template_new_path(:pipelineToExtractFrom => pipeline.name()) -%>', {overlayClose: false, title: '<%= l.string("EXTRACT_NEW_TEMPLATE")-%>'}, function(text){return text})">
@@ -102,7 +106,7 @@
         </div>
     <% end %>
 
-    
+
 </div>
 
 <script type="text/javascript">
@@ -130,4 +134,3 @@
     });
 
 </script>
-

@@ -234,7 +234,6 @@ Go::Application.routes.draw do
 
   namespace :api, as: "" do
     defaults :no_layout => true do
-      delete 'users/:username' => 'users#destroy', constraints: {username: USER_NAME_FORMAT}
       get 'plugins/status' => 'plugins#status'
 
       # state

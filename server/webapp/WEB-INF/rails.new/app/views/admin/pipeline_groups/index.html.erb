@@ -66,6 +66,7 @@
                                         </li>
                                     <%- end -%>
                                     <li>
+																			<% if pipeline.isLocal() %>
                                         <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
                                         <a href="#" class="clone_pipeline clone_icon action_icon clone_button_for_<%= pipeline.name() -%>" id="<%= pipeline_random_id_for_clone -%>">
                                             <%= l.string("CLONE") -%>
@@ -78,6 +79,11 @@
                                                 });
                                             });
                                         </script>
+																			<% else %>
+																				<span class="action_icon clone_icon_disabled clone_button_for_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_CLONE_REMOTE_PIPELINE") -%>">
+																					<%= l.string("CLONE") -%>
+																				</span>
+																			<% end %>
                                     </li>
                                     <li>
                                         <%= render :partial => "delete_pipeline", :locals => {:scope => {:pipeline => pipeline, :pipeline_to_can_delete => @pipeline_to_can_delete}} %>

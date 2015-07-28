@@ -50,8 +50,14 @@
                             <td class="actions">
                                 <ul>
                                     <li>
+																			<% if pipeline.isLocal() %>
                                         <%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class=> "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
-                                    </li>
+																			<% else %>
+																				<span class="edit_pipeline action_icon edit_icon_disabled edit_for_pipeline_<%=pipeline.name()-%> action_icon" title="<%= l.string("CANNOT_EDIT_REMOTE_PIPELINE") -%>">
+																					<%= l.string("EDIT") -%>
+																				</span>
+																			<% end %>
+																		</li>
                                     <%- if @groups.size() > 1 -%>
                                         <li>
                                                 <a id="a_move_<%=pipeline.name()-%>" href="<%= possible_groups_path(with_md5_param(:pipeline_name => pipeline.name())) -%>" class="move_pipeline move_icon action_icon"><%= l.string("MOVE_TO") -%>

@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Date;
-
-import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -43,23 +42,23 @@ public class GoConfigRevisionTest {
 
     @Test
     public void shouldGenerateCommentString() {
-        GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-md5", "loser", "100.3.9.71", Edition.Enterprise, timeProvider);
-        assertThat(configRevision.getComment(), is(String.format("user:loser|timestamp:%s|schema_version:%s|go_edition:Enterprise|go_version:100.3.9.71|md5:my-md5", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION)));
+        GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-md5", "loser", "100.3.9.71", timeProvider);
+        assertThat(configRevision.getComment(), is(String.format("user:loser|timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.9.71|md5:my-md5", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION)));
     }
 
     @Test
     public void shouldGenerateCommentStringWithJoinCharacterEscaped() {
-        GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-|md5||", "los|er|", "100.3.|9.71||", Edition.Enterprise, timeProvider);
-        assertThat(configRevision.getComment(), is(String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:Enterprise|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION)));
+        GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-|md5||", "los|er|", "100.3.|9.71||", timeProvider);
+        assertThat(configRevision.getComment(), is(String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION)));
     }
-    
+
     @Test
     public void shouldParsePartsFromComment() {
         GoConfigRevision configRevision = new GoConfigRevision("config-xml", String.format("user:los||er|||timestamp:%s|schema_version:20|go_edition:Enterprise|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime()));
         assertThat(configRevision.getContent(), is("config-xml"));
         assertThat(configRevision.getMd5(), is("my-|md5||"));
         assertThat(configRevision.getGoVersion(), is("100.3.|9.71||"));
-        assertThat(configRevision.getGoEdition(), is(Edition.Enterprise));
+        assertThat(configRevision.getGoEdition(), is("Enterprise"));
         assertThat(configRevision.getUsername(), is("los|er|"));
         assertThat(configRevision.getTime(), is(date));
         assertThat(configRevision.getSchemaVersion(), is(20));
@@ -77,8 +76,8 @@ public class GoConfigRevisionTest {
 
     @Test
     public void shouldUnderstandEquality() {
-        GoConfigRevision rev1 = new GoConfigRevision("blah", "md5", "loser", "2.2.2", Edition.Enterprise, new TimeProvider());
-        GoConfigRevision rev2 = new GoConfigRevision("blah blah", "md5", "loser 2", "2.2.3", Edition.Free, new TimeProvider());
+        GoConfigRevision rev1 = new GoConfigRevision("blah", "md5", "loser", "2.2.2", new TimeProvider());
+        GoConfigRevision rev2 = new GoConfigRevision("blah blah", "md5", "loser 2", "2.2.3", new TimeProvider());
 
         assertThat(rev1, is(rev2));
     }

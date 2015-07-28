@@ -21,7 +21,6 @@ class ConfigRevisionAPIModel
     @md5 = config_revision_instance_model.getMd5()
     @username = config_revision_instance_model.getUsername()
     @goVersion = config_revision_instance_model.getGoVersion()
-    @goEdition = config_revision_instance_model.getGoEdition().to_s unless config_revision_instance_model.getGoEdition() == nil
     @time = config_revision_instance_model.getTime().getTime() unless config_revision_instance_model.getTime() == nil
     @schemaVersion = config_revision_instance_model.getSchemaVersion()
     @commitSHA = config_revision_instance_model.getCommitSHA()

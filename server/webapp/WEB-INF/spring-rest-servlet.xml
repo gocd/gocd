@@ -37,7 +37,6 @@
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
         <property name="interceptors">
             <list>
-                <ref bean="licenseInterceptor"/>
                 <ref bean="authorizationInterceptor"/>
                 <ref bean="jsonpInterceptor"/>
             </list>

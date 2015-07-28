@@ -68,7 +68,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private ArtifactsDirHolder artifactsDirHolder;
     @Autowired private MaterialUpdateService materialUpdateService;
     @Autowired private RemoveAdminPermissionFilter removeAdminPermissionFilter;
-    @Autowired private LicenseViolationChecker licenseViolationChecker;
     @Autowired private PipelineLockService pipelineLockService;
     @Autowired private StageResourceImporter stageResourceImporter;
     @Autowired private GoCasServiceProperties goCasServiceProperties;
@@ -98,7 +97,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             goConfigDataSource.upgradeIfNecessary();
             cachedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
-            licenseViolationChecker.initialize();
 
             //artifacts
             artifactsDirHolder.initialize();

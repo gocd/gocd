@@ -22,7 +22,6 @@ describe Api::StagesController do
     before :each do
       controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
       controller.stub(:set_locale)
-      controller.stub(:licensed_agent_limit)
       controller.stub(:populate_config_validity)
     end
 

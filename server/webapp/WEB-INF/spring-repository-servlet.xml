@@ -37,7 +37,6 @@
         <property name="interceptors">
             <list>
                 <ref bean="authorizationInterceptor"/>
-                <ref bean="licenseInterceptor"/>
             </list>
         </property>
     </bean>

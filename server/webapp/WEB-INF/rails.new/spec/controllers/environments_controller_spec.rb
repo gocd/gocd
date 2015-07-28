@@ -27,7 +27,6 @@ describe EnvironmentsController do
       @environment_service = Object.new
       controller.stub(:current_user).and_return('user_foo')
       controller.stub(:set_locale)
-      controller.stub(:licensed_agent_limit)
       controller.stub(:populate_config_validity)
     end
 

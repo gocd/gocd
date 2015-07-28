@@ -126,11 +126,6 @@ describe ApplicationController do
       expect(controller.user_search_service).to eq(service)
     end
 
-    it "should load go_license_service" do
-      expect(Spring).to receive(:bean).with('goLicenseService').and_return(service = Object.new)
-      expect(controller.go_license_service).to eq(service)
-    end
-
     it "should load viewRenderingService" do
       expect(Spring).to receive(:bean).with('viewRenderingService').and_return(service = Object.new)
       expect(controller.view_rendering_service).to eq(service)
@@ -258,7 +253,6 @@ describe ApplicationController do
       controller.stub(:populate_health_messages) do
         stub_server_health_messages_for_controllers
       end
-      @controller.stub(:licensed_agent_limit)
       config_service = stub_service(:go_config_service)
       config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid)
     end

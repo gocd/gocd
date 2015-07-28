@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service.support;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.GoLicenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,12 +26,10 @@ import org.springframework.stereotype.Component;
 public class ConfigInfoProvider implements ServerInfoProvider {
 
     private GoConfigService service;
-    private GoLicenseService licenseService;
 
     @Autowired
-    public ConfigInfoProvider(GoConfigService service, GoLicenseService licenseService) {
+    public ConfigInfoProvider(GoConfigService service) {
         this.service = service;
-        this.licenseService = licenseService;
     }
 
     @Override
@@ -61,9 +58,5 @@ public class ConfigInfoProvider implements ServerInfoProvider {
         boolean passwordEnabled = service.security().passwordFileConfig().isEnabled();
 
         infoCollector.append(String.format("Security:\nLDAP: %s, Password: %s\n", ldapEnabled, passwordEnabled));
-
-        infoCollector.append(String.format("License: Expire Date: %s, Is Valid: %s, Remote Agents: %s, Number of Users: %s\n",
-                licenseService.getExpirationDate(), licenseService.isLicenseValid(),
-                licenseService.getNumberOfLicensedRemoteAgents(), licenseService.maximumUsersAllowed()));
     }
 }

@@ -332,14 +332,9 @@ describe Api::PipelinesController do
   end
 
   describe :stage_feed do
-    before do
-      controller.stub(:licensed_agent_limit)
-    end
-
     before :each do
       controller.go_cache.clear
       controller.stub(:set_locale)
-      controller.stub(:licensed_agent_limit)
     end
 
     it "should return the url to the feed" do

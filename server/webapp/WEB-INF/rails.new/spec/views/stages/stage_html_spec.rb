@@ -673,7 +673,7 @@ describe 'stages/stage.html.erb' do
     describe "config tab" do
       before(:each) do
         params[:action] = "stage_config"
-        assign :ran_with_config_revision,  GoConfigRevision.new("config-xml", "my-md5", "loser", "2.3.0", com.thoughtworks.go.licensing.Edition::Enterprise, TimeProvider.new);
+        assign :ran_with_config_revision,  GoConfigRevision.new("config-xml", "my-md5", "loser", "2.3.0", TimeProvider.new);
         view.stub(:is_user_an_admin?).and_return(true)
       end
 

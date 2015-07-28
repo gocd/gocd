@@ -27,7 +27,6 @@ describe ConfigRevisionAPIModel do
       config_revision_api_model.md5.should == 'md5'
       config_revision_api_model.username.should == 'user name'
       config_revision_api_model.goVersion.should == 'version'
-      config_revision_api_model.goEdition.should == 'edition'
       config_revision_api_model.time.should == 12345678
       config_revision_api_model.schemaVersion.should == 'schema'
       config_revision_api_model.commitSHA.should == 'commit'

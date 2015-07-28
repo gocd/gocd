@@ -32,13 +32,11 @@ import static org.mockito.Mockito.when;
 public class SecurityServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
-    private GoLicenseService goLicenseService;
 
     @Before
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
-        goLicenseService = mock(GoLicenseService.class);
-        securityService = new SecurityService(goConfigService, goLicenseService);
+        securityService = new SecurityService(goConfigService);
     }
 
     @Test

@@ -20,7 +20,6 @@ describe AgentsController do
 
   before do
     controller.stub(:set_locale)
-    controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
   end
 

@@ -26,9 +26,8 @@ describe "/admin/users/users.html.erb" do
     assign(:users,@users)
     assign(:total_enabled_users,20)
     assign(:total_disabled_users,10)
-    assign(:permitted_users,30)
   end
-  
+
   it "should have the aggregrates on the page header" do
     render
 
@@ -64,7 +63,7 @@ describe "/admin/users/users.html.erb" do
 
     end
   end
-  
+
   it "should show sort links" do
       params[:column] = 'username'
       params[:order] = 'ASC'

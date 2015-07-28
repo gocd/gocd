@@ -740,7 +740,7 @@ describe Admin::PipelinesController do
       end
 
 
-      it "should save cloned pipeline successfully for community edition when group is not set" do
+      it "should save cloned pipeline successfully when group is not set" do
         @cruise_config.addPipeline("foo.bar", @pipeline)
         stub_save_for_success
         @pipeline_pause_service.should_receive(:pause).with("new-pip", "Under construction", @user)

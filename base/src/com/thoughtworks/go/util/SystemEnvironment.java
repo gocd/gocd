@@ -552,10 +552,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Long.parseLong(getPropertyImpl(UNRESPONSIVE_JOB_WARNING_THRESHOLD, "5")) * 60 * 1000;//mins to mills
     }
 
-    public int getLicenseExpiryWarningTime() {
-        return Integer.parseInt(getPropertyImpl(NUMBER_OF_DAYS_TO_EXPIRY_PROPERTY, String.valueOf(NUMBER_OF_DAYS_TO_EXPIRY)));
-    }
-
     public boolean getParentLoaderPriority() {
         return Boolean.parseBoolean(getPropertyImpl(PARENT_LOADER_PRIORITY, "false"));
     }

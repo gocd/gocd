@@ -51,9 +51,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
-import com.thoughtworks.go.feature.EnterpriseFeature;
-import com.thoughtworks.go.licensing.Edition;
-import com.thoughtworks.go.licensing.LicenseValidity;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.DFSCycleDetector;
@@ -916,29 +913,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean isLicenseValid() {
-        return licenseValidity().isValid();
-    }
-
-    @Override
-    public FeatureSupported validateFeature(EnterpriseFeature enterpriseFeature) {
-        if (!isLicenseValid()) {
-            return FeatureSupported.InvalidLicense;
-        }
-        return FeatureSupported.Yes;
-    }
-
-    @Override
-    public Edition validEdition() {
-        return Edition.OpenSource;
-    }
-
-    @Override
-    public LicenseValidity licenseValidity() {
-        return LicenseValidity.VALID_LICENSE;
-    }
-
-    @Override
     public EnvironmentConfig addEnvironment(String environmentName) {
         BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         environments.add(environmentConfig);
@@ -1103,11 +1077,6 @@ public class BasicCruiseConfig implements CruiseConfig {
                 rawObject.errors().addAll(objectWithErrors.errors());
             }
         });
-    }
-
-    @Override
-    public Edition edition() {
-        return licenseValidity().isValid() ? validEdition() : Edition.NoLicense;
     }
 
     @Override

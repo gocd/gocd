@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.licensing.LicenseValidityHandler;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -57,14 +56,6 @@ public class ServerConfigService implements BaseUrlProvider {
 
     private GoMailSenderProvider provider = GoMailSenderProvider.DEFAULT_PROVIDER;
     static final String ANY_USER = "GO_TEST_USER";
-    static final LicenseValidityHandler FAIL_ON_INVALID_LICENSE = new LicenseValidityHandler() {
-        public void onValidLicense() {
-        }
-
-        public void onInvalidLicense(String description) {
-            throw new RuntimeException(description);
-        }
-    };
 
 
     @Autowired

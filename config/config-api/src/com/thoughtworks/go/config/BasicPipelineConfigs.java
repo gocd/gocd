@@ -444,4 +444,9 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     public void setOrigin(ConfigOrigin origin) {
         this.configOrigin = origin;
     }
+
+    @Override
+    public boolean hasRemoteParts() {
+        return getOrigin() != null && !getOrigin().isLocal();
+    }
 }

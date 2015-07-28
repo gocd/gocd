@@ -58,7 +58,7 @@
 																				</span>
 																			<% end %>
 																		</li>
-                                    <%- if @groups.size() > 1 -%>
+                                    <%- if pipeline.isLocal() && @groups.size() > 1 -%>
                                         <li>
                                                 <a id="a_move_<%=pipeline.name()-%>" href="<%= possible_groups_path(with_md5_param(:pipeline_name => pipeline.name())) -%>" class="move_pipeline move_icon action_icon"><%= l.string("MOVE_TO") -%>
                                                     <span class="for_down_arrow">&nbsp;</span>

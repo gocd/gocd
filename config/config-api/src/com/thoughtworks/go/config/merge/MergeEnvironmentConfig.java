@@ -72,7 +72,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     private boolean isEditable(EnvironmentConfig part) {
-        return part.getOrigin() != null && part.getOrigin().canEdit();
+        return part.getOrigin() == null || part.getOrigin().canEdit();
     }
 
     public EnvironmentConfig getFirstEditablePart()
@@ -523,6 +523,36 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     @Override
+    public EnvironmentConfig getLocal() {
+        for(EnvironmentConfig part : this)
+        {
+            if(part.isLocal())
+                return  part;
+        }
+        return  null;
+    }
+
+    @Override
+    public boolean isLocal() {
+        for(EnvironmentConfig part : this)
+        {
+            if(part.isLocal())
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isEnvironmentEmpty() {
+        for(EnvironmentConfig part : this)
+        {
+            if(!part.isEnvironmentEmpty())
+                return false;
+        }
+        return true;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -566,7 +596,12 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public ConfigOrigin getOrigin() {
-        throw new RuntimeException("Not implemented");
+        MergeConfigOrigin mergeConfigOrigin = new MergeConfigOrigin();
+        for(EnvironmentConfig part : this)
+        {
+            mergeConfigOrigin.add(part.getOrigin());
+        }
+        return mergeConfigOrigin;
     }
 
     @Override

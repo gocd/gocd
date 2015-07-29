@@ -48,6 +48,13 @@ public class MergeConfigOrigin extends BaseCollection<ConfigOrigin> implements C
 
     @Override
     public String displayName() {
-        return "TODO merge names";
+        StringBuilder b = new StringBuilder("Merged: [ ");
+        for(ConfigOrigin origin : this)
+        {
+            b.append(origin.displayName());
+            b.append("; ");
+        }
+        b.append("]");
+        return b.toString();
     }
 }

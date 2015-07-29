@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -128,7 +127,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             backupService.initialize();
             railsAssetsService.initialize();
             ccTrayActivityListener.initialize();
-            ServletHelper.init(new SystemEnvironment().usingJetty9());
+            ServletHelper.init();
             // initialize static accessors
             Toggles.initializeWith(featureToggleService);
         } catch (Throwable throwable) {

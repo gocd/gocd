@@ -95,8 +95,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
                     throw new GoConfigInvalidException(merge, allErrors);
                 }
                 CruiseConfig basicForEdit = this.fileService.loadForEditing();
-                CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, partials);
-                //TODO change strategy into merge-edit? - done in UI branch
+                CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, true, partials);
                 newConfigHolder = new GoConfigHolder(merge, forEdit);
             }
             // save to cache and fire event

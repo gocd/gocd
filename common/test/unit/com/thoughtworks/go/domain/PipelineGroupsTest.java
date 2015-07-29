@@ -31,6 +31,9 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -244,5 +247,49 @@ public class PipelineGroupsTest {
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesTwo = groups.getPluggableSCMMaterialUsageInPipelines();
         assertSame(pluggableSCMMaterialUsageInPipelinesOne, pluggableSCMMaterialUsageInPipelinesTwo);
+    }
+
+
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsNull()
+    {
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        PipelineGroups groups = new PipelineGroups(defaultGroup);
+        assertThat(groups.getLocal().size(), is(1));
+        assertThat(groups.getLocal().get(0), is(defaultGroup));
+    }
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsFile()
+    {
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        defaultGroup.setOrigins(new FileConfigOrigin());
+        PipelineGroups groups = new PipelineGroups(defaultGroup);
+        assertThat(groups.getLocal().size(), is(1));
+        assertThat(groups.getLocal().get(0), is(defaultGroup));
+    }
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsRepo()
+    {
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        defaultGroup.setOrigins(new RepoConfigOrigin());
+        PipelineGroups groups = new PipelineGroups(defaultGroup);
+        assertThat(groups.getLocal().size(), is(0));
+        assertThat(groups.getLocal().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsMixed()
+    {
+        PipelineConfigs localGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        localGroup.setOrigins(new FileConfigOrigin());
+
+        PipelineConfigs remoteGroup = createGroup("defaultGroup", createPipelineConfig("pipeline2", "stage1"));
+        remoteGroup.setOrigins(new RepoConfigOrigin());
+
+        MergePipelineConfigs mergePipelineConfigs = new MergePipelineConfigs(localGroup, remoteGroup);
+        PipelineGroups groups = new PipelineGroups(mergePipelineConfigs);
+
+        assertThat(groups.getLocal().size(), is(1));
+        assertThat(groups.getLocal(), hasItem(localGroup));
     }
 }

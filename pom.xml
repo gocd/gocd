@@ -116,7 +116,6 @@
         <module>server-launcher</module>
         <module>app-server</module>
         <module>jetty9</module>
-        <module>jetty6</module>
         <module>development-utility/development-agent</module>
         <module>development-utility/development-server</module>
     </modules>

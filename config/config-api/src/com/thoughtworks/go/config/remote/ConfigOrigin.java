@@ -29,5 +29,5 @@ public interface ConfigOrigin {
      */
     boolean isLocal();
 
-    //TODO displayString for UI
+    String displayName();
 }

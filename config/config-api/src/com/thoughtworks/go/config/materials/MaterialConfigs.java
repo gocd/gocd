@@ -161,9 +161,13 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
             {
                 material.addError(DependencyMaterialConfig.ORIGIN,
                         String.format("Dependency from pipeline defined in %s to pipeline defined in %s is not allowed",
-                                myOrigin,upstreamOrigin));
+                                displayNameFor(myOrigin), displayNameFor(upstreamOrigin)));
             }
         }
+    }
+
+    private String displayNameFor(ConfigOrigin origin) {
+        return origin != null ? origin.displayName() : "cruise-config.xml";
     }
 
     private void validateScmMaterials() {

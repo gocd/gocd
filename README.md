@@ -10,7 +10,7 @@ All information to help you get started with Go can be found on the <a href="htt
 
 ## Upcoming release
 
-See [#1076](https://github.com/gocd/gocd/issues/1076) for what's planned for the upcoming release
+See [#1104](https://github.com/gocd/gocd/issues/1104) for what's planned for the upcoming release
 
 ## Contributing
 

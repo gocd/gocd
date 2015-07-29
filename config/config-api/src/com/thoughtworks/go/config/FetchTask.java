@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
@@ -350,11 +351,15 @@ public class FetchTask extends AbstractTask implements Serializable {
         PipelineConfig srcPipeline = cruiseConfig.getPipelineConfigByName(pipelineName.getAncestorName());
         if (!cruiseConfig.getConfigRepos().isReferenceAllowed(currentPipeline.getOrigin(),srcPipeline.getOrigin())) {
             addError(ORIGIN, String.format("Pipeline \"%s\" tries to fetch artifact from job \"%s :: %s :: %s\" which is defined in %s - reference is not allowed",
-                    currentPipeline.name(), pipelineName.getAncestorName(), stage, job,srcPipeline.getOrigin()));
+                    currentPipeline.name(), pipelineName.getAncestorName(), stage, job,displayNameFor(srcPipeline.getOrigin())));
             return true;
         }
 
         return false;
+    }
+
+    private String displayNameFor(ConfigOrigin origin) {
+        return origin != null ? origin.displayName() : "cruise-config.xml";
     }
 
     public boolean isFetchPipeline(final CaseInsensitiveString caseInsensitiveString) {

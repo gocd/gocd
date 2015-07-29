@@ -20,8 +20,6 @@ package com.thoughtworks.go.config.remote;
  */
 public class FileConfigOrigin implements ConfigOrigin {
 
-    //TODO path?
-
     @Override
     public boolean canEdit() {
         return true;
@@ -50,5 +48,10 @@ public class FileConfigOrigin implements ConfigOrigin {
 
     public int hashCode() {
         return 23451;
+    }
+
+    @Override
+    public String displayName() {
+        return "cruise-config.xml";
     }
 }

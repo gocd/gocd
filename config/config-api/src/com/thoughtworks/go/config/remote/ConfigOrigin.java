@@ -30,6 +30,4 @@ public interface ConfigOrigin {
     boolean isLocal();
 
     String displayName();
-
-    //TODO displayString for UI
 }

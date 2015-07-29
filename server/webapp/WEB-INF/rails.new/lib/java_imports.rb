@@ -174,7 +174,6 @@ module JavaImports
   java_import com.thoughtworks.go.server.domain.xml.PipelineXmlViewModel unless defined? PipelineXmlViewModel
   java_import com.thoughtworks.go.server.domain.xml.JobXmlViewModel unless defined? JobXmlViewModel
   java_import com.thoughtworks.go.server.domain.xml.JobPlanXmlViewModel unless defined? JobPlanXmlViewModel
-  java_import com.thoughtworks.go.server.domain.xml.UsersXmlViewModel unless defined? UsersXmlViewModel
   java_import org.dom4j.io.OutputFormat unless defined? OutputFormat
   java_import org.dom4j.io.XMLWriter unless defined? XMLWriter
   java_import java.io.ByteArrayOutputStream unless defined? ByteArrayOutputStream

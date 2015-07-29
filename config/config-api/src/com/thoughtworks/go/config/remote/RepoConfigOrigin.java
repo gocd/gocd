@@ -74,8 +74,13 @@ public class RepoConfigOrigin implements ConfigOrigin {
 
     @Override
     public String displayName() {
-        return configRepo.getMaterialConfig().getDisplayName() + " at " + revision;
+        MaterialConfig materialConfig = configRepo != null ?
+                configRepo.getMaterialConfig() : null;
+        String materialName = materialConfig != null ?
+                    materialConfig.getDisplayName() : "NULL material";
+        return String.format("%s at %s", materialName, revision);
     }
+
     public MaterialConfig getMaterial() {
         if(configRepo == null)
             return  null;

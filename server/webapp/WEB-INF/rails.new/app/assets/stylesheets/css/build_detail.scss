@@ -820,6 +820,10 @@ a.collapse-all {
   margin-left: 17px;
 }
 
+#tab-content-of-failures .auto-scroll {
+  display: none;
+}
+
 #tab-content-of-tests,
 #tab-content-of-failures,
 #tab-content-of-artifacts,

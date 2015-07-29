@@ -40,7 +40,7 @@ import java.util.Set;
 public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     String WORKING_BASE_DIR = "pipelines/";
 
-    void merge(List<PartialConfig> partList);
+    void merge(List<PartialConfig> partList, boolean forEdit);
 
     @PostConstruct
     void initializeServer();

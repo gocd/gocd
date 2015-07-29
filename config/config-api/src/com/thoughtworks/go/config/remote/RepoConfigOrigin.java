@@ -44,7 +44,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) o;
 
-        if (!revision.equals(repoConfigOrigin.revision)) {
+        if (revision != null ? !revision.equals(repoConfigOrigin.revision) : repoConfigOrigin.revision != null) {
             return false;
         }
         if (configRepo != null ? !configRepo.equals(repoConfigOrigin.configRepo) : repoConfigOrigin.configRepo != null) {

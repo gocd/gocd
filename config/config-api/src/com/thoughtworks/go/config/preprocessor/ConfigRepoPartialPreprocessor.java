@@ -34,9 +34,9 @@ public class ConfigRepoPartialPreprocessor implements GoConfigPreprocessor {
 
     public void process(CruiseConfig cruiseConfig) {
         if (cruiseConfig.getPartials().isEmpty() && partialsProvider != null) {
-            cruiseConfig.merge(new Cloner().deepClone(partialsProvider.lastPartials()));
+            cruiseConfig.merge(new Cloner().deepClone(partialsProvider.lastPartials()), false);
         } else {
-            cruiseConfig.merge(cruiseConfig.getPartials());
+            cruiseConfig.merge(cruiseConfig.getPartials(), false);
         }
     }
 }

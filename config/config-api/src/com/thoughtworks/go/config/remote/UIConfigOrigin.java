@@ -15,4 +15,20 @@ public class UIConfigOrigin implements ConfigOrigin {
     public String displayName() {
         return "User";
     }
+
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public int hashCode() {
+        return 57159;
+    }
 }

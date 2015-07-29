@@ -46,12 +46,18 @@
                     <tbody>
                     <% group.each do |pipeline| %>
                         <tr class="pipeline">
-                            <td class="name"><%= link_to pipeline.name(), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => 'wrapped_word' %></td>
+                            <td class="name">
+															<% if pipeline.isLocal() %>
+															  <%= link_to pipeline.name(), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => 'wrapped_word' %>
+															<% else %>
+																<%= pipeline.name() %>
+															<% end %>
+														</td>
                             <td class="actions">
                                 <ul>
                                     <li>
 																			<% if pipeline.isLocal() %>
-                                        <%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class=> "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
+                                      	<%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class=> "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
 																			<% else %>
 																				<span class="edit_pipeline action_icon edit_icon_disabled edit_for_pipeline_<%=pipeline.name()-%> action_icon" title="<%= l.string("CANNOT_EDIT_REMOTE_PIPELINE") -%>">
 																					<%= l.string("EDIT") -%>

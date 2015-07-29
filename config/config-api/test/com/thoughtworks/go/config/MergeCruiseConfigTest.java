@@ -3,7 +3,6 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -362,7 +361,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     public void shouldUpdatePipelineConfigsListWhenAPartialIsMerged(){
         PartialConfig partial = PartialConfigMother.withPipeline("pipeline3");
 
-        cruiseConfig.merge(Arrays.asList(partial));
+        cruiseConfig.merge(Arrays.asList(partial), false);
         PipelineConfig pipeline3 = partial.getGroups().first().findBy(new CaseInsensitiveString("pipeline3"));
         assertThat(cruiseConfig.getAllPipelineConfigs().contains(pipeline3), is(true));
         assertThat(cruiseConfig.getAllPipelineNames().contains(pipeline3.name()), is(true));

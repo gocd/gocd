@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -60,6 +61,32 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         BasicPipelineConfigs pipelineConfigsRemote = new BasicPipelineConfigs();
         pipelineConfigsRemote.setOrigin(new RepoConfigOrigin());
         return new MergePipelineConfigs(pipelineConfigsLocal,pipelineConfigsRemote);
+    }
+
+    @Test
+    public void shouldReturnNullForGetLocalWhenOnlyRemoteParts()
+    {
+        BasicPipelineConfigs firstPart = new BasicPipelineConfigs();
+        firstPart.setOrigin(new RepoConfigOrigin());
+
+        BasicPipelineConfigs secondPart = new BasicPipelineConfigs();
+        secondPart.setOrigin(new RepoConfigOrigin());
+        MergePipelineConfigs merge = new MergePipelineConfigs(firstPart, secondPart);
+
+        assertNull(merge.getLocal());
+    }
+
+    @Test
+    public void shouldReturnFilePartForGetLocalWhenHasRemoteAndFilePart()
+    {
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs();
+        filePart.setOrigin(new FileConfigOrigin());
+
+        BasicPipelineConfigs secondPart = new BasicPipelineConfigs();
+        secondPart.setOrigin(new RepoConfigOrigin());
+        MergePipelineConfigs merge = new MergePipelineConfigs(filePart, secondPart);
+
+        assertThat(merge.getLocal(), Matchers.<PipelineConfigs>is(filePart));
     }
 
     @Test

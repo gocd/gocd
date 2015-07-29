@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -102,7 +101,7 @@ public class CachedGoConfig {
         //TODO: tomzo merge using mergeForEdit strategy
         // don't know yet if partials can be returned like this in all cases. We may want to narrow it down
         if(currentConfigForEdit != null && currentConfig != null)
-            currentConfigForEdit.merge(currentConfig.getMergedPartials());
+            currentConfigForEdit.merge(currentConfig.getMergedPartials(), true);
         return currentConfigForEdit;
     }
 

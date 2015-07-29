@@ -119,7 +119,6 @@
         <module>jetty6</module>
         <module>development-utility/development-agent</module>
         <module>development-utility/development-server</module>
-        <module>development-utility/development-server-with-jetty6</module>
     </modules>
     <profiles>
         <profile>

@@ -96,16 +96,34 @@
         </constructor-arg>
      </bean>
 
+    <bean id="goAuthenticationProviderFactory" class="com.thoughtworks.go.server.security.providers.GoAuthenticationProviderFactory">
+        <constructor-arg index="0">
+            <bean class="com.thoughtworks.go.server.service.UserService" autowire="autodetect"/>
+        </constructor-arg>
+    </bean>
+
     <bean id="goAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
         <property name="providers">
             <list>
-                <bean class="com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider" autowire="autodetect"/>
-                <bean class="com.thoughtworks.go.server.security.providers.FileAuthenticationProvider"
-                      autowire="autodetect"/>
-                <bean class="com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider"
-                      autowire="autodetect"/>
-                <bean class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider"
-                      p:key="anonymousKey"/>
+                <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
+                    <constructor-arg index="0">
+                        <bean class="com.thoughtworks.go.server.security.providers.OauthAuthenticationProvider" autowire="autodetect"/>
+                    </constructor-arg>
+                </bean>
+                <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
+                    <constructor-arg index="0">
+                        <bean class="com.thoughtworks.go.server.security.providers.FileAuthenticationProvider" autowire="autodetect"/>
+                    </constructor-arg>
+                </bean>
+                <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
+                    <constructor-arg index="0" ref="ldapAuthProvider"/>
+                </bean>
+                <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
+                    <constructor-arg index="0">
+                        <bean class="com.thoughtworks.go.server.security.providers.PluginAuthenticationProvider" autowire="autodetect"/>
+                    </constructor-arg>
+                </bean>
+                <bean class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider" p:key="anonymousKey"/>
             </list>
         </property>
     </bean>

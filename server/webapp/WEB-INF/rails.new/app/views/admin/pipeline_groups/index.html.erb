@@ -46,7 +46,13 @@
                     <tbody>
                     <% group.each do |pipeline| %>
                         <tr class="pipeline">
-                            <td class="name"><%= link_to smart_word_breaker(pipeline.name()), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general") %></td>
+                            <td class="name">
+															<% if pipeline.isLocal() %>
+																<%= link_to smart_word_breaker(pipeline.name()), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general") %>
+															<% else %>
+																<%= smart_word_breaker(pipeline.name()) %>
+															<% end %>
+														</td>
                             <td class="actions">
                                 <ul>
                                     <li>

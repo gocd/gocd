@@ -90,4 +90,8 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
     boolean isLocal();
 
     boolean isEnvironmentEmpty();
+
+    EnvironmentPipelinesConfig getRemotePipelines();
+
+    EnvironmentAgentsConfig getLocalAgents();
 }

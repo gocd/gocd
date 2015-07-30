@@ -34,6 +34,21 @@ public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
     }
 
     @Test
+    public void shouldReturnEmptyForRemotePipelinesWhenIsLocal()
+    {
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldReturnAllPipelinesForRemotePipelinesWhenIsRemote()
+    {
+        environmentConfig.setOrigins(new RepoConfigOrigin());
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(false));
+    }
+
+    @Test
     public void shouldReturnTrueThatLocalWhenOriginIsNotSet()
     {
         environmentConfig.setOrigins(null);

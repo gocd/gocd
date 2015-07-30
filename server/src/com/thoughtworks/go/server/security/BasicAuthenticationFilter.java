@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.i18n.Localizer;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.basicauth.BasicProcessingFilter;
 
@@ -40,6 +40,12 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
         }
     };
     private static final Logger LOG = Logger.getLogger(BasicAuthenticationFilter.class);
+    private Localizer localizer;
+
+    @Autowired
+    public BasicAuthenticationFilter(Localizer localizer) {
+        this.localizer = localizer;
+    }
 
     @Override
     public void doFilterHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
@@ -47,6 +53,8 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
             isProcessingBasicAuth.set(true);
             super.doFilterHttp(httpRequest, httpResponse, chain);
         } catch (Exception e) {
+            LOG.error(e.getMessage());
+            LOG.debug(e.getMessage(), e);
             handleException(httpRequest, httpResponse, e);
         } finally {
             isProcessingBasicAuth.set(false);
@@ -54,16 +62,12 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
     }
 
     public void handleException(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Exception e) throws IOException {
-        String message = "There was an error authenticating you. Please check the server logs, or contact your the go administrator.";
+        String message = localizer.localize("INVALID_LDAP_ERROR");
         if (hasAccept(httpRequest, "text/html") || hasAccept(httpRequest, "application/xhtml")) {
-            SecurityContext context = SecurityContextHolder.getContext();
             httpRequest.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, new RuntimeException(message));
             httpRequest.setAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED, true);
-            context.setAuthentication(null);
 
             httpResponse.sendRedirect("/go/auth/login?login_error=1");
-            LOG.error(e.getMessage());
-            LOG.trace(e.getMessage(), e);
             return;
         }
         if (hasAccept(httpRequest, "application/vnd.go.cd.v1+json") || hasAccept(httpRequest, "application/json")) {

@@ -285,6 +285,14 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     }
 
     @Override
+    public EnvironmentConfig getLocal() {
+        if(this.isLocal())
+            return this;
+        else
+            return null;
+    }
+
+    @Override
     public ConfigOrigin getOrigin() {
         return origin;
     }
@@ -292,5 +300,34 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.origin = origins;
+        for(EnvironmentVariableConfig environmentVariableConfig : this.variables)
+        {
+            environmentVariableConfig.setOrigins(origins);
+        }
+    }
+
+    public boolean isLocal() {
+        return this.origin == null || this.origin.isLocal();
+    }
+
+    @Override
+    public boolean isEnvironmentEmpty() {
+        return this.variables.isEmpty() && this.agents.isEmpty() && this.pipelines.isEmpty();
+    }
+
+    @Override
+    public EnvironmentPipelinesConfig getRemotePipelines() {
+        if(this.isLocal())
+            return new EnvironmentPipelinesConfig();
+        else
+            return this.pipelines;
+    }
+
+    @Override
+    public EnvironmentAgentsConfig getLocalAgents() {
+        if(this.isLocal())
+            return this.agents;
+        else
+            return new EnvironmentAgentsConfig();
     }
 }

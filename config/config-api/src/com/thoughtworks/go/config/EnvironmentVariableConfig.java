@@ -16,6 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.security.GoCipher;
@@ -37,7 +45,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * @understands an environment variable value that will be passed to a job when it is run
  */
 @ConfigTag("variable")
-public class EnvironmentVariableConfig extends PersistentObject implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter {
+public class EnvironmentVariableConfig extends PersistentObject implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter, ConfigOriginTraceable {
     @ConfigAttribute(value = "name", optional = false)
     private String name;
 
@@ -60,6 +68,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     public static final String SECURE = "secure";
     private GoCipher goCipher = null;
     public static final String ISCHANGED = "isChanged";
+    private ConfigOrigin origin;
 
     public EnvironmentVariableConfig() {
         this.goCipher = new GoCipher();
@@ -338,5 +347,19 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     public void setEntityType(String entityType) {
         this.entityType = entityType;
+    }
+
+    @Override
+    public ConfigOrigin getOrigin() {
+        return origin;
+    }
+
+    public boolean isRemote()
+    {
+        return origin != null && !origin.isLocal();
+    }
+
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
     }
 }

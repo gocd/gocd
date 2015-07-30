@@ -344,6 +344,29 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
+    public void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermsToView() throws NoSuchEnvironmentException
+    {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Username user = new Username(new CaseInsensitiveString("user"));
+
+        when(mockGoConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
+
+        when(securityService.hasViewPermissionForPipeline(user, "foo")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(user, "bar")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(user, "baz")).thenReturn(false);
+
+        EnvironmentsConfig environmentConfigs = environmentsConfig("foo-env", "foo");
+        EnvironmentConfig fooEnv = environmentConfigs.named(new CaseInsensitiveString("foo-env"));
+        fooEnv.setOrigins(new RepoConfigOrigin());
+        environmentConfigService.sync(environmentConfigs);
+        List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllRemotePipelinesForUserInEnvironment(user,fooEnv);
+
+
+        assertThat(pipelines.size(), is(1));
+        assertThat(pipelines, is(asList(new EnvironmentPipelineModel("foo", "foo-env"))));
+    }
+
+    @Test
     public void shouldReturnEnvironmentConfigForEdit() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = new BasicCruiseConfig();

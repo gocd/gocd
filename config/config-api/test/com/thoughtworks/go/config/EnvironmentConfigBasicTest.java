@@ -25,12 +25,66 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
 public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
     @Before
     public void setUp() throws Exception {
         environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+    }
+
+    @Test
+    public void shouldReturnEmptyForRemotePipelinesWhenIsLocal()
+    {
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldReturnAllPipelinesForRemotePipelinesWhenIsRemote()
+    {
+        environmentConfig.setOrigins(new RepoConfigOrigin());
+        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueThatLocalWhenOriginIsNotSet()
+    {
+        environmentConfig.setOrigins(null);
+        assertThat(environmentConfig.isLocal(), is(true));
+    }
+    @Test
+    public void shouldReturnTrueThatLocalWhenOriginIsFile()
+    {
+        environmentConfig.setOrigins(new FileConfigOrigin());
+        assertThat(environmentConfig.isLocal(),is(true));
+    }
+    @Test
+    public void shouldReturnFalseThatLocalWhenOriginIsConfigRepo()
+    {
+        environmentConfig.setOrigins(new RepoConfigOrigin());
+        assertThat(environmentConfig.isLocal(),is(false));
+    }
+    @Test
+    public void shouldReturnSelfAsLocalPartWhenOriginIsFile()
+    {
+        environmentConfig.setOrigins(new FileConfigOrigin());
+        assertSame(environmentConfig,environmentConfig.getLocal());
+    }
+    /*@Test
+    public void shouldReturnSelfAsLocalPartWhenOriginIsUI()
+    {
+        environmentConfig.setOrigins(new UIConfigOrigin());
+        assertSame(environmentConfig,environmentConfig.getLocal());
+    }*/
+    @Test
+    public void shouldReturnNullAsLocalPartWhenOriginIsConfigRepo()
+    {
+        environmentConfig.setOrigins(new RepoConfigOrigin());
+        assertNull(environmentConfig.getLocal());
     }
 
     @Test

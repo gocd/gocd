@@ -276,6 +276,7 @@
     <entry key="ENV_NOT_FOUND">Environment named ''{0}'' not found.</entry>
     <entry key="SHOW_ENVIRONMENT_PAGE_TITLE">{0} - Environment</entry>
     <entry key="SHOW_UNAVAILABLE_PIPELINES">Unavailable pipelines (Already associated with environments)</entry>
+    <entry key="SHOW_UNAVAILABLE_REMOTE_PIPELINES">Pipelines associated with this environment in configuration repository</entry>
     <entry key="SHOW_AVAILABLE_PIPELINES">Available pipelines</entry>
     <entry key="NO_AVAILABLE_PIPELINES">There are no available pipelines.</entry>
     <entry key="INVALID_CONFIG_ON_DISK">Invalid config on disk. Displaying the last known valid config (Editing config through Go will overwrite the invalid copy. Edit it on disk to fix this problem).</entry>

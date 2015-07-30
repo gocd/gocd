@@ -36,5 +36,10 @@ describe Java::JavaUtil::Date do
      formmated_date = joda_date.to_date.to_long_display_date_time
      formmated_date.should == "07 Jul, 2010 at 07:03:04 [+0530]"
   end
+  it "should convert date in UTC timezone" do
+    date           = DateTime.new(2010, 7, 7, 7, 3, 4, '+530')
+    formmated_date =java.util.Date.new(date.to_f*1000).as_json.to_s
+    formmated_date.should == "2010-07-07T01:33:04Z"
+  end
 
 end

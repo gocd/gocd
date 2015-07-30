@@ -45,7 +45,7 @@
                 <!-- Add pipelines tab -->
                 <div id="tab-content-of-env-pipelines">
                    <h2 class="section_title"><%= l.string('PIPELINES_TO_ADD') -%></h2>
-                    <%= render :partial => "edit_pipelines.html", :locals => {:scope => {:environment => scope[:environment], :available_pipelines => scope[:available_pipelines], :unavailable_pipelines => scope[:unavailable_pipelines]}} %>
+                    <%= render :partial => "edit_pipelines.html", :locals => {:scope => {:environment => scope[:environment], :available_pipelines => scope[:available_pipelines],:remote_pipelines => scope[:remote_pipelines], :unavailable_pipelines => scope[:unavailable_pipelines]}} %>
                     <div class="form_buttons actions">
                         <button class="left submit cancel_button"><span><%= l.string('CANCEL') -%></span></button>
                         <button id="next_to_pipelines" class="right primary next submit"><span><%= l.string('NEXT_BUTTON') -%></span></button>

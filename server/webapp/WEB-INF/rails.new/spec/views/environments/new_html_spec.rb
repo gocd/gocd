@@ -20,6 +20,7 @@ describe "environments/new.html.erb" do
   before do
     assign(:available_pipelines, [])
     assign(:unavailable_pipelines, [])
+    assign(:remote_pipelines, [])
     assign(:agents, [])
     assign(:environment, BasicEnvironmentConfig.new())
     allow(view).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))

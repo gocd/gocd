@@ -1,7 +1,7 @@
 <tr class="environment-variable-edit-row">
 
   <td class="name_value_cell">
-    <%= scope[:var_form].text_field :name, :class => 'form_input environment_variable_name', :id => nil -%>
+    <%= scope[:var_form].text_field :name, :class => 'form_input environment_variable_name', :disabled => scope[:disabled], :id => nil -%>
   </td>
 
   <td class="name_value_cell">
@@ -10,14 +10,14 @@
 
   <td class="name_value_cell">
     <% if scope[:is_secure] %>
-      <%= scope[:var_form].password_field :valueForDisplay, :class => 'form_input environment_variable_value', :id => nil, :readonly => scope[:is_readonly] ? 'readonly' : nil -%>
+      <%= scope[:var_form].password_field :valueForDisplay, :class => 'form_input environment_variable_value', :id => nil, :disabled => scope[:disabled], :readonly => scope[:is_readonly] ? 'readonly' : nil -%>
       <%= scope[:var_form].hidden_field :secure, value: true -%>
       <% if scope[:var_form].object %>
         <%= scope[:var_form].hidden_field :originalValue, value: scope[:var_form].object.getValueForDisplay, class: "original-secure-variable-value" -%>
       <% end %>
       <%= scope[:var_form].hidden_field com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED, value: scope[:is_changed], :class => "is-changed-field" -%>
     <% else %>
-      <%= scope[:var_form].text_field :valueForDisplay, :class => 'form_input environment_variable_value', :id => nil -%>
+      <%= scope[:var_form].text_field :valueForDisplay, :class => 'form_input environment_variable_value', :disabled => scope[:disabled], :id => nil -%>
     <% end %>
   </td>
 
@@ -29,7 +29,9 @@
   </td>
 
   <td class="name_value_cell icon_remove_cell">
-    <span class="icon_remove delete_parent"></span>
+    <% if !scope[:disabled] %>
+      <span class="icon_remove delete_parent"></span>
+    <% end %>
     <span class="wizard_error_message"></span>
   </td>
 

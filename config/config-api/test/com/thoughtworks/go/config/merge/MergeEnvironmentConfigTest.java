@@ -41,6 +41,7 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     private static final String AGENT_UUID = "uuid";
     private EnvironmentConfig localUatEnv1;
     private EnvironmentConfig uatLocalPart2;
+    private BasicEnvironmentConfig uatRemotePart;
 
     @Before
     public void setUp() throws Exception {
@@ -50,7 +51,7 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         singleEnvironmentConfig = new MergeEnvironmentConfig(localUatEnv1);
         uatLocalPart2 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart2.setOrigins(new FileConfigOrigin());
-        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatRemotePart.setOrigins(new RepoConfigOrigin());
         pairEnvironmentConfig = new MergeEnvironmentConfig(
                 uatLocalPart2,
@@ -64,6 +65,20 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     {
         new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
                 new BasicEnvironmentConfig(new CaseInsensitiveString("Two")));
+    }
+
+    @Test
+    public void getRemotePipelines_shouldReturnEmptyWhenOnlyLocalPartHasPipelines()
+    {
+        uatLocalPart2.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(pairEnvironmentConfig.getRemotePipelines().isEmpty(), is(true));
+    }
+
+    @Test
+    public void getRemotePipelines_shouldReturnPipelinesFromRemotePartWhenRemoteHasPipesAssigned()
+    {
+        uatRemotePart.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(false));
     }
 
     @Test

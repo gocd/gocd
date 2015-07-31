@@ -22,9 +22,9 @@ module ApiV1
       'http://api.go.cd/#pipelines'
     end
 
-    property :pipeline_name, as: :pipeline_name
-    property :pipeline_counter, as: :pipeline_counter
-    property :pipeline_label, as: :pipeline_label
+    property :pipeline_name, as: :name
+    property :pipeline_counter, as: :counter
+    property :pipeline_label, as: :label
 
   end
 end

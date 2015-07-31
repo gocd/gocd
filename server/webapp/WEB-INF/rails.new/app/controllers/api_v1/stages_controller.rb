@@ -34,7 +34,6 @@ module ApiV1
       else
 
         if result.isSuccess
-          puts self
           render json_hal_v1: StageRepresenter.new(stage_model).to_hash(url_builder: self)
         else
           render_http_operation_result(result)

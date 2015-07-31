@@ -20,7 +20,7 @@ describe ApiV1::StageSummaryRepresenter do
 
   it 'renders an stage with hal representation' do
 
-    presenter   = ApiV1::StageSummaryRepresenter.new(rerun_of_stage)
+    presenter   = ApiV1::StageSummaryRepresenter.new(stage)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc)
@@ -38,7 +38,7 @@ describe ApiV1::StageSummaryRepresenter do
     }
   end
 
-  def rerun_of_stage
+  def stage
     OpenStruct.new({
                      pipeline_name:    'pipeline',
                      pipeline_counter: 1,

@@ -14,25 +14,8 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
-  class StageHistoryRepresenter < BaseRepresenter
-    attr_accessor :stages, :pipeline_name, :stage_name
-
-    def initialize(stages, params)
-      @stages        = stages
-      @pipeline_name = params[:pipeline_name]
-      @stage_name    = params[:stage_name]
-    end
-
-    link :self do |opts|
-      opts[:url_builder].apiv1_stage_history_api_url(pipeline_name: pipeline_name, stage_name: stage_name)
-    end
-
-    link :doc do
-      'http://api.go.cd/#get-stage-history'
-    end
-
-    collection :stages, embedded: true, exec_context: :decorator, decorator: StageRepresenter
-
+java.lang.Enum.class_eval do
+  def as_json(options)
+    to_s
   end
 end

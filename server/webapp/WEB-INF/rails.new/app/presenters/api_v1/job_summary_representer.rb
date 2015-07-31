@@ -23,20 +23,20 @@ module ApiV1
     end
 
     property :getName, as: :name
-    property :scheduled_on, exec_context: :decorator
+    property :scheduled_at, exec_context: :decorator
     property :result, exec_context: :decorator
     property :state, exec_context: :decorator
 
     def result
-      job.try(:getResult).to_s
+      job.getResult
     end
 
-    def scheduled_on
-      job.try(:getScheduledDate)
+    def scheduled_at
+      job.getScheduledDate
     end
 
     def state
-      job.try(:getState).to_s
+      job.getState
     end
 
   end

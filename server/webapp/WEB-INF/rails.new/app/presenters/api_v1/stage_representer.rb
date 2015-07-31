@@ -35,7 +35,7 @@ module ApiV1
     property :result, exec_context: :decorator
     property :getCounter, as: :counter
     property :getApprovalType, as: :stage_type
-    property :rerun_of_stage, exec_context: :decorator, decorator: StageSummaryRepresenter
+    property :rerun_of, exec_context: :decorator, decorator: StageSummaryRepresenter
 
     property :triggered_by, exec_context: :decorator, decorator: lambda { |thing, *|
                             if thing == com.thoughtworks.go.util.GoConstants::DEFAULT_APPROVED_BY
@@ -48,7 +48,7 @@ module ApiV1
     collection :jobs, embedded: true, exec_context: :decorator, decorator: JobSummaryRepresenter
 
     def result
-      stage.getResult().to_s if stage.getResult()
+      stage.getResult()
     end
 
     def pipeline
@@ -67,14 +67,13 @@ module ApiV1
       else
         stage.getJobInstances()
       end
-
     end
 
     def triggered_by
-      stage.try(:getApprovedBy)
+      stage.getApprovedBy()
     end
 
-    def rerun_of_stage
+    def rerun_of
       if stage.getRerunOfCounter
         OpenStruct.new({
                          pipeline_name:    stage.getIdentifier().getPipelineName,

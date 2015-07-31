@@ -37,10 +37,10 @@ describe ApiV1::PipelineSummaryRepresenter do
 
   def pipeline_hash(pipeline_instacne)
     {
-      pipeline_name:    pipeline_instacne.pipeline_name,
-      pipeline_counter: pipeline_instacne.pipeline_counter,
-      pipeline_label:   pipeline_instacne.pipeline_label
+      name:    pipeline_instacne.pipeline_name,
+      counter: pipeline_instacne.pipeline_counter,
+      label:   pipeline_instacne.pipeline_label
     }
   end
-  
+
 end

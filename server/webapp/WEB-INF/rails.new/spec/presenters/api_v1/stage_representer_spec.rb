@@ -41,7 +41,7 @@ describe ApiV1::StageRepresenter do
   def stage_hash(stage_model)
     {
       name:           'stage',
-      result:         'Passed',
+      result:         StageResult::Passed,
       counter:        2,
       stage_type:     'success',
       rerun_of_stage: ApiV1::StageSummaryRepresenter.new(rerun_of_stage).to_hash(url_builder: UrlBuilder.new),

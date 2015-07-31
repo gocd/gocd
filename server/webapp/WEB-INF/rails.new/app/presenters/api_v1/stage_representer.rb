@@ -48,7 +48,7 @@ module ApiV1
     collection :jobs, embedded: true, exec_context: :decorator, decorator: JobSummaryRepresenter
 
     def result
-      stage.getResult().to_s if stage.getResult()
+      stage.getResult()
     end
 
     def pipeline
@@ -67,11 +67,10 @@ module ApiV1
       else
         stage.getJobInstances()
       end
-
     end
 
     def triggered_by
-      stage.try(:getApprovedBy)
+      stage.getApprovedBy()
     end
 
     def rerun_of_stage

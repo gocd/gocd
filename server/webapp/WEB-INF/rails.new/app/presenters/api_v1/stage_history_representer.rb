@@ -25,7 +25,6 @@ module ApiV1
     end
 
     link :self do |opts|
-      puts stage_name
       opts[:url_builder].apiv1_stage_history_api_url(pipeline_name: pipeline_name, stage_name: stage_name)
     end
 

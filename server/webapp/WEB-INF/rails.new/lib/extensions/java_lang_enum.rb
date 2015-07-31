@@ -14,30 +14,8 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
-  class JobSummaryRepresenter < ApiV1::BaseRepresenter
-    alias_method :job, :represented
-
-    link :doc do |opts|
-      'http://api.go.cd/#jobs'
-    end
-
-    property :getName, as: :name
-    property :scheduled_on, exec_context: :decorator
-    property :result, exec_context: :decorator
-    property :state, exec_context: :decorator
-
-    def result
-      job.getResult
-    end
-
-    def scheduled_on
-      job.getScheduledDate
-    end
-
-    def state
-      job.getState
-    end
-
+java.lang.Enum.class_eval do
+  def as_json(options)
+    to_s
   end
 end

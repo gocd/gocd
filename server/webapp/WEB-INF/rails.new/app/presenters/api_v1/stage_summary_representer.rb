@@ -14,11 +14,21 @@
 # limitations under the License.
 ##########################################################################
 
+module ApiV1
+  class StageSummaryRepresenter < ApiV1::BaseRepresenter
+    alias_method :stage, :represented
 
-# Knows to render a java date to JSON
-# Inspired from `active_support/json/encoding.rb`
-class Java::JavaUtil::Date
-  def as_json(options = nil) #:nodoc:
-    org.apache.commons.lang.time.FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SZZ").format(self)
+    link :self do |opts|
+      opts[:url_builder].apiv1_stage_instance_by_counter_api_url(pipeline_name:    stage.pipeline_name,
+                                                                 pipeline_counter: stage.pipeline_counter,
+                                                                 stage_counter:    stage.stage_counter,
+                                                                 stage_name:       stage.stage_name)
+    end
+
+    link :doc do |opts|
+      'http://api.go.cd/#get-stage-instance'
+    end
+
+    property :stage_counter, as: :counter
   end
 end

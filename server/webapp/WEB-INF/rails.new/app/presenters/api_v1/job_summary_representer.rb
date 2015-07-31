@@ -23,7 +23,7 @@ module ApiV1
     end
 
     property :getName, as: :name
-    property :scheduled_on, exec_context: :decorator
+    property :scheduled_at, exec_context: :decorator
     property :result, exec_context: :decorator
     property :state, exec_context: :decorator
 
@@ -31,7 +31,7 @@ module ApiV1
       job.getResult
     end
 
-    def scheduled_on
+    def scheduled_at
       job.getScheduledDate
     end
 

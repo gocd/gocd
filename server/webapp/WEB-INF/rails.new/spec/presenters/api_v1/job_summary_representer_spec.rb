@@ -35,7 +35,7 @@ describe ApiV1::JobSummaryRepresenter do
     {
       name:         job_instance.getName(),
       result:       job_instance.getResult(),
-      scheduled_on: job_instance.getScheduledDate,
+      scheduled_at: job_instance.getScheduledDate,
       state:        job_instance.getState()
     }
   end

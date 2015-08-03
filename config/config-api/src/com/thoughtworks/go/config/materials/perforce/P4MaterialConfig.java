@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
@@ -324,5 +325,21 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     @Override
     public String getFolder() {
         return folder;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "perforce");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        configurationMap.put("url", serverAndPort);
+        configurationMap.put("username", userName);
+        if (addSecureFields) {
+            configurationMap.put("password", getPassword());
+        }
+        configurationMap.put("view", getView());
+        configurationMap.put("use-tickets", useTickets);
+        materialMap.put("perforce-configuration", configurationMap);
+        return materialMap;
     }
 }

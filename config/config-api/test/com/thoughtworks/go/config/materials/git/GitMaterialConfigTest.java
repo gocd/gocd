@@ -66,4 +66,26 @@ public class GitMaterialConfigTest {
         gitMaterialConfig.setConfigAttributes(null);
         assertThat(gitMaterialConfig, is(new GitMaterialConfig("")));
     }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        GitMaterialConfig git = new GitMaterialConfig("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
+        Map<String, Object> attributes = git.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("git"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:password@gitrepo.com"));
+        assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        GitMaterialConfig git = new GitMaterialConfig("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
+        Map<String, Object> attributes = git.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("git"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:******@gitrepo.com"));
+        assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+    }
 }

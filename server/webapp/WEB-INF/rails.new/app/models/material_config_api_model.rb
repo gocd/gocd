@@ -15,11 +15,24 @@
 ##########################GO-LICENSE-END##################################
 
 class MaterialConfigAPIModel
-  attr_reader :fingerprint, :type, :description
-
   def initialize(material_config_model)
-    @fingerprint = material_config_model.getFingerprint()
-    @type = material_config_model.getTypeForDisplay()
-    @description = material_config_model.getLongDescription()
+    @attributes = Hash.new
+    @attributes[:fingerprint] = material_config_model.getFingerprint()
+    populate_map(@attributes, material_config_model.getAttributes(false))
+  end
+
+  def populate_map(ruby_map, java_map)
+    java_map.each do |key, value|
+      if (value.instance_of? java.util.HashMap)
+        ruby_map[key] = Hash.new
+        populate_map(ruby_map[key], value)
+      else
+        ruby_map[key] = value
+      end
+    end
+  end
+
+  def as_json(options = {})
+    @attributes
   end
 end

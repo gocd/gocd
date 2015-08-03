@@ -66,4 +66,24 @@ public class HgMaterialConfigTest {
 
         assertThat(hgMaterialConfig, is(new HgMaterialConfig("", null)));
     }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        HgMaterialConfig material = new HgMaterialConfig("http://username:password@hgrepo.com", null);
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("mercurial"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:password@hgrepo.com"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        HgMaterialConfig material = new HgMaterialConfig("http://username:password@hgrepo.com", null);
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("mercurial"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:******@hgrepo.com"));
+    }
 }

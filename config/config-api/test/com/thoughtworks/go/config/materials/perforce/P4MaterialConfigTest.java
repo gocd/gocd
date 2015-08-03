@@ -162,4 +162,36 @@ public class P4MaterialConfigTest {
         p4MaterialConfig.setConfigAttributes(new HashMap());
         assertThat(p4MaterialConfig.getUseTickets(), is(false));
     }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        P4MaterialConfig material = new P4MaterialConfig("host:1234", "view", "username");
+        material.setPassword("password");
+        material.setUseTickets(true);
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("perforce"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
+        assertThat((String) configuration.get("url"), is("host:1234"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat((String) configuration.get("password"), is("password"));
+        assertThat((String) configuration.get("view"), is("view"));
+        assertThat((Boolean) configuration.get("use-tickets"), is(true));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        P4MaterialConfig material = new P4MaterialConfig("host:1234", "view", "username");
+        material.setPassword("password");
+        material.setUseTickets(true);
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("perforce"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
+        assertThat((String) configuration.get("url"), is("host:1234"));
+        assertThat((String) configuration.get("username"), is("username"));
+        assertThat(configuration.get("password"), is(nullValue()));
+        assertThat((String) configuration.get("view"), is("view"));
+        assertThat((Boolean) configuration.get("use-tickets"), is(true));
+    }
 }

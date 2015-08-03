@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -170,5 +171,19 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (map.containsKey(URL)) {
             this.url = new HgUrlArgument((String) map.get(URL));
         }
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "mercurial");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        if (addSecureFields) {
+            configurationMap.put("url", url.forCommandline());
+        } else {
+            configurationMap.put("url", url.forDisplay());
+        }
+        materialMap.put("mercurial-configuration", configurationMap);
+        return materialMap;
     }
 }

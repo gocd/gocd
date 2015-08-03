@@ -179,4 +179,22 @@ public class DependencyMaterialConfigTest {
 
         assertThat(dependencyMaterialConfig.getMaterialName(), is(nullValue()));
     }
+
+    @Test
+    public void shouldGetAttributesAllFields() {
+        DependencyMaterialConfig material = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+
+        Map<String, Object> attributesWithSecureFields = material.getAttributes(true);
+        assertAttributes(attributesWithSecureFields);
+
+        Map<String, Object> attributesWithoutSecureFields = material.getAttributes(false);
+        assertAttributes(attributesWithoutSecureFields);
+    }
+
+    private void assertAttributes(Map<String, Object> attributes) {
+        assertThat((String) attributes.get("type"), is("pipeline"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("pipeline-configuration");
+        assertThat((String) configuration.get("pipeline-name"), is("pipeline-name"));
+        assertThat((String) configuration.get("stage-name"), is("stage-name"));
+    }
 }

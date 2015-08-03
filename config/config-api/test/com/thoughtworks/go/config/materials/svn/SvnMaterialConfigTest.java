@@ -121,4 +121,30 @@ public class SvnMaterialConfigTest {
         assertThat(svnMaterial.getPassword(), is(nullValue()));
         assertThat(svnMaterial.getEncryptedPassword(), is(nullValue()));
     }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        SvnMaterialConfig material = new SvnMaterialConfig("http://username:password@svnrepo.com", "user", "password", true);
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("svn"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:password@svnrepo.com"));
+        assertThat((String) configuration.get("username"), is("user"));
+        assertThat((String) configuration.get("password"), is("password"));
+        assertThat((Boolean) configuration.get("check-externals"), is(true));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        SvnMaterialConfig material = new SvnMaterialConfig("http://username:password@svnrepo.com", "user", "password", true);
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("svn"));
+        Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
+        assertThat((String) configuration.get("url"), is("http://username:******@svnrepo.com"));
+        assertThat((String) configuration.get("username"), is("user"));
+        assertThat(configuration.get("password"), is(nullValue()));
+        assertThat((Boolean) configuration.get("check-externals"), is(true));
+    }
 }

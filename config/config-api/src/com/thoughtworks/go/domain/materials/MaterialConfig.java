@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigInterface;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
+
+import java.io.Serializable;
+import java.util.Map;
 
 @ConfigInterface
 public interface MaterialConfig extends Serializable, Validatable {
@@ -70,4 +70,6 @@ public interface MaterialConfig extends Serializable, Validatable {
     String getShortRevision(String revision);
 
     String getTruncatedDisplayName();
+
+    public Map<String, Object> getAttributes(boolean addSecureFields);
 }

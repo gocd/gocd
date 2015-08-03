@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.dependency;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -257,5 +258,16 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     @Override
     protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
         // Dependency materials are already unique within a pipeline
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "pipeline");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        configurationMap.put("pipeline-name", pipelineName.toString());
+        configurationMap.put("stage-name", stageName.toString());
+        materialMap.put("pipeline-configuration", configurationMap);
+        return materialMap;
     }
 }

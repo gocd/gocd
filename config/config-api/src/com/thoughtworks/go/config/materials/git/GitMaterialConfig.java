@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.git;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -207,5 +208,20 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         if (map.containsKey(URL)) {
             this.url = new UrlArgument((String) map.get(URL));
         }
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "git");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        if (addSecureFields) {
+            configurationMap.put("url", url.forCommandline());
+        } else {
+            configurationMap.put("url", url.forDisplay());
+        }
+        configurationMap.put("branch", branch);
+        materialMap.put("git-configuration", configurationMap);
+        return materialMap;
     }
 }

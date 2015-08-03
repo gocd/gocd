@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -167,6 +168,18 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
     @Override
     public String getLongDescription() {
         return getUriForDisplay();
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "package");
+        materialMap.put("plugin-id", getPluginId());
+        Map<String, Object> repositoryConfigurationMap = packageDefinition.getRepository().getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("repository-configuration", repositoryConfigurationMap);
+        Map<String, Object> packageConfigurationMap = packageDefinition.getConfiguration().getConfigurationAsMap(addSecureFields);
+        materialMap.put("package-configuration", packageConfigurationMap);
+        return materialMap;
     }
 
     public void setPackageDefinition(PackageDefinition packageDefinition) {

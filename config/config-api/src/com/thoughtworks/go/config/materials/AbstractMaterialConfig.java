@@ -250,6 +250,11 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         return materialName != null && pipelineConfig.getLabelTemplate().toLowerCase().contains(String.format("${%s}", materialName.toLower()));
     }
 
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        throw new RuntimeException("You need to implement this");
+    }
+
     protected void resetCachedIdentityAttributes() {
         sqlCriteria = null;
         attributesForXml = null;

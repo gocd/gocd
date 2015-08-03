@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -163,5 +164,43 @@ public class PackageMaterialConfigTest {
         assertThat(materialConfig.isAutoUpdate(), is(false));
 
         verify(packageDefinition).isAutoUpdate();
+    }
+
+    @Test
+    public void shouldGetAttributesWithSecureFields() {
+        PackageMaterialConfig material = createPackageMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(true);
+
+        assertThat((String) attributes.get("type"), is("package"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
+        assertThat((String) repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat((String) repositoryConfiguration.get("k2"), is("repo-v2"));
+        Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
+        assertThat((String) packageConfiguration.get("k3"), is("package-v1"));
+        assertThat((String) packageConfiguration.get("k4"), is("package-v2"));
+    }
+
+    @Test
+    public void shouldGetAttributesWithoutSecureFields() {
+        PackageMaterialConfig material = createPackageMaterialWithSecureConfiguration();
+        Map<String, Object> attributes = material.getAttributes(false);
+
+        assertThat((String) attributes.get("type"), is("package"));
+        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
+        assertThat((String) repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat(repositoryConfiguration.get("k2"), is(nullValue()));
+        Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
+        assertThat((String) packageConfiguration.get("k3"), is("package-v1"));
+        assertThat(packageConfiguration.get("k4"), is(nullValue()));
+    }
+
+    private PackageMaterialConfig createPackageMaterialWithSecureConfiguration() {
+        PackageMaterialConfig material = MaterialConfigsMother.packageMaterialConfig();
+        material.getPackageDefinition().getRepository().getConfiguration().get(1).handleSecureValueConfiguration(true);
+        material.getPackageDefinition().getConfiguration().addNewConfigurationWithValue("k4", "package-v2", false);
+        material.getPackageDefinition().getConfiguration().get(1).handleSecureValueConfiguration(true);
+        return material;
     }
 }

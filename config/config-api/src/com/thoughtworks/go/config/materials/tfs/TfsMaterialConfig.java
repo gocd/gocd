@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.tfs;
 
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
@@ -283,6 +284,25 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (map.containsKey(PROJECT_PATH)) {
             this.projectPath = (String) map.get(PROJECT_PATH);
         }
+    }
 
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<String, Object>();
+        materialMap.put("type", "tfs");
+        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        if (addSecureFields) {
+            configurationMap.put("url", url.forCommandline());
+        } else {
+            configurationMap.put("url", url.forDisplay());
+        }
+        configurationMap.put("domain", domain);
+        configurationMap.put("username", userName);
+        if (addSecureFields) {
+            configurationMap.put("password", getPassword());
+        }
+        configurationMap.put("project-path", projectPath);
+        materialMap.put("tfs-configuration", configurationMap);
+        return materialMap;
     }
 }

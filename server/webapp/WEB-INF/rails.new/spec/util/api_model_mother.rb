@@ -373,17 +373,23 @@ module APIModelMother
     @pipeline_status_model
   end
 
+  def create_job_config_model
+    @job_config_view_model = double('JobConfigViewModel')
+    @job_config_view_model.stub(:name).and_return('stage name')
+    @job_config_view_model
+  end
+
   def create_stage_config_model
     @stage_config_view_model = double('StageConfigViewModel')
     @stage_config_view_model.stub(:name).and_return('stage name')
+    @stage_config_view_model.stub(:getJobs).and_return([create_job_config_model])
     @stage_config_view_model
   end
 
   def create_material_config_model
     @material_config_view_model = double('MaterialConfigViewModel')
     @material_config_view_model.stub(:getFingerprint).and_return('fingerprint')
-    @material_config_view_model.stub(:getTypeForDisplay).and_return('git')
-    @material_config_view_model.stub(:getLongDescription).and_return('URL: http://test.com Branch: master')
+    @material_config_view_model.stub(:getAttributes).and_return({:type => 'git', 'git-configuration' => {:url => 'http://git-scm.com'}})
     @material_config_view_model
   end
 
@@ -391,6 +397,7 @@ module APIModelMother
     @pipeline_config_view_model = double('PipelineConfigViewModel')
     @pipeline_config_view_model.stub(:name).and_return('pipeline name')
     @pipeline_config_view_model.stub(:getLabelTemplate).and_return('label')
+    @pipeline_config_view_model.stub(:getTemplateName).and_return('template name')
     @pipeline_config_view_model.stub(:materialConfigs).and_return([create_material_config_model])
     @pipeline_config_view_model.stub(:getStages).and_return([create_stage_config_model])
     @pipeline_config_view_model

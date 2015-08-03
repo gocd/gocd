@@ -29,7 +29,7 @@ Java::JavaUtil::Date.class_eval do
   end
 
   def as_json(options = nil)
-    Time.zone.at(self.getTime().to_f/1000).utc.as_json(options)
+    Time.zone.at(self.getTime().to_f/1000).as_json(options)
   end
 
 end

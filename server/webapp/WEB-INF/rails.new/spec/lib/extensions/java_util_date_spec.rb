@@ -40,7 +40,7 @@ describe Java::JavaUtil::Date do
   it "should convert date in UTC timezone" do
     date           = DateTime.new(2010, 7, 7, 7, 3, 4, '+530')
     formmated_date =java.util.Date.new(date.to_f*1000).as_json.to_s
-    formmated_date.should == "2010-07-07T01:33:04Z"
+    formmated_date.should == "2010-07-07T01:33:04.000Z"
   end
 
 end

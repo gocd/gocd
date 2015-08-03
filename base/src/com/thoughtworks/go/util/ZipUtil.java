@@ -112,6 +112,12 @@ public class ZipUtil {
         }
     }
 
+    private void bombIfZipEntryPathContainsDirectoryTraversalCharacters(String filepath) {
+        if (filepath.contains("..")) {
+            throw new IllegalStateException(String.format("File %s is outside extraction target directory", filepath));
+        }
+    }
+
     public void unzip(ZipInputStream zipInputStream, File destDir) throws IOException {
         destDir.mkdirs();
         ZipEntry zipEntry = zipInputStream.getNextEntry();
@@ -127,6 +133,7 @@ public class ZipUtil {
     }
 
     private void extractTo(ZipEntry entry, InputStream entryInputStream, File toDir) throws IOException {
+        bombIfZipEntryPathContainsDirectoryTraversalCharacters(entry.getName());
         String entryName = nonRootedEntryName(entry);
 
         File outputFile = new File(toDir, entryName);

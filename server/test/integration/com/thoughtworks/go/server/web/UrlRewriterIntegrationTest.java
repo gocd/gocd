@@ -72,7 +72,7 @@ public class UrlRewriterIntegrationTest {
     public String originalSslPort;
 
     public UrlRewriterIntegrationTest() throws Exception {
-        ServletHelper.init(true);
+        ServletHelper.init();
         httpUtil = new HttpTestUtil(new HttpTestUtil.ContextCustomizer() {
             public void customize(WebAppContext ctx) throws Exception {
                 wac = mock(WebApplicationContext.class);

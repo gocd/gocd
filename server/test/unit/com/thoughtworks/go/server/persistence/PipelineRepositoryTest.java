@@ -17,11 +17,13 @@
 package com.thoughtworks.go.server.persistence;
 
 
+import com.thoughtworks.go.database.QueryExtensions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hibernate.SessionFactory;
@@ -40,6 +42,8 @@ public class PipelineRepositoryTest {
     private HibernateTemplate hibernateTemplate;
     private PipelineRepository pipelineRepository;
     private SystemEnvironment systemEnvironment;
+    private DatabaseStrategy databaseStrategy;
+    private QueryExtensions queryExtensions;
 
     @Before
     public void setup() {
@@ -47,7 +51,10 @@ public class PipelineRepositoryTest {
         hibernateTemplate = mock(HibernateTemplate.class);
         goCache = mock(GoCache.class);
         systemEnvironment = mock(SystemEnvironment.class);
-        pipelineRepository = new PipelineRepository(sessionFactory, goCache,systemEnvironment);
+        databaseStrategy = mock(DatabaseStrategy.class);
+        queryExtensions = mock(QueryExtensions.class);
+        when(databaseStrategy.getQueryExtensions()).thenReturn(queryExtensions);
+        pipelineRepository = new PipelineRepository(sessionFactory, goCache,systemEnvironment, databaseStrategy);
         pipelineRepository.setHibernateTemplate(hibernateTemplate);
     }
 

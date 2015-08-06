@@ -60,6 +60,10 @@
       <param-value>development</param-value>
     </context-param>
 
+    <context-param>
+      <param-name>rack.env</param-name>
+      <param-value>development</param-value>
+    </context-param>
 
     <context-param>
         <param-name>rails.root</param-name>

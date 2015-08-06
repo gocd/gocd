@@ -58,7 +58,6 @@ public class MagicalGoConfigXmlLoader {
             new ArtifactDirValidator(),
             new EnvironmentAgentValidator(),
             new EnvironmentPipelineValidator(),
-            new JobNameValidator(),
             new ServerIdImmutabilityValidator(),
             new CommandRepositoryLocationValidator(new SystemEnvironment())
     );

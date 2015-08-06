@@ -151,12 +151,14 @@ public class FetchTaskTest {
         validateAndAssertIncorrectPath("/src", true, "dest", FetchTask.SRC);
         validateAndAssertIncorrectPath("../src", true, "dest", FetchTask.SRC);
         validateAndAssertIncorrectPath("..", true, "dest", FetchTask.SRC);
+        validateAndAssertIncorrectPath("first-level/../../../going-back", true, "dest", FetchTask.SRC);
     }
 
     @Test
     public void shouldFailValidationWhenSrcFileIsOutsideAgentSandbox() {
         validateAndAssertIncorrectPath("/src/junk.txt", false, "dest", FetchTask.SRC);
         validateAndAssertIncorrectPath("../junk.txt", false, "dest", FetchTask.SRC);
+        validateAndAssertIncorrectPath("first-level/../../../going-back/file.txt", false, "dest", FetchTask.SRC);
     }
 
     @Test
@@ -164,6 +166,7 @@ public class FetchTaskTest {
         validateAndAssertIncorrectPath("src", false, "/dest", FetchTask.DEST);
         validateAndAssertIncorrectPath("src", false, "../dest", FetchTask.DEST);
         validateAndAssertIncorrectPath("src", false, "..", FetchTask.DEST);
+        validateAndAssertIncorrectPath("src", false, "first-level/../../../going-back", FetchTask.DEST);
     }
 
     @Test

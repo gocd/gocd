@@ -14,9 +14,10 @@ gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
 gem 'versionist'
 gem 'roar'
 
-group :test do
+group :development, :test do
   gem 'minitest'
   gem "jasmine"
+  gem "jasmine-rails"
   gem 'selenium-webdriver'
   gem 'jasmine-jquery-rails'
   gem 'jasmine-junitreporter'

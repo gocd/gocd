@@ -29,6 +29,7 @@ module ApiV1
       'http://api.go.cd/#get-stage-instance'
     end
 
+    property :stage_name, as: :name
     property :stage_counter, as: :counter
   end
 end

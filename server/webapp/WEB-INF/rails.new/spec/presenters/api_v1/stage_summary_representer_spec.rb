@@ -34,6 +34,7 @@ describe ApiV1::StageSummaryRepresenter do
 
   def stage_hash
     {
+      name:    'stage',
       counter: 2
     }
   end

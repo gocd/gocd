@@ -38,6 +38,7 @@ module ApiV1
     property :getStatusForDisplay, as: :status
     property :getOperatingSystem, as: :operating_system
     property :free_space, exec_context: :decorator
+    property :elastic, exec_context: :decorator
     property :resources, exec_context: :decorator
     property :environments, exec_context: :decorator
 
@@ -54,6 +55,15 @@ module ApiV1
         agent.freeDiskSpace().space
       else
         'unknown'
+      end
+    end
+
+    def elastic
+      if elastic_runtime_info = agent.getElasticAgentRuntimeInfo
+        {
+          agent_id:  elastic_runtime_info.getAgentId,
+          plugin_id: elastic_runtime_info.getPluginId
+        }
       end
     end
   end

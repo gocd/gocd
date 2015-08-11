@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.SystemEnvironment;

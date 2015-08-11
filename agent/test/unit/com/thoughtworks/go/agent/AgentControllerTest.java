@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
@@ -36,10 +37,13 @@ import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
@@ -82,6 +86,8 @@ public class AgentControllerTest {
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
     private AgentController agentController;
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
@@ -194,10 +200,12 @@ public class AgentControllerTest {
 
     @Test
     public void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
+        File configFile = folder.newFile();
+
         agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
         InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
         agentController.loop();
         inOrder.verify(agentUpgradeService).checkForUpgrade();
-        inOrder.verify(sslInfrastructureService).registerIfNecessary();
+        inOrder.verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
     }
 }

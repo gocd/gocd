@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
@@ -67,6 +68,7 @@ public class AgentController {
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
+    private final AgentAutoRegistrationProperties agentAutoRegistrationProperties;
 
     @Autowired
     public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
@@ -85,6 +87,7 @@ public class AgentController {
         this.subprocessLogger = subprocessLogger;
         this.systemEnvironment = systemEnvironment;
         PluginManagerReference.reference().setPluginManager(pluginManager);
+        this.agentAutoRegistrationProperties = new AgentAutoRegistrationProperties(new File("config", "autoregister.properties"));
     }
 
     void init() throws IOException {
@@ -92,6 +95,7 @@ public class AgentController {
         sslInfrastructureService.createSslInfrastructure();
         AgentIdentifier identifier = agentIdentifier();
         agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, systemEnvironment.getAgentLauncherVersion());
+        agentRuntimeInfo.refreshElasticAgentProperties(agentAutoRegistrationProperties);
         subprocessLogger.registerAsExitHook("Following processes were alive at shutdown: ");
     }
 
@@ -127,7 +131,7 @@ public class AgentController {
                 LOG.debug("[Agent Loop] Trying to retrieve work.");
             }
             agentUpgradeService.checkForUpgrade();
-            sslInfrastructureService.registerIfNecessary();
+            sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
             retrieveCookieIfNecessary();
             retrieveWork();
             if (LOG.isDebugEnabled()) {
@@ -209,4 +213,7 @@ public class AgentController {
         }
     }
 
+    public AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
+        return agentAutoRegistrationProperties;
+    }
 }

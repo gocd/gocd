@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.io.File;
 import java.io.Serializable;
 
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -44,6 +45,7 @@ public class AgentRuntimeInfo implements Serializable {
     private volatile String operatingSystemName;
     private volatile String cookie;
     private volatile String agentLauncherVersion;
+    private volatile ElasticAgentRuntimeInfo elasticAgentRuntimeInfo;
 
     private AgentRuntimeInfo(AgentIdentifier identifier, AgentStatus status, String location, String cookie) {
         this(identifier, status, location, cookie, null);
@@ -100,6 +102,10 @@ public class AgentRuntimeInfo implements Serializable {
     private void refresh() {
         refreshUsableSpace();
         refreshOperatingSystem();
+    }
+
+    public void refreshElasticAgentProperties(AgentAutoRegistrationProperties refreshElasticAgentProperties) {
+        this.elasticAgentRuntimeInfo = ElasticAgentRuntimeInfo.createFrom(refreshElasticAgentProperties);
     }
 
     private void refreshOperatingSystem() {
@@ -306,6 +312,7 @@ public class AgentRuntimeInfo implements Serializable {
         if (newRuntimeInfo.isCancelled()) {
             this.setRuntimeStatus(AgentRuntimeStatus.Cancelled, null);
         }
+        this.elasticAgentRuntimeInfo = newRuntimeInfo.getElasticAgentRuntimeInfo();
         this.location = newRuntimeInfo.getLocation();
         this.usableSpace = newRuntimeInfo.getUsableSpace();
         this.operatingSystemName = newRuntimeInfo.getOperatingSystem();
@@ -318,5 +325,13 @@ public class AgentRuntimeInfo implements Serializable {
 
     public void setAgentLauncherVersion(String agentLauncherVersion) {
         this.agentLauncherVersion = agentLauncherVersion;
+    }
+
+    public ElasticAgentRuntimeInfo getElasticAgentRuntimeInfo() {
+        return elasticAgentRuntimeInfo;
+    }
+
+    public void setElasticAgentRuntimeInfo(ElasticAgentRuntimeInfo elasticAgentRuntimeInfo) {
+        this.elasticAgentRuntimeInfo = elasticAgentRuntimeInfo;
     }
 }

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class JobController {
         this.localizer = localizer;
     }
 
-    @RequestMapping(value = "/build/recent", method = RequestMethod.GET)
+    @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
     public ModelAndView jobDetail(@RequestParam("pipelineName") String pipelineName,
                                   @RequestParam("label") String counterOrLabel,
                                   @RequestParam("stageName") String stageName,

@@ -27,6 +27,8 @@
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
 
-    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+        <property name="alwaysUseFullPath" value="true"></property>
+    </bean>
 
 </beans>

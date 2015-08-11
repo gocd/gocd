@@ -98,6 +98,7 @@
                 <value>HEAD</value>
             </list>
         </property>
+        <property name="alwaysUseFullPath" value="true"></property>
     </bean>
     <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
     <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>

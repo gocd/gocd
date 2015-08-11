@@ -41,6 +41,7 @@
                 <ref bean="jsonpInterceptor"/>
             </list>
         </property>
+        <property name="alwaysUseFullPath" value="true"></property>
     </bean>
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>

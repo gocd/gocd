@@ -56,7 +56,7 @@ public class GoConfigAdministrationController {
         this.securityService = securityService;
     }
 
-    @RequestMapping("/restful/configuration/build/GET/xml")
+    @RequestMapping("/admin/restful/configuration/build/GET/xml")
     @Deprecated
     public void getBuildAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                      @RequestParam("stageName")String stageName,
@@ -66,7 +66,7 @@ public class GoConfigAdministrationController {
         getXmlPartial(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)), md5, goConfigService.buildSaver(pipelineName, stageName, buildIndex)).respond(response);
     }
 
-    @RequestMapping("/restful/configuration/stage/GET/xml")
+    @RequestMapping("/admin/restful/configuration/stage/GET/xml")
     @Deprecated
     public void getStageAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                      @RequestParam("stageIndex")int stageIndex,
@@ -75,7 +75,7 @@ public class GoConfigAdministrationController {
         getXmlPartial(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)), md5, goConfigService.stageSaver(pipelineName, stageIndex)).respond(response);
     }
 
-    @RequestMapping("/restful/configuration/pipeline/GET/xml")
+    @RequestMapping("/admin/restful/configuration/pipeline/GET/xml")
     @Deprecated
     public void getPipelineAsXmlPartial(@RequestParam("pipelineIndex")int pipelineIndex,
                                         @RequestParam("pipelineGroup")String groupName,
@@ -88,19 +88,19 @@ public class GoConfigAdministrationController {
         }
     }
 
-    @RequestMapping("/restful/configuration/file/GET/xml")
+    @RequestMapping("/admin/restful/configuration/file/GET/xml")
     public void getCurrentConfigXml(@RequestParam(value = "md5", required = false) String md5, HttpServletResponse response) throws Exception {
         getXmlPartial(null, md5, goConfigService.fileSaver(false)).respond(response);
     }
 
-    @RequestMapping("/restful/configuration/file/GET/historical-xml")
+    @RequestMapping("/admin/restful/configuration/file/GET/historical-xml")
     public void getConfigRevision(@RequestParam(value = "version", required = true) String version, HttpServletResponse response) throws Exception {
         GoConfigRevision configRevision = goConfigService.getConfigAtVersion(version);
         String md5 = configRevision.getMd5();
         XmlAction.xmlFound(configRevision.getContent(), md5).respond(response);
     }
 
-    @RequestMapping("/restful/configuration/group/GET/xml")
+    @RequestMapping("/admin/restful/configuration/group/GET/xml")
     @Deprecated
     public void getGroupAsXmlPartial(@RequestParam("pipelineGroup")String groupName,
                                      @RequestParam(value = "md5", required = false)String md5,
@@ -112,7 +112,7 @@ public class GoConfigAdministrationController {
         getXmlPartial(groupName, md5, goConfigService.groupSaver(groupName)).respond(response);
     }
 
-    @RequestMapping("/restful/configuration/group/POST/xml")
+    @RequestMapping("/admin/restful/configuration/group/POST/xml")
     public ModelAndView postGroupAsXmlPartial(@RequestParam("pipelineGroup")String pipelineGroupName,
                                               @RequestParam("xmlPartial")String xmlPartial,
                                               @RequestParam("md5")String md5,
@@ -124,7 +124,7 @@ public class GoConfigAdministrationController {
     }
 
 
-    @RequestMapping("/restful/configuration/build/POST/xml")
+    @RequestMapping("/admin/restful/configuration/build/POST/xml")
     @Deprecated
     public ModelAndView postBuildAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                               @RequestParam("stageName")String stageName,
@@ -136,7 +136,7 @@ public class GoConfigAdministrationController {
                 xmlPartial, "JobConfig changed successfully.", md5).respond(response);
     }
 
-    @RequestMapping("/restful/configuration/stage/POST/xml")
+    @RequestMapping("/admin/restful/configuration/stage/POST/xml")
     @Deprecated
     public ModelAndView postStageAsXmlPartial(@RequestParam("pipelineName")String pipelineName,
                                               @RequestParam("stageIndex")int stageIndex,
@@ -147,7 +147,7 @@ public class GoConfigAdministrationController {
                 xmlPartial, "Stage changed successfully.", md5).respond(response);
     }
 
-    @RequestMapping("/restful/configuration/pipeline/POST/xml")
+    @RequestMapping("/admin/restful/configuration/pipeline/POST/xml")
     @Deprecated
     public ModelAndView postPipelineAsXmlPartial(@RequestParam("pipelineIndex")int pipelineIndex,
                                                  @RequestParam("pipelineGroup")String groupName,
@@ -197,7 +197,7 @@ public class GoConfigAdministrationController {
         return String.format("User '%s' does not have permissions to administer pipeline group '%s'", getCurrentUsername(), groupName);
     }
 
-    @RequestMapping("/restful/configuration/file/POST/xml")
+    @RequestMapping("/admin/restful/configuration/file/POST/xml")
     public ModelAndView postFileAsXml(@RequestParam("xmlFile")String xmlFile,
                                       @RequestParam("md5")String md5,
                                       HttpServletResponse response) throws Exception {

@@ -23,16 +23,11 @@ import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,12 +43,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Arrays;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.FileDigester.copyAndDigest;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 
 @Controller
 public class AgentRegistrationController {
@@ -73,7 +66,7 @@ public class AgentRegistrationController {
         this.pluginsZip = pluginsZip;
     }
 
-    @RequestMapping(value = "/latest-agent.status", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.HEAD)
     public void checkAgentStatus(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
         response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
@@ -83,26 +76,26 @@ public class AgentRegistrationController {
         setOtherHeaders(response);
     }
 
-    @RequestMapping(value = "/latest-agent.status", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.GET)
     public void latestAgentStatus(HttpServletResponse response) throws IOException {
         checkAgentStatus(response);
     }
 
-    @RequestMapping(value = "/agent", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/agent", method = RequestMethod.HEAD)
     public void checkAgentVersion(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
         response.setHeader("Content-MD5", agentChecksum);
         setOtherHeaders(response);
     }
 
-    @RequestMapping(value = "/agent-launcher.jar", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.HEAD)
     public void checkAgentLauncherVersion(HttpServletResponse response) throws IOException {
         populateLauncherChecksum();
         response.setHeader("Content-MD5", agentLauncherChecksum);
         setOtherHeaders(response);
     }
 
-    @RequestMapping(value = "/agent-plugins.zip", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.HEAD)
     public void checkAgentPluginsZipStatus(HttpServletResponse response) throws IOException {
         response.setHeader("Content-MD5", pluginsZip.md5());
         setOtherHeaders(response);
@@ -137,17 +130,17 @@ public class AgentRegistrationController {
         response.setHeader("Cruise-Server-Ssl-Port", Integer.toString(systemEnvironment.getSslServerPort()));
     }
 
-    @RequestMapping(value = "/agent", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/agent", method = RequestMethod.GET)
     public ModelAndView downloadAgent() throws IOException {
         return getDownload(new AgentJarSrc());
     }
 
-    @RequestMapping(value = "/agent-launcher.jar", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.GET)
     public ModelAndView downloadAgentLauncher() throws IOException {
         return getDownload(new AgentLauncherSrc());
     }
 
-    @RequestMapping(value = "/agent-plugins.zip", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.GET)
     public ModelAndView downloadPluginsZip() throws IOException {
         return getDownload(new AgentPluginsZipSrc());
     }
@@ -180,7 +173,7 @@ public class AgentRegistrationController {
         });
     }
 
-    @RequestMapping(value = "/agent", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/agent", method = RequestMethod.POST)
     public ModelAndView agentRequest(@RequestParam("hostname") String hostname,
                                      @RequestParam("uuid") String uuid,
                                      @RequestParam("location") String location,

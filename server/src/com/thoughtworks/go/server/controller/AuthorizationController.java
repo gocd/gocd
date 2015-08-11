@@ -45,7 +45,7 @@ public class AuthorizationController {
         this.authenticationPluginRegistry = authenticationPluginRegistry;
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/auth/login", method = RequestMethod.GET)
     public ModelAndView login(@RequestParam(value = "login_error", required = false) Boolean loginError,
                               HttpServletRequest request, HttpServletResponse response) throws IOException {
         HashMap model = new HashMap();
@@ -56,7 +56,7 @@ public class AuthorizationController {
     }
 
 
-    @RequestMapping(value = "/security_check", method = RequestMethod.POST)
+    @RequestMapping(value = "/auth/security_check", method = RequestMethod.POST)
     public ModelAndView securityCheckHandlerWhenAuthenticationProcessingFilterIsOff(HttpServletRequest request,
                                                                                     HttpServletResponse response)
             throws IOException {

@@ -233,6 +233,7 @@
             <value><![CDATA[
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
+                /dummy_not_in_production=IS_AUTHENTICATED_ANONYMOUSLY
                 /auth/login=IS_AUTHENTICATED_ANONYMOUSLY
                 /auth/logout=IS_AUTHENTICATED_ANONYMOUSLY
                 /auth/security_check=IS_AUTHENTICATED_ANONYMOUSLY

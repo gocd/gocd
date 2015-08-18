@@ -1,5 +1,6 @@
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.util.FileUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,8 +11,12 @@ import org.springframework.security.intercept.web.DefaultFilterInvocationDefinit
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -56,6 +61,12 @@ public class AcegiSecurityConfigTest {
     public void shouldNotAllowAnonymousAccessToWildcardAuthUrl(){
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/login", "IS_AUTHENTICATED_ANONYMOUSLY");
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/logout", "IS_AUTHENTICATED_ANONYMOUSLY");
+    }
+
+    @Test
+    public void shouldHaveDummyUrlForFunctionalTestMarkedAsNotForProduction() throws IOException {
+        // "_not_in_production" part of the url should not be changed. Check change_rails_env_to_production task in prepare_go_server_webapp.rake to know why.
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/dummy_not_in_production", "IS_AUTHENTICATED_ANONYMOUSLY");
     }
 
     private void verifyGetAccessToUrlPatternIsAvailableToRole(DefaultFilterInvocationDefinitionSource objectDefinitionSource, String urlPattern, String role) {

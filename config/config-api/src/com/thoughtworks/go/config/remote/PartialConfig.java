@@ -16,10 +16,7 @@
 package com.thoughtworks.go.config.remote;
 
 
-import com.thoughtworks.go.config.EnvironmentsConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineGroups;
 
@@ -64,6 +61,19 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     @Override
     public ConfigOrigin getOrigin() {
         return origin;
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
+        for(EnvironmentConfig env : this.environments)
+        {
+            env.setOrigins(origins);
+        }
+        for(PipelineConfigs pipes : this.pipelines)
+        {
+            pipes.setOrigins(origins);
+        }
     }
 
     public void setOrigin(ConfigOrigin origin) {

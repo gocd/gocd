@@ -81,6 +81,16 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.configOrigin = origins;
+        for(PipelineConfig pipe : this)
+        {
+            pipe.setOrigins(origins);
+        }
+        this.authorization.setOrigins(origins);
+    }
+
+    @Override
     public PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
         for (int i=0; i< this.size(); i++) {
             PipelineConfig pipelineConfig = this.get(i);

@@ -1,4 +1,5 @@
-/*************************GO-LICENSE-START*********************************
+<?xml version="1.0"?>
+<!-- *************************GO-LICENSE-START*****************************
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +13,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
-package com.thoughtworks.go.config.remote;
+ *************************GO-LICENSE-END******************************* -->
 
-import com.thoughtworks.go.config.CruiseConfig;
-
-/**
- * Configuration whose origin can be identified.
- */
-public interface ConfigOriginTraceable {
-    ConfigOrigin getOrigin();
-
-    /**
-     * Sets origin in this element and all children recursively.
-     */
-    void setOrigins(ConfigOrigin origins);
-}
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:template match="/cruise/@schemaVersion">
+        <xsl:attribute name="schemaVersion">76</xsl:attribute>
+    </xsl:template>
+    <!-- Copy everything -->
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+</xsl:stylesheet>

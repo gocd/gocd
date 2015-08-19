@@ -284,7 +284,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         return origin;
     }
 
-    //@Override
+    @Override
     public void setOrigins(ConfigOrigin origins) {
         this.origin = origins;
     }

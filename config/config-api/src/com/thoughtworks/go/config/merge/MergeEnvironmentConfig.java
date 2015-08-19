@@ -566,6 +566,11 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public ConfigOrigin getOrigin() {
-        return null;
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        throw bomb("Cannot set origins on merged config");
     }
 }

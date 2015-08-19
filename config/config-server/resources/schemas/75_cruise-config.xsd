@@ -50,8 +50,6 @@
                         <xsd:field xpath="@name"/>
                     </xsd:unique>
                 </xsd:element>
-                <xsd:element minOccurs="0" maxOccurs="1" name="config-repos" type="configReposType">
-                </xsd:element>
                 <xsd:element minOccurs="0" maxOccurs="unbounded" name="pipelines" type="pipelinesType"/>
                 <xsd:element minOccurs="0" maxOccurs="1" name="templates" type="templatesType">
                     <xsd:unique name="uniquePipelineTemplateName">
@@ -76,7 +74,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="76"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="75"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -133,27 +131,6 @@
         <xsd:attribute type="repoIdType" name="id"/>
         <xsd:attribute type="nameType" name="name" use="required"/>
     </xsd:complexType>
-
-    <xsd:complexType name="configReposType">
-        <xsd:sequence>
-            <xsd:element name="config-repo" minOccurs="0" maxOccurs="unbounded" type="configRepoType"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    <xsd:complexType name="configRepoType">
-        <xsd:sequence>
-            <xsd:choice minOccurs="1" maxOccurs="1">
-                <xsd:element name="svn" type="svnType"/>
-                <xsd:element name="hg" type="hgType"/>
-                <xsd:element name="p4" type="p4Type"/>
-                <xsd:element name="git" type="gitType"/>
-                <xsd:element name="tfs" type="tfsType"/>
-                <xsd:element name="scm" type="scmReferenceType"/>
-            </xsd:choice>
-            <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
-        </xsd:sequence>
-        <xsd:attribute type="nameType" name="plugin" use="optional"/>
-    </xsd:complexType>
-
     <xsd:complexType name="scmsType">
         <xsd:sequence>
             <xsd:element name="scm" minOccurs="0" maxOccurs="unbounded" type="scmType"/>

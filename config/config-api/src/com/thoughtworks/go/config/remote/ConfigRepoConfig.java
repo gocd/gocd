@@ -15,12 +15,11 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.StringUtil;
 
@@ -30,14 +29,19 @@ import java.util.Map;
  * Defines single source of remote configuration and name of plugin to interpet it.
  * This goes to standard static xml configuration.
  */
+@ConfigTag("config-repo")
 public class ConfigRepoConfig implements Validatable {
     // defines source of configuration. Any will fit
+    @ConfigSubtag(optional = false)
     private MaterialConfig repo;
 
+    @ConfigSubtag
+    private Configuration configuration = new Configuration();
 
     // TODO something must instantiate this name into proper implementation of ConfigProvider
     // which can be a plugin or embedded class
-    private String configProviderPluginName;
+    @ConfigAttribute(value = "plugin", allowNull = false)
+    private String configProviderPluginName = "gocd-xml";
     // plugin-name which will process the repository tree to return configuration.
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
@@ -59,7 +63,7 @@ public class ConfigRepoConfig implements Validatable {
         return repo;
     }
 
-    public void setMaterialConfig(ScmMaterialConfig config) {
+    public void setMaterialConfig(MaterialConfig config) {
         this.repo = config;
     }
 
@@ -169,4 +173,11 @@ public class ConfigRepoConfig implements Validatable {
     }
 
 
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
 }

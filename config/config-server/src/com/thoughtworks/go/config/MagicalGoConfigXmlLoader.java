@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.config.validation.GoConfigValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -91,6 +92,7 @@ public class MagicalGoConfigXmlLoader {
 
             configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
             setMd5(configForEdit, md5);
+            configForEdit.setOrigins(new FileConfigOrigin());
             config = preprocessAndValidate(configForEdit);
         } finally {
             metricsProbeService.end(ProbeType.CONVERTING_CONFIG_XML_TO_OBJECT, context);
@@ -98,6 +100,7 @@ public class MagicalGoConfigXmlLoader {
 
         return new GoConfigHolder(config, configForEdit);
     }
+
 
     public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {
         Field field = BasicCruiseConfig.class.getDeclaredField("md5");

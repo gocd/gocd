@@ -888,6 +888,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return origin;
     }
 
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
+    }
+
     public void setOrigin(ConfigOrigin origin) {
         this.origin = origin;
     }

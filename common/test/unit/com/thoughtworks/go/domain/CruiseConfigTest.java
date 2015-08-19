@@ -39,6 +39,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -67,6 +68,23 @@ public class CruiseConfigTest {
         pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
         cruiseConfig = new BasicCruiseConfig(pipelines);
         goConfigMother = new GoConfigMother();
+    }
+
+    @Test
+    public void shouldSetOriginInPipelines() {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PipelineConfig pipe = pipelines.get(0);
+        mainCruiseConfig.setOrigins(new FileConfigOrigin());
+        assertThat(pipe.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+    }
+    @Test
+    public void shouldSetOriginInEnvironments() {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("e"));
+        mainCruiseConfig.addEnvironment(env);
+        mainCruiseConfig.setOrigins(new FileConfigOrigin());
+        assertThat(env.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
 
     @Test

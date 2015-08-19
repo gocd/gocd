@@ -68,11 +68,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag @SkipParameterResolution private ServerConfig serverConfig = new ServerConfig();
     @ConfigSubtag @SkipParameterResolution private com.thoughtworks.go.domain.packagerepository.PackageRepositories packageRepositories = new PackageRepositories();
     @ConfigSubtag @SkipParameterResolution private SCMs scms = new SCMs();
+    @ConfigSubtag @SkipParameterResolution private ConfigReposConfig configRepos = new ConfigReposConfig();
     @ConfigSubtag(label = "groups") private PipelineGroups groups = new PipelineGroups();
     @ConfigSubtag(label = "templates") @SkipParameterResolution private TemplatesConfig templatesConfig = new TemplatesConfig();
     @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
     @ConfigSubtag @SkipParameterResolution private Agents agents = new Agents();
-    private ConfigReposConfig configRepos = new ConfigReposConfig();
 
     private CruiseStrategy strategy;
 
@@ -139,10 +139,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         void updateGroup(PipelineConfigs pipelineConfigs, String groupName);
 
         ConfigOrigin getOrigin();
+
+        void setOrigins(ConfigOrigin origins);
     }
     private class BasicStrategy implements CruiseStrategy {
 
-        private final FileConfigOrigin origin;
+        private ConfigOrigin origin;
 
         public  BasicStrategy()
         {
@@ -178,6 +180,19 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public ConfigOrigin getOrigin() {
             return origin;
+        }
+
+        @Override
+        public void setOrigins(ConfigOrigin origins) {
+            origin = origins;
+            for(EnvironmentConfig env : environments)
+            {
+                env.setOrigins(origins);
+            }
+            for(PipelineConfigs pipes : groups)
+            {
+                pipes.setOrigins(origins);
+            }
         }
     }
     private class MergeStrategy implements CruiseStrategy {
@@ -309,6 +324,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         public ConfigOrigin getOrigin() {
             throw new RuntimeException("TODO: Not implemented yet");
             //TODO a composite of all origins
+        }
+
+        @Override
+        public void setOrigins(ConfigOrigin origins) {
+            throw bomb("Cannot set origins on merged config");
         }
     }
 
@@ -738,7 +758,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-        this.strategy.updateGroup(pipelineConfigs,groupName);
+        this.strategy.updateGroup(pipelineConfigs, groupName);
     }
 
     @Override
@@ -983,7 +1003,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
-        this.strategy.makePipelineUseTemplate(pipelineName,templateName);
+        this.strategy.makePipelineUseTemplate(pipelineName, templateName);
     }
 
     @Override
@@ -1230,6 +1250,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public ConfigOrigin getOrigin() {
         return strategy.getOrigin();
+    }
+
+    @Override
+    public void setOrigins(ConfigOrigin origins) {
+        this.strategy.setOrigins(origins);
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {

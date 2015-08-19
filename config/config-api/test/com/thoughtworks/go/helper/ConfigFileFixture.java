@@ -191,6 +191,28 @@ public final class ConfigFileFixture {
                 + agentsBlock
                 + "</cruise>";
     }
+    public static String configWithConfigRepos(String configReposBlock) {
+        return  "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
+                + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
+                + "<server artifactsdir='artifactsDir' >"
+                + "</server>"
+                + configReposBlock
+                + "<pipelines>\n"
+                + "<pipeline name='pipeline1'>\n"
+                + "    <materials>\n"
+                + "      <svn url =\"svnurl\"/>"
+                + "    </materials>\n"
+                + "  <stage name='mingle'>\n"
+                + "    <jobs>\n"
+                + "      <job name='cardlist' />\n"
+                + "    </jobs>\n"
+                + "  </stage>\n"
+                + "</pipeline>\n"
+                + "</pipelines>\n"
+
+                + "</cruise>";
+    }
 
     public static String configWithPipeline(String pipelineBlock) {
         return configWithPipeline(pipelineBlock, GoConstants.CONFIG_SCHEMA_VERSION);
@@ -1139,6 +1161,18 @@ public final class ConfigFileFixture {
                     + "    </agent>"
                     + "  </agents>"
                     + "</cruise>";
+
+    public static final String ONE_CONFIG_REPO = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+            + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
+            + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
+            + "  <server artifactsdir=\"other-artifacts\" />\n"
+            + "  <config-repos>\n"
+            + "    <config-repo >\n"
+            + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+            + "    </config-repo >\n"
+            + "  </config-repos>\n"
+            + "</cruise>\n\n";
 
     public static final String ONE_PIPELINE = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "

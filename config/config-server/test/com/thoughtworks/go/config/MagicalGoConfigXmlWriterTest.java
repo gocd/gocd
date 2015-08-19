@@ -142,6 +142,13 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(config, output, false);
         assertThat(output.toString(), containsString("<server"));
     }
+    @Test
+    public void shouldWriteConfigRepos() throws Exception {
+        CruiseConfig config = GoConfigMother.configWithConfigRepo();
+        xmlWriter.write(config, output, false);
+        assertThat(output.toString(), containsString("<config-repo plugin=\"myplugin\">"));
+        assertThat(output.toString(), containsString("<git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />"));
+    }
 
     @Test
     public void shouldNotWriteDependenciesIfEmptyDependencies() throws Exception {

@@ -43,7 +43,6 @@ public class PipelineRepositoryTest {
     private PipelineRepository pipelineRepository;
     private SystemEnvironment systemEnvironment;
     private DatabaseStrategy databaseStrategy;
-    private QueryExtensions queryExtensions;
 
     @Before
     public void setup() {
@@ -52,8 +51,6 @@ public class PipelineRepositoryTest {
         goCache = mock(GoCache.class);
         systemEnvironment = mock(SystemEnvironment.class);
         databaseStrategy = mock(DatabaseStrategy.class);
-        queryExtensions = mock(QueryExtensions.class);
-        when(databaseStrategy.getQueryExtensions()).thenReturn(queryExtensions);
         pipelineRepository = new PipelineRepository(sessionFactory, goCache,systemEnvironment, databaseStrategy);
         pipelineRepository.setHibernateTemplate(hibernateTemplate);
     }

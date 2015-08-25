@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!--
+  This page is an elaborate hack to get jasmine+requirejs to work together.
+  This is a "fork" of the `run.html.erb` file in the jasmine gem, with a bunch of mods to load jasmine via requirejs.
+  Once all the files are "required", we fire a window.onload() to force jasmine to evaluate all specs.
+  There is also a listener when running in phantomjs, so that phantomjs prints the results on stdout, which is grabbed by Jasmine::Runners::PhantomJs
+-->
+<head>
+  <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <title>Jasmine suite</title>
+  <link rel="shortcut icon" type="image/png" href="/__images__/jasmine_favicon.png">
+  <% css_files.each do |css_file| %>
+    <link rel="stylesheet" href="<%= css_file %>" type="text/css" media="screen"/>
+  <% end %>
+
+  <!-- do add any more script tags unless you know what you're doing -->
+  <script src="/__spec__/helpers/require.js" type="text/javascript"></script>
+
+</head>
+<!-- TODO: turbolinks breaks spec filter links -->
+<body data-no-turbolink>
+<div id="jasmine_content"></div>
+</body>
+<script>
+  <%
+    require_config = YAML.load(File.read(Rails.root.join("config/requirejs.yml")))
+    require_config['baseUrl'] = 'assets'
+    require_config['paths'].merge!(
+      'jasmine'           => '/__jasmine__/jasmine',
+      'jasmine-html'      => '/__jasmine__/jasmine-html',
+      'jasmine-boot'      => '../__boot__/boot',
+      'jasmine-mock-ajax' => '/__spec__/helpers/mock-ajax'
+    )
+    require_config['shim'].merge!({
+      'jasmine' => {
+        :exports => 'jasmine'
+      },
+      'jasmine-html' =>   {
+        :deps => ['jasmine']
+      },
+      'jasmine-jquery' => {
+        :deps => ['jquery', 'jasmine-boot']
+      },
+      'jasmine-boot' =>   {
+        :deps => ['jasmine', 'jasmine-html']
+      },
+      'jasmine-mock-ajax' => {
+        :deps => ['jasmine-boot']
+      }
+    })
+  %>
+  require.config(<%= JSON.pretty_generate(require_config) %>);
+</script>
+<script>
+  require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax'], function () {
+    if (window.callPhantom) {
+
+      function PhantomReporter() {
+        this.jasmineDone = function () {
+          window.callPhantom({state: 'jasmineDone'});
+        };
+
+        this.specDone = function (results) {
+          window.callPhantom({state: 'specDone', results: results});
+        };
+
+        this.suiteDone = function (results) {
+          window.callPhantom({state: 'suiteDone', results: results});
+        };
+      }
+      jasmine.getEnv().addReporter(new PhantomReporter());
+    }
+
+    require(<%= js_files.delete_if {|f| f =~ /\/helpers\// }. find_all {|f| f =~ /__spec__/ } %>, function () {
+      window.onload();
+    });
+  });
+</script>
+</html>

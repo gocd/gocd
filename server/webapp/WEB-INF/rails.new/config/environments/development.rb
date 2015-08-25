@@ -34,3 +34,9 @@ Go::Application.configure do
   config.log_level = :debug
   org.apache.log4j.Logger.getLogger("com.thoughtworks.go.server.Rails").setLevel(org.apache.log4j.Level::DEBUG)
 end
+
+if defined?(JasmineRails) && File.exist?(Rails.root.join('spec/new_javascripts'))
+  Rails.application.config.assets.paths << 'spec/new_javascripts'
+else
+  puts 'Seems there was an error - could not find jasmine rails or javascript specs!'
+end

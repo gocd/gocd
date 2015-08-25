@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 
 describe "admin/templates/new.html.erb" do
 
@@ -31,7 +31,7 @@ describe "admin/templates/new.html.erb" do
   it "should display form to create a new template" do
     view.stub(:allow_pipeline_selection?).and_return(true)
     assign(:pipeline, PipelineTemplateConfigViewModel.new)
-    
+
     render
 
     Capybara.string(response.body).find("form[action='template_create_path'][method='post']").tap do |form|

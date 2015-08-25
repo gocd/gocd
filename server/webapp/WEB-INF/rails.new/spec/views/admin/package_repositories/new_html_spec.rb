@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 
 describe "admin/package_repositories/new.html.erb" do
   include GoUtil, FormUI, ReflectiveUtil
@@ -45,7 +45,7 @@ describe "admin/package_repositories/new.html.erb" do
         expect(div).to have_selector("a.add", :text => "Add New Repository")
       end
     end
-    
+
     it "should have ajax_form_submit_errors div" do
       render
 

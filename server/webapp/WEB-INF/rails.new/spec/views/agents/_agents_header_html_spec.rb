@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 
 describe "/agents/index" do
@@ -22,7 +22,7 @@ describe "/agents/index" do
     assign(:agents_enabled, 10)
     assign(:agents_disabled, 9)
     assign(:agents_pending, 8)
-    render :partial => 'agents/agents_header'   
+    render :partial => 'agents/agents_header'
 
     Capybara.string(response.body).find("ul.agent_counts").tap do |ul|
       expect(ul).to have_selector("li.enabled", :text=> "Enabled: 10")

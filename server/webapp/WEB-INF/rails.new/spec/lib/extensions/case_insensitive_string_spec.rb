@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe com.thoughtworks.go.config.CaseInsensitiveString do
   it "should exhibit usual string behaviour" do

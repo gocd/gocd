@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 def stub_current_config
   cruise_config = double("cruise config")
@@ -120,7 +120,7 @@ describe StagesController do
         expect(response.status).to eq 302
         expect(response.location).to eq "http://test.host/pipelines/pipeline_foo/10/stage_bar/2/jobs"
       end
-      
+
       it "should rerun jobs and redirect to overview tab when tab name not given" do
         new_stage = StageMother.scheduledStage("pipeline_foo", 10, "stage_bar", 2, "con_job")
         @schedule_service.should_receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status).and_return(new_stage)
@@ -164,7 +164,7 @@ describe StagesController do
       @status.should_receive(:canContinue).and_return(false)
       @status.should_receive(:detailedMessage).and_return("Not Found")
       @status.should_receive(:httpCode).and_return(404)
-      
+
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
       expect(response.status).to eq 404
     end
@@ -285,7 +285,7 @@ describe StagesController do
         get :jobs, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:jobs)).to eq model
       end
-      
+
       it "should return true if user has operate permission on the stage" do
         stub_current_config
         job_instances = JobInstances.new([JobInstanceMother.assignedWithAgentId("job1", "123")])

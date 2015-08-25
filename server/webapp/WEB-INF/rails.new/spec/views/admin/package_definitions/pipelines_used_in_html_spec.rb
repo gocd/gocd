@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
+require 'spec_helper'
 include GoUtil
 
 describe "admin/package_definitions/pipelines_used_in.html.erb" do

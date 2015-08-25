@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require 'spec_helper'
 
 describe 'stages/stage.json.erb' do
   include StageModelMother, PipelineModelMother
@@ -23,9 +23,9 @@ describe 'stages/stage.json.erb' do
     view.stub(:is_user_an_admin?).and_return(true)
     view.stub(:config_change_path)
     assign :pipeline,  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false).getLatestPipelineInstance()
-    assign :stage_history_page, stage_history_page(10)    
+    assign :stage_history_page, stage_history_page(10)
   end
-  
+
   it "should localize strings" do
     params[:action] = 'overview'
     assign :pipeline,  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false).getLatestPipelineInstance()

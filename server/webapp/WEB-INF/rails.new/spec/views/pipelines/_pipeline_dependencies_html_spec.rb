@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 
 
@@ -34,7 +34,7 @@ describe "/pipelines/_pipeline_dependencies.html.erb" do
     stages.add( stage1)
     stages.add( stage2)
     @pim = PipelineHistoryMother.singlePipeline("pipeline-name", stages)
-    modification = Modification.new(@yesterday, "1234", "label-1", nil)    
+    modification = Modification.new(@yesterday, "1234", "label-1", nil)
 
     @svn_revisions = ModificationsMother.createSvnMaterialRevisions(modification)
     @svn_revisions.getMaterialRevision(0).markAsChanged()
@@ -45,7 +45,7 @@ describe "/pipelines/_pipeline_dependencies.html.erb" do
 
     @svn_revisions.addRevision(@dependency_revisions)
     @pim.setMaterialRevisionsOnBuildCause(@svn_revisions)
-    
+
     @down1 = PipelineHistoryMother.pipelineHistoryItemWithOneStage("down1", "stage", java.util.Date.new())
     @down1.setMaterialConfigs(MaterialConfigs.new([MaterialConfigsMother.dependencyMaterialConfig("pipeline-name", "stage")]))
     @down2 = PipelineHistoryMother.singlePipeline("down2", stages)
@@ -139,7 +139,7 @@ describe "/pipelines/_pipeline_dependencies.html.erb" do
   it "should disable the trigger if downstream dependends on an upstream pipeline's stage which has not been run yet" do
     @down1.setCanRun(true)
     @down2.setCanRun(true)
-     
+
     @pim.stageHistory().remove(@pim.stage('stage-1'))
 
     render_partial

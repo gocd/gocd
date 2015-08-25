@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe Admin::ConfigurationController do
 
@@ -167,9 +167,9 @@ describe Admin::ConfigurationController do
       @admin_service.should_receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
       cruise_config_revision = double('cruise config revision')
       @config_repository.should_receive(:getRevision).with(current_config['md5']).and_return(cruise_config_revision)
-      
+
       put :update, {:go_config => submitted_copy}
-      
+
       response.should render_template "split_pane"
       flash.now[:error].should == "Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."
       assigns[:errors][0].should == "Conflict in merging"

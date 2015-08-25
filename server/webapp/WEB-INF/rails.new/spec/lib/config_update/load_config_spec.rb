@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require 'spec_helper'
 
 describe ::ConfigUpdate::LoadConfig do
   include ::ConfigUpdate::LoadConfig
@@ -100,7 +100,7 @@ describe ::ConfigUpdate::LoadConfig do
     @params.merge!(:stage_parent => "pipelines", :pipeline_name => "foo_pipeline", :finger_print => "abcd1234")
     load_material_config_for_pipeline(@cruise_config).should be_nil
   end
-  
+
   it "should load job from a given stage and job_name" do
     @params.merge!(:stage_parent => "pipelines", :pipeline_name => "pipeline1", :stage_name => "stage")
     stage = load_stage(@cruise_config)

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe Admin::PipelineGroupsController do
   include MockRegistryModule
@@ -114,7 +114,7 @@ describe Admin::PipelineGroupsController do
     describe :new do
       it "should return a new pipeline group" do
         @go_config_service.should_receive(:getConfigForEditing).and_return(@config)
-        
+
         get :new
 
         assigns[:group].should == BasicPipelineConfigs.new

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../../spec_helper")
+require 'spec_helper'
 
 def with_listItem ul, class_name, key, value
   ul.find("li.#{class_name}").tap do |li|

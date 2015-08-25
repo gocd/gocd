@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "../../../../spec_helper")
+require 'spec_helper'
 
 # This tests "admin/tasks/pluggable_task/new.html.erb" through the plugin task template.
 describe "admin/tasks/plugin/new.html.erb" do

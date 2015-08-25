@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require 'spec_helper'
 load File.join(File.dirname(__FILE__), "..",  "auto_refresh_examples.rb")
 
 describe 'stages/stage.html.erb' do
@@ -357,7 +357,7 @@ describe 'stages/stage.html.erb' do
       end
 
       it "should render jobs tab" do
-        render 
+        render
         cnt_modifications = 0
         @revisions.each do |revision|
           revision.getModifications().each do |mod|
@@ -445,7 +445,7 @@ describe 'stages/stage.html.erb' do
             @passed_stage.setIdentifier(@failing_stage.getIdentifier())
             check_fragment_caching(@failing_stage, @passed_stage, proc {|stage| [ViewCacheKey.new.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), {:subkey => ViewCacheKey.new.forFailedBuildHistoryStage( stage, "html" )}]}) do |stage|
               assign :stage, stage_model_for(stage)
-              render 
+              render
             end
           end
 
@@ -459,7 +459,7 @@ describe 'stages/stage.html.erb' do
             key.should_receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
             key.should_receive(:forFailedBuildHistoryStage).with(failing_stage, "html").and_return("stage_fbh_html_key")
             view.should_receive(:cache).with("pipeline_id_based_key", :subkey => "stage_fbh_html_key", :skip_digest=>true)
-            render 
+            render
           end
         end
 
@@ -474,7 +474,7 @@ describe 'stages/stage.html.erb' do
         end
 
         it "should display message for empty stages" do
-          render 
+          render
           expect(response).to have_selector(".non_passing_tests #failing_pipeline2 .block_to_hide_or_reveal_by_above_pipeline_bar", :text => "These changes did not break any of the currently failing tests.")
         end
 
@@ -678,7 +678,7 @@ describe 'stages/stage.html.erb' do
       end
 
       it "should render Config tab" do
-        render 
+        render
         expect(response).to have_selector("#ran_with_config .config")
       end
 

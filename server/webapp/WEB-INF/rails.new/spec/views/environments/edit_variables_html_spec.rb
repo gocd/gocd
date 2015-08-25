@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe "environments/edit_variables.html.erb" do
   include GoUtil, FormUI, ReflectiveUtil
-  
+
   before do
     @environment = BasicEnvironmentConfig.new()
     @environment.addEnvironmentVariable("plain_name", "plain_value")

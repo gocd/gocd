@@ -1,0 +1,23 @@
+var requirejs = require(<%= rjs_path.to_s.dump %>)
+var baseConfig = <%=
+cdn_pattern = Regexp.new("\\Ahttps?://")
+
+modifiedHash = build_config.select { |k, _| k != "modules" }
+pathsHash = modifiedHash["paths"]
+modifiedHash["dir"] = build_dir.to_s
+modifiedHash["paths"] = Hash[
+  pathsHash.map do |k, v|
+    [k, v.is_a?(Array) || cdn_pattern.match(v) ? "empty:" : v]
+  end
+] if !pathsHash.nil?
+
+JSON.pretty_generate(modifiedHash)
+%>;
+
+baseConfig.modules = [
+<% build_config["modules"].each do |m| %>
+  <%= JSON.pretty_generate(m) %>,
+<% end %>
+];
+
+requirejs.optimize(baseConfig);

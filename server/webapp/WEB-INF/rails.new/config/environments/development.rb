@@ -1,4 +1,6 @@
 Go::Application.configure do
+  config.dev_tweaks.log_autoload_notice = false
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded on

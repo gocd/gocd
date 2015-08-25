@@ -90,6 +90,16 @@ public class TaskViewService implements TaskFactory {
         throw new RuntimeException(String.format("Could not find any task of type: %s", type));
     }
 
+    public PluggableTask createPluggableTask(String pluginId) {
+        List<PluggableTask> tasks = allPluginTasks();
+        for (PluggableTask task : tasks) {
+            if (task.getPluginConfiguration().getId().equals(pluginId)) {
+                return task;
+            }
+        }
+        throw new RuntimeException(String.format("Could not find any task with id: %s", pluginId));
+    }
+
     public List<PluggableViewModel<Task>> getOnCancelTaskViewModels(Task given) {
         List<PluggableViewModel<Task>> viewModels = new ArrayList<PluggableViewModel<Task>>();
         for (Task task : allTasks()) {
@@ -128,8 +138,8 @@ public class TaskViewService implements TaskFactory {
         return configuration;
     }
 
-    private List<Task> allPluginTasks() {
-        final ArrayList<Task> tasks = new ArrayList<Task>();
+    private List<PluggableTask> allPluginTasks() {
+        final ArrayList<PluggableTask> tasks = new ArrayList<>();
         for (final String pluginId : PluggableTaskConfigStore.store().pluginIds()) {
             GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(pluginId);
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);

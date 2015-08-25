@@ -1,0 +1,195 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[data-controller-name=pipeline_configs][data-action-name=edit] {
+  @import './_dragula-3.0.1';
+
+  @mixin has-chevron {
+    @include icon-before($type: chevron-right) {
+      position: absolute;
+      top:      17px;
+      left:     -33px;
+    }
+  }
+
+  .box {
+    @include size(6em 4em);
+
+    border: {
+      style: $input-border-style;
+      width: $input-border-width;
+      color: $input-border-color;
+    }
+
+    display:    inline-block;
+    position:   relative;
+    text-align: center;
+
+    .label {
+      position:   absolute;
+      width:      100%;
+      text-align: center;
+      top:        1em;
+    }
+  }
+
+  .remove {
+    @include icon-before($type: trash, $color: $primary-color);
+  }
+
+  .heading {
+    margin-top: nth($fieldset-margin, 1);
+  }
+
+  .pipeline-flow-boxes {
+    .pipeline-flow-box, .stage-boxes {
+      display: inline-block;
+    }
+
+    .stage-boxes {
+      margin-left: 3em;
+      position:    relative;
+
+      @include has-chevron;
+    }
+
+    .pipeline-flow-box {
+      @extend .box;
+      cursor: pointer;
+
+      &.stage {
+        cursor: move;
+      }
+
+      &.active {
+        background:   $input-focus-bg-color;
+        border-color: $input-focus-border-color;
+      }
+
+      & ~ .pipeline-flow-box {
+        margin-left: 3em;
+        @include has-chevron;
+      }
+    }
+    .add-stage {
+      @extend .box;
+      @include icon-before($type: plus) {
+        position: absolute;
+        top:      17px;
+        left:     34px
+      }
+
+      margin-left: 3em;
+      border:      1px solid;
+    }
+  }
+
+  .stage-definition {
+    .add-job {
+      margin: $fieldset-margin;
+
+      a {
+        @include icon-before($type: plus-circle);
+      }
+    }
+
+    > .remove {
+      position: relative;
+      top:      -28px;
+      left:     calc(100% - 8px);
+    }
+
+    .job-definitions {
+      .job-definition {
+        .add-task {
+          padding-top: rem(28px);
+          a {
+            @include icon-before($type: plus-circle);
+          }
+        }
+
+        .task-definition {
+          .remove {
+            position: absolute;
+            top:      39px;
+            left:     calc(100% - 42px);
+          }
+        }
+
+        .remove-job {
+          position: absolute;
+          left:     calc(100% - 32px);
+          top:      0;
+          z-index:  10;
+        }
+      }
+
+    }
+  }
+
+  .material-definitions {
+    .add-material {
+      padding-top: rem(28px);
+      a {
+        @include icon-before($type: plus-circle);
+      }
+    }
+
+    a.remove {
+      position: relative;
+      left:     calc(100% - 28px);
+      top:      -58px;
+    }
+  }
+
+  .environment-variable {
+    .prefix-container {
+      width: 30px;
+      .prefix {
+        @include icon-before($type: unlock-alt, $size: 16px, $margin: 0);
+      }
+    }
+  }
+
+  .tabs {
+    &.vertical {
+      .tab-title {
+        border-right: 1px solid $fieldset-border-color;
+
+        &.active {
+          border-left:   1px solid $fieldset-border-color;
+          border-bottom: 1px solid $fieldset-border-color;
+          border-top:    1px solid $fieldset-border-color;
+          border-right:  inherit;
+        }
+      }
+
+    }
+
+    &:not(.vertical) {
+      .tab-title {
+        border-bottom: 1px solid $fieldset-border-color;
+
+        &.active {
+          border-left:   1px solid $fieldset-border-color;
+          border-right:  1px solid $fieldset-border-color;
+          border-top:    1px solid $fieldset-border-color;
+          border-bottom: inherit;
+        }
+      }
+    }
+  }
+}

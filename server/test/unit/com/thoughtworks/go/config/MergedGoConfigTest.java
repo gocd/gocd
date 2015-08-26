@@ -104,12 +104,12 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
     }
 
     @Test
-    public void shouldListenForNewPartialConfigs()
+    public void shouldListenForPartialChangesUponCreation()
     {
         assertTrue(partials.hasListener((MergedGoConfig)cachedGoConfig));
     }
     @Test
-    public void shouldListenForFileChanges()
+    public void shouldListenForFileChangesUponCreation()
     {
         assertTrue(cachedFileGoConfig.hasListener((MergedGoConfig)cachedGoConfig));
     }
@@ -139,12 +139,36 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
 
         ConfigChangedListener listener = mock(ConfigChangedListener.class);
         cachedGoConfig.registerListener(listener);
+        // at registration
+        verify(listener, times(1)).onConfigChange(any(CruiseConfig.class));
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
 
         assertThat("currentConfigShouldBeMerged",
                 cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")),is(true));
-        verify(listener, times(1)).onConfigChange(cachedGoConfig.currentConfig());
+        verify(listener, times(2)).onConfigChange(any(CruiseConfig.class));
+    }
+
+    @Test
+    public void shouldNotNotifyListenersWhenMergeFails()
+    {
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        PartialConfig badPart = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1",
+                        PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(badPart);
+
+        ConfigChangedListener listener = mock(ConfigChangedListener.class);
+        cachedGoConfig.registerListener(listener);
+        // at registration
+        verify(listener, times(1)).onConfigChange(any(CruiseConfig.class));
+
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
+
+        assertThat("currentConfigShouldBeMainXmlOnly",
+                cachedGoConfig.currentConfig(),is(cachedFileGoConfig.currentConfig()));
+
+        verify(listener, times(1)).onConfigChange(any(CruiseConfig.class));
     }
 
 }

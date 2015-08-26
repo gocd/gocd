@@ -90,15 +90,11 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
                 // validate
                 List<ConfigErrors> allErrors = validate(merge);
                 if (!allErrors.isEmpty()) {
-
-                    if (!allErrors.isEmpty()) {
-                        throw new GoConfigInvalidException(merge, allErrors);
-                    }
-                    return;
+                    throw new GoConfigInvalidException(merge, allErrors);
                 }
                 CruiseConfig basicForEdit = this.fileService.loadForEditing();
                 CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, partials);
-                //TODO change strategy into merge-edit?
+                //TODO change strategy into merge-edit? - done in UI branch
                 newConfigHolder = new GoConfigHolder(merge, forEdit);
             }
             // save to cache and fire event
@@ -133,7 +129,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     public CruiseConfig currentConfig() {
         //returns merged cruise config if appropriate
         if (currentConfig == null) {
-            return new BasicCruiseConfig();
+            currentConfig = new BasicCruiseConfig();
         }
         return currentConfig;
     }

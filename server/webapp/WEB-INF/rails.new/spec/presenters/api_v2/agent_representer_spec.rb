@@ -71,6 +71,21 @@ describe ApiV2::AgentRepresenter do
     end
   end
 
+  it 'renders config state correctly' do
+    {
+      pending_agent      => AgentConfigStatus::Pending,
+      building_agent     => AgentConfigStatus::Enabled,
+      disabled_agent     => AgentConfigStatus::Disabled,
+      lost_contact_agent => AgentConfigStatus::Enabled,
+      missing_agent      => AgentConfigStatus::Enabled,
+    }.each do |agent, state|
+      presenter   = ApiV2::AgentRepresenter.new(agent)
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+
+      expect(actual_json[:agent_config_state]).to eq(state)
+    end
+  end
+
   def agent_hash
     {
       uuid:               'some-uuid',

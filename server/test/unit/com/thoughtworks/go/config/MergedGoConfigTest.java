@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -24,7 +25,7 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import com.thoughtworks.go.server.util.ServerVersion;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.junit.Before;
@@ -171,4 +172,41 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         verify(listener, times(1)).onConfigChange(any(CruiseConfig.class));
     }
 
+    @Test
+    public void shouldSetErrorHealthStateWhenMergeFails()
+    {
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        PartialConfig badPart = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1",
+                        PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(badPart);
+
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
+
+        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(),is(false));
+        assertThat(serverHealthService.getLogsAsText().contains("Invalid Merged Config"),is(true));
+        assertThat(serverHealthService.getLogsAsText().contains("pipe1"),is(true));
+    }
+
+    @Test
+    public void shouldUnSetErrorHealthStateWhenMergePasses()
+    {
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        PartialConfig badPart = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1",
+                        PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(badPart);
+
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
+
+        assertThat(serverHealthService.getLogsAsText().contains("Invalid Merged Config"),is(true));
+
+        //fix partial
+        PartialConfig part1 = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
+        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part1);
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
+
+        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(),is(true));
+    }
 }

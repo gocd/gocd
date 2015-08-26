@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.thoughtworks.go.server.service.GoConfigService.INVALID_CRUISE_CONFIG_XML;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
@@ -40,6 +39,8 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @Component
 public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, PartialConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(MergedGoConfig.class);
+
+    public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
 
     //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old MergedGoConfig
     private CachedFileGoConfig fileService;
@@ -106,7 +107,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
     private synchronized void saveConfigError(Exception e) {
         this.lastException = e;
-        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_XML, GoConfigValidity.invalid(e).errorMessage(), invalidConfigType());
+        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), invalidConfigType());
         serverHealthService.update(state);
     }
 
@@ -162,7 +163,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
 
     private static HealthStateType invalidConfigType() {
-        return HealthStateType.invalidConfig();
+        return HealthStateType.invalidConfigMerge();
     }
 
     public String getFileLocation() {

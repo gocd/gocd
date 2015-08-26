@@ -356,7 +356,10 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            PipelineConfig config = pipelineConfigByName(pipelineName);
+            if(!config.isLocal())
+                throw bomb("Cannot extract template from remote pipeline");
+            this.main.makePipelineUseTemplate(pipelineName,templateName);
         }
 
         @Override

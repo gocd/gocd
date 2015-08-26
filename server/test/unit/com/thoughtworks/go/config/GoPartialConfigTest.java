@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -69,16 +70,16 @@ public class GoPartialConfigTest {
     }
 
     @Test
-    public void shouldReturnEmptyArrayWhenWatchListEmpty()
+    public void shouldReturnEmptyListWhenWatchListEmpty()
     {
-        assertThat(partialConfig.lastPartials().length,is(0));
+        assertThat(partialConfig.lastPartials().isEmpty(),is(true));
     }
     @Test
-    public void shouldReturnEmptyArrayWhenNothingParsedYet_AndWatchListNotEmpty()
+    public void shouldReturnEmptyListWhenNothingParsedYet_AndWatchListNotEmpty()
     {
         SetOneConfigRepo();
 
-        assertThat(partialConfig.lastPartials(),is(new PartialConfig[0]));
+        assertThat(partialConfig.lastPartials().isEmpty(),is(true));
     }
 
     private ScmMaterialConfig SetOneConfigRepo() {
@@ -98,11 +99,11 @@ public class GoPartialConfigTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        assertThat(partialConfig.lastPartials().length, is(1));
-        assertThat(partialConfig.lastPartials()[0], is(part));
+        assertThat(partialConfig.lastPartials().size(), is(1));
+        assertThat(partialConfig.lastPartials().get(0), is(part));
     }
     @Test
-    public void shouldReturnEmptyArray_WhenFirstParsingFailed()
+    public void shouldReturnEmptyList_WhenFirstParsingFailed()
     {
         ScmMaterialConfig material = SetOneConfigRepo();
 
@@ -114,7 +115,7 @@ public class GoPartialConfigTest {
 
         assertThat(repoConfigDataSource.latestParseHasFailedForMaterial(material),is(true));
 
-        assertThat(partialConfig.lastPartials().length,is(0));
+        assertThat(partialConfig.lastPartials().size(),is(0));
     }
     @Test
     public void shouldReturnFirstPartial_WhenFirstParsedSucceed_ButSecondFailed()
@@ -132,8 +133,8 @@ public class GoPartialConfigTest {
 
         assertThat(repoConfigDataSource.latestParseHasFailedForMaterial(material),is(true));
 
-        assertThat(partialConfig.lastPartials().length, is(1));
-        assertThat(partialConfig.lastPartials()[0], is(part));
+        assertThat(partialConfig.lastPartials().size(), is(1));
+        assertThat(partialConfig.lastPartials().get(0), is(part));
     }
 
     @Test
@@ -146,15 +147,15 @@ public class GoPartialConfigTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        assertThat(partialConfig.lastPartials().length, is(1));
-        assertThat(partialConfig.lastPartials()[0], is(part));
+        assertThat(partialConfig.lastPartials().size(), is(1));
+        assertThat(partialConfig.lastPartials().get(0), is(part));
 
         // we change current configuration
         ScmMaterialConfig othermaterial = new GitMaterialConfig("http://myother.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(othermaterial,"myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
-        assertThat(partialConfig.lastPartials().length,is(0));
+        assertThat(partialConfig.lastPartials().size(),is(0));
     }
 
     @Test

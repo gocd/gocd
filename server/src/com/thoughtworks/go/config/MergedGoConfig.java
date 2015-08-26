@@ -42,7 +42,6 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
 
     public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
 
-    //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old MergedGoConfig
     private CachedFileGoConfig fileService;
     private GoPartialConfig partialConfig;
 
@@ -67,27 +66,27 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        this.tryAssembleMergedConfig(newCruiseConfig,this.partialConfig.lastPartials());
+        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(),this.partialConfig.lastPartials());
     }
     @Override
-    public void onPartialConfigChanged(PartialConfig[] partials) {
-        this.tryAssembleMergedConfig(this.fileService.currentConfig(),partials);
+    public void onPartialConfigChanged(List<PartialConfig> partials) {
+        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(),partials);
     }
 
     /**
      * attempts to create a new merged cruise config
     */
-    public void tryAssembleMergedConfig(CruiseConfig cruiseConfig,PartialConfig[] partials) {
+    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfig,List<PartialConfig> partials) {
         try {
             GoConfigHolder newConfigHolder;
 
-            if (partials.length == 0) {
+            if (partials.size() == 0) {
                 // no partial configurations
                 // then just use basic configuration from xml
                 newConfigHolder = fileService.loadConfigHolder();
             } else {
                 // create merge (uses merge strategy internally)
-                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, partials);
+                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig.config, partials);
                 // validate
                 List<ConfigErrors> allErrors = validate(merge);
                 if (!allErrors.isEmpty()) {

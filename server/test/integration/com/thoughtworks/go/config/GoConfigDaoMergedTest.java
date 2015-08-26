@@ -30,6 +30,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
@@ -48,10 +51,10 @@ public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
     public  GoConfigDaoMergedTest()
     {
         GoPartialConfig partials = mock(GoPartialConfig.class);
-        PartialConfig[] parts = new PartialConfig[1];
-        parts[0] = new PartialConfig(new PipelineGroups(
-                PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("remote-pipe"))));
-        parts[0].setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://config-repo.git"),"someplugin"),"3213455"));
+        List<PartialConfig> parts = new ArrayList<>();
+        parts.add(new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("remote-pipe")))));
+        parts.get(0).setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://config-repo.git"),"someplugin"),"3213455"));
 
         when(partials.lastPartials()).thenReturn(parts);
 

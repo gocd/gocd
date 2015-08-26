@@ -14,12 +14,21 @@
 # limitations under the License.
 ##########################################################################
 
-java.lang.Enum.class_eval do
-  def as_json(options)
-    to_s
-  end
+module ApiV2
+  class AgentsRepresenter < BaseRepresenter
 
-  def inspect
-    to_s
+    link :self do |opts|
+      opts[:url_builder].apiv2_agents_url
+    end
+
+    link :doc do
+      'http://api.go.cd/#agents'
+    end
+
+    collection :agents, embedded: true, exec_context: :decorator, decorator: AgentRepresenter
+
+    def agents
+      represented
+    end
   end
 end

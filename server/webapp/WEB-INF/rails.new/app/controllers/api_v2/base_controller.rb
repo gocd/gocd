@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module ApiV1
+module ApiV2
   class BaseController < ::ApplicationController
 
     class BadRequest < StandardError
@@ -22,7 +22,7 @@ module ApiV1
 
     include AuthenticationHelper
 
-    FORMATS                = [:json_hal_v1]
+    FORMATS                = [:json_hal_v2]
     DEFAULT_FORMAT         = FORMATS.last
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
 
@@ -44,7 +44,7 @@ module ApiV1
       }
 
       response.status = status
-      render json_hal_v1: json, location: url
+      render json_hal_v2: json, location: url
     end
 
     rescue_from RecordNotFound, with: :render_not_found_error
@@ -66,9 +66,9 @@ module ApiV1
 
     def render_http_operation_result(result)
       if result.instance_of?(HttpOperationResult)
-        render json_hal_v1: { message: result.detailedMessage().strip }, status: result.httpCode()
+        render json_hal_v2: { message: result.detailedMessage().strip }, status: result.httpCode()
       else
-        render json_hal_v1: { message: result.message(Spring.bean('localizer')).strip }, status: result.httpCode()
+        render json_hal_v2: { message: result.message(Spring.bean('localizer')).strip }, status: result.httpCode()
       end
     end
   end

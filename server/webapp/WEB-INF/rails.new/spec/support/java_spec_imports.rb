@@ -25,6 +25,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.server.ui.helper.AgentsViewModelMother unless defined? AgentsViewModelMother
   java_import com.thoughtworks.go.server.ui.AgentsViewModel unless defined? AgentsViewModel
   java_import com.thoughtworks.go.domain.DiskSpace unless defined? DiskSpace
+  java_import com.thoughtworks.go.domain.AgentConfigStatus unless defined? AgentConfigStatus
   java_import com.thoughtworks.go.helper.GoConfigMother unless defined? GoConfigMother
   java_import com.thoughtworks.go.helper.JobIdentifierMother unless defined? JobIdentifierMother
   java_import com.thoughtworks.go.helper.JobInstanceMother  unless defined? JobInstanceMother

@@ -1,4 +1,4 @@
-##########################################################################
+##########################GO-LICENSE-START################################
 # Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################################################################
+##########################GO-LICENSE-END##################################
 
-java.lang.Enum.class_eval do
-  def as_json(options)
-    to_s
-  end
-
-  def inspect
-    to_s
+module ApiV2
+  class RecordNotFound < StandardError
   end
 end

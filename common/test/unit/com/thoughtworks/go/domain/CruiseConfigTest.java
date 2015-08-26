@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -513,6 +514,46 @@ public class CruiseConfigTest {
         assertThat(allErrors.get(2).on("role"), is("Roles must be proper"));
         assertThat(allErrors.get(3).on(ScmMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
         assertThat(allErrors.get(4).on("materialName"), is("material name does not follow pattern"));
+    }
+
+    @Test
+    public void shouldCollectPipelineNameConflictErrorsInTheChildren_InMergedConfig_WhenPipelinesIn2Groups() {
+        BasicCruiseConfig mainCruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipeline-1", "g2");
+        partialConfig.setOrigin(new RepoConfigOrigin());
+        CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+
+        List<ConfigErrors> allErrors = config.validateAfterPreprocess();
+        assertThat(allErrors.size(), is(2));
+        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
+        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
+    }
+    @Test
+    public void shouldCollectPipelineNameConflictErrorsInTheChildren_InMergedConfig2_WhenPipelinesInDefaultGroup() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipeline1");
+        // pipeline1 is in xml and in config repo - this is an error at merged scope
+        PartialConfig remotePart = PartialConfigMother.withPipelineInGroup("pipeline1","defaultGroup");
+        remotePart.setOrigin(new RepoConfigOrigin());
+        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, remotePart);
+        List<ConfigErrors> allErrors = merged.validateAfterPreprocess();
+        assertThat(remotePart.getGroups().get(0).getPipelines().get(0).errors().size(),is(1));
+        assertThat(allErrors.size(), is(2));
+        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+    }
+    @Test
+    public void shouldCollectPipelineNameConflictErrorsInTheChildren_InMergedConfig_WhenCloned() {
+        BasicCruiseConfig mainCruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipeline-1", "g2");
+        partialConfig.setOrigin(new RepoConfigOrigin());
+        CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+        Cloner CLONER = new Cloner();
+        CruiseConfig cloned = CLONER.deepClone(config);
+
+        List<ConfigErrors> allErrors = cloned.validateAfterPreprocess();
+        assertThat(allErrors.size(), is(2));
+        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
+        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
     }
 
     @Test

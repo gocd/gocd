@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################################################################
 
-java.lang.Enum.class_eval do
-  def as_json(options)
-    to_s
-  end
+module ApiV2
+  class ErrorsController < BaseController
 
-  def inspect
-    to_s
+    def not_found
+      render :json_hal_v2 => { :message => 'The resource you requested was not found!' }, :status => 404
+    end
+
   end
 end

@@ -17,7 +17,7 @@
 
 #responsible for pretty printing hal+json responses for API clients
 
-%w(v1).each do |version|
+%w(v1 v2).each do |version|
   mime_type = "application/vnd.go.cd.#{version}+json"
   symbol    = "json_hal_#{version}".to_sym
 

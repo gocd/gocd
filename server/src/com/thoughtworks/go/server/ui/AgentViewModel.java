@@ -19,10 +19,7 @@ package com.thoughtworks.go.server.ui;
 import java.util.*;
 
 import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.DiskSpace;
-import com.thoughtworks.go.domain.IpAddress;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 import info.aduna.text.NumericStringComparator;
 import org.apache.commons.lang.StringUtils;
@@ -85,6 +82,14 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
 
     public AgentStatus getStatus() {
         return agentInstance.getStatus();
+    }
+
+    public AgentRuntimeStatus getRuntimeStatus(){
+        return agentInstance.getRuntimeStatus();
+    }
+
+    public AgentConfigStatus getAgentConfigStatus(){
+        return agentInstance.getAgentConfigStatus();
     }
 
     public String getStatusForDisplay() {

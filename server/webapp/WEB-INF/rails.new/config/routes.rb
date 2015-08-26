@@ -235,6 +235,16 @@ Go::Application.routes.draw do
     end
   end
 
+  scope :api, as: :apiv2 do
+    api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
+      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
+        patch :update, on: :member
+      end
+
+      match '*url', via: :all, to: 'errors#not_found'
+    end
+  end
+
   namespace :api, as: "" do
     defaults :no_layout => true do
       get 'plugins/status' => 'plugins#status'

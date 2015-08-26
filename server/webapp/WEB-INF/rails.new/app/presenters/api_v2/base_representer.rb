@@ -1,4 +1,4 @@
-##########################################################################
+##########################GO-LICENSE-START################################
 # Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +12,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################################################################
+##########################GO-LICENSE-END##################################
 
-java.lang.Enum.class_eval do
-  def as_json(options)
-    to_s
-  end
+require 'roar/decorator'
+require 'roar/json'
+require 'roar/json/hal'
 
-  def inspect
-    to_s
+module ApiV2
+  class BaseRepresenter < Roar::Decorator
+    include Roar::JSON::HAL
+
+    class <<self
+      def property(name, options={})
+        if (options[:skip_nil])
+          super
+        else
+          super(name, options.merge!(render_nil: true))
+        end
+      end
+    end
+
+    def to_hash(*options)
+      super.deep_symbolize_keys
+    end
+
   end
 end

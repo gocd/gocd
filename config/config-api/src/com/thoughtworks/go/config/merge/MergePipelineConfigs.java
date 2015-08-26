@@ -107,10 +107,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        String group = this.getGroup();
-        if (StringUtils.isBlank(group) || !new NameTypeValidator().isNameValid(group)) {
-            this.configErrors.add(GROUP, NameTypeValidator.errorMessage("group", group));
-        }
+        this.validateGroupName();
         for(PipelineConfigs part : this.parts)
         {
             part.validate(validationContext);
@@ -219,6 +216,14 @@ public class MergePipelineConfigs implements PipelineConfigs {
             start = end;
         }
         throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public String validateGroupName() {
+        String nameErrorText = this.parts.get(0).validateGroupName();
+        if(nameErrorText != null)
+            this.addError(GROUP,nameErrorText);
+        return  nameErrorText;
     }
 
     @Override

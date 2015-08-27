@@ -30,8 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GoPartialConfigTest {
 
@@ -165,5 +164,20 @@ public class GoPartialConfigTest {
     public void shouldListenForCompletedParsing()
     {
         assertTrue(configWatchList.hasListener(partialConfig));
+    }
+
+    @Test
+    public void shouldNotifyListenersAfterUpdatingMapOfLatestValidConfig()
+    {
+        ScmMaterialConfig material = setOneConfigRepo();
+
+        PartialConfig part = new PartialConfig();
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
+
+        PartialConfigUpdateCompletedListener listener = mock(PartialConfigUpdateCompletedListener.class);
+        repoConfigDataSource.registerListener(listener);
+
+        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        verify(listener,times(1)).onSuccessPartialConfig(any(ConfigRepoConfig.class), any(PartialConfig.class));
     }
 }

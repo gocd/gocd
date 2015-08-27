@@ -346,12 +346,14 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void setEnvironments(EnvironmentsConfig environments) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set environments in merged configuration");
         }
 
         @Override
         public void setGroup(PipelineGroups pipelineGroups) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set groups in merged configuration");
         }
 
         @Override
@@ -364,7 +366,8 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set group in merged configuration");
         }
 
         @Override
@@ -425,7 +428,8 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot update pipeline group in merged configuration");
         }
     }
 

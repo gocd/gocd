@@ -76,17 +76,17 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     /**
      * attempts to create a new merged cruise config
     */
-    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfig,List<PartialConfig> partials) {
+    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfigHolder,List<PartialConfig> partials) {
         try {
             GoConfigHolder newConfigHolder;
 
             if (partials.size() == 0) {
                 // no partial configurations
                 // then just use basic configuration from xml
-                newConfigHolder = fileService.loadConfigHolder();
+                newConfigHolder = cruiseConfigHolder;
             } else {
                 // create merge (uses merge strategy internally)
-                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig.config, partials);
+                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfigHolder.config, partials);
                 // validate
                 List<ConfigErrors> allErrors = validate(merge);
                 if (!allErrors.isEmpty()) {
@@ -122,8 +122,8 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
 
     public CruiseConfig loadForEditing() {
-        //here we will return main CruiseConfig because merged cannot be (entirely) edited
-        return fileService.loadForEditing();
+        // merged cannot be (entirely) edited but we return it so that all pipelines are rendered in admin->pipelines
+        return currentConfigForEdit;
     }
 
     public CruiseConfig currentConfig() {

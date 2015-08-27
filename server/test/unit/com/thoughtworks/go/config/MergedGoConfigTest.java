@@ -24,6 +24,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
+import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -32,10 +33,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_1CONFIGREPO;
 import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_CONFIG_REPO;
+import static junit.framework.TestCase.assertSame;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -208,5 +212,60 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
 
         assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(),is(true));
+    }
+
+    @Test
+    public void tryAssembleMergedConfig_shouldSetXmlConfigWhenNoPartials()
+    {
+        GoConfigHolder fileHolder = cachedFileGoConfig.loadConfigHolder();
+        MergedGoConfig mergedGoConfig = (MergedGoConfig) this.cachedGoConfig;
+        mergedGoConfig.tryAssembleMergedConfig(fileHolder, new ArrayList<PartialConfig>());
+        assertSame(cachedFileGoConfig.loadConfigHolder(), mergedGoConfig.loadConfigHolder());
+        assertSame(cachedFileGoConfig.currentConfig(), mergedGoConfig.currentConfig());
+        assertSame(cachedFileGoConfig.loadForEditing(), mergedGoConfig.loadForEditing());
+    }
+
+    @Test
+    public void tryAssembleMergedConfig_shouldSetNewConfigWithMergedConfigWhenThereArePartials()
+    {
+        GoConfigHolder fileHolder = cachedFileGoConfig.loadConfigHolder();
+        MergedGoConfig mergedGoConfig = (MergedGoConfig) this.cachedGoConfig;
+        PartialConfig part1 = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
+        mergedGoConfig.tryAssembleMergedConfig(fileHolder, Arrays.asList(part1));
+
+        assertThat("configHolderHasRemotePartsOfConfigInConfig",
+                mergedGoConfig.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        assertThat("configHolderHasRemotePartsOfConfigInConfigForEdit",
+                mergedGoConfig.loadConfigHolder().configForEdit.hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        assertThat("currentConfigHasRemotePartsOfConfig",
+                mergedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        assertThat("currentConfigForEditHasRemotePartsOfConfig",
+                mergedGoConfig.loadForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        // yes, we really want to return un-editable pipeline in config for edit
+
+        assertThat("configHolderHasLocalPartsOfConfigInConfig",
+                mergedGoConfig.loadConfigHolder().config.getConfigRepos().size(),is(1));
+        assertThat("configHolderHasLocalPartsOfConfigInConfigForEdit",
+                mergedGoConfig.loadConfigHolder().configForEdit.getConfigRepos().size(),is(1));
+        assertThat("currentConfigHasLocalPartsOfConfig",
+                mergedGoConfig.currentConfig().getConfigRepos().size(),is(1));
+        assertThat("currentConfigForEditHasLocalPartsOfConfig",
+                mergedGoConfig.loadForEditing().getConfigRepos().size(),is(1));
+    }
+
+    @Test
+    public void tryAssembleMergedConfig_shouldNotChangeConfigWhenMergeFailed()
+    {
+        GoConfigHolder fileHolder = cachedFileGoConfig.loadConfigHolder();
+        MergedGoConfig mergedGoConfig = (MergedGoConfig) this.cachedGoConfig;
+        PartialConfig badPart = new PartialConfig(new PipelineGroups(
+                PipelineConfigMother.createGroup("part1",
+                        PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
+        mergedGoConfig.tryAssembleMergedConfig(fileHolder, Arrays.asList(badPart));
+
+        assertSame(cachedFileGoConfig.loadConfigHolder(), mergedGoConfig.loadConfigHolder());
+        assertSame(cachedFileGoConfig.currentConfig(), mergedGoConfig.currentConfig());
+        assertSame(cachedFileGoConfig.loadForEditing(), mergedGoConfig.loadForEditing());
     }
 }

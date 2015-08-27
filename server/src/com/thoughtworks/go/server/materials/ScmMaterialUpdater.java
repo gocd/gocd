@@ -64,7 +64,7 @@ class ScmMaterialUpdater implements MaterialUpdater {
         else {
             Revision lastRevision = list.latestRevision(material);
             newChanges = materialService.modificationsSince(material, folder, lastRevision, subprocessExecutionContext);
-            revision = lastRevision.getRevision();
+            revision = newChanges.isEmpty() ? lastRevision.getRevision() : newChanges.get(newChanges.size() - 1).getRevision();
         }
         if (newChanges.isEmpty()) {
             if (LOGGER.isDebugEnabled()) {
@@ -75,7 +75,6 @@ class ScmMaterialUpdater implements MaterialUpdater {
         } else {
             LOGGER.info(String.format("[Material Update] Found '%s' modifications for material '%s' with flyweight '%s' using working directory '%s'", newChanges.size(), material,
                     material.getFingerprint(), folder.getAbsolutePath()));
-            revision = newChanges.get(newChanges.size() -1).getRevision();
         }
         materialRepository.saveModifications(materialInstance, newChanges);
 

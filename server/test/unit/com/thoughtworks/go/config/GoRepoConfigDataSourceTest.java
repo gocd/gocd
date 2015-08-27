@@ -34,9 +34,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by tomzo on 6/18/15.
- */
 public class GoRepoConfigDataSourceTest {
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
@@ -50,7 +47,7 @@ public class GoRepoConfigDataSourceTest {
     File folder = new File("dir");
 
     @Before
-    public void SetUp()
+    public void setUp()
     {
         configPluginService = mock(GoConfigPluginService.class);
         plugin = mock(PartialConfigProvider.class);
@@ -76,7 +73,7 @@ public class GoRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        verify(plugin,times(1)).Load(eq(folder),any(PartialConfigLoadContext.class));
+        verify(plugin,times(1)).load(eq(folder), any(PartialConfigLoadContext.class));
     }
 
     @Test
@@ -102,7 +99,7 @@ public class GoRepoConfigDataSourceTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
 
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenReturn(PartialConfigMother.withPipeline("pipe1"));
 
         repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
@@ -125,7 +122,7 @@ public class GoRepoConfigDataSourceTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
 
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenReturn(PartialConfigMother.withEnvironment("UAT"));
 
         repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
@@ -149,7 +146,7 @@ public class GoRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        verify(plugin,times(1)).Load(eq(folder),notNull(PartialConfigLoadContext.class));
+        verify(plugin,times(1)).load(eq(folder), notNull(PartialConfigLoadContext.class));
     }
 
     @Test
@@ -159,7 +156,7 @@ public class GoRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        verify(plugin,times(0)).Load(eq(folder),any(PartialConfigLoadContext.class));
+        verify(plugin,times(0)).load(eq(folder), any(PartialConfigLoadContext.class));
     }
 
     @Test
@@ -203,7 +200,7 @@ public class GoRepoConfigDataSourceTest {
     private class BrokenConfigPlugin implements PartialConfigProvider
     {
         @Override
-        public PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
+        public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
             throw new BrokenConfigPluginException();
         }
     }

@@ -17,14 +17,10 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
-import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -36,9 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_1CONFIGREPO;
-import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_CONFIG_REPO;
 import static junit.framework.TestCase.assertSame;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -126,7 +120,7 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
         PartialConfig part1 = new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(
                 part1
         );
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
@@ -140,7 +134,7 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
         PartialConfig part1 = new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part1);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part1);
 
         ConfigChangedListener listener = mock(ConfigChangedListener.class);
         cachedGoConfig.registerListener(listener);
@@ -161,7 +155,7 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         PartialConfig badPart = new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1",
                         PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(badPart);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(badPart);
 
         ConfigChangedListener listener = mock(ConfigChangedListener.class);
         cachedGoConfig.registerListener(listener);
@@ -183,7 +177,7 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         PartialConfig badPart = new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1",
                         PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(badPart);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(badPart);
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
 
@@ -199,7 +193,7 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         PartialConfig badPart = new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1",
                         PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(badPart);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(badPart);
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
 
@@ -208,7 +202,7 @@ public class MergedGoConfigTest extends CachedGoConfigBaseTest {
         //fix partial
         PartialConfig part1 = new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("pipe1"))));
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part1);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part1);
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(),folder,"321e");
 
         assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(),is(true));

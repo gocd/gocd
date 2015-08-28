@@ -38,7 +38,7 @@
 
                         <div class="form_item_block checkbox_row material_options">
                             <%= f.check_box(com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE, {:include_blank => true, :class => "form_input"}, "true") -%>
-                            <label for="material_<%= com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE -%>"><%= l.string('SHOULD_AUTO_UPDATE') -%></label>
+                            <%= f.label(com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE, l.string('SHOULD_AUTO_UPDATE')) %>
                             <%= error_message_on(scm_config, com.thoughtworks.go.domain.scm.SCM::AUTO_UPDATE, :css_class => "form_error") %>
                         </div>
 

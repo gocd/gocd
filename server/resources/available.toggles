@@ -17,11 +17,6 @@
          "value": true
       },
       {
-         "key": "new_cctray_feature_toggle_key",
-         "description": "Enables new cctray implementation. See more at: https://github.com/gocd/gocd/pull/877. Default: on.",
-         "value": true
-      },
-      {
          "key": "api_requests_short_session_feature_toggle_key",
          "description": "Enables short-lived sessions for API requests. See more at: https://github.com/gocd/gocd/issues/496. Default: on.",
          "value": true

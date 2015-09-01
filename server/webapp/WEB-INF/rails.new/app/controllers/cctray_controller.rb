@@ -16,12 +16,7 @@
 
 class CctrayController < ApplicationController
   def index
-    if Toggles.isToggleOn(Toggles.NEW_CCTRAY_FEATURE_TOGGLE_KEY)
-      render text: cc_tray_service.getCcTrayXml(site_url_prefix)
-    else
-      doc = cc_tray_status_service.createCctrayXmlDocument(request_context_path)
-      render text: com.thoughtworks.go.util.XmlUtils.asXml(doc)
-    end
+    render text: cc_tray_service.getCcTrayXml(site_url_prefix)
   end
 
   private

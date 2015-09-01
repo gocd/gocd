@@ -124,7 +124,7 @@ public class PluggableTaskTest {
 
     @After
     public void teardown() {
-        for (String pluginId : PluggableTaskConfigStore.store().pluginsWithPreference()) {
+        for (String pluginId : PluggableTaskConfigStore.store().pluginIds()) {
             PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
         }
     }

@@ -101,6 +101,9 @@ AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGE
 if [ "$TMPDIR" != "" ]; then
     AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.io.tmpdir=$TMPDIR"
 fi
+if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
+    AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.security.egd=file:/dev/./urandom"
+fi
 export AGENT_STARTUP_ARGS
 export LOG_DIR
 export LOG_FILE

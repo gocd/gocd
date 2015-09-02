@@ -118,8 +118,8 @@ if [ "$JAVA_HOME" == "" ]; then
 fi
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup $CMD >>$LOG_FILE 2>&1 &
-    echo $! >$PID_FILE
+    eval exec nohup "$CMD" >>"$LOG_FILE" 2>&1 &
+    echo $! >"$PID_FILE"
 else
-    exec $CMD
+    eval exec "$CMD"
 fi

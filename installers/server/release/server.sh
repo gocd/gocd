@@ -141,4 +141,3 @@ if [ "$DAEMON" == "Y" ]; then
 else
     exec $CMD
 fi
-

@@ -121,6 +121,9 @@ SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.
 if [ "$TMPDIR" != "" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.io.tmpdir=$TMPDIR")
 fi
+if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
+    SERVER_STARTUP_ARGS+=("-Djava.security.egd=file:/dev/./urandom")
+fi
 CMD="$JAVA_HOME/bin/java ${SERVER_STARTUP_ARGS[@]} -jar $SERVER_DIR/go.jar"
 
 echo "Starting Go Server with command: $CMD" >>$LOG_FILE
@@ -138,4 +141,3 @@ if [ "$DAEMON" == "Y" ]; then
 else
     exec $CMD
 fi
-

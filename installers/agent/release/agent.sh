@@ -46,7 +46,7 @@ else
     AGENT_WORK_DIR=$AGENT_DIR
 fi
 
-if [ ! -d ${AGENT_WORK_DIR} ]; then
+if [ ! -d "${AGENT_WORK_DIR}" ]; then
     echo Agent working directory ${AGENT_WORK_DIR} does not exist
     exit 2
 fi
@@ -61,10 +61,7 @@ else
     LOG_DIR=$AGENT_WORK_DIR
 fi
 
-
-
 LOG_FILE=$LOG_DIR/${SERVICE_NAME}-bootstrapper.log
-
 
 if [ "$PID_FILE" ]; then
     echo "[`date`] Use PID_FILE: $PID_FILE"
@@ -101,15 +98,18 @@ AGENT_STARTUP_ARGS="-Dcruise.console.publish.interval=10 -Xms$AGENT_MEM -Xmx$AGE
 if [ "$TMPDIR" != "" ]; then
     AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.io.tmpdir=$TMPDIR"
 fi
+if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
+    AGENT_STARTUP_ARGS="$AGENT_STARTUP_ARGS -Djava.security.egd=file:/dev/./urandom"
+fi
 export AGENT_STARTUP_ARGS
 export LOG_DIR
 export LOG_FILE
 
 CMD="$JAVA_HOME/bin/java -jar \"$AGENT_DIR/agent-bootstrapper.jar\" $GO_SERVER $GO_SERVER_PORT"
 
-echo "[`date`] Starting Go Agent Bootstrapper with command: $CMD" >>$LOG_FILE
-echo "[`date`] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>$LOG_FILE
-echo "[`date`] AGENT_STARTUP_ARGS=$AGENT_STARTUP_ARGS" >>$LOG_FILE
+echo "[`date`] Starting Go Agent Bootstrapper with command: $CMD" >>"$LOG_FILE"
+echo "[`date`] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$LOG_FILE"
+echo "[`date`] AGENT_STARTUP_ARGS=$AGENT_STARTUP_ARGS" >>"$LOG_FILE"
 cd "$AGENT_WORK_DIR"
 
 if [ "$JAVA_HOME" == "" ]; then
@@ -118,8 +118,8 @@ if [ "$JAVA_HOME" == "" ]; then
 fi
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup $CMD >>$LOG_FILE 2>&1 &
-    echo $! >$PID_FILE
+    eval exec nohup "$CMD" >>"$LOG_FILE" 2>&1 &
+    echo $! >"$PID_FILE"
 else
-    exec $CMD
+    eval exec "$CMD"
 fi

@@ -42,7 +42,7 @@ if command -v drip >/dev/null 2>&1 ; then
     export JAVACMD=$(which drip)
 fi
 
-export JRUBY_OPTS="${JRUBY_OPTS} -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Djruby.compile.invokedynamic=false -J-Dcompile.mode=OFF"
+export JRUBY_OPTS="${JRUBY_OPTS} -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Djruby.compile.invokedynamic=false -J-Djruby.compile.mode=OFF"
 
 jruby_cp=$(echo ${combined_classpath_items[@]} | awk ' !x[$0]++' | tr ' ' ':')
 

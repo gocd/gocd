@@ -51,7 +51,6 @@ GEM
     diff-lcs (1.2.5)
     dynamic_form (1.1.4)
     erubis (2.7.0)
-    execjs (2.6.0)
     ffi (1.9.8-java)
     hike (1.2.3)
     i18n (0.6.9)
@@ -68,7 +67,6 @@ GEM
       phantomjs (>= 1.9)
       railties (>= 3.2.0)
       sprockets-rails
-    json (1.8.3-java)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -144,9 +142,6 @@ GEM
       polyglot (>= 0.3.1)
     tzinfo (0.3.44)
     uber (0.0.13)
-    uglifier (2.7.2)
-      execjs (>= 0.3.0)
-      json (>= 1.8.0)
     validatable (1.6.7)
     versionist (1.4.1)
       activesupport (>= 3)
@@ -156,6 +151,7 @@ GEM
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.8.7.6)
+    yui-compressor (0.12.0)
 
 PLATFORMS
   java
@@ -179,6 +175,6 @@ DEPENDENCIES
   sass-rails (= 4.0.3)
   selenium-webdriver
   sprockets-rails
-  uglifier
   validatable (>= 1.6.0)
   versionist
+  yui-compressor

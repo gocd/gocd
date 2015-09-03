@@ -1,5 +1,3 @@
-require 'yui/compressor'
-
 Go::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -26,8 +24,8 @@ Go::Application.configure do
   # Disable Rails's static asset server (Apache or nginx will already do this).
   config.serve_static_assets = false
 
-  config.assets.css_compressor = :yui
-  config.assets.js_compressor = :yui
+  config.assets.js_compressor = :uglifier
+  config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false

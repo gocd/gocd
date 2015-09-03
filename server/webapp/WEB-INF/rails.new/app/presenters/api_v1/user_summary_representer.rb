@@ -24,11 +24,11 @@ module ApiV1
     end
 
     link :self do |opts|
-      opts[:url_builder].apiv1_user_url(login_name)
+      opts[:url_builder].apiv1_user_url(login_name: login_name)
     end
 
     link :find do |opts|
-      opts[:url_builder].apiv1_user_url(':login_name')
+      opts[:url_builder].apiv1_user_url(login_name: '__login_name__').gsub(/__login_name__/, ':login_name')
     end
 
     property :login_name, exec_context: :decorator

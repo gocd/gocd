@@ -130,7 +130,7 @@ public class TaskViewService implements TaskFactory {
 
     private List<Task> allPluginTasks() {
         final ArrayList<Task> tasks = new ArrayList<Task>();
-        for (final String pluginId : PluggableTaskConfigStore.store().pluginsWithPreference()) {
+        for (final String pluginId : PluggableTaskConfigStore.store().pluginIds()) {
             GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(pluginId);
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
             if (pluginDescriptor != null && taskPreference != null) {

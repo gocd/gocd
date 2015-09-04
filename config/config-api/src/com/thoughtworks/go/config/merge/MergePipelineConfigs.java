@@ -107,7 +107,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        this.validateGroupName();
+        this.validateGroupNameAndAddErrorsTo(this.configErrors);
         for(PipelineConfigs part : this.parts)
         {
             part.validate(validationContext);
@@ -219,11 +219,8 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     @Override
-    public String validateGroupName() {
-        String nameErrorText = this.parts.get(0).validateGroupName();
-        if(nameErrorText != null)
-            this.addError(GROUP,nameErrorText);
-        return  nameErrorText;
+    public void validateGroupNameAndAddErrorsTo(ConfigErrors errors) {
+        this.parts.get(0).validateGroupNameAndAddErrorsTo(errors);
     }
 
     @Override

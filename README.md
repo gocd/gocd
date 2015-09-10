@@ -1,6 +1,8 @@
 # gocd
 
+[![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.io)
 [![Join the chat at https://gitter.im/gocd/gocd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/gocd/gocd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 This is the main repository for Go Continuous Delivery. Go helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
 

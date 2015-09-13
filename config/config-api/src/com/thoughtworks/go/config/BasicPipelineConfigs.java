@@ -149,7 +149,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public String getGroup() {
-        return sanitizedGroupName(group);
+        return group;
     }
 
     @Override

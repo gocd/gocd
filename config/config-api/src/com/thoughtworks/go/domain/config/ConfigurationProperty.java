@@ -187,6 +187,10 @@ public class ConfigurationProperty implements Serializable, Validatable {
         return configErrors;
     }
 
+    public boolean hasErrors(){
+        return !configErrors.isEmpty();
+    }
+
     @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);

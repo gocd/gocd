@@ -51,7 +51,7 @@ public class PluggableTaskService {
         this.localizer = localizer;
     }
 
-    public void validate(final PluggableTask modifiedTask) {
+    public boolean validate(final PluggableTask modifiedTask) {
         final TaskConfig configuration = new TaskConfig();
         for (ConfigurationProperty configurationProperty : modifiedTask.getConfiguration()) {
             configuration.add(new TaskConfigProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
@@ -75,5 +75,7 @@ public class PluggableTaskService {
         for (ValidationError validationError : validationResult.getErrors()) {
             modifiedTask.getConfiguration().getProperty(validationError.getKey()).addError(validationError.getKey(), validationError.getMessage());
         }
+
+        return validationResult.isSuccessful();
     }
 }

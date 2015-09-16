@@ -202,9 +202,9 @@
         </dependency>
 
         <dependency>
-            <groupId>rhino</groupId>
-            <artifactId>js</artifactId>
-            <version>1.6R5</version>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>1.7.6</version>
         </dependency>
 
         <dependency>
@@ -227,6 +227,10 @@
                 <exclusion>
                     <groupId>xom</groupId>
                     <artifactId>xom</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>rhino</groupId>
+                    <artifactId>js</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>xerces</groupId>
@@ -277,12 +281,6 @@
 					<artifactId>slf4j-nop</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.birt.runtime.3_7_1</groupId>
-			<artifactId>org.mozilla.javascript</artifactId>
-			<version>1.7.2</version>
 		</dependency>
 
 		<dependency>

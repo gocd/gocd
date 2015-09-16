@@ -1,0 +1,8 @@
+.idea
+nbproject
+doc
+*.gem
+.rvmrc
+.bundle
+Gemfile.lock
+spec/deprecations.log

@@ -1,0 +1,10 @@
+rvm:
+  - jruby-18mode
+  - jruby-19mode
+  - jruby-head
+#env:
+#  - JRUBY_OPTS="--1.8"
+#  - JRUBY_OPTS="--1.9"
+branches:
+  only:
+    - master

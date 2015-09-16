@@ -1,0 +1,107 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', '../helpers/form_helper', './environment_variables_config_widget', './tasks_config_widget', './artifacts_config_widget', './properties_config_widget', './tabs_config_widget'], function (m, _, f, EnvironmentVariablesConfigWidget, TasksConfigWidget, ArtifactsConfigWidget, PropertiesConfigWidget, TabsConfigWidget) {
+
+  var JobsConfigWidget = {
+    controller: function (args) {
+      this.jobs             = args.jobs;
+      this.selectedJobIndex = args.selectedJobIndex;
+
+      this.appendJob = function () {
+        var newJob = this.jobs.createJob();
+        this.selectedJobIndex(this.jobs.indexOfJob(newJob));
+      };
+
+      this.removeJob = function (job) {
+        var previousJob = this.jobs.previousJob(job);
+        this.jobs.removeJob(job);
+
+        var firstJob = this.jobs.firstJob() || this.jobs.createJob();
+        this.selectedJobIndex(this.jobs.indexOfJob(previousJob || firstJob));
+      };
+
+      this.selectedJobIndex(this.jobs.indexOfJob(this.jobs.firstJob() || this.jobs.createJob()));
+    },
+
+    view: function (ctrl) {
+      return (
+        <div>
+          <f.tabs class="job-definitions"
+                  tabTitles={ctrl.jobs.collectJobProperty('name')}
+                  tabKeys={ctrl.jobs.collectJobProperty('uuid')}
+                  isVertical={true}
+                  selectedIndex={ctrl.selectedJobIndex}>
+            {ctrl.jobs.mapJobs(function (job) {
+              return (
+                <f.row class='job-definition'>
+                  <f.column size={9}>
+                    <f.removeButton onclick={ctrl.removeJob.bind(ctrl, job)} class='remove-job'/>
+                    <f.row>
+                      <f.inputWithLabel
+                        attrName='name'
+                        model={job}/>
+
+                      <f.inputWithLabel
+                        attrName='resources'
+                        model={job}
+                        end={true}/>
+                    </f.row>
+
+                    <f.row>
+                      <f.column size={12} end={true}>
+                        <EnvironmentVariablesConfigWidget variables={job.environmentVariables()}/>
+                      </f.column>
+                    </f.row>
+
+                    <f.row>
+                      <f.column size={12} end={true}>
+                        <TasksConfigWidget tasks={job.tasks()}/>
+                      </f.column>
+                    </f.row>
+
+                    <f.row>
+                      <f.column size={12}>
+                        <f.tabs tabTitles={['Artifacts', 'Tabs', 'Properties']}
+                                tabKeys={['artifacts', 'tabs', 'properties']}>
+                          <ArtifactsConfigWidget artifacts={job.artifacts()}/>
+                          <TabsConfigWidget tabs={job.tabs()}/>
+                          <PropertiesConfigWidget properties={job.properties()}/>
+                        </f.tabs>
+                      </f.column>
+                    </f.row>
+
+                  </f.column>
+                </f.row>
+              );
+            })}
+          </f.tabs>
+          <f.row>
+            <f.column size={2} end={true}>
+              <div class='add-job'>
+                <a href="javascript:void(0)"
+                   onclick={ctrl.appendJob.bind(ctrl)}
+                   class='add-job'>Add Job</a>
+              </div>
+            </f.column>
+          </f.row>
+        </div>
+      );
+    }
+  };
+
+  return JobsConfigWidget;
+});

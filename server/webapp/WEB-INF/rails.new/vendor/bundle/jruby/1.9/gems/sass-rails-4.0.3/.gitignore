@@ -1,0 +1,6 @@
+*.gem
+.bundle
+*.lock
+pkg/*
+.sass-cache
+.ruby-version

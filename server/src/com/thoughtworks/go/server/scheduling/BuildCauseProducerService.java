@@ -229,7 +229,7 @@ public class BuildCauseProducerService {
             LOGGER.debug("finished producing buildcause for " + pipelineName);
             return ServerHealthState.success(HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         } catch (NoCompatibleUpstreamRevisionsException ncure) {
-            String message = "Error while scheduling pipeline: " + pipelineName + " as no compatible revisions was identified.";
+            String message = "Error while scheduling pipeline: " + pipelineName + " as no compatible revisions were identified.";
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(message, ncure);
             }

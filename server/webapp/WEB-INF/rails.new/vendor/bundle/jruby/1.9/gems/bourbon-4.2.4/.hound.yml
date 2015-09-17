@@ -1,5 +1,0 @@
-ruby:
-  enabled: true
-scss:
-  config_file: .scss-lint.yml
-  enabled: true

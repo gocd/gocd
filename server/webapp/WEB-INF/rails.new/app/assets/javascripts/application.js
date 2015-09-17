@@ -10,7 +10,7 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives
 
-//= require "lib/es5-shim.js"
+//= require "lib/es5-shim.min.js"
 //= require "lib/jquery-1.7.2.js"
 //= require "lib/jquery.timeago-1.2.3.js"
 //= require "lib/jquery.url-1.0.js"

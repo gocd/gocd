@@ -40,7 +40,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class MergedGoConfigTest extends CachedGoConfigBaseTest {
+public class MergedGoConfigTest extends CachedGoConfigTestBase {
 
     private CachedFileGoConfig cachedFileGoConfig;
 

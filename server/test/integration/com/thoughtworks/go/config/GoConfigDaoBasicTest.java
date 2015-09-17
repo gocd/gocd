@@ -25,7 +25,7 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class GoConfigDaoBasicTest extends GoConfigDaoBaseTest {
+public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
 
     public  GoConfigDaoBasicTest()
     {

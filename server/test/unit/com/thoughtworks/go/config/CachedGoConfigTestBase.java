@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public abstract class CachedGoConfigBaseTest {
+public abstract class CachedGoConfigTestBase {
     protected CachedGoConfig cachedGoConfig;
     protected GoConfigFileHelper configHelper;
     protected GoFileConfigDataSource dataSource;

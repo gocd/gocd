@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
-public class MergeCruiseConfigTest extends CruiseConfigTest {
+public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
     @Before
     public void setup() throws Exception {

@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
  * Which is why this tests run on merged configuration
  * confirming that case that executes on sole file passes here as well.
  */
-public class GoConfigDaoMergedTest extends GoConfigDaoBaseTest {
+public class GoConfigDaoMergedTest extends GoConfigDaoTestBase {
 
     public  GoConfigDaoMergedTest()
     {

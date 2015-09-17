@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.util.List;
-
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -29,31 +26,27 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_ANT_BUILDER;
-import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
-import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT;
-import static com.thoughtworks.go.helper.ConfigFileFixture.WITH_3_AGENT_CONFIG;
+import java.io.File;
+import java.util.List;
+
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
+import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.TestUtils.assertContains;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 
-public abstract class GoConfigDaoBaseTest {
+public abstract class GoConfigDaoTestBase {
     protected GoConfigFileHelper configHelper ;
     protected GoConfigDao goConfigDao ;
     protected CachedGoConfig cachedGoConfig;

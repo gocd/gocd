@@ -60,7 +60,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.*;
 
-public abstract class CruiseConfigTest {
+public abstract class CruiseConfigTestBase {
     public GoConfigMother goConfigMother;
     protected BasicPipelineConfigs pipelines;
     protected CruiseConfig cruiseConfig;

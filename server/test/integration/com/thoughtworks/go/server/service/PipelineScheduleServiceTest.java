@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.io.File;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
@@ -81,7 +81,7 @@ import static org.junit.Assert.assertThat;
 })
 public class PipelineScheduleServiceTest {
     @Autowired private ScheduleService scheduleService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private StageSqlMapDao stageDao;
@@ -111,7 +111,7 @@ public class PipelineScheduleServiceTest {
     @Before
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         testRepo = new SvnTestRepo("testSvnRepo");
         dbHelper.onSetUp();

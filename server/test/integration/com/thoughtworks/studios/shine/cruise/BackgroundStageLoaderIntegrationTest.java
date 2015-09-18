@@ -19,7 +19,7 @@ package com.thoughtworks.studios.shine.cruise;
 import java.io.File;
 import java.util.Date;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -82,7 +82,7 @@ public class BackgroundStageLoaderIntegrationTest {
     @Autowired private StageService stageService;
     @Autowired private PipelineHistoryService pipelineHistoryService;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PropertiesService propertiesService;
     @Autowired private ArtifactsService artifactsService;
     @Autowired private JobInstanceService jobInstanceService;
@@ -106,7 +106,7 @@ public class BackgroundStageLoaderIntegrationTest {
         pipelineInstanceLoader = pipelineHistoryService;
         StageResourceImporter importer = new StageResourceImporter("/artifacts", xmlApiService, stageFinder, pipelineInstanceLoader,systemEnvironment);
         loader = new BackgroundStageLoader(null, importer, stageStorage, pipelineHistoryService, stageService, systemEnvironment );
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         failureSetup = new TestFailureSetup(materialRepository, dbHelper, pipelineTimeline, configHelper, transactionTemplate);

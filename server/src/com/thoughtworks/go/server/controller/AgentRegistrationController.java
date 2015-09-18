@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.update.ApproveAgentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
@@ -194,7 +194,7 @@ public class AgentRegistrationController {
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
                 LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
-                GoConfigFileDao.CompositeConfigCommand compositeConfigCommand = new GoConfigFileDao.CompositeConfigCommand(
+                GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
                         new ApproveAgentCommand(uuid, ipAddress, preferredHostname),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)

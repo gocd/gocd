@@ -56,7 +56,7 @@ public class ServerConfigServiceIntegrationTest {
     @Autowired ServerConfigService serverConfigService;
     @Autowired UserService userService;
     @Autowired
-    GoConfigFileDao goConfigFileDao;
+    GoConfigDao goConfigDao;
     @Autowired Localizer localizer;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -74,7 +74,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();
@@ -100,7 +100,7 @@ public class ServerConfigServiceIntegrationTest {
 
 
         serverConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
-                goConfigFileDao.md5OfConfigFile());
+                goConfigDao.md5OfConfigFile());
 
         assertThat(goConfigService.getMailHost(), is(mailHost));
         assertThat(goConfigService.security(), is(new SecurityConfig(ldapConfig, passwordFileConfig, false)));
@@ -115,7 +115,7 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, "newArtifactsDir", 10.0, 20.0, "42", true, "http://site_url", "https://secure_site_url", "gist-repo/folder",
-                result, goConfigFileDao.md5OfConfigFile());
+                result, goConfigDao.md5OfConfigFile());
 
         assertThat(goConfigService.getMailHost(), is(mailHost));
         assertThat(goConfigService.security(), is(new SecurityConfig(ldapConfig, passwordFileConfig, false)));
@@ -139,7 +139,7 @@ public class ServerConfigServiceIntegrationTest {
 
         serverConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, "newArtifactsDir", null, null, "42", true, "http://site_url", "https://secure_site_url", "default",
                 result,
-                goConfigFileDao.md5OfConfigFile());
+                goConfigDao.md5OfConfigFile());
 
         assertThat(goConfigService.serverConfig().getPurgeStart(), is(nullValue()));
         assertThat(goConfigService.serverConfig().getPurgeUpto(), is(nullValue()));
@@ -152,7 +152,7 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         serverConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, "newArtifactsDir", null, null, "42", true, "", "", "default", result,
-                goConfigFileDao.md5OfConfigFile());
+                goConfigDao.md5OfConfigFile());
         assertThat(goConfigService.serverConfig().getSiteUrl(), is(new ServerSiteUrlConfig()));
         assertThat(goConfigService.serverConfig().getSecureSiteUrl(), is(new ServerSiteUrlConfig()));
     }
@@ -171,7 +171,7 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(mailHost, ldapConfig, passwordConfig, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
-                goConfigFileDao.md5OfConfigFile());
+                goConfigDao.md5OfConfigFile());
 
         assertThat(goConfigService.getMailHost(), is(mailHost));
         assertThat(goConfigService.security(), is(securityConfig));
@@ -195,7 +195,7 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
-                goConfigFileDao.md5OfConfigFile());
+                goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), containsString("Failed to save the server configuration. Reason: "));
@@ -204,7 +204,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateOnlyLdapConfiguration() {
-        CruiseConfig cruiseConfig = goConfigFileDao.loadForEditing();
+        CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
         LdapConfig newLdapConfig = new LdapConfig("url", "managerDN", "managerPassword", "encrypted", true, new BasesConfig(new BaseConfig("base1"), new BaseConfig("base2")), "filter");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerConfig serverConfig = cruiseConfig.server();
@@ -212,8 +212,8 @@ public class ServerConfigServiceIntegrationTest {
                 serverConfig.artifactsDir(), serverConfig.getPurgeStart(), serverConfig.getPurgeUpto(), serverConfig.getJobTimeout(), true,
                 serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl(), serverConfig.getCommandRepositoryLocation(), result, cruiseConfig.getMd5());
 
-        goConfigFileDao.forceReload();
-        CruiseConfig updatedCruiseConfig = goConfigFileDao.loadForEditing();
+        goConfigDao.forceReload();
+        CruiseConfig updatedCruiseConfig = goConfigDao.loadForEditing();
         assertThat(result.isSuccessful(), is(true));
         assertThat(updatedCruiseConfig.server().security().ldapConfig().isEnabled(), is(true));
     }
@@ -226,7 +226,7 @@ public class ServerConfigServiceIntegrationTest {
 
         serverConfigService.updateServerConfig(new MailHost(new GoCipher()), new LdapConfig(new GoCipher()), new PasswordFileConfig(), "artifacts", null, null, "42",
                 false,
-                "http://site_url", "https://secure_site_url", "default", result, goConfigFileDao.md5OfConfigFile());
+                "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), containsString("Cannot disable auto login with no admins enabled."));
@@ -238,7 +238,7 @@ public class ServerConfigServiceIntegrationTest {
 
         serverConfigService.updateServerConfig(new MailHost("boo%bee", 1, "username", "password", true, true, "from@from.com", "admin@admin.com"),
                 new LdapConfig(new GoCipher()),
-                new PasswordFileConfig(), "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigFileDao.md5OfConfigFile());
+                new PasswordFileConfig(), "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_)."));
@@ -250,7 +250,7 @@ public class ServerConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(new MailHost("boo", -1, "username", "password", true, true, "from@from.com", "admin@admin.com"), new LdapConfig(new GoCipher()),
-                new PasswordFileConfig(), "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigFileDao.md5OfConfigFile());
+                new PasswordFileConfig(), "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("Invalid port."));
@@ -264,7 +264,7 @@ public class ServerConfigServiceIntegrationTest {
         serverConfigService.updateServerConfig(new MailHost("boo", 1, "username", "password", true, true, "from", "admin@admin.com"), new LdapConfig(new GoCipher()),
                 new PasswordFileConfig(),
                 "artifacts", null, null, "42", true,
-                "http://site_url", "https://secure_site_url", "default", result, goConfigFileDao.md5OfConfigFile());
+                "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("From address is not a valid email address."));
@@ -278,7 +278,7 @@ public class ServerConfigServiceIntegrationTest {
         serverConfigService.updateServerConfig(new MailHost("boo", 1, "username", "password", true, true, "from@from.com", "admin"), new LdapConfig(new GoCipher()),
                 new PasswordFileConfig(),
                 "artifacts", null, null, "42", true,
-                "http://site_url", "https://secure_site_url", "default", result, goConfigFileDao.md5OfConfigFile());
+                "http://site_url", "https://secure_site_url", "default", result, goConfigDao.md5OfConfigFile());
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("Admin address is not a valid email address."));

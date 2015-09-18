@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.server.controller.PipelineHistoryController;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/spring-rest-servlet.xml"
 })
 public class PipelineHistoryControllerIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private PipelineHistoryController controller;
     @Autowired private ScheduleHelper scheduleHelper;
@@ -70,7 +70,7 @@ public class PipelineHistoryControllerIntegrationTest {
     @Before
     public void setUp() throws Exception {
         fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate);
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();

@@ -27,7 +27,7 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class EnvironmentConfigBasicTest extends EnvironmentConfigBaseTest {
+public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
     @Before
     public void setUp() throws Exception {
         environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.NullUser;
@@ -69,7 +69,7 @@ public class GoCacheTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private SqlMapClient sqlMapClient;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private UserSqlMapDao userSqlMapDao;
     @Autowired private SystemEnvironment systemEnvironment;
@@ -81,7 +81,7 @@ public class GoCacheTest {
 
     @Before
     public void setUp() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         dbHelper.onSetUp();
         goCache.clear();

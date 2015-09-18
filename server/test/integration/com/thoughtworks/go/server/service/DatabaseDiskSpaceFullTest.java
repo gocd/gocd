@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.fixture.DatabaseDiskIsFull;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -48,7 +48,7 @@ public class DatabaseDiskSpaceFullTest {
     @Autowired private DatabaseAccessHelper databaseAccessHelper;
     @Autowired private SchedulingCheckerService schedulingChecker;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private TransactionTemplate transactionTemplate;
 
     private DatabaseDiskIsFull diskIsFull = new DatabaseDiskIsFull();
@@ -57,7 +57,7 @@ public class DatabaseDiskSpaceFullTest {
 
     @Before
     public void setUp() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         serverHealthService.removeAllLogs();

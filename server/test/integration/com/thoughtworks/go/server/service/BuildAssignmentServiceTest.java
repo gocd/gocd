@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -106,7 +106,7 @@ import static org.mockito.Mockito.when;
 public class BuildAssignmentServiceTest {
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private AgentService agentService;
@@ -148,7 +148,7 @@ public class BuildAssignmentServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        configHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigFileDao);
+        configHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();

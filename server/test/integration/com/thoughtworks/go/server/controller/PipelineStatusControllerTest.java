@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -69,7 +69,7 @@ import static org.junit.Assert.assertTrue;
 
 public class PipelineStatusControllerTest {
     @Autowired private PipelineStatusController pipelineStatusController;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private GoConfigService configService;
 	@Autowired private DatabaseAccessHelper dbHelper;
@@ -92,7 +92,7 @@ public class PipelineStatusControllerTest {
         dbHelper.onSetUp();
 
         configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

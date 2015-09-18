@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.io.File;
 import java.util.Date;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -58,7 +58,7 @@ import static org.junit.Assert.assertThat;
 public class PipelineServiceIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoCache goCache;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private PipelineSqlMapDao pipelineSqlMapDao;
@@ -70,7 +70,7 @@ public class PipelineServiceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         goCache.clear();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();

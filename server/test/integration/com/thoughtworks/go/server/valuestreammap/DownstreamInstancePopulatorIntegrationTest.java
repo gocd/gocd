@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.valuestreammap;
 import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -58,7 +58,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
 
     private ScheduleTestUtil u;
     @Autowired private GoCache goCache;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -71,7 +71,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         goCache.clear();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         dbHelper.onSetUp();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);

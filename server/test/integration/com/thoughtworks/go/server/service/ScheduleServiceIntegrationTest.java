@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.JobResult;
@@ -91,7 +91,7 @@ import static org.junit.Assert.assertThat;
 public class ScheduleServiceIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private ServerHealthService serverHealthService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private StageDao stageDao;
     @Autowired private JobInstanceDao jobInstanceDao;
@@ -142,7 +142,7 @@ public class ScheduleServiceIntegrationTest {
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
@@ -181,7 +181,7 @@ public class ScheduleServiceIntegrationTest {
         PipelineConfig cruisePlan = configHelper.addPipeline("cruise", "test", repository);
         assertThat(goConfigService.stageConfigNamed("mingle", "dev"), is(notNullValue()));
 
-        String dir = goConfigFileDao.load().server().artifactsDir();
+        String dir = goConfigDao.load().server().artifactsDir();
         new File(dir).mkdirs();
         goConfigService.forceNotifyListeners();
 
@@ -341,7 +341,7 @@ public class ScheduleServiceIntegrationTest {
         Stage cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(new CaseInsensitiveString("test")));
         assertEquals(NullStage.class, cruise.getClass());
 
-        String dir = goConfigFileDao.load().server().artifactsDir();
+        String dir = goConfigDao.load().server().artifactsDir();
         new File(dir).mkdirs();
 
         TestGoMessageListener listener = new TestGoMessageListener();

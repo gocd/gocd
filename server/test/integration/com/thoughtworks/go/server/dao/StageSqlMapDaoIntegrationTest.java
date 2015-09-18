@@ -89,7 +89,7 @@ public class StageSqlMapDaoIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private ScheduleService scheduleService;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private InstanceFactory instanceFactory;
@@ -111,7 +111,7 @@ public class StageSqlMapDaoIntegrationTest {
         mingleConfig = twoBuildPlansWithResourcesAndMaterials(PIPELINE_NAME, STAGE_DEV);
         pipelineNames = asList(PIPELINE_NAME);
         origTemplate = stageDao.getSqlMapClientTemplate();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         scheduleUtil = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
     }

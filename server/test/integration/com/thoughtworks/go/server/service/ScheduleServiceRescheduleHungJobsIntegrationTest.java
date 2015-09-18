@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
@@ -72,7 +72,7 @@ import static org.junit.Assert.assertThat;
 public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private StageDao stageDao;
     @Autowired private JobInstanceDao jobInstanceDao;
@@ -103,7 +103,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigFileDao);
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         evolveConfig = CONFIG_HELPER.addPipeline("evolve", STAGE_NAME, repository, "unit");

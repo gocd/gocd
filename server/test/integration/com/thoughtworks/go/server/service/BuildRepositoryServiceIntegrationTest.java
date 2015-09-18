@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.CannotScheduleException;
@@ -92,7 +92,7 @@ public class BuildRepositoryServiceIntegrationTest {
     @Autowired private BuildRepositoryService buildRepositoryService;
     @Autowired private StageService stageService;
     @Autowired private PipelineService pipelineService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private ScheduleService scheduleService;
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private PipelineDao pipelineDao;
@@ -129,7 +129,7 @@ public class BuildRepositoryServiceIntegrationTest {
 
         dbHelper.onSetUp();
         config.onSetUp();
-        config.usingCruiseConfigDao(goConfigFileDao);
+        config.usingCruiseConfigDao(goConfigDao);
         goConfigService.forceNotifyListeners();
 
         svnTestRepo = new SvnTestRepo("testsvnrepo");

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -58,7 +58,7 @@ public class GoConfigValidationIntegrationTest {
     private static final String USER_WITH_PERMISSION_TO_OPERATE_ON_GROUP = "boozer";
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoCache goCache;
     @Autowired private UserService userService;
@@ -68,7 +68,7 @@ public class GoConfigValidationIntegrationTest {
     public void setUp() throws Exception {
         goCache.clear();
 
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         configHelper.addSecurityWithAdminConfig();
 
@@ -116,7 +116,7 @@ public class GoConfigValidationIntegrationTest {
     }
 
     private void addApproverToStage(final String userName) {
-        goConfigFileDao.updateConfig(new UpdateConfigCommand() {
+        goConfigDao.updateConfig(new UpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 PipelineConfig pConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
                 StageConfig stage = pConfig.getStage(new CaseInsensitiveString(STAGE_BAR));

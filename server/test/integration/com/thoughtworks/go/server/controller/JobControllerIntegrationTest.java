@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Pipeline;
@@ -65,7 +65,7 @@ public class JobControllerIntegrationTest {
     @Autowired private ArtifactsService artifactService;
     @Autowired private PropertiesService propertiesService;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private StageService stageService;
     @Autowired private Localizer localizer;
@@ -79,7 +79,7 @@ public class JobControllerIntegrationTest {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, jobDetailService, goConfigService,

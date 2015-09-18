@@ -81,6 +81,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     @Autowired private LegacyMaterialChecker legacyMaterialChecker;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired private MaterialExpansionService materialExpansionService;
+    @Autowired private ScmMaterialCheckoutService checkoutService;
 
     protected MaterialDatabaseUpdater updater;
     protected Material material;
@@ -96,7 +97,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         dependencyMaterialSourceDao = Mockito.mock(DependencyMaterialSourceDao.class);
         healthService = Mockito.mock(ServerHealthService.class);
         dependencyMaterialUpdater = new DependencyMaterialUpdater(goCache, transactionSynchronizationManager, dependencyMaterialSourceDao, materialRepository, materialService);
-        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, legacyMaterialChecker, subprocessExecutionContext, materialService);
+        scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, legacyMaterialChecker, subprocessExecutionContext, materialService,checkoutService);
         updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
     }
 

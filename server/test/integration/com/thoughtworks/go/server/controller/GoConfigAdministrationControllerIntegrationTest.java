@@ -66,9 +66,9 @@ import static org.junit.Assert.assertThat;
 })
 public class GoConfigAdministrationControllerIntegrationTest {
     @Autowired private GoConfigAdministrationController controller;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigDataSource dataSource;
+    @Autowired private GoFileConfigDataSource dataSource;
     @Autowired private ConfigElementImplementationRegistry registry;
     @Autowired private MetricsProbeService metricsProbeService;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -155,7 +155,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
     @Before public void setup() throws Exception {
         dataSource.reloadEveryTime();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         response = new MockHttpServletResponse();
         configHelper.addSecurityWithPasswordFile();
@@ -173,7 +173,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldReturnXmlAndErrorMessageWhenInvalidPostOfTemplateAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = "<job name=\"build3\" />";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 4, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -187,7 +187,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldGetBuildAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
 
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
 
         controller.getBuildAsXmlPartial("pipeline", "stage", 1, null, response);
         assertValidContentAndStatus(SC_OK, "text/xml", "<job name=\"build2\" />");
@@ -199,9 +199,9 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
         controller.getCurrentConfigXml(null, response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), registry, metricsProbeService).write(goConfigFileDao.loadForEditing(), os, true);
+        new MagicalGoConfigXmlWriter(new ConfigCache(), registry, metricsProbeService).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(SC_OK, "text/xml", os.toString());
-        assertThat((String) response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigFileDao.md5OfConfigFile()));
+        assertThat((String) response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
     }
 
     @Test public void shouldConflictWhenGivenMd5IsDifferent() throws Exception {
@@ -209,9 +209,9 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
         controller.getCurrentConfigXml("crapy_md5", response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(goConfigFileDao.loadForEditing(), os, true);
+        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(SC_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
-        assertThat((String) response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigFileDao.md5OfConfigFile()));
+        assertThat((String) response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
     }
 
     @Test public void shouldGetErrorMessageWhenBuildDoesNotExist() throws Exception {
@@ -229,7 +229,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldPostBuildAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = "<job name=\"build3\" />";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -240,7 +240,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     }
 
     @Test public void shouldReturnErrorMessageIfConfigFileChangesBeforePostBuildAsPartialXml() throws Exception {
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = "<job name=\"build3\" />";
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, newXml, md5, response);
@@ -256,7 +256,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldReturnXmlAndErrorMessageWhenInvalidPostOfBuildAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = "<job name=\"build3\" />";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 4, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -270,7 +270,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldReturnXmlAndErrorMessageWhenPostOfBuildWithDuplicatedNameAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = "<job name=\"build2\" />";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -284,7 +284,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldReturnXmlAndErrorMessageWhenPostOfBuildAsInvalidPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String badXml = "<;askldjfa;dsklfja;sdjas;lkdfjob name=\"build3\" />";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -302,7 +302,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
                 + "<exec command=\"ant\" workingdir=\".\"/>"
                 + "</tasks>"
                 + "</job>";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postBuildAsXmlPartial("pipeline", "stage", 0, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -398,7 +398,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldPostStageAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = NEW_STAGE;
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postStageAsXmlPartial("pipeline", 0, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -411,7 +411,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldPostGroupAsPartialXml() throws Exception {
         configHelper.addPipelineWithGroup("group", "pipeline", "dev", "linux", "windows");
         String newXml = NEW_GROUP;
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -424,7 +424,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         configHelper.addPipelineWithTemplate("group", "pipeline-with-template", "template-1");
 
         String newXml = NEW_GROUP;
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
         assertResponseMessage(mav, "Group changed successfully.");
         assertThat(response.getStatus(), is(SC_OK));
@@ -436,7 +436,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         configHelper.addPipelineWithGroup("some-group", "some-pipeline", "some-dev", "some-linux", "some-windows");
         configHelper.addAgent("some-home", "UUID");
         String newXml = NEW_TEMPLATES;
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postGroupAsXmlPartial("Pipeline Templates", newXml, md5, response);
         assertResponseMessage(mav, "Template changed successfully.");
         assertThat(response.getStatus(), is(SC_OK));
@@ -449,7 +449,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         configHelper.addPipelineWithGroup("some-group", "some-pipeline", "some-dev", "some-linux", "some-windows");
         configHelper.addAgent("some-home", "UUID");
         String newXml = NEW_TEMPLATES;
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postGroupAsXmlPartial("Pipeline Templates", newXml, md5, response);
         assertResponseMessage(mav, "Template changed successfully.");
         assertThat(response.getStatus(), is(SC_OK));
@@ -467,7 +467,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldPostGroupWithChangedNameAsPartialXml() throws Exception {
         configHelper.addPipelineWithGroup("group", "pipeline", "dev", "linux", "windows");
         String newXml = RENAMED_GROUP;
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -478,7 +478,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
     @Test public void shouldReturnXmlAndErrorMessageWhenInvalidPostOfStageAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postStageAsXmlPartial("pipeline", 4, NEW_STAGE, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -492,7 +492,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldReturnXmlAndErrorMessageWhenPostOfStageAsInvalidPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String badXml = "<;askldjfa;dsklfja;sdjas;lkdf";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postStageAsXmlPartial("pipeline", 0, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -515,7 +515,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         //save the pipeline XML
         MockHttpServletResponse postResponse = new MockHttpServletResponse();
         String modifiedXml = xml.replace("new-template", "new-name-for-template");
-        controller.postPipelineAsXmlPartial(0, TemplatesConfig.PIPELINE_TEMPLATES_FAKE_GROUP_NAME, modifiedXml, goConfigFileDao.md5OfConfigFile(), postResponse);
+        controller.postPipelineAsXmlPartial(0, TemplatesConfig.PIPELINE_TEMPLATES_FAKE_GROUP_NAME, modifiedXml, goConfigDao.md5OfConfigFile(), postResponse);
 
         //get the pipeline XML again
         MockHttpServletResponse getResponse = new MockHttpServletResponse();
@@ -541,7 +541,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         //save the pipeline XML
         MockHttpServletResponse postResponse = new MockHttpServletResponse();
         String modifiedXml = xml.replace("pass", "secret");
-        controller.postPipelineAsXmlPartial(0, groupName, modifiedXml, goConfigFileDao.md5OfConfigFile(), postResponse);
+        controller.postPipelineAsXmlPartial(0, groupName, modifiedXml, goConfigDao.md5OfConfigFile(), postResponse);
 
         //get the pipeline XML again
         MockHttpServletResponse getResponse = new MockHttpServletResponse();
@@ -559,7 +559,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldPostPipelineAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String newXml = NEW_PIPELINE;
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         ModelAndView mav = controller.postPipelineAsXmlPartial(0, groupName, newXml, md5, response);
         assertThat(response.getStatus(), is(SC_OK));
@@ -711,7 +711,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         configHelper.setAdminPermissionForGroup("consulting", "ram");
         configHelper.addTemplate("newTemplate", "stage");
 
-        return goConfigFileDao.md5OfConfigFile();
+        return goConfigDao.md5OfConfigFile();
     }
 
     private void setCurrentUser(String username) {
@@ -724,7 +724,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Test public void shouldReturnXmlAndErrorMessageWhenInvalidPostOfPipelineAsPartialXml() throws Exception {
         groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postPipelineAsXmlPartial(4, groupName, NEW_PIPELINE, md5, response);
         assertThat(response.getStatus(), is(SC_NOT_FOUND));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -739,7 +739,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         groupName = BasicPipelineConfigs.DEFAULT_GROUP;
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
         String badXml = "<;askldjfa;dsklfja;sdjas;lkdf";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postPipelineAsXmlPartial(0, groupName, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -764,7 +764,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
                 + "    </jobs>\n"
                 + "  </stage>\n"
                 + "</pipeline>";
-        String md5 = goConfigFileDao.md5OfConfigFile();
+        String md5 = goConfigDao.md5OfConfigFile();
         ModelAndView mav = controller.postPipelineAsXmlPartial(0, groupName, badXml, md5, response);
         assertThat(response.getStatus(), is(SC_CONFLICT));
         assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
@@ -774,11 +774,11 @@ public class GoConfigAdministrationControllerIntegrationTest {
     }
 
     @Test public void shouldReturnConflictIfGetRequestUsesIncorrectConfigMD5() throws Exception {
-        String oldMd5 = goConfigFileDao.md5OfConfigFile();
+        String oldMd5 = goConfigDao.md5OfConfigFile();
 
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
 
-        String newMd5 = goConfigFileDao.md5OfConfigFile();
+        String newMd5 = goConfigDao.md5OfConfigFile();
 
         controller.getBuildAsXmlPartial("pipeline", "stage", 1, oldMd5, response);
         assertValidContentAndStatus(SC_CONFLICT, RESPONSE_CHARSET, ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);

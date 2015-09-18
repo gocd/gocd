@@ -23,7 +23,7 @@ describe AdminController, "integration test" do
   before do
     @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new()
     @db_helper = Spring.bean("databaseAccessHelper")
-    config_dao = Spring.bean("goConfigFileDao")
+    config_dao = Spring.bean("goConfigDao")
     @db_helper.onSetUp()
     @config_helper.usingCruiseConfigDao(config_dao).initializeConfigFile()
     @config_helper.onSetUp()

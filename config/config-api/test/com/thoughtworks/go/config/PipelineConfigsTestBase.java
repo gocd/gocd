@@ -41,7 +41,7 @@ import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-public abstract class PipelineConfigsBaseTest {
+public abstract class PipelineConfigsTestBase {
 
     protected abstract PipelineConfigs createWithPipeline(PipelineConfig pipelineConfig);
 

@@ -58,7 +58,7 @@
           p:targetMethod="onTimer"/>
 
     <bean id="cachedGoConfigRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-          p:targetObject-ref="cachedGoConfig"
+          p:targetObject-ref="cachedFileGoConfig"
           p:targetMethod="onTimer"/>
 
     <bean id="materialUpdaterExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"

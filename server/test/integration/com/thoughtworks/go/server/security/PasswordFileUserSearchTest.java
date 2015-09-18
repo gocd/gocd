@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.security;
 
 import java.util.List;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.Before;
@@ -38,12 +38,12 @@ import static org.junit.Assert.assertThat;
 })
 public class PasswordFileUserSearchTest {
     @Autowired private PasswordFileUserSearch passwordFileUserSearch;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
 
     @Before
     public void setUp() throws Exception {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigFileDao);
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
         CONFIG_HELPER.addSecurityWithPasswordFile();
     }

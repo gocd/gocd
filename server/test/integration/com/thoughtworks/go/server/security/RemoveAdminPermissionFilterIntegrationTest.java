@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.MergedGoConfig;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
@@ -61,14 +61,14 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     private HttpSession session;
 
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired private GoConfigDao goConfigDao;
+    @Autowired private MergedGoConfig mergedGoConfig;
 
     private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private TimeProvider timeProvider;
 
     @Before public void setUp() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         chain = mock(FilterChain.class);
@@ -83,7 +83,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     }
 
     @After public void tearDown() throws IOException, ServletException {
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onTearDown();
 
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -127,7 +127,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
 
     private void modifyArtifactRoot() {
         configHelper.currentConfig().server().updateArtifactRoot("something/else");//Config changed but security config did not.
-        cachedGoConfig.onTimer();
+        mergedGoConfig.forceReload();
     }
 
     @Test
@@ -225,7 +225,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     private void turnOnSecurity(String username) throws IOException {
         configHelper.turnOnSecurity();
         configHelper.addAdmins(username);
-        cachedGoConfig.onTimer();
+        mergedGoConfig.forceReload();
     }
 
     private void stubSessionToReturn0() {

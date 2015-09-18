@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.transaction;
 
 import java.util.Date;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -52,7 +52,7 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class TransactionCacheInterceptorTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoCache goCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -67,7 +67,7 @@ public class TransactionCacheInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         dbHelper.onSetUp();
         goCache.clear();

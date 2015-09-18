@@ -23,7 +23,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -77,7 +77,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     private static final String STAGE_NAME = "dev";
 
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private PipelineScheduler buildCauseProducer;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
@@ -104,7 +104,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         svnRepository = new SvnTestRepo("testSvnRepo");
         hgTestRepo = new HgTestRepo("testHgRepo");

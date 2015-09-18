@@ -62,12 +62,12 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class AgentServiceIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private AgentConfigService agentConfigService;
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private AgentService agentService;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired private MergedGoConfig mergedGoConfig;
     @Autowired private SecurityService securityService;
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private AgentDao agentDao;
@@ -80,9 +80,9 @@ public class AgentServiceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigFileDao);
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
-        cachedGoConfig.clearListeners();
+        mergedGoConfig.clearListeners();
         agentService.clearAll();
         agentService.initialize();
         environmentConfigService.initialize();
@@ -91,9 +91,9 @@ public class AgentServiceIntegrationTest {
     @After
     public void tearDown() throws Exception {
         new SystemEnvironment().setProperty("agent.connection.timeout", "300");
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigFileDao);
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onTearDown();
-        cachedGoConfig.clearListeners();
+        mergedGoConfig.clearListeners();
         agentService.clearAll();
     }
 
@@ -468,7 +468,7 @@ public class AgentServiceIntegrationTest {
         
         assertThat(agentService.findRegisteredAgents().size(), is(1));
         assertThat(agentService.findAgentAndRefreshStatus(pending.agentConfig().getUuid()).agentConfig().isDisabled(), is(false));
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().get(0).isDisabled(), is(false));
     }
 
@@ -505,14 +505,14 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldDenyApprovedAgent() throws Exception {
         CONFIG_HELPER.addAgent(new AgentConfig(UUID, "agentName", "127.0.0.9"));
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().get(0).isDisabled(), is(false));
 
         agentService.initialize();
         HttpOperationResult operationResult = new HttpOperationResult();
         agentService.disableAgents(USERNAME, operationResult, Arrays.asList(UUID));
 
-        CruiseConfig newCruiseConfig = goConfigFileDao.load();
+        CruiseConfig newCruiseConfig = goConfigDao.load();
         assertThat(newCruiseConfig.agents().get(0).isDisabled(), is(true));
         assertAgentDisablingSucceeded(operationResult, UUID);
     }
@@ -526,14 +526,14 @@ public class AgentServiceIntegrationTest {
     public void shouldDenyCorrectAgentWhenTwoOnSameBox() throws Exception {
         CONFIG_HELPER.addAgent(new AgentConfig(UUID, "agentName", "127.0.0.9", new Resources("agent1")));
         CONFIG_HELPER.addAgent(new AgentConfig(UUID2, "agentName", "127.0.0.9", new Resources("agent2")));
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().getAgentByUuid(UUID).isDisabled(), is(false));
         assertThat(cruiseConfig.agents().getAgentByUuid(UUID2).isDisabled(), is(false));
 
         agentService.initialize();
         agentService.disableAgents(USERNAME, new HttpOperationResult(), Arrays.asList(UUID2));
 
-        CruiseConfig newCruiseConfig = goConfigFileDao.load();
+        CruiseConfig newCruiseConfig = goConfigDao.load();
         assertThat(newCruiseConfig.agents().getAgentByUuid(UUID).isDisabled(), is(false));
         assertThat(newCruiseConfig.agents().getAgentByUuid(UUID2).isDisabled(), is(true));
     }
@@ -729,7 +729,7 @@ public class AgentServiceIntegrationTest {
         CONFIG_HELPER.addAgent(deniedAgent2);
 
         CONFIG_HELPER.addAgent(new AgentConfig("uuid3", "approvedAgent1", "127.0.0.3"));
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         agentService.initialize();
 
@@ -828,7 +828,7 @@ public class AgentServiceIntegrationTest {
         AgentConfig disabledAgent = createDisabledAndIdleAgent(UUID);
         AgentConfig enabledAgent = createEnabledAgent(UUID2);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
         assertThat(agentService.agents().size(), is(2));
 
         HttpOperationResult disabledAgentOperationResult = new HttpOperationResult();
@@ -851,7 +851,7 @@ public class AgentServiceIntegrationTest {
     public void shouldNOTDeleteDisabledAgentThatIsBuildingGivenUUID() throws Exception {
         AgentConfig disabledButBuildingAgent = createDisabledAgent(UUID);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
         assertThat(agentService.agents().size(), is(1));
 
         HttpOperationResult operationResult = new HttpOperationResult();
@@ -889,7 +889,7 @@ public class AgentServiceIntegrationTest {
         AgentConfig disabledAgent1 = createDisabledAndIdleAgent(UUID);
         AgentConfig disabledAgent2 = createDisabledAndIdleAgent(UUID2);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
         assertThat(agentService.agents().size(), is(2));
 
         HttpOperationResult operationResult = new HttpOperationResult();
@@ -909,7 +909,7 @@ public class AgentServiceIntegrationTest {
         AgentConfig enabledAgent1 = createEnabledAgent(UUID3);
         AgentConfig enabledAgent2 = createEnabledAgent("uuid4");
 
-        goConfigFileDao.load();
+        goConfigDao.load();
         assertThat(agentService.agents().size(), is(4));
 
         HttpOperationResult operationResult = new HttpOperationResult();
@@ -928,7 +928,7 @@ public class AgentServiceIntegrationTest {
     public void updateAgentAttributesShouldUpdateAnAgentHostname() throws Exception {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).getHostname(), is(not("some-hostname")));
@@ -947,7 +947,7 @@ public class AgentServiceIntegrationTest {
     public void updateAgentAttributesShouldUpdateAnAgentResources() throws Exception {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).getResources(), is(empty()));
@@ -966,7 +966,7 @@ public class AgentServiceIntegrationTest {
     public void updateAgentAttributesShouldUpdateAnAgentEnableState() throws Exception {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).isEnabled(), is(false));
@@ -985,7 +985,7 @@ public class AgentServiceIntegrationTest {
     public void updateAgentAttributesShouldUpdateAnAgentDisableState() throws Exception {
         AgentConfig agent = createEnabledAgent(UUID);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).isEnabled(), is(true));
@@ -1005,7 +1005,7 @@ public class AgentServiceIntegrationTest {
         AgentConfig enabledAgent = createEnabledAgent("enabled");
         AgentConfig disabledAgent = createDisabledAgent("disabled");
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         assertThat(agentService.agents().size(), is(2));
         assertThat(agentService.findAgentAndRefreshStatus("enabled").agentConfig().isDisabled(), is(false));
@@ -1026,7 +1026,7 @@ public class AgentServiceIntegrationTest {
     public void testShouldUpdateAnAgentIfInputsAreValid() throws Exception {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).getHostname(), is(not("some-hostname")));
@@ -1049,8 +1049,8 @@ public class AgentServiceIntegrationTest {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
         String originalHostname = agent.getHostname();
 
-        goConfigFileDao.load();
-        goConfigFileDao.updateAgentResources(agent.getUuid(), new Resources("linux,java"));
+        goConfigDao.load();
+        goConfigDao.updateAgentResources(agent.getUuid(), new Resources("linux,java"));
 
         assertThat(agentService.agents().size(), is(1));
 
@@ -1071,7 +1071,7 @@ public class AgentServiceIntegrationTest {
         String originalHostname = agent.getHostname();
         List<String> originalResourceNames = agent.getResources().resourceNames();
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).getHostname(), is(not("some-hostname")));
@@ -1093,7 +1093,7 @@ public class AgentServiceIntegrationTest {
         AgentConfig disabledButBuildingAgent = createDisabledAgent(UUID);
         AgentConfig disabledAgent1 = createDisabledAndIdleAgent(UUID2);
 
-        goConfigFileDao.load();
+        goConfigDao.load();
         assertThat(agentService.agents().size(), is(2));
 
         HttpOperationResult operationResult = new HttpOperationResult();

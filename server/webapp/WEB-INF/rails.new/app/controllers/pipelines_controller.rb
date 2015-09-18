@@ -40,10 +40,6 @@ class PipelinesController < ApplicationController
     end
   end
 
-  def dashboard
-    load_pipeline_related_information
-  end
-
   def show
     populate_and_show(false)
   end

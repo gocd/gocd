@@ -30,6 +30,11 @@ public class FileConfigOrigin implements ConfigOrigin {
         return true;
     }
 
+    @Override
+    public String displayName() {
+        return "cruise-config.xml";
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -45,8 +50,4 @@ public class FileConfigOrigin implements ConfigOrigin {
         return 23451;
     }
 
-    @Override
-    public String displayName() {
-        return "cruise-config.xml";
-    }
 }

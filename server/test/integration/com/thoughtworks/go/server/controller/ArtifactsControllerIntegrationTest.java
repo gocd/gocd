@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Pipeline;
@@ -82,7 +82,7 @@ public class ArtifactsControllerIntegrationTest {
     @Autowired private ConsoleService consoleService;
     @Autowired private AgentService agentService;
     @Autowired private ZipUtil zipUtil;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
@@ -99,7 +99,7 @@ public class ArtifactsControllerIntegrationTest {
     @Before public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineName = "pipeline-" + UUID.randomUUID().toString();
 

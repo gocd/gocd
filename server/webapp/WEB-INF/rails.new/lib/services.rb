@@ -26,7 +26,7 @@ module Services
     end
   end
 
-  services(:agent_service, :artifacts_service, :backup_service, :changeset_service, :go_cache, :go_config_file_dao, :go_config_service, :dependency_material_service, :environment_config_service, :environment_service, :environment_service,
+  services(:agent_service, :artifacts_service, :backup_service, :changeset_service, :go_cache, :go_config_dao, :go_config_service, :dependency_material_service, :environment_config_service, :environment_service, :environment_service,
            :job_instance_service, :job_presentation_service, :localizer, :material_service, :pipeline_config_service, :pipeline_history_service, :pipeline_lock_service, :pipeline_scheduler, :pipeline_stages_feed_service,
            :pipeline_unlock_api_service, :properties_service, :security_service, :server_config_service, :server_health_service, :stage_service, :system_environment, :user_service, :user_search_service, :failure_service,
            :mingle_config_service, :schedule_service, :flash_message_service, :template_config_service, :shine_dao, :xml_api_service, :pipeline_pause_service, :luau_service,

@@ -30,20 +30,15 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.util.ServerVersion;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TimeProvider;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
-import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -56,24 +51,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class CachedGoConfigTest {
-    private CachedGoConfig cachedGoConfig;
-    private GoConfigFileHelper configHelper;
-    private GoConfigDataSource dataSource;
-    private ServerHealthService serverHealthService;
-    private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
-    @Before public void setUp() throws Exception {
-        configHelper = new GoConfigFileHelper(CONFIG);
-        SystemEnvironment env = new SystemEnvironment();
-        ConfigRepository configRepository = new ConfigRepository(env);
-        configRepository.initialize();
-        dataSource = new GoConfigDataSource(new DoNotUpgrade(), configRepository, env, new TimeProvider(), new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                metricsProbeService, serverHealthService);
-        serverHealthService = new ServerHealthService();
-        cachedGoConfig = new CachedGoConfig(dataSource, serverHealthService);
-        cachedGoConfig.loadConfigIfNull();
-        configHelper.usingCruiseConfigDao(new GoConfigFileDao(cachedGoConfig, mock(MetricsProbeService.class)));
-    }
+public abstract class CachedGoConfigBaseTest {
+    protected CachedGoConfig cachedGoConfig;
+    protected GoConfigFileHelper configHelper;
+    protected GoFileConfigDataSource dataSource;
+    protected ServerHealthService serverHealthService;
+    protected MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
 
     @Test public void shouldUpdateCachedConfigOnSave() throws Exception {
         assertThat(cachedGoConfig.currentConfig().agents().size(), is(1));
@@ -92,7 +75,7 @@ public class CachedGoConfigTest {
     @Test public void shouldReloadCachedConfigFromDisk() throws Exception {
         assertThat(cachedGoConfig.currentConfig().agents().size(), is(1));
         configHelper.writeXmlToConfigFile(ConfigFileFixture.TASKS_WITH_CONDITION);
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         assertThat(cachedGoConfig.currentConfig().agents().size(), is(0));
     }
 
@@ -138,7 +121,7 @@ public class CachedGoConfigTest {
 
         configHelper.writeXmlToConfigFile(content);
 
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
         ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
@@ -183,7 +166,7 @@ public class CachedGoConfigTest {
 
         configHelper.writeXmlToConfigFile(content);
 
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
         ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
@@ -216,7 +199,7 @@ public class CachedGoConfigTest {
 
         configHelper.writeXmlToConfigFile(content);
 
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getLabelTemplate(), Is.is("cruise-1.2-${COUNT}"));
@@ -263,7 +246,7 @@ public class CachedGoConfigTest {
         assertThat(inTheBefore.agents().size(), is(1));
 
         configHelper.writeXmlToConfigFile("invalid-xml");
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         assertTrue(cachedGoConfig.currentConfig() == inTheBefore);
         assertThat(cachedGoConfig.checkConfigFileValid().isValid(), is(false));
@@ -271,7 +254,7 @@ public class CachedGoConfigTest {
 
     @Test public void shouldClearInvalidExceptionWhenConfigErrorsAreFixed() throws Exception {
         configHelper.writeXmlToConfigFile("invalid-xml");
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         cachedGoConfig.currentConfig();
         assertThat(cachedGoConfig.checkConfigFileValid().isValid(), is(false));
@@ -287,7 +270,7 @@ public class CachedGoConfigTest {
     @Test
     public void shouldSetServerHealthMessageWhenConfigFileIsInvalid() throws IOException {
         configHelper.writeXmlToConfigFile("invalid-xml");
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         assertThat(cachedGoConfig.checkConfigFileValid().isValid(), is(false));
 
@@ -304,7 +287,7 @@ public class CachedGoConfigTest {
         assertThat(serverHealthService.getAllLogs().size(), is(1));
 
         configHelper.writeXmlToConfigFile(ConfigFileFixture.TASKS_WITH_CONDITION);
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         assertThat(cachedGoConfig.checkConfigFileValid().isValid(), is(true));
 
@@ -314,16 +297,16 @@ public class CachedGoConfigTest {
     @Test
     public void shouldReturnDefaultCruiseConfigIfLoadingTheConfigFailsForTheFirstTime() throws Exception {
         configHelper.writeXmlToConfigFile("invalid-xml");
-        cachedGoConfig = new CachedGoConfig(dataSource, new ServerHealthService());
+        cachedGoConfig = new CachedFileGoConfig(dataSource, new ServerHealthService());
         assertThat(cachedGoConfig.currentConfig(), Matchers.<CruiseConfig>is(new BasicCruiseConfig()));
     }
 
     @Test
     public void shouldLoadConfigHolderIfNotAvailable() throws Exception {
         configHelper.addPipeline("foo", "bar");
-        cachedGoConfig = new CachedGoConfig(dataSource, new ServerHealthService());
+        cachedGoConfig = new CachedFileGoConfig(dataSource, new ServerHealthService());
         dataSource.reloadIfModified();
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         GoConfigHolder loaded = cachedGoConfig.loadConfigHolder();
         assertThat(loaded.config.hasPipelineNamed(new CaseInsensitiveString("foo")), is(true));
         assertThat(loaded.configForEdit.hasPipelineNamed(new CaseInsensitiveString("foo")), is(true));
@@ -334,10 +317,10 @@ public class CachedGoConfigTest {
         CruiseConfig cruiseConfig = configHelper.load();
         addPipelineWithParams(cruiseConfig);
         configHelper.writeConfigFile(cruiseConfig);
-        cachedGoConfig = new CachedGoConfig(dataSource, new ServerHealthService());
+        cachedGoConfig = new CachedFileGoConfig(dataSource, new ServerHealthService());
         dataSource.reloadIfModified();
 
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
 
         PipelineConfig config = cachedGoConfig.currentConfig().pipelineConfigByName(new CaseInsensitiveString("mingle"));
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) byFolder(config.materialConfigs(), "folder");
@@ -360,7 +343,7 @@ public class CachedGoConfigTest {
 
     @Test
     public void shouldLoadConfigForReadAndEditWhenNewXMLIsWritten() throws Exception {
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         GoConfigValidity configValidity = cachedGoConfig.checkConfigFileValid();
         assertThat(configValidity.isValid(), is(true));
 
@@ -393,7 +376,7 @@ public class CachedGoConfigTest {
 
     @Test
     public void shouldLoadConfigForReadAndEditWhenConfigIsUpdatedThoughACommand() throws Exception {
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         GoConfigValidity configValidity = cachedGoConfig.checkConfigFileValid();
         assertThat(configValidity.isValid(), is(true));
 
@@ -414,7 +397,7 @@ public class CachedGoConfigTest {
 
     @Test public void shouldNotifyConfigListenersWhenConfigChanges() throws Exception {
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
-        cachedGoConfig.onTimer();
+        cachedGoConfig.forceReload();
         
         cachedGoConfig.registerListener(listener);
         cachedGoConfig.writeWithLock(updateFirstAgentResources("osx"));
@@ -424,7 +407,7 @@ public class CachedGoConfigTest {
 
     @Test public void shouldNotNotifyWhenConfigIsNullDuringRegistration() throws Exception {
         configHelper.deleteConfigFile();
-        cachedGoConfig = new CachedGoConfig(dataSource, new ServerHealthService());
+        cachedGoConfig = new CachedFileGoConfig(dataSource, new ServerHealthService());
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         cachedGoConfig.registerListener(listener);
         verifyNoMoreInteractions(listener);
@@ -432,12 +415,12 @@ public class CachedGoConfigTest {
 
     @Test
     public void shouldReturnMergedStatusWhenConfigIsMergedWithStaleCopy(){
-        GoConfigDataSource goConfigDataSource = mock(GoConfigDataSource.class);
+        GoFileConfigDataSource goFileConfigDataSource = mock(GoFileConfigDataSource.class);
         UpdateConfigCommand updateConfigCommand = mock(UpdateConfigCommand.class);
         CruiseConfig currentConfig = GoConfigMother.configWithPipelines("p1");
-        GoConfigDataSource.GoConfigSaveResult goConfigSaveResult = new GoConfigDataSource.GoConfigSaveResult(new GoConfigHolder(currentConfig, currentConfig), ConfigSaveState.MERGED);
-        when(goConfigDataSource.writeWithLock(argThat(is(updateConfigCommand)), any(GoConfigHolder.class))).thenReturn(goConfigSaveResult);
-        cachedGoConfig = new CachedGoConfig(goConfigDataSource, serverHealthService);
+        GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = new GoFileConfigDataSource.GoConfigSaveResult(new GoConfigHolder(currentConfig, currentConfig), ConfigSaveState.MERGED);
+        when(goFileConfigDataSource.writeWithLock(argThat(is(updateConfigCommand)), any(GoConfigHolder.class))).thenReturn(goConfigSaveResult);
+        cachedGoConfig = new CachedFileGoConfig(goFileConfigDataSource, serverHealthService);
 
         ConfigSaveState configSaveState = cachedGoConfig.writeWithLock(updateConfigCommand);
         assertThat(configSaveState, is(ConfigSaveState.MERGED));
@@ -445,12 +428,12 @@ public class CachedGoConfigTest {
 
     @Test
     public void shouldReturnUpdatedStatusWhenConfigIsUpdatedWithLatestCopy(){
-        GoConfigDataSource goConfigDataSource = mock(GoConfigDataSource.class);
+        GoFileConfigDataSource goFileConfigDataSource = mock(GoFileConfigDataSource.class);
         UpdateConfigCommand updateConfigCommand = mock(UpdateConfigCommand.class);
         CruiseConfig currentConfig = GoConfigMother.configWithPipelines("p1");
-        GoConfigDataSource.GoConfigSaveResult goConfigSaveResult = new GoConfigDataSource.GoConfigSaveResult(new GoConfigHolder(currentConfig, currentConfig), ConfigSaveState.UPDATED);
-        when(goConfigDataSource.writeWithLock(argThat(is(updateConfigCommand)), any(GoConfigHolder.class))).thenReturn(goConfigSaveResult);
-        cachedGoConfig = new CachedGoConfig(goConfigDataSource, serverHealthService);
+        GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = new GoFileConfigDataSource.GoConfigSaveResult(new GoConfigHolder(currentConfig, currentConfig), ConfigSaveState.UPDATED);
+        when(goFileConfigDataSource.writeWithLock(argThat(is(updateConfigCommand)), any(GoConfigHolder.class))).thenReturn(goConfigSaveResult);
+        cachedGoConfig = new CachedFileGoConfig(goFileConfigDataSource, serverHealthService);
 
         ConfigSaveState configSaveState = cachedGoConfig.writeWithLock(updateConfigCommand);
         assertThat(configSaveState, is(ConfigSaveState.UPDATED));

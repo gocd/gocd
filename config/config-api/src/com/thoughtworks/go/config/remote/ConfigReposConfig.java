@@ -74,6 +74,23 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
         this.errors().add(fieldName,message);
     }
 
+    public ConfigRepoConfig getConfigRepo(MaterialConfig config) {
+        for(ConfigRepoConfig repoConfig : this)
+        {
+            if(repoConfig.hasSameMaterial(config))
+                return repoConfig;
+        }
+        return null;
+    }
+
+    public boolean hasMaterialWithFingerprint(String fingerprint) {
+        for (ConfigRepoConfig repoConfig : this) {
+            if (repoConfig.hasMaterialWithFingerprint(fingerprint))
+                return true;
+        }
+        return false;
+    }
+
     public boolean isReferenceAllowed(ConfigOrigin from, ConfigOrigin to) {
 
         if(isLocal(from) && !isLocal(to))

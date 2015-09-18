@@ -180,7 +180,7 @@ describe EnvironmentsController do
       @environment_service = Object.new
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       controller.stub(:security_service).and_return(@security_service = Object.new)
       allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
@@ -233,7 +233,7 @@ describe EnvironmentsController do
       @environment_service = Object.new
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(@user)
       controller.stub(:security_service).and_return(@security_service = Object.new)
       @security_service.stub(:canViewAdminPage).with(@user).and_return(true)
@@ -248,7 +248,7 @@ describe EnvironmentsController do
     end
 
     def md5
-      Spring.bean("goConfigFileDao").md5OfConfigFile()
+      Spring.bean("goConfigDao").md5OfConfigFile()
     end
 
     it "should return error message and the response status code of the passed in result" do
@@ -341,7 +341,7 @@ describe EnvironmentsController do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
       @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       controller.stub(:security_service).and_return(@security_service = Object.new)
       @security_service.stub(:canViewAdminPage).with(user).and_return(true)
@@ -433,7 +433,7 @@ describe EnvironmentsController do
     before do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
-      @config_helper.using_cruise_config_dao(controller.go_config_file_dao)
+      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
       controller.stub(:security_service).and_return(@security_service = Object.new)
       @security_service.stub(:canViewAdminPage).with(user).and_return(true)

@@ -50,8 +50,8 @@ import static java.lang.String.format;
  * and passing it into MagicLoader or MagicWriter.
  */
 @Component
-public class GoConfigDataSource {
-    private static final Logger LOGGER = Logger.getLogger(GoConfigDataSource.class);
+public class GoFileConfigDataSource {
+    private static final Logger LOGGER = Logger.getLogger(GoFileConfigDataSource.class);
 
     private ReloadStrategy reloadStrategy = new ReloadIfModified();
     private final MagicalGoConfigXmlWriter magicalGoConfigXmlWriter;
@@ -67,17 +67,17 @@ public class GoConfigDataSource {
 
     /* Will only upgrade cruise config file on application startup. */
     @Autowired
-    public GoConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment, TimeProvider timeProvider, ConfigCache configCache,
-                              ServerVersion serverVersion, ConfigElementImplementationRegistry configElementImplementationRegistry,
-                              MetricsProbeService metricsProbeService, ServerHealthService serverHealthService) {
+    public GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment, TimeProvider timeProvider, ConfigCache configCache,
+                                  ServerVersion serverVersion, ConfigElementImplementationRegistry configElementImplementationRegistry,
+                                  MetricsProbeService metricsProbeService, ServerHealthService serverHealthService) {
         this(upgrader, configRepository, systemEnvironment, timeProvider, serverVersion,
                 new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry, metricsProbeService),
                 new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry, metricsProbeService), serverHealthService);
     }
 
-    GoConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment, TimeProvider timeProvider,
-                       ServerVersion serverVersion, MagicalGoConfigXmlLoader magicalGoConfigXmlLoader, MagicalGoConfigXmlWriter magicalGoConfigXmlWriter,
-                       ServerHealthService serverHealthService) {
+    GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment, TimeProvider timeProvider,
+                           ServerVersion serverVersion, MagicalGoConfigXmlLoader magicalGoConfigXmlLoader, MagicalGoConfigXmlWriter magicalGoConfigXmlWriter,
+                           ServerHealthService serverHealthService) {
         this.configRepository = configRepository;
         this.systemEnvironment = systemEnvironment;
         this.upgrader = upgrader;
@@ -88,12 +88,12 @@ public class GoConfigDataSource {
         this.serverHealthService = serverHealthService;
     }
 
-    public GoConfigDataSource reloadEveryTime() {
+    public GoFileConfigDataSource reloadEveryTime() {
         this.reloadStrategy = new AlwaysReload();
         return this;
     }
 
-    public GoConfigDataSource reloadIfModified() {
+    public GoFileConfigDataSource reloadIfModified() {
         this.reloadStrategy = new ReloadIfModified();
         return this;
     }

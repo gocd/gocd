@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertThat;
 })
 public class GoPropertiesTestTest {
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao cruiseConfigDao;
+    @Autowired private GoConfigDao cruiseConfigDao;
     private PipelineWithTwoStages fixture;
     private GoConfigFileHelper configHelper;
     @Autowired private BuildRepositoryService buildRepositoryService;

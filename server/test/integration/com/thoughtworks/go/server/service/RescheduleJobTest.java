@@ -17,10 +17,8 @@
 package com.thoughtworks.go.server.service;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
@@ -53,7 +51,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class RescheduleJobTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DatabaseAccessHelper dbHelper;
 
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -70,7 +68,7 @@ public class RescheduleJobTest {
 
     @Before
     public void setUp() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

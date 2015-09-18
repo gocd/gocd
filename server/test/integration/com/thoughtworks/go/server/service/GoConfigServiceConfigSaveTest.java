@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
@@ -45,13 +45,13 @@ import static org.hamcrest.Matchers.is;
 public class GoConfigServiceConfigSaveTest {
     @Autowired
     GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
 
     private GoConfigFileHelper configFileHelper;
 
     @Before
     public void setUp() throws Exception {
-        configFileHelper = new GoConfigFileHelper(goConfigFileDao);
+        configFileHelper = new GoConfigFileHelper(goConfigDao);
     }
 
     @Test
@@ -70,10 +70,10 @@ public class GoConfigServiceConfigSaveTest {
     private CruiseConfig addTemplateWithTemplateAdminUser(final String userName, final String templateName) {
         AdminUser adminUser = new AdminUser(new CaseInsensitiveString(userName));
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(new AdminsConfig(adminUser)), StageConfigMother.manualStage("stage1"));
-        CruiseConfig configForEdit = goConfigFileDao.loadForEditing();
+        CruiseConfig configForEdit = goConfigDao.loadForEditing();
         configForEdit.addTemplate(template);
         configFileHelper.writeConfigFile(configForEdit);
-        return goConfigFileDao.loadForEditing();
+        return goConfigDao.loadForEditing();
     }
 
     private class AddStageToTemplate implements UpdateConfigFromUI {

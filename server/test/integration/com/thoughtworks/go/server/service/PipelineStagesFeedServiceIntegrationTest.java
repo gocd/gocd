@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -43,7 +43,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
 
     @Autowired private StageService stageService;
     @Autowired private SecurityService securityService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private Localizer localizer;
 
@@ -52,7 +52,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         configHelper.addPipeline("cruise", "stage", "unit", "functional");
         configHelper.turnOnSecurity();

@@ -31,8 +31,6 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_ANT_BUILDER;
@@ -52,25 +50,14 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-public class GoConfigFileDaoTest {
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    private GoConfigFileDao goConfigFileDao = configHelper.getGoConfigFileDao();
-    private LogFixture logger;
-    private CachedGoConfig cachedGoConfig = configHelper.getCachedGoConfig();
 
-    @Before
-    public void setup() throws Exception {
-        configHelper.initializeConfigFile();
-        logger = LogFixture.startListening();
-    }
-
-    @After
-    public void teardown() throws Exception {
-        logger.stopListening();
-    }
+public abstract class GoConfigDaoBaseTest {
+    protected GoConfigFileHelper configHelper ;
+    protected GoConfigDao goConfigDao ;
+    protected CachedGoConfig cachedGoConfig;
+    protected LogFixture logger;
 
     @Test
     public void shouldCreateCruiseConfigFromBasicConfigFile() throws Exception {
@@ -109,7 +96,7 @@ public class GoConfigFileDaoTest {
     public void shouldThrowExceptionIfFileIsInvalid() throws Exception {
         try {
             useConfigString("invalid config file");
-            goConfigFileDao.load();
+            goConfigDao.load();
             fail("Should have thrown a parse exception");
         } catch (Exception expected) {
             assertThat(expected.getMessage(), containsString("Content is not allowed in prolog."));
@@ -133,9 +120,9 @@ public class GoConfigFileDaoTest {
         AgentConfig approvedAgentConfig = new AgentConfig("uuid", "test1", "192.168.0.1", resources);
         AgentConfig deniedAgentConfig = new AgentConfig("", "test2", "192.168.0.2", resources);
         deniedAgentConfig.disable();
-        goConfigFileDao.addAgent(approvedAgentConfig);
-        goConfigFileDao.addAgent(deniedAgentConfig);
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        goConfigDao.addAgent(approvedAgentConfig);
+        goConfigDao.addAgent(deniedAgentConfig);
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().size(), is(2));
         assertThat(cruiseConfig.agents().get(0), is(approvedAgentConfig));
         assertThat(cruiseConfig.agents().get(0).getResources(), is(resources));
@@ -153,7 +140,7 @@ public class GoConfigFileDaoTest {
         AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
         AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
 
-        GoConfigFileDao.CompositeConfigCommand command = goConfigFileDao.commandForDeletingAgents(fromConfigFile1, fromConfigFile2);
+        GoConfigDao.CompositeConfigCommand command = goConfigDao.commandForDeletingAgents(fromConfigFile1, fromConfigFile2);
 
         List<UpdateConfigCommand> commands = command.getCommands();
         assertThat(commands.size(), is(2));
@@ -170,15 +157,15 @@ public class GoConfigFileDaoTest {
         AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
         AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
 
-        goConfigFileDao.addAgent(agentConfig1);
-        goConfigFileDao.addAgent(agentConfig2);
+        goConfigDao.addAgent(agentConfig1);
+        goConfigDao.addAgent(agentConfig2);
 
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().size(), is(2));
 
-        goConfigFileDao.deleteAgents(fromConfigFile1);
+        goConfigDao.deleteAgents(fromConfigFile1);
 
-        cruiseConfig = goConfigFileDao.load();
+        cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().size(), is(1));
         assertThat(cruiseConfig.agents().get(0), is(agentConfig2));
     }
@@ -188,20 +175,20 @@ public class GoConfigFileDaoTest {
         AgentConfig agentConfig1 = new AgentConfig("uuid1", "hostname", "127.0.0.1");
         AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
 
-        goConfigFileDao.addAgent(agentConfig1);
-        goConfigFileDao.addAgent(new AgentConfig("uuid2", "hostname", "127.0.0.1"));
+        goConfigDao.addAgent(agentConfig1);
+        goConfigDao.addAgent(new AgentConfig("uuid2", "hostname", "127.0.0.1"));
 
         BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment"));
         env.addAgent("uuid1");
         env.addAgent("uuid2");
-        goConfigFileDao.addEnvironment(env);
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        goConfigDao.addEnvironment(env);
+        CruiseConfig cruiseConfig = goConfigDao.load();
 
         assertThat(cruiseConfig.getEnvironments().get(0).getAgents().size(), is(2));
 
-        goConfigFileDao.deleteAgents(fromConfigFile1);
+        goConfigDao.deleteAgents(fromConfigFile1);
 
-        cruiseConfig = goConfigFileDao.load();
+        cruiseConfig = goConfigDao.load();
 
         assertThat(cruiseConfig.getEnvironments().get(0).getAgents().size(), is(1));
         assertThat(cruiseConfig.getEnvironments().get(0).getAgents().get(0).getUuid(), is("uuid2"));
@@ -209,26 +196,50 @@ public class GoConfigFileDaoTest {
 
     @Test
     public void shouldAddPipelineToConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.numberOfPipelines();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
                 "www.spring.com");
-        goConfigFileDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
+        goConfigDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
 
-        cruiseConfig = goConfigFileDao.load();
+        cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.numberOfPipelines(), is(oldsize + 1));
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring")), is(pipelineConfig));
+    }
+    @Test
+    public void shouldFailToAddDuplicatePipelineToConfigFile() throws Exception {
+        CruiseConfig cruiseConfig = goConfigDao.load();
+        int oldsize = cruiseConfig.numberOfPipelines();
+        PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
+                "www.spring.com");
+        goConfigDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
+
+        cruiseConfig = goConfigDao.load();
+        assertThat(cruiseConfig.numberOfPipelines(), is(oldsize + 1));
+        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring")), is(pipelineConfig));
+
+        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
+                "www.spring.com");
+        try {
+            goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
+        }
+        catch (RuntimeException ex)
+        {
+            assertThat(ex.getMessage(),is("You have defined multiple pipelines called 'spring'. Pipeline names must be unique."));
+            return;
+        }
+        fail("Should have thrown");
     }
 
     @Test
     public void shouldFailWhenConfigUpdateCannotBeMergedWithLatestRevision() throws Exception {
-        final String originalMd5 = goConfigFileDao.load().getMd5();
-        goConfigFileDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "stage1", "build1"));
-        final String md5WhenPipelineIsAdded = goConfigFileDao.load().getMd5();
-        goConfigFileDao.updateConfig(configHelper.changeJobNameCommand(md5WhenPipelineIsAdded, "p1", "stage1", "build1", "new_build"));
+        final String originalMd5 = goConfigDao.load().getMd5();
+        goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "stage1", "build1"));
+        final String md5WhenPipelineIsAdded = goConfigDao.load().getMd5();
+        goConfigDao.updateConfig(configHelper.changeJobNameCommand(md5WhenPipelineIsAdded, "p1", "stage1", "build1", "new_build"));
 
         try {
-            goConfigFileDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+            goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public String unmodifiedMd5() {
                     return md5WhenPipelineIsAdded;
                 }
@@ -251,9 +262,9 @@ public class GoConfigFileDaoTest {
 
     @Test
     public void shouldNotFailNoOverwriteUpdateWhenEditingUnmodifiedCopy() throws Exception {
-        final String md5 = goConfigFileDao.md5OfConfigFile();
+        final String md5 = goConfigDao.md5OfConfigFile();
         try {
-            ConfigSaveState configSaveState = goConfigFileDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+            ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public String unmodifiedMd5() {
                     return md5;
                 }
@@ -272,7 +283,7 @@ public class GoConfigFileDaoTest {
     @Test
     public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() throws Exception {
         try {
-            goConfigFileDao.updateConfig(new UpdateConfigCommand() {
+            goConfigDao.updateConfig(new UpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                     cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
                     return cruiseConfig;
@@ -297,7 +308,7 @@ public class GoConfigFileDaoTest {
                 return cruiseConfig;
             }
         };
-        goConfigFileDao.updateConfig(command);
+        goConfigDao.updateConfig(command);
         assertThat(command.after.pipelineConfigByName(new CaseInsensitiveString("foo")).getLabelTemplate(), is("baz-${COUNT}"));
 
         assertThat(command.after.getEnvironments().size(), is(0));
@@ -309,7 +320,7 @@ public class GoConfigFileDaoTest {
     public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() throws Exception {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), false);
         try {
-            goConfigFileDao.updateConfig(command);
+            goConfigDao.updateConfig(command);
             fail("should have failed as check returned false");
         } catch (ConfigUpdateCheckFailedException ignored) {
         }
@@ -320,7 +331,7 @@ public class GoConfigFileDaoTest {
     @Test
     public void shouldPerformUpdateIfCanContinue() throws Exception {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true);
-        goConfigFileDao.updateConfig(command);
+        goConfigDao.updateConfig(command);
         assertThat(command.wasUpdated, is(true));
     }
 
@@ -330,17 +341,17 @@ public class GoConfigFileDaoTest {
         configHelper.addPipeline("pipeline", "stage");
         configHelper.addPipelineWithTemplate(PipelineConfigs.DEFAULT_GROUP, "my-pipeline", "my-template");
         CheckedTestUpdateCommand command = spy(new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true));
-        goConfigFileDao.updateConfig(command);
+        goConfigDao.updateConfig(command);
         verify(command).canContinue(cachedGoConfig.currentConfig());
     }
 
     @Test
     public void shouldAddEnvironmentToConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.getEnvironments().size();
-        goConfigFileDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")));
+        goConfigDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")));
 
-        cruiseConfig = goConfigFileDao.load();
+        cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.getEnvironments().size(), is(oldsize + 1));
     }
 
@@ -351,10 +362,10 @@ public class GoConfigFileDaoTest {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("mingle",
                 "ut", "www.spring.com");
 
-        goConfigFileDao.addPipeline(springConfig, "group1");
-        goConfigFileDao.addPipeline(mingleConfig, "group1");
+        goConfigDao.addPipeline(springConfig, "group1");
+        goConfigDao.addPipeline(mingleConfig, "group1");
 
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.numbersOfPipeline("group1"), is(2));
         assertThat(cruiseConfig.find("group1", 0), is(mingleConfig));
     }
@@ -366,10 +377,10 @@ public class GoConfigFileDaoTest {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("mingle",
                 "ut", "www.spring.com");
 
-        goConfigFileDao.addPipeline(springConfig, "group1");
-        goConfigFileDao.addPipeline(mingleConfig, "group");
+        goConfigDao.addPipeline(springConfig, "group1");
+        goConfigDao.addPipeline(mingleConfig, "group");
 
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.numbersOfPipeline("group1"), is(1));
         assertThat(cruiseConfig.numbersOfPipeline("group"), is(1));
     }
@@ -379,24 +390,24 @@ public class GoConfigFileDaoTest {
         PipelineConfig springConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring",
                 "ut", "www.spring.com");
 
-        goConfigFileDao.addPipeline(springConfig, null);
+        goConfigDao.addPipeline(springConfig, null);
 
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.numbersOfPipeline(DEFAULT_GROUP), is(1));
     }
 
     @Test
     public void shouldAddPipelineToTheTopOfConfigFile() throws Exception {
-        goConfigFileDao.load();
+        goConfigDao.load();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("addedFirst",
                 "ut", "www.spring.com");
         PipelineConfig pipelineConfig2 = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("addedSecond",
                 "ut", "www.spring.com");
-        goConfigFileDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
-        goConfigFileDao.addPipeline(pipelineConfig2, DEFAULT_GROUP);
+        goConfigDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
+        goConfigDao.addPipeline(pipelineConfig2, DEFAULT_GROUP);
 
-        goConfigFileDao.load();
-        final File configFile = new File(goConfigFileDao.fileLocation());
+        goConfigDao.load();
+        final File configFile = new File(goConfigDao.fileLocation());
         final String content = FileUtils.readFileToString(configFile);
         final int indexOfSecond = content.indexOf("addedSecond");
         final int indexOfFirst = content.indexOf("addedFirst");
@@ -407,47 +418,47 @@ public class GoConfigFileDaoTest {
 
     @Test
     public void shouldNotAddInvalidPipelineToConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.numberOfPipelines();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("", "ut",
                 "www.spring.com");
         try {
-            goConfigFileDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
+            goConfigDao.addPipeline(pipelineConfig, DEFAULT_GROUP);
             fail();
         } catch (Exception ignored) {
         }
-        cruiseConfig = goConfigFileDao.load();
+        cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.numberOfPipelines(), is(oldsize));
     }
 
     @Test
     public void shouldUpdateAgentResourcesToConfigFile() throws Exception {
         AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java"));
-        goConfigFileDao.addAgent(agentConfig);
+        goConfigDao.addAgent(agentConfig);
         Resources newResources = new Resources("firefox");
-        goConfigFileDao.updateAgentResources(agentConfig.getUuid(), newResources);
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        goConfigDao.updateAgentResources(agentConfig.getUuid(), newResources);
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().get(0).getResources(), is(newResources));
     }
 
     @Test
     public void shouldUpdateAgentApprovalStatusByUuidToConfigFile() throws Exception {
         AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java"));
-        goConfigFileDao.addAgent(agentConfig);
-        goConfigFileDao.updateAgentApprovalStatus(agentConfig.getUuid(), Boolean.TRUE);
+        goConfigDao.addAgent(agentConfig);
+        goConfigDao.updateAgentApprovalStatus(agentConfig.getUuid(), Boolean.TRUE);
 
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().get(0).isDisabled(), is(true));
     }
 
     @Test
     public void shouldRemoveAgentResourcesInConfigFile() throws Exception {
         AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java, resource1, resource2"));
-        goConfigFileDao.addAgent(agentConfig);
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        goConfigDao.addAgent(agentConfig);
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().get(0).getResources().size(), is(3));
-        goConfigFileDao.updateAgentResources(agentConfig.getUuid(), new Resources("java"));
-        cruiseConfig = goConfigFileDao.load();
+        goConfigDao.updateAgentResources(agentConfig.getUuid(), new Resources("java"));
+        cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().get(0).getResources().size(), is(1));
     }
 
@@ -455,14 +466,14 @@ public class GoConfigFileDaoTest {
     public void shouldOverwriteConfigContentAfterSave() throws Exception {
         useConfigString(WITH_3_AGENT_CONFIG);
         cachedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true).tasks().size(), is(1));
     }
 
     @Test
     public void shouldNotChangeCurrentConfigIfInvalid() throws Exception {
         useConfigString(WITH_3_AGENT_CONFIG);
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
 
         try {
             cachedGoConfig.save("This is invalid Cruise", false);
@@ -493,13 +504,7 @@ public class GoConfigFileDaoTest {
         }
     }
 
-    @Test
-    public void shouldUpgradeOldXmlWhenRequestedTo() throws Exception {
-        cachedGoConfig.save(ConfigFileFixture.VERSION_5, true);
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
-        assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(1));
-        assertThat(cruiseConfig.getAllPipelineConfigs().get(0).name(), is(new CaseInsensitiveString("framework")));
-    }
+
 
     @Test
     public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {
@@ -516,12 +521,12 @@ public class GoConfigFileDaoTest {
     @Test
     public void should_NOT_allowUpdateOf_serverId() throws Exception {
         useConfigString(ConfigFileFixture.CRUISE);
-        String oldServerId = goConfigFileDao.load().server().getServerId();
+        String oldServerId = goConfigDao.load().server().getServerId();
         Exception ex = null;
         try {
             GoConfigFileHelper.withServerIdImmutability(new Procedure() {
                 public void call() {
-                    goConfigFileDao.updateConfig(new UpdateConfigCommand() {
+                    goConfigDao.updateConfig(new UpdateConfigCommand() {
                         public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                             ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
                             return cruiseConfig;
@@ -534,7 +539,7 @@ public class GoConfigFileDaoTest {
             ex = e;
         }
         assertThat(ex.getMessage(), is("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified."));
-        CruiseConfig config = goConfigFileDao.load();
+        CruiseConfig config = goConfigDao.load();
         assertThat(config.server().getServerId(), is(oldServerId));
     }
 
@@ -550,19 +555,19 @@ public class GoConfigFileDaoTest {
     @Test
     public void shouldMergeWithLatestConfigWhenConfigUpdatedWithOlderMd5() {
         configHelper.addMailHost(getMailhost("mailhost.local.old"));
-        final String oldMd5 = goConfigFileDao.md5OfConfigFile();
+        final String oldMd5 = goConfigDao.md5OfConfigFile();
         configHelper.addMailHost(getMailhost("mailhost.local"));
 
-        ConfigSaveState configSaveState = goConfigFileDao.updateConfig(configHelper.addPipelineCommand(oldMd5, "p2", "stage1", "build1"));
+        ConfigSaveState configSaveState = goConfigDao.updateConfig(configHelper.addPipelineCommand(oldMd5, "p2", "stage1", "build1"));
 
-        CruiseConfig updatedConfig = goConfigFileDao.load();
+        CruiseConfig updatedConfig = goConfigDao.load();
         assertThat(updatedConfig.hasPipelineNamed(new CaseInsensitiveString("p2")), is(true));
         assertThat(updatedConfig.mailHost().getHostName(), is("mailhost.local"));
         assertThat(configSaveState, is(ConfigSaveState.MERGED));
     }
 
     private void assertCurrentConfigIs(CruiseConfig cruiseConfig) throws Exception {
-        CruiseConfig currentConfig = goConfigFileDao.load();
+        CruiseConfig currentConfig = goConfigDao.load();
         assertThat(currentConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).size(),
                 is(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).size()));
     }

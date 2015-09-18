@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigDataSource;
+import com.thoughtworks.go.config.MergedGoConfig;
+import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
@@ -56,10 +56,10 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private LdapContextFactory ldapContextFactory;
     @Autowired private AgentService agentService;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigDataSource goConfigDataSource;
+    @Autowired private GoFileConfigDataSource goFileConfigDataSource;
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired private MergedGoConfig mergedGoConfig;
     @Autowired private ConsoleActivityMonitor consoleActivityMonitor;
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private PipelineScheduler pipelineScheduler;
@@ -93,8 +93,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             //config
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();
-            goConfigDataSource.upgradeIfNecessary();
-            cachedGoConfig.loadConfigIfNull();
+            goFileConfigDataSource.upgradeIfNecessary();
+            mergedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
 
             //artifacts

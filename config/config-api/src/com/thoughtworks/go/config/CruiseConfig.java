@@ -47,6 +47,11 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     int schemaVersion();
 
+    /**
+     * Gets only elements of CruiseConfig which are defined locally.
+     */
+    CruiseConfig getLocal();
+
     ConfigReposConfig getConfigRepos();
 
     void setConfigRepos(ConfigReposConfig repos);

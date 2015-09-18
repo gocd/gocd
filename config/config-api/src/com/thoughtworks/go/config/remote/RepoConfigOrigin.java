@@ -36,6 +36,30 @@ public class RepoConfigOrigin implements ConfigOrigin {
         this.revision = revision;
     }
 
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) o;
+
+        if (!revision.equals(repoConfigOrigin.revision)) {
+            return false;
+        }
+        if (configRepo != null ? !configRepo.equals(repoConfigOrigin.configRepo) : repoConfigOrigin.configRepo != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public int hashCode() {
+        return revision != null ? revision.hashCode() : 0;
+    }
+
     @Override
     public boolean canEdit() {
         // if there will be implementation to edit repository then this

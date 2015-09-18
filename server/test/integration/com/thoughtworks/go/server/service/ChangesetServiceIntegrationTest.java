@@ -76,7 +76,7 @@ public class ChangesetServiceIntegrationTest  {
     @Autowired MaterialRepository materialRepository;
     @Autowired PipelineService pipelineService;
     @Autowired ChangesetService changesetService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private Localizer localizer;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -93,7 +93,7 @@ public class ChangesetServiceIntegrationTest  {
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        configHelper = new GoConfigFileHelper(goConfigFileDao);
+        configHelper = new GoConfigFileHelper(goConfigDao);
         configHelper.onSetUp();
         git = MaterialsMother.gitMaterial("http://google.com", null, "master");
         git.setFolder("git");

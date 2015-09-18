@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.sql.SQLException;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class StageOrderTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private StageDao stageDao;
     @Autowired private PipelineService pipelineService;
@@ -60,7 +60,7 @@ public class StageOrderTest {
     public void setUp() throws Exception {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
 
         dbHelper.onSetUp();
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

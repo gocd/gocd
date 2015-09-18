@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.scheduling;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -69,7 +69,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 })
 public class PipelineScheduleQueueIntegrationTest {
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineScheduleQueue queue;
     @Autowired private JobInstanceService jobService;
     @Autowired private PipelineDao pipelineDao;
@@ -87,7 +87,7 @@ public class PipelineScheduleQueueIntegrationTest {
         configFileEditor = new GoConfigFileHelper();
         configFileEditor.onSetUp();
         dbHelper.onSetUp();
-        configFileEditor.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configFileEditor.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingDbHelper(dbHelper).usingConfigHelper(configFileEditor).onSetUp();
         newCause = BuildCause.createWithEmptyModifications();

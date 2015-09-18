@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.Map;
 import javax.sql.DataSource;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -65,7 +65,7 @@ public class RestfulPropertiesControllerTest {
     @Autowired private PipelineDao pipelineDao;
     @Autowired private PropertiesService propertiesService;
     @Autowired private RestfulService restfulService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
 
     private MockHttpServletResponse response;
@@ -79,7 +79,7 @@ public class RestfulPropertiesControllerTest {
 
     @Before public void setup() throws Exception {
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         response = new MockHttpServletResponse();
 
         dbHelper.onSetUp();

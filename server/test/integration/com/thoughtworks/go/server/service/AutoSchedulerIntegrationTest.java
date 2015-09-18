@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
 import com.thoughtworks.go.fixture.ConfigWithFreeEditionLicense;
 import com.thoughtworks.go.fixture.PreCondition;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class AutoSchedulerIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineScheduler pipelineScheduler;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private ServerHealthService serverHealthService;
@@ -58,12 +58,12 @@ public class AutoSchedulerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        GoConfigFileHelper configFileHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigFileDao);
+        GoConfigFileHelper configFileHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
 
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
 
-        configFileHelper.usingCruiseConfigDao(goConfigFileDao);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         configWithFreeEditionLicense = new ConfigWithFreeEditionLicense(configFileHelper);
         configWithFreeEditionLicense.onSetUp();

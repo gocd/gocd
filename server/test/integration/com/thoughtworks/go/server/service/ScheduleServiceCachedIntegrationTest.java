@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -67,7 +67,7 @@ import static org.mockito.Mockito.when;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ScheduleServiceCachedIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
     @Autowired private ScheduleService scheduleService;
     @Autowired private CachedCurrentActivityService currentActivityService;
@@ -98,7 +98,7 @@ public class ScheduleServiceCachedIntegrationTest {
     @Before
     public void setUp() throws Exception {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();

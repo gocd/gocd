@@ -53,7 +53,7 @@ public class PipelineConfigsServiceTest {
     private SecurityService securityService;
     private Username validUser;
     private HttpLocalizedOperationResult result;
-    private GoConfigFileDao dao;
+    private GoConfigDao dao;
     private CruiseConfig cruiseConfig;
 
     @Before
@@ -62,7 +62,7 @@ public class PipelineConfigsServiceTest {
         securityService = mock(SecurityService.class);
         configCache = new ConfigCache();
         registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        dao = mock(GoConfigFileDao.class);
+        dao = mock(GoConfigDao.class);
         validUser = new Username(new CaseInsensitiveString("validUser"));
         MetricsProbeService metricsProbeService = mock(MetricsProbeService.class);
         service = new PipelineConfigsService(configCache, registry, goConfigService, securityService, metricsProbeService);

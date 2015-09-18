@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.NullArgumentException;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -138,6 +139,9 @@ public class ConfigRepository {
     }
 
     public RevCommit getRevCommitForMd5(String md5) throws GitAPIException {
+        if(md5 == null)
+            throw new NullArgumentException("md5");
+
         final String expectedPart = GoConfigRevision.Fragment.md5.represent(GoConfigRevision.esc(md5));
         for (RevCommit revision : revisions()) {
             String message = revision.getFullMessage();

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.CannotScheduleException;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
@@ -65,7 +65,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired
     private ServerHealthService serverHealthService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineScheduler buildCauseProducer;
     @Autowired private PipelineService pipelineService;
     @Autowired private ScheduleService scheduleService;
@@ -92,7 +92,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     public void setup() throws Exception {
         CONFIG_HELPER = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         CONFIG_HELPER.onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());

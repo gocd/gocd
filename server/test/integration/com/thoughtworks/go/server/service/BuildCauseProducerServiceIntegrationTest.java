@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -82,7 +82,7 @@ import static org.junit.Assert.assertThat;
 public class BuildCauseProducerServiceIntegrationTest {
     private static final String STAGE_NAME = "dev";
 
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private PipelineScheduler buildCauseProducer;
@@ -123,7 +123,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
 

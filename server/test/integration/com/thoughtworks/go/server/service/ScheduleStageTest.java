@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.domain.JobResult;
@@ -62,7 +62,7 @@ import static org.junit.Assert.assertThat;
 public class ScheduleStageTest {
     @Autowired private ScheduleService scheduleService;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao dao;
+    @Autowired private GoConfigDao dao;
     @Autowired private StageDao stageDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;

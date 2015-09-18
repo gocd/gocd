@@ -18,7 +18,7 @@ package com.thoughtworks.studios.shine.cruise.stage.details;
 
 import java.util.Date;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -65,7 +65,7 @@ public class StageResourceImporterTest {
     @Autowired private StageService stageService;
     @Autowired private PipelineHistoryService pipelineHistoryService;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private XmlApiService xmlApiService;
     @Autowired private TransactionTemplate transactionTemplate;
 
@@ -82,7 +82,7 @@ public class StageResourceImporterTest {
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         graphFactory = new InMemoryTempGraphFactory();
         importer = new StageResourceImporter("test/data/cruise/artifacts", xmlApiService, stageService, pipelineHistoryService,systemEnvironment);

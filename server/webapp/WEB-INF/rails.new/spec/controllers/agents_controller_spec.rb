@@ -27,7 +27,7 @@ describe AgentsController do
 
     before(:all) do
       config = ConfigMigrator.migrate(ConfigFileFixture::WITH_VARITY_OF_AGENTS)
-      cachedGoConfig = Spring.bean("cachedGoConfig")
+      cachedGoConfig = Spring.bean("cachedFileGoConfig")
       cachedGoConfig.save(config, false)
     end
 

@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.dao;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.database.Database;
@@ -66,7 +66,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private final SystemEnvironment systemEnvironment;
-    private final GoConfigFileDao configFileDao;
+    private final GoConfigDao configFileDao;
     private final Cloner cloner = new Cloner();
     private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
     private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
@@ -75,7 +75,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Autowired
     public PipelineSqlMapDao(StageDao stageDao, MaterialRepository materialRepository, GoCache goCache, EnvironmentVariableDao environmentVariableDao, TransactionTemplate transactionTemplate,
                              SqlMapClient sqlMapClient, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
-                             GoConfigFileDao configFileDao, Database database) {
+                             GoConfigDao configFileDao, Database database) {
         super(goCache, sqlMapClient, systemEnvironment, database);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;

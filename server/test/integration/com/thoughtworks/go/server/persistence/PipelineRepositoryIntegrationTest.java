@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -94,7 +94,7 @@ public class PipelineRepositoryIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private InstanceFactory instanceFactory;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -104,7 +104,7 @@ public class PipelineRepositoryIntegrationTest {
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
     }
 
@@ -126,7 +126,7 @@ public class PipelineRepositoryIntegrationTest {
         u.checkinInOrder(git2, "g1");
 
         ScheduleTestUtil.AddedPipeline p = u.saveConfigWith("P", u.m(git1), u.m(git2));
-        CruiseConfig cruiseConfig = goConfigFileDao.load();
+        CruiseConfig cruiseConfig = goConfigDao.load();
 
         u.checkinInOrder(git1, u.d(i++), "g2");
 
@@ -153,7 +153,7 @@ public class PipelineRepositoryIntegrationTest {
         Collections.reverse(materials);
         configHelper.setMaterialConfigForPipeline("P", materials.toArray(new MaterialConfig[0]));
 
-        goConfigFileDao.load();
+        goConfigDao.load();
 
         timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         timeline.updateTimelineOnInit();

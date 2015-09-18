@@ -74,7 +74,7 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class JobInstanceServiceIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private JobStatusCache jobStatusCache;
     @Autowired private JobInstanceService jobInstanceService;
@@ -97,7 +97,7 @@ public class JobInstanceServiceIntegrationTest {
         dbHelper.onSetUp();
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         schedulerFixture = new SchedulerFixture(dbHelper, stageDao, scheduleService);
     }

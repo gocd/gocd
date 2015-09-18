@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -81,7 +81,7 @@ public class ShineDaoIntegrationTest {
     @Autowired private StageService stageService;
     @Autowired private PipelineHistoryService pipelineHistoryService;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private XmlApiService xmlApiService;
     @Autowired private TransactionTemplate transactionTemplate;
 
@@ -101,7 +101,7 @@ public class ShineDaoIntegrationTest {
 
     @Before public void setUp() throws Exception {
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         result = new SubsectionLocalizedOperationResult();
         tempFiles = new TempFiles();

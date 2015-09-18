@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.GoConfigMigration;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.InstanceFactory;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 public class IsSecurityEnabledVoterTest {
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    private GoConfigFileDao goConfigFileDao;
+    private GoConfigDao goConfigDao;
 
     @AfterClass
     public static void tearDownConfigFileLocation() {
@@ -43,15 +43,15 @@ public class IsSecurityEnabledVoterTest {
 
     @Before
     public void setup() throws Exception {
-        goConfigFileDao = GoConfigFileHelper.createTestingDao();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        goConfigDao = GoConfigFileHelper.createTestingDao();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.initializeConfigFile();
     }
 
     @Test
     public void shouldNotVoteAccessGrantedIfSecurityIsEnabledButAnonymousIsNot() {
         configHelper.addSecurityWithBogusLdapConfig(false);
-        GoConfigService configService = new GoConfigService(goConfigFileDao, null, new SystemTimeClock(), mock(GoConfigMigration.class), null, null, null,
+        GoConfigService configService = new GoConfigService(goConfigDao, null, new SystemTimeClock(), mock(GoConfigMigration.class), null, null, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(),
                 null, new InstanceFactory());
         IsSecurityEnabledVoter voter = new IsSecurityEnabledVoter(configService);

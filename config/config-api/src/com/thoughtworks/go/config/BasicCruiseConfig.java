@@ -32,6 +32,7 @@ import javax.annotation.PostConstruct;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
@@ -141,6 +142,16 @@ public class BasicCruiseConfig implements CruiseConfig {
         ConfigOrigin getOrigin();
 
         void setOrigins(ConfigOrigin origins);
+
+        String getMd5();
+
+        CruiseConfig getLocal();
+
+        void addPipeline(String groupName, PipelineConfig pipelineConfig);
+
+        void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig);
+
+        void update(String groupName, String pipelineName, PipelineConfig pipeline);
     }
     private class BasicStrategy implements CruiseStrategy {
 
@@ -193,6 +204,36 @@ public class BasicCruiseConfig implements CruiseConfig {
             {
                 pipes.setOrigins(origins);
             }
+        }
+
+        @Override
+        public String getMd5() {
+            return md5;
+        }
+
+        @Override
+        public CruiseConfig getLocal() {
+            return BasicCruiseConfig.this;
+        }
+
+        @Override
+        public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
+            groups.addPipeline(groupName, pipelineConfig);
+        }
+
+        @Override
+        public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
+            groups.addPipelineWithoutValidation(sanitizedGroupName(groupName), pipelineConfig);
+        }
+
+        @Override
+        public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
+            if (groups.isEmpty()) {
+                PipelineConfigs configs = new BasicPipelineConfigs();
+                configs.add(pipeline);
+                groups.add(configs);
+            }
+            groups.update(groupName, pipelineName, pipeline);
         }
     }
     private class MergeStrategy implements CruiseStrategy {
@@ -302,33 +343,90 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void setEnvironments(EnvironmentsConfig environments) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set environments in merged configuration");
         }
 
         @Override
         public void setGroup(PipelineGroups pipelineGroups) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set groups in merged configuration");
         }
 
         @Override
         public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            PipelineConfig config = pipelineConfigByName(pipelineName);
+            if(!config.isLocal())
+                throw bomb("Cannot extract template from remote pipeline");
+            this.main.makePipelineUseTemplate(pipelineName,templateName);
         }
 
         @Override
         public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set group in merged configuration");
         }
 
         @Override
         public ConfigOrigin getOrigin() {
-            throw new RuntimeException("TODO: Not implemented yet");
-            //TODO a composite of all origins
+            MergeConfigOrigin origins = new MergeConfigOrigin(this.main.getOrigin());
+            for(PartialConfig part : this.parts)
+            {
+                origins.add(part.getOrigin());
+            }
+            return origins;
         }
 
         @Override
         public void setOrigins(ConfigOrigin origins) {
             throw bomb("Cannot set origins on merged config");
+        }
+
+        @Override
+        public String getMd5() {
+            return this.main.getMd5();
+        }
+
+        @Override
+        public CruiseConfig getLocal() {
+            return this.main;
+        }
+
+        @Override
+        public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
+            // validate at global level
+            this.verifyUniqueNameInParts(pipelineConfig);
+            this.main.addPipeline(groupName,pipelineConfig);
+            //TODO add rather than reconstruct
+            groups = this.mergePipelineConfigs();
+        }
+
+        @Override
+        public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
+            this.verifyUniqueNameInParts(pipelineConfig);
+            this.main.addPipelineWithoutValidation(groupName,pipelineConfig);
+            //TODO add rather than reconstruct
+            groups = this.mergePipelineConfigs();
+        }
+        private void verifyUniqueNameInParts(PipelineConfig pipelineConfig) {
+            for(PartialConfig part : this.parts)
+            {
+                for(PipelineConfigs partGroup : part.getGroups())
+                {
+                    if(partGroup.hasPipeline(pipelineConfig.name())){
+                        throw bomb("Pipeline called '" + pipelineConfig.name() +
+                                "' is already defined in configuration repository " +
+                                part.getOrigin().displayName());
+                    }
+
+                }
+            }
+        }
+
+        @Override
+        public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
+            // this was called only from tests
+            throw bomb("Cannot update pipeline group in merged configuration");
         }
     }
 
@@ -576,6 +674,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public CruiseConfig getLocal() {
+        return strategy.getLocal();
+    }
+
+    @Override
     public ConfigReposConfig getConfigRepos() {
         return configRepos;
     }
@@ -640,25 +743,21 @@ public class BasicCruiseConfig implements CruiseConfig {
         return groups;
     }
 
+    // when adding pipelines, groups or environments we must make sure that both merged and basic scopes are updated
+
     @Override
     public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
-        groups.addPipeline(groupName, pipelineConfig);
+        this.strategy.addPipeline(groupName, pipelineConfig);
     }
 
     @Override
     public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
-        groups.addPipelineWithoutValidation(sanitizedGroupName(groupName), pipelineConfig);
-
+        this.strategy.addPipelineWithoutValidation(groupName, pipelineConfig);
     }
 
     @Override
     public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
-        if (groups.isEmpty()) {
-            PipelineConfigs configs = new BasicPipelineConfigs();
-            configs.add(pipeline);
-            groups.add(configs);
-        }
-        groups.update(groupName, pipelineName, pipeline);
+        this.strategy.update(groupName,pipelineName,pipeline);
     }
 
     @Override
@@ -935,7 +1034,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public EnvironmentConfig addEnvironment(String environmentName) {
         BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        environments.add(environmentConfig);
+        this.addEnvironment(environmentConfig);
         return environmentConfig;
     }
 
@@ -1045,7 +1144,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public String getMd5() {
-        return md5;
+        return this.strategy.getMd5();
     }
 
     @Override

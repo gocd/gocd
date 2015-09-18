@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.MergedGoConfig;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -55,8 +55,8 @@ public class SecurityServiceIntegrationTest {
     private static final String OPERATOR = "operator";
     private static final String HACKER = "hacker";
 
-    @Autowired private GoConfigFileDao goConfigFileDao;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired private GoConfigDao goConfigDao;
+    @Autowired private MergedGoConfig mergedGoConfig;
     @Autowired private SecurityService securityService;
     @Autowired private GoConfigService configService;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -65,7 +65,7 @@ public class SecurityServiceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         configHelper.addPipelineWithGroup(GROUP_NAME, PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         configHelper.addSecurityWithAdminConfig();
@@ -251,7 +251,7 @@ public class SecurityServiceIntegrationTest {
 
     @Test public void shouldReturnAllPipelinesThatUserHasViewPermissionsFor() throws Exception {
         configHelper.onTearDown();
-        cachedGoConfig.save(CONFIG_WITH_2_GROUPS, true);
+        mergedGoConfig.save(CONFIG_WITH_2_GROUPS, true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("blah"))).size(), is(0));
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))), is(Arrays.asList(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("pipeline2"))));
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("pavan"))), is(Arrays.asList(new CaseInsensitiveString("pipeline3"))));
@@ -260,7 +260,7 @@ public class SecurityServiceIntegrationTest {
     @Test
     public void shouldReturnPipelineConfigsForAGivenUser() throws Exception {
         configHelper.onTearDown();
-        cachedGoConfig.save(CONFIG_WITH_2_GROUPS, true);
+        mergedGoConfig.save(CONFIG_WITH_2_GROUPS, true);
         configHelper.setViewPermissionForGroup("first","foo");
         configHelper.setViewPermissionForGroup("second","foo");
         PipelineConfigs first = configService.getCurrentConfig().findGroup("first");
@@ -281,7 +281,7 @@ public class SecurityServiceIntegrationTest {
 
     @Test public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
         configHelper.onTearDown();
-        cachedGoConfig.save(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
+        mergedGoConfig.save(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))),
                 is(Arrays.asList(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
         assertThat(securityService.viewablePipelinesFor(Username.ANONYMOUS),

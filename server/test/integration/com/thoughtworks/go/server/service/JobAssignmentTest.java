@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertThat;
 })
 public class JobAssignmentTest {
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao cruiseConfigDao;
+    @Autowired private GoConfigDao cruiseConfigDao;
     @Autowired private BuildAssignmentService assignmentService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;

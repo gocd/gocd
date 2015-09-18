@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -61,7 +61,7 @@ public class FanInPerformanceTest {
     @Autowired
     private GoCache goCache;
     @Autowired
-    private GoConfigFileDao goConfigFileDao;
+    private GoConfigDao goConfigFileDao;
     @Autowired
     private PipelineService pipelineService;
     @Autowired

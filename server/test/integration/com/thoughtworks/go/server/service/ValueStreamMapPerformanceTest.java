@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -58,7 +58,7 @@ import static org.junit.Assert.assertThat;
 })
 public class ValueStreamMapPerformanceTest {
     @Autowired
-    private GoConfigFileDao goConfigFileDao;
+    private GoConfigDao goConfigDao;
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
@@ -78,7 +78,7 @@ public class ValueStreamMapPerformanceTest {
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
@@ -179,6 +179,6 @@ public class ValueStreamMapPerformanceTest {
             previouslyCreatedPipeline = d;
             previousRun = currentRun;
         }
-        return goConfigFileDao.load();
+        return goConfigDao.load();
     }
 }

@@ -24,7 +24,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.JobConfig;
@@ -130,7 +130,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     @Autowired private ScheduleService scheduleService;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private PipelinePauseService pipelinePauseService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private DatabaseStrategy database;
@@ -143,7 +143,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.onSetUp();
         goCache.clear();
         GoConfigFileHelper configHelper = new GoConfigFileHelper();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
     }
 
@@ -701,14 +701,14 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldLoadAllActivePipelines() throws Exception {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigFileDao.load().getAllPipelineNames();
+        List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
         if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
-            goConfigFileDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
+            goConfigDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
         }
 
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
         if (!allPipelineNames.contains(new CaseInsensitiveString("mingle"))) {
-            goConfigFileDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
+            goConfigDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
         }
 
 
@@ -729,9 +729,9 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldLoadAllActivePipelinesPresentInConfigOnly() throws Exception {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigFileDao.load().getAllPipelineNames();
+        List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
         if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
-            goConfigFileDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
+            goConfigDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
         }
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
 
@@ -744,7 +744,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty(), is(false));
 
         if (!allPipelineNames.contains(new CaseInsensitiveString("mingle"))) {
-            goConfigFileDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
+            goConfigDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
         }
 
         pipelineHistories = pipelineDao.loadActivePipelines();
@@ -758,10 +758,10 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void loadAllActivePipelinesPresentInConfigOnlyShouldBeCaseInsensitive() throws Exception {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigFileDao.load().getAllPipelineNames();
+        List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
         if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
             PipelineConfig pipelineConfigWithDifferentCase = PipelineMother.createPipelineConfig("TWIST", twistConfig.materialConfigs(), "dev", "ft");
-            goConfigFileDao.addPipeline(pipelineConfigWithDifferentCase, "pipelinesqlmapdaotest");
+            goConfigDao.addPipeline(pipelineConfigWithDifferentCase, "pipelinesqlmapdaotest");
         }
          PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
         assertThat(pipelineHistories.size(), is(1));
@@ -774,13 +774,13 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldLoadAllActivePipelinesPresentInConfigAndAlsoTheScheduledStagesOfPipelinesNotInConfig() throws Exception {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigFileDao.load().getAllPipelineNames();
+        List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
         if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
-            goConfigFileDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
+            goConfigDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
         }
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
         if (!allPipelineNames.contains(new CaseInsensitiveString("mingle"))) {
-            goConfigFileDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
+            goConfigDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
         }
         dbHelper.newPipelineWithAllStagesPassed(mingleConfig);
         Pipeline secondPipeline = dbHelper.newPipelineWithFirstStagePassed(mingleConfig);
@@ -799,10 +799,10 @@ public class PipelineSqlMapDaoIntegrationTest {
     @Test
     public void shouldLoadAllActivePipelinesEvenWhenThereIsStageStatusChange() throws Exception {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
-        goConfigFileDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
+        goConfigDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
-        goConfigFileDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
+        goConfigDao.addPipeline(mingleConfig, "pipelinesqlmapdaotest");
         final Pipeline firstPipeline = dbHelper.newPipelineWithAllStagesPassed(mingleConfig);
         final Pipeline secondPipeline = dbHelper.newPipelineWithFirstStagePassed(mingleConfig);
         dbHelper.scheduleStage(secondPipeline, mingleConfig.get(1));
@@ -879,7 +879,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldGetLatestRevisionFromOrderedLists() {
-        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, systemEnvironment, goConfigFileDao, database);
+        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, systemEnvironment, goConfigDao, database);
         ArrayList list1 = new ArrayList();
         ArrayList list2 = new ArrayList();
         assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is((String) null));

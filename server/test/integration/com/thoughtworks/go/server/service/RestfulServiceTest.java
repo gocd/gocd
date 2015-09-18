@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -56,7 +56,7 @@ import static org.junit.Assert.assertThat;
 public class RestfulServiceTest {
     @Autowired private RestfulService restfulService;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigFileDao cruiseConfigDao;
+    @Autowired private GoConfigDao cruiseConfigDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private StageDao stageDao;
     @Autowired private TransactionTemplate transactionTemplate;

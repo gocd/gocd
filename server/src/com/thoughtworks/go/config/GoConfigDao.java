@@ -26,7 +26,6 @@ import com.thoughtworks.go.metrics.domain.probes.ProbeType;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.util.TriState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,17 +36,24 @@ import java.util.List;
 import static com.thoughtworks.go.util.ExceptionUtils.*;
 
 /**
- * @understands how to modify the cruise config file
+ * @understands how to modify the cruise config sources
  */
 @Component
-public class GoConfigFileDao {
+public class GoConfigDao {
     private CachedGoConfig cachedConfigService;
     private MetricsProbeService metricsProbeService;
     private final Object writeLock;
     private Cloner cloner = new Cloner();
 
+    //used in tests
+    public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
+        this.cachedConfigService = cachedConfigService;
+        this.metricsProbeService = metricsProbeService;
+        writeLock = new Object();
+    }
+
     @Autowired
-    public GoConfigFileDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
+    public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
         writeLock = new Object();
@@ -94,7 +100,7 @@ public class GoConfigFileDao {
     }
 
     CompositeConfigCommand commandForDeletingAgents(AgentInstance... agentInstances) {
-        GoConfigFileDao.CompositeConfigCommand command = new GoConfigFileDao.CompositeConfigCommand();
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
         for (AgentInstance agentInstance : agentInstances) {
             command.addCommand(deleteAgentCommand(agentInstance.getUuid()));
         }
@@ -210,7 +216,7 @@ public class GoConfigFileDao {
      * @deprecated Used only in tests
      */
     public void forceReload() {
-        cachedConfigService.onTimer();
+        cachedConfigService.forceReload();
     }
 
     public static class CompositeConfigCommand implements UpdateConfigCommand {

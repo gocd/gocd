@@ -20,13 +20,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
@@ -84,7 +79,7 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ScheduledPipelineLoaderIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private ScheduledPipelineLoader loader;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoCache goCache;
@@ -99,7 +94,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        configHelper = new GoConfigFileHelper(goConfigFileDao);
+        configHelper = new GoConfigFileHelper(goConfigDao);
         dbHelper.onSetUp();
         goCache.clear();
         configHelper.onSetUp();

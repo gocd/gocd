@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -106,7 +107,7 @@ public class StageServiceIntegrationTest {
 	@Autowired private DatabaseAccessHelper dbHelper;
 	@Autowired private ScheduleHelper scheduleHelper;
     @Autowired private ScheduleService scheduleService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private JobResultTopic jobResultTopic;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
@@ -137,7 +138,7 @@ public class StageServiceIntegrationTest {
         pipelineConfig = PipelineMother.withSingleStageWithMaterials(PIPELINE_NAME, STAGE_NAME, withBuildPlans("unit", "dev", "blah"));
         pipelineConfig.getFirstStageConfig().setFetchMaterials(false);
         pipelineConfig.getFirstStageConfig().setCleanWorkingDir(true);
-        configFileHelper.usingCruiseConfigDao(goConfigFileDao);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
         configFileHelper.onSetUp();
         configFileHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
         savedPipeline = scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), GoConstants.DEFAULT_APPROVED_BY);

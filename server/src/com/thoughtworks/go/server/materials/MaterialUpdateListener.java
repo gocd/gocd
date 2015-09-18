@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
@@ -31,6 +32,7 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
     private final MaterialDatabaseUpdater updater;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
+    private GoRepoConfigDataSource repoConfigDataSource;
 
     public MaterialUpdateListener(MaterialUpdateCompletedTopic topic, MaterialDatabaseUpdater updater, MDUPerformanceLogger mduPerformanceLogger, GoDiskSpaceMonitor diskSpaceMonitor) {
         this.topic = topic;

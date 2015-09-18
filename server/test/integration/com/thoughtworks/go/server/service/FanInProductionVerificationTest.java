@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -42,7 +42,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Ignore("To be used for Fanin production support")
 public class FanInProductionVerificationTest {
     @Autowired private GoCache goCache;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private GoConfigService goConfigService;
@@ -55,7 +55,7 @@ public class FanInProductionVerificationTest {
 // This test expects the config at /home/cruise/projects/cruise/server/config/cruise-config.xml and db at /home/cruise/projects/cruise/server/db/h2db/cruise.h2.db
     @Test
     public void shouldGetRevisionsBasedOnDependencies(){
-        CruiseConfig config = goConfigFileDao.load();
+        CruiseConfig config = goConfigDao.load();
         CaseInsensitiveString pipelineName = new CaseInsensitiveString("DPD11");
         MaterialConfigs materialConfigs = goConfigService.materialConfigsFor(pipelineName);
         MaterialRevisions latestRevisions = materialRepository.findLatestRevisions(materialConfigs);

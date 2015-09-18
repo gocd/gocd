@@ -18,6 +18,9 @@ package com.thoughtworks.go.listener;
 
 import com.thoughtworks.go.config.CruiseConfig;
 
+//TODO this is listening for any update of configuration.
+// There is no real listener that would consume entire CruiseConfig
+// This should be replaced by smaller listeners like AgentConfigChangedListener, EnvironmentsConfigChangedListener
 public interface ConfigChangedListener {
     void onConfigChange(CruiseConfig newCruiseConfig);
 }

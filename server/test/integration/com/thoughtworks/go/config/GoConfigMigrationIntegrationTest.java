@@ -1192,7 +1192,7 @@ public class GoConfigMigrationIntegrationTest {
         }, configRepository, new TimeProvider(), configCache, registry,
                 metricsProbeService);
         SystemEnvironment sysEnv = new SystemEnvironment();
-        GoConfigDataSource configDataSource = new GoConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
+        GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
                 registry, metricsProbeService, serverHealthService);
         configDataSource.upgradeIfNecessary();
         return configDataSource.forceLoad(configFile);

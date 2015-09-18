@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import java.util.Date;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -60,7 +60,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
     public static final Cloner CLONER = new Cloner();
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoCache goCache;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private BuildCauseProducerService buildCauseProducerService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -75,7 +75,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
     @Before
     public void setUp() throws Exception {
         goCache.clear();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         dbHelper.onSetUp();

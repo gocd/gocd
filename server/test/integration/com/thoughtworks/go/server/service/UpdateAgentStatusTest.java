@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -50,7 +50,7 @@ import static org.junit.Assert.assertThat;
 })
 public class UpdateAgentStatusTest {
     @Autowired private AgentService agentService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DataSource dataSource;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private ConfigRepository configRepo;
@@ -65,7 +65,7 @@ public class UpdateAgentStatusTest {
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigFileDao);
+        configHelper.usingCruiseConfigDao(goConfigDao);
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
@@ -81,7 +81,7 @@ public class UpdateAgentStatusTest {
 
     @Test
     public void shouldUpdateAgentIPAddressWhenItChanges_asAgent() throws Exception {
-        CruiseConfig oldConfig = goConfigFileDao.load();
+        CruiseConfig oldConfig = goConfigDao.load();
         String oldIp = oldConfig.agents().getAgentByUuid("uuid").getIpAddress();
         assertThat(oldIp, is("10.81.2.1"));
 
@@ -91,7 +91,7 @@ public class UpdateAgentStatusTest {
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
 
-        CruiseConfig newConfig = goConfigFileDao.load();
+        CruiseConfig newConfig = goConfigDao.load();
         String newIp = newConfig.agents().getAgentByUuid("uuid").getIpAddress();
         assertThat(newIp, is("10.18.3.95"));
         GoConfigRevision rev = configRepo.getRevision(newConfig.getMd5());

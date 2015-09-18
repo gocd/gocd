@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain.activity;
 
 import java.sql.SQLException;
 
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageConfigIdentifier;
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class StageStatusCacheTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageStatusCache stageStatusCache;
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
@@ -70,7 +70,7 @@ public class StageStatusCacheTest {
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
-        configFileHelper.usingCruiseConfigDao(goConfigFileDao);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();

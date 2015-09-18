@@ -20,7 +20,7 @@ import java.io.IOException;
 import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -64,7 +64,7 @@ public class StageIntegrationTest {
     @Autowired private BuildRepositoryService buildRepositoryService;
     @Autowired private StageService stageService;
     @Autowired private PipelineService pipelineService;
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private DataSource dataSource;
     @Autowired private PipelineDao pipelineDao;
     @Autowired private StageDao stageDao;
@@ -90,7 +90,7 @@ public class StageIntegrationTest {
 
         dbHelper.onSetUp();
         CONFIG_HELPER.onSetUp();
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigFileDao);
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
 
         TestRepo svnTestRepo = new SvnTestRepo("testsvnrepo");

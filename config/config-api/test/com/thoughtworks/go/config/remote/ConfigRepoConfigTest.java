@@ -18,8 +18,10 @@ package com.thoughtworks.go.config.remote;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.Test;
@@ -82,5 +84,52 @@ public class ConfigRepoConfigTest {
         assertThat(svn.errors().isEmpty(),is(false));
         assertThat(svn.errors().on(ScmMaterialConfig.AUTO_UPDATE),
                 is("Material of type Subversion (url) is specified as a configuration repository and pipeline material with disabled autoUpdate. All copies of the a material must have autoUpdate enabled or configuration repository must be removed"));
+    }
+
+    @Test
+    public void hasSameMaterial_shouldReturnTrueWhenFingerprintEquals(){
+        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
+        MaterialConfig someRepo = new GitMaterialConfig("url","branch");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+
+        assertThat(config.hasSameMaterial(someRepo),is(true));
+    }
+
+    @Test
+    public void hasSameMaterial_shouldReturnFalseWhenFingerprintNotEquals(){
+        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
+        MaterialConfig someRepo = new GitMaterialConfig("url","branch1");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+
+        assertThat(config.hasSameMaterial(someRepo),is(false));
+    }
+
+    @Test
+    public void hasSameMaterial_shouldReturnTrueWhenFingerprintEquals_AndDestinationDirectoriesAreDifferent(){
+        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
+        GitMaterialConfig someRepo = new GitMaterialConfig("url","branch");
+        someRepo.setFolder("someFolder");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+
+        assertThat(config.hasSameMaterial(someRepo),is(true));
+    }
+
+    @Test
+    public void hasMaterialWithFingerprint_shouldReturnTrueWhenFingerprintEquals(){
+        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
+        GitMaterialConfig someRepo = new GitMaterialConfig("url","branch");
+        someRepo.setFolder("someFolder");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+
+        assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()),is(true));
+    }
+
+    @Test
+    public void hasMaterialWithFingerprint_shouldReturnFalseWhenFingerprintNotEquals(){
+        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
+        GitMaterialConfig someRepo = new GitMaterialConfig("url","branch1");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+
+        assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()),is(false));
     }
 }

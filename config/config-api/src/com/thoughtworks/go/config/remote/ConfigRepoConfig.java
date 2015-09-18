@@ -155,6 +155,15 @@ public class ConfigRepoConfig implements Validatable {
         }
     }
 
+
+    public boolean hasSameMaterial(MaterialConfig config) {
+        return this.getMaterialConfig().getFingerprint().equals(config.getFingerprint());
+    }
+
+    public boolean hasMaterialWithFingerprint(String fingerprint) {
+        return this.getMaterialConfig().getFingerprint().equals(fingerprint);
+    }
+
     private void validateAutoUpdateState(ValidationContext validationContext) {
         if(validationContext == null)
             return;
@@ -171,7 +180,6 @@ public class ConfigRepoConfig implements Validatable {
         }
 
     }
-
 
     public Configuration getConfiguration() {
         return configuration;

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
@@ -29,11 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigFileDao;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Pipeline;
@@ -79,7 +76,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class PipelineSchedulerIntegrationTest {
-    @Autowired private GoConfigFileDao goConfigFileDao;
+    @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     @Autowired private PipelineScheduler pipelineScheduler;
     @Autowired private ServerHealthService serverHealthService;
@@ -119,7 +116,7 @@ public class PipelineSchedulerIntegrationTest {
 
         dbHelper.onSetUp();
 
-        configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         configHelper.addPipeline(PIPELINE_MINGLE, DEV_STAGE, repository, "unit", "functional");

@@ -108,14 +108,17 @@ var deBounceHandler = {
         var search = function() {
             $(searchForTextIn).unhighlight({className: highlightClass});
             $(targetElements).css('display', 'block');
+            $(targetElements).parent().css('display', 'block');
 
             var q = textBoxContents();
             if (q && q.length > 0) {
                 $(targetElements).css('display', 'none');
+                $(targetElements).parent().css('display', 'none');
                 $(searchForTextIn).highlight(q, {className: highlightClass});
 
                 var highlightedTargetElements = $(searchForTextIn + " ." + highlightClass).parents(targetElements);
                 highlightedTargetElements.css('display', 'block');
+                highlightedTargetElements.parent().css('display', 'block');
 
                 countHolder.setCountTo(highlightedTargetElements.length);
             }

@@ -1,4 +1,6 @@
 Go::Application.configure do
+  config.dev_tweaks.log_autoload_notice = false
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded on
@@ -31,4 +33,10 @@ Go::Application.configure do
 
   config.log_level = :debug
   org.apache.log4j.Logger.getLogger("com.thoughtworks.go.server.Rails").setLevel(org.apache.log4j.Level::DEBUG)
+end
+
+if defined?(JasmineRails) && File.exist?(Rails.root.join('spec/new_javascripts'))
+  Rails.application.config.assets.paths << 'spec/new_javascripts'
+else
+  puts 'Seems there was an error - could not find jasmine rails or javascript specs!'
 end

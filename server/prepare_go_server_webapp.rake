@@ -178,7 +178,7 @@ end
 
 task :precompile_assets do
   cd rails_root do
-    sh_with_environment("#{ruby_executable} -S ./bin/rake assets:clobber assets:precompile", {'RAILS_ENV' => 'production', 'CLASSPATH' => classpath})
+    sh_with_environment("#{ruby_executable} -S ./bin/rake --trace assets:clobber assets:precompile", {'RAILS_ENV' => 'production', 'CLASSPATH' => classpath})
   end
 end
 
@@ -187,10 +187,10 @@ task :jasmine_tests do
     environment = {
       'RAILS_ENV'           => 'test',
       'REPORTERS'           => 'console,junit',
-      'CLASSPATH'           => classpath,
-      'JASMINE_CONFIG_PATH' => './spec/javascripts/support/jasmine-ci.yml'
+      'CLASSPATH'           => classpath
     }
-    sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", environment)
+    sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", environment.merge('JASMINE_CONFIG_PATH' => './spec/javascripts/support/jasmine-ci-old.yml'))
+    sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", environment.merge("JASMINE_CONFIG_PATH" => './spec/javascripts/support/jasmine-ci-new.yml', 'REQUIRE_JS' => 'true'))
   end
 end
 

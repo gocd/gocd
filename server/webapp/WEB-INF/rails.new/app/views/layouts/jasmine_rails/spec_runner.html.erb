@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+  <title>Jasmine Specs</title>
+
+  <% if request.path =~ /jasmine-specs-new/ %>
+    <%= stylesheet_link_tag *Jasmine::Core.css_files %>
+    <%= javascript_include_tag 'require.js' %>
+    <script>
+      <%
+        require_config = YAML.load(File.read(Rails.root.join("config/requirejs.yml")))
+        require_config['baseUrl'] = 'assets'
+        require_config['paths'].merge!(
+          'jasmine'       =>      'jasmine',
+          'jasmine-html'  => 'jasmine-html',
+          'jasmine-boot'  => 'boot',
+          'jasmine-mock-ajax' => 'helpers/mock-ajax'
+        )
+        require_config['shim'].merge!({
+          'jasmine-html'=>   {
+            :deps=> ['jasmine']
+          },
+          'jasmine-jquery'=> {
+            :deps=> ['jquery', 'jasmine-boot']
+          },
+          'jasmine-boot'=>   {
+            :deps=> ['jasmine', 'jasmine-html']
+          },'jasmine-mock-ajax'=>   {
+            :deps=> ['jasmine', 'jasmine-boot']
+          }
+        })
+      %>
+      require.config(<%= raw JSON.pretty_generate(require_config) %>);
+
+    </script>
+  <% else %>
+    <%= stylesheet_link_tag *jasmine_css_files %>
+    <%= javascript_include_tag *jasmine_js_files, :defer => "defer" %>
+  <% end %>
+</head>
+<body data-no-turbolink>
+<div id="jasmine_content"></div>
+<%= yield %>
+
+<% if request.path =~ /jasmine-specs-new/ %>
+
+  <script>
+    require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax'], function () {
+      require(<%= raw Dir[Rails.root.join("spec/new_javascripts/**/*_spec.js")].collect {|f| f.gsub(Rails.root.join("spec/new_javascripts/").to_s, "assets/") } %>, function () {
+        window.onload();
+      });
+    });
+  </script>
+<% end %>
+</body>
+</html>

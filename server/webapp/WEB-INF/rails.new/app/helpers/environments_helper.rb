@@ -16,9 +16,6 @@
 
 
 module EnvironmentsHelper
-  def url_for_pipeline(pipeline_name, options = {})
-    url_for_path("/tab/pipeline/history/#{pipeline_name}", options)
-  end
 
   def stage_width_em(total_number_of_stages, is_last_running_stage,total_width)
     last_running_width = is_last_running_stage ? 0.25 : 0.0833

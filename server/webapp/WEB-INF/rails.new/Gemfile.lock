@@ -153,6 +153,9 @@ GEM
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       sprockets (>= 2.8, < 4.0)
+    therubyrhino (2.0.4)
+      therubyrhino_jar (>= 1.7.3)
+    therubyrhino_jar (1.7.6)
     thor (0.19.1)
     thread_safe (0.3.5-java)
     tilt (2.0.1)
@@ -203,6 +206,7 @@ DEPENDENCIES
   sass-rails
   selenium-webdriver
   sprockets-rails
+  therubyrhino
   uglifier
   validatable (>= 1.6.0)
   versionist

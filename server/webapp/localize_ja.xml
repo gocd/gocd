@@ -171,6 +171,7 @@
     <entry key="USER_SUCCESSFULLY_ADDED">User ''{0}'' successfully added.</entry>
     <entry key="USER_ALREADY_EXISTS">Failed to add user. User ''{0}'' already exists.</entry>
     <entry key="USER_DOES_NOT_EXIST_IN_DB">User ''{0}'' does not exist in the database.</entry>
+    <entry key="INVALID_LDAP_ERROR">There was an error authenticating you. Please check the go server logs, or contact the go server administrator.</entry>
     <entry key="LDAP_ERROR">Ldap search failed, please contact the administrator.</entry>
     <entry key="PASSWORD_SEARCH_FAILED">Password file search failed, please contact the administrator.</entry>
     <entry key="USER_SEARCH_FAILED">Ldap search and password search failed, please contact the administrator.</entry>

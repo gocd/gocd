@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.i18n.Localizer;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,24 +40,30 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class BasicAuthenticationFilterTest {
     private String errorMessage;
     private MockHttpServletRequest httpRequest;
     private MockHttpServletResponse httpResponse;
     private BasicAuthenticationFilter filter;
+    private Localizer localizer;
 
     @Before
     public void setUp() throws Exception {
-        errorMessage = "There was an error authenticating you. Please check the server logs, or contact your the go administrator.";
+        errorMessage = "There was an error authenticating you. Please check the go server logs, or contact the go server administrator.";
         httpRequest = new MockHttpServletRequest();
         httpResponse = new MockHttpServletResponse();
-        filter = new BasicAuthenticationFilter();
+        localizer = mock(Localizer.class);
+        filter = new BasicAuthenticationFilter(localizer);
+        when(localizer.localize("INVALID_LDAP_ERROR")).thenReturn(errorMessage);
     }
 
     @Test
     public void shouldConvey_itsBasicProcessingFilter() throws IOException, ServletException {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(localizer);
         final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
 
         filter.setAuthenticationManager(new AuthenticationManager() {
@@ -86,6 +93,7 @@ public class BasicAuthenticationFilterTest {
         SecurityContext context = SecurityContextHolder.getContext();
 
         filter.handleException(httpRequest, httpResponse, new Exception("some error"));
+        verify(localizer).localize("INVALID_LDAP_ERROR");
 
         assertThat(((Exception) (httpRequest.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY))).getMessage(), is(errorMessage));
         assertThat(httpRequest.getAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED).toString(), is("true"));
@@ -98,7 +106,7 @@ public class BasicAuthenticationFilterTest {
         httpRequest.addHeader("Accept", "application/vnd.go.cd.v1+json");
 
         filter.handleException(httpRequest, httpResponse, null);
-
+        verify(localizer).localize("INVALID_LDAP_ERROR");
         assertEquals("application/vnd.go.cd.v1+json; charset=utf-8", httpResponse.getContentType());
         assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
         assertEquals(500, httpResponse.getStatus());
@@ -110,7 +118,7 @@ public class BasicAuthenticationFilterTest {
         httpRequest.addHeader("Accept", "application/XML");
 
         filter.handleException(httpRequest, httpResponse, null);
-
+        verify(localizer).localize("INVALID_LDAP_ERROR");
         assertEquals("application/xml; charset=utf-8", httpResponse.getContentType());
         assertEquals("Basic realm=\"GoCD\"", httpResponse.getHeader("WWW-Authenticate"));
         assertEquals(500, httpResponse.getStatus());
@@ -121,6 +129,7 @@ public class BasicAuthenticationFilterTest {
     public void testShouldRender500WithWithHTMLWithNoAcceptHeader() throws Exception {
 
         filter.handleException(httpRequest, httpResponse, new Exception("foo"));
+        verify(localizer).localize("INVALID_LDAP_ERROR");
         assertEquals(500, httpResponse.getStatus());
         assertEquals("foo", httpResponse.getErrorMessage());
     }

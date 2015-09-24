@@ -168,8 +168,34 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
 
           $scope.clearErrors();
 
+          var ajaxValidator = _.debounce(function (configuration, config, newValue) {
+            configuration.setConfiguration(config.name, newValue);
+            var req = {
+              url:     Routes.apiInternalPluggableTaskValidationPath({plugin_id: ctrl.task.pluginId()}),
+              method:  'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
+              },
+              data:    JSON.stringify(configuration)
+            };
+
+            $http(req).then(
+              $scope.clearErrors.bind($scope),
+              function (response) {
+                if (response.status === 422) {
+                  _.each(response.data, $scope.addError, $scope);
+                } else if (response.status === 520) {
+                  $scope.pluggableTaskGenericError = response.data.error;
+                } else {
+                  console.log('Something went wrong, we do not know what!');
+                }
+              });
+          }, 250);
+
           _.map(ctrl.defaultTaskConfig, function (config) {
-            var value = ctrl.task.configuration().valueFor(config.name);
+            var configuration = ctrl.task.configuration();
+            var value         = configuration.valueFor(config.name);
 
             if (!value) {
               value = config.value;
@@ -177,30 +203,9 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
 
             $scope[config.name] = value;
 
-            $scope.$watch(config.name, _.debounce(function (newValue, oldValue) {
-              ctrl.task.configuration().setConfiguration(config.name, newValue);
-              var req = {
-                url:     Routes.apiInternalPluggableTaskValidationPath({plugin_id: ctrl.task.pluginId()}),
-                method:  'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
-                },
-                data:    JSON.stringify(ctrl.task.configuration())
-              };
-
-              $http(req).then(
-                $scope.clearErrors.bind($scope),
-                function (response) {
-                  if (response.status === 422) {
-                    _.each(response.data, $scope.addError, $scope);
-                  } else if (response.status === 520) {
-                    $scope.pluggableTaskGenericError = response.data.error;
-                  } else {
-                    console.log('Something went wrong, we do not know what!');
-                  }
-                });
-            }, 100));
+            $scope.$watch(config.name, function (newValue, oldValue) {
+              ajaxValidator(configuration, config, newValue);
+            });
           });
         }]);
       },

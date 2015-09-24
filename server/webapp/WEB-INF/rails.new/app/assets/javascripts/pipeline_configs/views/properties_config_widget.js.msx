@@ -51,8 +51,7 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
       };
 
       return (
-        <fieldset class='properties'>
-          <legend>Properties</legend>
+        <div class='job-properties'>
           {ctrl.properties.mapProperties(function (property) {
             return (
               <f.row class='property' data-property-source={property.source()} key={property.uuid()}>
@@ -74,7 +73,7 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
               </f.row>
             );
           })}
-        </fieldset>
+        </div>
       );
     }
   };

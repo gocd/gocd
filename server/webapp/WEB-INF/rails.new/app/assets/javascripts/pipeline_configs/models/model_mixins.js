@@ -189,7 +189,11 @@ define(['lodash', 'string-plus'], function (_, s) {
       return s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL') + " must be present";
     },
     mustBeAUrl:    function (attribute) {
-      return s.humanize(attribute) + "must be a valid http(s) url";
+      return s.humanize(attribute) + " must be a valid http(s) url";
+    },
+
+    mustContainString: function(attribute, string){
+      return s.humanize(attribute) + " must contain the string '" + string + "'";
     }
   };
 

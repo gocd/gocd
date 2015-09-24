@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', './materials_config_widget', './environment_variables_config_widget',
-  './jobs_config_widget'], function (m, _, s, f, MaterialsConfigWidget, EnvironmentVariablesConfigWidget, JobsConfigWidget) {
+define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helpers/tooltips', './materials_config_widget', './environment_variables_config_widget',
+  './jobs_config_widget'], function (m, _, s, f, tt, MaterialsConfigWidget, EnvironmentVariablesConfigWidget, JobsConfigWidget) {
 
   var StageConfigDefinitionWidget = {
     controller: function (args) {
@@ -31,19 +31,33 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', './materia
       };
 
       return (
-        <fieldset className={className(ctrl.stage)} data-key={ctrl.stage.name()}>
-          <legend>{s.isBlank(ctrl.stage.name()) ? m.trust('&nbsp;') : ctrl.stage.name()}</legend>
+        <div className={className(ctrl.stage)} data-stage-name={ctrl.stage.name()}>
           <f.removeButton onclick={ctrl.onRemove}
             />
           <f.row>
             <f.inputWithLabel attrName='name'
                               model={ctrl.stage}/>
             <f.checkBox model={ctrl.stage}
-                        attrName='fetchMaterials'/>
+                        attrName='fetchMaterials'
+                        tooltip={{
+                                  content: tt.stage.fetchMaterials,
+                                  direction: 'bottom',
+                                  size: 'small'
+                                }}/>
             <f.checkBox model={ctrl.stage}
-                        attrName='neverCleanArtifacts'/>
+                        attrName='neverCleanArtifacts'
+                        tooltip={{
+                                  content: tt.stage.neverCleanArtifacts,
+                                  direction: 'bottom',
+                                  size: 'small'
+                                }}/>
             <f.checkBox model={ctrl.stage}
                         attrName='cleanWorkingDirectory'
+                        tooltip={{
+                                  content: tt.stage.cleanWorkingDirectory,
+                                  direction: 'bottom',
+                                  size: 'small'
+                                }}
                         end={true}/>
           </f.row>
 
@@ -58,7 +72,7 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', './materia
               <JobsConfigWidget jobs={ctrl.stage.jobs()} selectedJobIndex={ctrl.selectedJobIndex}/>
             </f.column>
           </f.row>
-        </fieldset>
+        </div>
       );
     }
   };
@@ -76,10 +90,9 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', './materia
       };
 
       return (
-        <fieldset className={className(ctrl.materials)} data-key='materials'>
-          <legend>Materials</legend>
+        <div className={className(ctrl.materials)}>
           <MaterialsConfigWidget materials={ctrl.materials} selectedMaterialIndex={ctrl.selectedMaterialIndex}/>
-        </fieldset>
+        </div>
       );
     }
   };

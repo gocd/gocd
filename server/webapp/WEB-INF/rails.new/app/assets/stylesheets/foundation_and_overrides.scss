@@ -528,7 +528,7 @@ $row-width: 100%;
 // 08. Dropdown
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// $include-html-dropdown-classes: $include-html-classes;
+ $include-html-dropdown-classes: true;
 
 // We use these to controls height and width styles.
 // $f-dropdown-max-width: 200px;
@@ -1289,7 +1289,7 @@ $input-font-size: rem-calc(12.5);
 // 30. Tables
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// $include-html-table-classes: $include-html-classes;
+ $include-html-table-classes: true;
 
 // These control the background color for the table and even rows
 // $table-bg: $white;

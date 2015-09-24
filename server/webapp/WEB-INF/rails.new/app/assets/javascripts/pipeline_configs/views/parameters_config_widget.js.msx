@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', '../helpers/form_helper'], function (m, f) {
+define(['mithril', '../helpers/form_helper', '../helpers/tooltips'], function (m, f, tt) {
   var ParametersConfigWidget = {
     controller: function (args) {
       this.parameters = args.parameters;
@@ -51,8 +51,11 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
       };
 
       return (
-
-        <f.accordion accordionTitles={['Parameters']}
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Parameters<f.tooltip tooltip={{content: tt.pipeline.parameters.main}}/></span>
+                        )
+                     ]}
                      accordionKeys={['parameters']}
                      selectedIndex={-1}
                      class='parameters'>

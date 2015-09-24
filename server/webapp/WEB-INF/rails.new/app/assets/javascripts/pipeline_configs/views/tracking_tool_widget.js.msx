@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', '../helpers/form_helper', '../models/tracking_tool'], function (m, _, f, TrackingTool) {
+define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '../models/tracking_tool'], function (m, _, f, tt, TrackingTool) {
 
   var TrackingToolViews = {
     none: function () {
@@ -28,18 +28,33 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../models/tracking_tool'
                               attrName='baseUrl'
                               label='Base URL'
                               type='url'
+                              tooltip={{
+                                          content: <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}
                               size={8}/>
           </f.row>
 
           <f.row>
             <f.inputWithLabel model={trackingTool()}
                               attrName='projectIdentifier'
+                              tooltip={{
+                                          content: <tt.trackingTool.mingle.projectIdentifier callback={trackingTool().projectIdentifier}/>,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}
                               size={8}/>
           </f.row>
 
           <f.row>
             <f.inputWithLabel model={trackingTool()}
                               attrName='groupingConditions'
+                              tooltip={{
+                                          content: <tt.trackingTool.mingle.groupingConditions callback={trackingTool().groupingConditions}/>,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}
                               size={8}/>
           </f.row>
         </div>
@@ -47,18 +62,33 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../models/tracking_tool'
     },
 
     generic: function (trackingTool) {
+
+      var useTrackingToolRegex = function () {
+        debugger;
+      };
       return (
         <div>
+          <f.row>
+            <f.inputWithLabel model={trackingTool()}
+                              attrName='regex'
+                              label='Regular expression'
+                              tooltip={{
+                                          content: <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
+                              size={8}/>
+          </f.row>
           <f.row>
             <f.inputWithLabel model={trackingTool()}
                               attrName='urlPattern'
                               label='URL Pattern'
                               type='url'
-                              size={8}/>
-          </f.row>
-          <f.row>
-            <f.inputWithLabel model={trackingTool()}
-                              attrName='regex'
+                              tooltip={{
+                                          content: <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
                               size={8}/>
           </f.row>
         </div>
@@ -92,7 +122,11 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../models/tracking_tool'
       var trackingTools = _.merge({none: {type: undefined, description: "None"}}, TrackingTool.Types);
 
       return (
-        <f.accordion accordionTitles={['Tracking Tool']}
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Tracking Tool<f.tooltip tooltip={{content: tt.trackingTool.main}}/></span>
+                        )
+                     ]}
                      accordionKeys={['tracking-tool']}
                      selectedIndex={-1}>
           <div>
@@ -113,7 +147,7 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../models/tracking_tool'
               </f.column>
             </f.row>
 
-            <f.row class={'tracking-tool tracking-tool' + (ctrl.trackingTool() ? ctrl.trackingTool().type() : 'none')}>
+            <f.row class={'tracking-tool tracking-tool-' + (ctrl.trackingTool() ? ctrl.trackingTool().type() : 'none')}>
               <f.column size={6} end={true}>
                 {TrackingToolViews[ctrl.trackingTool() ? ctrl.trackingTool().type() : 'none'](ctrl.trackingTool)}
               </f.column>

@@ -51,8 +51,7 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
       };
 
       return (
-        <fieldset class='artifacts'>
-          <legend>Artifacts</legend>
+        <div class='job-artifacts'>
           {ctrl.artifacts.mapArtifacts(function (artifact) {
             return (
               <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
@@ -78,7 +77,7 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
               </f.row>
             );
           })}
-        </fieldset>
+        </div>
       );
     }
   };

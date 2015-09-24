@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/materials'], function (m, _, $, f, Materials) {
+define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/tooltips', '../models/materials'], function (m, _, $, f, tt, Materials) {
 
   var MaterialViews = {
     base: {
@@ -31,7 +31,12 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/mate
           destinationField = (
             <f.inputWithLabel attrName='destination'
                               label="Destination"
-                              model={ctrl.material}/>
+                              model={ctrl.material}
+                              tooltip={{
+                                          content: tt.material.destination,
+                                          direction: 'bottom',
+                                          size: 'small'
+                                        }}/>
           );
         }
 
@@ -49,7 +54,12 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/mate
             <f.removeButton onclick={ctrl.onRemove}/>
             <f.row>
               <f.inputWithLabel attrName='name'
-                                model={ctrl.material}/>
+                                model={ctrl.material}
+                                tooltip={{
+                                          content: tt.material.name,
+                                          direction: 'bottom',
+                                          size: 'small'
+                                        }}/>
               {destinationField}
               <f.checkBox model={ctrl.material}
                           attrName='autoUpdate'

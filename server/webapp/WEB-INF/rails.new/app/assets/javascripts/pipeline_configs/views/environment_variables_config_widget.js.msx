@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', '../helpers/form_helper'], function (m, f) {
+define(['mithril', '../helpers/form_helper', '../helpers/tooltips'], function (m, f, tt) {
   var EnvironmentVariablesConfigWidget = {
     controller: function (args) {
       this.variables = args.variables;
@@ -51,7 +51,11 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
       };
 
       return (
-        <f.accordion accordionTitles={['Environment Variables']}
+        <f.accordion accordionTitles={[
+                        (
+                          <span>EnvironmentVariables<f.tooltip tooltip={{content: tt.environmentVariables}}/></span>
+                        )
+                     ]}
                      accordionKeys={['environment-variables']}
                      selectedIndex={-1}
                      class='environment-variables'>

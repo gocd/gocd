@@ -51,8 +51,7 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
       };
 
       return (
-        <fieldset class='job-tabs'>
-          <legend>Tabs</legend>
+        <div class='job-tabs'>
           {ctrl.tabs.mapTabs(function (tab) {
             return (
               <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
@@ -70,7 +69,7 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
               </f.row>
             );
           })}
-        </fieldset>
+        </div>
       );
     }
   };

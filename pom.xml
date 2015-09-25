@@ -110,7 +110,6 @@
         <module>agent-launcher</module>
         <module>agent-bootstrapper</module>
 
-        <module>plugin-infra/sample-plugins</module>
         <module>rack_hack</module>
         <module>server</module>
         <module>server-launcher</module>

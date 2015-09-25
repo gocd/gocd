@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
@@ -28,19 +25,16 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class P4MaterialConfigTest {
-
-    @Before
-    public void setUp() throws Exception {
-    }
 
     @Test
     public void shouldSetConfigAttributes() {
@@ -70,46 +64,23 @@ public class P4MaterialConfigTest {
     }
 
     @Test
-    @Ignore("the xsd validation doesn't allow \\d+ without a prefixed (:), but p4 actually supports \\d+ as the value of port(according to http://www.perforce.com/perforce/doc.current/manuals/cmdref/env.P4PORT.html)")
-    public void shouldAllowPortWithoutPrefixedColon() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("1818", "view");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().isEmpty(), is(true));
-    }
-
-    @Test
     public void validate_shouldEnsureThatViewIsNotBlank() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("example.com:1233", "");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(P4MaterialConfig.VIEW), is("P4 view cannot be empty."));
+        assertError("example.com:1233", "", P4MaterialConfig.VIEW, "P4 view cannot be empty.");
     }
 
     @Test
-    public void validate_shouldThrowValidationErrorsWhenP4PortIsNotInCorrectFormat() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "view");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(P4MaterialConfig.SERVER_AND_PORT), is("P4 port cannot be empty."));
+    public void shouldNotDoAnyValidationOnP4PortExceptToEnsureThatItIsNotEmpty() throws Exception {
+        assertError("", "view", P4MaterialConfig.SERVER_AND_PORT, "P4 port cannot be empty.");
+        assertError(" ", "view", P4MaterialConfig.SERVER_AND_PORT, "P4 port cannot be empty.");
 
-        p4MaterialConfig = new P4MaterialConfig("INVALID_PORT", "view");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(P4MaterialConfig.SERVER_AND_PORT), is("Invalid format for P4 port. It should be host:port"));
-        p4MaterialConfig = new P4MaterialConfig("12332", "view");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(P4MaterialConfig.SERVER_AND_PORT), is("Invalid format for P4 port. It should be host:port"));
-        p4MaterialConfig = new P4MaterialConfig(":1818", "view");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(P4MaterialConfig.SERVER_AND_PORT), is("Invalid format for P4 port. It should be host:port"));
-    }
-
-    @Test
-    public void validate_shouldNotThrowValidationErrorsIfP4PortIsInCorrectFormat() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("example.com:1818", "view");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().isEmpty(), is(true));
-
-        p4MaterialConfig = new P4MaterialConfig("198.168.0.123:1818", "view");
-        p4MaterialConfig.validate(new ValidationContext(null));
-        assertThat(p4MaterialConfig.errors().isEmpty(), is(true));
+        assertNoError("example.com:1818", "view", P4MaterialConfig.SERVER_AND_PORT);
+        assertNoError("ssl:host:1234", "view", P4MaterialConfig.SERVER_AND_PORT);
+        assertNoError("ssl:host:non_numerical_port", "view", P4MaterialConfig.SERVER_AND_PORT);
+        assertNoError("complete_junk:::abc:::123:::def", "view", P4MaterialConfig.SERVER_AND_PORT);
+        assertNoError(":1234", "view", P4MaterialConfig.SERVER_AND_PORT);
+        assertNoError(":abc", "view", P4MaterialConfig.SERVER_AND_PORT);
+        assertNoError("1234", "view", P4MaterialConfig.SERVER_AND_PORT);
+        assertNoError("tcp:abc:1234", "view", P4MaterialConfig.SERVER_AND_PORT);
     }
 
     @Test
@@ -161,5 +132,17 @@ public class P4MaterialConfigTest {
 
         p4MaterialConfig.setConfigAttributes(new HashMap());
         assertThat(p4MaterialConfig.getUseTickets(), is(false));
+    }
+
+    private void assertNoError(String port, String view, String expectedKeyForError) {
+        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(port, view);
+        p4MaterialConfig.validate(new ValidationContext(null));
+        assertThat(p4MaterialConfig.errors().on(expectedKeyForError), is(nullValue()));
+    }
+
+    private void assertError(String port, String view, String expectedKeyForError, String expectedErrorMessage) {
+        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(port, view);
+        p4MaterialConfig.validate(new ValidationContext(null));
+        assertThat(p4MaterialConfig.errors().on(expectedKeyForError), is(expectedErrorMessage));
     }
 }

@@ -79,18 +79,6 @@ define "cruise" do |project|
   task :update_versions do
     bump_command = "mvn versions:set -DnewVersion=#{VERSION_NUMBER} -DgenerateBackupPoms=false"
     sh(bump_command)
-    cd('plugin-infra/sample-plugins') do
-      sh(bump_command)
-    end
-    ['curl-plugin-old-api-based', 'curl-plugin', 'descriptor-hash-plugin'].each do |dir|
-      cd("plugin-infra/sample-plugins/#{dir}") do
-        existing_pom = File.read("pom.xml")
-        new_pom = existing_pom.gsub(%r{<version>15.3.0</version>}, "<version>#{VERSION_NUMBER}</version>")
-        File.open('pom.xml', 'w') do |f|
-          f.puts(new_pom)
-        end
-      end
-    end
   end
 
   clean do

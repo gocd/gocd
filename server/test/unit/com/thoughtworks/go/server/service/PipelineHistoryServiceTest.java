@@ -810,16 +810,19 @@ public class PipelineHistoryServiceTest {
 	public void shouldPopulateDataCorrectly_getPipelineStatus() {
 		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		PipelineConfig pipelineConfig = new PipelineConfig();
+        PipelinePauseInfo pipelinePauseInfo = new PipelinePauseInfo(true,"pausing pipeline for some-reason", "some-one");
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 		when(securityService.hasViewPermissionForPipeline("user-name", "pipeline-name")).thenReturn(true);
-		when(pipelinePauseService.isPaused("pipeline-name")).thenReturn(true);
+		when(pipelinePauseService.pipelinePauseInfo("pipeline-name")).thenReturn(pipelinePauseInfo);
 		when(pipelineLockService.isLocked("pipeline-name")).thenReturn(true);
 		when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any(ServerHealthStateOperationResult.class))).thenReturn(true);
 
 		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", new HttpOperationResult());
 
 		assertThat(pipelineStatus.isPaused(), is(true));
+		assertThat(pipelineStatus.pausedCause(), is("pausing pipeline for some-reason"));
+		assertThat(pipelineStatus.pausedBy(), is("some-one"));
 		assertThat(pipelineStatus.isLocked(), is(true));
 		assertThat(pipelineStatus.isSchedulable(), is(true));
 	}

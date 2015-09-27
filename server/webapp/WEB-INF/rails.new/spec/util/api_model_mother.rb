@@ -368,6 +368,9 @@ module APIModelMother
   def create_pipeline_status_model
     @pipeline_status_model = double('PipelineStatusViewModel')
     @pipeline_status_model.stub(:isPaused).and_return(true)
+    @pipeline_status_model.stub(:pausedCause).and_return('Pausing it for some reason')
+    @pipeline_status_model.stub(:pausedBy).and_return('admin')
+    @pipeline_status_model.stub(:isPaused).and_return(true)
     @pipeline_status_model.stub(:isLocked).and_return(true)
     @pipeline_status_model.stub(:isSchedulable).and_return(true)
     @pipeline_status_model

@@ -210,17 +210,14 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
     view: function (ctrl) {
       return (
         <f.row className='material-selector'>
-          <f.column size={3}>
-            <label class='inline'>Add material of type
-              <f.select
-                value={ctrl.selected}
-                class='inline'
-                items={_.transform(Materials.Types, function(result, value, key){
+          <f.select
+            value={ctrl.selected}
+            class='inline'
+            label='Add material of type'
+            items={_.transform(Materials.Types, function(result, value, key){
                   result[key] = value.description;
                 })}
-                />
-            </label>
-          </f.column>
+            size={3}/>
           <f.column size={2} end={true} class='add-material'>
             <a href="javascript:void(0)" onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</a>
           </f.column>
@@ -268,7 +265,7 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
               }));
             })}
           </f.accordion>
-          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)}/>
+          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)} key='material-type-selector'/>
         </div>
       );
     }

@@ -28,12 +28,25 @@ define(["jquery", "mithril", "pipeline_configs/models/environment_variables", "p
           secure: true
         }
       ]);
-      var root      = document.createElement("div");
+      root  = document.createElement("div");
+      document.body.appendChild(root);
       $root         = $(root);
 
-      m.render(root,
+      m.mount(root,
         m.component(EnvironmentVariableWidget, {variables: variables})
       );
+
+      m.redraw(true);
+
+      var accordion = $root.find('.environment-variables .accordion-navigation > a').get(0);
+      var evObj     = document.createEvent('MouseEvents');
+      evObj.initEvent('click', true, false);
+      accordion.onclick(evObj);
+      m.redraw(true);
+    });
+
+    afterEach(function () {
+      root.parentNode.removeChild(root);
     });
 
     it("should display environment variables", function () {

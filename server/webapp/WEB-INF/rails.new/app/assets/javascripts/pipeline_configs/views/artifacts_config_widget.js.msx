@@ -63,14 +63,13 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
                          attrName='destination'
                          onchange={ctrl.artifactChanged.bind(ctrl)}
                          size={3}/>
-                <f.column size={2}>
-                  <f.select value={ctrl.selected}
-                            class='inline'
-                            items={{
-                      build: 'build',
-                      test: 'test'
-                    }}/>
-                </f.column>
+                <f.select value={artifact.type}
+                          class='inline'
+                          items={{
+                            build: 'build',
+                            test: 'test'
+                          }}
+                          size={2}/>
                 <f.column size={1} end={true}>
                   {removeLink(artifact)}
                 </f.column>

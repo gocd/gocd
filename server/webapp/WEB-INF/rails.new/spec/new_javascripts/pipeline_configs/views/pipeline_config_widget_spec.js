@@ -31,14 +31,17 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
       });
 
       // needed because the widget needs to fetch data via ajax, and complete rendering
-      var reallyDone = _.after(2, done);
+      var reallyDone = _.after(2, function(){
+        m.redraw(true);
+        done();
+      });
 
       var component = PipelineConfigWidget('/pipeline.json', function (controller) {
         pipeline = controller.pipeline;
         reallyDone();
       });
 
-      m.render(root, component);
+      m.mount($root.get(0), component);
       reallyDone();
     });
 
@@ -83,7 +86,16 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
       expect(labelTextElem.val()).toEqual(value);
     });
 
-    it("should render the params", function () {
+    it("should render the params (when clicked)", function () {
+      expect($root.find('.parameters .parameter').length).toBe(0);
+
+      var accordion = $root.find('.parameters.accordion .accordion-navigation > a').get(0);
+
+      var evObj     = document.createEvent('MouseEvents');
+      evObj.initEvent('click', true, false);
+      accordion.onclick(evObj);
+      m.redraw(true);
+
       expect($root.find('.parameters .parameter').length).toBe(3);
 
       expect($root.find('.parameter').map(function () {
@@ -93,6 +105,15 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     });
 
     it("should render the environment variables", function () {
+      expect($root.find('.environment-variables .environment-variable').length).toBe(0);
+
+      var accordion = $root.find('.environment-variables.accordion .accordion-navigation > a').get(0);
+
+      var evObj = document.createEvent('MouseEvents');
+      evObj.initEvent('click', true, false);
+      accordion.onclick(evObj);
+      m.redraw(true);
+
       expect($root.find('.environment-variables .environment-variable').length).toBe(3);
 
       expect($root.find('.environment-variable').map(function () {
@@ -135,6 +156,11 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
           name:   "COMPLEX",
           value:  "This has very <complex> data",
           secure: false
+        }
+      ],
+      stages:                  [
+        {
+          name: 'BuildLinux'
         }
       ]
     };

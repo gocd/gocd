@@ -260,13 +260,11 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
 
       return (
         <f.row className='task-selector'>
-          <f.column size={3}>
-            <label class='inline'>Add task of type
-              <f.select value={ctrl.selected}
-                        class='inline'
-                        items={items}/>
-            </label>
-          </f.column>
+          <f.select value={ctrl.selected}
+                    class='inline'
+                    label='Add task of type'
+                    items={items}
+                    size={3}/>
           <f.column size={2} end={true} class='add-task'>
             <a href="javascript:void(0)" onclick={ctrl.addTask.bind(ctrl, ctrl.selected)}>Add</a>
           </f.column>

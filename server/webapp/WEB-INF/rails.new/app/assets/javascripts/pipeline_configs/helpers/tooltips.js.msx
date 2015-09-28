@@ -391,9 +391,38 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
       </p>
     </div>
   );
-  var jobTimeout   = (
-    <div><p>If this job is inactive for more than the specified period (in minutes), Go will cancel it.</p>
-    </div>);
+
+  var jobTimeout = (
+    <div>
+      <p>If this job is inactive for more than the specified period (in minutes), Go will cancel it.</p>
+    </div>
+  );
+
+  var jobRunOnOneAgent = (
+    <div>
+      <p>
+        Specify the number of agents that this job will run on.
+      </p>
+    </div>
+  );
+
+  var jobRunOnAllAgents = (
+    <div>
+      <p>
+        Job will run on all agents that match its resources (if any) and are in the same environment as this job's
+        pipeline. This option is particularly useful when deploying to multiple servers.
+      </p>
+    </div>
+  );
+
+  var jobRunOnManyAgents = (
+    <div>
+      <p>
+        Specified number of instances of job that will be created during schedule time.
+      </p>
+    </div>
+  );
+
   return {
     pipeline: {
       labelTemplate:         pipelineLabelTemplate,
@@ -435,8 +464,13 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
     },
 
     job: {
-      resources: jobResources,
-      timeout:   jobTimeout
+      resources:   jobResources,
+      timeout:     jobTimeout,
+      runOnAgents: {
+        one:  jobRunOnOneAgent,
+        all:  jobRunOnAllAgents,
+        many: jobRunOnManyAgents
+      }
     }
   };
 });

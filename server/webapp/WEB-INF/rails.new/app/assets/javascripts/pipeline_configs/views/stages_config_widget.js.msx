@@ -20,18 +20,13 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
   var StageConfigDefinitionWidget = {
     controller: function (args) {
       this.stage            = args.stage;
-      this.currentSelection = args.currentSelection;
       this.selectedJobIndex = m.prop(0);
       this.onRemove         = args.onRemove;
     },
 
     view: function (ctrl, args, children) {
-      var className = function (selection) {
-        return _.compact(['stage-definition', (ctrl.currentSelection() !== selection) ? 'hide' : null]).join(' ');
-      };
-
       return (
-        <div className={className(ctrl.stage)} data-stage-name={ctrl.stage.name()}>
+        <div className='stage-definition' data-stage-name={ctrl.stage.name()}>
           <f.removeButton onclick={ctrl.onRemove}
             />
           <f.row>
@@ -80,17 +75,12 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
   var MaterialConfigWrapper = {
     controller: function (args) {
       this.materials             = args.materials;
-      this.currentSelection      = args.currentSelection;
       this.selectedMaterialIndex = m.prop(0);
     },
 
     view: function (ctrl, args, children) {
-      var className = function (selection) {
-        return _.compact(['material-definitions', (ctrl.currentSelection() !== selection) ? 'hide' : null]).join(' ');
-      };
-
       return (
-        <div className={className(ctrl.materials)}>
+        <div className='material-definitions'>
           <MaterialsConfigWidget materials={ctrl.materials} selectedMaterialIndex={ctrl.selectedMaterialIndex}/>
         </div>
       );
@@ -112,20 +102,20 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
       };
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
+      var componentToShow;
+
+      if (args.currentSelection() === args.materials) {
+        componentToShow = <MaterialConfigWrapper materials={args.materials}
+                                                 key='material-config-wrappper'/>;
+      } else {
+        componentToShow = <StageConfigDefinitionWidget key={ctrl.currentSelection().uuid()}
+                                                       stage={ctrl.currentSelection()}
+                                                       onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}/>;
+      }
       return (
         <div class='stage-and-material-definitions'>
-          <MaterialConfigWrapper materials={ctrl.materials}
-                                 currentSelection={ctrl.currentSelection}
-                                 key='material-config-wrappper'/>
-          {ctrl.stages.mapStages(function (stage) {
-            return (
-              <StageConfigDefinitionWidget key={stage.uuid()}
-                                           stage={stage}
-                                           currentSelection={ctrl.currentSelection}
-                                           onRemove={ctrl.removeStage.bind(ctrl, stage)}/>
-            );
-          })}
+          {componentToShow}
         </div>
       );
     }

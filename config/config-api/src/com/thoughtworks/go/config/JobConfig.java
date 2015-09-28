@@ -30,6 +30,8 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
 /**
  * @understands configuratin for a job
  */
@@ -267,20 +269,26 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                     NameTypeValidator.MAX_LENGTH);
             errors.add(NAME, message);
         }
-		if (runInstanceCount != null) {
-			try {
-				int runInstanceCountForValidation = Integer.parseInt(this.runInstanceCount);
-				if (runInstanceCountForValidation < 0) {
-					errors().add(RUN_TYPE, "'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime.");
-				}
-			} catch (NumberFormatException e) {
-				errors().add(RUN_TYPE, "'Run Instance Count' should be a valid positive integer as it represents number of instances Go needs to spawn during runtime.");
-			}
-		}
-		if (isRunOnAllAgents() && isRunMultipleInstanceType()) {
-			errors.add(RUN_TYPE, "Job cannot be 'run on all agents' type and 'run multiple instance' type together.");
-		}
-		if (timeout != null) {
+        if (RunOnAllAgentsJobTypeConfig.hasMarker(CaseInsensitiveString.str(jobName))) {
+            errors.add(NAME, String.format("A job cannot have '%s' in it's name: %s", RunOnAllAgentsJobTypeConfig.MARKER, jobName));
+        }
+        if (RunMultipleInstanceJobTypeConfig.hasMarker(CaseInsensitiveString.str(jobName))) {
+            errors.add(NAME, String.format("A job cannot have '%s' in it's name: %s", RunMultipleInstanceJobTypeConfig.MARKER, jobName));
+        }
+        if (runInstanceCount != null) {
+            try {
+                int runInstanceCountForValidation = Integer.parseInt(this.runInstanceCount);
+                if (runInstanceCountForValidation < 0) {
+                    errors().add(RUN_TYPE, "'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime.");
+                }
+            } catch (NumberFormatException e) {
+                errors().add(RUN_TYPE, "'Run Instance Count' should be a valid positive integer as it represents number of instances Go needs to spawn during runtime.");
+            }
+        }
+        if (isRunOnAllAgents() && isRunMultipleInstanceType()) {
+            errors.add(RUN_TYPE, "Job cannot be 'run on all agents' type and 'run multiple instance' type together.");
+        }
+        if (timeout != null) {
             try {
                 double timeoutForValidation = Double.parseDouble(this.timeout);
                 if (timeoutForValidation < 0) {
@@ -291,13 +299,12 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             }
         }
         for (Resource resource : resources) {
-            if(StringUtils.isEmpty(resource.getName()))
-            {
+            if (StringUtils.isEmpty(resource.getName())) {
                 CaseInsensitiveString pipelineName = validationContext.getPipeline().name();
                 CaseInsensitiveString stageName = validationContext.getStage().name();
                 CaseInsensitiveString jobName = name();
-                String message =String.format("Empty resource name in job \"%s\" of stage \"%s\" of pipeline \"%s\". If a template is used, please ensure that the resource parameters are defined for this pipeline.",jobName,stageName,pipelineName);
-                errors.add(RESOURCES,message);
+                String message = String.format("Empty resource name in job \"%s\" of stage \"%s\" of pipeline \"%s\". If a template is used, please ensure that the resource parameters are defined for this pipeline.", jobName, stageName, pipelineName);
+                errors.add(RESOURCES, message);
             }
         }
     }

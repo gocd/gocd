@@ -22,7 +22,6 @@ import java.util.Date;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -138,17 +137,72 @@ public class FetchTaskTest {
     }
 
     @Test
+    public void shouldPassValidationWhenSrcAndDestDirectoryAreInsideAgentSandbox() {
+        StageConfig stage = upstream.getFirstStageConfig();
+        JobConfig job = stage.getJobs().get(0);
+        FetchTask task = new FetchTask(upstream.name(), stage.name(), job.name(), "src", "dest");
+        task.validate(ValidationContext.forChain(upstream, stage, job));
+
+        assertThat(task.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldFailValidationWhenSrcDirectoryIsOutsideAgentSandbox() {
+        validateAndAssertIncorrectPath("/src", true, "dest", FetchTask.SRC);
+        validateAndAssertIncorrectPath("../src", true, "dest", FetchTask.SRC);
+        validateAndAssertIncorrectPath("..", true, "dest", FetchTask.SRC);
+        validateAndAssertIncorrectPath("first-level/../../../going-back", true, "dest", FetchTask.SRC);
+    }
+
+    @Test
+    public void shouldFailValidationWhenSrcFileIsOutsideAgentSandbox() {
+        validateAndAssertIncorrectPath("/src/junk.txt", false, "dest", FetchTask.SRC);
+        validateAndAssertIncorrectPath("../junk.txt", false, "dest", FetchTask.SRC);
+        validateAndAssertIncorrectPath("first-level/../../../going-back/file.txt", false, "dest", FetchTask.SRC);
+    }
+
+    @Test
+    public void shouldFailValidationWhenDestDirectoryIsOutsideAgentSandbox() {
+        validateAndAssertIncorrectPath("src", false, "/dest", FetchTask.DEST);
+        validateAndAssertIncorrectPath("src", false, "../dest", FetchTask.DEST);
+        validateAndAssertIncorrectPath("src", false, "..", FetchTask.DEST);
+        validateAndAssertIncorrectPath("src", false, "first-level/../../../going-back", FetchTask.DEST);
+    }
+
+    @Test
     public void validate_withinTemplates_shouldPopulateErrorOnSrcFileOrSrcDirOrDestIfIsNotAValidFilePathPattern() {
-        FetchTask task = new FetchTask(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "..", "..");
-        ValidationContext context = ValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage")));
-        task.validate(context);
+        String dest = "..";
+        String src = "..";
+
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template-1");
+        StageConfig stage = template.get(0);
+        JobConfig job = stage.getJobs().get(0);
+        FetchTask task = new FetchTask(template.name(), stage.name(), job.name(), src, dest);
+        task.validate(ValidationContext.forChain(template, stage, job));
+
         assertThat(task.errors().isEmpty(), is(false));
-        assertThat(task.errors().on(FetchTask.SRC), is("Invalid src name '..'. It should be a valid relative path."));
-        assertThat(task.errors().on(FetchTask.DEST), is("Invalid dest name '..'. It should be a valid relative path."));
-        task.setSrcfile(null);
-        task.setSrcdir("..");
-        task.validate(context);
-        assertThat(task.errors().on(FetchTask.SRC), is("Invalid src name '..'. It should be a valid relative path."));
+        String messageForSrc = String.format("Task of job '%s' in stage '%s' of template '%s' has path '%s' which is outside the working directory.", job.name(), stage.name(), template.name(), src);
+        assertThat(task.errors().on(FetchTask.SRC), is(messageForSrc));
+
+        String messageForDest = String.format("Task of job '%s' in stage '%s' of template '%s' has path '%s' which is outside the working directory.", job.name(), stage.name(), template.name(), dest);
+        assertThat(task.errors().on(FetchTask.DEST), is(messageForDest));
+    }
+
+    private void validateAndAssertIncorrectPath(String source, boolean isSourceDir, String destination, String propertyName) {
+        StageConfig stage = upstream.getFirstStageConfig();
+        JobConfig job = stage.getJobs().get(0);
+        FetchTask task = new FetchTask(upstream.name(), stage.name(), job.name(), null, destination);
+        if (isSourceDir) {
+            task.setSrcdir(source);
+        } else {
+            task.setSrcfile(source);
+        }
+        task.validate(ValidationContext.forChain(upstream, stage, job));
+
+        assertThat(task.errors().isEmpty(), is(false));
+        String path = propertyName.equals(FetchTask.SRC) ? source : destination;
+        String message = String.format("Task of job '%s' in stage '%s' of pipeline '%s' has path '%s' which is outside the working directory.", job.name(), stage.name(), upstream.name(), path);
+        assertThat(task.errors().on(propertyName), is(message));
     }
 
     @Test
@@ -361,20 +415,6 @@ public class FetchTaskTest {
         task.validate(ValidationContext.forChain(config, upstream, upstream.getStage(new CaseInsensitiveString("stage"))));
         assertThat(task.errors().isEmpty(), is(false));
         assertThat(task.errors().on(FetchTask.SRC), is("Should provide either srcdir or srcfile"));
-    }
-
-    @Test
-    public void shouldPopulateErrorOnSrcFileOrSrcDirOrDestIfIsNotAValidFilePathPattern() {
-        FetchTask task = new FetchTask(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "..", "..");
-        ValidationContext context = ValidationContext.forChain(config, upstream, upstream.getStage(new CaseInsensitiveString("stage")));
-        task.validate(context);
-        assertThat(task.errors().isEmpty(), is(false));
-        assertThat(task.errors().on(FetchTask.SRC), is("Invalid src name '..'. It should be a valid relative path."));
-        assertThat(task.errors().on(FetchTask.DEST), is("Invalid dest name '..'. It should be a valid relative path."));
-        task.setSrcfile(null);
-        task.setSrcdir("..");
-        task.validate(context);
-        assertThat(task.errors().on(FetchTask.SRC), is("Invalid src name '..'. It should be a valid relative path."));
     }
 
     @Test

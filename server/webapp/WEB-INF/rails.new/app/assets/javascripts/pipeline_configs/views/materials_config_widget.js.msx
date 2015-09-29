@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/materials'], function (m, _, $, f, Materials) {
+define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/tooltips', '../models/materials'], function (m, _, $, f, tt, Materials) {
 
   var MaterialViews = {
     base: {
@@ -31,7 +31,12 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/mate
           destinationField = (
             <f.inputWithLabel attrName='destination'
                               label="Destination"
-                              model={ctrl.material}/>
+                              model={ctrl.material}
+                              tooltip={{
+                                          content: tt.material.destination,
+                                          direction: 'bottom',
+                                          size: 'small'
+                                        }}/>
           );
         }
 
@@ -49,7 +54,12 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/mate
             <f.removeButton onclick={ctrl.onRemove}/>
             <f.row>
               <f.inputWithLabel attrName='name'
-                                model={ctrl.material}/>
+                                model={ctrl.material}
+                                tooltip={{
+                                          content: tt.material.name,
+                                          direction: 'bottom',
+                                          size: 'small'
+                                        }}/>
               {destinationField}
               <f.checkBox model={ctrl.material}
                           attrName='autoUpdate'
@@ -200,17 +210,14 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/mate
     view: function (ctrl) {
       return (
         <f.row className='material-selector'>
-          <f.column size={3}>
-            <label class='inline'>Add material of type
-              <f.select
-                value={ctrl.selected}
-                class='inline'
-                items={_.transform(Materials.Types, function(result, value, key){
+          <f.select
+            value={ctrl.selected}
+            class='inline'
+            label='Add material of type'
+            items={_.transform(Materials.Types, function(result, value, key){
                   result[key] = value.description;
                 })}
-                />
-            </label>
-          </f.column>
+            size={3}/>
           <f.column size={2} end={true} class='add-material'>
             <a href="javascript:void(0)" onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</a>
           </f.column>
@@ -258,7 +265,7 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../models/mate
               }));
             })}
           </f.accordion>
-          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)}/>
+          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)} key='material-type-selector'/>
         </div>
       );
     }

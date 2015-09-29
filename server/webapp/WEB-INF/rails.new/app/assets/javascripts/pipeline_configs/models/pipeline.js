@@ -64,6 +64,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
 
   Pipeline.Timer = function (data) {
     this.constructor.modelType = 'pipelineTimer';
+    Mixins.HasUUID.call(this);
 
     this.spec          = m.prop(s.defaultToIfBlank(data.spec, ''));
     this.onlyOnChanges = m.prop(data.onlyOnChanges);

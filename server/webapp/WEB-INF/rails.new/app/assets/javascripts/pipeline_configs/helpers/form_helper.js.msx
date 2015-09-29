@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mixin) {
+define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown'], function (m, s, Mixin) {
 
   var deleteKeyAndReturnValue = function (object, key, defaultValue) {
     var value = object[key];
@@ -29,6 +29,16 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
   var compactClasses = function (args) {
     var initialClasses = [].slice.call(arguments, 1);
     return _([initialClasses, args.class, args.className]).flatten().compact().join(' ');
+  };
+
+  var reflowCalls = {};
+
+  var foundationReflow = function (component) {
+    reflowCalls[component] = reflowCalls[component] || _.debounce(function (elem, isInitialized) {
+        $(document).foundation(component, 'reflow');
+      }, 60);
+
+    return reflowCalls[component];
   };
 
   var f = {
@@ -58,31 +68,23 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
       }
     },
 
-    label: {
-      view: function (ctrl, args, children) {
-        var labelOpts = _({
-          'for': args.for
-        }).omit(_.isUndefined).omit(_.isNull).value();
-
-        if (!args.size) {
-          args.size = 3;
-        }
-
-        return (
-          <f.column {...args}>
-            <label {...labelOpts} class="right inline">{children}</label>
-          </f.column>
-        );
-      }
-    },
-
     input: {
+      controller: function () {
+        this.onInput = function (model, attrName, callback, e) {
+          var currentTarget = (e || event).currentTarget;
+          var newValue      = currentTarget.value || currentTarget.getAttribute('value');
+          model[attrName](newValue);
+          if (callback) {
+            callback();
+          }
+        };
+      },
+
       view: function (ctrl, args) {
         var model       = deleteKeyAndReturnValue(args, 'model'),
             attrName    = deleteKeyAndReturnValue(args, 'attrName'),
             type        = deleteKeyAndReturnValue(args, 'type', 'text'),
             placeHolder = deleteKeyAndReturnValue(args, 'placeHolder', ''),
-            onchange    = deleteKeyAndReturnValue(args, 'onchange', _.noop),
             modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
@@ -98,23 +100,15 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
           }
         }
 
-
-        var onInput = function (e) {
-          m.withAttr('value', model[attrName])(e);
-          onchange();
-        };
-
         return (
           <f.column {...args}>
-            <label className={propertyError ? 'error' : ''}>
-              <input
-                data-prop-name={attrName}
-                data-model-type={modelType}
-                value={model[attrName]()}
-                type={type}
-                placeholder={placeHolder}
-                oninput={onInput}/>
-            </label>
+            <input
+              data-prop-name={attrName}
+              data-model-type={modelType}
+              value={model[attrName]()}
+              type={type}
+              placeholder={placeHolder}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}/>
             {propertyError}
           </f.column>
         );
@@ -122,13 +116,25 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
     },
 
     inputWithLabel: {
+      controller: function (args) {
+        this.onInput = function (model, attrName, callback, e) {
+          var currentTarget = (e || event).currentTarget;
+          var newValue      = currentTarget.value || currentTarget.getAttribute('value');
+          model[attrName](newValue);
+          if (callback) {
+            callback();
+          }
+        };
+      },
+
       view: function (ctrl, args) {
         var model       = deleteKeyAndReturnValue(args, 'model'),
             attrName    = deleteKeyAndReturnValue(args, 'attrName'),
             type        = deleteKeyAndReturnValue(args, 'type', 'text'),
             placeHolder = deleteKeyAndReturnValue(args, 'placeHolder', ''),
             labelText   = deleteKeyAndReturnValue(args, 'label'),
-            onchange    = deleteKeyAndReturnValue(args, 'onchange', _.noop),
+            onchange    = deleteKeyAndReturnValue(args, 'onchange'),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
             modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
@@ -136,7 +142,6 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
         }
 
         var propertyError;
-
         if (model.validate) {
           var errors = model.validate();
           if (errors.errors(attrName)) {
@@ -144,25 +149,21 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
           }
         }
 
-        var onInput = function (e) {
-          m.withAttr('value', model[attrName])(e);
-          onchange();
-        };
-
-        labelText = labelText || s.humanize(attrName);
-
         return (
-          <f.column {...args}>
-            <label className={propertyError ? 'error' : ''}>
-              {labelText}
-              <input
-                data-prop-name={attrName}
-                data-model-type={modelType}
-                value={model[attrName]()}
-                type={type}
-                placeholder={placeHolder}
-                oninput={onInput}/>
+          <f.column {...args} class={propertyError ? 'error' : null}>
+            <label className={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
+              {labelText || s.humanize(attrName)}
             </label>
+
+            <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+
+            <input
+              data-prop-name={attrName}
+              data-model-type={modelType}
+              value={model[attrName]()}
+              type={type}
+              placeholder={placeHolder}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}/>
             {propertyError}
           </f.column>
         );
@@ -175,15 +176,13 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
             attrName  = deleteKeyAndReturnValue(args, 'attrName'),
             labelText = deleteKeyAndReturnValue(args, 'label'),
             disabled  = deleteKeyAndReturnValue(args, 'disabled'),
+            tooltip   = deleteKeyAndReturnValue(args, 'tooltip'),
             id        = s.uuid(),
             modelType = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
           args.size = 3;
         }
-
-
-        labelText = labelText || s.humanize(attrName);
 
         return (
           <f.column {...args}>
@@ -197,7 +196,12 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
                      onchange={m.withAttr('checked', model[attrName])}/>
               <label for={id}></label>
             </div>
-            <label class='inline' for={id}>{labelText}</label>
+
+            <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
+              {labelText || s.humanize(attrName)}
+            </label>
+
+            <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
           </f.column>
         );
       }
@@ -206,42 +210,79 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
     tabs: {
       controller: function (args) {
         this.selectedIndex = coerceToMprop(args.selectedIndex || 0);
+
+        this.classNameForTab = function (tabIndex) {
+          return this.selectedIndex() === tabIndex ? 'active' : '';
+        };
+
+        this.componentClass = compactClasses(args);
+
+        this.prefixedClass = function (suffix) {
+          if (!s.isBlank(this.componentClass)) {
+            return this.componentClass + '-' + suffix;
+          }
+        };
       },
 
       view: function (ctrl, args, children) {
-        var classNameForTab = function (tabIndex) {
-          return ctrl.selectedIndex() === tabIndex ? 'active' : '';
-        };
+        var tabs = (
+          <ul class={_.compact(['tabs', args.isVertical ? 'vertical': undefined]).join(' ')}>
+            {_.map(args.tabTitles, function (tabTitle, tabIndex) {
+
+              var tabTitleElem;
+
+              if (s.isBlank(tabTitle)) {
+                tabTitleElem = (<a href='javascript:void(0)'>{m.trust('&nbsp;')}</a>);
+              }
+              else if (_.isString(tabTitle)) {
+                tabTitleElem = (<a href='javascript:void(0)'>{tabTitle}</a>);
+              } else {
+                tabTitleElem = tabTitle;
+              }
+
+              return (
+                <li
+                  class={_.compact(['tab-title', ctrl.classNameForTab(tabIndex), ctrl.prefixedClass('tab-title')]).join(' ')}
+                  onclick={ctrl.selectedIndex.bind(ctrl, tabIndex)}
+                  key={args.tabKeys[tabIndex]}>
+                  {tabTitleElem}
+                </li>
+              );
+            })}
+          </ul>
+        );
+
+        var tabsContent = (
+          <div
+            class={_.compact(['tabs-content', 'tabs-content-container', ctrl.prefixedClass('tabs-content-container')]).join(' ')}>
+            {_.map(_.flatten(children), function (child, tabIndex) {
+
+              var renderedChild;
+
+              if (tabIndex === ctrl.selectedIndex()) {
+                renderedChild = child;
+              }
+
+              return (
+                <div
+                  class={_.compact(['content', ctrl.classNameForTab(tabIndex), ctrl.prefixedClass('tab-content')]).join(' ')}>
+                  {renderedChild}
+                </div>
+              );
+            })}
+          </div>
+        );
 
         var tabContainer = (
-          <div class='tab-container'>
-            <ul class={_.compact(['tabs', args.isVertical ? 'vertical': undefined]).join(' ')}>
-              {_.map(args.tabTitles, function (tabTitle, tabIndex) {
-                return (
-                  <li
-                    class={'tab-title ' + classNameForTab(tabIndex)}
-                    onclick={ctrl.selectedIndex.bind(ctrl, tabIndex)}
-                    key={args.tabKeys[tabIndex]}>
-                    <a href='javascript:void(0)'>{s.isBlank(tabTitle) ? m.trust('&nbsp;') : tabTitle}</a>
-                  </li>
-                );
-              })}
-            </ul>
-            <div class="tabs-content">
-              {_.map(_.flatten(children), function (child, tabIndex) {
-                return (
-                  <div class={'content ' + classNameForTab(tabIndex)}>
-                    {child}
-                  </div>
-                );
-              })}
-            </div>
+          <div class={_.compact(['tab-container', ctrl.prefixedClass('tab-container')]).join(' ')}>
+            {tabs}
+            {tabsContent}
           </div>
         );
 
         if (args.isVertical) {
           return (
-            <f.row class={compactClasses(args)}>
+            <f.row class={ctrl.componentClass}>
               <f.column size={12} end={true}>
                 {tabContainer}
               </f.column>
@@ -249,7 +290,7 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
           );
         } else {
           return (
-            <div class={compactClasses(args)}>
+            <div class={ctrl.componentClass}>
               {tabContainer}
             </div>
           );
@@ -263,42 +304,67 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
       },
 
       view: function (ctrl, args) {
-        return (
+        var items = deleteKeyAndReturnValue(args, 'items', {}),
+            label = deleteKeyAndReturnValue(args, 'label');
+
+        if (!args.size) {
+          args.size = 3;
+        }
+
+        var selectElem = (
           <select value={ctrl.value()}
-                  onchange={m.withAttr('value', ctrl.value)}
-                  class={s.defaultToIfBlank(args.selectClass, '')}>
-            {_.map(s.defaultToIfBlank(args.items, {}), function (text, value) {
+                  onchange={m.withAttr('value', ctrl.value)}>
+            {_.map(items, function (text, value) {
               return (
                 <option value={value} selected={value === ctrl.value()}>{text}</option>
               );
             })}
           </select>
         );
+
+        if (s.isBlank(args.label)) {
+          return (<f.column {...args}>{selectElem}</f.column>);
+        } else {
+          return (
+            <f.column {...args}>
+              <label class='inline'>
+                {args.label}
+                {selectElem}
+              </label>
+            </f.column>
+          );
+        }
       }
     },
 
     accordion: {
       controller: function (args) {
         this.selectedIndex = Mixin.TogglingGetterSetter(coerceToMprop(args.selectedIndex || 0));
+
+        this.classNameForAccordion = function (tabIndex) {
+          return this.selectedIndex() === tabIndex ? 'active' : '';
+        };
       },
 
       view: function (ctrl, args, children) {
-        var classNameForAccordionBody = function (index) {
-          return ctrl.selectedIndex() === index ? 'active' : '';
-        };
-
         return (
           <dl class={compactClasses(args, 'accordion')}>
             {_.map(_.flatten(children), function (child, index) {
+              var renderedChild;
+
+              if (index === ctrl.selectedIndex()) {
+                renderedChild = child;
+              }
               return (
-                <dd class="accordion-navigation" key={args.accordionKeys[index]}>
+                <dd class={_.compact(['accordion-navigation', ctrl.classNameForAccordion(index)]).join(' ')}
+                    key={args.accordionKeys[index]}>
                   <a href="javascript:void(0)"
                      onclick={ctrl.selectedIndex.bind(ctrl, index)}>
                     {args.accordionTitles[index]}
                   </a>
 
-                  <div class={'content ' + classNameForAccordionBody(index)}>
-                    {child}
+                  <div class={_.compact(['content', ctrl.classNameForAccordion(index)]).join(' ')}>
+                    {renderedChild}
                   </div>
                 </dd>
               );
@@ -316,7 +382,40 @@ define(['mithril', 'string-plus', '../models/model_mixins'], function (m, s, Mix
              onclick={args.onclick}>{children}</a>
         );
       }
+    },
+
+    tooltip: {
+      view: function (ctrl, args, children) {
+        if (!args.tooltip && _.isEmpty(children)) {
+          return <noscript/>;
+        }
+
+        var direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
+            size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
+            content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
+            tooltipId = 'help-tooltip-';
+
+        if (args.model && args.model.uuid) {
+          tooltipId += (args.model.uuid() + '-' + args.attrName);
+        } else {
+          tooltipId += s.uuid();
+        }
+
+        return (
+          <span class='tooltip-wrapper' config={foundationReflow('dropdown')}>
+            <a href='javascript:void(0)'
+               data-dropdown={tooltipId}
+               data-options={'is_hover: true; hover_timeout: 400; align: ' + direction}
+               class='tooltip-question-mark'/>
+            <div id={tooltipId} data-dropdown-content
+                 class={_.compact(['f-dropdown', 'content', 'tooltip-content', size]).join(' ')}>
+              {content}
+            </div>
+          </span>
+        );
+      }
     }
   };
+
   return f;
 });

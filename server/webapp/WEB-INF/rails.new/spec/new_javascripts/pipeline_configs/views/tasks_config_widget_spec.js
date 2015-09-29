@@ -16,7 +16,7 @@
 
 define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/views/tasks_config_widget"], function ($, m, Tasks, TasksConfigWidget) {
   describe("Tasks Widget", function () {
-    var $root;
+    var root, $root;
     var tasks;
 
     var antTask, nantTask, execTask, rakeTask, fetchArtifactTask;
@@ -64,12 +64,17 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         ],
         'parent', tasks);
 
-      var root = document.createElement("div");
-      $root    = $(root);
+      root  = document.createElement("div");
+      document.body.appendChild(root);
+      $root = $(root);
 
       m.render(root,
         m.component(TasksConfigWidget, {tasks: tasks})
       );
+    });
+
+    afterEach(function () {
+      root.parentNode.removeChild(root);
     });
 
     describe("SVN", function () {

@@ -46,12 +46,19 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
       if (s.isBlank(this.urlPattern())) {
         errors.add('urlPattern', Mixins.ErrorMessages.mustBePresent('URL pattern'));
-      } else if (!this.urlPattern().match(/http(s)?:\/\/.+/)) {
-        errors.add("urlPattern", Mixins.ErrorMessages.mustBeAUrl("urlPattern"));
+      } else {
+        if (!this.urlPattern().match(/http(s)?:\/\/.+/)) {
+          errors.add("urlPattern", Mixins.ErrorMessages.mustBeAUrl("urlPattern"));
+        }
+
+        if (!s.include(this.urlPattern(), '${ID}')) {
+          errors.add("urlPattern", Mixins.ErrorMessages.mustContainString("urlPattern", '${ID}'));
+        }
       }
 
+
       if (s.isBlank(this.regex())) {
-        errors.add('regex', Mixins.ErrorMessages.mustBePresent('regex'));
+        errors.add('regex', Mixins.ErrorMessages.mustBePresent('regular expression'));
       }
 
       return errors;

@@ -66,20 +66,25 @@ define(['mithril', 'lodash', 'jquery', 'dragula', '../helpers/form_helper', './s
               <div class={className(ctrl.materials, 'materials')}
                    onclick={ctrl.currentSelection.bind(ctrl, ctrl.materials)}>
                 <div className='label'>Materials</div>
+                <div class='bottom-triangle-outer'>
+                  <div class='bottom-triangle-inner'></div>
+                </div>
               </div>
 
-              <div class='stage-boxes' config={dragDropConfig}>
-                {ctrl.stages.mapStages(function (stage, stageIndex) {
-                  return (
-                    <div class={className(stage, 'stage')}
-                         data-stage-index={stageIndex}
-                         onclick={ctrl.currentSelection.bind(ctrl, stage)}
-                         key={stage.uuid()}>
-                      <div className='label'>{stage.name()}</div>
+              {ctrl.stages.mapStages(function (stage, stageIndex) {
+                return (
+                  <div class={className(stage, 'stage')}
+                       data-stage-index={stageIndex}
+                       onclick={ctrl.currentSelection.bind(ctrl, stage)}
+                       key={stage.uuid()}>
+                    <div className='label'>{stage.name()}</div>
+                    <div class='bottom-triangle-outer'>
+                      <div class='bottom-triangle-inner'></div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
+
               {appendStage}
             </div>
 

@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-requirejs(["jquery", "mithril", 'pipeline_configs/models/pluggable_tasks', "pipeline_configs/views/pipeline_config_widget", 'foundation.topbar'], function ($, m, PluggableTasks, PipelineConfigWidget) {
+requirejs(['jquery', 'mithril', 'pipeline_configs/models/pluggable_tasks', 'pipeline_configs/views/pipeline_config_widget', 'foundation.topbar'], function ($, m, PluggableTasks, PipelineConfigWidget) {
+
   $(function () {
+    $(document).foundation();
+
     var pipelineConfigElem            = $('#pipeline-config');
     var url                           = pipelineConfigElem.attr('data-pipeline-api-url');
     var taskPluginTemplateDescriptors = JSON.parse(pipelineConfigElem.attr('data-task-template-plugins'));
     PluggableTasks.initializeWith(taskPluginTemplateDescriptors);
 
     m.mount(pipelineConfigElem.get(0), PipelineConfigWidget(url));
-  });
-
-  require(['domready'], function () {
-    $(document).foundation();
   });
 });

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'string-plus', '../helpers/form_helper', '../models/pipeline', '../models/tasks', './parameters_config_widget',
+define(['mithril', 'string-plus', '../helpers/form_helper', '../helpers/tooltips', '../models/pipeline', '../models/tasks', './parameters_config_widget',
     './tracking_tool_widget', './environment_variables_config_widget', './pipeline_flow_widget'],
-  function (m, s, f, Pipeline, Tasks, ParametersConfigWidget, TrackingToolWidget, EnvironmentVariablesConfigWidget,
+  function (m, s, f, tt, Pipeline, Tasks, ParametersConfigWidget, TrackingToolWidget, EnvironmentVariablesConfigWidget,
             PipelineFlowWidget) {
 
     var PipelineConfigWidget = function (url, callback) {
@@ -37,6 +37,7 @@ define(['mithril', 'string-plus', '../helpers/form_helper', '../models/pipeline'
 
         view: function (ctrl) {
           var pipeline = ctrl.pipeline;
+
           return (
             <form class='pipeline'>
               <f.row>
@@ -50,12 +51,21 @@ define(['mithril', 'string-plus', '../helpers/form_helper', '../models/pipeline'
                     <f.row>
                       <f.inputWithLabel model={pipeline}
                                         attrName='labelTemplate'
+                                        tooltip={{
+                                          content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
                                         size={4}/>
                     </f.row>
 
                     <f.row>
                       <f.checkBox model={pipeline}
                                   attrName='enablePipelineLocking'
+                                  tooltip={{
+                                          content: tt.pipeline.enablePipelineLocking,
+                                          direction: 'bottom'
+                                        }}
                                   end={true}/>
                     </f.row>
 
@@ -63,11 +73,23 @@ define(['mithril', 'string-plus', '../helpers/form_helper', '../models/pipeline'
                       <f.inputWithLabel model={pipeline.timer()}
                                         attrName='spec'
                                         label='Cron timer specification'
-                                        size={4}/>
+                                        tooltip={{
+                                          content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
+                                        size={4}
+                                        end={true}/>
+                    </f.row>
+                    <f.row>
                       <f.checkBox model={pipeline.timer()}
                                   attrName='onlyOnChanges'
                                   label='Run only on new material'
                                   disabled={s.isBlank(pipeline.timer().spec())}
+                                  tooltip={{
+                                          content: tt.pipeline.timer.onlyOnChanges,
+                                          direction: 'bottom'
+                                        }}
                                   size={4}
                                   end={true}/>
                     </f.row>

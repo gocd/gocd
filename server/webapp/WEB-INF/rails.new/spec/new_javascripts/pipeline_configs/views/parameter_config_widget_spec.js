@@ -16,18 +16,31 @@
 
 define(["jquery", "mithril", "pipeline_configs/models/parameters", "pipeline_configs/views/parameters_config_widget"], function ($, m, Parameters, ParametersConfigWidget) {
   describe("Parameter Widget", function () {
-    var $root;
+    var root, $root;
     beforeEach(function () {
       var parameters = new Parameters.fromJSON([
         {name: "COMMAND", value: "echo"}
       ]);
 
-      var root = document.createElement("div");
-      $root    = $(root);
+      root  = document.createElement("div");
+      document.body.appendChild(root);
+      $root = $(root);
 
-      m.render(root,
+      m.mount(root,
         m.component(ParametersConfigWidget, {parameters: parameters})
       );
+
+      m.redraw(true);
+
+      var accordion = $root.find('.parameters .accordion-navigation > a').get(0);
+      var evObj     = document.createEvent('MouseEvents');
+      evObj.initEvent('click', true, false);
+      accordion.onclick(evObj);
+      m.redraw(true);
+    });
+
+    afterEach(function () {
+      root.parentNode.removeChild(root);
     });
 
     it("should display parameters", function () {

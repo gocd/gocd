@@ -17,26 +17,18 @@
 [data-controller-name=pipeline_configs][data-action-name=edit] {
   @import './_dragula-3.0.1';
 
-  @mixin has-chevron {
-    @include icon-before($type: chevron-right) {
-      position: absolute;
-      top:      17px;
-      left:     -33px;
-    }
-  }
-
   .box {
     @include size(6em 4em);
+
+    display:    inline-block;
+    position:   relative;
+    text-align: center;
 
     border: {
       style: $input-border-style;
       width: $input-border-width;
       color: $input-border-color;
     }
-
-    display:    inline-block;
-    position:   relative;
-    text-align: center;
 
     .label {
       position:   absolute;
@@ -55,16 +47,8 @@
   }
 
   .pipeline-flow-boxes {
-    .pipeline-flow-box, .stage-boxes {
-      display: inline-block;
-    }
-
-    .stage-boxes {
-      margin-left: 3em;
-      position:    relative;
-
-      @include has-chevron;
-    }
+    $triangle-size: 40px;
+    padding-bottom: 18px;
 
     .pipeline-flow-box {
       @extend .box;
@@ -77,13 +61,35 @@
       &.active {
         background:   $input-focus-bg-color;
         border-color: $input-focus-border-color;
+
+        .bottom-triangle-outer {
+
+          @include triangle($triangle-size, $input-focus-border-color, up);
+
+          position: absolute;
+          top:      calc(100% + 6px);
+          left:     calc(50% - #{$triangle-size/2});
+
+          .bottom-triangle-inner {
+            @include triangle($triangle-size, white, up);
+
+            position: absolute;
+            top:      calc(100% + 1px);
+            left:     calc(50% - #{$triangle-size/2});
+          }
+        }
       }
 
       & ~ .pipeline-flow-box {
         margin-left: 3em;
-        @include has-chevron;
+        @include icon-before($type: chevron-right) {
+          position: absolute;
+          top:      17px;
+          left:     -33px;
+        }
       }
     }
+
     .add-stage {
       @extend .box;
       @include icon-before($type: plus) {
@@ -93,66 +99,116 @@
       }
 
       margin-left: 3em;
-      border:      1px solid;
     }
   }
 
-  .stage-definition {
-    .add-job {
-      margin: $fieldset-margin;
+  .stage-and-material-definitions {
+    > * {
+      border: 1px solid $input-focus-border-color;
+    }
 
-      a {
-        @include icon-before($type: plus-circle);
+    .material-definitions {
+      padding: nth($fieldset-margin, 1);
+
+      .add-material {
+        padding-top: rem(28px);
+        a {
+          @include icon-before($type: plus-circle);
+        }
+      }
+
+      a.remove {
+        position: relative;
+        left:     calc(100% - 28px);
+        top:      -58px;
       }
     }
 
-    > .remove {
-      position: relative;
-      top:      -28px;
-      left:     calc(100% - 8px);
-    }
+    .stage-definition {
+      padding: 0 nth($fieldset-margin, 1);
 
-    .job-definitions {
-      .job-definition {
-        .add-task {
-          padding-top: rem(28px);
+      .add-job {
+        margin: $fieldset-margin;
+
+        a {
+          @include icon-before($type: plus-circle);
+        }
+      }
+
+      > .remove {
+        position: relative;
+        left:     calc(100% - 8px);
+      }
+
+      .job-definitions {
+        padding-top: nth($fieldset-margin, 1);
+
+        $active-background-color: $accordion-navigation-active-bg-color;
+        $hover-background-color: $accordion-navigation-hover-bg-color;
+        $inactive-background-color: $accordion-navigation-bg-color;
+
+        .job-definitions-tab-title {
           a {
-            @include icon-before($type: plus-circle);
+            background-color: $inactive-background-color;
+            &:hover {
+              background-color: $hover-background-color;
+            }
+          }
+
+          &.active {
+            border-left:   $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+            border-bottom: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+            border-top:    $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+            border-right:  inherit;
+
+            a {
+              background-color: $active-background-color;
+            }
           }
         }
 
-        .task-definition {
-          .remove {
+        .job-definitions-tab-content.content.active {
+          padding-top: 0;
+        }
+
+        .job-definition {
+          .add-task {
+            padding-top: rem(28px);
+            a {
+              @include icon-before($type: plus-circle);
+            }
+          }
+
+          legend {
+            background-color: inherit;
+          }
+
+          > * {
+            border:  $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+            padding: nth($fieldset-margin, 1);
+            @media #{$medium-up} {
+              width: calc(100% - 20% - 10px);
+            }
+          }
+
+          .task-definition {
+            .remove {
+              position: absolute;
+              top:      39px;
+              left:     calc(100% - 42px);
+            }
+          }
+
+          .remove-job {
             position: absolute;
-            top:      39px;
-            left:     calc(100% - 42px);
+            left:     calc(100% - 32px);
+            top:      0;
+            z-index:  10;
           }
         }
-
-        .remove-job {
-          position: absolute;
-          left:     calc(100% - 32px);
-          top:      0;
-          z-index:  10;
-        }
-      }
-
-    }
-  }
-
-  .material-definitions {
-    .add-material {
-      padding-top: rem(28px);
-      a {
-        @include icon-before($type: plus-circle);
       }
     }
 
-    a.remove {
-      position: relative;
-      left:     calc(100% - 28px);
-      top:      -58px;
-    }
   }
 
   .environment-variable {
@@ -165,28 +221,14 @@
   }
 
   .tabs {
-    &.vertical {
-      .tab-title {
-        border-right: 1px solid $fieldset-border-color;
-
-        &.active {
-          border-left:   1px solid $fieldset-border-color;
-          border-bottom: 1px solid $fieldset-border-color;
-          border-top:    1px solid $fieldset-border-color;
-          border-right:  inherit;
-        }
-      }
-
-    }
-
     &:not(.vertical) {
       .tab-title {
-        border-bottom: 1px solid $fieldset-border-color;
+        border-bottom: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
 
         &.active {
-          border-left:   1px solid $fieldset-border-color;
-          border-right:  1px solid $fieldset-border-color;
-          border-top:    1px solid $fieldset-border-color;
+          border-left:   $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+          border-right:  $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+          border-top:    $fieldset-border-width $fieldset-border-style $fieldset-border-color;
           border-bottom: inherit;
         }
       }

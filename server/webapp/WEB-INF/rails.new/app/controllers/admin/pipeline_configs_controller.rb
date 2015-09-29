@@ -115,7 +115,7 @@ module Admin
                                                                 { name:                  'build',
                                                                   run_on_all_agents:     false,
                                                                   run_instance_count:    0,
-                                                                  timeout:               nil,
+                                                                  timeout:               10,
                                                                   environment_variables: [],
                                                                   resources:             ['jdk5', 'tomcat5'],
                                                                   tasks:                 [

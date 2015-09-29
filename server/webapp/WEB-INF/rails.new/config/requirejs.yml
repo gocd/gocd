@@ -32,7 +32,7 @@ paths:
   foundation.reveal: 'foundation/foundation.reveal'
   foundation.slider: 'foundation/foundation.slider'
   foundation.tab: 'foundation/foundation.tab'
-  foundation.toolbar: 'foundation/foundation.toolbar'
+  foundation.tooltip: 'foundation/foundation.tooltip'
   foundation.topbar: 'foundation/foundation.topbar'
 
 # DO NOT CREATE SHIMS for AMD MODULES
@@ -99,7 +99,7 @@ shim:
   foundation.tab:
     deps:
       - foundation
-  foundation.toolbar:
+  foundation.tooltip:
     deps:
       - foundation
   foundation.topbar:

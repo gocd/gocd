@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.RunDuration;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.XmlRepresentable;
@@ -62,6 +63,8 @@ public class StageXmlViewModel implements XmlRepresentable {
         root.addElement("state").addText(stage.status());
 
         root.addElement("approvedBy").addCDATA(stage.getApprovedBy());
+
+        root.addElement("duration").addText(stage.getDuration().duration(RunDuration.PERIOD_FORMATTER));
 
         Element jobs = root.addElement("jobs");
         for (JobInstance jobInstance : stage.getJobInstances()) {

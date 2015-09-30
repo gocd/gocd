@@ -64,7 +64,7 @@ public class StageXmlViewModel implements XmlRepresentable {
 
         root.addElement("approvedBy").addCDATA(stage.getApprovedBy());
 
-        root.addElement("duration").addText(stage.getDuration().duration(RunDuration.PERIOD_FORMATTER));
+        root.addElement("duration").addText(getStageDurationForXml(stage));
 
         Element jobs = root.addElement("jobs");
         for (JobInstance jobInstance : stage.getJobInstances()) {
@@ -76,5 +76,13 @@ public class StageXmlViewModel implements XmlRepresentable {
 
     public String httpUrl(String baseUrl) {
         return httpUrlFor(baseUrl, stage.getId());
+    }
+
+    public String getStageDurationForXml(Stage stage) {
+        try {
+            return stage.getDuration().duration(RunDuration.PERIOD_FORMATTER);
+        } catch (NullPointerException e) {
+            return "N/A";
+        }
     }
 }

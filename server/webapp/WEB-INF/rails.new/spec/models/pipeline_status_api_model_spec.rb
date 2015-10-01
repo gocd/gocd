@@ -25,6 +25,8 @@ describe PipelineStatusAPIModel do
       pipeline_status_api_model = PipelineStatusAPIModel.new(@pipeline_status_view_model)
 
       pipeline_status_api_model.paused.should == true
+      pipeline_status_api_model.pausedCause.should == 'Pausing it for some reason'
+      pipeline_status_api_model.pausedBy.should == 'admin'
       pipeline_status_api_model.locked.should == true
       pipeline_status_api_model.schedulable.should == true
     end

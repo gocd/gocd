@@ -47,11 +47,6 @@ public class PipelineInstanceGroupModel {
         pipelineInstances = PipelineInstanceModels.createPipelineInstanceModels();
     }
 
-    @Deprecated
-    public StageConfigurationModels getConfig() {
-        return config;
-    }
-
     public Collection<StageConfigurationModel> getStages() {
         return config;
     }

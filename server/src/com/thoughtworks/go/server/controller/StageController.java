@@ -60,7 +60,7 @@ public class StageController {
         this.localizer = localizer;
     }
 
-    @RequestMapping(value = "/rerun", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST)
     public ModelAndView rerunStage(@RequestParam(value = "pipelineName") String pipelineName,
                                    @RequestParam(value = "pipelineLabel") String counterOrLabel,
                                    @RequestParam(value = "stageName") String stageName) {

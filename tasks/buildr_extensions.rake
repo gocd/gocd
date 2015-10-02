@@ -335,7 +335,7 @@ module RpmPackageHelper
     task :rpm => depend_on do
       mkdir_p rpm_ctrl_dir, :mode => 0755
       sub_and_copy_with_mode rpm_metadata(package), "#{package_name}.spec", rpm_ctrl_dir, "#{package_name}.spec", {:VERSION => VERSION_NUMBER, :RELEASE => RELEASE_REVISION, :ROOT => linux_dir, :pre => shared_pre, :post => shared_post, :rpm_pre => shared_rpm_pre, :rpm_post => shared_rpm_post}, 0644
-      sh "fakeroot rpmbuild --buildroot #{linux_dir} --define '_rpmdir #{rpm_ctrl_dir}' -bb --target noarch #{rpm_ctrl_dir}/#{package_name}.spec"
+      sh "fakeroot rpmbuild --buildroot #{linux_dir} --define '_rpmdir #{rpm_ctrl_dir}' --define '__spec_install_pre %{___build_pre}' -bb --target noarch #{rpm_ctrl_dir}/#{package_name}.spec"
       cp_r File.join(rpm_ctrl_dir, "noarch", "#{package_name}-#{VERSION_NUMBER}-#{RELEASE_REVISION}.noarch.rpm"), _(:redhat_package)
     end
   end

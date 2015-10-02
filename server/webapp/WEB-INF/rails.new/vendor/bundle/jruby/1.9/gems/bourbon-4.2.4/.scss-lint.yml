@@ -1,0 +1,14 @@
+scss_files: "app/assets/stylesheets/**/*.scss"
+linters:
+  BorderZero:
+    enabled: false
+  ColorVariable:
+    enabled: false
+  LeadingZero:
+    enabled: true
+    style: include_zero
+  SelectorFormat:
+    enabled: false
+  StringQuotes:
+    enabled: true
+    style: double_quotes

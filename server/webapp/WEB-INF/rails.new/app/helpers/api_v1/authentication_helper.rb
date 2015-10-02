@@ -24,6 +24,14 @@ module ApiV1
       end
     end
 
+    def check_user_can_see_pipeline
+      return unless security_service.isSecurityEnabled()
+      unless security_service.hasViewPermissionForPipeline(string_username, params[:pipeline_name])
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
+    end
+
     def check_admin_user_and_401
       return unless security_service.isSecurityEnabled()
       unless security_service.isUserAdmin(current_user)

@@ -72,8 +72,7 @@ public class GoConfigWatchList implements ConfigChangedListener {
     }
 
     public ConfigRepoConfig getConfigRepoForMaterial(MaterialConfig material) {
-        ConfigRepoConfig repo = this.reposConfig.getConfigRepo(material);
-        return  repo;
+        return this.reposConfig.getConfigRepo(material);
     }
 
     public void registerListener(ChangedRepoConfigWatchListListener listener) {

@@ -50,6 +50,12 @@ module ApiV1
     rescue_from RecordNotFound, with: :render_not_found_error
     rescue_from BadRequest,     with: :render_bad_request
 
+    class << self
+      def default_accepts_header
+        DEFAULT_ACCEPTS_HEADER
+      end
+    end
+
     protected
 
     def to_tristate(var)

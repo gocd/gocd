@@ -47,7 +47,7 @@ public class GoRepoConfigDataSourceTest {
     File folder = new File("dir");
 
     @Before
-    public void SetUp()
+    public void setUp()
     {
         configPluginService = mock(GoConfigPluginService.class);
         plugin = mock(PartialConfigProvider.class);
@@ -64,7 +64,7 @@ public class GoRepoConfigDataSourceTest {
 
 
     @Test
-    public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList() throws Exception
+    public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList()
     {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
@@ -72,7 +72,7 @@ public class GoRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        verify(plugin,times(1)).Load(eq(folder),any(PartialConfigLoadContext.class));
+        verify(plugin,times(1)).load(eq(folder), any(PartialConfigLoadContext.class));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class GoRepoConfigDataSourceTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
 
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenReturn(PartialConfigMother.withPipeline("pipe1"));
 
         repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
@@ -121,7 +121,7 @@ public class GoRepoConfigDataSourceTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
 
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenReturn(PartialConfigMother.withEnvironment("UAT"));
 
         repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
@@ -149,7 +149,7 @@ public class GoRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        verify(plugin,times(1)).Load(eq(folder),notNull(PartialConfigLoadContext.class));
+        verify(plugin,times(1)).load(eq(folder), notNull(PartialConfigLoadContext.class));
     }
 
     @Test
@@ -178,7 +178,7 @@ public class GoRepoConfigDataSourceTest {
         }
 
         @Override
-        public PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) throws Exception {
+        public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
             Assert.assertThat(context.configuration(),is(configuration));
             Assert.assertThat(context.configuration().getProperty("key").getValue(),is("value"));
             return mock(PartialConfig.class);
@@ -192,7 +192,7 @@ public class GoRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        verify(plugin,times(0)).Load(eq(folder),any(PartialConfigLoadContext.class));
+        verify(plugin,times(0)).load(eq(folder), any(PartialConfigLoadContext.class));
     }
 
     @Test
@@ -236,7 +236,7 @@ public class GoRepoConfigDataSourceTest {
     private class BrokenConfigPlugin implements PartialConfigProvider
     {
         @Override
-        public PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
+        public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
             throw new BrokenConfigPluginException();
         }
     }

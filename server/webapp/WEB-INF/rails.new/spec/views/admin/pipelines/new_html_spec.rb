@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 
 describe "admin/pipelines/new.html.erb" do
   include GoUtil, FormUI, ReflectiveUtil
@@ -114,7 +114,7 @@ describe "admin/pipelines/new.html.erb" do
     it "should show dropdown for group name if user is a group admin" do
       assign(:groups_list, ["foo.bar", "some_other_group"])
       view.stub(:is_user_a_group_admin?).and_return(true)
-      
+
       render
 
       Capybara.string(response.body).find("form[method='post'][action='create_path']").tap do |form|

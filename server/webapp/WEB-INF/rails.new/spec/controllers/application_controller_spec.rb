@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 require 'java'
 
 describe ApplicationController do
@@ -124,11 +124,6 @@ describe ApplicationController do
     it "should load user_search_service" do
       expect(Spring).to receive(:bean).with('userSearchService').and_return(service = Object.new)
       expect(controller.user_search_service).to eq(service)
-    end
-
-    it "should load go_license_service" do
-      expect(Spring).to receive(:bean).with('goLicenseService').and_return(service = Object.new)
-      expect(controller.go_license_service).to eq(service)
     end
 
     it "should load viewRenderingService" do
@@ -258,7 +253,6 @@ describe ApplicationController do
       controller.stub(:populate_health_messages) do
         stub_server_health_messages_for_controllers
       end
-      @controller.stub(:licensed_agent_limit)
       config_service = stub_service(:go_config_service)
       config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid)
     end

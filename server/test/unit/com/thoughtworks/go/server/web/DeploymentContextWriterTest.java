@@ -44,7 +44,7 @@ public class DeploymentContextWriterTest {
     public void setUp() {
         originalSslPort = System.getProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "5050");
-        ServletHelper.init(true);
+        ServletHelper.init();
     }
 
     @After

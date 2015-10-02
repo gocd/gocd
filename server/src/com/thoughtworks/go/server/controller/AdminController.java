@@ -64,7 +64,7 @@ public class AdminController {
         this.metricsProbeService = metricsProbeService;
     }
 
-    @RequestMapping(value = "/admin", method = RequestMethod.GET)
+    @RequestMapping(value = "/tab/admin", method = RequestMethod.GET)
     public ModelAndView handleTabRequest(HttpServletRequest request) {
         return new ModelAndView("", adminModel(request));
     }
@@ -78,7 +78,7 @@ public class AdminController {
         return adminService.populateModel(model);
     }
 
-    @RequestMapping(value = "/admin", method = RequestMethod.POST)
+    @RequestMapping(value = "/tab/admin", method = RequestMethod.POST)
     public ModelAndView handleEditConfiguration(@RequestParam("configFileContent") String configFileContent,
                                                 @RequestParam("configMd5") String expectedMd5,
                                                 @RequestParam(value = "shouldMigrate", required = false) Boolean shouldMigrate,
@@ -113,7 +113,7 @@ public class AdminController {
         return configValidity;
     }
 
-    @RequestMapping(value = "/admin/configuration.json", method = RequestMethod.GET)
+    @RequestMapping(value = "/tab/admin/configuration.json", method = RequestMethod.GET)
     public ModelAndView handleConfiguration(HttpServletResponse response) {
         Json json = adminService.configurationJsonForSourceXml();
         return jsonFound(json).respond(response);

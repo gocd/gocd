@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "spec_helper")
+require 'spec_helper'
 
 describe GoCacheStore do
   before :each do
@@ -68,7 +68,7 @@ describe GoCacheStore do
 
   it "should understand if key exists in cruise cache" do
     @go_cache.put("key", ActiveSupport::Cache::Entry.new("value"))
-    expect(@store.exist?("key")).to be_true 
+    expect(@store.exist?("key")).to be_true
     @go_cache.remove("key")
     expect(@store.exist?("key")).to be_false
     expect(@store.exist?("nokey")).to be_false

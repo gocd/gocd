@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe Api::StagesController do
   render_views
@@ -23,7 +23,6 @@ describe Api::StagesController do
     controller.go_cache.clear
     controller.stub(:stage_service).and_return(@stage_service = double())
     controller.stub(:set_locale)
-    controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
 
   end

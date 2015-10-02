@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "spec_helper")
+require 'spec_helper'
 
 describe CctrayController do
   describe "routes" do
@@ -23,12 +23,8 @@ describe CctrayController do
     end
   end
 
-  context "new cctray" do
+  context "cctray" do
     describe "index" do
-      before do
-        expect(Toggles).to receive(:isToggleOn).with(Toggles.NEW_CCTRAY_FEATURE_TOGGLE_KEY).and_return(true)
-      end
-
       after do
         $servlet_context = nil
       end
@@ -48,40 +44,6 @@ describe CctrayController do
         get :index
 
         expect(response.body).to eq("RESPONSE_FOR_THIS_URL_PREFIX")
-      end
-    end
-  end
-
-  context "old cctray" do
-    describe "index" do
-      before do
-        expect(Toggles).to receive(:isToggleOn).with(Toggles.NEW_CCTRAY_FEATURE_TOGGLE_KEY).and_return(false)
-      end
-
-      after do
-        $servlet_context = nil
-      end
-
-      it "should use current request details to get correct context path for XML document" do
-        expected_path = "http://test.host/context_path"
-
-        $servlet_context = double("servlet_context")
-        expect($servlet_context).to receive(:getContextPath).and_return("/context_path")
-
-        cc_tray_status_service = stub_service(:cc_tray_status_service)
-        expect(cc_tray_status_service).to receive(:createCctrayXmlDocument).with(expected_path).and_return(fake_cctray_xml_doc)
-
-        get :index
-
-        expect(response.body).to eq("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Projects>\n  <Project name=\"test\" />\n</Projects>\n\n")
-      end
-
-      def fake_cctray_xml_doc
-        projects_element = org.jdom.Element.new "Projects"
-        project_element = org.jdom.Element.new "Project"
-        project_element.setAttribute("name", "test")
-        projects_element.addContent(project_element)
-        org.jdom.Document.new projects_element
       end
     end
   end

@@ -282,6 +282,7 @@ div.build_detail_container_content {
 .ansi-color-toggle-false .buildoutput_pre {
   margin-top: -10px;
   padding-top: 10px;
+  padding-bottom: 0;
 }
 
 /* Styles in tabbed report section below summary bar */
@@ -454,7 +455,7 @@ div.build_detail_container_content {
   word-wrap: break-word;
 
   padding-left: 10px;
-  padding-bottom: 10px;
+  padding-bottom: 35px;
 
   min-height: 800px; // ie < 8
   min-height: calc(100vh - #{$height-of-non-console-log-elements});

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,15 +65,20 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
     }
 
     private void notifyListeners() {
-        PartialConfig[] partials = this.lastPartials();
+        List<PartialConfig> partials = this.lastPartials();
         for(PartialConfigChangedListener listener : listeners)
         {
             listener.onPartialConfigChanged(partials);
         }
     }
 
-    public PartialConfig[] lastPartials() {
-        return fingerprintToLatestValidConfigMap.values().toArray(new PartialConfig[0]);
+    public List<PartialConfig> lastPartials() {
+        List<PartialConfig> list = new ArrayList<>();
+        for(PartialConfig partialConfig : fingerprintToLatestValidConfigMap.values())
+        {
+            list.add(partialConfig);
+        }
+        return list;
     }
 
 

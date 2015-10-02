@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 describe AdminController, "integration test" do
   #this the place for integration testing admin-config-update, we should try to cover failure, 406, 409, 401 etc here,
   #     and we should eventually start using one of the real controllers(stages/jobs/pipelines controller so we can test with views) -jj
-  
+
   before do
     @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new()
     @db_helper = Spring.bean("databaseAccessHelper")

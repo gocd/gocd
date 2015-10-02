@@ -16,17 +16,7 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-import javax.annotation.PostConstruct;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigSubtag;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.ParamsAttributeAware;
-import com.thoughtworks.go.config.PasswordEncrypter;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -36,6 +26,9 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+
+import javax.annotation.PostConstruct;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -66,7 +59,6 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public static final String VIEW = "view";
     public static final String SERVER_AND_PORT = "serverAndPort";
     public static final String USE_TICKETS = "useTickets";
-    private static final Pattern P4_PORT_PATTERN = Pattern.compile("^[^:^\\s]+:\\d+$");
     private final GoCipher goCipher;
 
     private P4MaterialConfig(GoCipher goCipher) {
@@ -218,8 +210,6 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         }
         if (StringUtil.isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
-        } else if (!P4_PORT_PATTERN.matcher(getServerAndPort()).matches()) {
-            errors.add(SERVER_AND_PORT, "Invalid format for P4 port. It should be host:port");
         }
     }
 

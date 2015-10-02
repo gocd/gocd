@@ -36,13 +36,11 @@
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
         <property name="interceptors">
             <list>
-                <ref bean="licenseInterceptor"/>
                 <ref bean="authorizationInterceptor"/>
-                <ref bean="licenseExpiryInterceptor"/>
-                <ref bean="licensedAgentInterceptor"/>
                 <ref bean="myGoInterceptor"/>
             </list>
         </property>
+        <property name="alwaysUseFullPath" value="true"></property>
     </bean>
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>

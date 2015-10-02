@@ -896,4 +896,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public void setOrigin(ConfigOrigin origin) {
         this.origin = origin;
     }
+
+    public boolean isLocal() {
+        return origin == null || this.origin.isLocal();
+    }
 }

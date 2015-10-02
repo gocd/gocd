@@ -123,7 +123,7 @@ public class GoConfigMigration {
                 GoConfigHolder configHolder = reloadedConfig(stream, reloadedXml);
                 reloadedXml = new String(stream.toByteArray());
                 configRepository.checkin(new GoConfigRevision(reloadedXml, CachedDigestUtils.md5Hex(reloadedXml), UPGRADE,
-                        currentGoServerVersion, configHolder.config.edition(), timeProvider));
+                        currentGoServerVersion, timeProvider));
             } else {
                 GoConfigHolder configHolder = reloadedConfig(stream, xmlStringBeforeUpgrade);
                 reloadedXml = new String(stream.toByteArray());

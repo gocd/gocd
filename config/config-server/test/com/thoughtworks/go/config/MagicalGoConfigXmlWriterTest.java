@@ -25,11 +25,16 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.*;
@@ -47,6 +52,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.*;
@@ -127,12 +133,56 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
+    public void shouldWriteOnlyLocalPartOfConfigWhenSavingMergedConfig() throws Exception {
+        String xml = ConfigFileFixture.TWO_PIPELINES;
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        PartialConfig remotePart = PartialConfigMother.withPipeline("some-pipe");
+        remotePart.setOrigin(new RepoConfigOrigin());
+        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
+        xmlWriter.write(merged, output, true);
+        assertXmlEquals(xml, output.toString());
+    }
+
+    @Test
+    public void shouldValidateMergedConfigWhenSavingMergedConfig() throws Exception {
+        String xml = ConfigFileFixture.TWO_PIPELINES;
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        // pipeline1 is in xml and and in config repo - this is an error at merged scope
+        PartialConfig remotePart = PartialConfigMother.withPipelineInGroup("pipeline1", "defaultGroup");
+        remotePart.setOrigin(new RepoConfigOrigin());
+        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
+        List<ConfigErrors> errors = merged.validateAfterPreprocess();
+        assertThat(errors.size(),is(2));
+        try {
+            xmlWriter.write(merged, output, false);
+            fail("Should not be able to save config when there are errors in merged config");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+        }
+    }
+
+    @Test
     public void shouldWritePipelines() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
         xmlWriter.write(cruiseConfig, output, false);
         assertXmlEquals(xml, output.toString());
+    }
+    @Test
+    public void shouldNotWriteDuplicatedPipelines() throws Exception {
+        String xml = ConfigFileFixture.TWO_PIPELINES;
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        cruiseConfig.addPipeline("someGroup", PipelineConfigMother.pipelineConfig("pipeline1"));
+        try {
+            xmlWriter.write(cruiseConfig, output, false);
+            fail("Should not be able to save config when there are 2 pipelines with same name");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+        }
     }
 
     @Test

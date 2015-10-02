@@ -37,7 +37,6 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
@@ -1061,7 +1060,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void getConfigAtVersion_shouldFetchRequiredVersion() throws Exception {
-        GoConfigRevision revision = new GoConfigRevision("v1", "md5-1", "loser", "100.3.9.1", Edition.Enterprise, new TimeProvider());
+        GoConfigRevision revision = new GoConfigRevision("v1", "md5-1", "loser", "100.3.9.1", new TimeProvider());
         when(configRepo.getRevision("md5-1")).thenReturn(revision);
         assertThat(goConfigService.getConfigAtVersion("md5-1"), is(revision));
     }
@@ -1305,7 +1304,7 @@ public class GoConfigServiceTest {
                 new HttpLocalizedOperationResult());
         assertThat(configUpdateResponse.wasMerged(), is(false));
     }
-    
+
     @Test
     public void badConfigShouldContainOldMD5_WhenConfigUpdateFailed(){
         when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenThrow(new RuntimeException(getGoConfigInvalidException()));

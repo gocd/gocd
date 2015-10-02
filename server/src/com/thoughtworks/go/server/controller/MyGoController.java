@@ -70,7 +70,7 @@ public class MyGoController {
         this.localizer = localizer;
     }
 
-    @RequestMapping(value = "/mycruise/user", method = RequestMethod.POST)
+    @RequestMapping(value = "/tab/mycruise/user", method = RequestMethod.POST)
     public ModelAndView updateUserSetting(@RequestParam("email")String email,
                                           @RequestParam("matchers")String matchers,
                                           @RequestParam(value = "emailme", required = false)Boolean emailMe,
@@ -88,13 +88,13 @@ public class MyGoController {
         }
     }
 
-    @RequestMapping(value = "/mycruise/user", method = RequestMethod.GET)
+    @RequestMapping(value = "/tab/mycruise/user", method = RequestMethod.GET)
     public ModelAndView handleRequest(@RequestParam(value = MESSAGE_KEY, required = false)String message,
                                       HttpServletRequest request) {
         return render(request, info(MESSAGE_KEY, message));
     }
 
-    @RequestMapping(value = "/mycruise/notification", method = RequestMethod.POST)
+    @RequestMapping(value = "/tab/mycruise/notification", method = RequestMethod.POST)
     public ModelAndView addNotificationFilter(@RequestParam("pipeline")String pipeline,
                                               @RequestParam("stage")String stage,
                                               @RequestParam("event")String event,
@@ -117,7 +117,7 @@ public class MyGoController {
         }
     }
 
-    @RequestMapping(value = "/mycruise/notification/delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/tab/mycruise/notification/delete", method = RequestMethod.POST)
     public ModelAndView removeNotificationFilter(@RequestParam("filterId")long filterId, HttpServletRequest request) {
         try {
             Long userId = getUserId(request);
@@ -129,7 +129,7 @@ public class MyGoController {
         }
     }
 
-    @RequestMapping(value = "/mycruise/user/validate", method = RequestMethod.GET)
+    @RequestMapping(value = "/tab/mycruise/user/validate", method = RequestMethod.GET)
     public ModelAndView validate(@RequestParam(value = "email", required = false)String email,
                                  @RequestParam(value = "matchers", required = false)String matchers,
                                  HttpServletRequest request, HttpServletResponse response) {

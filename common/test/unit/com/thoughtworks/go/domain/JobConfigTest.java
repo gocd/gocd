@@ -74,7 +74,8 @@ public class JobConfigTest {
     public void shouldClearTimeoutIfSubmittedWithEmptyValue() throws Exception {
         config.setConfigAttributes(
                 m(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.OVERRIDE_TIMEOUT, JobConfig.TIMEOUT, "", JobConfig.TASKS, m(Tasks.TASK_OPTIONS, "exec",
-                        "exec", m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))));
+                        "exec", m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp")))
+        );
         assertThat(config.getTimeout(), is(nullValue()));
     }
 
@@ -129,6 +130,22 @@ public class JobConfigTest {
         ConfigErrors configErrors = createJobAndValidate("name pavan").errors();
         assertThat(configErrors.isEmpty(), is(false));
         assertThat(configErrors.on(JobConfig.NAME), is("Invalid job name 'name pavan'. This must be alphanumeric and can contain underscores and periods. The maximum allowed length is 255 characters."));
+    }
+
+    @Test
+    public void shouldValidateTheJobNameAgainstHaving_runOnAll() {
+        String jobName = "a-runOnAll-1";
+        ConfigErrors configErrors = createJobAndValidate(jobName).errors();
+        assertThat(configErrors.isEmpty(), is(false));
+        assertThat(configErrors.on(JobConfig.NAME), is(String.format("A job cannot have 'runOnAll' in it's name: %s", jobName)));
+    }
+
+    @Test
+    public void shouldValidateTheJobNameAgainstHaving_runInstance() {
+        String jobName = "a-runInstance-1";
+        ConfigErrors configErrors = createJobAndValidate(jobName).errors();
+        assertThat(configErrors.isEmpty(), is(false));
+        assertThat(configErrors.on(JobConfig.NAME), is(String.format("A job cannot have 'runInstance' in it's name: %s", jobName)));
     }
 
 	@Test

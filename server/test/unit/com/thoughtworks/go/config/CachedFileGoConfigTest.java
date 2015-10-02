@@ -15,7 +15,6 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -28,9 +27,8 @@ import org.junit.Before;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class CachedFileGoConfigTest extends CachedGoConfigBaseTest {
+public class CachedFileGoConfigTest extends CachedGoConfigTestBase {
     @Before
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper(CONFIG);

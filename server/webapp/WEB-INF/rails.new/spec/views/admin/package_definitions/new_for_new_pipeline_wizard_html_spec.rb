@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
+require 'spec_helper'
 
 describe "admin/package_definitions/new_for_new_pipeline_wizard.html.erb" do
 

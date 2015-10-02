@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe "environments/new.html.erb" do
   before do
@@ -68,7 +68,7 @@ describe "environments/new.html.erb" do
     assign(:available_pipelines, [EnvironmentPipelineModel.new("first"), EnvironmentPipelineModel.new("second")])
 
     render
-    
+
     verify_pipeline_is_present('first')
     verify_pipeline_is_present('second')
   end
@@ -100,4 +100,3 @@ describe "environments/new.html.erb" do
     expect(response).to have_selector("div.form_content label[for='pipeline_#{pipeline_name}']")
   end
 end
-  

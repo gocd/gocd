@@ -162,7 +162,9 @@
     };
     var tabsManager = new TabsManager(undefined, 'build', '${presenter.pipelineName}-${presenter.stageName}-${presenter.buildName}', 'console', subtab_callback_map);
 
-    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}');
+    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}', function(jobstatus_json_array){
+        return jobstatus_json_array[0].building_info.is_completed.toString()  == "true"
+    });
     var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}', {
         colorize:      $color_logs_feature_toggle_key
     });

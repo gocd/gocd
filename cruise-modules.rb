@@ -202,18 +202,6 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Response.class")
     # # ---- Jetty 9 end ---
 
-    # # ---- Jetty 6 start ---
-    include_fileset_from_target(jar, 'jetty6', "**/GoJetty6SslSocketConnector.class")
-    include_fileset_from_target(jar, 'jetty6', "**/GoJetty6CipherSuite.class")
-    include_fileset_from_target(jar, 'jetty6', "**/Jetty6Server*.class")
-    include_fileset_from_target(jar, 'jetty6', "**/Jetty6GoWebXmlConfiguration*.class")
-    include_fileset_from_target(jar, 'jetty6', "**/Jetty6AssetsContextHandler*.class")
-    include_fileset_from_target(jar, 'jetty6', "**/Jetty6AssetsContextHandlerInitializer*.class")
-    include_fileset_from_target(jar, 'jetty6', "**/Jetty6ServletHelper*.class")
-    include_fileset_from_target(jar, 'jetty6', "**/Jetty6Request.class")
-    include_fileset_from_target(jar, 'jetty6', "**/Jetty6Response.class")
-    # ---- Jetty 6 end ---
-
     include_fileset_from_target(jar, 'common', "**/SubprocessLogger*.class")
     include_fileset_from_target(jar, 'common', "**/validators/*.class")
     include_fileset_from_target(jar, 'common', "**/Environment*.class")
@@ -280,8 +268,7 @@ define "cruise:server", :layout => server_layout("server") do
             _("../installers/server/release/cruise-config.xml"),
             _("../installers/server/release/config.properties"),
             _("properties/src/log4j.properties"),
-            _("config/jetty.xml"),
-            _("config/jetty6.xml"))
+            _("config/jetty.xml"))
 
     onejar.path('lib/').include(server_launcher_dependencies).include(jetty_jars).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
     include_fileset_from_target(onejar, 'server', "**/GoMacLauncher*")

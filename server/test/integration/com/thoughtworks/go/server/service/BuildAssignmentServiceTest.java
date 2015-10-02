@@ -57,6 +57,7 @@ import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.DeniedAgentWork;
 import com.thoughtworks.go.remote.work.NoWork;
@@ -75,11 +76,7 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -122,7 +119,6 @@ public class BuildAssignmentServiceTest {
     @Autowired private StageDao stageDao;
     @Autowired private JobInstanceService jobInstanceService;
     @Autowired private PipelineService pipelineService;
-    @Autowired private GoLicenseService licenseService;
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private TimeProvider timeProvider;
     @Autowired private TransactionTemplate transactionTemplate;
@@ -181,7 +177,7 @@ public class BuildAssignmentServiceTest {
 
     @Test
     public void shouldRescheduleAbandonedBuild() throws SQLException {
-        AgentInstance instance = agent(AgentMother.localAgent());
+        AgentIdentifier instance = agent(AgentMother.localAgent());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(
                 DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
@@ -209,7 +205,7 @@ public class BuildAssignmentServiceTest {
 
     @Test
     public void shouldNotAssignWorkWhenPipelineScheduledWithStaleMaterials() {
-        AgentInstance instance = agent(AgentMother.localAgent());
+        AgentIdentifier instance = agent(AgentMother.localAgent());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         evolveConfig.setMaterialConfigs(new MaterialConfigs(new HgMaterialConfig("foo", null)));
@@ -223,7 +219,7 @@ public class BuildAssignmentServiceTest {
 
     @Test
     public void shouldNotAssignCancelledJob() throws Exception {
-        AgentInstance instance = agent(AgentMother.localAgent());
+        AgentIdentifier instance = agent(AgentMother.localAgent());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());
@@ -268,7 +264,7 @@ public class BuildAssignmentServiceTest {
 
         configHelper.removePipeline(fixture.pipelineName);
 
-        AgentConfig agentConfig = new AgentConfig("uuid");
+        AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-other-resource"));
 
         assertThat((NoWork) buildAssignmentService.assignWorkToAgent(agent(agentConfig)), Matchers.is(BuildAssignmentService.NO_WORK));
@@ -305,7 +301,7 @@ public class BuildAssignmentServiceTest {
             }
         };
 
-        final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService, licenseService,
+        final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
                 agentService, environmentConfigService, timeProvider, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory);
 
         final Throwable[] fromThread = new Throwable[1];
@@ -314,8 +310,8 @@ public class BuildAssignmentServiceTest {
         Thread assigner = new Thread(new Runnable() {
             public void run() {
                 try {
-                    final AgentConfig agentConfig = new AgentConfig("uuid");
-                    agentConfig.addResource(new Resource("some-other-resource"));
+                    final AgentConfig agentConfig = AgentMother.localAgentWithResources("some-other-resource");
+
                     buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agentConfig));
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -348,11 +344,11 @@ public class BuildAssignmentServiceTest {
         configHelper.removePipeline(fixture.pipelineName, config);
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
-        buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, licenseService, agentService, environmentConfigService, timeProvider,
+        buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, timeProvider,
                 transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory);
         buildAssignmentService.onTimer();
 
-        AgentConfig agentConfig = new AgentConfig("uuid");
+        AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-other-resource"));
 
         try {
@@ -501,12 +497,10 @@ public class BuildAssignmentServiceTest {
     }
 
 
-    private AgentInstance agent(AgentConfig agentConfig) {
-        final HashSet<EnvironmentPipelineMatcher> environmentPipelineMatchers = new HashSet<EnvironmentPipelineMatcher>();
-        AgentInstance instance = AgentInstance.create(agentConfig, false, new SystemEnvironment()
-        );
-        instance.enable();
-        return instance;
+    private AgentIdentifier agent(AgentConfig agentConfig) {
+        agentService.sync(new Agents(agentConfig));
+        agentService.approve(agentConfig.getUuid());
+        return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
     }
 
     @Test
@@ -516,7 +510,7 @@ public class BuildAssignmentServiceTest {
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
-        Work work = buildAssignmentService.assignWorkToAgent(agent(new AgentConfig("uuid")));
+        Work work = buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
@@ -533,7 +527,7 @@ public class BuildAssignmentServiceTest {
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
-        AgentConfig agentConfig = new AgentConfig("uuid");
+        AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-other-resource"));
 
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
@@ -598,7 +592,7 @@ public class BuildAssignmentServiceTest {
         assertThat(rescheduledJob.getId(), not(runningJob.getId()));
 
         buildAssignmentService.onTimer();
-        Work noResourcesWork = buildAssignmentService.assignWorkToAgent(agent(new AgentConfig("WITHOUT_RESOURCES")));
+        Work noResourcesWork = buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgentWithResources("WITHOUT_RESOURCES")));
         assertThat(noResourcesWork, is((Work) BuildAssignmentService.NO_WORK));
 
         buildAssignmentService.onTimer();

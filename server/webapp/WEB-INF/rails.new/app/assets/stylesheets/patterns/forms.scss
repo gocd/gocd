@@ -319,6 +319,11 @@ input[type="text"].searchbox {
   padding-right: 16px;
 }
 
+input.searchbox.ac_loading {
+    background: image_url("g9/icons/spinny_white_16.gif") transparent no-repeat right;
+    padding-right: 16px;
+}
+
 select.large,
 textarea.large,
 input.large{

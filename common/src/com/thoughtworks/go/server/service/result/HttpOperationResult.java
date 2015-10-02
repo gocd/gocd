@@ -27,7 +27,7 @@ import com.thoughtworks.go.util.StringUtil;
 public class HttpOperationResult implements OperationResult {
 
     private static final String BLANK_STRING = "";
-    int httpCode = -1;
+    int httpCode = 200;
     private String message;
     final private ServerHealthStateOperationResult serverHealthStateOperationResult = new ServerHealthStateOperationResult();
 

@@ -1,0 +1,111 @@
+waitSeconds: 5
+preserveLicenseComments: false
+optimize: 'none'
+optimizeCss: 'none'
+normalizeDirDefines: 'all'
+
+paths:
+  es5shim: 'lib/es5-shim'
+  es6shim: 'lib/es6-shim'
+  angular: 'lib/angular-1.0.8'
+  jquery: 'lib/jquery-1.7.2'
+  mithril: 'lib/mithril-0.2.0'
+  lodash: 'lib/lodash'
+  dragula: 'lib/dragula-3.1.0'
+  js-routes: 'js-routes'
+  string: 'lib/underscore.string'
+  string-plus: 'lib/string-plus'
+  domready: 'lib/requirejs.domReady'
+  modernizr: 'vendor/modernizr'
+  foundation: 'foundation/foundation'
+  foundation.abide: 'foundation/foundation.abide'
+  foundation.accordion: 'foundation/foundation.accordion'
+  foundation.alert: 'foundation/foundation.alert'
+  foundation.clearing: 'foundation/foundation.clearing'
+  foundation.dropdown: 'foundation/foundation.dropdown'
+  foundation.equalizer: 'foundation/foundation.equalizer'
+  foundation.interchange: 'foundation/foundation.interchange'
+  foundation.joyride: 'foundation/foundation.joyride'
+  foundation.magellan: 'foundation/foundation.magellan'
+  foundation.offcanvas: 'foundation/foundation.offcanvas'
+  foundation.orbit: 'foundation/foundation.orbit'
+  foundation.reveal: 'foundation/foundation.reveal'
+  foundation.slider: 'foundation/foundation.slider'
+  foundation.tab: 'foundation/foundation.tab'
+  foundation.tooltip: 'foundation/foundation.tooltip'
+  foundation.topbar: 'foundation/foundation.topbar'
+
+# DO NOT CREATE SHIMS for AMD MODULES
+shim:
+  jquery:
+    exports: 'jQuery'
+  angular:
+    exports: 'angular'
+  lodash:
+    exports: '_'
+  mithril:
+    exports: 'm'
+    deps:
+      - es6shim
+  string:
+    exports: 's'
+  es6shim:
+    deps:
+      - es5shim
+  foundation:
+    deps:
+      - jquery
+      - modernizr
+  foundation.abide:
+    deps:
+      - foundation
+  foundation.accordion:
+    deps:
+      - foundation
+  foundation.alert:
+    deps:
+      - foundation
+  foundation.clearing:
+    deps:
+      - foundation
+  foundation.dropdown:
+    deps:
+      - foundation
+  foundation.equalizer:
+    deps:
+      - foundation
+  foundation.interchange:
+    deps:
+      - foundation
+  foundation.joyride:
+    deps:
+      - foundation
+      - jquery.cookie
+  foundation.magellan:
+    deps:
+      - foundation
+  foundation.offcanvas:
+    deps:
+      - foundation
+  foundation.orbit:
+    deps:
+      - foundation
+  foundation.reveal:
+    deps:
+      - foundation
+  foundation.slider:
+    deps:
+      - foundation
+  foundation.tab:
+    deps:
+      - foundation
+  foundation.tooltip:
+    deps:
+      - foundation
+  foundation.topbar:
+    deps:
+      - foundation
+
+# our modules
+modules:
+  - name: 'pipeline_configs/application'

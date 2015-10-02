@@ -27,7 +27,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.licensing.LicenseValidity;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.domain.context.Context;
@@ -190,16 +189,6 @@ public class GoConfigService implements Initializer {
 
     private CruiseConfig cruiseConfig() {
         return goConfigDao.load();
-    }
-
-    public void populateLicenseAndConfigValidityInfo(Map<String, Object> model) {
-        GoConfigValidity configValidity = goConfigDao.checkConfigFileValid();
-        if (!configValidity.isValid()) {
-            model.put(GoConstants.ERROR_FOR_PAGE, configValidity.errorMessage());
-        } else {
-            LicenseValidity validLicense = LicenseValidity.VALID_LICENSE;
-            validLicense.populateModel(model);
-        }
     }
 
     public AgentConfig agentByUuid(String uuid) {

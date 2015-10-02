@@ -1,0 +1,41 @@
+language: ruby
+cache: bundler
+
+rvm:
+  - 1.9.3
+  - 2.0
+  - 2.1
+  - 2.2
+  - jruby-19mode
+  - ruby-head
+  - jruby-head
+
+gemfile:
+  - gemfiles/rails32.gemfile
+  - gemfiles/rails40.gemfile
+  - gemfiles/rails40_sprockets3.gemfile
+  - gemfiles/rails41.gemfile
+  - gemfiles/rails41_sprockets3.gemfile
+  - gemfiles/rails42.gemfile
+  - gemfiles/rails42_sprockets3.gemfile
+
+sudo: false
+
+notifications:
+  email:
+    - agresso@gmail.com
+
+branches:
+  only:
+    - master
+
+matrix:
+  include:
+    - gemfile: gemfiles/rails_edge.gemfile
+      rvm: 2.2
+  allow_failures:
+    - rvm: jruby-19mode
+    - rvm: ruby-head
+    - rvm: jruby-head
+    - gemfile: gemfiles/rails_edge.gemfile
+      rvm: 2.2

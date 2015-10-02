@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>15.2.0</version>
+        <version>15.3.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -573,12 +573,6 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>test-utils</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>jetty6</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>

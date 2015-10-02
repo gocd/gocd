@@ -14,13 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 describe AgentsController do
 
   before do
     controller.stub(:set_locale)
-    controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
   end
 

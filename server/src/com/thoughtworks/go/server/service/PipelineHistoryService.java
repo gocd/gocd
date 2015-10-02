@@ -171,11 +171,11 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 			return null;
 		}
 
-		boolean isPaused = pipelinePauseService.isPaused(pipelineName);
+        PipelinePauseInfo pipelinePauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
 		boolean isCurrentlyLocked = pipelineLockService.isLocked(pipelineName);
 		boolean isSchedulable = schedulingCheckerService.canManuallyTrigger(pipelineConfig, username, new ServerHealthStateOperationResult());
 
-		return new PipelineStatusModel(isPaused, isCurrentlyLocked, isSchedulable);
+		return new PipelineStatusModel(isCurrentlyLocked, isSchedulable, pipelinePauseInfo);
 	}
 
     private void populatePipelineInstanceModel(Username username, boolean populateCanRun, PipelineConfig pipelineConfig, PipelineInstanceModel pipelineInstanceModel) {

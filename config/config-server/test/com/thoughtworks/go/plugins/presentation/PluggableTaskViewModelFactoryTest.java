@@ -166,7 +166,7 @@ public class PluggableTaskViewModelFactoryTest {
     }
 
     private void cleanupTaskPreferences() {
-        Set<String> plugins = PluggableTaskConfigStore.store().pluginsWithPreference();
+        Set<String> plugins = PluggableTaskConfigStore.store().pluginIds();
         for (String pluginId : plugins) {
             PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
         }

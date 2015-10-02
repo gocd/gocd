@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require 'spec_helper'
 
 describe 'stages/history.html.erb' do
   it "should render partial stage history with scope populated" do

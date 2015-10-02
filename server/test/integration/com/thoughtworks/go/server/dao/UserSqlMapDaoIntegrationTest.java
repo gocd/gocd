@@ -33,6 +33,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.hamcrest.Matchers.empty;
@@ -290,56 +292,10 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(userDao.enabledUserCount(), is(2));
     }
 
-    @Test
-    public void shouldDismissLicenseExpiryWarningForUser() {
-        User foo = user("foo");
-        userDao.saveOrUpdate(foo);
-        foo.disableLicenseExpiryWarning();
-
-        userDao.saveOrUpdate(foo);
-
-        User fetchedUser = userDao.findUser(foo.getName());
-        assertThat(fetchedUser.hasDisabledLicenseExpiryWarning(), is(true));
-    }
-
-    @Test
-    public void shouldResetTheLicenseWarningStatusOfAllTheUsers() {
-        User user1 = saveUser("user1");
-        saveUser("user2");
-        User user3 = saveUser("user3");
-        saveUser("user4");
-
-        disableUserLicenseWarning(user1);
-        disableUserLicenseWarning(user3);
-
-        userDao.resetLicenseExpiryWarning();
-
-        assertThat(userDao.findUser("user1").hasDisabledLicenseExpiryWarning(), is(false));
-        assertThat(userDao.findUser("user2").hasDisabledLicenseExpiryWarning(), is(false));
-        assertThat(userDao.findUser("user3").hasDisabledLicenseExpiryWarning(), is(false));
-        assertThat(userDao.findUser("user4").hasDisabledLicenseExpiryWarning(), is(false));
-    }
-
-    @Test
-    public void resetLicenseExpiryWarning() {
-        User user1 = saveUser("user1");
-        disableUserLicenseWarning(user1);
-        assertThat(userDao.findUser("user1").hasDisabledLicenseExpiryWarning(), is(true));
-
-        userDao.resetLicenseExpiryWarning();
-
-        assertThat(userDao.findUser("user1").hasDisabledLicenseExpiryWarning(), is(false));
-    }
-
     private User saveUser(final String user) {
         User user1 = user(user);
         userDao.saveOrUpdate(user1);
         return user1;
-    }
-
-    private void disableUserLicenseWarning(User user1) {
-        user1.disableLicenseExpiryWarning();
-        userDao.saveOrUpdate(user1);
     }
 
     @Test
@@ -377,6 +333,14 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.findNotificationSubscribingUsers();
         assertThat(subscribedUsers.size(), is(3));
         assertThat(subscribedUsers.containsAll(Arrays.asList(user1, user2, user3)), is(true));
+
+        Collections.sort(subscribedUsers, new Comparator<User>() {
+            @Override
+            public int compare(User user1, User user2) {
+                return user1.getName().compareTo(user2.getName());
+            }
+        });
+
         assertThat(subscribedUsers.get(0).getNotificationFilters().size(), is(1));
         assertThat(subscribedUsers.get(1).getNotificationFilters().size(), is(3));
         assertThat(subscribedUsers.get(2).getNotificationFilters().size(), is(1));
@@ -400,7 +364,7 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(user.getNotificationFilters().contains(filter2), is(true));
         assertThat(sessionFactory.openSession().get(NotificationFilter.class, filter1Id), is(Matchers.nullValue()));
     }
-    
+
     @Test
     public void shouldDeleteUser() {
         String userName = "user1";
@@ -410,7 +374,7 @@ public class UserSqlMapDaoIntegrationTest {
         boolean result = userDao.deleteUser(userName);
         assertThat(result, is(true));
     }
-    
+
     @Test
     public void shouldDeleteNotificationsAlongWithUser() {
         User user = new User("user1");

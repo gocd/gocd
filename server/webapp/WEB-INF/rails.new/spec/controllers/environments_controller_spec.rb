@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 def assert_flash_message_and_class(flash, message, class_name)
   flash.to_s.should == message
@@ -27,7 +27,6 @@ describe EnvironmentsController do
       @environment_service = Object.new
       controller.stub(:current_user).and_return('user_foo')
       controller.stub(:set_locale)
-      controller.stub(:licensed_agent_limit)
       controller.stub(:populate_config_validity)
     end
 

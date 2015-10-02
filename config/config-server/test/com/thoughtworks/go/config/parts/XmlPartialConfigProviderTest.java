@@ -122,7 +122,7 @@ public class XmlPartialConfigProviderTest {
 
         helper.addFileWithPipeline("pipe1.gocd.xml", pipe1);
 
-        PartialConfig part = xmlPartialProvider.Load(tmpFolder,mock(PartialConfigLoadContext.class));
+        PartialConfig part = xmlPartialProvider.load(tmpFolder,mock(PartialConfigLoadContext.class));
         PipelineConfig pipeRead = part.getGroups().get(0).get(0);
         assertThat(pipeRead,is(pipe1));
     }
@@ -135,7 +135,7 @@ public class XmlPartialConfigProviderTest {
 
         helper.addFileWithPipelineGroup("group1.gocd.xml", group1);
 
-        PartialConfig part = xmlPartialProvider.Load(tmpFolder, mock(PartialConfigLoadContext.class));
+        PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
         PipelineConfigs groupRead = part.getGroups().get(0);
         assertThat(groupRead,is(group1));
         assertThat(groupRead.size(),is(group1.size()));
@@ -153,7 +153,7 @@ public class XmlPartialConfigProviderTest {
         helper.addFileWithPipelineGroup("group2.gocd.xml", groups.get(1));
         helper.addFileWithEnvironment("dev-env.gocd.xml", env);
 
-        PartialConfig part = xmlPartialProvider.Load(tmpFolder, mock(PartialConfigLoadContext.class));
+        PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
 
         PipelineGroups groupsRead = part.getGroups();
         assertThat(groupsRead.size(),is(2));
@@ -214,7 +214,7 @@ public class XmlPartialConfigProviderTest {
         helper.addFileWithPipeline("pipedup.gocd.xml", pipe1);
 
         try {
-            PartialConfig part = xmlPartialProvider.Load(tmpFolder, mock(PartialConfigLoadContext.class));
+            PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
         }
         catch (Exception ex)
         {
@@ -235,9 +235,9 @@ public class XmlPartialConfigProviderTest {
 
         try
         {
-            PartialConfig part = xmlPartialProvider.Load(tmpFolder, mock(PartialConfigLoadContext.class));
+            PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
         }
-        catch (JDOMParseException ex)
+        catch (RuntimeException ex)
         {
             return;
         }

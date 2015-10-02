@@ -72,7 +72,7 @@ public class RailsAssetsServiceTest {
 
     @Test
     public void shouldGetAssetPathFromManifestJson() throws IOException {
-        FileUtil.writeContentToFile(json, new File(assetsDir, "manifest-digest.json"));
+        FileUtil.writeContentToFile(json, new File(assetsDir, ".sprockets-manifest-digest.json"));
         when(context.getInitParameter("rails.root")).thenReturn("");
         when(context.getRealPath(Matchers.<String>any())).thenReturn(assetsDir.getAbsolutePath());
         railsAssetsService.initialize();

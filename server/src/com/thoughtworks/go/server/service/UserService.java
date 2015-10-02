@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.persistence.OauthRepository;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.security.UserLicenseLimitExceededException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -57,7 +56,6 @@ public class UserService {
     private final UserDao userDao;
     private final SecurityService securityService;
     private final GoConfigService goConfigService;
-    private final GoLicenseService licenseService;
     private final OauthRepository oauthRepository;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final TransactionTemplate transactionTemplate;
@@ -66,12 +64,11 @@ public class UserService {
     private final Object enableUserMutex = new Object();
 
     @Autowired
-    public UserService(UserDao userDao, SecurityService securityService, GoConfigService goConfigService, GoLicenseService licenseService, TransactionTemplate transactionTemplate,
+    public UserService(UserDao userDao, SecurityService securityService, GoConfigService goConfigService, TransactionTemplate transactionTemplate,
                        TransactionSynchronizationManager transactionSynchronizationManager, OauthRepository oauthRepository) {
         this.userDao = userDao;
         this.securityService = securityService;
         this.goConfigService = goConfigService;
-        this.licenseService = licenseService;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.oauthRepository = oauthRepository;
@@ -162,10 +159,6 @@ public class UserService {
         synchronized (enableUserMutex) {
             Set<String> potentialEnabledUsers = new HashSet<String>(toUserNames(userDao.enabledUsers()));
             potentialEnabledUsers.addAll(usernames);
-            if (licenseService.maximumUsersAllowed() < potentialEnabledUsers.size()) {
-                result.badRequest(LocalizedMessage.string("DID_NOT_ENABLE_SELECTED_USERS"));
-                return;
-            }
             userDao.enableUsers(usernames);
         }
     }
@@ -247,12 +240,6 @@ public class UserService {
             roles.addAll(allRoleNames(cruiseConfig));
         }
         return roles;
-    }
-
-    public void disableLicenseExpiryWarning(long userId) {
-        User user = userDao.load(userId);
-        user.disableLicenseExpiryWarning();
-        userDao.saveOrUpdate(user);
     }
 
     public User load(long id) {
@@ -365,7 +352,7 @@ public class UserService {
             User user = new User(CaseInsensitiveString.str(userName.getUsername()));
             if (!(user.isAnonymous() || userExists(user))) {
                 assertUnknownUsersAreAllowedToLogin();
-                assertLicenseLimitNotExceeded();
+
                 userDao.saveOrUpdate(user);
             }
         }
@@ -377,16 +364,9 @@ public class UserService {
         }
     }
 
-    private void assertLicenseLimitNotExceeded() {
-        if (isLicenseUserLimitReached()) {
-            throw new UserLicenseLimitExceededException("User license limit exceeded, please contact the administrator");
-        }
-    }
-
     public void saveOrUpdate(User user) throws ValidationException {
         validate(user);
         synchronized (enableUserMutex) {
-            //TODO: MAY BE WE SHOULD CHECK FOR LICENSE LIMIT
             userDao.saveOrUpdate(user);
         }
     }
@@ -489,10 +469,6 @@ public class UserService {
                     return;
                 }
 
-                if (isLicenseUserLimitReached()) {
-                    result.badRequest(LocalizedMessage.string("LICENSE_LIMIT_EXCEEDED"));
-                    return;
-                }
                 if (!userSearchModel.getUserSourceType().equals(UserSourceType.PASSWORD_FILE) && validateEmailAndMatcher(result, user)) {
                     return;
                 }
@@ -500,14 +476,6 @@ public class UserService {
                 result.setMessage(LocalizedMessage.string("USER_SUCCESSFULLY_ADDED", user.getName()));
             }
         }
-    }
-
-    public boolean isLicenseUserLimitReached() {
-        return licenseService.maximumUsersAllowed() <= userDao.enabledUserCount();
-    }
-
-    public boolean isLicenseUserLimitExceeded() {
-        return licenseService.maximumUsersAllowed() < userDao.enabledUserCount();
     }
 
     public static class AdminAndRoleSelections {

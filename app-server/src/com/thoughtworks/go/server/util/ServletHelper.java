@@ -25,13 +25,9 @@ public abstract class ServletHelper {
 
     private static ServletHelper instance;
 
-    public static void init(Boolean usingJetty9) {
+    public static void init() {
         try {
-            if (usingJetty9) {
-                instance = getAppServerHelper("com.thoughtworks.go.server.util.Jetty9ServletHelper");
-            } else {
-                instance = getAppServerHelper("com.thoughtworks.go.server.util.Jetty6ServletHelper");
-            }
+            instance = getAppServerHelper("com.thoughtworks.go.server.util.Jetty9ServletHelper");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

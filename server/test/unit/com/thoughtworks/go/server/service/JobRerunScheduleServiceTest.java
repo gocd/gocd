@@ -229,7 +229,7 @@ public class JobRerunScheduleServiceTest {
 
         final boolean[] secondReqGotInAfterFirstFinished = new boolean[]{false};
 
-        schedulingChecker = new SchedulingCheckerService(null, null, null, null, null, null, null, null, null, null, null) {
+        schedulingChecker = new SchedulingCheckerService(null, null, null, null, null, null, null, null, null, null) {
             @Override
             public boolean canSchedule(OperationResult result) {
                 if (requestNumber.get() == 0) {//is first request, and has lock

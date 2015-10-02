@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "..", "..", "spec_helper")
+require 'spec_helper'
 
 describe "_form.html.erb" do
   include GoUtil, FormUI, ReflectiveUtil
-  
+
   before(:each) do
     @material_config = SvnMaterialConfig.new("svn://foo", "loser", "secret", true, "dest")
     @material_config.setAutoUpdate(true)

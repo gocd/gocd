@@ -41,8 +41,6 @@ public interface UserDao {
 
     List<User> enabledUsers();
 
-    void resetLicenseExpiryWarning();
-
     Set<String> findUsernamesForIds(Set<Long> userIds);
 
     User load(long id);

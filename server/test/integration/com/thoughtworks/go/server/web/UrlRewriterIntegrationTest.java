@@ -72,7 +72,7 @@ public class UrlRewriterIntegrationTest {
     public String originalSslPort;
 
     public UrlRewriterIntegrationTest() throws Exception {
-        ServletHelper.init(true);
+        ServletHelper.init();
         httpUtil = new HttpTestUtil(new HttpTestUtil.ContextCustomizer() {
             public void customize(WebAppContext ctx) throws Exception {
                 wac = mock(WebApplicationContext.class);
@@ -199,7 +199,6 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static ResponseAssertion PIPELINE_GROUP_EDIT = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/pipeline_group/group.name?foo=bar&baz=quux", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipeline_group/group.name?foo=bar&baz=quux", true);
     @DataPoint public static ResponseAssertion PIPELINE_GROUP_CREATE = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/pipeline_group", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipeline_group", true);
     @DataPoint public static ResponseAssertion TEMPLATES_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/templates?foo=bar&baz=quux", "http://127.1.1.1:" + HTTP + "/go/rails/admin/templates?foo=bar&baz=quux", true);
-    @DataPoint public static ResponseAssertion USER_DISMISS_LICENSE_EXPIRY_WARNING = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/users/dismiss_license_expiry_warning?foo=bar&baz=quux", "http://127.1.1.1:" + HTTP + "/go/rails/users/dismiss_license_expiry_warning?foo=bar&baz=quux");
     @DataPoint public static ResponseAssertion CONFIG_VIEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/config_view/templates/template_name", "http://127.1.1.1:" + HTTP + "/go/rails/config_view/templates/template_name");
 
     @DataPoint public static ResponseAssertion PIPELINE_NEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/pipeline/new", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipeline/new", true);
@@ -259,7 +258,8 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static ResponseAssertion ADMIN_GARAGE_GC = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/garage/gc", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage/gc", METHOD.POST);
     @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/pipelines.json", "http://127.1.1.1:" + HTTP + "/go/rails/pipelines.json", METHOD.GET);
     @DataPoint public static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/materials/value_stream_map/fingerprint/revision", "http://127.1.1.1:" + HTTP + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
-    @DataPoint public static ResponseAssertion PIPELINE_DASHBOARD_JSON_NEW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/dashboard.json", "http://127.1.1.1:" + HTTP + "/go/rails/dashboard.json", METHOD.GET);
+
+    @DataPoint public static ResponseAssertion RAILS_INTERNAL_API = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/api/config/internal/pluggable_task/indix.s3fetch", "http://127.1.1.1:" + HTTP + "/go/rails/api/config/internal/pluggable_task/indix.s3fetch", METHOD.GET);
 
     public static String enc(String str) {
         try {

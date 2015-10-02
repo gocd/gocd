@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ArrayUtil.asList;
+import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class GitSubmoduleRepos extends TestRepo {
@@ -76,6 +77,8 @@ public class GitSubmoduleRepos extends TestRepo {
     private File createRepo(String repoName) throws Exception {
         File withSubmodules = TestFileUtil.createTestFolder(temporaryFolder, repoName);
         git(withSubmodules).init();
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
         String fileName = "file-" + System.currentTimeMillis();
         addAndCommitNewFile(withSubmodules, fileName, "Added " + fileName);
         return withSubmodules;

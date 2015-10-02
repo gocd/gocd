@@ -55,7 +55,7 @@ public class PropertiesController {
         this.pipelineService = pipelineService;
     }
 
-    @RequestMapping(value = "/restful/properties/post", method = RequestMethod.POST)
+    @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST)
     public void setProperty(@RequestParam("pipelineName")String pipelineName,
                             @RequestParam("pipelineLabel")String pipelineLabel,
                             @RequestParam("stageName")String stageName,
@@ -76,7 +76,7 @@ public class PropertiesController {
         propertyService.addProperty(id, property, value).respond(response);
     }
 
-    @RequestMapping("/restful/properties/jobs/search")
+    @RequestMapping("/repository/restful/properties/jobs/search")
     public ModelAndView jobsSearch(@RequestParam("pipelineName")String pipelineName,
                                    @RequestParam("stageName")String stageName,
                                    @RequestParam("jobName")String jobName,
@@ -113,7 +113,7 @@ public class PropertiesController {
         }
     }
 
-    @RequestMapping("/restful/properties/job/search")
+    @RequestMapping("/repository/restful/properties/job/search")
     public ModelAndView jobSearch(
             @RequestParam("pipelineName")String pipelineName,
             @RequestParam("pipelineLabel")String pipelineLabel,

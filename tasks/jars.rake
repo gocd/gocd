@@ -37,9 +37,7 @@ def server_launcher_dependencies
   jars
 end
 def jetty_jars
-  jetty9_dependencies = Dir.glob($PROJECT_BASE + '/jetty9/target/lib/*.jar')
-  jetty6_dependencies = Dir.glob($PROJECT_BASE + '/jetty6/target/lib/*.jar')
-  jetty9_dependencies + jetty6_dependencies
+  Dir.glob($PROJECT_BASE + '/jetty9/target/lib/*.jar')
 end
 
 def maven_dependency(groupid, artifactid, version, maven_repository = File.expand_path('~') + '/.m2/repository')

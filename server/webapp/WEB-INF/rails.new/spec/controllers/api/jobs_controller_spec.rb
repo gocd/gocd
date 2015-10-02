@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe Api::JobsController do
 
@@ -24,7 +24,6 @@ describe Api::JobsController do
     @job_instance_service = double('job_instance_service')
     controller.stub(:job_instance_service).and_return(@job_instance_service)
     controller.stub(:set_locale)
-    controller.stub(:licensed_agent_limit)
     controller.stub(:populate_config_validity)
   end
 

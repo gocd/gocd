@@ -310,9 +310,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (StringUtils.isBlank(group) || !new NameTypeValidator().isNameValid(group)) {
-            this.configErrors.add(GROUP, NameTypeValidator.errorMessage("group", group));
-        }
+        this.validateGroupNameAndAddErrorsTo(this.configErrors);
         if(this.configOrigin != null && //when there is no origin specified we should not check it at all
                 !(this.configOrigin.isLocal()) &&
                 this.hasAuthorizationDefined())
@@ -434,6 +432,14 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     @Override
     public PipelineConfig remove(int i) {
          return super.remove(i);
+    }
+
+    @Override
+    public void validateGroupNameAndAddErrorsTo(ConfigErrors errors) {
+        if (StringUtils.isBlank(group) || !new NameTypeValidator().isNameValid(group)) {
+            String errorText = NameTypeValidator.errorMessage("group", group);
+            errors.add(GROUP, errorText);
+        }
     }
 
     public void setOrigin(ConfigOrigin origin) {

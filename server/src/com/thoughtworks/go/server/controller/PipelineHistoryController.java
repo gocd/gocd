@@ -77,7 +77,7 @@ public class PipelineHistoryController {
         this.pipelinePauseService = pipelinePauseService;
     }
 
-    @RequestMapping(value = "/pipeline/history", method = RequestMethod.GET)
+    @RequestMapping(value = "/tab/pipeline/history", method = RequestMethod.GET)
     public ModelAndView list(@RequestParam("pipelineName")String pipelineName) throws Exception {
         Map model = new HashMap();
         model.put("pipelineName", pipelineName);

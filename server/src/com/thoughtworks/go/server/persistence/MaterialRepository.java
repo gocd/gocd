@@ -141,11 +141,11 @@ public class MaterialRepository extends HibernateDaoSupport {
             return new ArrayList<Long>();
         }
 
-        String minMaxQuery = " SELECT mod.materialId as materialId, min(mod.id) as min, max(mod.id) as max"
-                + " FROM modifications mod "
-                + "     INNER JOIN pipelineMaterialRevisions pmr ON (mod.id >= pmr.actualFromRevisionId AND mod.id <= pmr.toRevisionId) AND mod.materialId = pmr.materialId "
+        String minMaxQuery = " SELECT mods1.materialId as materialId, min(mods1.id) as min, max(mods1.id) as max"
+                + " FROM modifications mods1 "
+                + "     INNER JOIN pipelineMaterialRevisions pmr ON (mods1.id >= pmr.actualFromRevisionId AND mods1.id <= pmr.toRevisionId) AND mods1.materialId = pmr.materialId "
                 + " WHERE pmr.pipelineId IN (:ids) "
-                + " GROUP BY mod.materialId";
+                + " GROUP BY mods1.materialId";
 
         SQLQuery query = session.createSQLQuery("SELECT mods.id "
                 + " FROM modifications mods"
@@ -171,16 +171,16 @@ public class MaterialRepository extends HibernateDaoSupport {
                 }
                 Map<PipelineId, Set<Long>> relevantToLookedUpMap = relevantToLookedUpDependencyMap(session, pipelineIds);
 
-                SQLQuery query = session.createSQLQuery("SELECT mod.*, pmr.pipelineId as pmrPipelineId, p.name as pmrPipelineName, m.type as materialType, m.fingerprint as fingerprint"
-                        + " FROM modifications mod "
-                        + "     INNER JOIN pipelineMaterialRevisions pmr ON (mod.id >= pmr.fromRevisionId AND mod.id <= pmr.toRevisionId) AND mod.materialId = pmr.materialId "
+                SQLQuery query = session.createSQLQuery("SELECT mods.*, pmr.pipelineId as pmrPipelineId, p.name as pmrPipelineName, m.type as materialType, m.fingerprint as fingerprint"
+                        + " FROM modifications mods "
+                        + "     INNER JOIN pipelineMaterialRevisions pmr ON (mods.id >= pmr.fromRevisionId AND mods.id <= pmr.toRevisionId) AND mods.materialId = pmr.materialId "
                         + "     INNER JOIN pipelines p ON pmr.pipelineId = p.id"
-                        + "     INNER JOIN materials m ON mod.materialId = m.id"
+                        + "     INNER JOIN materials m ON mods.materialId = m.id"
                         + " WHERE pmr.pipelineId IN (:ids)");
 
                 @SuppressWarnings({"unchecked"})
                 List<Object[]> allModifications = query.
-                        addEntity("mod", Modification.class).
+                        addEntity("mods", Modification.class).
                         addScalar("pmrPipelineId", new LongType()).
                         addScalar("pmrPipelineName", new StringType()).
                         addScalar("materialType", new StringType()).

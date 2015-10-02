@@ -1,0 +1,191 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', './environment_variables_config_widget', './tasks_config_widget', './artifacts_config_widget', './properties_config_widget', './tabs_config_widget'], function (m, _, f, tt, EnvironmentVariablesConfigWidget, TasksConfigWidget, ArtifactsConfigWidget, PropertiesConfigWidget, TabsConfigWidget) {
+
+  var JobTimeout = {
+    view: function (ctrl, args, children) {
+      var job       = args.job;
+      var radioName = 'radio-' + job.uuid() + '-timeout';
+
+      var isCustomValue = m.prop(false);
+
+      var useValue = function (newValue) {
+        return function (evt) {
+          isCustomValue(false);
+          job.timeout(newValue);
+        };
+      };
+
+      var customValue = function (e) {
+        isCustomValue(false);
+      };
+
+      var noTimeout = function () {
+        return job.timeout() === 0;
+      };
+
+      var defaultTimeout = function () {
+        return _.isUndefined(job.timeout()) || _.isNull(job.timeout());
+      };
+
+      var otherTimeout = function () {
+        return _.isNumber(job.timeout()) && job.timeout() !== 0;
+      };
+
+      return (
+        <div>
+          <label>
+            Timeout
+            <f.tooltip tooltip={{
+                          content: tt.job.timeout,
+                          size: 'small',
+                          direction: 'bottom'
+                        }}
+                       model={job}
+                       attrName='timeout'/>
+          </label>
+
+          <div>
+            <input type='radio'
+                   name={radioName}
+                   id={radioName + '-none'}
+                   checked={noTimeout()}
+                   onchange={useValue(0)}/>
+            <label for={radioName + '-none'}>None</label>
+
+            <input type='radio'
+                   name={radioName}
+                   id={radioName + '-default'}
+                   checked={defaultTimeout()}
+                   onchange={useValue(null)}/>
+            <label for={radioName + '-default'}>Default</label>
+
+            <input type='radio'
+                   name={radioName}
+                   id={radioName + '-custom'}
+                   checked={otherTimeout()}
+                   onchange={customValue}/>
+            <label for={radioName + '-custom'}>
+              Cancel after{' '}
+              <input type='text'
+                     style={{display: 'inline', width: '50px'}} size={3}
+                     onchange={m.withAttr('value', job.timeout)}
+                     disabled={isCustomValue()}/>{' '}
+              minute(s) of inactivity</label>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  var JobsConfigWidget = {
+    controller: function (args) {
+      this.jobs             = args.jobs;
+      this.selectedJobIndex = args.selectedJobIndex;
+
+      this.appendJob = function () {
+        var newJob = this.jobs.createJob();
+        this.selectedJobIndex(this.jobs.indexOfJob(newJob));
+      };
+
+      this.removeJob = function (job) {
+        var previousJob = this.jobs.previousJob(job);
+        this.jobs.removeJob(job);
+
+        var firstJob = this.jobs.firstJob() || this.jobs.createJob();
+        this.selectedJobIndex(this.jobs.indexOfJob(previousJob || firstJob));
+      };
+
+      this.selectedJobIndex(this.jobs.indexOfJob(this.jobs.firstJob() || this.jobs.createJob()));
+    },
+
+    view: function (ctrl) {
+      return (
+        <div>
+          <f.tabs class="job-definitions"
+                  tabTitles={ctrl.jobs.collectJobProperty('name')}
+                  tabKeys={ctrl.jobs.collectJobProperty('uuid')}
+                  isVertical={true}
+                  selectedIndex={ctrl.selectedJobIndex}>
+            {ctrl.jobs.mapJobs(function (job) {
+              return (
+                <f.row class='job-definition' key={job.uuid()}>
+                  <f.column size={9}>
+                    <f.removeButton onclick={ctrl.removeJob.bind(ctrl, job)} class='remove-job'/>
+                    <f.row>
+                      <f.inputWithLabel
+                        attrName='name'
+                        model={job}/>
+
+                      <f.inputWithLabel
+                        attrName='resources'
+                        model={job}
+                        tooltip={{
+                          content: tt.job.resources,
+                          direction: 'bottom',
+                          size: 'small'
+                        }}/>
+
+                      <f.column size={6} end={true}>
+                        <JobTimeout job={job}/>
+                      </f.column>
+                    </f.row>
+
+                    <f.row>
+                      <f.column size={12} end={true}>
+                        <EnvironmentVariablesConfigWidget variables={job.environmentVariables()}/>
+                      </f.column>
+                    </f.row>
+
+                    <f.row>
+                      <f.column size={12} end={true}>
+                        <TasksConfigWidget tasks={job.tasks()}/>
+                      </f.column>
+                    </f.row>
+
+                    <f.row>
+                      <f.column size={12}>
+                        <f.tabs tabTitles={['Artifacts', 'Tabs', 'Properties']}
+                                tabKeys={['artifacts', 'tabs', 'properties']}>
+                          <ArtifactsConfigWidget artifacts={job.artifacts()}/>
+                          <TabsConfigWidget tabs={job.tabs()}/>
+                          <PropertiesConfigWidget properties={job.properties()}/>
+                        </f.tabs>
+                      </f.column>
+                    </f.row>
+
+                  </f.column>
+                </f.row>
+              );
+            })}
+          </f.tabs>
+          <f.row>
+            <f.column size={2} end={true}>
+              <div class='add-job'>
+                <a href="javascript:void(0)"
+                   onclick={ctrl.appendJob.bind(ctrl)}
+                   class='add-job'>Add Job</a>
+              </div>
+            </f.column>
+          </f.row>
+        </div>
+      );
+    }
+  };
+
+  return JobsConfigWidget;
+});

@@ -34,6 +34,10 @@ public abstract class AbstractExtension {
         this.pluginRequestHelper = pluginRequestHelper;
     }
 
+    public boolean isPluginOfType(String pluginId, String extensionName) {
+        return pluginManager.isPluginOfType(extensionName, pluginId);
+    }
+
     public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, new PluginInteractionCallback<PluginSettingsConfiguration>() {
             @Override

@@ -1,0 +1,93 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+@import 'normalize-3.0.2';
+@import 'foundation_and_overrides';
+// make sure to load after foundation
+@import "bourbon";
+@import './_font-awesome-glyphs';
+
+form {
+  .switch.inline {
+    display:        inline-block;
+    padding-top:    21px;
+    padding-bottom: 0;
+    margin-bottom:  0;
+    ~ label {
+      display:      inline-block;
+      position:     relative;
+      top:          -7px;
+      padding-left: $column-gutter/2;
+
+      &.has-tooltip {
+        ~ .tooltip-wrapper {
+          display:  inline-block;
+          position: relative;
+          top:      -7px;
+        }
+      }
+    }
+  }
+
+  .accordion-navigation {
+    border: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+
+    > a {
+      padding-right: 10px;
+      @include icon-before(chevron-right);
+    }
+
+    &.active > a {
+      @include icon-before(chevron-down);
+    }
+  }
+
+  .tooltip-question-mark {
+    @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-font-color, $margin: 0, $line-height: $form-label-line-height){
+      margin-left:  10px;
+      margin-right: 10px;
+    }
+  }
+
+  label {
+    display: inline-block;
+  }
+
+  .tooltip-content {
+    cursor:    auto;
+    font-size: rem-calc(13px);
+    * {
+      font-size: rem-calc(13px);
+    }
+  }
+
+  .f-dropdown {
+    > *:only-child {
+      > *:first-child { margin-top: 0; }
+      > *:last-child  { margin-bottom: 0; }
+    }
+
+    &.tiny    { width: 200px; }
+    &.small   { width: 300px; }
+    &.medium  { width: 500px; }
+    &.large   { width: 800px; }
+  }
+}
+
+@import './_pipeline';
+@import './_footer';
+@import './_navigation';
+

@@ -31,6 +31,8 @@ import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
@@ -230,6 +232,20 @@ public class StageMother {
         stage.setCounter(1);
         return stage;
     }
+
+    public static StageInstanceModel toStageInstanceModel(Stage stage) {
+        StageInstanceModel stageInstanceModel = new StageInstanceModel(stage.getName(), String.valueOf(stage.getCounter()), stage.getResult(), stage.getIdentifier());
+        stageInstanceModel.setApprovalType(stage.getApprovalType());
+        stageInstanceModel.setApprovedBy(stage.getApprovedBy());
+        stageInstanceModel.setRerunOfCounter(stage.getRerunOfCounter());
+        JobHistory jobHistory = new JobHistory();
+        for (JobInstance jobInstance : stage.getJobInstances()) {
+            jobHistory.addJob(jobInstance.getName(), jobInstance.getState(), jobInstance.getResult(), jobInstance.getScheduledDate());
+        }
+        stageInstanceModel.setBuildHistory(jobHistory);
+        return stageInstanceModel;
+    }
+
 
     public  static Stage unrunStage(String stageName) {
         return new NullStage(stageName, new JobInstances());

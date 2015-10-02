@@ -15,15 +15,12 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutListener;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import org.apache.log4j.Logger;
@@ -32,7 +29,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +47,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     private ScmMaterialCheckoutService checkoutService;
 
     // value is partial config instance or last exception
-    private Map<String,PartialConfigParseResult> fingerprintLatestConfigMap = new ConcurrentHashMap<String,PartialConfigParseResult>();
+    private Map<String,PartialConfigParseResult> fingerprintOfPartialToLatestParseResultMap = new ConcurrentHashMap<String,PartialConfigParseResult>();
 
     private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<PartialConfigUpdateCompletedListener>();
 
@@ -74,7 +70,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
     public boolean latestParseHasFailedForMaterial(MaterialConfig material) {
         String fingerprint = material.getFingerprint();
-        PartialConfigParseResult result = fingerprintLatestConfigMap.get(fingerprint);
+        PartialConfigParseResult result = fingerprintOfPartialToLatestParseResultMap.get(fingerprint);
         if (result == null)
             return false;
         return  result.getLastFailure() != null;
@@ -83,7 +79,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     public PartialConfig latestPartialConfigForMaterial(MaterialConfig material) throws Exception
     {
         String fingerprint = material.getFingerprint();
-        PartialConfigParseResult result = fingerprintLatestConfigMap.get(fingerprint);
+        PartialConfigParseResult result = fingerprintOfPartialToLatestParseResultMap.get(fingerprint);
         if(result == null)
             return  null;
         if(result.getLastFailure() != null)
@@ -95,17 +91,14 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     @Override
     public void onChangedRepoConfigWatchList(ConfigReposConfig newConfigRepos)
     {
-        boolean removedAny = false;
         // remove partial configs from map which are no longer on the list
-        for(String fingerprint : this.fingerprintLatestConfigMap.keySet())
+        for(String fingerprint : this.fingerprintOfPartialToLatestParseResultMap.keySet())
         {
             if(!newConfigRepos.hasMaterialWithFingerprint(fingerprint))
             {
-                this.fingerprintLatestConfigMap.remove(fingerprint);
-                removedAny = true;
+                this.fingerprintOfPartialToLatestParseResultMap.remove(fingerprint);
             }
         }
-        //TODO maybe fire event about changed partials collection
     }
 
     @Override
@@ -133,7 +126,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             catch (Exception ex)
             {
                 // TODO make sure this is clearly shown to user
-                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(ex));
+                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(ex));
                 LOGGER.error(String.format("Failed to get config plugin for %s",
                         material.getDisplayName()));
                 notifyFailureListeners(repoConfig, ex);
@@ -143,7 +136,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 //TODO put modifications and previous partial config in context
                 // the context is just a helper for plugin.
                 PartialConfigLoadContext context = new LoadContext(repoConfig);
-                PartialConfig newPart = plugin.Load(folder, context);
+                PartialConfig newPart = plugin.load(folder, context);
                 if(newPart == null)
                 {
                     LOGGER.warn(String.format("Parsed configuration material %s by %s is null",
@@ -151,14 +144,14 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                     newPart = new PartialConfig();
                 }
 
-                newPart.setOrigins(new RepoConfigOrigin(repoConfig, revision));
-                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(newPart));
+                newPart.setOrigins(new RepoConfigOrigin(repoConfig,revision));
+                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(newPart));
                 notifySuccessListeners(repoConfig, newPart);
             }
             catch (Exception ex)
             {
                 // TODO make sure this is clearly shown to user
-                fingerprintLatestConfigMap.put(fingerprint, new PartialConfigParseResult(ex));
+                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(ex));
                 LOGGER.error(String.format("Failed to parse configuration material %s by %s",
                         material.getDisplayName(),plugin));
                 notifyFailureListeners(repoConfig, ex);

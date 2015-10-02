@@ -27,18 +27,18 @@ import static org.mockito.Mockito.mock;
 public class Jetty9ServletHelperTest {
     @Test
     public void shouldGetInstanceOfServletHelper(){
-        ServletHelper.init(true);
+        ServletHelper.init();
         assertThat(ServletHelper.getInstance() instanceof Jetty9ServletHelper, is(true));
     }
 
     @Test
-    public void shouldGetJetty6Request() {
+    public void shouldGetJetty9Request() {
         ServletRequest request = new Jetty9ServletHelper().getRequest(mock(Request.class));
         assertThat(request instanceof Jetty9Request, is(true));
     }
 
     @Test
-    public void shouldGetJetty6Response() {
+    public void shouldGetJetty9Response() {
         ServletResponse response = new Jetty9ServletHelper().getResponse(mock(Response.class));
         assertThat(response instanceof Jetty9Response, is(true));
     }

@@ -30,9 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GoPartialConfigTest {
 
@@ -50,7 +48,7 @@ public class GoPartialConfigTest {
     File folder = new File("dir");
 
     @Before
-    public void SetUp()
+    public void setUp()
     {
         configPluginService = mock(GoConfigPluginService.class);
         plugin = mock(PartialConfigProvider.class);
@@ -69,19 +67,19 @@ public class GoPartialConfigTest {
     }
 
     @Test
-    public void shouldReturnEmptyArrayWhenWatchListEmpty()
+    public void shouldReturnEmptyListWhenWatchListEmpty()
     {
-        assertThat(partialConfig.lastPartials().length,is(0));
+        assertThat(partialConfig.lastPartials().isEmpty(),is(true));
     }
     @Test
-    public void shouldReturnEmptyArrayWhenNothingParsedYet_AndWatchListNotEmpty()
+    public void shouldReturnEmptyListWhenNothingParsedYet_AndWatchListNotEmpty()
     {
-        SetOneConfigRepo();
+        setOneConfigRepo();
 
-        assertThat(partialConfig.lastPartials(),is(new PartialConfig[0]));
+        assertThat(partialConfig.lastPartials().isEmpty(),is(true));
     }
 
-    private ScmMaterialConfig SetOneConfigRepo() {
+    private ScmMaterialConfig setOneConfigRepo() {
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material,"myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
@@ -91,70 +89,70 @@ public class GoPartialConfigTest {
     @Test
     public void shouldReturnLatestPartialAfterCheckout_AndWatchListNotEmpty() throws Exception
     {
-        ScmMaterialConfig material = SetOneConfigRepo();
+        ScmMaterialConfig material = setOneConfigRepo();
 
         PartialConfig part = new PartialConfig();
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        assertThat(partialConfig.lastPartials().length, is(1));
-        assertThat(partialConfig.lastPartials()[0], is(part));
+        assertThat(partialConfig.lastPartials().size(), is(1));
+        assertThat(partialConfig.lastPartials().get(0), is(part));
     }
     @Test
-    public void shouldReturnEmptyArray_WhenFirstParsingFailed() throws Exception
+    public void shouldReturnEmptyList_WhenFirstParsingFailed()
     {
-        ScmMaterialConfig material = SetOneConfigRepo();
+        ScmMaterialConfig material = setOneConfigRepo();
 
         PartialConfig part = new PartialConfig();
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenThrow(new RuntimeException("Failed parsing"));
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
         assertThat(repoConfigDataSource.latestParseHasFailedForMaterial(material),is(true));
 
-        assertThat(partialConfig.lastPartials().length,is(0));
+        assertThat(partialConfig.lastPartials().size(),is(0));
     }
     @Test
     public void shouldReturnFirstPartial_WhenFirstParsedSucceed_ButSecondFailed() throws Exception
     {
-        ScmMaterialConfig material = SetOneConfigRepo();
+        ScmMaterialConfig material = setOneConfigRepo();
 
         PartialConfig part = new PartialConfig();
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenThrow(new RuntimeException("Failed parsing"));
         repoConfigDataSource.onCheckoutComplete(material,folder,"6354");
 
         assertThat(repoConfigDataSource.latestParseHasFailedForMaterial(material),is(true));
 
-        assertThat(partialConfig.lastPartials().length, is(1));
-        assertThat(partialConfig.lastPartials()[0], is(part));
+        assertThat(partialConfig.lastPartials().size(), is(1));
+        assertThat(partialConfig.lastPartials().get(0), is(part));
     }
 
     @Test
     public void shouldRemovePartialWhenNoLongerInWatchList() throws Exception
     {
-        ScmMaterialConfig material = SetOneConfigRepo();
+        ScmMaterialConfig material = setOneConfigRepo();
 
         PartialConfig part = new PartialConfig();
-        when(plugin.Load(any(File.class),any(PartialConfigLoadContext.class))).thenReturn(part);
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
 
         repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
 
-        assertThat(partialConfig.lastPartials().length, is(1));
-        assertThat(partialConfig.lastPartials()[0], is(part));
+        assertThat(partialConfig.lastPartials().size(), is(1));
+        assertThat(partialConfig.lastPartials().get(0), is(part));
 
         // we change current configuration
         ScmMaterialConfig othermaterial = new GitMaterialConfig("http://myother.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(othermaterial,"myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
-        assertThat(partialConfig.lastPartials().length,is(0));
+        assertThat(partialConfig.lastPartials().size(),is(0));
     }
 
     @Test
@@ -166,5 +164,20 @@ public class GoPartialConfigTest {
     public void shouldListenForCompletedParsing()
     {
         assertTrue(configWatchList.hasListener(partialConfig));
+    }
+
+    @Test
+    public void shouldNotifyListenersAfterUpdatingMapOfLatestValidConfig()
+    {
+        ScmMaterialConfig material = setOneConfigRepo();
+
+        PartialConfig part = new PartialConfig();
+        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
+
+        PartialConfigUpdateCompletedListener listener = mock(PartialConfigUpdateCompletedListener.class);
+        repoConfigDataSource.registerListener(listener);
+
+        repoConfigDataSource.onCheckoutComplete(material,folder,"7a8f");
+        verify(listener,times(1)).onSuccessPartialConfig(any(ConfigRepoConfig.class), any(PartialConfig.class));
     }
 }

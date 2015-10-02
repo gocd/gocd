@@ -67,8 +67,8 @@ public class SystemEnvironmentTest {
     @Test
     public void shouldFindJettyConfigInTheConfigDir() {
         assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty.xml")));
-        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty6.xml");
-        assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty6.xml")));
+        systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty-old.xml");
+        assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty-old.xml")));
     }
 
     @Test
@@ -199,13 +199,6 @@ public class SystemEnvironmentTest {
         assertThat(systemEnvironment.getActivemqUseJmx(), is(false));
         System.setProperty(SystemEnvironment.ACTIVEMQ_USE_JMX, "true");
         assertThat(systemEnvironment.getActivemqUseJmx(), is(true));
-    }
-
-    @Test
-    public void shouldReturnTheNumberOfDaysBelowWhichWarningPopupShouldShowForLicenseExpiry() {
-        assertThat(systemEnvironment.getLicenseExpiryWarningTime(), is(30));
-        System.setProperty(SystemEnvironment.NUMBER_OF_DAYS_TO_EXPIRY_PROPERTY, "2");
-        assertThat(systemEnvironment.getLicenseExpiryWarningTime(), is(2));
     }
 
     @Test

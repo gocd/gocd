@@ -32,12 +32,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class SecurityService {
     private GoConfigService goConfigService;
-    private GoLicenseService goLicenseService;
 
     @Autowired
-    public SecurityService(GoConfigService goConfigService, GoLicenseService goLicenseService) {
+    public SecurityService(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-        this.goLicenseService = goLicenseService;
     }
 
     public boolean hasViewPermissionForPipeline(Username username, String pipelineName) {

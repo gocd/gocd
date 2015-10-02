@@ -161,6 +161,10 @@ public class ValidationContext {
         return hasParentOfType(PipelineConfigs.class);
     }
 
+    public boolean isWithinPipeline() {
+        return hasParentOfType(PipelineConfig.class);
+    }
+
     private <T> boolean hasParentOfType(Class<T> validatable) {
         return getFirstOfType(validatable) != null;
     }

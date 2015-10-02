@@ -49,7 +49,7 @@ public class RedirectDuringBackupTest {
 
     @Before
     public void setUp() {
-        ServletHelper.init(true);
+        ServletHelper.init();
         provider = mock(BackupStatusProvider.class);
         this.redirectDuringBackup = new RedirectDuringBackup() {
             @Override protected BackupStatusProvider getBackupStatusProvider(HttpServletRequest req) {

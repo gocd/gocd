@@ -56,7 +56,7 @@ public abstract class PluginPreferenceStore<T extends PluginPreference> {
         return pluginIdPreferenceMap.containsKey(pluginId);
     }
 
-    public Set<String> pluginsWithPreference(){
+    public Set<String> pluginIds(){
         return pluginIdPreferenceMap.keySet();
     }
 

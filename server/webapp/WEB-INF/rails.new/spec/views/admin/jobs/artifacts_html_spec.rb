@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 
 describe "admin/jobs/artifacts.html.erb" do
   include GoUtil, FormUI
@@ -38,7 +38,7 @@ describe "admin/jobs/artifacts.html.erb" do
 
     expect(response.body).to have_selector("form input[type='hidden'][name='default_as_empty_list[]'][value='job>artifactPlans']")
   end
-  
+
   it "should have a heading as Artifacts with a title tooltip" do
     render
 

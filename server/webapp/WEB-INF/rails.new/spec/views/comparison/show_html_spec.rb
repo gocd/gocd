@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../spec_helper")
+require 'spec_helper'
 
 describe "comparison/show.html.erb" do
   include GoUtil, ReflectiveUtil, PipelineModelMother
@@ -143,7 +143,7 @@ describe "comparison/show.html.erb" do
     render :template => 'comparison/show.html.erb'
     expect(Capybara.string(response.body)).to have_content("http://test.host/api/card_activity/my-shiny-pipeline/10/to/20?show_bisect=true")
   end
-  
+
   it "should set show_bisect off as default when looking at bisect" do
     render :template => 'comparison/show.html.erb'
     expect(Capybara.string(response.body)).to have_content("http://test.host/api/card_activity/my-shiny-pipeline/10/to/20")

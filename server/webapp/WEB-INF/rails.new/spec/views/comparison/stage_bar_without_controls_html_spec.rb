@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../spec_helper")
+require 'spec_helper'
 
 describe "comparison/stage_bar_without_controls.html.erb" do
 

@@ -141,7 +141,7 @@ TabsWizard = function() {
             jQuery.validator.addMethod("pattern_match", function(value, element) {
                 var regex = /^[a-zA-Z0-9_\-]{1}[a-zA-Z0-9_\-.]*$/
                 return (value.length == 0) || regex.test(value);
-            }, "Value should contain only alphanumeric characters, underscore and period.");
+            }, "Value should contain only alphanumeric characters, dashes, underscores and periods.");
 
             jQuery.validator.addMethod("uniquePipelineName", function(value, element) {
                 var pipelines = allPipelines;

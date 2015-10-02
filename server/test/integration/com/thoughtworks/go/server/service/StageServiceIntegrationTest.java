@@ -25,8 +25,6 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.CcTrayStatus;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
@@ -106,7 +104,6 @@ public class StageServiceIntegrationTest {
     @Autowired private AgentService agentService;
     @Autowired private StageDao stageDao;
     @Autowired private PipelineSqlMapDao pipelineDao;
-    @Autowired private CcTrayStatus ccTrayStatus;
 	@Autowired private DatabaseAccessHelper dbHelper;
 	@Autowired private ScheduleHelper scheduleHelper;
     @Autowired private ScheduleService scheduleService;
@@ -348,34 +345,29 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldNotifyListenersWhenStageScheduled() throws Exception {
-        ccTrayStatus.clear();
-        Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext(
-                "anonumous"), md5, new TimeProvider());
+        StageStatusListener listener = mock(StageStatusListener.class);
+        stageService.addStageStatusListener(listener);
+
+        Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(),
+                new DefaultSchedulingContext("anonymous"), md5, new TimeProvider());
         Stage savedStage = stageService.save(savedPipeline, newInstance);
-        assertThat(ccTrayStatus.projects().size(), is(4));
-        assertThat(ccTrayStatus.projects(), hasItem(new ProjectStatus(savedStage.getIdentifier().ccProjectName(),
-                savedStage.stageState().cctrayActivity(), savedStage.getIdentifier().webUrl())));
-        JobInstance jobInstance = savedStage.getJobInstances().first();
-        assertThat(ccTrayStatus.projects(), hasItem(new ProjectStatus(jobInstance.getIdentifier().ccProjectName(),
-                jobInstance.getState().cctrayActivity(), jobInstance.getIdentifier().webUrl())));
+
+        verify(listener).stageStatusChanged(savedStage);
     }
 
-    @Test public void shouldUpdateCcTrayFeedAfterStageIsCancelled() throws SQLException {
-        ccTrayStatus.clear();
+    @Test
+    public void shouldNotifyListenersAfterStageIsCancelled() throws SQLException {
+        StageStatusListener listener = mock(StageStatusListener.class);
+        stageService.addStageStatusListener(listener);
+
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 stageService.cancelStage(stage);
             }
         });
         stage = stageService.stageById(stage.getId());
-        StageIdentifier identifier = stage.getIdentifier();
-        assertThat(ccTrayStatus.getProject(identifier.ccProjectName()),
-                is(new ProjectStatus(identifier.ccProjectName(),
-                                     stage.stageState().cctrayActivity(),
-                                     stage.stageState().cctrayStatus(),
-                                     identifier.ccTrayLastBuildLabel(),
-                                     stage.completedDate(),
-                                     identifier.webUrl())));
+
+        verify(listener).stageStatusChanged(stage);
     }
 
     @Test public void shouldLookupModifiedStageById_afterCancel() throws SQLException {
@@ -449,19 +441,12 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldNotifyListenerOnStageStatusChange() throws Exception {
-        ccTrayStatus.clear();
+        StageStatusListener listener = mock(StageStatusListener.class);
+
+        stageService.addStageStatusListener(listener);
         stageService.updateResult(stage);
 
-        assertThat(ccTrayStatus.projects().size(), is(4));
-
-        String stageProjectName = String.format("%s :: %s", stage.getIdentifier().getPipelineName(), stage.getName());
-        assertThat(stageProjectName + " should be in cctray feed", ccTrayStatus.containsProject(stageProjectName),
-                is(true));
-
-        String jobProjectName = String.format("%s :: %s :: %s", stage.getIdentifier().getPipelineName(),
-                stage.getName(), stage.getJobInstances().first().getName());
-        assertThat(jobProjectName + " should be in cctray feed", ccTrayStatus.containsProject(jobProjectName),
-                is(true));
+        verify(listener).stageStatusChanged(stage);
     }
 
     @Test

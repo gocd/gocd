@@ -49,7 +49,6 @@ module Admin
       @users = user_service.allUsersForDisplay(UserService::SortableColumn.valueOf((params[:column] || "username").upcase), UserService::SortDirection.valueOf(params[:order] || "ASC"))
       @total_enabled_users = user_service.enabledUserCount()
       @total_disabled_users = user_service.disabledUserCount()
-      @permitted_users = go_license_service.maximumUsersAllowed()
     end
 
     skip_before_filter :verify_authenticity_token, :only => :operate #NOT_IN_PRODUCTION twist uses this to simulate admin changing user privileges while user is logged in on browser
@@ -92,11 +91,6 @@ module Admin
       user_service.deleteAll() #NOT_IN_PRODUCTION
       render :text => 'Deleted' #NOT_IN_PRODUCTION
     end #NOT_IN_PRODUCTION
-
-    def dismiss_license_expiry_warning
-      user_service.disableLicenseExpiryWarning(current_user_entity_id)
-      render :text => "Disabled successfully"
-    end
 
     def determine_layout
       %w(users).include?(action_name) || %w(operate).include?(action_name) ? "admin" : false

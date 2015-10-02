@@ -25,10 +25,12 @@ class Api::ServerController < Api::ApiController
 
   def capture_support_info
     information = server_status_service.captureServerInfo(current_user, result = HttpLocalizedOperationResult.new)
-    if !result.isSuccessful()
-      render_localized_operation_result result && return
+
+    if result.isSuccessful()
+      render text: information, layout: false
+    else
+      render_localized_operation_result(result)
     end
 
-    send_data information, disposition: "inline", stream: false, type: "text"
   end
 end

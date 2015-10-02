@@ -262,7 +262,7 @@ public class GoFileConfigDataSource {
         String modifiedConfigAsXml = convertMutatedConfigToXml(modifiedConfig, latestMd5);
 
         GoConfigRevision configRevision = new GoConfigRevision(modifiedConfigAsXml, "temporary-md5-for-branch", getConfigUpdatingUser(noOverwriteCommand).getUserName(),
-                serverVersion.version(), modifiedConfig.edition(), timeProvider);
+                serverVersion.version(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
         validateMergedXML(mergedConfigXml, latestMd5);
@@ -303,7 +303,7 @@ public class GoFileConfigDataSource {
         GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content);
         CruiseConfig config = configHolder.config;
         reloadStrategy.latestState(config);
-        configRepository.checkin(new GoConfigRevision(content, configHolder.configForEdit.getMd5(), configModifyingUser.getUserName(), serverVersion.version(), config.edition(), timeProvider));
+        configRepository.checkin(new GoConfigRevision(content, configHolder.configForEdit.getMd5(), configModifyingUser.getUserName(), serverVersion.version(), timeProvider));
         return configHolder;
     }
 

@@ -41,7 +41,6 @@ public class  User extends PersistentObject {
     private boolean emailMe;
     private boolean enabled;
     private List<NotificationFilter> notificationFilters = new ArrayList<NotificationFilter>();
-    private boolean disableLicenseExpiryWarning;
 
     public User() {
     }
@@ -200,7 +199,7 @@ public class  User extends PersistentObject {
     }
 
     public String toString() {
-        return String.format("User[name=%s, displayName= %s, matcher=%s, email=%s, emailMe=%s, disableLicenseExpiryWarning=%s]", name, displayName, matcher, email, emailMe, disableLicenseExpiryWarning);
+        return String.format("User[name=%s, displayName= %s, matcher=%s, email=%s, emailMe=%s]", name, displayName, matcher, email, emailMe);
     }
 
     public List<NotificationFilter> getNotificationFilters() {
@@ -256,14 +255,6 @@ public class  User extends PersistentObject {
 
     public boolean isAnonymous() {
         return this.name.equals(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()));
-    }
-
-    public boolean hasDisabledLicenseExpiryWarning() {
-        return disableLicenseExpiryWarning;
-    }
-
-    public void disableLicenseExpiryWarning() {
-        disableLicenseExpiryWarning = true;
     }
 
     public void addNotificationFilter(NotificationFilter another) {

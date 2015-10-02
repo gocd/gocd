@@ -36,7 +36,6 @@ import static java.util.Arrays.asList;
 public class SchedulingCheckerService {
     private final GoConfigService goConfigService;
     private final CurrentActivityService activityService;
-    private final GoLicenseService licenseService;
     private final SystemEnvironment systemEnvironment;
     private final SecurityService securityService;
     private final PipelineLockService pipelineLockService;
@@ -49,7 +48,6 @@ public class SchedulingCheckerService {
     @Autowired
     public SchedulingCheckerService(GoConfigService goConfigService,
                                     CurrentActivityService activityService,
-                                    GoLicenseService licenseService,
                                     SystemEnvironment systemEnvironment,
                                     SecurityService securityService,
                                     PipelineLockService pipelineLockService,
@@ -58,7 +56,6 @@ public class SchedulingCheckerService {
                                     PipelinePauseService pipelinePauseService) {
         this.goConfigService = goConfigService;
         this.activityService = activityService;
-        this.licenseService = licenseService;
         this.systemEnvironment = systemEnvironment;
         this.securityService = securityService;
         this.pipelineLockService = pipelineLockService;
@@ -75,7 +72,7 @@ public class SchedulingCheckerService {
     }
 
     public boolean canTriggerManualPipeline(PipelineConfig pipelineConfig, String username, OperationResult result) {
-        CompositeChecker checker = buildScheduleCheckers(asList(manualTriggerCheckers(pipelineConfig, username), new LicenseChecker(licenseService), diskCheckers()));
+        CompositeChecker checker = buildScheduleCheckers(asList(manualTriggerCheckers(pipelineConfig, username), diskCheckers()));
         checker.check(result);
         return result.canContinue();
     }
@@ -91,8 +88,7 @@ public class SchedulingCheckerService {
     }
 
     public boolean canSchedule(OperationResult result) {
-        CompositeChecker checker = buildScheduleCheckers(
-                asList(new EnabledUsersLicenseLimitChecker(userService, licenseService, serverHealthService), new LicenseChecker(licenseService), diskCheckers()));
+        CompositeChecker checker = buildScheduleCheckers(asList(diskCheckers()));
         checker.check(result);
         return result.canContinue();
     }
@@ -123,7 +119,6 @@ public class SchedulingCheckerService {
         String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
 
         SchedulingChecker checker = buildScheduleCheckers(asList(
-                new EnabledUsersLicenseLimitChecker(userService, licenseService, serverHealthService),
                 new PipelineLockChecker(pipelineName, pipelineLockService),
                 new ManualPipelineChecker(pipelineConfig),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
@@ -136,7 +131,7 @@ public class SchedulingCheckerService {
                                  OperationResult result) {
         String pipelineName = pipelineIdentifier.getName();
 
-        SchedulingChecker canRerunChecker = buildScheduleCheckers(asList(new EnabledUsersLicenseLimitChecker(userService, licenseService, serverHealthService),
+        SchedulingChecker canRerunChecker = buildScheduleCheckers(asList(
                 new StageAuthorizationChecker(pipelineName, stageName, username, securityService),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
                 new PipelineActiveChecker(activityService, pipelineIdentifier),
@@ -151,7 +146,6 @@ public class SchedulingCheckerService {
                                     final OperationResult result) {
         String pipelineName = pipelineIdentifier.getName();
         CompositeChecker checker = buildScheduleCheckers(asList(
-                new EnabledUsersLicenseLimitChecker(userService, licenseService, serverHealthService),
                 new StageAuthorizationChecker(pipelineName, stageName, username, securityService),
                 new StageLockChecker(pipelineIdentifier, pipelineLockService),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
@@ -178,8 +172,6 @@ public class SchedulingCheckerService {
         String stageName = CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name());
 
         return new CompositeChecker(
-                new LicenseChecker(licenseService),
-                new EnabledUsersLicenseLimitChecker(userService, licenseService, serverHealthService),
                 new AboutToBeTriggeredChecker(pipelineName, triggerMonitor, pipelineScheduleQueue),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
                 new StageActiveChecker(pipelineName, stageName, activityService),

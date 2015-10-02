@@ -56,11 +56,9 @@ public class MagicalGoConfigXmlLoader {
             new ConfigParamPreprocessor());
 
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
-            new TaskWorkingFolderValidator(),
             new ArtifactDirValidator(),
             new EnvironmentAgentValidator(),
             new EnvironmentPipelineValidator(),
-            new JobNameValidator(),
             new ServerIdImmutabilityValidator(),
             new CommandRepositoryLocationValidator(new SystemEnvironment())
     );

@@ -24,7 +24,12 @@ Java::JavaUtil::Date.class_eval do
   end
 
   def to_long_display_date_time
-    pattern = java.text.SimpleDateFormat.new("dd MMM, yyyy 'at' HH:mm:ss [Z]" )
+    pattern = java.text.SimpleDateFormat.new("dd MMM, yyyy 'at' HH:mm:ss [Z]")
     pattern.format(self)
   end
+
+  def as_json(options = nil)
+    Time.zone.at(self.getTime().to_f/1000).as_json(options)
+  end
+
 end

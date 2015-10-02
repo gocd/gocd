@@ -109,7 +109,7 @@ public class AuthenticationExtension extends AbstractExtension {
     }
 
     public boolean isAuthenticationPlugin(String pluginId) {
-        return pluginManager.isPluginOfType(EXTENSION_NAME, pluginId);
+        return isPluginOfType(pluginId, EXTENSION_NAME);
     }
 
     Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {

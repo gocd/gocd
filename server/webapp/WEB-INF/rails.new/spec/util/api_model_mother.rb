@@ -346,7 +346,6 @@ module APIModelMother
     @config_revision_view_model.stub(:getMd5).and_return('md5')
     @config_revision_view_model.stub(:getUsername).and_return('user name')
     @config_revision_view_model.stub(:getGoVersion).and_return('version')
-    @config_revision_view_model.stub(:getGoEdition).and_return('edition')
     time = double('time')
     time.stub(:getTime).and_return(12345678)
     @config_revision_view_model.stub(:getTime).and_return(time)
@@ -360,7 +359,6 @@ module APIModelMother
     @config_revision_view_model.stub(:getMd5).and_return(nil)
     @config_revision_view_model.stub(:getUsername).and_return(nil)
     @config_revision_view_model.stub(:getGoVersion).and_return(nil)
-    @config_revision_view_model.stub(:getGoEdition).and_return(nil)
     @config_revision_view_model.stub(:getTime).and_return(nil)
     @config_revision_view_model.stub(:getSchemaVersion).and_return(nil)
     @config_revision_view_model.stub(:getCommitSHA).and_return(nil)
@@ -369,6 +367,9 @@ module APIModelMother
 
   def create_pipeline_status_model
     @pipeline_status_model = double('PipelineStatusViewModel')
+    @pipeline_status_model.stub(:isPaused).and_return(true)
+    @pipeline_status_model.stub(:pausedCause).and_return('Pausing it for some reason')
+    @pipeline_status_model.stub(:pausedBy).and_return('admin')
     @pipeline_status_model.stub(:isPaused).and_return(true)
     @pipeline_status_model.stub(:isLocked).and_return(true)
     @pipeline_status_model.stub(:isSchedulable).and_return(true)

@@ -32,15 +32,14 @@
     <context:component-scan base-package="com.thoughtworks.go.server.search"/>
     <context:component-scan base-package="com.thoughtworks.go.server.ui"/>
     <context:component-scan base-package="com.thoughtworks.go.server.web"/>
-    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+        <property name="alwaysUseFullPath" value="true"></property>
+    </bean>
 
     <bean id="interceptorInjector"
           class="com.thoughtworks.go.server.web.InterceptorInjector">
         <property name="interceptors">
             <list>
-                <ref bean="licenseInterceptor"/>
-                <ref bean="licenseExpiryInterceptor"/>
-                <ref bean="licensedAgentInterceptor"/>
                 <ref bean="authorizationInterceptor"/>
                 <ref bean="tabInterceptor"/>
                 <ref bean="myGoInterceptor"/>

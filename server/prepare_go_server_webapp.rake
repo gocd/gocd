@@ -178,13 +178,19 @@ end
 
 task :precompile_assets do
   cd rails_root do
-    sh_with_environment("#{ruby_executable} -S ./bin/rake assets:clobber assets:precompile", {'RAILS_ENV' => 'production', 'CLASSPATH' => classpath})
+    sh_with_environment("#{ruby_executable} -S ./bin/rake --trace assets:clobber assets:precompile", {'RAILS_ENV' => 'production', 'CLASSPATH' => classpath})
   end
 end
 
 task :jasmine_tests do
   cd rails_root do
-    sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", {'RAILS_ENV' => 'test', 'REPORTERS' => 'console,junit', 'CLASSPATH' => classpath})
+    environment = {
+      'RAILS_ENV'           => 'test',
+      'REPORTERS'           => 'console,junit',
+      'CLASSPATH'           => classpath
+    }
+    sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", environment.merge('JASMINE_CONFIG_PATH' => './spec/javascripts/support/jasmine-ci-old.yml'))
+    sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", environment.merge("JASMINE_CONFIG_PATH" => './spec/javascripts/support/jasmine-ci-new.yml', 'REQUIRE_JS' => 'true'))
   end
 end
 
@@ -336,6 +342,7 @@ SANITIZE_FOR_PRODUCTION = NotInProduction.new('target/webapp', {"WEB-INF/#{RAILS
 
 task :change_rails_env_to_production do
   replace_content_in_file("target/webapp/WEB-INF/web.xml", "<param-value>development</param-value>", "<param-value>production</param-value>")
+  replace_content_in_file("target/webapp/WEB-INF/applicationContext-acegi-security.xml", /^.*_not_in_production.*$/, '' ) unless ENV['ALLOW_NON_PRODUCTION_CODE'] == 'yes'
 
   SANITIZE_FOR_PRODUCTION.each do |src_dir, dest_dir, file_name|
     replace_content_in_file("#{src_dir}/#{file_name}", /^.*#NOT_IN_PRODUCTION.*$/, '' )

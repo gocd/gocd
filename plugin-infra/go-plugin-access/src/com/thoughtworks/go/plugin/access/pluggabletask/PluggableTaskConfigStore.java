@@ -30,7 +30,7 @@ public class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreferen
     @Deprecated
     // only for test usage
     public void clear() {
-        Set<String> plugins = pluginsWithPreference();
+        Set<String> plugins = pluginIds();
         for (String pluginId : plugins) {
             removePreferenceFor(pluginId);
         }

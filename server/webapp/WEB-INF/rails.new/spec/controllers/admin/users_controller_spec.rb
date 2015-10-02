@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe Admin::UsersController do
   include MockRegistryModule
@@ -27,36 +27,26 @@ describe Admin::UsersController do
   end
 
   describe "users" do
-    before do
-      @licence_service = double('licence_service')
-      controller.stub(:go_license_service).and_return(@licence_service)
-
-    end
-
     it "should load users and aggregations" do
       @user_service.should_receive(:allUsersForDisplay).with(UserService::SortableColumn::USERNAME, UserService::SortDirection::ASC).and_return(['user', 'loser'])
       @user_service.should_receive(:enabledUserCount).and_return(1)
       @user_service.should_receive(:disabledUserCount).and_return(1)
-      @licence_service.should_receive(:maximumUsersAllowed).with().and_return(12)
       get :users
       assert_template layout: :admin
       assigns[:users].should == ['user', 'loser']
       assigns[:total_enabled_users].should == 1
       assigns[:total_disabled_users].should == 1
-      assigns[:permitted_users].should == 12
     end
 
     it "should honor column and direction requested" do
       @user_service.should_receive(:allUsersForDisplay).with(UserService::SortableColumn::EMAIL, UserService::SortDirection::DESC).and_return(['user', 'loser'])
       @user_service.should_receive(:enabledUserCount).and_return(1)
       @user_service.should_receive(:disabledUserCount).and_return(1)
-      @licence_service.should_receive(:maximumUsersAllowed).with().and_return(12)
       get :users, :column => "email", :order => 'DESC'
 
       assigns[:users].should == ['user', 'loser']
       assigns[:total_enabled_users].should == 1
       assigns[:total_disabled_users].should == 1
-      assigns[:permitted_users].should == 12
     end
   end
 
@@ -70,7 +60,7 @@ describe Admin::UsersController do
 
   describe "operate" do
     render_views
-    
+
     it "should match /admin/users/operate to" do
       expect(:post => "/admin/users/operate").to route_to({:controller => "admin/users", :action => 'operate'})
       expect(controller.send(:user_operate_path)).to eq("/admin/users/operate")
@@ -92,10 +82,10 @@ describe Admin::UsersController do
       users = [UserModel.new(User.new("user-1", ["Foo", "fOO", "FoO"], "foo@cruise.go", true), ["user", "loser"], false),
                  UserModel.new(User.new("loser-1", ["baR", "bAR", "BaR"], "bar@cruise.com", false), ["loser"], true)]
       @user_service.should_receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult)) do |u, r|
-        r.badRequest(LocalizedMessage.string("USER_LICENSE_LIMIT_EXCEEDED"))        
+        r.badRequest(LocalizedMessage.string("SELECT_AT_LEAST_ONE_USER"))
       end
       post :operate, :operation => "Enable", :selected => users
-      assert_redirected_with_flash("/admin/users", "User license limit exceeded", 'error')
+      assert_redirected_with_flash("/admin/users", "Please select one or more users.", 'error')
     end
 
     it "should show notify when there are no users selected" do
@@ -158,7 +148,7 @@ describe Admin::UsersController do
       assigns[:admin_selection].should == go_admin
     end
   end
-  
+
   describe "search" do
     before do
       @user_search_service = Object.new
@@ -227,8 +217,6 @@ describe Admin::UsersController do
     it "should create a new user" do
       user_service = double('user_service')
       controller.stub(:user_service).and_return(user_service)
-      controller.stub(:go_license_service).and_return(mock_license_service = double("license_service"))
-      mock_license_service.should_receive(:maximumUsersAllowed).and_return(10)
 
       params_selections = [{"name"=>"foo", "full_name"=>"Mr Foo", "email"=>"foo@cruise.com"},{"name"=>"Bar", "full_name"=>"Mr Bar", "email"=>"bar@cruise.com"}]
 
@@ -311,20 +299,4 @@ describe Admin::UsersController do
     end
   end
 
-  describe "dismiss_license_expiry_warning" do
-
-    it "should resolve routes" do
-      expect(:post => "/users/dismiss_license_expiry_warning").to route_to({:controller => "admin/users", :action => 'dismiss_license_expiry_warning', :no_layout=>true})
-      expect(controller.send(:dismiss_license_expiry_warning_path)).to eq("/users/dismiss_license_expiry_warning")
-    end
-
-    it "should disable the warning popup for the current user" do
-      @user_service.should_receive(:disableLicenseExpiryWarning).with(1)
-
-      post :dismiss_license_expiry_warning, :no_layout => true
-
-      response.body.should == "Disabled successfully"
-      response.status.should ==200
-    end
-  end
 end

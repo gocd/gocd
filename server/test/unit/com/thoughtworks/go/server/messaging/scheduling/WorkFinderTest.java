@@ -21,6 +21,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.BuildAssignmentService;
 import com.thoughtworks.go.server.service.WorkAssigner;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.FakeWork;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.when;
 @RunWith(JMock.class)
 public class WorkFinderTest {
     private Mockery context;
-    private WorkAssigner workAssigner;
+    private BuildAssignmentService workAssigner;
     private static final AgentIdentifier AGENT_1 = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
     private static final FakeWork SOME_WORK = new FakeWork();
     private static final NoWork NO_WORK = new NoWork();
@@ -52,7 +53,7 @@ public class WorkFinderTest {
     @Before
     public void before() {
         context = new ClassMockery();
-        workAssigner = context.mock(WorkAssigner.class);
+        workAssigner = context.mock(BuildAssignmentService.class);
         assignedWorkTopic = context.mock(WorkAssignedTopic.class, "assignedWork");
         idleAgentTopic = context.mock(IdleAgentTopic.class, "idleAgent");
         workAssignmentPerformanceLogger = mock(WorkAssignmentPerformanceLogger.class);
@@ -101,7 +102,7 @@ public class WorkFinderTest {
 
     @Test
     public void shouldReturnNoWorkInCaseOfAnErrorIsThrown() {
-        WorkAssigner assigner = mock(WorkAssigner.class);
+        BuildAssignmentService assigner = mock(BuildAssignmentService.class);
         IdleAgentTopic idleTopic = mock(IdleAgentTopic.class);
         WorkAssignedTopic assignedTopic = mock(WorkAssignedTopic.class);
         WorkFinder finder = new WorkFinder(assigner, idleTopic, assignedTopic, workAssignmentPerformanceLogger);

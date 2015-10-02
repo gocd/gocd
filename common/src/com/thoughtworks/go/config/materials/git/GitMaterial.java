@@ -40,9 +40,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
+import static com.thoughtworks.go.util.ExceptionUtils.*;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
+import static com.thoughtworks.go.util.FileUtil.deleteDirectoryNoisily;
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -194,7 +194,7 @@ public class GitMaterial extends ScmMaterial {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Invalid git working copy or repository changed. Delete folder: " + workingFolder);
             }
-            deleteFolder(workingFolder);
+            deleteDirectoryNoisily(workingFolder);
         }
         createParentFolderIfNotExist(workingFolder);
         if (!workingFolder.exists()) {

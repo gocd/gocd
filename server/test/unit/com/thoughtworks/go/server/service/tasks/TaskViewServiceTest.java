@@ -77,7 +77,7 @@ public class TaskViewServiceTest {
     }
 
     private void cleanupTaskPreferences() {
-        Set<String> plugins = PluggableTaskConfigStore.store().pluginsWithPreference();
+        Set<String> plugins = PluggableTaskConfigStore.store().pluginIds();
         for (String pluginId : plugins) {
             PluggableTaskConfigStore.store().removePreferenceFor(pluginId);
         }
@@ -258,7 +258,7 @@ public class TaskViewServiceTest {
             ReflectionUtil.setStaticField(PluggableTaskConfigStore.class, "PLUGGABLE_TASK_CONFIG_STORE", pluggableTaskConfigStore);
 
             String pluginId = "some.plugin.id";
-            when(pluggableTaskConfigStore.pluginsWithPreference()).thenReturn(s(pluginId));
+            when(pluggableTaskConfigStore.pluginIds()).thenReturn(s(pluginId));
             when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(null);
 
             TaskViewService taskViewService = new TaskViewService(registry, pluginManager);

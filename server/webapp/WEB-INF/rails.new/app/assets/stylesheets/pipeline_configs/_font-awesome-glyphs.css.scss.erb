@@ -1,0 +1,93 @@
+@charset "UTF-8";
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "font-awesome-sprockets";
+@import "font-awesome/variables";
+@import "font-awesome/path";
+
+<%
+  variables = {}
+  variable_definitions = File.read(File.join(Gem.loaded_specs['font-awesome-sass'].full_gem_path, 'assets/stylesheets/font-awesome/_variables.scss')).lines.grep(/\$fa-var-/).collect(&:strip)
+  variable_definitions.each do |definition|
+    definition =~ /\$fa-var-(.*): "\\(.*)";/
+    variables[$1] = $2;
+  end
+%>
+
+$fa-font-icons: (
+                <% variables.each do |name, unicode| %>
+                    fa-var-<%= name %>: '<%= unicode %>',
+                <% end %>
+                );
+
+@function unicode($str) {
+  @return unquote("\"")+unquote(str-insert($str, "\\", 1))+unquote("\"")
+}
+
+@mixin icon-glyph($icon) {
+  @if map-has-key($fa-font-icons, $icon) {
+    content: unicode(map-get($fa-font-icons, $icon));
+  } @else {
+    @error "Could not find icon #{$icon}";
+  }
+}
+
+@mixin icon($type, $size: auto, $margin: auto, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
+  @if $font == 'font-awesome' {
+    font-family: 'FontAwesome';
+    @include icon-glyph("fa-var-#{$type}");
+  } @else {
+    @error "Could not find font family #{$font}";
+  }
+
+  font-weight:            normal;
+  font-style:             normal;
+  display:                inline-block;
+  text-decoration:        inherit;
+  line-height: $line-height;
+
+  @if $margin != auto {
+    margin: $margin;
+  }
+  @if $size != auto {
+    font-size: $size;
+  }
+  @if $top != auto {
+    position: relative;
+    top:      $top;
+  }
+  @if $color != auto {
+    color: $color;
+  }
+  @if $shadow != none {
+    text-shadow: $shadow;
+  }
+  -webkit-font-smoothing: antialiased;
+}
+
+@mixin icon-before($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
+  &:before {
+    @include icon($type, $size, $margin, $line-height, $color, $top, $shadow, $font: $font);
+    @content;
+  }
+}
+
+@mixin icon-after($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
+  &:after {
+    @include icon($type, $size, $margin, $line-height, $color, $top, $shadow, $font: $font);
+    @content;
+  }
+}

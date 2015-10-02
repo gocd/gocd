@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 
 describe "admin/package_repositories/plugin_config.html.erb" do
   it "should render _config.html.erb" do

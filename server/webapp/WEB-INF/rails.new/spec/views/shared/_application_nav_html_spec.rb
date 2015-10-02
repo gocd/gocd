@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe "/shared/_application_nav.html.erb" do
   include GoUtil
@@ -91,7 +91,7 @@ describe "/shared/_application_nav.html.erb" do
 
       expect(response.body).to have_selector("#cruise-header-tab-pipelines.current")
     end
-    
+
     it "should mark admin tab as hilighted when current_tab override used" do
       assign(:current_tab_name, "admin")
       assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
@@ -143,42 +143,6 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:action] = 'index'
       render :partial => "shared/application_nav.html.erb", :locals => {:scope => {:admin_tab_url => "foo/admin"}}
       expect(response.body).to_not have_selector("script[type='text/javascript']")
-    end
-  end
-
-  describe "licese expiry warning" do
-
-    before :each do
-      allow(view).to receive(:can_view_admin_page?).and_return(false)
-    end
-
-    it "should not render the popup to show that the license is about to expire when the request attribute is not set" do
-      controller.request.path_parameters[:controller] = 'agents'
-      controller.request.path_parameters[:action] = 'index'
-      render :partial => "shared/application_nav.html.erb", :locals => {:scope => {:admin_tab_url => "foo/admin"}}
-
-      expect(response.body).to_not have_selector("div.license_about_to_expire")
-    end
-
-    it "should render the popup to show that the license is about to expire" do
-      session["LICENSE_EXPIRING_IN"] = 6
-      controller.request.path_parameters[:controller] = 'agents'
-      controller.request.path_parameters[:action] = 'index'
-      render :partial => "shared/application_nav.html.erb", :locals => {:scope => {:admin_tab_url => "foo/admin"}}
-
-      Capybara.string(response.body).find('div.license_about_to_expire').tap do |license_div|
-        expect(license_div).to have_selector(".title", "Your Go license key will expire in 6 days.")
-        expect(license_div).to have_selector(".suggestion", "Please contact your ThoughtWorks Studios account executive or email studios@thoughtworks.com to obtain a new license")
-        expect(license_div).to have_selector("button", "Remind Me Later")
-        license_div.find("div[style='display:none']", visible: false) do |next_div|
-          next_div.find("form[method='post'][action='#{dismiss_license_expiry_warning_path}']") do |form|
-            expect(form).to have_selector("button", "DO NOT SHOW ME AGAIN")
-          end
-        end
-      end
-
-      expect(response.body).to have_selector("script", visible: false, text: /title: 'Go license expiry'/)
-      expect(session['LICENSE_EXPIRING_IN'].nil?).to be(true)
     end
   end
 

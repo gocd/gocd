@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 public class ConfigReposConfigTest {
     private  ConfigReposConfig repos;
     @Before
-    public void SetUp()
+    public void setUp()
     {
         repos = new ConfigReposConfig();
     }

@@ -1,0 +1,14 @@
+<%
+  # depend on spec dirs to automatically flush asset cache
+  # when new tests or directories are added
+  JasmineRails.each_spec_dir do |directory|
+    depend_on directory
+  end
+
+  # bundle all jasmine css using asset pipeline
+  # so asset pipeline can properly filter out duplicates
+  # via dependency tree
+  JasmineRails.css_files.each do |file|
+    require_asset(file.to_s)
+  end
+%>

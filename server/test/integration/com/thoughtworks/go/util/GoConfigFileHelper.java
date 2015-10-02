@@ -59,37 +59,6 @@ public class GoConfigFileHelper {
     private final File configFile;
     private final String originalXml;
 
-    //{
-    // "allow_anonymous"=>false,
-    // "type"=>"standard",
-    // "max_light_users"=>nil,
-    // "licensee"=>"Cruise team internal",
-    // "product"=>"cruise",
-    // "cruise_max_users"=>99,
-    // "cruise_max_agents"=>99,
-    // "cruise_edition"=>"Enterprise",
-    // "expiration_date"=>2018-04-28
-    // "max_active_users"=>nil,
-    // "customer_number"=>"111eval"
-    // }
-    public static final String ENTERPRISE_LICENSE =
-            "E+2WI6OuZ6hQ9wnNZGaiIQzGaLerbJR73qC+4OXlTDhC3Vafq8phXVPjFzUW\n"
-                    + "XzpeBjcyytmQetqKG0TCKSoOhlDKdVrO982jHv7Gal6fz1kD0KbKoNnWo9vw\n"
-                    + "qTEXndOfr+qoVr9KydLtyC3WdpDyjw7fPTBmB/eZmaTHKvZvJHHeYbKsvX8k\n"
-                    + "ZPYwhQT6oxbzwylqOPhJAiq6EKxS2S0jk1h0Uy5c07IiE4+y8PmwoElnfl3k\n"
-                    + "pAARHMv40vfxamttp6IljBCuJ2fXQ0rXuukA/jIkv1i78A6dqL0Ii3RAIjRv\n"
-                    + "glVHeI9HT9a0SyOR0eUMorFJJPDoqUnb1TVu/Ij3EQ==";
-    public static final String ENTERPRISE_LICENSE_USER = "Cruise team internal";
-
-    private static final String STANDARD_LICENSE_WITH_REMOTE_AGENT =
-            "O3967MysoAc1PwUCzK32LEsPhrMt9/xCR8CQ25B7B04JolLd9ihp2NMnL2an\n"
-                    + "L8D3mZm+IOY1+19rLVCHFUOlrPR3lvHwdQaJ/tDEkYNuOQt574emaPtRdjcL\n"
-                    + "wM1xXgH8cajydQQ+SI822adcr0jVJtDFE9/6LLRF6c2JMqhOitJUBDqXOp1h\n"
-                    + "dPzgdowpF5hAJlSmdAzjm07C2qfywYgXdS9vyhVGKNdDWLaPB1VeXGPB6cAY\n"
-                    + "cEclFsPAr1ToQqCe8rb6BrSvNpNpkxhTJjDcOielwy0Il8L7XKXXGbSXoa0T\n"
-                    + "SmQhk5LcibIZCYvJ8nGTEYDgpuEeDUOMHoXvcYoaMA==";
-    private static final String STANDARD_LICENSE_WITH_REMOTE_AGENT_USER = "Santosh Hegde";
-
     public GoConfigMother goConfigMother = new GoConfigMother();
     private File passwordFile = null;
     private GoConfigDao goConfigDao;
@@ -829,7 +798,7 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public void addAgentToEnvironment(String env, String uuid) {        
+    public void addAgentToEnvironment(String env, String uuid) {
         CruiseConfig config = loadForEdit();
         config.getEnvironments().addAgentsToEnvironment(env, uuid);
         writeConfigFile(config);

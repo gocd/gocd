@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 
 describe "admin/pipelines/general.html.erb" do
   include GoUtil, ReflectiveUtil
@@ -107,7 +107,7 @@ describe "admin/pipelines/general.html.erb" do
     Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
       expect(form).to have_selector("div.field_with_errors input[type='text'][name='pipeline[#{PipelineConfig::LABEL_TEMPLATE}]'][value='bad-label-template']")
       expect(form).to have_selector("div.form_error", :text => "Invalid label template")
-      
+
       expect(form).to have_selector("div.field_with_errors input[type='checkbox'][name='pipeline[#{PipelineConfig::LOCK}]']")
       expect(form).to have_selector("div.form_error", :text => "Lock has a bad value")
 

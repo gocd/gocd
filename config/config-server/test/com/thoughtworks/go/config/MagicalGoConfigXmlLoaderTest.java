@@ -1,4 +1,4 @@
-/*************************GO-LICENSE-START*********************************
+/* ************************GO-LICENSE-START*********************************
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ * ************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.config;
 
@@ -152,31 +152,31 @@ public class MagicalGoConfigXmlLoaderTest {
         PipelineConfig pipelineConfig4 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline4"));
         shouldBeGitMaterial(pipelineConfig4.materialConfigs().first());
     }
+
     @Test
-    public void shouldLoadConfigWithConfigRepo() throws Exception
-    {
+    public void shouldLoadConfigWithConfigRepo() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.ONE_CONFIG_REPO).config;
-        assertThat(cruiseConfig.getConfigRepos().size(),is(1));
+        assertThat(cruiseConfig.getConfigRepos().size(), is(1));
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
         assertThat(configRepo.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
     }
+
     @Test
-    public void shouldLoadConfigWithConfigRepoAndPluginName() throws Exception
-    {
+    public void shouldLoadConfigWithConfigRepoAndPluginName() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
-                  "  <config-repos>\n"
-                + "    <config-repo plugin=\"myplugin\">\n"
-                + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                + "    </config-repo >\n"
-                + "  </config-repos>\n"
+                "  <config-repos>\n"
+                        + "    <config-repo plugin=\"myplugin\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
         )).config;
-        assertThat(cruiseConfig.getConfigRepos().size(),is(1));
+        assertThat(cruiseConfig.getConfigRepos().size(), is(1));
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
         assertThat(configRepo.getConfigProviderPluginName(), is("myplugin"));
     }
+
     @Test
-    public void shouldLoadConfigWith2ConfigRepos() throws Exception
-    {
+    public void shouldLoadConfigWith2ConfigRepos() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo plugin=\"myplugin\">\n"
@@ -187,15 +187,15 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </config-repo >\n"
                         + "  </config-repos>\n"
         )).config;
-        assertThat(cruiseConfig.getConfigRepos().size(),is(2));
+        assertThat(cruiseConfig.getConfigRepos().size(), is(2));
         ConfigRepoConfig configRepo1 = cruiseConfig.getConfigRepos().get(0);
         assertThat(configRepo1.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
         ConfigRepoConfig configRepo2 = cruiseConfig.getConfigRepos().get(1);
         assertThat(configRepo2.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-refmain-config-part.git")));
     }
+
     @Test
-    public void shouldLoadConfigWithConfigRepoAndConfiguration() throws Exception
-    {
+    public void shouldLoadConfigWithConfigRepoAndConfiguration() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo >\n"
@@ -209,15 +209,15 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </config-repo >\n"
                         + "  </config-repos>\n"
         )).config;
-        assertThat(cruiseConfig.getConfigRepos().size(),is(1));
+        assertThat(cruiseConfig.getConfigRepos().size(), is(1));
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
 
-        assertThat(configRepo.getConfiguration().size(),is(1));
-        assertThat(configRepo.getConfiguration().getProperty("pattern").getValue(),is("*.gocd.xml"));
+        assertThat(configRepo.getConfiguration().size(), is(1));
+        assertThat(configRepo.getConfiguration().getProperty("pattern").getValue(), is("*.gocd.xml"));
     }
+
     @Test(expected = XsdValidationException.class)
-    public void shouldThrowXsdValidationException_WhenNoRepository() throws Exception
-    {
+    public void shouldThrowXsdValidationException_WhenNoRepository() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo plugin=\"myplugin\">\n"
@@ -225,9 +225,9 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </config-repos>\n"
         )).config;
     }
+
     @Test(expected = XsdValidationException.class)
-    public void shouldThrowXsdValidationException_When2RepositoriesInSameConfigElement() throws Exception
-    {
+    public void shouldThrowXsdValidationException_When2RepositoriesInSameConfigElement() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo plugin=\"myplugin\">\n"
@@ -237,9 +237,9 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </config-repos>\n"
         )).config;
     }
+
     @Test(expected = GoConfigInvalidException.class)
-    public void shouldFailValidation_WhenSameMaterialUsedBy2ConfigRepos() throws Exception
-    {
+    public void shouldFailValidation_WhenSameMaterialUsedBy2ConfigRepos() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.configWithConfigRepos(
                 "  <config-repos>\n"
                         + "    <config-repo plugin=\"myplugin\">\n"
@@ -257,15 +257,16 @@ public class MagicalGoConfigXmlLoaderTest {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;
         assertThat(cruiseConfig.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
+
     @Test
     public void shouldSetConfigOriginInPipeline_AfterLoadingConfigFile() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;
         PipelineConfig pipelineConfig1 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         assertThat(pipelineConfig1.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
+
     @Test
-    public void shouldSetConfigOriginInEnvironment_AfterLoadingConfigFile()
-    {
+    public void shouldSetConfigOriginInEnvironment_AfterLoadingConfigFile() {
         String content = ConfigFileFixture.configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
@@ -886,24 +887,24 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldThrowExceptionWhenCommandsContainTrailingSpaces() throws Exception {
         String configXml =
-            "<cruise schemaVersion='73'>" +
-                "  <pipelines group='first'>" +
-                "    <pipeline name='Test'>" +
-                "      <materials>" +
-                "        <hg url='../manual-testing/ant_hg/dummy' />" +
-                "      </materials>" +
-                "      <stage name='Functional'>" +
-                "        <jobs>" +
-                "          <job name='Functional'>" +
-                "            <tasks>" +
-                "              <exec command='bundle  ' args='arguments' />" +
-                "            </tasks>" +
-                "           </job>" +
-                "        </jobs>" +
-                "      </stage>" +
-                "    </pipeline>" +
-                "  </pipelines>" +
-                "</cruise>";
+                "<cruise schemaVersion='73'>" +
+                        "  <pipelines group='first'>" +
+                        "    <pipeline name='Test'>" +
+                        "      <materials>" +
+                        "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                        "      </materials>" +
+                        "      <stage name='Functional'>" +
+                        "        <jobs>" +
+                        "          <job name='Functional'>" +
+                        "            <tasks>" +
+                        "              <exec command='bundle  ' args='arguments' />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "  </pipelines>" +
+                        "</cruise>";
         try {
             ConfigMigrator.loadWithMigration(configXml);
 
@@ -916,24 +917,24 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldThrowExceptionWhenCommandsContainLeadingSpaces() throws Exception {
         String configXml =
-            "<cruise schemaVersion='73'>" +
-                "  <pipelines group='first'>" +
-                "    <pipeline name='Test'>" +
-                "      <materials>" +
-                "        <hg url='../manual-testing/ant_hg/dummy' />" +
-                "      </materials>" +
-                "      <stage name='Functional'>" +
-                "        <jobs>" +
-                "          <job name='Functional'>" +
-                "            <tasks>" +
-                "              <exec command='    bundle' args='arguments' />" +
-                "            </tasks>" +
-                "           </job>" +
-                "        </jobs>" +
-                "      </stage>" +
-                "    </pipeline>" +
-                "  </pipelines>" +
-                "</cruise>";
+                "<cruise schemaVersion='73'>" +
+                        "  <pipelines group='first'>" +
+                        "    <pipeline name='Test'>" +
+                        "      <materials>" +
+                        "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                        "      </materials>" +
+                        "      <stage name='Functional'>" +
+                        "        <jobs>" +
+                        "          <job name='Functional'>" +
+                        "            <tasks>" +
+                        "              <exec command='    bundle' args='arguments' />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "  </pipelines>" +
+                        "</cruise>";
         try {
             ConfigMigrator.loadWithMigration(configXml);
 
@@ -1706,41 +1707,41 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldNotAllowJobToHaveTheRunOnAllAgentsMarkerInItsName() throws Exception {
         String invalidJobName = format("%s-%s-%s", "invalid-name", RunOnAllAgentsJobTypeConfig.MARKER, 1);
-		testForInvalidJobName(invalidJobName, RunOnAllAgentsJobTypeConfig.MARKER);
+        testForInvalidJobName(invalidJobName, RunOnAllAgentsJobTypeConfig.MARKER);
     }
 
-	@Test
-	public void shouldNotAllowJobToHaveTheRunInstanceMarkerInItsName() throws Exception {
-		String invalidJobName = format("%s-%s-%s", "invalid-name", RunMultipleInstanceJobTypeConfig.MARKER, 1);
-		testForInvalidJobName(invalidJobName, RunMultipleInstanceJobTypeConfig.MARKER);
-	}
+    @Test
+    public void shouldNotAllowJobToHaveTheRunInstanceMarkerInItsName() throws Exception {
+        String invalidJobName = format("%s-%s-%s", "invalid-name", RunMultipleInstanceJobTypeConfig.MARKER, 1);
+        testForInvalidJobName(invalidJobName, RunMultipleInstanceJobTypeConfig.MARKER);
+    }
 
-	private void testForInvalidJobName(String invalidJobName, String marker) {
-		String content = ConfigFileFixture.configWithPipeline(
-				"    <pipeline name=\"dev\">\n"
-						+ "      <materials>\n"
-						+ "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
-						+ "      </materials>\n"
-						+ "      <stage name=\"AutoStage\">\n"
-						+ "        <jobs>\n"
-						+ "          <job name=\"" + invalidJobName + "\">\n"
-						+ "            <tasks>\n"
-						+ "              <exec command=\"ls\" args=\"-lah\" />\n"
-						+ "            </tasks>\n"
-						+ "          </job>\n"
-						+ "        </jobs>\n"
-						+ "      </stage>\n"
-						+ "    </pipeline>"
-		);
-		try {
-			ConfigMigrator.loadWithMigration(content);
-			fail("should not allow jobs with with name '" + marker + "'");
-		} catch (Exception expected) {
-			assertThat(expected.getMessage(), containsString("A job cannot have '" + marker + "' in it's name: " + invalidJobName));
-		}
-	}
+    private void testForInvalidJobName(String invalidJobName, String marker) {
+        String content = ConfigFileFixture.configWithPipeline(
+                "    <pipeline name=\"dev\">\n"
+                        + "      <materials>\n"
+                        + "        <svn url=\"file:///tmp/svn/repos/fifth\" />\n"
+                        + "      </materials>\n"
+                        + "      <stage name=\"AutoStage\">\n"
+                        + "        <jobs>\n"
+                        + "          <job name=\"" + invalidJobName + "\">\n"
+                        + "            <tasks>\n"
+                        + "              <exec command=\"ls\" args=\"-lah\" />\n"
+                        + "            </tasks>\n"
+                        + "          </job>\n"
+                        + "        </jobs>\n"
+                        + "      </stage>\n"
+                        + "    </pipeline>"
+        );
+        try {
+            ConfigMigrator.loadWithMigration(content);
+            fail("should not allow jobs with with name '" + marker + "'");
+        } catch (Exception expected) {
+            assertThat(expected.getMessage(), containsString("A job cannot have '" + marker + "' in it's name: " + invalidJobName));
+        }
+    }
 
-	@Test
+    @Test
     public void shouldAllow_NonRunOnAllAgentJobToHavePartsOfTheRunOnAll_and_NonRunMultipleInstanceJobToHavePartsOfTheRunInstance_AgentsMarkerInItsName() throws Exception {
         String content = ConfigFileFixture.configWithPipeline(
                 "    <pipeline name=\"dev\">\n"
@@ -1754,12 +1755,12 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "              <exec command=\"ls\" args=\"-lah\" />\n"
                         + "            </tasks>\n"
                         + "          </job>\n"
-						+ "          <job name=\"valid-name-runInstance\" >\n"
-						+ "            <tasks>\n"
-						+ "              <exec command=\"ls\" args=\"-lah\" />\n"
-						+ "            </tasks>\n"
-						+ "          </job>\n"
-						+ "        </jobs>\n"
+                        + "          <job name=\"valid-name-runInstance\" >\n"
+                        + "            <tasks>\n"
+                        + "              <exec command=\"ls\" args=\"-lah\" />\n"
+                        + "            </tasks>\n"
+                        + "          </job>\n"
+                        + "        </jobs>\n"
                         + "      </stage>\n"
                         + "    </pipeline>");
         ConfigMigrator.loadWithMigration(content); // should not fail with a validation exception
@@ -2090,32 +2091,6 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    public void shouldAllowConfigWithEnvironmentsForFreeCruiseEdition() throws Exception {
-        String configNoLicense = ConfigFileFixture.configWithEnvironments("<environments><environment name='foo' /></environments>");
-        String configString = ConfigFileFixture.addLicense(configNoLicense, ConfigFileFixture.TWO_USER_LICENSE_USER, ConfigFileFixture.TWO_USER_LICENSE);
-
-        assertThat(ConfigMigrator.loadWithMigration(configString), is(not(nullValue())));
-    }
-
-    @Test
-    public void shouldNotAllowConfigWithTemplatesForFreeCruiseEdition() throws Exception {
-        String configNoLicense = ConfigFileFixture.configWithTemplates(
-                "<templates>"
-                        + "  <pipeline name='erbshe'>"
-                        + "    <stage name='stage1'>"
-                        + "      <jobs>"
-                        + "        <job name='job1' />"
-                        + "      </jobs>"
-                        + "    </stage>"
-                        + "  </pipeline>"
-                        + "</templates>"
-        );
-        String configString = ConfigFileFixture.addLicense(configNoLicense, ConfigFileFixture.TWO_USER_LICENSE_USER, ConfigFileFixture.TWO_USER_LICENSE);
-
-        assertThat(ConfigMigrator.loadWithMigration(configString), is(not(nullValue())));
-    }
-
-    @Test
     public void shouldValidateTimerSpec() throws Exception {
         String content = ConfigFileFixture.configWithPipeline(
                 "<pipeline name='pipeline1'>"
@@ -2147,22 +2122,22 @@ public class MagicalGoConfigXmlLoaderTest {
         }
     }
 
-	@Test
-	public void shouldNotAllowIllegalValueForRunMultipleInstanceJob() throws Exception {
-		try {
-			loadJobWithRunMultipleInstance("-1");
-			fail("should have failed as runOnAllAgents' value is not valid(boolean)");
-		} catch (Exception e) {
-			assertThat(e.getMessage(), containsString("'-1' is not facet-valid with respect to minInclusive '1' for type 'positiveInteger'"));
-		}
+    @Test
+    public void shouldNotAllowIllegalValueForRunMultipleInstanceJob() throws Exception {
+        try {
+            loadJobWithRunMultipleInstance("-1");
+            fail("should have failed as runOnAllAgents' value is not valid(boolean)");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("'-1' is not facet-valid with respect to minInclusive '1' for type 'positiveInteger'"));
+        }
 
-		try {
-			loadJobWithRunMultipleInstance("abcd");
-			fail("should have failed as runOnAllAgents' value is not valid(boolean)");
-		} catch (Exception e) {
-			assertThat(e.getMessage(), containsString("'abcd' is not a valid value for 'integer'"));
-		}
-	}
+        try {
+            loadJobWithRunMultipleInstance("abcd");
+            fail("should have failed as runOnAllAgents' value is not valid(boolean)");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("'abcd' is not a valid value for 'integer'"));
+        }
+    }
 
     @Test
     public void shouldSupportEnvironmentVariablesInAJob() throws Exception {
@@ -2434,14 +2409,14 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(job, is(jobConfig));
     }
 
-	@Test
-	public void shouldSupportRunMultipleInstance() throws Exception {
-		CruiseConfig cruiseConfig = loadJobWithRunMultipleInstance("10");
-		JobConfig job = cruiseConfig.findJob("pipeline1", "mingle", "do-something");
-		JobConfig jobConfig = new JobConfig("do-something");
-		jobConfig.setRunInstanceCount(10);
-		assertThat(job, is(jobConfig));
-	}
+    @Test
+    public void shouldSupportRunMultipleInstance() throws Exception {
+        CruiseConfig cruiseConfig = loadJobWithRunMultipleInstance("10");
+        JobConfig job = cruiseConfig.findJob("pipeline1", "mingle", "do-something");
+        JobConfig jobConfig = new JobConfig("do-something");
+        jobConfig.setRunInstanceCount(10);
+        assertThat(job, is(jobConfig));
+    }
 
     @Test
     public void shouldUnderstandEncryptedPasswordAttributeForSvnMaterial() throws Exception {
@@ -2498,20 +2473,20 @@ public class MagicalGoConfigXmlLoaderTest {
         return ConfigMigrator.loadWithMigration(content).config;
     }
 
-	private CruiseConfig loadJobWithRunMultipleInstance(String value) throws Exception {
-		String content = ConfigFileFixture.configWithPipeline(
-				  "<pipeline name='pipeline1'>"
-				+ "    <materials>"
-				+ "      <svn url ='svnurl'/>"
-				+ "    </materials>"
-				+ "  <stage name='mingle'>"
-				+ "    <jobs>"
-				+ "      <job name='do-something' runInstanceCount='" + value + "'/>"
-				+ "    </jobs>"
-				+ "  </stage>"
-				+ "</pipeline>", 74);
-		return ConfigMigrator.loadWithMigration(content).config;
-	}
+    private CruiseConfig loadJobWithRunMultipleInstance(String value) throws Exception {
+        String content = ConfigFileFixture.configWithPipeline(
+                "<pipeline name='pipeline1'>"
+                        + "    <materials>"
+                        + "      <svn url ='svnurl'/>"
+                        + "    </materials>"
+                        + "  <stage name='mingle'>"
+                        + "    <jobs>"
+                        + "      <job name='do-something' runInstanceCount='" + value + "'/>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>", 74);
+        return ConfigMigrator.loadWithMigration(content).config;
+    }
 
     private void assertValidMaterials(String materials) throws Exception {
         createConfig(materials);
@@ -2951,10 +2926,8 @@ public class MagicalGoConfigXmlLoaderTest {
         });
 
         assertThat(list, hasItem(ArtifactDirValidator.class.getCanonicalName()));
-        assertThat(list, hasItem(TaskWorkingFolderValidator.class.getCanonicalName()));
         assertThat(list, hasItem(EnvironmentAgentValidator.class.getCanonicalName()));
         assertThat(list, hasItem(EnvironmentPipelineValidator.class.getCanonicalName()));
-        assertThat(list, hasItem(JobNameValidator.class.getCanonicalName()));
         assertThat(list, hasItem(ServerIdImmutabilityValidator.class.getCanonicalName()));
         assertThat(list, hasItem(CommandRepositoryLocationValidator.class.getCanonicalName()));
     }
@@ -3425,7 +3398,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    public void shouldAllowColonsInPipelineLabelTemplate(){
+    public void shouldAllowColonsInPipelineLabelTemplate() {
         String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<repositories>\n"
                 + "    <repository id='repo-id' name='repo_name'>\n"
@@ -3519,9 +3492,9 @@ public class MagicalGoConfigXmlLoaderTest {
         PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().get(0);
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
         Tasks tasks = jobConfig.getTasks();
-        assertThat(tasks.size(),is(1));
-        assertThat(tasks.get(0) instanceof PluggableTask,is(true));
-        PluggableTask task= (PluggableTask) tasks.get(0);
+        assertThat(tasks.size(), is(1));
+        assertThat(tasks.get(0) instanceof PluggableTask, is(true));
+        PluggableTask task = (PluggableTask) tasks.get(0);
         assertThat(task.getTaskType(), is("pluggable_task_plugin_id_1"));
         assertThat(task.getTypeForDisplay(), is("Pluggable Task"));
         final Configuration configuration = task.getConfiguration();

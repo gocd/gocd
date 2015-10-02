@@ -16,27 +16,39 @@
 
 package com.thoughtworks.go.domain.materials.tfs;
 
-import java.io.File;
-
 import com.thoughtworks.go.util.TempFiles;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class WorkingFolderTest {
+    private TempFiles tempFiles;
+
+    @Before
+    public void setUp() throws Exception {
+        tempFiles = new TempFiles();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        tempFiles.cleanUp();
+    }
 
     @Test
     public void shouldAlwaysMatchLocalDirToTheCanonicalPathOfTheGivenFile() throws Exception {
-        TempFiles tempFiles = new TempFiles();
         File parent = tempFiles.createUniqueFolder("parent");
         File child = new File(parent.getAbsolutePath() + "/child");
         child.mkdir();
         File grandchild = new File(child.getAbsolutePath() + "/grandchild");
         grandchild.mkdir();
 
-        WorkingFolder workingFolder = new WorkingFolder("$/helloworld", grandchild.getAbsolutePath());
-        assertThat(workingFolder.matchesLocalDir(new File(child.getAbsolutePath() + "/../child/grandchild")), is(true));
-        tempFiles.cleanUp();
+        WorkingFolder workingFolder = new WorkingFolder("$/helloworld", grandchild.getCanonicalPath());
+        File grandChild = new File(child.getAbsolutePath() + "/../child/grandchild");
+        assertThat("Working folder (" + workingFolder + ") does not match: " + grandChild.getCanonicalPath(), workingFolder.matchesLocalDir(grandChild), is(true));
     }
 }

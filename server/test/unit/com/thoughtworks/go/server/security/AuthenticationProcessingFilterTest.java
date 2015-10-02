@@ -18,21 +18,12 @@ package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.GoLicenseService;
-import com.thoughtworks.go.server.service.UserService;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;

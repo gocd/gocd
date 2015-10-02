@@ -1,0 +1,119 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'string-plus', '../helpers/form_helper', '../helpers/tooltips', '../models/pipeline', '../models/tasks', './parameters_config_widget',
+    './tracking_tool_widget', './environment_variables_config_widget', './pipeline_flow_widget'],
+  function (m, s, f, tt, Pipeline, Tasks, ParametersConfigWidget, TrackingToolWidget, EnvironmentVariablesConfigWidget,
+            PipelineFlowWidget) {
+
+    var PipelineConfigWidget = function (url, callback) {
+      return {
+        controller: function () {
+          this.currentSelection = m.prop();
+          var self              = this;
+
+          Pipeline.get(url).then(function (data) {
+            self.pipeline   = Pipeline.fromJSON(data);
+            window.pipeline = self.pipeline;
+            self.currentSelection(self.pipeline.stages().firstStage());
+            if (callback) {
+              callback(self);
+            }
+          });
+        },
+
+        view: function (ctrl) {
+          var pipeline = ctrl.pipeline;
+
+          return (
+            <form class='pipeline'>
+              <f.row>
+                <f.column>
+                  <h3 class="heading">Pipeline Details for {pipeline.name()}</h3>
+                </f.column>
+              </f.row>
+              <f.row>
+                <f.column end={true} size={12}>
+                  <fieldset>
+                    <f.row>
+                      <f.inputWithLabel model={pipeline}
+                                        attrName='labelTemplate'
+                                        tooltip={{
+                                          content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
+                                        size={4}/>
+                    </f.row>
+
+                    <f.row>
+                      <f.checkBox model={pipeline}
+                                  attrName='enablePipelineLocking'
+                                  tooltip={{
+                                          content: tt.pipeline.enablePipelineLocking,
+                                          direction: 'bottom'
+                                        }}
+                                  end={true}/>
+                    </f.row>
+
+                    <f.row>
+                      <f.inputWithLabel model={pipeline.timer()}
+                                        attrName='spec'
+                                        label='Cron timer specification'
+                                        tooltip={{
+                                          content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
+                                        size={4}
+                                        end={true}/>
+                    </f.row>
+                    <f.row>
+                      <f.checkBox model={pipeline.timer()}
+                                  attrName='onlyOnChanges'
+                                  label='Run only on new material'
+                                  disabled={s.isBlank(pipeline.timer().spec())}
+                                  tooltip={{
+                                          content: tt.pipeline.timer.onlyOnChanges,
+                                          direction: 'bottom'
+                                        }}
+                                  size={4}
+                                  end={true}/>
+                    </f.row>
+
+                    <f.row>
+                      <f.column end={true} size={12}>
+                        <TrackingToolWidget trackingTool={pipeline.trackingTool}/>
+                        <ParametersConfigWidget parameters={pipeline.parameters()}/>
+                        <EnvironmentVariablesConfigWidget variables={pipeline.environmentVariables()}/>
+                        <PipelineFlowWidget stages={pipeline.stages()}
+                                            materials={pipeline.materials()}
+                                            currentSelection={ctrl.currentSelection}/>
+
+                      </f.column>
+                    </f.row>
+                  </fieldset>
+                </f.column>
+              </f.row>
+            </form>
+          );
+        }
+      };
+    };
+
+    return PipelineConfigWidget;
+  });
+

@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 @Service
 public class RailsAssetsService implements ServletContextAware {
-    private static final Pattern MANIFEST_FILE_PATTERN = Pattern.compile("^manifest.*\\.json$");
+    private static final Pattern MANIFEST_FILE_PATTERN = Pattern.compile("^\\.sprockets-manifest.*\\.json$");
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RailsAssetsService.class);
     private RailsAssetsManifest railsAssetsManifest;
     private ServletContext servletContext;
@@ -60,7 +60,7 @@ public class RailsAssetsService implements ServletContextAware {
         if (files.isEmpty()) {
             throw new RuntimeException(String.format("Manifest json file was not found at %s", assetsDirPath));
         }
-        
+
         File manifestFile = (File) files.iterator().next();
 
         LOG.info(String.format("Found rails assets manifest file named %s ", manifestFile.getName()));

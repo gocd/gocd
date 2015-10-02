@@ -15,10 +15,12 @@
 ##########################GO-LICENSE-END##################################
 
 class PipelineStatusAPIModel
-  attr_reader :paused, :locked, :schedulable
+  attr_reader :paused, :pausedCause, :pausedBy, :locked, :schedulable
 
   def initialize(pipeline_status)
     @paused = pipeline_status.isPaused()
+    @pausedCause = pipeline_status.pausedCause()
+    @pausedBy = pipeline_status.pausedBy()
     @locked = pipeline_status.isLocked()
     @schedulable = pipeline_status.isSchedulable()
   end

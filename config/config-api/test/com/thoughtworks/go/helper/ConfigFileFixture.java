@@ -19,8 +19,6 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.util.GoConstants;
-import org.dom4j.*;
-import org.dom4j.tree.DefaultElement;
 
 import java.util.Arrays;
 
@@ -451,11 +449,11 @@ public final class ConfigFileFixture {
                     + "          </exec>"
                     + "        </tasks>"
                     + "      </job>\n"
-                    +"       <job name=\"downstream-job\">\n"
-                    +"          <tasks>\n"
-                    +"              <exec command=\"echo\" args=\"hello world!!\"><oncancel /></exec>\n"
-                    +"          </tasks>\n"
-                    +"       </job>"
+                    + "       <job name=\"downstream-job\">\n"
+                    + "          <tasks>\n"
+                    + "              <exec command=\"echo\" args=\"hello world!!\"><oncancel /></exec>\n"
+                    + "          </tasks>\n"
+                    + "       </job>"
                     + "    </jobs>\n"
                     + "  </stage>\n"
                     + "</pipeline>\n"
@@ -692,7 +690,7 @@ public final class ConfigFileFixture {
             + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
             + "  <server artifactsdir=\"other-artifacts\">\n"
             + "    <security>\n"
-          + "      <roles>\n"
+            + "      <roles>\n"
             + "        <role name=\"adminRole\" >\n"
             + "         <users>"
             + "           <user>loser</user>\n"
@@ -1396,22 +1394,6 @@ public final class ConfigFileFixture {
                     + "  </server>  \n"
                     + "</cruise>";
 
-    // {"licensee"=>"Ricky",
-    //  "product"=>"cruise",
-    //  "cruise_max_users"=>2,
-    //  "cruise_max_agents"=>0,DEFAULT_XML_WITH_2_AGENTS
-    //  "cruise_edition"=>"Free",
-    //  "max_active_users"=>2,
-    //  "expiration_date"=>2050-08-28,
-    //  "customer_number"=>"9999"}
-    public static final String TWO_USER_LICENSE_USER = "Ricky";
-    public static final String TWO_USER_LICENSE = "Pcq9+P3Bz8i826KJFlz9wOAlbJaHhICerFUDJkE6YWfPsbuV1RR6BQ719oe9\n"
-            + "FraHDdqwQ5nGePHdkMkPohcGT9O52OACOVaPCHOVXNrGUAhRkLIvBkIbSXlU\n"
-            + "byoy/wJMuAD3i4jsB5bxnGF1Rnrxj1jtG2EELMLpr3tnPJmdPVjgOifOvrjB\n"
-            + "LqLn2UN//bI7q+Yef+MeMw9vneopdghpX5DFEzTnd4x2jJMo33GyAlmb2ieI\n"
-            + "uxpXg0gj5jOv9T7YXL7UuF+YjehLZRYr4gx5lTDQKb3Y+yujglcJR7EFxFyp\n"
-            + "s1gVxjzrgZIOWTvMDhyXn+JljvWjKwPEP1MlDbMQSQ==";
-
     public static final String DEFAULT_XML_WITH_2_AGENTS = xml();
     public static final String XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS = xml();
 
@@ -1745,6 +1727,7 @@ public final class ConfigFileFixture {
                 + "  </agents>"
                 + "</cruise>";
     }
+
     public static String withJob(String jobXml, String pipelineName) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
@@ -1752,7 +1735,7 @@ public final class ConfigFileFixture {
                 + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
                 + " <server artifactsdir=\"logs\"></server>"
                 + "  <pipelines>\n"
-                + "    <pipeline name=\""+ pipelineName +"\">\n"
+                + "    <pipeline name=\"" + pipelineName + "\">\n"
                 + "      <materials>\n"
                 + "        <svn url=\"foobar\" checkexternals=\"true\" />\n"
                 + "      </materials>\n"
@@ -1974,48 +1957,10 @@ public final class ConfigFileFixture {
         return new BasicCruiseConfig(configs);
     }
 
-    //    public static String addLicenseIdNeeded(InputStream stream) {
-//
-//        try {
-//            Document document = new SAXReader().read(stream);
-//            if (document.selectSingleNode("/cruise/server/license") != null) {
-//                return document.asXML();
-//            }
-//            return addLicense(document, ENTERPRISE_LICENSE_USER, ENTERPRISE_LICENSE);
-//        } catch (DocumentException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-    public static String addLicense(String config, String user, String license) {
-        try {
-            Document document = DocumentHelper.parseText(config);
-            return addLicense(document, user, license);
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String addLicense(Document document, String user, String license) {
-        Element server = (Element) document.selectSingleNode("/cruise/server");
-        Node oldLicense = server.selectSingleNode("./license");
-        if (oldLicense != null) {
-            server.remove(oldLicense);
-        }
-        server.add(new DefaultElement("license").addAttribute("user", user).addText(license));
-        return document.asXML();
-    }
-
     public static String configwithSecurity(String security) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"19\">\n"
                 + "  <server artifactsdir=\"logs\">\n"
-                + "    <license user=\"Cruise UAT ThoughtWorks Beijing\">O5jEQXU0iS9kBdn+l2rSO+uEXvik+G8uNRiaUr1qxOKKLa+EBKMmSFIpDrYw\n"
-                + "dwDsd+MtfgiuAk5MDFImDhOT7R9HuKV7qqGI/a5ktRcBsuPGbYcxwJwbN5pv\n"
-                + "OrEjueo23vMefUn/AxmPtgXaU++yqAPCJ/PXGBg+0LSpe40Z+m2OUz9Pr6BH\n"
-                + "bNoig0/gA57KaziiFazsMdD0EYy83gN7HQdolSEImIZJuW9ABG0WAzPhscFh\n"
-                + "hOI0BEABLEI+yIvWc8zfm6D8bhR4i+3ufPYc+q1J9+00VHY60QPgR2CBE3p5\n"
-                + "BvpkX64b6XCyV9logzYeEr2MRUzct0hkGhGYZkzMag==</license>\n"
                 + security
                 + "  </server>"
                 + "  </cruise>";

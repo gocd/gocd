@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.thoughtworks.go.server.service.GoConfigService.INVALID_CRUISE_CONFIG_XML;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
@@ -41,7 +40,8 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, PartialConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(MergedGoConfig.class);
 
-    //TODO #1133 use GoPartialConfig and CachedFileGoConfig to provide all services that old MergedGoConfig
+    public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
+
     private CachedFileGoConfig fileService;
     private GoPartialConfig partialConfig;
 
@@ -66,39 +66,35 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        this.tryAssembleMergedConfig(newCruiseConfig,this.partialConfig.lastPartials());
+        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(),this.partialConfig.lastPartials());
     }
     @Override
-    public void onPartialConfigChanged(PartialConfig[] partials) {
-        this.tryAssembleMergedConfig(this.fileService.currentConfig(),partials);
+    public void onPartialConfigChanged(List<PartialConfig> partials) {
+        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(),partials);
     }
 
     /**
      * attempts to create a new merged cruise config
     */
-    public void tryAssembleMergedConfig(CruiseConfig cruiseConfig,PartialConfig[] partials) {
+    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfigHolder,List<PartialConfig> partials) {
         try {
             GoConfigHolder newConfigHolder;
 
-            if (partials.length == 0) {
+            if (partials.size() == 0) {
                 // no partial configurations
                 // then just use basic configuration from xml
-                newConfigHolder = fileService.loadConfigHolder();
+                newConfigHolder = cruiseConfigHolder;
             } else {
                 // create merge (uses merge strategy internally)
-                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, partials);
+                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfigHolder.config, partials);
                 // validate
                 List<ConfigErrors> allErrors = validate(merge);
                 if (!allErrors.isEmpty()) {
-
-                    if (!allErrors.isEmpty()) {
-                        throw new GoConfigInvalidException(merge, allErrors);
-                    }
-                    return;
+                    throw new GoConfigInvalidException(merge, allErrors);
                 }
                 CruiseConfig basicForEdit = this.fileService.loadForEditing();
                 CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, partials);
-                //TODO change strategy into merge-edit?
+                //TODO change strategy into merge-edit? - done in UI branch
                 newConfigHolder = new GoConfigHolder(merge, forEdit);
             }
             // save to cache and fire event
@@ -110,7 +106,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
     private synchronized void saveConfigError(Exception e) {
         this.lastException = e;
-        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_XML, GoConfigValidity.invalid(e).errorMessage(), invalidConfigType());
+        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), invalidConfigType());
         serverHealthService.update(state);
     }
 
@@ -126,14 +122,14 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
 
     public CruiseConfig loadForEditing() {
-        //here we will return main CruiseConfig because merged cannot be (entirely) edited
-        return fileService.loadForEditing();
+        // merged cannot be (entirely) edited but we return it so that all pipelines are rendered in admin->pipelines
+        return currentConfigForEdit;
     }
 
     public CruiseConfig currentConfig() {
         //returns merged cruise config if appropriate
         if (currentConfig == null) {
-            return new BasicCruiseConfig();
+            currentConfig = new BasicCruiseConfig();
         }
         return currentConfig;
     }
@@ -166,7 +162,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
 
     private static HealthStateType invalidConfigType() {
-        return HealthStateType.invalidConfig();
+        return HealthStateType.invalidConfigMerge();
     }
 
     public String getFileLocation() {

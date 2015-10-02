@@ -83,7 +83,7 @@ public class ArtifactsController {
 
 
     /* RESTful URLs */
-    @RequestMapping("/restful/artifact/GET/html")
+    @RequestMapping("/repository/restful/artifact/GET/html")
     public ModelAndView getArtifactAsHtml(@RequestParam("pipelineName") String pipelineName,
                                           @RequestParam("pipelineLabel") String counterOrLabel,
                                           @RequestParam("stageName") String stageName,
@@ -95,7 +95,7 @@ public class ArtifactsController {
         return getArtifact(filePath, folderViewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, serverAlias);
     }
 
-    @RequestMapping("/restful/artifact/GET/json")
+    @RequestMapping("/repository/restful/artifact/GET/json")
     public ModelAndView getArtifactAsJson(@RequestParam("pipelineName") String pipelineName,
                                           @RequestParam("pipelineLabel") String counterOrLabel,
                                           @RequestParam("stageName") String stageName,
@@ -107,7 +107,7 @@ public class ArtifactsController {
         return getArtifact(filePath, jsonViewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, null);
     }
 
-    @RequestMapping("/restful/artifact/GET/zip")
+    @RequestMapping("/repository/restful/artifact/GET/zip")
     public ModelAndView getArtifactAsZip(@RequestParam("pipelineName") String pipelineName,
                                          @RequestParam("pipelineLabel") String counterOrLabel,
                                          @RequestParam("stageName") String stageName,
@@ -119,12 +119,12 @@ public class ArtifactsController {
         return getArtifact(filePath, zipViewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, null);
     }
 
-    @RequestMapping("/restful/artifact/GET/*")
+    @RequestMapping("/repository/restful/artifact/GET/*")
     public void fetch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         request.getRequestDispatcher("/repository/restful/artifact/GET/html").forward(request, response);
     }
 
-    @RequestMapping("/restful/artifact/POST/*")
+    @RequestMapping("/repository/restful/artifact/POST/*")
     public ModelAndView postArtifact(@RequestParam("pipelineName") String pipelineName,
                                      @RequestParam("pipelineLabel") String counterOrLabel,
                                      @RequestParam("stageName") String stageName,
@@ -201,7 +201,7 @@ public class ArtifactsController {
         return success;
     }
 
-    @RequestMapping("/restful/artifact/PUT/*")
+    @RequestMapping("/repository/restful/artifact/PUT/*")
     public ModelAndView putArtifact(@RequestParam("pipelineName") String pipelineName,
                                     @RequestParam("pipelineLabel") String counterOrLabel,
                                     @RequestParam("stageName") String stageName,

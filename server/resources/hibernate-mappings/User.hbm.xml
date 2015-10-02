@@ -31,7 +31,6 @@
         <property name="matcher"/>
         <property name="emailMe"/>
         <property name="enabled"/>
-        <property name="disableLicenseExpiryWarning"/>
 
         <bag name="notificationFilters" inverse="false" cascade="all-delete-orphan" lazy="false">
             <cache usage="read-write"/>

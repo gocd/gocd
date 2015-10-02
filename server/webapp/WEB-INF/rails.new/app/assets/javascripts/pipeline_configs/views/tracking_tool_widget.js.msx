@@ -1,0 +1,162 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '../models/tracking_tool'], function (m, _, f, tt, TrackingTool) {
+
+  var TrackingToolViews = {
+    none: function () {
+    },
+
+    mingle: function (trackingTool) {
+      return (
+        <div>
+          <f.row>
+            <f.inputWithLabel model={trackingTool()}
+                              attrName='baseUrl'
+                              label='Base URL'
+                              type='url'
+                              tooltip={{
+                                          content: <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}
+                              size={8}/>
+          </f.row>
+
+          <f.row>
+            <f.inputWithLabel model={trackingTool()}
+                              attrName='projectIdentifier'
+                              tooltip={{
+                                          content: <tt.trackingTool.mingle.projectIdentifier callback={trackingTool().projectIdentifier}/>,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}
+                              size={8}/>
+          </f.row>
+
+          <f.row>
+            <f.inputWithLabel model={trackingTool()}
+                              attrName='groupingConditions'
+                              tooltip={{
+                                          content: <tt.trackingTool.mingle.groupingConditions callback={trackingTool().groupingConditions}/>,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}
+                              size={8}/>
+          </f.row>
+        </div>
+      );
+    },
+
+    generic: function (trackingTool) {
+
+      var useTrackingToolRegex = function () {
+        debugger;
+      };
+      return (
+        <div>
+          <f.row>
+            <f.inputWithLabel model={trackingTool()}
+                              attrName='regex'
+                              label='Regular expression'
+                              tooltip={{
+                                          content: <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
+                              size={8}/>
+          </f.row>
+          <f.row>
+            <f.inputWithLabel model={trackingTool()}
+                              attrName='urlPattern'
+                              label='URL Pattern'
+                              type='url'
+                              tooltip={{
+                                          content: <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
+                                          direction: 'bottom',
+                                          size: 'large'
+                                        }}
+                              size={8}/>
+          </f.row>
+        </div>
+      );
+    }
+  };
+
+  var TrackingToolWidget = {
+    controller: function (args) {
+      this.trackingTool          = args.trackingTool;
+      this.possibleTrackingTools = {
+        none:    null,
+        mingle:  (this.trackingTool() && this.trackingTool().type() === 'mingle') ? this.trackingTool() : TrackingTool.create('mingle'),
+        generic: (this.trackingTool() && this.trackingTool().type() === 'generic') ? this.trackingTool() : TrackingTool.create('generic')
+      };
+
+      this.setTrackingTool = function (newTool) {
+        this.trackingTool(newTool);
+      };
+    },
+
+    view: function (ctrl, args, children) {
+      var isChecked = function (type) {
+        if (!type) {
+          return !ctrl.trackingTool();
+        }
+
+        return ctrl.trackingTool() && ctrl.trackingTool().type() === type;
+      };
+
+      var trackingTools = _.merge({none: {type: undefined, description: "None"}}, TrackingTool.Types);
+
+      return (
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Tracking Tool<f.tooltip tooltip={{content: tt.trackingTool.main}}/></span>
+                        )
+                     ]}
+                     accordionKeys={['tracking-tool']}
+                     selectedIndex={-1}>
+          <div>
+            <f.row>
+              <f.column size={4} end={true}>
+                {_.map(trackingTools, function (value, key) {
+                  return (
+                    <span>
+                    <input type="radio"
+                           name='tracking-tool-button-group'
+                           id={'tracking-tool-' + key}
+                           checked={isChecked(key)}
+                           onclick={ctrl.setTrackingTool.bind(ctrl, ctrl.possibleTrackingTools[key])}/>
+                    <label for={'tracking-tool-' + key}> {value.description}</label>
+                  </span>
+                  );
+                })}
+              </f.column>
+            </f.row>
+
+            <f.row class={'tracking-tool tracking-tool-' + (ctrl.trackingTool() ? ctrl.trackingTool().type() : 'none')}>
+              <f.column size={6} end={true}>
+                {TrackingToolViews[ctrl.trackingTool() ? ctrl.trackingTool().type() : 'none'](ctrl.trackingTool)}
+              </f.column>
+            </f.row>
+          </div>
+        </f.accordion>
+      );
+    }
+  };
+
+  return TrackingToolWidget;
+});

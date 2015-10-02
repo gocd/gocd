@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 
 describe "admin/materials/index.html.erb" do
 
@@ -142,7 +142,7 @@ describe "admin/materials/index.html.erb" do
       material_fingerprint = @pipeline_config.materialConfigs().get(0).getPipelineUniqueFingerprint()
       expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[0]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/svn/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Subversion'}, function(text){return text})")
     end
-    
+
     it "should display material name in the listing with the link to edit for package material" do
       render
 

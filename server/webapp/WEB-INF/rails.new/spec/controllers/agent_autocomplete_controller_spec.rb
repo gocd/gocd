@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 describe AgentAutocompleteController do
 
@@ -41,7 +41,7 @@ describe AgentAutocompleteController do
 
     describe :resource do
       it "should return all resources starting with given query string" do
-        @go_config_service.should_receive(:getResourceList).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))      
+        @go_config_service.should_receive(:getResourceList).and_return(java.util.Arrays.asList(["linux", "windows"].to_java(java.lang.String)))
         get "resource", :q => "li"
 
         expect(response.body).to eq("linux")

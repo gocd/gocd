@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe Admin::PackageDefinitionsController do
   include ConfigSaveStubbing
@@ -316,15 +316,15 @@ describe Admin::PackageDefinitionsController do
         cruise_config.should_receive(:getPackageRepositories).and_return(repositories)
         @go_config_service.should_receive(:getCurrentConfig).and_return(cruise_config)
         @package_definition_service.should_receive(:check_connection).with(package_definition, an_instance_of(HttpLocalizedOperationResult)) do |p, r|
-          # we don't really care about the error itself. Just the fact that an error occurred. Hence the USER_LICENSE_LIMIT_EXCEEDED error being used here. (Sachin)
-          r.badRequest(LocalizedMessage.string("USER_LICENSE_LIMIT_EXCEEDED"))
+          # we don't really care about the error itself. Just the fact that an error occurred. Hence the PACKAGE_CHECK_FAILED error being used here. (Sachin)
+          r.badRequest(LocalizedMessage.string("PACKAGE_CHECK_FAILED", "foo"))
         end
 
         get :check_connection, :material => pkg_params
 
         json = JSON.parse(response.body)
         json["success"].should == nil
-        json["error"].should == "User license limit exceeded"
+        json["error"].should == "Package check Failed. Reason(s): foo"
       end
 
     end

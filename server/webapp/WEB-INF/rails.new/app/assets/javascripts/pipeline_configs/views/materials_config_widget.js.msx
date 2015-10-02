@@ -1,0 +1,275 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/tooltips', '../models/materials'], function (m, _, $, f, tt, Materials) {
+
+  var MaterialViews = {
+    base: {
+      controller: function (args) {
+        this.material              = args.material;
+        this.onRemove              = args.onRemove;
+        this.selectedMaterialIndex = args.selectedMaterialIndex;
+      },
+
+      view: function (ctrl, args, children) {
+        var destinationField, filterField;
+
+        if (ctrl.material.destination) {
+          destinationField = (
+            <f.inputWithLabel attrName='destination'
+                              label="Destination"
+                              model={ctrl.material}
+                              tooltip={{
+                                          content: tt.material.destination,
+                                          direction: 'bottom',
+                                          size: 'small'
+                                        }}/>
+          );
+        }
+
+        if (ctrl.material.filter) {
+          // TODO: make this an 'intelligent' text component that maps to an array.
+          filterField = (
+            <f.inputWithLabel attrName='ignore'
+                              label="Ignore"
+                              model={ctrl.material.filter()}/>
+          );
+        }
+
+        return (
+          <div class="material-definition">
+            <f.removeButton onclick={ctrl.onRemove}/>
+            <f.row>
+              <f.inputWithLabel attrName='name'
+                                model={ctrl.material}
+                                tooltip={{
+                                          content: tt.material.name,
+                                          direction: 'bottom',
+                                          size: 'small'
+                                        }}/>
+              {destinationField}
+              <f.checkBox model={ctrl.material}
+                          attrName='autoUpdate'
+                          end={true}/>
+            </f.row>
+            {children}
+
+            <f.row>
+              {filterField}
+            </f.row>
+          </div>
+        );
+      }
+    },
+
+    svn: {
+      view: function (controller, args) {
+        var material = args.material;
+        return (
+          <MaterialViews.base material={material} onRemove={args.onRemove}
+                              selectedMaterialIndex={args.selectedMaterialIndex}>
+            <f.row>
+              <f.inputWithLabel attrName='url'
+                                type='url'
+                                model={material}/>
+              <f.inputWithLabel attrName='username'
+                                model={material}/>
+              <f.inputWithLabel attrName='password'
+                                type='password'
+                                model={material}/>
+              <f.checkBox type="checkbox"
+                          model={material}
+                          attrName='checkExternals'
+                          end={true}/>
+            </f.row>
+          </MaterialViews.base>
+        );
+      }
+    },
+    git: {
+      view: function (controller, args) {
+        var material = args.material;
+        return (
+          <MaterialViews.base material={material} onRemove={args.onRemove}
+                              selectedMaterialIndex={args.selectedMaterialIndex}>
+            <f.row>
+              <f.inputWithLabel attrName='url'
+                                type='url'
+                                model={material}/>
+              <f.inputWithLabel attrName='branch'
+                                model={material}
+                                end={true}/>
+            </f.row>
+          </MaterialViews.base>
+        );
+      }
+    },
+
+    hg: {
+      view: function (controller, args) {
+        var material = args.material;
+        return (
+          <MaterialViews.base material={material} onRemove={args.onRemove}
+                              selectedMaterialIndex={args.selectedMaterialIndex}>
+            <f.row>
+              <f.inputWithLabel attrName='url'
+                                type='url'
+                                model={material}/>
+              <f.inputWithLabel attrName='branch'
+                                model={material}
+                                end={true}/>
+            </f.row>
+          </MaterialViews.base>
+        );
+      }
+    },
+
+    p4: {
+      view: function (controller, args) {
+        var material = args.material;
+        return (
+          <MaterialViews.base material={material} onRemove={args.onRemove}
+                              selectedMaterialIndex={args.selectedMaterialIndex}>
+            <f.row>
+              <f.inputWithLabel attrName='port'
+                                model={material}
+                                onchange={m.withAttr('value', material.port)}/>
+              <f.inputWithLabel attrName='username'
+                                model={material}/>
+              <f.inputWithLabel attrName='password'
+                                type='password'
+                                model={material}/>
+              <f.checkBox name="material[use_tickets]"
+                          type="checkbox"
+                          end={true}
+                          model={material}
+                          attrName='useTickets'/>
+            </f.row>
+
+            <f.row>
+              <f.inputWithLabel attrName='view'
+                                model={material}
+                                end={true}/>
+            </f.row>
+          </MaterialViews.base>
+        );
+      }
+    },
+
+    tfs: {
+      view: function (controller, args) {
+        var material = args.material;
+        return (
+          <MaterialViews.base material={material} onRemove={args.onRemove}
+                              selectedMaterialIndex={args.selectedMaterialIndex}>
+            <f.row>
+              <f.inputWithLabel attrName='url'
+                                type='url'
+                                model={material}/>
+              <f.inputWithLabel attrName='domain'
+                                model={material}/>
+              <f.inputWithLabel attrName='username'
+                                model={material}/>
+              <f.inputWithLabel attrName='password'
+                                type='password'
+                                model={material}
+                                end={true}/>
+            </f.row>
+
+            <f.row>
+              <f.inputWithLabel attrName='projectPath'
+                                model={material}
+                                end={true}/>
+            </f.row>
+          </MaterialViews.base>
+        );
+      }
+    }
+  };
+
+  var MaterialTypeSelector = {
+    controller: function (args) {
+      this.materials      = args.materials;
+      this.createMaterial = args.createMaterial;
+      this.selected       = m.prop('git');
+    },
+
+    view: function (ctrl) {
+      return (
+        <f.row className='material-selector'>
+          <f.select
+            value={ctrl.selected}
+            class='inline'
+            label='Add material of type'
+            items={_.transform(Materials.Types, function(result, value, key){
+                  result[key] = value.description;
+                })}
+            size={3}/>
+          <f.column size={2} end={true} class='add-material'>
+            <a href="javascript:void(0)" onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</a>
+          </f.column>
+        </f.row>
+      );
+    }
+  };
+
+  var MaterialsConfigWidget = {
+    controller: function (args) {
+      this.materials = args.materials;
+
+      this.selectedMaterialIndex = args.selectedMaterialIndex;
+
+      this.removeMaterial = function (material) {
+        var previousMaterial = this.materials.previousMaterial(material);
+        this.materials.removeMaterial(material);
+
+        var firstMaterial = this.materials.firstMaterial();
+        this.selectedMaterialIndex(this.materials.indexOfMaterial(previousMaterial || firstMaterial));
+      };
+
+      this.createMaterial = function (type) {
+        var newMaterial = this.materials.createMaterial({type: type()});
+        this.selectedMaterialIndex(this.materials.indexOfMaterial(newMaterial));
+      };
+
+      this.selectedMaterialIndex(0);
+    },
+
+    view: function (ctrl) {
+      return (
+        <div>
+          <f.accordion class="materials-definition"
+                       accordionTitles={ctrl.materials.collectMaterialProperty('name')}
+                       accordionKeys={ctrl.materials.collectMaterialProperty('uuid')}
+                       selectedIndex={ctrl.selectedMaterialIndex}>
+            {ctrl.materials.mapMaterials(function (material) {
+              var materialView = MaterialViews[material.type()];
+              return (m.component(materialView, {
+                material:              material,
+                selectedMaterialIndex: ctrl.selectedMaterialIndex,
+                onRemove:              ctrl.removeMaterial.bind(ctrl, material),
+                key:                   material.uuid()
+              }));
+            })}
+          </f.accordion>
+          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)} key='material-type-selector'/>
+        </div>
+      );
+    }
+  };
+
+  return MaterialsConfigWidget;
+});

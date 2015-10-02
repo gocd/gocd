@@ -77,7 +77,7 @@ public class HttpOperationResultTest {
 
     @Test
     public void successShouldReturnTrueIfStatusIs2xx(){
-        assertThat(httpOperationResult.isSuccess(), is(false));
+        assertThat(httpOperationResult.isSuccess(), is(true));
 
         httpOperationResult.notAcceptable("not acceptable", HealthStateType.general(HealthStateScope.GLOBAL));
         assertThat(httpOperationResult.isSuccess(), is(false));

@@ -191,7 +191,7 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public boolean isSCMPlugin(String pluginId) {
-        return pluginManager.isPluginOfType(SCMExtension.EXTENSION_NAME, pluginId);
+        return isPluginOfType(pluginId, SCMExtension.EXTENSION_NAME);
     }
 
     Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {

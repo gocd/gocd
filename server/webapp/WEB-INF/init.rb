@@ -9,5 +9,5 @@ else
   ENV['BUNDLE_GEMFILE'] ||= File.expand_path(File.join('..', '/rails.new/Gemfile'), __FILE__)
 end
 
-ENV['RAILS_ENV']      ||= 'production'
+ENV['RAILS_ENV']      ||= (ENV['RACK_ENV'] || 'production')
 ENV['BUNDLE_WITHOUT'] = 'development:test:assets' if ENV['RAILS_ENV'] == 'production'

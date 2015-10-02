@@ -24,9 +24,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
-import com.thoughtworks.go.feature.EnterpriseFeature;
-import com.thoughtworks.go.licensing.Edition;
-import com.thoughtworks.go.licensing.LicenseValidity;
 import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.Pair;
 
@@ -185,14 +182,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig);
 
-    boolean isLicenseValid();
-
-    FeatureSupported validateFeature(EnterpriseFeature enterpriseFeature);
-
-    Edition validEdition();
-
-    LicenseValidity licenseValidity();
-
     EnvironmentConfig addEnvironment(String environmentName);
 
     void addEnvironment(BasicEnvironmentConfig config);
@@ -221,8 +210,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     boolean isGroupAdministrator(CaseInsensitiveString userName);
 
-
-
     List<ConfigErrors> getAllErrors();
 
     List<ConfigErrors> getAllErrorsExceptFor(Validatable skipValidatable);
@@ -230,8 +217,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     List<ConfigErrors> validateAfterPreprocess();
 
     void copyErrorsTo(CruiseConfig to);
-
-    Edition edition();
 
     PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig);
 
@@ -266,8 +251,4 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     boolean canDeletePackageRepository(PackageRepository repository);
 
     boolean canDeletePluggableSCMMaterial(SCM scmConfig);
-
-    public enum FeatureSupported {
-        Yes, No, InvalidLicense
-    }
 }

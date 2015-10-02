@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
 describe PipelinesController do
 
@@ -141,41 +141,6 @@ describe PipelinesController do
       get :index
 
       expect(response).to be_success
-    end
-  end
-
-  describe "dashboard" do
-    before(:each) do
-      @selected_pipeline_id = "456"
-      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => @selected_pipeline_id})
-    end
-
-    it "should load pipeline information" do
-      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
-      @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
-
-      get :dashboard, :format => "json"
-
-      expect(assigns[:pipeline_groups]).to eq(:pipeline_group_models)
-      expect(assigns[:pipeline_selections]).to eq(selections)
-      expect(assigns[:pipeline_configs]).to eq(viewable_groups)
-    end
-
-    it "should resolve to dashboard" do
-      expect({:get => "/dashboard.json"}).to route_to(:controller => "pipelines", :action => "dashboard", :format => "json")
-    end
-
-    it "should NOT redirect to 'add pipeline wizard' when there are no pipelines in config" do
-      pipeline_group_models = java.util.ArrayList.new
-      pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
-      @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
-
-      get :dashboard, :format => "json"
-
-      expect(response.code).to eq("200")
     end
   end
 

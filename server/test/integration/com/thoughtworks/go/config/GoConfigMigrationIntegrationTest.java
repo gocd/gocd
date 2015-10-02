@@ -40,7 +40,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.ServerVersion;
@@ -195,7 +194,7 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldTryToRevertConfigToTheLatestValidConfigVersionOnlyOnce() throws IOException {
         try {
-            configRepository.checkin(new GoConfigRevision("<cruise></cruise>", "md5", "ps", "123", Edition.Empty, new TimeProvider()));
+            configRepository.checkin(new GoConfigRevision("<cruise></cruise>", "md5", "ps", "123", new TimeProvider()));
             loadConfigFileWithContent("<cruise></cruise>");
             ServerHealthStates states = serverHealthService.getAllLogs();
             assertThat(states.size(), is(1));
@@ -310,7 +309,7 @@ public class GoConfigMigrationIntegrationTest {
                     }
                 }, configRepository, new TimeProvider(), configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
         FileUtils.writeStringToFile(configFile, ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
-        configRepository.checkin(new GoConfigRevision("dummy-content", "some-md5", "loser", "100.3.1", Edition.Free, new TimeProvider()));
+        configRepository.checkin(new GoConfigRevision("dummy-content", "some-md5", "loser", "100.3.1", new TimeProvider()));
 
         upgrader.upgradeIfNecessary(configFile, currentGoServerVersion);
 

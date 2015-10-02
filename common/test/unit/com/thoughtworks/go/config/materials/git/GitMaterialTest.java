@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config.materials.git;
 
+import com.googlecode.junit.ext.JunitExtRunner;
+import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -25,6 +27,7 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -40,11 +43,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.RandomAccess;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
@@ -55,9 +64,11 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@RunWith(JunitExtRunner.class)
 public class GitMaterialTest {
     @Rule
     public TestName name = new TestName();
@@ -224,6 +235,24 @@ public class GitMaterialTest {
         git = new GitMaterial("file://" + repositoryUrl);
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+    }
+
+    @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
+    public void shouldThrowExceptionWhenWorkingDirectoryIsNotGitRepoAndItsUnableToDeleteIt() throws Exception {
+        File fileToBeLocked = new File(workingDir, "file");
+        RandomAccessFile lockedFile = new RandomAccessFile(fileToBeLocked, "rw");
+        FileLock lock = lockedFile.getChannel().lock();
+        try {
+            git.latestModification(workingDir, new TestSubprocessExecutionContext());
+            fail("Should have failed to check modifications since the file is locked and cannot be removed.");
+        } catch (Exception e) {
+            assertEquals(e.getMessage().trim(), "Failed to delete directory: " + workingDir.getAbsolutePath().trim());
+            assertEquals(true, fileToBeLocked.exists());
+        }
+        finally {
+            lock.release();
+        }
     }
 
     @Test

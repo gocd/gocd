@@ -1,0 +1,125 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helpers/tooltips', './materials_config_widget', './environment_variables_config_widget',
+  './jobs_config_widget'], function (m, _, s, f, tt, MaterialsConfigWidget, EnvironmentVariablesConfigWidget, JobsConfigWidget) {
+
+  var StageConfigDefinitionWidget = {
+    controller: function (args) {
+      this.stage            = args.stage;
+      this.selectedJobIndex = m.prop(0);
+      this.onRemove         = args.onRemove;
+    },
+
+    view: function (ctrl, args, children) {
+      return (
+        <div className='stage-definition' data-stage-name={ctrl.stage.name()}>
+          <f.removeButton onclick={ctrl.onRemove}
+            />
+          <f.row>
+            <f.inputWithLabel attrName='name'
+                              model={ctrl.stage}/>
+            <f.checkBox model={ctrl.stage}
+                        attrName='fetchMaterials'
+                        tooltip={{
+                                  content: tt.stage.fetchMaterials,
+                                  direction: 'bottom',
+                                  size: 'small'
+                                }}/>
+            <f.checkBox model={ctrl.stage}
+                        attrName='neverCleanArtifacts'
+                        tooltip={{
+                                  content: tt.stage.neverCleanArtifacts,
+                                  direction: 'bottom',
+                                  size: 'small'
+                                }}/>
+            <f.checkBox model={ctrl.stage}
+                        attrName='cleanWorkingDirectory'
+                        tooltip={{
+                                  content: tt.stage.cleanWorkingDirectory,
+                                  direction: 'bottom',
+                                  size: 'small'
+                                }}
+                        end={true}/>
+          </f.row>
+
+          <f.row>
+            <f.column size={12} end={true}>
+              <EnvironmentVariablesConfigWidget variables={ctrl.stage.environmentVariables()}/>
+            </f.column>
+          </f.row>
+
+          <f.row>
+            <f.column size={12} end={true}>
+              <JobsConfigWidget jobs={ctrl.stage.jobs()} selectedJobIndex={ctrl.selectedJobIndex}/>
+            </f.column>
+          </f.row>
+        </div>
+      );
+    }
+  };
+
+  var MaterialConfigWrapper = {
+    controller: function (args) {
+      this.materials             = args.materials;
+      this.selectedMaterialIndex = m.prop(0);
+    },
+
+    view: function (ctrl, args, children) {
+      return (
+        <div className='material-definitions'>
+          <MaterialsConfigWidget materials={ctrl.materials} selectedMaterialIndex={ctrl.selectedMaterialIndex}/>
+        </div>
+      );
+    }
+  };
+
+  var StagesConfigWidget = {
+    controller: function (args) {
+      this.stages           = args.stages;
+      this.materials        = args.materials;
+      this.currentSelection = args.currentSelection;
+
+      this.removeStage = function (stage) {
+        var previousStage = this.stages.previousStage(stage);
+        this.stages.removeStage(stage);
+        var firstStage    = this.stages.firstStage();
+
+        this.currentSelection(previousStage || firstStage || this.stages.createStage());
+      };
+    },
+
+    view: function (ctrl, args) {
+      var componentToShow;
+
+      if (args.currentSelection() === args.materials) {
+        componentToShow = <MaterialConfigWrapper materials={args.materials}
+                                                 key='material-config-wrappper'/>;
+      } else {
+        componentToShow = <StageConfigDefinitionWidget key={ctrl.currentSelection().uuid()}
+                                                       stage={ctrl.currentSelection()}
+                                                       onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}/>;
+      }
+      return (
+        <div class='stage-and-material-definitions'>
+          {componentToShow}
+        </div>
+      );
+    }
+  };
+
+  return StagesConfigWidget;
+});

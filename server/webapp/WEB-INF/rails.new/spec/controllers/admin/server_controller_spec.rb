@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "spec_helper")
+require 'spec_helper'
 
 describe Admin::ServerController do
   include MockRegistryModule
@@ -90,7 +90,7 @@ describe Admin::ServerController do
     it "should report success on being able to connect to ldap" do
       controller.stub(:server_config_service).and_return(@server_config_service = Object.new)
       result = nil
-      @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config_without_password, an_instance_of(HttpLocalizedOperationResult)) 
+      @server_config_service.should_receive(:validateLdapSettings).with(@ldap_config_without_password, an_instance_of(HttpLocalizedOperationResult))
 
       post :validate_ldap, :server_configuration_form => @valid_ldap_not_changed_password_params
       json = JSON.parse(response.body)
@@ -310,7 +310,7 @@ describe Admin::ServerController do
     def localized_success_message
       LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")
     end
-    
+
     def stub_update_server_config(mailhost, ldap, password, artifact_dir, purgeStart, purgeEnd, jobTimeout, should_allow_auto_login, siteUrl, secureSiteUrl, repo_location, localizable_message,md5)
       @server_config_service.should_receive(:updateServerConfig) do |actual_mailhost, actual_ldap, actual_password, actual_artifact_dir, actual_purgeStart, actual_purgeEnd, actual_jobTimeout, actual_should_allow_auto_login, actual_siteUrl, actual_secureSiteUrl, actual_repo_location, actual_operation_result,actual_md5|
         actual_mailhost.should == mailhost

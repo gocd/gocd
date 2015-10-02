@@ -131,6 +131,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
                 : AgentStatus.fromConfig(agentConfigStatus);
     }
 
+    public AgentConfigStatus getAgentConfigStatus() {
+        return agentConfigStatus;
+    }
+
     public AgentBuildingInfo getBuildingInfo() {
         return agentRuntimeInfo.getBuildingInfo();
     }

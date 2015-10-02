@@ -24,8 +24,8 @@ module ApplicationHelper
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 
   def url_for_path(java_path, options = {})
-    path = java_path.sub(/^\//, "")
-    url = ((options[:only_path] == false) ? main_app.root_url : main_app.root_path)
+    path        = java_path.sub(/^\//, "")
+    url         = ((options[:only_path] == false) ? main_app.root_url : main_app.root_path)
     url, params = url.split("?")
     url = "#{url.gsub(/\/$/, "")}/#{path}"
     if params
@@ -49,6 +49,10 @@ module ApplicationHelper
 
   def url_for_job(job)
     url_for_job_identifier(job.getIdentifier())
+  end
+
+  def url_for_pipeline(pipeline_name, options = {})
+    url_for_path("/tab/pipeline/history/#{pipeline_name}", options)
   end
 
   def path_for_stage(stage_identifier)
@@ -123,14 +127,14 @@ module ApplicationHelper
     options.merge!(disabled: 'disabled') unless system_environment.isServerActive()
     options[:value] = name
     lambda_text, options_without_onclick = onclick_lambda(options)
-    if( options[:type] == "image" )
+    if (options[:type] == "image")
       button_body = image_button(name, options_without_onclick)
     else
       button_body = options[:type] == "select" ?
-          select_button(name, options_without_onclick) :
-          options[:type] == "header_select" ?
-              header_select_button(name, options_without_onclick) :
-              default_button(name, options_without_onclick)
+        select_button(name, options_without_onclick) :
+        options[:type] == "header_select" ?
+          header_select_button(name, options_without_onclick) :
+          default_button(name, options_without_onclick)
     end
     button_body + lambda_text
   end
@@ -141,8 +145,8 @@ module ApplicationHelper
 
   def select_button name, options
     options[:class] = add_class(options[:class], 'select')
-    options[:type] = "button"
-    image_url = 'g9/button_select_icon.png'
+    options[:type]  = "button"
+    image_url       = 'g9/button_select_icon.png'
     if options[:text_color] == 'dark'
       image_url = 'g9/button_select_icon_dark.png'
     end
@@ -151,13 +155,13 @@ module ApplicationHelper
 
   def header_select_button name, options
     options[:class] = add_class(options[:class], 'header_submit')
-    options[:type] = "button"
+    options[:type]  = "button"
     content_tag(:button, button_content(name), button_options(options), false)
   end
 
   def image_button name, options
     options[:class] = add_class(options[:class], 'image')
-    options[:type] = "submit"
+    options[:type]  = "submit"
     options[:title] = name
     content_tag(:button, content_tag(:span, ' ', title: name), button_options(options), false)
   end

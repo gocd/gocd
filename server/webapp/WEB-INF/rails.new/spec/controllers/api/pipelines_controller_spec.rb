@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 def schedule_options(specified_revisions, variables, secure_variables = {})
   ScheduleOptions.new(HashMap.new(specified_revisions), HashMap.new(variables), HashMap.new(secure_variables))
@@ -332,14 +332,9 @@ describe Api::PipelinesController do
   end
 
   describe :stage_feed do
-    before do
-      controller.stub(:licensed_agent_limit)
-    end
-
     before :each do
       controller.go_cache.clear
       controller.stub(:set_locale)
-      controller.stub(:licensed_agent_limit)
     end
 
     it "should return the url to the feed" do

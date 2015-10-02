@@ -20,8 +20,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
@@ -30,8 +28,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.persistence.OauthRepository;
-import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.security.UserLicenseLimitExceededException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
@@ -52,7 +48,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
@@ -60,7 +55,6 @@ public class UserServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private UserService userService;
-    private GoLicenseService licenseService;
     private TestTransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
     private OauthRepository oauthRepo;
@@ -70,7 +64,6 @@ public class UserServiceTest {
         oauthRepo = mock(OauthRepository.class);
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        licenseService = mock(GoLicenseService.class);
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
     }
@@ -78,7 +71,7 @@ public class UserServiceTest {
     @Before
     public void setUp() {
 
-        userService = new UserService(userDao, securityService, goConfigService, licenseService, transactionTemplate, transactionSynchronizationManager, oauthRepo);
+        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, transactionSynchronizationManager, oauthRepo);
     }
 
     @Test
@@ -233,7 +226,6 @@ public class UserServiceTest {
         doNothing().when(userDao).saveOrUpdate(foo.getUser());
         when(userDao.findUser("fooUser")).thenReturn(new NullUser());
         when(userDao.enabledUserCount()).thenReturn(10);
-        when(licenseService.maximumUsersAllowed()).thenReturn(100);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
@@ -247,7 +239,6 @@ public class UserServiceTest {
         doNothing().when(userDao).saveOrUpdate(passwordUser.getUser());
         when(userDao.findUser("passwordUser")).thenReturn(new NullUser());
         when(userDao.enabledUserCount()).thenReturn(10);
-        when(licenseService.maximumUsersAllowed()).thenReturn(100);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(passwordUser), result);
@@ -268,36 +259,6 @@ public class UserServiceTest {
         assertThat(result.httpCode(), is(HttpServletResponse.SC_CONFLICT));
     }
 
-    @Test
-    public void shouldReturnErrorMessageWhenLicenseLimitExceeds() throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        User foo = new User("fooUser", "Foo User", "foo@user.com");
-        UserSearchModel searchModel = new UserSearchModel(foo, UserSourceType.LDAP);
-        when(userDao.findUser("fooUser")).thenReturn(new NullUser());
-        when(userDao.enabledUserCount()).thenReturn(10);
-        when(licenseService.maximumUsersAllowed()).thenReturn(10);
-
-        userService.create(Arrays.asList(searchModel), result);
-
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("LICENSE_LIMIT_EXCEEDED")));
-    }
-
-    @Test
-    public void enforceLicenseLimit_shouldThrowExceptionIfUserDowsNotExistAndOnlyKnownUsersAreAllowedToLogin() throws Exception {
-        when(licenseService.maximumUsersAllowed()).thenReturn(100);
-        when(userDao.enabledUserCount()).thenReturn(10);
-        when(userDao.findUser("new_user")).thenReturn(new NullUser());
-        when(goConfigService.isOnlyKnownUserAllowedToLogin()).thenReturn(true);
-        try {
-            userService.addUserIfDoesNotExist(new Username(new CaseInsensitiveString("new_user")));
-            fail("should have thrown OnlyKnownUsersAllowedException");
-        } catch (OnlyKnownUsersAllowedException e) {
-            assertThat(e.getMessage(), is("Please ask the administrator to add you to Go"));
-        }
-    }
 
     @Test
     public void shouldReturnErrorMessageWhenUserValidationsFail() throws Exception {
@@ -307,13 +268,11 @@ public class UserServiceTest {
         UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.LDAP);
         when(userDao.findUser("fooUser")).thenReturn(new NullUser());
         when(userDao.enabledUserCount()).thenReturn(1);
-        when(licenseService.maximumUsersAllowed()).thenReturn(10);
 
         userService.create(Arrays.asList(searchModel), result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-
     }
 
     @Test
@@ -348,39 +307,9 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldNotBeAbleToEnableMoreUserThanWeHaveLicenceFor() throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        when(licenseService.maximumUsersAllowed()).thenReturn(1);
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake")));
-        userService.enable(Arrays.asList("Pavan"), result);
-
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("DID_NOT_ENABLE_SELECTED_USERS")));
-
-        userService.enable(Arrays.asList("user_three"), result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("DID_NOT_ENABLE_SELECTED_USERS")));
-    }
-
-    @Test
-    public void shouldBeAbleToReachFullLicenseLimit() throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        when(licenseService.maximumUsersAllowed()).thenReturn(2);
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake")));
-        userService.enable(Arrays.asList("Pavan"), result);
-
-        assertThat(result.isSuccessful(), is(true));
-    }
-
-    @Test
     public void shouldNotFailToEnableTheSameUser() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        when(licenseService.maximumUsersAllowed()).thenReturn(1);
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake")));
         userService.enable(Arrays.asList("Jake"), result);
 
@@ -533,22 +462,6 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDismissLicenseExpiryWarningForUser() {
-        Username username = new Username(new CaseInsensitiveString("loser"));
-
-        User loser = new User("loser");
-        loser.setId(1);
-        when(userDao.load(loser.getId())).thenReturn(loser);
-
-        userService.disableLicenseExpiryWarning(loser.getId());
-
-        assertThat(loser.hasDisabledLicenseExpiryWarning(), is(true));
-        verify(userDao).saveOrUpdate(loser);
-        verify(userDao).load(loser.getId());
-        verifyNoMoreInteractions(userDao);
-    }
-
-    @Test
     public void shouldDeleteUserSuccessfully() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -604,22 +517,6 @@ public class UserServiceTest {
         userService.deleteUser(username, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));
-    }
-
-    @Test
-    public void addUserIfDoesNotExist_shouldThrowExceptionIfUserLimitExceededForNewUser() throws Exception {
-        Username user = new Username(new CaseInsensitiveString("user"));
-        when(userDao.findUser(user.getUsername().toString())).thenReturn(new NullUser());
-        when(goConfigService.isOnlyKnownUserAllowedToLogin()).thenReturn(false);
-        when(licenseService.maximumUsersAllowed()).thenReturn(2);
-        when(userDao.enabledUserCount()).thenReturn(2);
-
-        try {
-            userService.addUserIfDoesNotExist(user);
-            fail();
-        } catch (UserLicenseLimitExceededException e) {
-            assertThat(e.getMessage(), is("User license limit exceeded, please contact the administrator"));
-        }
     }
 
     private void configureAdmin(String username, boolean isAdmin) {

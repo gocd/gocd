@@ -66,7 +66,7 @@ public class AgentRegistrationController {
         this.pluginsZip = pluginsZip;
     }
 
-    @RequestMapping(value = "/latest-agent.status", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.HEAD)
     public void checkAgentStatus(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
         response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
@@ -76,26 +76,26 @@ public class AgentRegistrationController {
         setOtherHeaders(response);
     }
 
-    @RequestMapping(value = "/latest-agent.status", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.GET)
     public void latestAgentStatus(HttpServletResponse response) throws IOException {
         checkAgentStatus(response);
     }
 
-    @RequestMapping(value = "/agent", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/agent", method = RequestMethod.HEAD)
     public void checkAgentVersion(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
         response.setHeader("Content-MD5", agentChecksum);
         setOtherHeaders(response);
     }
 
-    @RequestMapping(value = "/agent-launcher.jar", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.HEAD)
     public void checkAgentLauncherVersion(HttpServletResponse response) throws IOException {
         populateLauncherChecksum();
         response.setHeader("Content-MD5", agentLauncherChecksum);
         setOtherHeaders(response);
     }
 
-    @RequestMapping(value = "/agent-plugins.zip", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.HEAD)
     public void checkAgentPluginsZipStatus(HttpServletResponse response) throws IOException {
         response.setHeader("Content-MD5", pluginsZip.md5());
         setOtherHeaders(response);
@@ -130,17 +130,17 @@ public class AgentRegistrationController {
         response.setHeader("Cruise-Server-Ssl-Port", Integer.toString(systemEnvironment.getSslServerPort()));
     }
 
-    @RequestMapping(value = "/agent", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/agent", method = RequestMethod.GET)
     public ModelAndView downloadAgent() throws IOException {
         return getDownload(new AgentJarSrc());
     }
 
-    @RequestMapping(value = "/agent-launcher.jar", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.GET)
     public ModelAndView downloadAgentLauncher() throws IOException {
         return getDownload(new AgentLauncherSrc());
     }
 
-    @RequestMapping(value = "/agent-plugins.zip", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.GET)
     public ModelAndView downloadPluginsZip() throws IOException {
         return getDownload(new AgentPluginsZipSrc());
     }
@@ -173,7 +173,7 @@ public class AgentRegistrationController {
         });
     }
 
-    @RequestMapping(value = "/agent", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/agent", method = RequestMethod.POST)
     public ModelAndView agentRequest(@RequestParam("hostname") String hostname,
                                      @RequestParam("uuid") String uuid,
                                      @RequestParam("location") String location,

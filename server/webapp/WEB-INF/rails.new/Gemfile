@@ -7,16 +7,26 @@ gem 'validatable', '>=1.6.0'
 gem 'dynamic_form'
 
 gem 'gadgets', '0.0.1', path: 'vendor/engines/gadgets'
+
 gem 'sprockets-rails'
-gem 'sass-rails', '4.0.3' # see https://github.com/rails/sass-rails/issues/191
-gem 'yui-compressor'
+gem 'sass-rails'
+gem 'requirejs-rails'
+gem 'mithril_rails'
+gem 'uglifier'
+gem 'foundation-rails'
+gem 'bourbon'
+gem 'font-awesome-sass'
+gem 'js-routes'
+
 gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
 gem 'versionist'
 gem 'roar'
 
-group :test do
+group :development, :test do
+  gem 'rails-dev-tweaks', '~> 1.1'
   gem 'minitest'
   gem "jasmine"
+  gem "jasmine-rails"
   gem 'selenium-webdriver'
   gem 'jasmine-jquery-rails'
   gem 'jasmine-junitreporter'

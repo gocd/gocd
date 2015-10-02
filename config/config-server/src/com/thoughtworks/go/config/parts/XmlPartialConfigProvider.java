@@ -21,9 +21,11 @@ import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.util.FileUtil;
+import org.jdom.input.JDOMParseException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +41,7 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
     }
 
     @Override
-    public PartialConfig Load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) throws Exception {
+    public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
         File[] allFiles = getFiles(configRepoCheckoutDirectory, context);
 
         // if context had changed files list then we could parse only new content
@@ -94,7 +96,7 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         }
     }
 
-    public PartialConfig[] ParseFiles(File[] allFiles) throws Exception {
+    public PartialConfig[] ParseFiles(File[] allFiles) {
         PartialConfig[] parts = new PartialConfig[allFiles.length];
         for(int i = 0; i < allFiles.length; i++){
             parts[i] = ParseFile(allFiles[i]);
@@ -103,8 +105,22 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         return parts;
     }
 
-    public PartialConfig ParseFile(File file) throws Exception {
-        final FileInputStream inputStream = new FileInputStream(file);
-        return loader.fromXmlPartial(inputStream, PartialConfig.class);
+    public PartialConfig ParseFile(File file) {
+        try {
+            final FileInputStream inputStream = new FileInputStream(file);
+            return loader.fromXmlPartial(inputStream, PartialConfig.class);
+        }
+        catch (JDOMParseException jdomex)
+        {
+            throw new RuntimeException("Syntax error in xml file in configuration repository",jdomex);
+        }
+        catch (IOException ioex)
+        {
+            throw new RuntimeException("IO error when trying to parse xml file in configuration repository",ioex);
+        }
+        catch (Exception ex)
+        {
+            throw new RuntimeException("Failed to parse xml file in configuration repository",ex);
+        }
     }
 }

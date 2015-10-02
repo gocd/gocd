@@ -33,7 +33,7 @@ public class PluginRequestHelper {
             if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == response.responseCode()) {
                 return pluginInteractionCallback.onSuccess(response.responseBody(), resolvedExtensionVersion);
             }
-            throw new RuntimeException(format("Unsuccessful response from plugin. Plugin returned with code '%s' and the following response: '%s'", response.responseCode(), response.responseBody()));
+            throw new RuntimeException(format("The plugin sent a response that could not be understood by Go. Plugin returned with code '%s' and the following response: '%s'", response.responseCode(), response.responseBody()));
         } catch (Exception e) {
             throw new RuntimeException(format("Interaction with plugin with id '%s' implementing '%s' extension failed while requesting for '%s'. Reason: [%s]", pluginId, extensionName, requestName, e.getMessage()), e);
         }

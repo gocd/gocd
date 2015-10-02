@@ -22,7 +22,7 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.messaging.GoMessageChannel;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
-import com.thoughtworks.go.server.service.WorkAssigner;
+import com.thoughtworks.go.server.service.BuildAssignmentService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,16 +32,16 @@ public class WorkFinder implements GoMessageListener<IdleAgentMessage> {
     private static final Logger LOGGER = Logger.getLogger(WorkFinder.class);
 
     private static final NoWork NO_WORK = new NoWork();
-    private WorkAssigner workAssigner;
+    private BuildAssignmentService buildAssignmentService;
     private GoMessageChannel<WorkAssignedMessage> assignedWorkTopic;
     private WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger;
 
     @Autowired
-    public WorkFinder(WorkAssigner workAssigner,
+    public WorkFinder(BuildAssignmentService buildAssignmentService,
                       IdleAgentTopic idleAgentTopic,
                       WorkAssignedTopic assignedWorkTopic,
                       WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger) {
-        this.workAssigner = workAssigner;
+        this.buildAssignmentService = buildAssignmentService;
         this.assignedWorkTopic = assignedWorkTopic;
         this.workAssignmentPerformanceLogger = workAssignmentPerformanceLogger;
         idleAgentTopic.addListener(this);
@@ -53,7 +53,7 @@ public class WorkFinder implements GoMessageListener<IdleAgentMessage> {
         long startTime = System.currentTimeMillis();
 
         try {
-            work = workAssigner.assignWorkToAgent(agent);
+            work = buildAssignmentService.assignWorkToAgent(agent);
         } finally {
             if (work == null) {
                 work = NO_WORK;

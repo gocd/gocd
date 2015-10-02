@@ -1,6 +1,8 @@
 # gocd
 
+[![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.io)
 [![Join the chat at https://gitter.im/gocd/gocd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/gocd/gocd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 This is the main repository for Go Continuous Delivery. Go helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
 
@@ -10,7 +12,7 @@ All information to help you get started with Go can be found on the <a href="htt
 
 ## Upcoming release
 
-See [#1076](https://github.com/gocd/gocd/issues/1076) for what's planned for the upcoming release
+See [#1104](https://github.com/gocd/gocd/issues/1104) for what's planned for the upcoming release
 
 ## Contributing
 

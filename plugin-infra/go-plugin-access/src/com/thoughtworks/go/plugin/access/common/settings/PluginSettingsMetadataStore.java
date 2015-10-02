@@ -73,7 +73,7 @@ public final class PluginSettingsMetadataStore extends PluginPreferenceStore<Plu
     }
 
     public List<String> getPlugins() {
-        return new ArrayList<String>(pluginsWithPreference());
+        return new ArrayList<String>(pluginIds());
     }
 
     public boolean hasPlugin(String pluginId) {
@@ -83,7 +83,7 @@ public final class PluginSettingsMetadataStore extends PluginPreferenceStore<Plu
     @Deprecated
     // only for test usage
     public void clear() {
-        Set<String> plugins = pluginsWithPreference();
+        Set<String> plugins = pluginIds();
         for (String pluginId : plugins) {
             removePreferenceFor(pluginId);
         }

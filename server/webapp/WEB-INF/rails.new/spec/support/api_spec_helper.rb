@@ -15,10 +15,15 @@
 ##########################GO-LICENSE-END##################################
 
 module ApiSpecHelper
+
+  def current_api_accept_header
+    @controller.class.default_accepts_header
+  end
+
   [:get, :delete, :head].each do |http_verb|
     class_eval(<<-EOS, __FILE__, __LINE__)
       def #{http_verb}_with_api_header(path, params={}, headers={})
-        #{http_verb} path, params, {'Accept' => 'application/vnd.go.cd.v1+json'}.merge(headers)
+        #{http_verb} path, params, {'Accept' => current_api_accept_header}.merge(headers)
       end
     EOS
   end
@@ -27,7 +32,7 @@ module ApiSpecHelper
     class_eval(<<-EOS, __FILE__, __LINE__)
       def #{http_verb}_with_api_header(path, params={}, headers={})
         controller.stub(:verify_content_type_on_post)
-        #{http_verb} path, params, {'Accept' => 'application/vnd.go.cd.v1+json'}.merge(headers)
+        #{http_verb} path, params, {'Accept' => current_api_accept_header}.merge(headers)
       end
     EOS
   end
@@ -36,6 +41,14 @@ module ApiSpecHelper
     enable_security
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
     @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+  end
+
+  def allow_current_user_to_access_pipeline(pipeline_name)
+    @security_service.stub(:hasViewPermissionForPipeline).with(controller.string_username, pipeline_name).and_return(true)
+  end
+
+  def allow_current_user_to_not_access_pipeline(pipeline_name)
+    @security_service.stub(:hasViewPermissionForPipeline).with(controller.string_username, pipeline_name).and_return(false)
   end
 
   def disable_security
@@ -66,6 +79,10 @@ module ApiSpecHelper
 
   def expected_response(thing, representer)
     JSON.parse(representer.new(thing).to_hash(url_builder: controller).to_json).deep_symbolize_keys
+  end
+
+  def expected_response_with_options(thing, opts=[], representer)
+    JSON.parse(representer.new(thing, opts).to_hash(url_builder: controller).to_json).deep_symbolize_keys
   end
 end
 

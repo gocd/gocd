@@ -22,7 +22,7 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>gocd</artifactId>
-    <version>15.2.0</version>
+    <version>15.3.0</version>
     <name>Thoughtworks Go</name>
     <url>http://www.thoughtworks.com/products/go-continuous-delivery</url>
     <packaging>pom</packaging>
@@ -110,16 +110,13 @@
         <module>agent-launcher</module>
         <module>agent-bootstrapper</module>
 
-        <module>plugin-infra/sample-plugins</module>
         <module>rack_hack</module>
         <module>server</module>
         <module>server-launcher</module>
         <module>app-server</module>
         <module>jetty9</module>
-        <module>jetty6</module>
         <module>development-utility/development-agent</module>
         <module>development-utility/development-server</module>
-        <module>development-utility/development-server-with-jetty6</module>
     </modules>
     <profiles>
         <profile>

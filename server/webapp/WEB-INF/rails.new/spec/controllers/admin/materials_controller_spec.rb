@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
+require 'spec_helper'
 
 describe Admin::MaterialsController do
   include MockRegistryModule
   before do
     controller.stub(:populate_health_messages)
   end
-  
+
   include ConfigSaveStubbing
 
   describe "routes" do

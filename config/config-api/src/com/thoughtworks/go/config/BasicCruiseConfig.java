@@ -52,9 +52,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
-import com.thoughtworks.go.feature.EnterpriseFeature;
-import com.thoughtworks.go.licensing.Edition;
-import com.thoughtworks.go.licensing.LicenseValidity;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.DFSCycleDetector;
@@ -346,22 +343,28 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void setEnvironments(EnvironmentsConfig environments) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set environments in merged configuration");
         }
 
         @Override
         public void setGroup(PipelineGroups pipelineGroups) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set groups in merged configuration");
         }
 
         @Override
         public void makePipelineUseTemplate(CaseInsensitiveString pipelineName, CaseInsensitiveString templateName) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            PipelineConfig config = pipelineConfigByName(pipelineName);
+            if(!config.isLocal())
+                throw bomb("Cannot extract template from remote pipeline");
+            this.main.makePipelineUseTemplate(pipelineName,templateName);
         }
 
         @Override
         public void updateGroup(PipelineConfigs pipelineConfigs, String groupName) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot set group in merged configuration");
         }
 
         @Override
@@ -422,7 +425,8 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public void update(String groupName, String pipelineName, PipelineConfig pipeline) {
-            throw new RuntimeException("TODO: Not implemented yet");
+            // this was called only from tests
+            throw bomb("Cannot update pipeline group in merged configuration");
         }
     }
 
@@ -1028,29 +1032,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean isLicenseValid() {
-        return licenseValidity().isValid();
-    }
-
-    @Override
-    public FeatureSupported validateFeature(EnterpriseFeature enterpriseFeature) {
-        if (!isLicenseValid()) {
-            return FeatureSupported.InvalidLicense;
-        }
-        return FeatureSupported.Yes;
-    }
-
-    @Override
-    public Edition validEdition() {
-        return Edition.OpenSource;
-    }
-
-    @Override
-    public LicenseValidity licenseValidity() {
-        return LicenseValidity.VALID_LICENSE;
-    }
-
-    @Override
     public EnvironmentConfig addEnvironment(String environmentName) {
         BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         this.addEnvironment(environmentConfig);
@@ -1215,11 +1196,6 @@ public class BasicCruiseConfig implements CruiseConfig {
                 rawObject.errors().addAll(objectWithErrors.errors());
             }
         });
-    }
-
-    @Override
-    public Edition edition() {
-        return licenseValidity().isValid() ? validEdition() : Edition.NoLicense;
     }
 
     @Override

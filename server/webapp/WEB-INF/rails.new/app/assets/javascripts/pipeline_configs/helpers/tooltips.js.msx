@@ -1,0 +1,476 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
+
+  var UseThis = {
+    view: function (ctrl, args) {
+      return (<a title='Use this' onclick={_.wrap(args.toShow, args.callback)}>{args.toShow}</a>);
+    }
+  };
+
+  var ExampleTable = {
+    view: function (ctrl, args) {
+      return (
+        <table>
+          <caption>{args.tableTitle || 'Some Examples'}</caption>
+          <tbody>
+          {_.map(args.examples, function (value, key) {
+
+            var toShow = args.callback ? (<UseThis callback={args.callback} toShow={key}/>) : key;
+
+            return (
+              <tr>
+                <td width={args.firstColumnWidth}><code>{toShow}</code></td>
+                <td>{value}</td>
+              </tr>
+            );
+          })}
+          </tbody>
+        </table>
+      );
+    }
+  };
+
+  var pipelineLabelTemplate = {
+    view: function (ctrl, args) {
+      return (
+        <div>
+          <p>
+            Pipeline label templates provide a means to label a pipeline or artefacts using a counter, or material
+            revision
+            (or both).
+          </p>
+
+          <p>
+            An example of a label template is{' '}
+            <code><UseThis callback={args.callback} toShow='15.1-${COUNT}'/></code>{' '}or {' '}
+            <code><UseThis callback={args.callback} toShow='15.1-${COUNT}-${svn}'/></code>{' '}or {' '}
+            <code><UseThis callback={args.callback} toShow='15.1-${COUNT}-${git[:7]}'/></code>.
+          </p>
+
+          <ExampleTable tableTitle='Allowed substitutions'
+                        firstColumnWidth='260px'
+                        examples={{
+                      '${COUNT}': 'The pipeline counter (starts at 1).',
+                      '${<material-name>}': 'The revision of the material named "material-name". The "material-name" can be the name of an SCM material, or a pipeline material.',
+                      '${<material-name>[:<length>]}': 'The first "length" characters of revision of the material named "material-name".',
+                      '#{<parameter-name>}': 'Substitute the value of the parameter named "parameter-name".'
+                    }}/>
+
+        </div>
+      );
+    }
+  };
+
+  var pipelineEnablePipelineLocking = (
+    <div>
+      <p>
+        If checked, only a single instance of the pipeline can be run at a time and the lock
+        will release only if the
+        entire pipeline completes successfully.
+      </p>
+
+      <p>
+        This is particularly useful in deployment scenarios, where you may want
+        to ensure that multiple pipeline instances are not deploying simultaneously.
+      </p>
+    </div>
+  );
+
+
+  var trackingToolGenericRegex = {
+    view: function (ctrl, args) {
+      return (
+        <div>
+          <p>
+            Any mention of issue or story numbers in commit messages will be parsed using this regular expression.
+          </p>
+
+          <ExampleTable callback={args.callback}
+                        firstColumnWidth='150px'
+                        examples={{
+                          '##(\\d+)': (
+                            <span>
+                              Will extract the issue "1748" from the message
+                              <br/>
+                              <code>Improve message on login failure (fixes <a>#1748</a>).</code>
+                            </span>
+                          ),
+                          '(JIRA-\\d+)': (
+                            <span>
+                              Will extract the issue "JIRA-1748" from the message
+                              <br/>
+                              <code>[<a>JIRA-1748</a>] Improve message on login failure.</code>
+                            </span>
+                          )
+                        }}/>
+        </div>
+      );
+    }
+  };
+
+
+  var trackingToolGenericUrlPattern = {
+    view: function (ctrl, args) {
+      return (
+        <div>
+          <p>
+            The URL to your tracking tool. This must contain the string <code>{'${ID}'}</code> which will be replaced
+            with
+            the number
+            identified using the pattern.
+          </p>
+
+          <ExampleTable callback={args.callback}
+                        examples={{
+                          'https://github.com/gocd/gocd/issues/${ID}': 'GitHub Issues',
+                          'https://bugzilla.example.com/bugs/bug.php?id=${ID}': 'Bugzilla Issue',
+                          'https://jira.example.com/jira/browse/${ID}': 'Jira Issue'
+                        }}/>
+        </div>
+      );
+    }
+  };
+
+  var trackingToolMingleBaseUrl = {
+    view: function (ctrl, args) {
+      return (
+        <div>
+          <p>
+            Base URI to the Mingle installation (do not include the project name/identifier)
+          </p>
+
+          <ExampleTable callback={args.callback}
+                        examples={{
+                          'https://widgets.example.com/mingle': 'Mingle on your premises',
+                          'https://example.mingle.thoughtworks.com': 'Hosted mingle'
+                        }}/>
+        </div>
+      );
+    }
+  };
+
+  var trackingToolMingleProjectIdentifier = {
+    view: function (ctrl, args) {
+      return (
+        <div>
+          <p>
+            The identifier of your mingle project. This can be found under the project's 'Project admin' tab in the
+            section titled 'Basic Information'.
+          </p>
+        </div>
+      );
+    }
+  };
+
+  var trackingToolMingleGroupingConditions = {
+    view: function (ctrl, args) {
+      return (
+        <div>
+          <p>
+            A MQL string that determines the 'passing criteria' for cards displayed.
+          </p>
+
+          <ExampleTable callback={args.callback}
+                        examples={{
+                          "status > 'In Dev'": "Only list cards that are past 'In Dev'"
+                        }}/>
+        </div>
+      );
+
+    }
+  };
+
+
+  var environmentVariables = (
+    <div>
+      <p>
+        Environment variables defined here are set when executing your tasks.
+        Use secure environment variables, to ensure that the environment variable are never displayed in plain text on
+        the console log or when editing configuration.
+      </p>
+
+      <p>
+        Go also supports Secure Environment Variables the values of these variables are never displayed anywhere
+        once they are setup. We also make a best attempt to clear out any occurrences of the secure environment
+        variables values from the console logs.
+      </p>
+
+      <a href='http://www.go.cd/documentation/user/current/faq/dev_use_current_revision_in_build.html'>
+        Read more...
+      </a>
+
+    </div>
+  );
+
+  var materialDestination = (
+    <div>
+      <p>The destination directory where the contents of this repository will be checked out.</p>
+    </div>
+  );
+
+  var materialName = (
+    <div>
+      <p>
+        (Optional)
+        The name of the material. If omitted, the default material name is the URL.
+        You can override this by setting the material name explicitly.</p>
+    </div>
+  );
+
+  var pipelineTimerSpec          = {
+    view: function (ctrl, args) {
+      return (
+        <div class='cron-tooltip'>
+          <p>
+            A cron expression is a string comprised of 6 or 7 fields separated by white space.
+            Fields can contain any of the allowed values, along with various combinations of the allowed special
+            characters for that field. The fields are as follows:
+          </p>
+
+          <p>
+            <code>seconds minutes hours day_of_month month day_of_week [year(optional)]</code>
+          </p>
+
+          <f.row>
+            <f.column size={4}>
+              <table>
+                <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>seconds</td>
+                  <td>
+                    <code>0-59</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>minutes</td>
+                  <td>
+                    <code>0-59</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>hours</td>
+                  <td>
+                    <code>0-23</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>day of month</td>
+                  <td>
+                    <code>0-31</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>month</td>
+                  <td>
+                    <code>1-12</code>{' '}OR{' '}<code>jan-dec</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>day of week</td>
+                  <td>
+                    <code>1-7</code>{' '}OR{' '}<code>sun-sat</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>year</td>
+                  <td>
+                    <code>1970-2099</code>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </f.column>
+            <f.column size={8} end={true} class='cron-field-explanation'>
+              <p>
+                A field may be an asterix (<code>*</code>), which stands for "all possible values".
+              </p>
+
+              <p>
+                Ranges of numbers are allowed. Ranges are two numbers separated with a hyphen. For example,
+                <code>8-11</code> for an "hours" entry specifies execution at hours 8, 9, 10 and 11.
+              </p>
+
+              <p>Lists are allowed. A list is a set of numbers (or ranges) separated by commas. Examples:
+                <code>1,2,5,9</code>, <code>0-4,8-12</code>
+              </p>
+
+              <p>
+                Step values can be used together with ranges. For example, <code>10-22/4</code> can be used in the
+                hours field to specify command execution every at the hours 10, 14, 18, 22.
+              </p>
+            </f.column>
+          </f.row>
+
+
+          <ExampleTable callback={args.callback}
+                        examples={{
+                    '0 0 */4 * * *': 'Run every 4th hour',
+                    '0 0 1 * * *': 'Run at 1:00 AM everyday',
+                    '0 43 2 * * sat': 'Run at 2:43 AM every saturday'
+                  }}/>
+
+
+        </div>
+      );
+    }
+  };
+  var pipelineTimerOnlyOnChanges = (
+    <div>
+      <p>
+        Run only if the pipeline hasn't previously run with the latest material(s).
+        This option is typically useful when automatic pipeline scheduling is turned off.
+      </p>
+    </div>
+  );
+
+  var trackingToolMain = (
+    <div>
+      <p>
+        Can be used to specify links to an issue tracker. Go will construct a link based on the commit message
+        that you
+        can use to take you to your tracking tool (Mingle card, JIRA issue, Trac issue etc).
+      </p>
+    </div>
+  );
+
+  var stageFetchMaterials        = (
+    <div>
+      <p>Perform material updates or checkouts.</p>
+    </div>
+  );
+  var stageNeverCleanArtifacts   = (
+    <div>
+      <p>Never cleanup artifacts for this stage, if purging artifacts is configured at the
+        Server Level.</p>
+    </div>
+  );
+  var stageCleanWorkingDirectory = (
+    <div>
+      <p>Remove all files and directories before running this stage.</p>
+    </div>
+  );
+  var pipelineParametersMain     = (
+    <div>
+      <p>
+        Parameters help reduce repetition within your configurations and combined with templates allow you
+        to setup
+        complex configurations.{' '}
+      </p>
+      <a
+        href='http://www.go.cd/documentation/user/current/configuration/admin_use_parameters_in_configuration.html'>
+        Read more...
+      </a>
+    </div>
+  );
+
+  var jobResources = (
+    <div>
+      <p>
+        Jobs tagged with these resources will only run on agents that satisfy these resources.
+      </p>
+    </div>
+  );
+
+  var jobTimeout = (
+    <div>
+      <p>If this job is inactive for more than the specified period (in minutes), Go will cancel it.</p>
+    </div>
+  );
+
+  var jobRunOnOneAgent = (
+    <div>
+      <p>
+        Specify the number of agents that this job will run on.
+      </p>
+    </div>
+  );
+
+  var jobRunOnAllAgents = (
+    <div>
+      <p>
+        Job will run on all agents that match its resources (if any) and are in the same environment as this job's
+        pipeline. This option is particularly useful when deploying to multiple servers.
+      </p>
+    </div>
+  );
+
+  var jobRunOnManyAgents = (
+    <div>
+      <p>
+        Specified number of instances of job that will be created during schedule time.
+      </p>
+    </div>
+  );
+
+  return {
+    pipeline: {
+      labelTemplate:         pipelineLabelTemplate,
+      enablePipelineLocking: pipelineEnablePipelineLocking,
+      timer:                 {
+        spec:          pipelineTimerSpec,
+        onlyOnChanges: pipelineTimerOnlyOnChanges
+      },
+      parameters:            {
+        main: pipelineParametersMain
+      }
+    },
+
+    environmentVariables: environmentVariables,
+
+    trackingTool: {
+      main:   trackingToolMain,
+      mingle: {
+        baseUrl:            trackingToolMingleBaseUrl,
+        projectIdentifier:  trackingToolMingleProjectIdentifier,
+        groupingConditions: trackingToolMingleGroupingConditions
+      },
+
+      generic: {
+        regex:      trackingToolGenericRegex,
+        urlPattern: trackingToolGenericUrlPattern
+      }
+    },
+
+    material: {
+      name:        materialName,
+      destination: materialDestination
+    },
+
+    stage: {
+      fetchMaterials:        stageFetchMaterials,
+      neverCleanArtifacts:   stageNeverCleanArtifacts,
+      cleanWorkingDirectory: stageCleanWorkingDirectory
+    },
+
+    job: {
+      resources:   jobResources,
+      timeout:     jobTimeout,
+      runOnAgents: {
+        one:  jobRunOnOneAgent,
+        all:  jobRunOnAllAgents,
+        many: jobRunOnManyAgents
+      }
+    }
+  };
+});

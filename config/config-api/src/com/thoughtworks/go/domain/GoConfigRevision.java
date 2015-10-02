@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.ArrayUtils;
@@ -34,7 +33,6 @@ public class GoConfigRevision {
     private static final String DELIMITER = "\\" + DELIMITER_CHAR;
     private static final String VALUE = "(([^" + DELIMITER_CHAR + "]|" + DELIMITER + DELIMITER + ")+)";
     private static final int GROUPS_IN_VALUE_MATCHER = 2; //the VALUE matcher has one subgroup per group 1 + 1 = 2
-    private static String adminVersion;
 
     public static enum Fragment {
         user, timestamp, schema_version, go_edition, go_version, md5;
@@ -66,22 +64,22 @@ public class GoConfigRevision {
 
     private static final Pattern PATTERN = Pattern.compile("^" + Fragment.string(VALUE, DELIMITER) + "$");
 
-    
+
     private String md5;
     private String username;
     private String goVersion;
-    private Edition goEdition;
+    private String goEdition;
     private final String xml;
     private Date time;
     private int schemaVersion;
 	private String commitSHA;
 
-    public GoConfigRevision(String configXml, String md5, String username, String goVersion, Edition goEdition, TimeProvider provider) {
+    public GoConfigRevision(String configXml, String md5, String username, String goVersion, TimeProvider provider) {
         this(configXml);
         this.md5 = md5;
         this.username = username;
         this.goVersion = goVersion;
-        this.goEdition = goEdition;
+        this.goEdition = "OpenSource";
         this.time = provider.currentTime();
         this.schemaVersion = GoConstants.CONFIG_SCHEMA_VERSION;
     }
@@ -93,7 +91,7 @@ public class GoConfigRevision {
             username = Fragment.user.getMatch(matcher);
             time = new Date(Long.parseLong(Fragment.timestamp.getMatch(matcher)));
             schemaVersion = Integer.parseInt(Fragment.schema_version.getMatch(matcher));
-            goEdition = Edition.valueOf(Fragment.go_edition.getMatch(matcher));
+            goEdition = Fragment.go_edition.getMatch(matcher);
             goVersion = Fragment.go_version.getMatch(matcher);
             md5 = Fragment.md5.getMatch(matcher);
         } else {
@@ -126,7 +124,7 @@ public class GoConfigRevision {
         return goVersion;
     }
 
-    public Edition getGoEdition() {
+    public String getGoEdition() {
         return goEdition;
     }
 

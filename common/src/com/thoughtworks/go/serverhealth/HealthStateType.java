@@ -41,6 +41,9 @@ public class HealthStateType implements Comparable<HealthStateType> {
     public static HealthStateType invalidConfig() {
         return new HealthStateType("INVALID_CONFIG", 406, HealthStateScope.GLOBAL);
     }
+    public static HealthStateType invalidConfigMerge() {
+        return new HealthStateType("INVALID_CONFIG_MERGE", 406, HealthStateScope.GLOBAL);
+    }
 
     public static HealthStateType unauthorisedForPipeline(String pipelineName) {
         return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.forPipeline(pipelineName));

@@ -20,5 +20,5 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import java.util.List;
 
 public interface PartialConfigChangedListener {
-    void onPartialConfigChanged(PartialConfig[] partials);
+    void onPartialConfigChanged(List<PartialConfig> partials);
 }

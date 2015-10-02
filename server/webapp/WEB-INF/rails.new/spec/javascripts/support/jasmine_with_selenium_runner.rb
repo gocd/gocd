@@ -7,13 +7,10 @@
 
 class JasmineWithSeleniumRunner
   def initialize(formatter, jasmine_server_url, runner_config)
-    browser = runner_config['browser'] || 'firefox'
-    batch_size = runner_config['batch_size'] || 50
-
-    @web_driver = Selenium::WebDriver.for(browser.to_sym, {})
+    @web_driver = Selenium::WebDriver.for((runner_config['browser'] || 'firefox').to_sym, {})
     @formatter = formatter
     @jasmine_server_url = jasmine_server_url
-    @result_batch_size = batch_size
+    @result_batch_size = runner_config['batch_size'] || 50
   end
 
   def run
@@ -40,7 +37,7 @@ class JasmineWithSeleniumRunner
   def wait_for_jasmine_to_start
     started = Time.now
     until jasmine_testing_started? do
-      raise "couldn't connect to Jasmine after 60 seconds" if (started + 60 < Time.now)
+      raise "couldn't connect to Jasmine after 120 seconds" if (started + 120 < Time.now)
       sleep 1
     end
   end
@@ -53,8 +50,8 @@ class JasmineWithSeleniumRunner
   end
 
   def get_results
-    index = 0
-    spec_results = []
+    index                = 0
+    spec_results         = []
     failed_suite_results = []
 
     loop do

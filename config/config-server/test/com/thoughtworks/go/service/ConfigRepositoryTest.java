@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.licensing.Edition;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
@@ -64,18 +63,18 @@ public class ConfigRepositoryTest {
 
     @Test
     public void shouldBeAbleToCheckin() throws Exception {
-        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
-        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-v2", "user-name", "100.9.8", Edition.Enterprise, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-v2", "user-name", "100.9.8", new TimeProvider()));
         assertThat(configRepo.getRevision("md5-v1").getContent(), is("v1"));
         assertThat(configRepo.getRevision("md5-v2").getContent(), is("v1 v2"));
     }
 
 	@Test
 	public void shouldGetCommitsCorrectly() throws Exception {
-		configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
-		configRepo.checkin(new GoConfigRevision("v2", "md5-v2", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
-		configRepo.checkin(new GoConfigRevision("v3", "md5-v3", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
-		configRepo.checkin(new GoConfigRevision("v4", "md5-v4", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
+		configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", new TimeProvider()));
+		configRepo.checkin(new GoConfigRevision("v2", "md5-v2", "user-name", "100.3.9", new TimeProvider()));
+		configRepo.checkin(new GoConfigRevision("v3", "md5-v3", "user-name", "100.3.9", new TimeProvider()));
+		configRepo.checkin(new GoConfigRevision("v4", "md5-v4", "user-name", "100.3.9", new TimeProvider()));
 
 		GoConfigRevisions goConfigRevisions = configRepo.getCommits(3, 0);
 
@@ -93,7 +92,7 @@ public class ConfigRepositoryTest {
 
     @Test
     public void shouldFailWhenDoesNotFindARev() throws Exception {
-        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", new TimeProvider()));
         try {
             configRepo.getRevision("some-random-revision");
             fail("should have failed as revision does not exist");
@@ -104,8 +103,8 @@ public class ConfigRepositoryTest {
 
     @Test
     public void shouldUnderstandRevision_current_asLatestRevision() throws Exception {
-        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
-        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-v2", "user-name", "100.9.8", Edition.Enterprise, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-v2", "user-name", "100.9.8", new TimeProvider()));
         assertThat(configRepo.getRevision("current").getMd5(), is("md5-v2"));
     }
 
@@ -116,8 +115,8 @@ public class ConfigRepositoryTest {
 
     @Test
     public void shouldNotCommitWhenNothingChanged() throws Exception {
-        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", Edition.Free, new TimeProvider()));
-        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-v1", "loser-name", "501.9.8", Edition.Enterprise, new TimeProvider()));//md5 is solely trusted
+        configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-v1", "loser-name", "501.9.8", new TimeProvider()));//md5 is solely trusted
         Iterator<RevCommit> commitIterator = configRepo.revisions().iterator();
         int size = 0;
         while (commitIterator.hasNext()) {
@@ -131,7 +130,7 @@ public class ConfigRepositoryTest {
     public void shouldReturnPreviousCommitRevisionForGivenCommitRevision() throws Exception {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
         RevCommit previousCommit = configRepo.revisions().iterator().next();
-        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-2", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-2", "user-2", "13.2", new TimeProvider()));
         RevCommit latestCommit = configRepo.revisions().iterator().next();
 
         assertThat(configRepo.getPreviousCommit(previousCommit), is(nullValue()));
@@ -142,7 +141,7 @@ public class ConfigRepositoryTest {
     public void shouldShowDiffBetweenTwoConsecutiveGitRevisions() throws Exception {
         configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));
         RevCommit previousCommit = configRepo.revisions().iterator().next();
-        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", new TimeProvider()));
         RevCommit latestCommit = configRepo.revisions().iterator().next();
         String configChangesLine1 = "-<cruise schemaVersion='33'>";
         String configChangesLine2 = "+<cruise schemaVersion='60'>";
@@ -154,8 +153,8 @@ public class ConfigRepositoryTest {
     @Test
     public void shouldShowDiffBetweenAnyTwoGitRevisionsGivenTheirMd5s() throws Exception {
         configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));
-        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", Edition.Free, new TimeProvider()));
-        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 55), "md5-3", "user-1", "13.2", Edition.Free, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 55), "md5-3", "user-1", "13.2", new TimeProvider()));
         String configChangesLine1 = "-<cruise schemaVersion='33'>";
         String configChangesLine2 = "+<cruise schemaVersion='55'>";
         String actual = configRepo.findDiffBetweenTwoRevisions(configRepo.getRevCommitForMd5("md5-3"), configRepo.getRevCommitForMd5("md5-1"));
@@ -175,8 +174,8 @@ public class ConfigRepositoryTest {
     @Test
     public void shouldShowDiffForAnyTwoConfigMd5s() throws Exception {
         configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));
-        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
-        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 55), "md5-3", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 55), "md5-3", "user-2", "13.2", new TimeProvider()));
 
         String configChangesLine1 = "-<cruise schemaVersion='33'>";
         String configChangesLine2 = "+<cruise schemaVersion='60'>";
@@ -195,8 +194,8 @@ public class ConfigRepositoryTest {
 	@Test
 	public void shouldShowDiffForAnyTwoCommitSHAs() throws Exception {
 		configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));
-		configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
-		configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 55), "md5-3", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
+		configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60), "md5-2", "user-2", "13.2", new TimeProvider()));
+		configRepo.checkin(new GoConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 55), "md5-3", "user-2", "13.2", new TimeProvider()));
 
 		GoConfigRevisions commits = configRepo.getCommits(10, 0);
 		String firstCommitSHA = commits.get(2).getCommitSHA();
@@ -221,7 +220,7 @@ public class ConfigRepositoryTest {
     public void shouldRemoveUnwantedDataFromDiff() throws Exception {
         configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));
         String configXml = ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 60);
-        configRepo.checkin(new GoConfigRevision(configXml, "md5-2", "user-2", "13.2", Edition.Enterprise, new TimeProvider()));
+        configRepo.checkin(new GoConfigRevision(configXml, "md5-2", "user-2", "13.2", new TimeProvider()));
         String configChangesLine1 = "-<cruise schemaVersion='33'>";
         String configChangesLine2 = "+<cruise schemaVersion='60'>";
         String actual = configRepo.configChangesFor("md5-2", "md5-1");
@@ -267,7 +266,7 @@ public class ConfigRepositoryTest {
         configRepo.createBranch(branchName, revCommitOnMaster);
 
         String newConfigXML = "config-xml";
-        GoConfigRevision configRevision = new GoConfigRevision(newConfigXML, "md5", "user", "version", Edition.Free, new TimeProvider());
+        GoConfigRevision configRevision = new GoConfigRevision(newConfigXML, "md5", "user", "version", new TimeProvider());
         RevCommit branchRevCommit = configRepo.checkinToBranch(branchName, configRevision);
 
         assertThat(branchRevCommit, is(notNullValue()));
@@ -364,11 +363,11 @@ public class ConfigRepositoryTest {
 
         configRepo.getConfigMergedWithLatestRevision(goConfigRevision(changeOnBranch, "md5-3"), oldMd5);
         assertThat(configRepo.git().getRepository().getBranch(), is("master"));
-        assertThat(configRepo.git().branchList().call().size(), is(1));            
+        assertThat(configRepo.git().branchList().call().size(), is(1));
     }
 
     private GoConfigRevision goConfigRevision(String fileContent, String md5) {
-        return new GoConfigRevision(fileContent, md5, "user-1", "13.2", Edition.Free, new TimeProvider());
+        return new GoConfigRevision(fileContent, md5, "user-1", "13.2", new TimeProvider());
     }
 
     private String getLatestConfigAt(String branchName) throws GitAPIException, IOException {

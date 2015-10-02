@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "/../../../spec_helper")
+require 'spec_helper'
 load File.join(File.dirname(__FILE__), "..", "environment_variables_form_example.rb")
 
 describe "admin/jobs/environment_variables.html.erb" do

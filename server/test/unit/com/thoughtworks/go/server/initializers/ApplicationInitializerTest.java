@@ -80,8 +80,6 @@ public class ApplicationInitializerTest {
     @Mock
     private GoFileConfigDataSource goFileConfigDataSource;
     @Mock
-    private GoLicenseService goLicenseService;
-    @Mock
     private EnvironmentConfigService environmentConfigService;
     @Mock
     private DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
@@ -101,8 +99,6 @@ public class ApplicationInitializerTest {
     private MaterialUpdateService materialUpdateService;
     @Mock
     private RemoveAdminPermissionFilter removeAdminPermissionFilter;
-    @Mock
-    private LicenseViolationChecker licenseViolationChecker;
     @Mock
     private PipelineLockService pipelineLockService;
     @Mock

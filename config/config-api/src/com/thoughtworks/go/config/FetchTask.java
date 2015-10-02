@@ -16,18 +16,17 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.domain.TaskProperty;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.validation.FilePathTypeValidator;
-import com.thoughtworks.go.domain.TaskProperty;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
 
 // TODO - #2541 - Implementing serializable here because we need to send
 
@@ -212,7 +211,7 @@ public class FetchTask extends AbstractTask implements Serializable {
     }
 
     protected void validateTask(ValidationContext validationContext) {
-        validateAttributes();
+        validateAttributes(validationContext);
         if ( stageAndOrJobIsBlank()){
                 return;
         }
@@ -289,22 +288,28 @@ public class FetchTask extends AbstractTask implements Serializable {
         return atLeastOneBlank;
     }
 
-    private void validateAttributes() {
+    private void validateAttributes(ValidationContext validationContext) {
         if (StringUtils.isNotEmpty(srcdir) && StringUtils.isNotEmpty(srcfile)) {
             addError(SRC, "Only one of srcfile or srcdir is allowed at a time");
         }
         if (StringUtils.isEmpty(srcdir) && StringUtils.isEmpty(srcfile)) {
             addError(SRC, "Should provide either srcdir or srcfile");
         }
-        FilePathTypeValidator filePathValidator = new FilePathTypeValidator();
-        validateFilePath(filePathValidator, srcfile, SRC);
-        validateFilePath(filePathValidator, srcdir, SRC);
-        validateFilePath(filePathValidator, dest, DEST);
+        validateFilePath(validationContext, srcfile, SRC);
+        validateFilePath(validationContext, srcdir, SRC);
+        validateFilePath(validationContext, dest, DEST);
     }
 
-    private void validateFilePath(FilePathTypeValidator filePathValidator, final String fileOrDir, final String propertyName) {
-        if(!StringUtils.isBlank(fileOrDir) && !filePathValidator.isPathValid(fileOrDir)){
-            addError(propertyName, FilePathTypeValidator.errorMessage(propertyName, fileOrDir));
+    private void validateFilePath(ValidationContext validationContext, String path, String propertyName) {
+        if (path == null) {
+            return;
+        }
+        if (!FileUtil.isFolderInsideSandbox(path)) {
+            String parentType = validationContext.isWithinPipeline() ? "pipeline" : "template";
+            CaseInsensitiveString parentName = validationContext.isWithinPipeline() ? validationContext.getPipeline().name() : validationContext.getTemplate().name();
+            String message = String.format("Task of job '%s' in stage '%s' of %s '%s' has path '%s' which is outside the working directory.",
+                    validationContext.getJob().name(), validationContext.getStage().name(), parentType, parentName, path);
+            addError(propertyName, message);
         }
     }
 

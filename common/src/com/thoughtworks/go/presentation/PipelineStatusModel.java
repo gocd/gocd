@@ -14,21 +14,28 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.presentation;
+import com.thoughtworks.go.domain.PipelinePauseInfo;
 
 public class PipelineStatusModel {
 	private boolean paused;
+	private String pausedCause;
+	private String pausedBy;
 	private boolean locked;
 	private boolean schedulable;
 
-	public PipelineStatusModel(boolean paused, boolean locked, boolean schedulable) {
-		this.paused = paused;
+	public PipelineStatusModel(boolean locked, boolean schedulable, PipelinePauseInfo pipelinePauseInfo) {
+		this.paused = pipelinePauseInfo.isPaused();
+		this.pausedCause = pipelinePauseInfo.getPauseCause();
+		this.pausedBy = pipelinePauseInfo.getPauseBy();
 		this.locked = locked;
 		this.schedulable = schedulable;
 	}
 
-	public boolean isPaused() {
-		return paused;
-	}
+	public boolean isPaused() { return paused; }
+
+    public String pausedCause() { return pausedCause; }
+
+    public String pausedBy() { return pausedBy; }
 
 	public boolean isLocked() {
 		return locked;

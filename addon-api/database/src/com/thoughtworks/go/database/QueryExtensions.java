@@ -22,4 +22,6 @@ public interface QueryExtensions {
     String queryFromInclusiveModificationsForPipelineRange(String pipelineName, Integer fromCounter, Integer toCounter);
 
     String queryRelevantToLookedUpDependencyMap(List<Long> pipelineIds);
+    
+    String retrievePipelineTimeline();
 }

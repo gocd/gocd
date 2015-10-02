@@ -32,6 +32,7 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -40,6 +41,7 @@ import java.util.zip.ZipInputStream;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(JunitExtRunner.class)
 public class ZipUtilTest {
@@ -221,6 +223,16 @@ public class ZipUtilTest {
         ZipEntry entry = actualZip.getEntry(file.getName());
 
         assertThat(entry.getTime(), is(file.lastModified()));
+    }
+
+    @Test
+    public void shouldThrowUpWhileTryingToUnzipIfAnyOfTheFilePathsInArchiveHasAPathContainingDotDotSlashPath() throws URISyntaxException, IOException {
+        try {
+            zipUtil.unzip(new File(getClass().getResource("/archive_traversal_attack.zip").toURI()), destDir);
+            fail("squash.zip is capable of causing archive traversal attack and hence should not be allowed.");
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage(), is("File ../2.txt is outside extraction target directory"));
+        }
     }
 
     private void assertContent(File targetZipFile, String file, String expectedContent) throws IOException {

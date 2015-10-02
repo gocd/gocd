@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require File.join(File.dirname(__FILE__), "..", "..", "..", "spec_helper")
+require 'spec_helper'
 load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 
 describe Admin::Materials::DependencyController do

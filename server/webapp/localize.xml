@@ -173,9 +173,9 @@
     <entry key="SOURCE">Source</entry>
     <entry key="USER_SUCCESSFULLY_ADDED">User ''{0}'' successfully added.</entry>
     <entry key="USER_ALREADY_EXISTS">Failed to add user. User ''{0}'' already exists.</entry>
-    <entry key="LICENSE_LIMIT_EXCEEDED">Failed to add user. User license limit exceeded, please contact the administrator.</entry>
     <entry key="USER_DOES_NOT_EXIST_IN_DB">User ''{0}'' does not exist in the database.</entry>
     <entry key="LDAP_ERROR">Ldap search failed, please contact the administrator.</entry>
+    <entry key="INVALID_LDAP_ERROR">There was an error authenticating you. Please check the go server logs, or contact the go server administrator</entry>
     <entry key="PASSWORD_SEARCH_FAILED">Password file search failed, please contact the administrator.</entry>
     <entry key="USER_SEARCH_FAILED">Ldap search and password search failed, please contact the administrator.</entry>
     <entry key="SEARCH_STRING_TOO_SMALL">Please use a search string that has at least two (2) letters.</entry>
@@ -196,11 +196,9 @@
     <entry key="USER_DISABLE_SUCCESSFUL">Disabled {0} user(s) successfully.</entry>
     <entry key="USER_APPLY_ROLES_SUCCESSFUL">Role(s)/Admin-Privilege modified for {0} user(s) successfully.</entry>
     <entry key="USER_ADD_ROLE_SUCCESSFUL">New role assigned to {0} user(s) successfully.</entry>
-    <entry key="USER_LICENSE_LIMIT_EXCEEDED">User license limit exceeded</entry>
     <entry key="INVALID_ROLE_NAME">Failed to add role. Reason - ''{0}''</entry>
     <entry key="ROLE_DELETION_FAILED">Failed to delete role. Reason - ''{0}''</entry>
     <entry key="CANNOT_DISABLE_LAST_ADMIN">Did not disable any of the selected users. Ensure that all configured admins are not being disabled.</entry>
-    <entry key="DID_NOT_ENABLE_SELECTED_USERS">Did not enable selected users. User license limit exceeded.</entry>
     <entry key="NO_USERS_SELECTED">No users selected.</entry>
     <entry key="NAME">Name</entry>
     <entry key="TYPE">Type</entry>
@@ -230,8 +228,6 @@
     <entry key="SEARCH_FILTER">Search Filter</entry>
     <entry key="LICENSE">License</entry>
     <entry key="USER">User:</entry>
-    <entry key="LICENSE_USER">User</entry>
-    <entry key="LICENSE_KEY">License Key</entry>
     <entry key="SAVE">SAVE</entry>
     <entry key="RESET">RESET</entry>
     <entry key="SUBMIT">SUBMIT</entry>
@@ -540,11 +536,6 @@
     <entry key="MINGLE">Mingle</entry>
     <entry key="NONE">None</entry>
     <entry key="FEATURE_NOT_AVAILABLE">'{0}' feature is turned off. Please turn it on to use it.</entry>
-    <entry key="ENVIRONMENT_FEATURE_NOT_AVAILABLE">Environments is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>
-    <entry key="TEMPLATES_FEATURE_NOT_AVAILABLE">Templates is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>
-    <entry key="MULTIPLE_PIPELINE_GROUPS_FEATURE_NOT_AVAILABLE">Multiple Pipeline Groups is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>
-    <entry key="PERMISSIONS_FEATURE_NOT_AVAILABLE">Permissions is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>
-    <entry key="STAGE_PERMISSIONS_FEATURE_NOT_AVAILABLE">Stage Permissions is a Go Enterprise feature. Go is currently running in Community mode. &lt;a href=''{0}''&gt;Request an Enterprise license &lt;/a&gt;</entry>
     <entry key="PIPELINE_GROUP_NOT_FOUND">Pipeline group named ''{0}'' does not exist.</entry>
     <entry key="PIPELINE_GROUP_NAME">Pipeline Group Name</entry>
     <entry key="TEMPLATE_NAME">Template Name</entry>
@@ -650,12 +641,6 @@
     <entry key="FILTERS_HELP_LINK"><![CDATA[<a class='' href='http://www.go.cd/documentation/user/current/navigation/agents_page.html#filtering-agents' target='_blank'>More...</a>]]></entry>
     <entry key="FILTER">Filter</entry>
     <entry key="CLEAR">Clear</entry>
-    <entry key="LICENSE_ABOUT_EXPIRE_TITLE">Your Go license key will expire in {0} days.</entry>
-    <entry key="LICENSE_EXPIRED_TITLE">Your Go license key has expired.</entry>
-    <entry key="LICENSE_ABOUT_EXPIRE_SUGGESTION">Please contact your ThoughtWorks Studios account executive or email studios@thoughtworks.com to obtain a new license</entry>
-    <entry key="LICENSE_ABOUT_EXPIRE_POPUP_TITLE">Go license expiry</entry>
-    <entry key="LICENSE_ABOUT_EXPIRE_BUTTON_REMIND_LATER">Remind Me Later</entry>
-    <entry key="LICENSE_DO_NOT_SHOW_ME_AGAIN">Do Not Show Me Again</entry>
     <entry key="BACKUP_SERVER">Perform Backup</entry>
     <entry key="BACKUP_COMPLETED_SUCCESSFULLY">Backup completed successfully.</entry>
     <entry key="BACKUP_UNSUCCESSFUL">Failed to perform backup. Reason: {0}</entry>

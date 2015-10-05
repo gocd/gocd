@@ -61,7 +61,7 @@ else
     LOG_DIR=$AGENT_WORK_DIR
 fi
 
-LOG_FILE=$LOG_DIR/${SERVICE_NAME}-bootstrapper.log
+STDOUT_LOG_FILE=$LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log
 
 if [ "$PID_FILE" ]; then
     echo "[`date`] Use PID_FILE: $PID_FILE"
@@ -107,9 +107,9 @@ export LOG_FILE
 
 CMD="$JAVA_HOME/bin/java -jar \"$AGENT_DIR/agent-bootstrapper.jar\" $GO_SERVER $GO_SERVER_PORT"
 
-echo "[`date`] Starting Go Agent Bootstrapper with command: $CMD" >>"$LOG_FILE"
-echo "[`date`] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$LOG_FILE"
-echo "[`date`] AGENT_STARTUP_ARGS=$AGENT_STARTUP_ARGS" >>"$LOG_FILE"
+echo "[`date`] Starting Go Agent Bootstrapper with command: $CMD" >>"$STDOUT_LOG_FILE"
+echo "[`date`] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$STDOUT_LOG_FILE"
+echo "[`date`] AGENT_STARTUP_ARGS=$AGENT_STARTUP_ARGS" >>"$STDOUT_LOG_FILE"
 cd "$AGENT_WORK_DIR"
 
 if [ "$JAVA_HOME" == "" ]; then
@@ -118,7 +118,7 @@ if [ "$JAVA_HOME" == "" ]; then
 fi
 
 if [ "$DAEMON" == "Y" ]; then
-    eval exec nohup "$CMD" >>"$LOG_FILE" 2>&1 &
+    eval exec nohup "$CMD" >>"$STDOUT_LOG_FILE" 2>&1 &
     echo $! >"$PID_FILE"
 else
     eval exec "$CMD"

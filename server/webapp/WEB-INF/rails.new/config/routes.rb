@@ -220,7 +220,7 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
       resources :backups, only: [:create]
 
-      resources :users, param: :login_name, only: [:index, :show, :destroy], constraints: { login_name: USER_NAME_FORMAT } do
+      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: { login_name: USER_NAME_FORMAT } do
         patch :update, on: :member
       end
 

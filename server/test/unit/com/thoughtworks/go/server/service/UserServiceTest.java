@@ -71,7 +71,7 @@ public class UserServiceTest {
     @Before
     public void setUp() {
 
-        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, transactionSynchronizationManager, oauthRepo);
+        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, oauthRepo);
     }
 
     @Test

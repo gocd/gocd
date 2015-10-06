@@ -117,6 +117,18 @@ public class UserTest {
         user.validateEmail();
     }
 
+    @Test(expected = ValidationException.class)
+    public void shouldValidateLoginNameIsNotBlank() throws Exception {
+        user = new User("", new String[]{"Jez,Pavan"}, "user@mail.com", true);
+        user.validateLoginName();
+    }
+
+    @Test
+    public void shouldValidateWhenLoginNameExists() throws Exception {
+        user = new User("bob", new String[]{"Jez,Pavan"}, "user@mail.com", true);
+        user.validateLoginName();
+    }
+
     @Test
     public void shouldAcceptNullValueForEmail() throws ValidationException {
        new User("UserName", "My Name", null).validateEmail();

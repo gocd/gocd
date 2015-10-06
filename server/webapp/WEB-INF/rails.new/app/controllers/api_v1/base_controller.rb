@@ -48,7 +48,7 @@ module ApiV1
     end
 
     rescue_from RecordNotFound, with: :render_not_found_error
-    rescue_from BadRequest,     with: :render_bad_request
+    rescue_from BadRequest, with: :render_bad_request
 
     class << self
       def default_accepts_header
@@ -65,11 +65,16 @@ module ApiV1
     end
 
     def render_http_operation_result(result)
+      status = result.httpCode()
       if result.instance_of?(HttpOperationResult)
-        render json_hal_v1: { message: result.detailedMessage().strip }, status: result.httpCode()
+        render_message(result.detailedMessage(), status)
       else
-        render json_hal_v1: { message: result.message(Spring.bean('localizer')).strip }, status: result.httpCode()
+        render_message(result.message(Spring.bean('localizer')), status)
       end
+    end
+
+    def render_message(message, status)
+      render json_hal_v1: { message: message.strip }, status: status
     end
   end
 end

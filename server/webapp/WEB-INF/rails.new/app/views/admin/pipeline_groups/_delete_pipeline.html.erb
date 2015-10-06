@@ -12,7 +12,7 @@
     <% else %>
     <span class="delete_icon action_icon delete_parent" id="trigger_<%= unique_id_for_pipeline %>" title="<%= message -%>">
         <%= link_to l.string("DELETE"), "#" %>
-        <%= render :partial => 'admin/shared/submit_with_prompt.html', :locals => {:scope => {:button_id => "trigger_#{unique_id_for_pipeline}", :message => "Are you sure you want to delete the pipeline '#{pipeline_to_be_deleted_name}' ? ", :on_confirmation_js => "$('#{"#{unique_id_for_pipeline}_form"}').submit()"}} %>
+        <%= render :partial => 'admin/shared/submit_with_prompt.html', :locals => {:scope => {:button_id => "trigger_#{unique_id_for_pipeline}", :message => "Are you sure you want to delete the pipeline '#{pipeline_to_be_deleted_name}'? Pipeline history will not be removed from the database and artifacts will not be removed from storage, which may cause conflicts if a pipeline with the same name is later re-created.", :on_confirmation_js => "$('#{"#{unique_id_for_pipeline}_form"}').submit()"}} %>
     </span>
     <% end %>
 <% end %>

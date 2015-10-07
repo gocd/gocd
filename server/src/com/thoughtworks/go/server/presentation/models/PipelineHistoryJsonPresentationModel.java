@@ -127,8 +127,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         JsonList jsonList = new JsonList();
         for (PipelineInstanceGroupModel group : pipelineHistoryGroups) {
             JsonMap jsonMap = new JsonMap();
-            BaseCollection<StageConfigurationModel> groupConfig = group.getConfig();
-            Json configJson = configAsJson(groupConfig);
+            Json configJson = configAsJson(group.getStages());
             jsonMap.put("config", configJson);
             jsonMap.put("history", historyAsJson(group.getPipelineInstances()));
             jsonList.add(jsonMap);
@@ -136,9 +135,9 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         return jsonList;
     }
 
-    private Json configAsJson(BaseCollection<StageConfigurationModel> config) {
+    private Json configAsJson(Iterable<StageConfigurationModel> stages) {
         JsonList jsonList = new JsonList();
-        for (StageConfigurationModel stageInfo : config) {
+        for (StageConfigurationModel stageInfo : stages) {
             JsonMap jsonMap = new JsonMap();
             jsonMap.put("name", stageInfo.getName());
             jsonMap.put("isAutoApproved", String.valueOf(stageInfo.isAutoApproved()));

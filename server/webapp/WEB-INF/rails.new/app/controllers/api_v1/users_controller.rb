@@ -28,16 +28,35 @@ module ApiV1
     end
 
     def update
-      result          = HttpLocalizedOperationResult.new
-      checkin_aliases = if params[:checkin_aliases].is_a?(Array)
-                          params[:checkin_aliases].join(',')
-                        else
-                          params[:checkin_aliases]
-                        end
-
-      @user_to_operate = user_service.update(@user_to_operate, to_tristate(params[:enabled]), to_tristate(params[:email_me]), params[:email], checkin_aliases, result)
+      result           = HttpLocalizedOperationResult.new
+      @user_to_operate = save_user(result, @user_to_operate)
       if result.isSuccessful
         render :json_hal_v1 => UserRepresenter.new(@user_to_operate).to_hash(url_builder: self)
+      else
+        render_http_operation_result(result)
+      end
+    end
+
+    def create
+      result = HttpLocalizedOperationResult.new
+
+      user, created = user_service.withEnableUserMutex do
+        user = user_service.findUserByName(params[:login_name])
+        if user.instance_of?(com.thoughtworks.go.domain.NullUser)
+          user = save_user(result, com.thoughtworks.go.domain.User.new(params[:login_name]))
+          [user, true]
+        else
+          [user, false]
+        end
+      end
+
+      unless created
+        return render_message("The user `#{params[:login_name]}` already exists.", :conflict)
+      end
+
+      if result.httpCode == 200
+        response.location = apiv1_user_url(login_name: params[:login_name])
+        render :json_hal_v1 => UserRepresenter.new(user).to_hash(url_builder: self), status: :created
       else
         render_http_operation_result(result)
       end
@@ -49,6 +68,17 @@ module ApiV1
       render_http_operation_result(result)
     end
 
+    private
+    def save_user(result, user)
+      checkin_aliases = if params[:checkin_aliases].is_a?(Array)
+                          params[:checkin_aliases].join(',')
+                        else
+                          params[:checkin_aliases]
+                        end
+
+      user_service.save(user, to_tristate(params[:enabled]), to_tristate(params[:email_me]), params[:email], checkin_aliases, result)
+    end
+
     def load_user
       @user_to_operate = user_service.findUserByName(params[:login_name])
 
@@ -56,5 +86,6 @@ module ApiV1
         raise ApiV1::RecordNotFound
       end
     end
+
   end
 end

@@ -241,6 +241,10 @@ public class  User extends PersistentObject {
         validate(Validator.EMAIL, getEmail());
     }
 
+    public void validateLoginName() throws ValidationException {
+        validate(Validator.presenceValidator("Login name field must be non-blank."), getName());
+    }
+
     public boolean isEnabled() {
         return enabled;
     }

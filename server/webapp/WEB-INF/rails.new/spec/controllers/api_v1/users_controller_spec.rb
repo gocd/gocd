@@ -164,7 +164,7 @@ describe ApiV1::UsersController do
     describe :for_admins do
       it 'should allow patching users' do
         login_as_admin
-        @user_service.should_receive(:update).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
+        @user_service.should_receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
 
         patch_with_api_header :update, login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar'
         expect(response).to be_ok
@@ -200,4 +200,55 @@ describe ApiV1::UsersController do
     end
   end
 
+  describe :create do
+    before(:each) do
+      @john = User.new('jdoe')
+
+      @user_service = double('user service')
+      controller.stub(:user_service).and_return(@user_service)
+      @user_service.stub(:findUserByName).with(anything()).and_return(com.thoughtworks.go.domain.NullUser.new)
+    end
+
+    describe :for_admins do
+      it 'should render 201 created when user is created' do
+        login_as_admin
+
+        @user_service.should_receive(:withEnableUserMutex).and_yield
+
+        @user_service.should_receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
+
+        post_with_api_header :create, login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar'
+        expect(response.status).to be(201)
+        expect(actual_response).to eq(expected_response(@john, ApiV1::UserRepresenter))
+      end
+
+      it 'should render 409 conflict when a user already exists' do
+        login_as_admin
+
+        login_name = SecureRandom.hex
+        @user_service.should_receive(:withEnableUserMutex).and_yield
+        @user_service.stub(:findUserByName).with(login_name).and_return(User.new(login_name))
+        post_with_api_header :create, login_name: login_name
+        expect(response).to have_api_message_response(409, "The user `#{login_name}` already exists.")
+      end
+    end
+
+    describe :security do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:create, :create)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:post, :create).with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should disallow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:post, :create).with(401, 'You are not authorized to perform this action.')
+      end
+    end
+  end
 end

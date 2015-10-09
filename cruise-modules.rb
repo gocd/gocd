@@ -17,7 +17,7 @@
 require 'buildr/core/util'
 
 task :prepare do
-  system("mvn install -DskipTests") || raise("Failed to run: mvn install -DskipTests")
+  system("mvn install -DskipTests --batch-mode") || raise("Failed to run: mvn install -DskipTests")
   task("cruise:server:db:refresh").invoke
 end
 
@@ -449,7 +449,7 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
   end
 
   task :maven_clean do
-    system("mvn clean") || raise("Failed to run: mvn clean")
+    system("mvn clean --batch-mode") || raise("Failed to run: mvn clean")
   end
 end
 

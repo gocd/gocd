@@ -30,8 +30,8 @@ describe Admin::JobsController, "view" do
       @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
       @pipeline = cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["job-1", "job-2"].to_java(java.lang.String))
-      @artifact1 = ArtifactPlan.new(ArtifactType.file, 'src', 'dest')
-      @artifact2 = ArtifactPlan.new(ArtifactType.file, 'src2', 'dest2')
+      @artifact1 = ArtifactPlan.new('src', 'dest')
+      @artifact2 = ArtifactPlan.new('src2', 'dest2')
       @pipeline.get(0).getJobs().get(0).artifactPlans().add(@artifact1)
       @pipeline.get(0).getJobs().get(0).artifactPlans().add(@artifact2)
 

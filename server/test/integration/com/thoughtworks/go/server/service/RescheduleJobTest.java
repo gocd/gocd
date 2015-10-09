@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -139,7 +139,7 @@ public class RescheduleJobTest {
         dbHelper.cancelStage(stage);
 
         Resources resources = new Resources(new Resource("r1"), new Resource("r2"));
-        ArtifactPlans artifactPlans = new ArtifactPlans(Arrays.asList(new ArtifactPlan(ArtifactType.file, "s1", "d1"), new ArtifactPlan(ArtifactType.file, "s2", "d2")));
+        ArtifactPlans artifactPlans = new ArtifactPlans(Arrays.asList(new ArtifactPlan("s1", "d1"), new ArtifactPlan("s2", "d2")));
         ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators(new ArtifactPropertiesGenerator("n1", "s1", "x1"), new ArtifactPropertiesGenerator("n2", "s2", "x2"));
         configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resources, artifactPlans, artifactPropertiesGenerators);
 
@@ -201,7 +201,7 @@ public class RescheduleJobTest {
     public void rescheduleShouldNotDuplicateResourcesEtc() throws Exception {
         JobInstance job = scheduledJob();
         JobPlan oldPlan = loadJobPlan(job);
-        
+
         scheduleService.rescheduleJob(job);
 
         JobPlan newPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().get(0);

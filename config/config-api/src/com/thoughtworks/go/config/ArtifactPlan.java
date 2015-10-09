@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -26,6 +26,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
 import static com.thoughtworks.go.util.SelectorUtils.rtrimStandardrizedWildcardTokens;
@@ -51,7 +52,7 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
     public ArtifactPlan() {
     }
 
-    public ArtifactPlan(ArtifactType artifactType, String source, String destination) {
+    protected ArtifactPlan(ArtifactType artifactType, String source, String destination) {
         setSrc(source);
         setDest(destination);
         this.artifactType = artifactType;
@@ -60,6 +61,10 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
     public ArtifactPlan(ArtifactPlan other) {
         this(other.artifactType, other.src, other.dest);
         this.errors = other.errors;
+    }
+
+    public ArtifactPlan(String src, String dest) {
+        this(ArtifactType.file, src, dest);
     }
 
     public File getSource(File rootPath) {
@@ -135,12 +140,12 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
         return artifactType;
     }
 
-    public String getArtifactTypeValue() {
-        return ARTIFACT_PLAN_DISPLAY_NAME;
+    protected void setArtifactType(ArtifactType artifactType) {
+        this.artifactType = artifactType;
     }
 
-    public void setArtifactType(ArtifactType artifactType) {
-        this.artifactType = artifactType;
+    public String getArtifactTypeValue() {
+        return ARTIFACT_PLAN_DISPLAY_NAME;
     }
 
     public String destURL(File rootPath, File file) {
@@ -199,5 +204,15 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
     private void addUniquenessViolationError() {
         addError(SRC, "Duplicate artifacts defined.");
         addError(DEST, "Duplicate artifacts defined.");
+    }
+
+    public static ArtifactPlan create(ArtifactType artifactType, String src, String dest) {
+        if (artifactType == ArtifactType.file) {
+            return new ArtifactPlan(src, dest);
+        } else if (artifactType == ArtifactType.unit) {
+            return new TestArtifactPlan(src, dest);
+        } else {
+            throw bomb("ArtifactType not specified");
+        }
     }
 }

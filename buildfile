@@ -77,7 +77,7 @@ define "cruise" do |project|
 
   desc "bump version number"
   task :update_versions do
-    bump_command = "mvn versions:set -DnewVersion=#{VERSION_NUMBER} -DgenerateBackupPoms=false"
+    bump_command = "mvn versions:set -DnewVersion=#{VERSION_NUMBER} -DgenerateBackupPoms=false --batch-mode"
     sh(bump_command)
   end
 

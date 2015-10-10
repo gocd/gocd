@@ -71,8 +71,8 @@ public class PackageMaterialPollerTest {
 
         poller = new com.thoughtworks.go.server.service.materials.PackageMaterialPoller(packageAsRepositoryExtension);
 
-        packageConfiguration = new ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>();
-        repositoryConfiguration = new ArgumentCaptor<RepositoryConfiguration>();
+        packageConfiguration = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
+        repositoryConfiguration = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
     }
 
@@ -115,7 +115,7 @@ public class PackageMaterialPollerTest {
         HashMap<String, String> dataInPreviousRevision = new HashMap<String, String>();
         dataInPreviousRevision.put("1", "one");
         PackageMaterialRevision knownRevision = new PackageMaterialRevision(previousRevision, timestamp, dataInPreviousRevision);
-        ArgumentCaptor<PackageRevision> knownPackageRevision = new ArgumentCaptor<PackageRevision>();
+        ArgumentCaptor<PackageRevision> knownPackageRevision = ArgumentCaptor.forClass(PackageRevision.class);
 
         PackageRevision latestRevision = new PackageRevision("rev-123", timestamp, "user");
         String dataKey = "2";
@@ -174,7 +174,7 @@ public class PackageMaterialPollerTest {
     public void shouldTalkToPlugInToGetModificationsSinceAGivenRevision() {
         Date timestamp = new Date();
         PackageMaterialRevision knownRevision = new PackageMaterialRevision("rev-122", timestamp);
-        ArgumentCaptor<PackageRevision> knownPackageRevision = new ArgumentCaptor<PackageRevision>();
+        ArgumentCaptor<PackageRevision> knownPackageRevision = ArgumentCaptor.forClass(PackageRevision.class);
         PackageRevision latestRevision = new PackageRevision("rev-123", timestamp, "user");
 
         when(packageAsRepositoryExtension.latestModificationSince(eq(material.getPluginId()), packageConfiguration.capture(), repositoryConfiguration.capture(), knownPackageRevision.capture())).thenReturn(latestRevision);
@@ -195,7 +195,7 @@ public class PackageMaterialPollerTest {
     @Test
     public void shouldReturnEmptyModificationWhenPackageRevisionIsNullForLatestModificationSince() {
         PackageMaterialRevision knownRevision = new PackageMaterialRevision("rev-122", new Date());
-        ArgumentCaptor<PackageRevision> knownPackageRevision = new ArgumentCaptor<PackageRevision>();
+        ArgumentCaptor<PackageRevision> knownPackageRevision = ArgumentCaptor.forClass(PackageRevision.class);
         when(packageAsRepositoryExtension.latestModificationSince(eq(material.getPluginId()), packageConfiguration.capture(), repositoryConfiguration.capture(), knownPackageRevision.capture())).thenReturn(null);
         List<Modification> modifications = poller.modificationsSince(material, null, knownRevision, null);
         assertThat(modifications, is(notNullValue()));

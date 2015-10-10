@@ -286,7 +286,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
 
         copyPluginToThePluginDirectory(PLUGIN_BUNDLED_DIR, "descriptor-aware-test-bundled-plugin-1.jar");
         copyPluginToThePluginDirectory(PLUGIN_EXTERNAL_DIR, "descriptor-aware-test-external-plugin-1.jar");
-        ArgumentCaptor<PluginFileDetails> pluginFileDetailsArgumentCaptor = new ArgumentCaptor<PluginFileDetails>();
+        ArgumentCaptor<PluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(PluginFileDetails.class);
         waitAMoment();
         verify(changeListener, times(2)).pluginJarAdded(pluginFileDetailsArgumentCaptor.capture());
         assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(0).isBundledPlugin(), is(true));

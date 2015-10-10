@@ -241,7 +241,7 @@ public class MaterialUpdateServiceTest {
 
         //then
         verify(serverHealthService).removeByScope(HealthStateScope.forMaterialUpdate(material));
-        ArgumentCaptor<ServerHealthState> argumentCaptor = new ArgumentCaptor<ServerHealthState>();
+        ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         verify(serverHealthService).update(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().getMessage(), is("Material update for uri hung:"));
         assertThat(argumentCaptor.getValue().getDescription(),

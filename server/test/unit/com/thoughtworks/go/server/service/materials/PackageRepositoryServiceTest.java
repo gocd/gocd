@@ -235,7 +235,7 @@ public class PackageRepositoryServiceTest {
         packageRepository.setPluginConfiguration(new PluginConfiguration(pluginId, "1.0"));
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("url", false, "junk-url"));
 
-        ArgumentCaptor<RepositoryConfiguration> packageConfigurationsArgumentCaptor = new ArgumentCaptor<RepositoryConfiguration>();
+        ArgumentCaptor<RepositoryConfiguration> packageConfigurationsArgumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         ValidationResult expectedValidationResult = new ValidationResult();
         expectedValidationResult.addError(new ValidationError("url", "url format incorrect"));
 

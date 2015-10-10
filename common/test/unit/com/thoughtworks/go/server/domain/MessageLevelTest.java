@@ -16,24 +16,28 @@
 
 package com.thoughtworks.go.server.domain;
 
-import junit.framework.TestCase;
-import org.junit.Assert;
+import org.junit.Test;
 
-public class MessageLevelTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class MessageLevelTest {
+    @Test
     public void testShouldMapDisplayNameToType() {
-        Assert.assertEquals(MessageLevel.DEBUG, MessageLevel.getLevelForPriority("debug"));
+        assertEquals(MessageLevel.DEBUG, MessageLevel.getLevelForPriority("debug"));
         assertEquals(MessageLevel.INFO, MessageLevel.getLevelForPriority("info"));
         assertEquals(MessageLevel.WARN, MessageLevel.getLevelForPriority("warn"));
         assertEquals(MessageLevel.ERROR, MessageLevel.getLevelForPriority("error"));
     }
 
+    @Test
     public void testShouldMapDisplayNameToTypeIgnoringCase() {
-        Assert.assertEquals(MessageLevel.DEBUG, MessageLevel.getLevelForPriority("Debug"));
+        assertEquals(MessageLevel.DEBUG, MessageLevel.getLevelForPriority("Debug"));
         assertEquals(MessageLevel.INFO, MessageLevel.getLevelForPriority("Info"));
         assertEquals(MessageLevel.WARN, MessageLevel.getLevelForPriority("Warn"));
         assertEquals(MessageLevel.ERROR, MessageLevel.getLevelForPriority("Error"));
     }
 
+    @Test
     public void testShouldGetDisplayNameForType() {
         assertEquals("debug", MessageLevel.DEBUG.getDisplayName());
         assertEquals("info", MessageLevel.INFO.getDisplayName());
@@ -41,6 +45,7 @@ public class MessageLevelTest extends TestCase {
         assertEquals("error", MessageLevel.ERROR.getDisplayName());
     }
 
+    @Test
     public void testShouldShowDisplayNameAsStringRepresentation() {
         assertEquals("debug", MessageLevel.DEBUG.toString());
         assertEquals("info", MessageLevel.INFO.toString());

@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.server.domain;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class BuildMessageTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class BuildMessageTest {
+    @Test
     public void testShouldStripLeadingAndTrailingFromSpace() {
         BuildMessage message = new BuildMessage("  Text  ", MessageLevel.DEBUG);
         String textMessage = message.getMessage();

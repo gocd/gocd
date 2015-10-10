@@ -32,7 +32,6 @@ import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.StringUtil;
 import org.junit.Test;
-import org.junit.matchers.JUnitMatchers;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.not;

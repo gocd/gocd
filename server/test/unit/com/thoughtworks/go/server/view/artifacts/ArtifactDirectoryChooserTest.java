@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.CoreMatchers.containsString;
 
 public class ArtifactDirectoryChooserTest {
     JobIdentifier jobId = new JobIdentifier("pipeline-name", -2, "label-111", "stage-name", "1", "job-name", 666L);

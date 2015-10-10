@@ -21,7 +21,7 @@ import java.util.Map;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.CoreMatchers.containsString;
 import org.springframework.web.servlet.ModelAndView;
 
 public class JavascriptMessagesInterceptorTest extends RequestContextTestCase {

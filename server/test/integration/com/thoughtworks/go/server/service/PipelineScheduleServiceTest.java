@@ -65,13 +65,13 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {

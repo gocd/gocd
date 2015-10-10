@@ -30,9 +30,9 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

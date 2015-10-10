@@ -38,11 +38,11 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
 import static com.thoughtworks.go.helper.PipelineMaterialModificationMother.modification;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

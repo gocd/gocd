@@ -36,8 +36,6 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;

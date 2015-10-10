@@ -19,10 +19,10 @@ package com.thoughtworks.go.agent.testhelper;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.internal.runners.InitializationError;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.model.InitializationError;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Properties;
 
-public class FakeBootstrapperServer extends JUnit4ClassRunner {
+public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
     private Server server;
 
     public FakeBootstrapperServer(Class<?> testClass) throws InitializationError {

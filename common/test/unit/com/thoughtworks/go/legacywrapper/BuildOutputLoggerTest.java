@@ -17,18 +17,17 @@
 
 package com.thoughtworks.go.legacywrapper;
 
-import junit.framework.TestCase;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-
 import com.thoughtworks.go.util.TestFileUtil;
+import org.junit.Test;
 
-public class BuildOutputLoggerTest extends TestCase {
+import java.io.*;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+public class BuildOutputLoggerTest {
+
+    @Test
     public void testShouldReturnEmptyArrayWhenFileIsEmpty() throws Exception {
 
         BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
@@ -38,6 +37,7 @@ public class BuildOutputLoggerTest extends TestCase {
 
     }
 
+    @Test
     public void testShouldReturnAllLinesFromFirstLine() throws Exception {
 
         BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(3));
@@ -50,6 +50,7 @@ public class BuildOutputLoggerTest extends TestCase {
         assertEquals("3", lines[2]);
     }
 
+    @Test
     public void testShouldReturnAllLinesFromStartLine() throws Exception {
 
         BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(7));
@@ -61,6 +62,7 @@ public class BuildOutputLoggerTest extends TestCase {
         assertEquals("7", lines[2]);
     }
 
+    @Test
     public void testShouldReturnAllLinesAcrossWrap() throws Exception {
 
         BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(13));
@@ -75,6 +77,7 @@ public class BuildOutputLoggerTest extends TestCase {
 
     }
 
+    @Test
     public void testShouldRetrieveNothingAfterClearingBuffer() throws Exception {
         BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(6));
 
@@ -84,6 +87,7 @@ public class BuildOutputLoggerTest extends TestCase {
         assertEquals(0, logger.retrieveLines(0).length);
     }
 
+    @Test
     public void testShouldLoadBufferFromFileWhenFilePresentAndLinesRetrieved() throws Exception {
         BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(6));
 
@@ -94,6 +98,7 @@ public class BuildOutputLoggerTest extends TestCase {
         assertEquals("3", lines[2]);
     }
 
+    @Test
     public void testShouldOnlyLoadNewLinesFromFile() throws Exception {
         File tempFile = prepareBufferFile(6);
         BuildOutputLogger logger = new BuildOutputLogger(tempFile);
@@ -104,11 +109,13 @@ public class BuildOutputLoggerTest extends TestCase {
         assertEquals(7, logger.retrieveLines(0).length);
     }
 
+    @Test
     public void testShouldNotFailIfFileDoesNotExist() throws Exception {
         BuildOutputLogger logger = new BuildOutputLogger(new File("notexists.tmp"));
         assertEquals(0, logger.retrieveLines(0).length);
     }
 
+    @Test
     public void testShouldThrowExceptionIfOutfileDoesNotExistWhenConsuming() throws Exception {
         BuildOutputLogger logger = new BuildOutputLogger(null);
         try {
@@ -119,6 +126,7 @@ public class BuildOutputLoggerTest extends TestCase {
         }
     }
 
+    @Test
     public void testShouldWriteToOutfileWhenConsumingLine() throws Exception {
         BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
         logger.consumeLine("one");

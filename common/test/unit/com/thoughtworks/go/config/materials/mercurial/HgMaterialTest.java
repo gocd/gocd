@@ -34,7 +34,6 @@ import org.hamcrest.core.StringContains;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.matchers.JUnitMatchers;
 
 import java.io.File;
 import java.io.IOException;
@@ -202,7 +201,7 @@ public class HgMaterialTest {
     @Test
     public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
         hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
-        assertThat(outputStreamConsumer.getStdOut(), JUnitMatchers.containsString(
+        assertThat(outputStreamConsumer.getStdOut(), containsString(
                 format("Start updating %s at revision %s from %s", "files", "0",
                         hgMaterial.getUrl())));
     }

@@ -19,7 +19,7 @@ package com.thoughtworks.go.config.materials.perforce;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 
 public class P4MaterialViewTest {

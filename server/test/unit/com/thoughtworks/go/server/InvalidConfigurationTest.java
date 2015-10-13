@@ -22,9 +22,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 public class InvalidConfigurationTest {
     private GoConfigDao goConfigDao = GoConfigFileHelper.createTestingDao();

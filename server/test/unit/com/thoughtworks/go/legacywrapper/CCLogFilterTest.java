@@ -16,30 +16,39 @@
 
 package com.thoughtworks.go.legacywrapper;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class CCLogFilterTest extends TestCase {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class CCLogFilterTest {
+    @Test
     public void testShouldAcceptFailedLogFile() {
         assertTrue(new CCLogFilter().accept(null, "log19990505080808.xml"));
     }
 
+    @Test
     public void testShouldAcceptPassedLogFile() {
         assertTrue(new CCLogFilter().accept(null, "log19990505080808Lbuild.123.xml"));
     }
 
+    @Test
     public void testShouldNotAcceptFileIfDoesnotEndswithXml() {
         assertFalse(new CCLogFilter().accept(null, "file.notxml"));
     }
 
+    @Test
     public void testShouldNotAcceptFileIfDoesnotStartwithLog() {
         assertFalse(new CCLogFilter().accept(null, "filelog.xml"));
     }
 
+    @Test
     public void testShouldNotAcceptFileIfLengthShorterThan21() {
         assertFalse(new CCLogFilter().accept(null, "log1234.xml"));
         assertFalse(new CCLogFilter().accept(null, "log.xml"));
     }
 
+    @Test
     public void testShouldAcceptZippedLogFile() throws Exception {
         assertTrue(new CCLogFilter().accept(null, "log19990505080808.xml.gz"));
         assertTrue(new CCLogFilter().accept(null, "log19990505080808Lbuild.123.xml.gz"));

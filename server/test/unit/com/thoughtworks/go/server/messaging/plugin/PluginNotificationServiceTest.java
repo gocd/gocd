@@ -67,7 +67,7 @@ public class PluginNotificationServiceTest {
         when(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).thenReturn(new HashSet<String>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
         when(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS)).thenReturn(new HashSet<String>(asList(PLUGIN_ID_3)));
 
-        serverHealthState = new ArgumentCaptor<ServerHealthState>();
+        serverHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
     }
 
     @Test

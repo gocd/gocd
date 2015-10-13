@@ -27,9 +27,9 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 

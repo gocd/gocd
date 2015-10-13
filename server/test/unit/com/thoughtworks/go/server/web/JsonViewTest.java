@@ -16,23 +16,23 @@
 
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.server.web.i18n.CurrentStatus;
 import com.thoughtworks.go.server.web.i18n.ResolvableViewableStatus;
-import junit.framework.TestCase;
-
+import com.thoughtworks.go.util.JsonTester;
 import com.thoughtworks.go.util.json.JsonList;
 import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.util.json.JsonUrl;
-import com.thoughtworks.go.server.web.i18n.CurrentStatus;
-import com.thoughtworks.go.util.JsonTester;
-import static org.hamcrest.core.Is.is;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-public class JsonViewTest extends TestCase {
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
+public class JsonViewTest {
 
     private Mockery mockContext = new Mockery() {
         {
@@ -41,6 +41,7 @@ public class JsonViewTest extends TestCase {
     };
     private GoRequestContext requestContext = mockContext.mock(GoRequestContext.class);
 
+    @Test
     public void testShouldReturnOutputWithoutWhitespaceThatIsNotAllowedInHeaders() throws Exception {
         JsonView view = new JsonView(requestContext);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -53,6 +54,7 @@ public class JsonViewTest extends TestCase {
         );
     }
 
+    @Test
     public void testShouldRenderEmptyMap() throws Exception {
         JsonView view = new JsonView();
         String json = view.renderJson(new JsonMap());
@@ -61,6 +63,7 @@ public class JsonViewTest extends TestCase {
         );
     }
 
+    @Test
     public void testShouldRenderAllKeyValuePairsFromMap() throws Exception {
         JsonMap map = new JsonMap();
         map.put("key1", "value1");
@@ -72,6 +75,7 @@ public class JsonViewTest extends TestCase {
         );
     }
 
+    @Test
     public void testShouldRenderNestedMaps() throws Exception {
         JsonMap map = new JsonMap();
         JsonMap nestedMap = new JsonMap();
@@ -88,6 +92,7 @@ public class JsonViewTest extends TestCase {
         );
     }
 
+    @Test
     public void testShouldRenderArray() throws Exception {
         JsonList list = new JsonList();
         JsonMap nestedMap = new JsonMap();
@@ -103,6 +108,7 @@ public class JsonViewTest extends TestCase {
         );
     }
 
+    @Test
     public void testShouldRenderFakeMapsWithoutTheSurroundingMap() throws Exception {
         JsonList list = new JsonList();
         JsonMap nestedMap = new JsonMap();
@@ -118,6 +124,7 @@ public class JsonViewTest extends TestCase {
         );
     }
 
+    @Test
     public void testShouldRenderI18n() {
         JsonMap map = new JsonMap();
         final String i18nMessage = "waiting(zh_CN)";
@@ -140,6 +147,7 @@ public class JsonViewTest extends TestCase {
         );
     }
 
+    @Test
     public void testShouldRenderUrlsWithContext() {
         JsonUrl url = new JsonUrl("/foo/bar/baz");
 

@@ -22,8 +22,8 @@ import com.thoughtworks.go.util.GoConstants;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 import org.mockito.ArgumentCaptor;
 
 import javax.mail.Address;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-@RunWith(JUnit4ClassRunner.class)
+@RunWith(BlockJUnit4ClassRunner.class)
 public class GoSmtpMailSenderTest {
     private static final String SMTP_CONNECTIONTIMEOUT_PROPERTY = "mail.smtp.connectiontimeout";
     private static final String SMTP_TIMEOUT_PROPERTY = "mail.smtp.timeout";

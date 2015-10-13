@@ -16,14 +16,19 @@
 
 package com.thoughtworks.go.server.web.i18n;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class CurrentStatusTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
+public class CurrentStatusTest {
+    @Test
     public void testShouldReturnInactiveAsTheDefaultStatus() {
         CurrentStatus building = CurrentStatus.getProjectBuildStatus(null);
         assertSame(CurrentStatus.DISCONTINUED, building);
     }
 
+    @Test
     public void testShouldReturnBuildingObjectBaseOnValue() {
         CurrentStatus exptected = CurrentStatus.BUILDING;
         CurrentStatus building = CurrentStatus.getProjectBuildStatus(exptected.getCruiseStatus());
@@ -31,6 +36,7 @@ public class CurrentStatusTest extends TestCase {
         assertEquals("Building", building.getStatus());
     }
 
+    @Test
     public void testShouldReturnBuildingObjectBaseOnValuePlusTimestamp() {
         String exptected = CurrentStatus.BUILDING.getCruiseStatus() + " since 20070420170000";
         CurrentStatus building = CurrentStatus.getProjectBuildStatus(exptected);
@@ -38,6 +44,7 @@ public class CurrentStatusTest extends TestCase {
         assertEquals("Building", building.getStatus());
     }
 
+    @Test
     public void testShouldReturnStatusBootStrappingObjectBaseOnValue() {
         String exptected = CurrentStatus.BOOTSTRAPPING.getCruiseStatus();
         CurrentStatus bootstrapping = CurrentStatus.getProjectBuildStatus(exptected);
@@ -45,6 +52,7 @@ public class CurrentStatusTest extends TestCase {
         assertEquals("Bootstrapping", bootstrapping.getStatus());
     }
 
+    @Test
     public void testShouldReturnStatusModificationSetObjectBaseOnValue() {
         String exptected = CurrentStatus.MODIFICATIONSET.getCruiseStatus();
         CurrentStatus modificationset = CurrentStatus.getProjectBuildStatus(exptected);
@@ -52,6 +60,7 @@ public class CurrentStatusTest extends TestCase {
         assertEquals("ModificationSet", modificationset.getStatus());
     }
 
+    @Test
     public void testShouldReturnWaitingObjectBaseOnValue() {
         String exptected = CurrentStatus.WAITING.getCruiseStatus();
         CurrentStatus waiting = CurrentStatus.getProjectBuildStatus(exptected);

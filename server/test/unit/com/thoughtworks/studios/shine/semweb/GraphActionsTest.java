@@ -16,7 +16,7 @@
 
 package com.thoughtworks.studios.shine.semweb;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;

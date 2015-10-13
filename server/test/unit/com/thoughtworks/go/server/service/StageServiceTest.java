@@ -57,11 +57,11 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

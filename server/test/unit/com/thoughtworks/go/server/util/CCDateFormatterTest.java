@@ -16,15 +16,17 @@
 
 package com.thoughtworks.go.server.util;
 
-import junit.framework.TestCase;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import static org.junit.Assert.assertEquals;
 
-public class CCDateFormatterTest extends TestCase {
+public class CCDateFormatterTest {
+    @Test
     public void testShouldGetDateStringInHumanBeingReadingStyleWithGMTOffset() throws Throwable {
         Method getDateFormatterWithTimeZoneMethod = CCDateFormatter.class.getDeclaredMethod("getDateFormatterWithTimeZone");
         getDateFormatterWithTimeZoneMethod.setAccessible(true);
@@ -32,6 +34,7 @@ public class CCDateFormatterTest extends TestCase {
         assertEquals("d MMM yyyy HH:mm 'GMT' Z", dateFormatter.toPattern());
     }
 
+    @Test
     public void testFormatISO8601PatternDateTime() throws Exception {
         DateTime dateTime = new DateTime(2007, 11, 12, 13, 10, 10, 00, DateTimeZone.forOffsetHours(0));
         assertEquals(dateTime, CCDateFormatter.iso8601("2007-11-12T13:10:10"));

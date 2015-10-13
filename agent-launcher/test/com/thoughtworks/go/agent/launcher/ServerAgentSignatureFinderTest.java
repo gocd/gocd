@@ -18,7 +18,7 @@ package com.thoughtworks.go.agent.launcher;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 
 public class ServerAgentSignatureFinderTest {
     @Test

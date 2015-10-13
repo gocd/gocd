@@ -36,11 +36,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(JMock.class)
 public class ZipArtifactCacheTest {

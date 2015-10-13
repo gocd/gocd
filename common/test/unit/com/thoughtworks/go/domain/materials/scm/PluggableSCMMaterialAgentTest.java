@@ -54,8 +54,8 @@ public class PluggableSCMMaterialAgentTest {
     public void setup() {
         initMocks(this);
 
-        scmConfiguration = new ArgumentCaptor<SCMPropertyConfiguration>();
-        scmRevision = new ArgumentCaptor<SCMRevision>();
+        scmConfiguration = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
+        scmRevision = ArgumentCaptor.forClass(SCMRevision.class);
     }
 
     @Test

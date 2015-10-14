@@ -1,3 +1,4 @@
+@ECHO OFF
 set TOOLS_BIN=%~dp0
 set JRUBY_BASE=%~dp0\..\jruby-1.7.11
 set GEM_HOME=

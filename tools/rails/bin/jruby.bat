@@ -1,3 +1,4 @@
+@ECHO OFF
 set GO_ROOT=%~dp0\..\..\..
 set JRUBY_BASE=%GO_ROOT%\tools\jruby-1.7.11
 set SERVER_ROOT=%GO_ROOT%\server

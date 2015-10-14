@@ -358,7 +358,7 @@ define "cruise:server", :layout => server_layout("server") do
   end
 
   task :bump_version_of_command_repository do
-    repo_full_url = ENV["COMMAND_REPO_URL"] || 'git@github.com:gocd/go-command-repo.git'
+    repo_full_url = ENV["COMMAND_REPO_URL"] || 'https://github.com/gocd/go-command-repo'
     require 'tmpdir'
     tmp_dir = Dir.tmpdir
     temp_checkout_dir_location = File.join(tmp_dir, 'go-command-repo-for-push')

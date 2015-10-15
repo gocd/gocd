@@ -7,7 +7,7 @@
         </div>
         <div class="content">
             <h2>
-            <%- if scope[:isNewRepo] %>Add <% else %>Edit <% end %>Package Repository<a class="help" href="http://www.go.cd/documentation/user/current/configuration/package_material.html" target="_blank">What is a Package Repository?</a>
+            <%- if scope[:isNewRepo] %>Add <% else %>Edit <% end %>Package Repository<a class="help" href="http://www.go.cd/documentation/user/current/extension_points/package_repository_extension.html" target="_blank">What is a Package Repository?</a>
             </h2>
             <% if package_material_plugins.length < 2 %>
                 <div class="information" style="margin: 0 !important;"> <%= l.string("NO_PLUGINS_INSTALLED")-%></div>

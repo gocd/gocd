@@ -38,4 +38,11 @@ public class UsernameTest {
         assertThat("dyang should be display name.", username1.getDisplayName(), is("dyang"));
     }
 
+    @Test
+    public void shouldAllowBuildingUsernameFromString() {
+        Username one = new Username(new CaseInsensitiveString("myusername"));
+        Username two = Username.valueOf("myusername");
+        assertThat(one, is(two));
+    }
+
 }

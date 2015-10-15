@@ -32,6 +32,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
 import com.thoughtworks.go.server.service.result.OperationResult;
@@ -104,7 +105,7 @@ public class JobInstanceService implements JobPlanLoader {
 			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
 			return null;
 		}
-		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+		if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
 			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
 			return null;
 		}

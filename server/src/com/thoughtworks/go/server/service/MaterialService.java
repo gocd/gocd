@@ -89,7 +89,7 @@ public class MaterialService {
     }
 
     public List<MatchedRevision> searchRevisions(String pipelineName, String fingerprint, String searchString, Username username, LocalizedOperationResult result) {
-        if (!securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(username.getUsername()), pipelineName)) {
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
             result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return new ArrayList<MatchedRevision>();
         }

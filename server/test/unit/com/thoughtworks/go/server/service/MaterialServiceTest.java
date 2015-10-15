@@ -112,7 +112,7 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldNotBeAuthorizedToViewAPipeline() {
-        when(securityService.hasViewPermissionForPipeline("pavan", "pipeline")).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("pavan"), "pipeline")).thenReturn(false);
         LocalizedOperationResult operationResult = mock(LocalizedOperationResult.class);
         materialService.searchRevisions("pipeline", "sha", "search-string", new Username(new CaseInsensitiveString("pavan")), operationResult);
         verify(operationResult).unauthorized(LocalizedMessage.cannotViewPipeline("pipeline"), HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
@@ -120,7 +120,7 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldReturnTheRevisionsThatMatchTheGivenSearchString() {
-        when(securityService.hasViewPermissionForPipeline("pavan", "pipeline")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("pavan"), "pipeline")).thenReturn(true);
         LocalizedOperationResult operationResult = mock(LocalizedOperationResult.class);
         MaterialConfig materialConfig = mock(MaterialConfig.class);
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenReturn(materialConfig);
@@ -132,7 +132,7 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldReturnNotFoundIfTheMaterialDoesNotBelongToTheGivenPipeline() {
-        when(securityService.hasViewPermissionForPipeline("pavan", "pipeline")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("pavan"), "pipeline")).thenReturn(true);
         LocalizedOperationResult operationResult = mock(LocalizedOperationResult.class);
 
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenThrow(new RuntimeException("Not found"));

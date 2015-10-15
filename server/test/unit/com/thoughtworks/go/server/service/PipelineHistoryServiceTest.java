@@ -813,7 +813,7 @@ public class PipelineHistoryServiceTest {
         PipelinePauseInfo pipelinePauseInfo = new PipelinePauseInfo(true,"pausing pipeline for some-reason", "some-one");
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("user-name", "pipeline-name")).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(true);
 		when(pipelinePauseService.pipelinePauseInfo("pipeline-name")).thenReturn(pipelinePauseInfo);
 		when(pipelineLockService.isLocked("pipeline-name")).thenReturn(true);
 		when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any(ServerHealthStateOperationResult.class))).thenReturn(true);
@@ -846,7 +846,7 @@ public class PipelineHistoryServiceTest {
 		PipelineConfig pipelineConfig = new PipelineConfig();
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("user-name", "pipeline-name")).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(false);
 
 		HttpOperationResult result = new HttpOperationResult();
 		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", result);
@@ -879,8 +879,8 @@ public class PipelineHistoryServiceTest {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-		when(securityService.hasViewPermissionForPipeline(noAccessUserName, pipelineName)).thenReturn(false);
-		when(securityService.hasViewPermissionForPipeline(withAccessUserName, pipelineName)).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf(noAccessUserName), pipelineName)).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf(withAccessUserName), pipelineName)).thenReturn(true);
 
 		when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
 

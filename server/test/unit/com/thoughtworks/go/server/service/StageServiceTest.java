@@ -231,7 +231,7 @@ public class StageServiceTest {
 
     private SecurityService alwaysAllow() {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(eq(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername())), any(String.class))).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(eq(ALWAYS_ALLOW_USER), any(String.class))).thenReturn(true);
         return securityService;
     }
 
@@ -266,7 +266,7 @@ public class StageServiceTest {
     @Test
     public void findStageSummaryByIdentifierShouldRespondWith401WhenUserDoesNotHavePermissionToViewThePipeline() throws Exception {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername()), "pipeline_name")).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_name")).thenReturn(false);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
                 goCache);
@@ -281,7 +281,7 @@ public class StageServiceTest {
     @Test
     public void findStageSummaryByIdentifierShouldRespondWith404WhenNoStagesFound() throws Exception {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername()), "pipeline_does_not_exist")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_does_not_exist")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
                 goCache);
@@ -299,7 +299,7 @@ public class StageServiceTest {
     @Test
     public void findStageSummaryByIdentifierShouldRespondWith404WhenStagesHavingGivenCounterIsNotFound() throws Exception {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername()), "dev")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "dev")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
                 goCache);

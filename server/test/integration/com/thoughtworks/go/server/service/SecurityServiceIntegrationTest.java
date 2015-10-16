@@ -90,7 +90,7 @@ public class SecurityServiceIntegrationTest {
         assertThat(securityService.hasViewPermissionForGroup(PIPELINE_ADMIN, GROUP_NAME), is(true));
         assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(PIPELINE_ADMIN), GROUP_NAME), is(true));
         assertThat(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(PIPELINE_ADMIN), PIPELINE_NAME), is(true));
-        assertThat(securityService.hasViewPermissionForPipeline(PIPELINE_ADMIN, PIPELINE_NAME), is(true));
+        assertThat(securityService.hasViewPermissionForPipeline(Username.valueOf(PIPELINE_ADMIN), PIPELINE_NAME), is(true));
         assertThat(securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(PIPELINE_ADMIN)), PIPELINE_NAME), is(true));
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, PIPELINE_ADMIN), is(true));
     }
@@ -103,13 +103,13 @@ public class SecurityServiceIntegrationTest {
         assertThat(securityService.hasViewPermissionForGroup(viewOnly, GROUP_NAME), is(true));
         assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(viewOnly), GROUP_NAME), is(false));
         assertThat(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(viewOnly), PIPELINE_NAME), is(false));
-        assertThat(securityService.hasViewPermissionForPipeline(viewOnly, PIPELINE_NAME), is(true));
+        assertThat(securityService.hasViewPermissionForPipeline(Username.valueOf(viewOnly), PIPELINE_NAME), is(true));
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, viewOnly), is(false));
 
         assertThat(securityService.hasViewPermissionForGroup(viewOnly, GROUP_NAME), is(true));
         assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(viewOnly), GROUP_NAME), is(false));
         assertThat(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(viewOnly), PIPELINE_NAME), is(false));
-        assertThat(securityService.hasViewPermissionForPipeline(viewOnly, PIPELINE_NAME), is(true));
+        assertThat(securityService.hasViewPermissionForPipeline(Username.valueOf(viewOnly), PIPELINE_NAME), is(true));
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, viewOnly), is(false));
     }
 
@@ -172,7 +172,7 @@ public class SecurityServiceIntegrationTest {
 
     @Test
     public void shouldNotCheckViewPermissionIfPipelineDoesNotExist() {
-        assertThat(securityService.hasViewPermissionForPipeline(VIEWER, "noSuchAPipeline"), is(true));
+        assertThat(securityService.hasViewPermissionForPipeline(Username.valueOf(VIEWER), "noSuchAPipeline"), is(true));
     }
 
     @Test

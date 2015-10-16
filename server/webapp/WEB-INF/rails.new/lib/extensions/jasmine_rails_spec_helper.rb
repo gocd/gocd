@@ -8,13 +8,15 @@ if defined?(JasmineRails)
 end
 
 if defined?(Jasmine)
-  if ENV['REQUIRE_JS'] == 'true'
-    # elaborate hax to get jasmine running with requirejs
-    # based on the blog here -
-    # https://www.airpair.com/jasmine/posts/javascriptintegrating-jasmine-with-requirejs-amd
-    module Jasmine
-      def self.runner_template
+  module Jasmine
+    def self.runner_template
+      if ENV['REQUIRE_JS'] == 'true'
+        # elaborate hax to get jasmine running with requirejs
+        # based on the blog here -
+        # https://www.airpair.com/jasmine/posts/javascriptintegrating-jasmine-with-requirejs-amd
         File.read(Rails.root.join("spec/new_javascripts/run.html.erb"))
+      else
+        File.read(Rails.root.join("spec/javascripts/run.html.erb"))
       end
     end
   end

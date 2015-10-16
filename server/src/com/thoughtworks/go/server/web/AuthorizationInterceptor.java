@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.util.UserHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,10 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
         String pipelineName = request.getParameter("pipelineName");
         if (pipelineName != null) {
-            String userName = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
+            Username username = UserHelper.getUserName();
+            String name = CaseInsensitiveString.str(username.getUsername());
             if (request.getMethod().equalsIgnoreCase("get")) {
-                if (!securityService.hasViewPermissionForPipeline(userName, pipelineName)) {
+                if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
                     response.sendError(SC_UNAUTHORIZED);
                     return false;
                 }
@@ -58,17 +60,17 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
                 
                 String stageName = request.getParameter("stageName");
                 if (stageName != null) {
-                    if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, userName)) {
+                    if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, name)) {
                         response.sendError(SC_UNAUTHORIZED);
                         return false;
                     }
                 } else {
                     if (isForcePipelineRequest(request)) {
-                        if (!securityService.hasOperatePermissionForFirstStage(pipelineName, userName)) {
+                        if (!securityService.hasOperatePermissionForFirstStage(pipelineName, name)) {
                             response.sendError(SC_UNAUTHORIZED);
                             return false;
                         }
-                    } else if (!securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(userName), pipelineName)) {
+                    } else if (!securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
                         response.sendError(SC_UNAUTHORIZED);
                         return false;
                     }

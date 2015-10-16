@@ -102,6 +102,9 @@ public class  User extends PersistentObject {
         this.name = StringUtils.trim(name);
     }
 
+    public Username getUsername() {
+        return Username.valueOf(name);
+    }
     /**
      * only used by ibatis
      *

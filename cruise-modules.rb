@@ -111,11 +111,14 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
   end
 end
 
+def command_repo_url(username = nil, password = nil)
+  credentials = username.nil? ? "" : "#{username}:#{password}@"
+  "https://#{credentials}github.com/gocd/go-command-repo.git"
+end
+
 def clone_command_repo(command_repository_default_dir)
-  protocol = ENV["COMMAND_REPO_PROTOCOL"] || "https://"
-  url = ENV["COMMAND_REPO_URL"] || 'github.com/gocd/go-command-repo.git'
   rm_rf command_repository_default_dir
-  sh "git clone #{protocol}#{url} #{command_repository_default_dir}"
+  sh "git clone #{command_repo_url} #{command_repository_default_dir}"
 end
 
 define "cruise:server", :layout => server_layout("server") do
@@ -358,13 +361,15 @@ define "cruise:server", :layout => server_layout("server") do
   end
 
   task :bump_version_of_command_repository do
-    repo_full_url = ENV["COMMAND_REPO_URL"] || 'https://github.com/gocd/go-command-repo'
+    username = ENV['COMMAND_REPO_USER'] || (raise "Environment variable: COMMAND_REPO_USER is unset. Needs to be set to a user with access to the command repo.")
+    password = ENV['COMMAND_REPO_PASSWORD'] || (raise "Environment variable: COMMAND_REPO_PASSWORD is unset. Needs to be set.")
+
     require 'tmpdir'
     tmp_dir = Dir.tmpdir
     temp_checkout_dir_location = File.join(tmp_dir, 'go-command-repo-for-push')
     rm_rf temp_checkout_dir_location
     mkdir_p temp_checkout_dir_location
-    sh "git clone #{repo_full_url} #{temp_checkout_dir_location}"
+    sh "git clone #{command_repo_url} #{temp_checkout_dir_location}"
 
     version_file_location = File.join(temp_checkout_dir_location, 'version.txt')
     version_content_array = File.read(version_file_location).split('=')
@@ -376,8 +381,7 @@ define "cruise:server", :layout => server_layout("server") do
         'git config user.email go-cd@googlegroups.com',
         "git add #{version_file_location}",
         "git commit -m 'Version - #{bump_version}'",
-        "git config remote.origin.url #{repo_full_url}",
-        'git push'
+        "git push #{command_repo_url(username, password)} master"
       ].each do |cmd|
         sh cmd
       end

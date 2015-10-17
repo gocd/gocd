@@ -205,6 +205,19 @@ public class UnitTestReportGeneratorTest {
         verify(publisher).setProperty(new Property(TEST_TIME, "80.231"));
     }
 
+    @Test
+    public void shouldGenerateReportForMinifiedXmlFiles() throws IOException {
+        copyAndClose(source("MinifiedTestReport.xml"), target("MinifiedTestReport.xml"));
+
+        generator.generate(testFolder.listFiles());
+
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "2"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "0.004"));
+    }
+
     private OutputStream target(String targetFile) throws FileNotFoundException {
         return new FileOutputStream(testFolder.getAbsolutePath() + FileUtil.fileseparator() + targetFile);
     }

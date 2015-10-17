@@ -37,6 +37,7 @@ import javax.xml.xpath.XPathFactory;
 
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.XmlUtils;
 import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -154,8 +155,8 @@ public class UnitTestReportGenerator implements TestReportGenerator {
         BufferedReader bufferedReader = null;
         try {
             bufferedReader = new BufferedReader(new FileReader(file));
-            String line = bufferedReader.readLine();
-            if (!line.contains("<?xml")) { // skip prolog
+            String line = XmlUtils.stripProlog(bufferedReader.readLine());
+            if (!line.isEmpty()) { // skip if line was only prolog
                 out.println(line);
             }
             while ((line = bufferedReader.readLine()) != null) {

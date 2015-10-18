@@ -110,7 +110,7 @@ public class AuthorizationInterceptorTest {
     private void assumeUserHasViewPermission() {
         context.checking(new Expectations() {
             {
-                one(securityService).hasViewPermissionForPipeline(CaseInsensitiveString.str(ANONYMOUS.getUsername()), "cruise");
+                one(securityService).hasViewPermissionForPipeline(ANONYMOUS, "cruise");
                 will(returnValue(true));
             }
         });

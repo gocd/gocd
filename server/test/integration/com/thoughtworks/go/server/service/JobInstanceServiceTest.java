@@ -30,6 +30,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -302,7 +303,7 @@ public class JobInstanceServiceTest {
 	public void shouldDelegateToDAO_findJobHistoryPage() {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
 		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
 				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager);
@@ -317,7 +318,7 @@ public class JobInstanceServiceTest {
 	public void shouldPopulateErrorWhenPipelineNotFound_findJobHistoryPage() {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
 		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
 				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager);
@@ -334,7 +335,7 @@ public class JobInstanceServiceTest {
 	public void shouldPopulateErrorWhenUnauthorized_findJobHistoryPage() {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
 		final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache,
 				transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, pluginManager);

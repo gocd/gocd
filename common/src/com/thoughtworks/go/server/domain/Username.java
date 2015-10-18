@@ -88,4 +88,8 @@ public class Username implements Serializable {
         result = 31 * result + (username != null ? username.hashCode() : 0);
         return result;
     }
+
+    public static Username valueOf(String username) {
+        return new Username(new CaseInsensitiveString(username));
+    }
 }

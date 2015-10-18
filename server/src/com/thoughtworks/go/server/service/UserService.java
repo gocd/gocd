@@ -413,7 +413,7 @@ public class UserService {
         return users.filter(new Filter<User>() {
             public boolean matches(User user) {
                 return user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
-                        securityService.hasViewPermissionForPipeline(user.getName(), identifier.getPipelineName());
+                        securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName());
             }
         });
     }

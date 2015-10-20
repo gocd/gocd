@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -168,7 +169,7 @@ public class AgentService {
         return true;
     }
 
-    public void updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources, TriState enable) {
+    public void updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources, String environments, TriState enable) {
         if (!hasOperatePermission(username, result)) {
             return;
         }
@@ -179,13 +180,13 @@ public class AgentService {
         }
 
         try {
-            agentConfigService.updateAgentAttributes(uuid, username.getUsername().toString(), newHostname, resources, enable, agentInstances);
+            agentConfigService.updateAgentAttributes(uuid, username.getUsername().toString(), newHostname, resources, environments, enable, agentInstances);
             result.ok(String.format("Updated agent with uuid %s.", uuid));
         } catch (Exception e) {
-            if (e.getCause() instanceof GoConfigInvalidException) {
-                result.unprocessibleEntity("Updating agents failed", e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+            if (e.getCause() instanceof GoConfigInvalidException || e.getCause() instanceof NoSuchEnvironmentException) {
+                result.unprocessibleEntity("Updating agents failed:", e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
             } else {
-                result.internalServerError("Updating agents failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+                result.internalServerError("Updating agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
             }
         }
     }

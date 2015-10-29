@@ -320,8 +320,7 @@ input[type="text"].searchbox {
 }
 
 input.searchbox.ac_loading {
-    background: image_url("g9/icons/spinny_white_16.gif") transparent no-repeat right;
-    padding-right: 16px;
+    background: image_url("g9/icons/spinny_white_16.gif") transparent no-repeat right center;
 }
 
 select.large,

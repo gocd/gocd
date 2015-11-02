@@ -109,7 +109,7 @@ public class BuildWorkTest {
 
     private static final String WILL_PASS = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
             + "  <tasks>\n"
-            + "    <ant target=\"--help\" />\n"
+            + "    <ant target=\"-help\" />\n"
             + "  </tasks>\n"
             + "</job>";
 
@@ -183,7 +183,7 @@ public class BuildWorkTest {
                 + "      <artifact src=\"" + file + "\" dest=\"dist\\test\" />\n"
                 + "   </artifacts>"
                 + "  <tasks>\n"
-                + "    <ant target=\"--help\" />\n"
+                + "    <ant target=\"-help\" />\n"
                 + "  </tasks>\n"
                 + "</job>";
 
@@ -195,7 +195,7 @@ public class BuildWorkTest {
                 + "      <artifact src=\"" + file + "\" dest=\"" + dest + "\" />\n"
                 + "   </artifacts>"
                 + "  <tasks>\n"
-                + "    <ant target=\"--help\" />\n"
+                + "    <ant target=\"-help\" />\n"
                 + "  </tasks>\n"
                 + "</job>";
 

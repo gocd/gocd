@@ -68,9 +68,12 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
 
     @Override
     public void jobStatusChanged(final JobInstance job) {
+        LOGGER.debug("Adding CCTray activity for job into queue: " + job);
+
         queue.add(new Action() {
             @Override
             public void call() {
+                LOGGER.debug("Handling CCTray activity for job: " + job);
                 jobStatusChangeHandler.call(job);
             }
         });
@@ -78,9 +81,12 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
 
     @Override
     public void stageStatusChanged(final Stage stage) {
+        LOGGER.debug("Adding CCTray activity for stage into queue: " + stage);
+
         queue.add(new Action() {
             @Override
             public void call() {
+                LOGGER.debug("Handling CCTray activity for stage: " + stage);
                 stageStatusChangeHandler.call(stage);
             }
         });
@@ -88,9 +94,12 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
 
     @Override
     public void onConfigChange(final CruiseConfig newConfig) {
+        LOGGER.debug("Adding CCTray activity for config change into queue.");
+
         queue.add(new Action() {
             @Override
             public void call() {
+                LOGGER.debug("Handling CCTray activity for config change.");
                 configChangeHandler.call(newConfig);
             }
         });

@@ -33,18 +33,21 @@ module ApiV2
 
     def update
       result    = HttpOperationResult.new
-      resources = if params[:resources].is_a?(Array)
-                    params[:resources].join(',')
-                  else
-                    params[:resources]
-                  end
-      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], resources, to_enabled_tristate)
+      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], maybe_join(params[:resources]), maybe_join(params[:environments]), to_enabled_tristate)
 
       if result.isSuccess
         load_agent
         render json_hal_v2: agent_presenter.to_hash(url_builder: self)
       else
         render_http_operation_result(result)
+      end
+    end
+
+    def maybe_join(obj)
+      if obj.is_a?(Array)
+        obj.join(',')
+      else
+        obj
       end
     end
 

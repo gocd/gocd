@@ -205,7 +205,7 @@ describe ApiV2::AgentsController do
       it 'should return agent json when agent name update is successful' do
         agent = AgentInstanceMother.idle()
         @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, TriState.UNSET) do |user, result, uuid, new_hostname|
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, nil, TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -217,7 +217,7 @@ describe ApiV2::AgentsController do
       it 'should return agent json when agent resources update is successful by specifing a comma separated string' do
         agent = AgentInstanceMother.idle()
         @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -226,10 +226,22 @@ describe ApiV2::AgentsController do
         expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV2::AgentRepresenter))
       end
 
+      it 'should return agent json when agent environments update is successful by specifing a comma separated string' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,performance', TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: "pre-prod,performance"
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV2::AgentRepresenter))
+      end
+
       it 'should return agent json when agent is enabled' do
         agent = AgentInstanceMother.idle()
         @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.TRUE) do |user, result, uuid, new_hostname|
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.TRUE) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -241,7 +253,7 @@ describe ApiV2::AgentsController do
       it 'should return agent json when agent is disabled' do
         agent = AgentInstanceMother.idle()
         @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.FALSE) do |user, result, uuid, new_hostname|
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.FALSE) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -253,11 +265,23 @@ describe ApiV2::AgentsController do
       it 'should return agent json when agent resources update is successful by specifying a resource array' do
         agent = AgentInstanceMother.idle()
         @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", TriState.UNSET) do |user, result, uuid, new_hostname|
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
         patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', resources: ['java', 'linux', 'firefox']
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV2::AgentRepresenter))
+      end
+
+      it 'should return agent json when agent environments update is successful by specifying an environment array' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,staging', TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.ok("Updated agent with uuid #{agent.getUuid()}")
+        end
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: ['pre-prod', 'staging']
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(AgentViewModel.new(agent), ApiV2::AgentRepresenter))
       end

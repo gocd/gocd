@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -23,21 +23,17 @@ import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Date;
 
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static java.text.MessageFormat.format;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
@@ -45,7 +41,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JMock.class)
 public class JobInstanceTest {
     private Mockery context = new Mockery() {
         {
@@ -232,7 +227,7 @@ public class JobInstanceTest {
     @Test public void shouldReturnDateForLatestTransition() throws Exception {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.setClock(timeProvider);
-        when(timeProvider.currentTime()).thenReturn(new DateTime().plusDays(1).toDate());        
+        when(timeProvider.currentTime()).thenReturn(new DateTime().plusDays(1).toDate());
         instance.completing(JobResult.Passed);
         assertThat(instance.latestTransitionDate(),is(greaterThan(instance.getScheduledDate())));
     }

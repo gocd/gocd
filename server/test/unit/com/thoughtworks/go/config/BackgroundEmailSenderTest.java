@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,25 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.StringContains.containsString;
-
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import org.jmock.Expectations;
-import static org.jmock.Expectations.same;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.jmock.Expectations.same;
+import static org.junit.Assert.assertThat;
+
 public class BackgroundEmailSenderTest {
 
     GoMailSender neverReturns = new GoMailSender() {

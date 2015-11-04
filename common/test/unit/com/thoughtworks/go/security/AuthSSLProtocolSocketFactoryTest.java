@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,30 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.security;
-
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
 
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
-@RunWith(org.jmock.integration.junit4.JMock.class)
 public class AuthSSLProtocolSocketFactoryTest {
 
     Mockery context = new ClassMockery();

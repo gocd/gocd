@@ -71,7 +71,7 @@ public class TfsSDKCommandBuilderTest {
         assertThat(log4jJarFromClasspath != null, is(true));
         String version = implementationVersionFromManifrest(log4jJarFromClasspath);
         assertThat(version != null, is(true));
-        assertThat(version, is("1.2.12"));
+        assertThat(version, is("1.2.17"));
     }
 
     private String implementationVersionFromManifrest(URL log4jJarFromClasspath) throws IOException {

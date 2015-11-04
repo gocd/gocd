@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.service;
-
-import java.io.IOException;
 
 import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
 import com.thoughtworks.go.config.AgentRegistrationPropertiesReader;
@@ -32,18 +30,17 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.io.IOException;
 
 import static com.thoughtworks.go.util.TestUtils.exists;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 
-@RunWith(JMock.class)
 public class SslInfrastructureServiceTest {
     private static final Logger LOGGER = Logger.getLogger(SslInfrastructureServiceTest.class);
     private final Mockery context = new ClassMockery();

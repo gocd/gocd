@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
-
-import java.io.*;
-import java.util.UUID;
 
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.util.ClassMockery;
@@ -26,25 +23,19 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.FAILED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.IGNORED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TEST_TIME;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TOTAL_TEST_COUNT;
-import static com.thoughtworks.go.util.TestUtils.copyAndClose;
-import static com.thoughtworks.go.util.TestUtils.restoreConsoleOutput;
-import static com.thoughtworks.go.util.TestUtils.suppressConsoleOutput;
+import java.io.*;
+import java.util.UUID;
+
+import static com.thoughtworks.go.domain.UnitTestReportGenerator.*;
+import static com.thoughtworks.go.util.TestUtils.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-
-@RunWith(JMock.class)
 public class UnitTestReportGeneratorTest {
     private final Mockery context = new ClassMockery();
 

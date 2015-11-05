@@ -102,6 +102,10 @@ public class ArtifactsService implements ArtifactUrlReader {
                 LOGGER.error(message, e);
             }
             return false;
+        } catch (IllegalPathException e){
+            final String message = format("Failed to save the file to: [%s]", destPath);
+            LOGGER.error(message, e);
+            return false;
         }
     }
 

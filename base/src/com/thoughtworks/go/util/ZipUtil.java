@@ -114,7 +114,7 @@ public class ZipUtil {
 
     private void bombIfZipEntryPathContainsDirectoryTraversalCharacters(String filepath) {
         if (filepath.contains("..")) {
-            throw new IllegalStateException(String.format("File %s is outside extraction target directory", filepath));
+            throw new IllegalPathException(String.format("File %s is outside extraction target directory", filepath));
         }
     }
 

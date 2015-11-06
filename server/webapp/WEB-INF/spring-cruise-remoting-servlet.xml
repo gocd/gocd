@@ -30,7 +30,7 @@
     <import resource="propertyConfigurer.xml"/>
 
     <task:scheduled-tasks>
-        <task:scheduled ref="configRepository" method="garbageCollect" cron="${cruise.config.gc.cron}"/>
+        <task:scheduled ref="configRepository" method="garbageCollect" cron="${go.config.gc.cron}"/>
     </task:scheduled-tasks>
 
     <bean name="/remoteBuildRepository" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"

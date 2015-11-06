@@ -21,20 +21,27 @@ import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.ConfigFileFixture;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
@@ -364,6 +371,16 @@ public class ConfigRepositoryTest {
         configRepo.getConfigMergedWithLatestRevision(goConfigRevision(changeOnBranch, "md5-3"), oldMd5);
         assertThat(configRepo.git().getRepository().getBranch(), is("master"));
         assertThat(configRepo.git().branchList().call().size(), is(1));
+    }
+
+    @Test
+    public void shouldPerformGC() throws Exception {
+        configRepo.checkin(goConfigRevision("v1", "md5-1"));
+        Long numberOfLooseObjects = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
+        assertThat(numberOfLooseObjects > 0l, is(true));
+        configRepo.garbageCollect();
+        numberOfLooseObjects = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
+        assertThat(numberOfLooseObjects, is(0l));
     }
 
     private GoConfigRevision goConfigRevision(String fileContent, String md5) {

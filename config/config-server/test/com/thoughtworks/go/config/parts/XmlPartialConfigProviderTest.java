@@ -21,12 +21,10 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
-import org.jdom.input.JDOMParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +35,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -80,7 +77,7 @@ public class XmlPartialConfigProviderTest {
 
         File file = helper.addFileWithPipeline("pipe1.gocd.xml", pipe1);
 
-        PartialConfig part = xmlPartialProvider.ParseFile(file);
+        PartialConfig part = xmlPartialProvider.parseFile(file);
         PipelineConfig pipeRead = part.getGroups().get(0).get(0);
         assertThat(pipeRead,is(pipe1));
     }
@@ -93,7 +90,7 @@ public class XmlPartialConfigProviderTest {
 
         File file = helper.addFileWithPipelineGroup("group1.gocd.xml", group1);
 
-        PartialConfig part = xmlPartialProvider.ParseFile(file);
+        PartialConfig part = xmlPartialProvider.parseFile(file);
         PipelineConfigs groupRead = part.getGroups().get(0);
         assertThat(groupRead,is(group1));
         assertThat(groupRead.size(),is(group1.size()));
@@ -106,7 +103,7 @@ public class XmlPartialConfigProviderTest {
 
         File file = helper.addFileWithEnvironment("dev-env.gocd.xml", env);
 
-        PartialConfig part = xmlPartialProvider.ParseFile(file);
+        PartialConfig part = xmlPartialProvider.parseFile(file);
 
         EnvironmentsConfig loadedEnvs = part.getEnvironments();
         assertThat(loadedEnvs.size(),is(1));

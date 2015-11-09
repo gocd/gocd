@@ -92,11 +92,11 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
                 MaterialRevision lastParseRevision = getMaterialRevisionAtLastParseAttempt(message);
                 if (lastParseRevision == null) {
                     //never parsed
-                    UpdateConfigurationFromCheckout(folder, revision, material);
+                    updateConfigurationFromCheckout(folder, revision, material);
                 } else if (latestModification.findRevisionFor(material.config())
                         .hasChangedSince(lastParseRevision)) {
                     // revision has changed. the config files might have been updated
-                    UpdateConfigurationFromCheckout(folder, revision, material);
+                    updateConfigurationFromCheckout(folder, revision, material);
                 } else {
                     // revision is the same as last time, no need to parse again
                 }
@@ -109,7 +109,7 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    private void UpdateConfigurationFromCheckout(File folder, Revision revision, Material material) {
+    private void updateConfigurationFromCheckout(File folder, Revision revision, Material material) {
         MaterialPoller poller = this.materialService.getPollerImplementation(material);
         poller.checkout(material,folder,revision,this.subprocessExecutionContext);
         this.repoConfigDataSource.onCheckoutComplete(material.config(),folder, revision.getRevision());

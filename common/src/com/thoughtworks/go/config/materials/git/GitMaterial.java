@@ -68,6 +68,12 @@ public class GitMaterial extends ScmMaterial {
         this.url = new UrlArgument(url);
     }
 
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
+        this.updateTo(output,revision,baseDir,execCtx);
+    }
+
     public GitMaterial(String url, String branch) {
         this(url);
         if (branch != null) {

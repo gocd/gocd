@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
@@ -58,6 +59,8 @@ public abstract class MaterialUpdateService_IdleTime_TestBase {
     private SystemEnvironment systemEnvironment;
     private MaterialConfigConverter materialConfigConverter;
     private MDUPerformanceLogger mduPerformanceLogger;
+    private ConfigMaterialUpdateQueue configQueue;
+    private GoConfigWatchList watchList;
 
     @Before
     public void setUp() throws Exception {
@@ -69,12 +72,18 @@ public abstract class MaterialUpdateService_IdleTime_TestBase {
         systemEnvironment = new SystemEnvironment();
         materialConfigConverter = mock(MaterialConfigConverter.class);
         mduPerformanceLogger = mock(MDUPerformanceLogger.class);
-        service = new MaterialUpdateService(queue, completed, goConfigService, systemEnvironment, serverHealthService,
-                postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
+        configQueue = mock(ConfigMaterialUpdateQueue.class);
+        watchList = mock(GoConfigWatchList.class);
+        service = initializeMaterialUpdateService();
 
         Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<MaterialConfig>(Collections.singleton(material().config()));
         when(goConfigService.getSchedulableMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<Material>(Collections.singleton(material())));
+    }
+
+    private MaterialUpdateService initializeMaterialUpdateService() {
+        return new MaterialUpdateService(queue,configQueue, completed, watchList, goConfigService, systemEnvironment, serverHealthService,
+                postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
     }
 
     protected abstract Material material();
@@ -115,7 +124,7 @@ public abstract class MaterialUpdateService_IdleTime_TestBase {
     @Test
     public void shouldReturnTrueIfMaterialUpdateElapsedTimeIsEqualToOrGreaterThanUpdateInterval() throws Exception {
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "2000");
-        service = new MaterialUpdateService(queue, completed, goConfigService, systemEnvironment, serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
+        service = initializeMaterialUpdateService();
 
         Map<Material, Long> materialLastUpdateTimeMap = (Map<Material, Long>) ReflectionUtil.getField(service, "materialLastUpdateTimeMap");
         materialLastUpdateTimeMap.put(material(), System.currentTimeMillis() - 10000); //Assuming material completed update 10 secs ago.
@@ -126,7 +135,7 @@ public abstract class MaterialUpdateService_IdleTime_TestBase {
     @Test
     public void shouldReturnFalseIfMaterialUpdateElapsedTimeIsLessThanUpdateInterval() throws Exception {
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "10000");
-        service = new MaterialUpdateService(queue, completed, goConfigService, systemEnvironment, serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
+        service = initializeMaterialUpdateService();
 
         Map<Material, Long> materialLastUpdateTimeMap = (Map<Material, Long>) ReflectionUtil.getField(service, "materialLastUpdateTimeMap");
         materialLastUpdateTimeMap.put(material(), System.currentTimeMillis() - 2000); //Assuming material completed update 2 secs ago.
@@ -137,7 +146,7 @@ public abstract class MaterialUpdateService_IdleTime_TestBase {
     @Test
     public void shouldUpdateMaterialSecondTimeIfLastUpdateCompleteIntervalHasElapsed() throws Exception {
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "1000");
-        service = new MaterialUpdateService(queue, completed, goConfigService, systemEnvironment, serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
+        service = initializeMaterialUpdateService();
         service = spy(service);
         Set<MaterialConfig> schedulableMaterials = goConfigService.getSchedulableMaterials();
         Set<Material> materials = new HashSet<Material>();
@@ -155,7 +164,7 @@ public abstract class MaterialUpdateService_IdleTime_TestBase {
     @Test
     public void shouldNotUpdateMaterialSecondTimeIfLastUpdateCompleteIntervalHasNotElapsed() throws Exception {
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "10000");
-        service = new MaterialUpdateService(queue, completed, goConfigService, systemEnvironment, serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
+        service = initializeMaterialUpdateService();
         service = spy(service);
 
         service.onTimer();
@@ -176,7 +185,7 @@ public abstract class MaterialUpdateService_IdleTime_TestBase {
         when(materialConfigConverter.toMaterials(materialConfigs)).thenReturn(materials);
 
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "100000");
-        service = new MaterialUpdateService(queue, completed, goConfigService, systemEnvironment, serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter);
+        service = initializeMaterialUpdateService();
         service = spy(service);
 
         service.onTimer();

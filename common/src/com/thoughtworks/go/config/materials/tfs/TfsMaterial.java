@@ -36,6 +36,7 @@ import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -85,6 +86,13 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     public MaterialConfig config() {
         return new TfsMaterialConfig(url, userName, domain, getPassword(), projectPath, goCipher, autoUpdate, filter, folder, name);
     }
+
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
+        this.updateTo(output,revision,baseDir,execCtx);
+    }
+
 
     public String getDomain() {
         return domain;

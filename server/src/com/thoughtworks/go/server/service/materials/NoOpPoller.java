@@ -35,4 +35,9 @@ public class NoOpPoller implements MaterialPoller<Material> {
     public List<Modification> modificationsSince(Material material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         throw new RuntimeException("unknown material type " + material.getDisplayName());
     }
+
+    @Override
+    public void checkout(Material material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        throw new RuntimeException("unknown material type " + material.getDisplayName());
+    }
 }

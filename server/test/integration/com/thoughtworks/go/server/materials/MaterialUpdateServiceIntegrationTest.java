@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
@@ -58,7 +59,8 @@ public class MaterialUpdateServiceIntegrationTest {
         HealthStateScope goodScope = HealthStateScope.forMaterialConfig(goodMaterial);
         serverHealthService.update(ServerHealthState.error("could not update!", "why", HealthStateType.general(goodScope)));
 
-        MaterialUpdateService materialUpdateService = new MaterialUpdateService(null, mock(MaterialUpdateCompletedTopic.class), mock(GoConfigService.class),
+        MaterialUpdateService materialUpdateService = new MaterialUpdateService(null,null, mock(MaterialUpdateCompletedTopic.class),
+                mock(GoConfigWatchList.class),mock(GoConfigService.class),
                 systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter);
 
         materialUpdateService.onConfigChange(configWithMaterial(goodMaterial));

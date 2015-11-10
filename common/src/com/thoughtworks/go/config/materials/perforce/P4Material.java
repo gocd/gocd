@@ -109,6 +109,11 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
+        this.updateTo(output, revision, baseDir, execCtx);
+    }
+    @Override
     public MaterialConfig config() {
         return new P4MaterialConfig(serverAndPort, userName, getPassword(), useTickets, view == null ? null : view.getValue(), goCipher, name, autoUpdate, filter, folder);
     }

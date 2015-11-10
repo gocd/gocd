@@ -15,11 +15,19 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.server.messaging.GoMessageTopic;
+import com.thoughtworks.go.server.messaging.MessagingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.util.List;
+/**
+ * @understands when a config material update has completed
+ */
+@Component
+public class ConfigMaterialUpdateCompletedTopic extends GoMessageTopic<MaterialUpdateCompletedMessage> {
 
-public interface ScmMaterialCheckoutListener {
-    void onCheckoutComplete(MaterialConfig material, File folder, String revision);
+    @Autowired
+    public ConfigMaterialUpdateCompletedTopic(MessagingService messaging) {
+        super(messaging, "config-material-update-completed");
+    }
 }

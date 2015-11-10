@@ -86,6 +86,8 @@ public abstract class ScmMaterial extends AbstractMaterial {
         return name.matches(regex);
     }
 
+    public abstract void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) ;
+
     public abstract String getUserName();
 
     public abstract String getPassword();

@@ -117,7 +117,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         return firstModifiedMaterialRevision().getRevision().getRevision();
     }
 
-    private MaterialRevision firstModifiedMaterialRevision() {
+    public MaterialRevision firstModifiedMaterialRevision() {
         for (MaterialRevision revision : revisions) {
             if (revision.isChanged()) {
                 return revision;

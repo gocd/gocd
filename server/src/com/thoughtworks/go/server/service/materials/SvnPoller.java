@@ -35,4 +35,9 @@ public class SvnPoller implements MaterialPoller<SvnMaterial> {
     public List<Modification> modificationsSince(SvnMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         return material.modificationsSince(baseDir, revision, execCtx);
     }
+
+    @Override
+    public void checkout(SvnMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        material.checkout(baseDir,revision,execCtx);
+    }
 }

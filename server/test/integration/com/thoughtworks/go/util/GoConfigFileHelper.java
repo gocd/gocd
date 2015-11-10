@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -36,7 +37,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -123,7 +123,7 @@ public class GoConfigFileHelper {
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
             GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
-                    new GoConfigPluginService(configCache,configElementImplementationRegistry,probeService), new ScmMaterialCheckoutService());
+                    new GoConfigPluginService(configCache,configElementImplementationRegistry,probeService));
             GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
@@ -533,6 +533,13 @@ public class GoConfigFileHelper {
 
     public CruiseConfig currentConfig() {
         return load();
+    }
+
+
+    public void addConfigRepo(ConfigRepoConfig configRepoConfig) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        cruiseConfig.getConfigRepos().add(configRepoConfig);
+        writeConfigFile(cruiseConfig);
     }
 
     public void addAgent(String hostname, String uuid) {
@@ -1015,6 +1022,7 @@ public class GoConfigFileHelper {
         };
 
     }
+
 
     /*public void addPipelineGroup(String groupName) {
         CruiseConfig config = loadForEdit();

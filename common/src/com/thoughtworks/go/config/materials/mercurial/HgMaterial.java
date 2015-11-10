@@ -81,6 +81,12 @@ public class HgMaterial extends ScmMaterial {
         this.name = config.getName();
     }
 
+
+    @Override
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
+        this.updateTo(output,revision,baseDir,execCtx);
+    }
     @Override
     public MaterialConfig config() {
         return new HgMaterialConfig(url, autoUpdate, filter, folder, name);

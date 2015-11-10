@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,7 +35,6 @@ public class GoPartialConfigTest {
 
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
-    private ScmMaterialCheckoutService checkoutService;
     private PartialConfigProvider plugin;
 
     private GoRepoConfigDataSource repoConfigDataSource;
@@ -59,9 +57,8 @@ public class GoPartialConfigTest {
         when(fileMock.currentConfig()).thenReturn(cruiseConfig);
 
         configWatchList = new GoConfigWatchList(fileMock);
-        checkoutService = mock(ScmMaterialCheckoutService.class);
 
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService,checkoutService);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService);
 
         partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
     }

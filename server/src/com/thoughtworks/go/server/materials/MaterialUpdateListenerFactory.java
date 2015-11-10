@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
+import com.thoughtworks.go.server.messaging.GoMessageQueue;
+import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
@@ -30,8 +32,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class MaterialUpdateListenerFactory {
     private MaterialUpdateCompletedTopic topic;
+    private ConfigMaterialUpdateCompletedTopic configTopic;
     private final MaterialRepository materialRepository;
     private MaterialUpdateQueue queue;
+    private ConfigMaterialUpdateQueue configQueue;
     private SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
@@ -46,7 +50,9 @@ public class MaterialUpdateListenerFactory {
 
     @Autowired
     public MaterialUpdateListenerFactory(MaterialUpdateCompletedTopic topic,
+                                         ConfigMaterialUpdateCompletedTopic configTopic,
                                          MaterialUpdateQueue queue,
+                                         ConfigMaterialUpdateQueue configQueue,
                                          MaterialRepository materialRepository,
                                          SystemEnvironment systemEnvironment,
                                          ServerHealthService serverHealthService,
@@ -57,7 +63,9 @@ public class MaterialUpdateListenerFactory {
                                          ScmMaterialUpdater scmMaterialUpdater,
                                          PackageMaterialUpdater packageMaterialUpdater, PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService, MDUPerformanceLogger mduPerformanceLogger) {
         this.topic = topic;
+        this.configTopic = configTopic;
         this.queue = queue;
+        this.configQueue = configQueue;
         this.materialRepository = materialRepository;
         this.systemEnvironment = systemEnvironment;
         this.serverHealthService = serverHealthService;
@@ -73,12 +81,20 @@ public class MaterialUpdateListenerFactory {
     }
 
     public void init(){
-        int numberOfListeners = systemEnvironment.getNumberOfMaterialCheckListener();
+        int numberOfStandardMaterialListeners = systemEnvironment.getNumberOfMaterialCheckListener();
+        int numberOfConfigListeners = systemEnvironment.getNumberOfConfigMaterialCheckListener();
 
-        for (int i = 0; i < numberOfListeners; i++) {
-            MaterialDatabaseUpdater updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
-                    packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
-            queue.addListener(new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor));
+        for (int i = 0; i < numberOfStandardMaterialListeners; i++) {
+            createWorker(this.queue, this.topic);
         }
+        for (int i = 0; i < numberOfConfigListeners; i++) {
+            createWorker(this.configQueue,this.configTopic);
+        }
+    }
+
+    private void createWorker(GoMessageQueue<MaterialUpdateMessage> queue, GoMessageTopic<MaterialUpdateCompletedMessage> topic) {
+        MaterialDatabaseUpdater updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
+        queue.addListener(new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor));
     }
 }

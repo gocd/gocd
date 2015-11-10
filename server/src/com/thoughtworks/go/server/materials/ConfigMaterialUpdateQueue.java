@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
-
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
@@ -25,9 +24,9 @@ import org.springframework.stereotype.Component;
  * @understands messages about required material updates
  */
 @Component
-public class MaterialUpdateQueue extends GoMessageQueue<MaterialUpdateMessage> {
+public class ConfigMaterialUpdateQueue extends GoMessageQueue<MaterialUpdateMessage> {
     @Autowired
-    public MaterialUpdateQueue(MessagingService messaging) {
-        super(messaging, "material-update-required");
+    public ConfigMaterialUpdateQueue(MessagingService messaging) {
+        super(messaging, "config-material-update-required");
     }
 }

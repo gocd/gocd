@@ -170,8 +170,7 @@ public class MaterialDatabaseUpdater {
 
 
     private File folderFor(Material material) {
-        MaterialInstance materialInstance = materialRepository.findOrCreateFrom(material);
-        return new File(new File("pipelines", "flyweight"), materialInstance.getFlyweightName());
+        return this.materialRepository.folderFor(material);
     }
 
     private void addNewMaterialWithModifications(File folder, Material expanded, MaterialUpdater updater) {

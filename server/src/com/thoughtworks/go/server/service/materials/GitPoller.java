@@ -35,4 +35,10 @@ public class GitPoller implements MaterialPoller<GitMaterial> {
     public List<Modification> modificationsSince(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         return material.modificationsSince(baseDir, revision, execCtx);
     }
+
+    @Override
+    public void checkout(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        material.checkout(baseDir,revision,execCtx);
+    }
+
 }

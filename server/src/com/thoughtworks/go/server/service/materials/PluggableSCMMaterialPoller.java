@@ -33,6 +33,7 @@ import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
+import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -82,6 +83,20 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
         }
         List<SCMRevision> scmRevisions = pollResult.getRevisions();
         return getModifications(scmRevisions);
+    }
+
+    @Override
+    public void checkout(PluggableSCMMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        SCMPropertyConfiguration scmPropertyConfiguration = buildSCMPropertyConfigurations(material.getScmConfig());
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(material);
+        PluggableSCMMaterialRevision pluggableSCMMaterialRevision = (PluggableSCMMaterialRevision) revision;
+        SCMRevision scmRevision = new SCMRevision(
+                pluggableSCMMaterialRevision.getRevision(),
+                pluggableSCMMaterialRevision.getTimestamp(), null, null,
+                pluggableSCMMaterialRevision.getData(), null);
+        Result result = scmExtension.checkout(material.getPluginId(), scmPropertyConfiguration, baseDir.getAbsolutePath(), scmRevision);
+        if(!result.isSuccessful())
+            throw new RuntimeException("Failed to perform checkout on pluggable SCM");
     }
 
     private SCMPropertyConfiguration buildSCMPropertyConfigurations(SCM scmConfig) {

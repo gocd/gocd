@@ -797,7 +797,6 @@ public class MaterialRepository extends HibernateDaoSupport {
         if (materialInstance == null) {
             return new MaterialRevisions();
         }
-        File folder = new File(new File("pipelines", "flyweight"), materialInstance.getFlyweightName());
         Materials materials = new Materials();
         materialExpansionService.expandForHistory(material, materials);
         MaterialRevisions allModifications = new MaterialRevisions();
@@ -1080,6 +1079,11 @@ public class MaterialRepository extends HibernateDaoSupport {
 
     String cacheKeyForModificationsForStageLocator(StageIdentifier stageIdentifier) {
         return String.format("%s_modificationsFor_%s", getClass().getName(), stageIdentifier.getStageLocator()).intern();
+    }
+
+    public File folderFor(Material material) {
+        MaterialInstance materialInstance = this.findOrCreateFrom(material);
+        return new File(new File("pipelines", "flyweight"), materialInstance.getFlyweightName());
     }
 
 }

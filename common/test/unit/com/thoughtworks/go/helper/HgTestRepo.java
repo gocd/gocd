@@ -127,18 +127,35 @@ public class HgTestRepo extends TestRepo {
     }
 
     public List<Modification> commitAndPushFile(String fileName, String comment) throws Exception {
-        File baseDir = TestFileUtil.createUniqueTempFolder("working-dir");
-        HgMaterial material = material();
-        Revision tip = latestRevision(material, baseDir, new TestSubprocessExecutionContext());
-        material.updateTo(ProcessOutputStreamConsumer.inMemoryConsumer(), tip, baseDir, new TestSubprocessExecutionContext());
+        return commitAndPushFileWithContent(fileName,comment,"");
+    }
+    public List<Modification> commitAndPushFileWithContent(String fileName, String comment,String content) throws Exception {
+        File baseDir = prepareWorkDirectory();
+        HgMaterial material = updateTo(baseDir);
 
         File file = new File(baseDir, fileName);
-        file.createNewFile();
+        FileUtils.writeStringToFile(file, content);
 
-        material.add(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new File(baseDir, fileName));
+        return addCommitPush(material,comment, baseDir, file);
+    }
+
+    public List<Modification> addCommitPush(HgMaterial material,String comment, File baseDir, File file) throws Exception {
+        material.add(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer(), file);
         material.commit(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer(), comment, "user");
         material.push(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer());
         return material.latestModification(baseDir, new TestSubprocessExecutionContext());
+    }
+
+    public HgMaterial updateTo(File baseDir) {
+        HgMaterial material = material();
+        Revision tip = latestRevision(material, baseDir, new TestSubprocessExecutionContext());
+        material.updateTo(ProcessOutputStreamConsumer.inMemoryConsumer(), tip, baseDir, new TestSubprocessExecutionContext());
+        return material;
+    }
+
+    public File prepareWorkDirectory() {
+        File uniqueTempFolder = TestFileUtil.createUniqueTempFolder("working-dir");
+        return uniqueTempFolder;
     }
 
     public UrlArgument url() {

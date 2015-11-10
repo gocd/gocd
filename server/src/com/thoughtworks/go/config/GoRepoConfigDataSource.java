@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.server.materials.ScmMaterialCheckoutListener;
-import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,25 +37,21 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * Parses partial configurations and exposes latest configurations as soon as possible.
  */
 @Component
-public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListener, ScmMaterialCheckoutListener {
+public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListener {
     private static final Logger LOGGER = Logger.getLogger(GoRepoConfigDataSource.class);
 
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
-    private ScmMaterialCheckoutService checkoutService;
 
     // value is partial config instance or last exception
     private Map<String,PartialConfigParseResult> fingerprintOfPartialToLatestParseResultMap = new ConcurrentHashMap<String,PartialConfigParseResult>();
 
     private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<PartialConfigUpdateCompletedListener>();
 
-    @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService,
-                                             ScmMaterialCheckoutService checkoutService)
+    @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService)
     {
         this.configPluginService = configPluginService;
         this.configWatchList = configWatchList;
-        this.checkoutService = checkoutService;
-        this.checkoutService.registerListener(this);
         this.configWatchList.registerListener(this);
     }
 
@@ -101,7 +95,6 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         }
     }
 
-    @Override
     public void onCheckoutComplete(MaterialConfig material, File folder, String revision) {
         // called when pipelines/flyweight/[flyweight] has a clean checkout of latest material
 
@@ -126,7 +119,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             catch (Exception ex)
             {
                 // TODO make sure this is clearly shown to user
-                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(ex));
+                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision,ex));
                 LOGGER.error(String.format("Failed to get config plugin for %s",
                         material.getDisplayName()));
                 notifyFailureListeners(repoConfig, ex);
@@ -145,13 +138,13 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 }
 
                 newPart.setOrigins(new RepoConfigOrigin(repoConfig,revision));
-                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(newPart));
+                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision,newPart));
                 notifySuccessListeners(repoConfig, newPart);
             }
             catch (Exception ex)
             {
                 // TODO make sure this is clearly shown to user
-                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(ex));
+                fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision,ex));
                 LOGGER.error(String.format("Failed to parse configuration material %s by %s",
                         material.getDisplayName(),plugin));
                 notifyFailureListeners(repoConfig, ex);
@@ -189,19 +182,32 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         }
     }
 
+    public String getRevisionAtLastAttempt(MaterialConfig material) {
+        String fingerprint = material.getFingerprint();
+        PartialConfigParseResult result = fingerprintOfPartialToLatestParseResultMap.get(fingerprint);
+        if (result == null)
+            return null;
+
+        return result.getRevision();
+    }
 
 
     private  class  PartialConfigParseResult{
+        private final String revision;
         private PartialConfig lastSuccess;
         private Exception lastFailure;
 
-        public PartialConfigParseResult(PartialConfig newPart) {
+        public PartialConfigParseResult(String revision, PartialConfig newPart)
+        {
+            this.revision = revision;
             this.lastSuccess = newPart;
         }
 
-        public PartialConfigParseResult(Exception ex) {
+        public PartialConfigParseResult(String revision,Exception ex) {
+            this.revision = revision;
             this.lastFailure = ex;
         }
+
 
         public PartialConfig getLastSuccess() {
             return lastSuccess;
@@ -217,6 +223,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
         public void setLastFailure(Exception lastFailure) {
             this.lastFailure = lastFailure;
+        }
+
+        public String getRevision() {
+            return revision;
         }
     }
 

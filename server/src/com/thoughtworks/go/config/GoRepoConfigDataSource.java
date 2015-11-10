@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutListener;
 import com.thoughtworks.go.server.materials.ScmMaterialCheckoutService;
@@ -134,7 +135,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             try {
                 //TODO put modifications and previous partial config in context
                 // the context is just a helper for plugin.
-                PartialConfigLoadContext context = new LoadContext();
+                PartialConfigLoadContext context = new LoadContext(repoConfig);
                 PartialConfig newPart = plugin.load(folder, context);
                 if(newPart == null)
                 {
@@ -221,6 +222,16 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
     private class LoadContext implements PartialConfigLoadContext
     {
+        private ConfigRepoConfig repoConfig;
 
+        public LoadContext(ConfigRepoConfig repoConfig) {
+
+            this.repoConfig = repoConfig;
+        }
+
+        @Override
+        public Configuration configuration() {
+            return repoConfig.getConfiguration();
+        }
     }
 }

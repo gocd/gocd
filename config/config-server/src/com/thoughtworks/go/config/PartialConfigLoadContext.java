@@ -15,5 +15,8 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.config.Configuration;
+
 public interface PartialConfigLoadContext {
+    Configuration configuration();
 }

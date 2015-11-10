@@ -30,6 +30,7 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.*;
@@ -652,6 +653,70 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</stage>\n";
         stage = xmlLoader.fromXmlPartial(toInputStream(stageXmlPartial), StageConfig.class);
         assertThat(stage.isArtifactCleanupProhibited(), is(false));
+    }
+
+    @Test
+    public void shouldLoadPartialConfigWithPipeline() throws Exception {
+        String partialConfigWithPipeline =
+                "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+                        + "<pipelines group=\"first\">\n"
+                        + "<pipeline name=\"pipeline\">\n"
+                        + "  <materials>\n"
+                        + "    <hg url=\"/hgrepo\"/>\n"
+                        + "  </materials>\n"
+                        + "  <stage name=\"mingle\">\n"
+                        + "    <jobs>\n"
+                        + "      <job name=\"functional\">\n"
+                        + "        <artifacts>\n"
+                        + "          <log src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
+                        + "        </artifacts>\n"
+                        + "      </job>\n"
+                        + "    </jobs>\n"
+                        + "  </stage>\n"
+                        + "</pipeline>\n"
+                        + "</pipelines>\n"
+                        + "</cruise>\n";
+        PartialConfig partialConfig = xmlLoader.fromXmlPartial(toInputStream(partialConfigWithPipeline), PartialConfig.class);
+        assertThat(partialConfig.getGroups().size(),is(1));
+        PipelineConfig pipeline = partialConfig.getGroups().get(0).getPipelines().get(0);
+        assertThat(pipeline.name(), is(new CaseInsensitiveString("pipeline")));
+        assertThat(pipeline.size(), is(1));
+        assertThat(pipeline.findBy(new CaseInsensitiveString("mingle")).jobConfigByInstanceName("functional", true), is(notNullValue()));
+    }
+    @Test
+    public void shouldLoadPartialConfigWithEnvironment() throws Exception {
+        String partialConfigWithPipeline =
+                "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+                + "<environments>"
+                + "  <environment name='uat'>"
+                + "    <agents>"
+                + "      <physical uuid='1'/>"
+                + "      <physical uuid='2'/>"
+                + "    </agents>"
+                + "  </environment>"
+                + "  <environment name='prod'>"
+                + "    <agents>"
+                + "      <physical uuid='2'/>"
+                + "    </agents>"
+                + "  </environment>"
+                + "</environments>"
+                        + "</cruise>\n";
+        PartialConfig partialConfig = xmlLoader.fromXmlPartial(toInputStream(partialConfigWithPipeline), PartialConfig.class);
+        EnvironmentsConfig environmentsConfig = partialConfig.getEnvironments();
+        assertThat(environmentsConfig.size(),is(2));
+        EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
+        assertThat(matchers.size(), is(2));
+        ArrayList<String> uat_uuids = new ArrayList<String>() {{
+            add("1");
+            add("2");
+        }};
+        ArrayList<String> prod_uuids = new ArrayList<String>() {{
+            add("2");
+        }};
+        assertThat(matchers,
+                hasItem(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), uat_uuids, new EnvironmentPipelinesConfig())));
+        assertThat(matchers,
+                hasItem(new EnvironmentPipelineMatcher(new CaseInsensitiveString("prod"), prod_uuids, new EnvironmentPipelinesConfig())));
     }
 
     @Test

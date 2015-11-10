@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.remote;
 
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineGroups;
 
@@ -24,13 +25,14 @@ import com.thoughtworks.go.domain.PipelineGroups;
  * Part of cruise configuration that can be stored outside of main cruise-config.xml.
  * It can be merged with others and main configuration.
  */
+@ConfigTag("cruise")
 public class PartialConfig implements Validatable, ConfigOriginTraceable {
     // consider to include source of this part.
 
-    private ConfigOrigin origin;
+    @ConfigSubtag(label = "groups") private PipelineGroups pipelines = new PipelineGroups();
+    @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
 
-    private EnvironmentsConfig environments = new EnvironmentsConfig();
-    private PipelineGroups pipelines = new PipelineGroups();
+    private ConfigOrigin origin;
 
     public PartialConfig(){
     }
@@ -94,5 +96,12 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
 
     public void setPipelines(PipelineGroups pipelines) {
         this.pipelines = pipelines;
+    }
+
+    /**
+     * Validate this part within its own scope.
+     */
+    public void validatePart() {
+
     }
 }

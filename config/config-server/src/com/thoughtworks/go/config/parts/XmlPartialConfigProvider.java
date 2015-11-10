@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import org.apache.log4j.Logger;
 import org.jdom.input.JDOMParseException;
 
 import java.io.File;
@@ -27,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class XmlPartialConfigProvider implements PartialConfigProvider {
+    private static final Logger LOGGER = Logger.getLogger(XmlPartialConfigProvider.class);
 
     private final String defaultPatter = "**/*.gocd.xml";
 
@@ -103,8 +105,9 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
     }
 
     public PartialConfig parseFile(File file) {
+        FileInputStream inputStream = null;
         try {
-            final FileInputStream inputStream = new FileInputStream(file);
+            inputStream = new FileInputStream(file);
             return loader.fromXmlPartial(inputStream, PartialConfig.class);
         }
         catch (JDOMParseException jdomex)
@@ -118,6 +121,15 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         catch (Exception ex)
         {
             throw new RuntimeException("Failed to parse xml file in configuration repository",ex);
+        }
+        finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    LOGGER.error("Failed to close file: " + file, e);
+                }
+            }
         }
     }
 }

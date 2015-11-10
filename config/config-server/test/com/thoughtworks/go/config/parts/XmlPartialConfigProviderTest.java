@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
@@ -65,8 +67,8 @@ public class XmlPartialConfigProviderTest {
     }
 
     @After
-    public void tearDown() {
-        FileUtil.deleteFolder(baseFolder);
+    public void tearDown() throws IOException {
+        FileUtil.deleteDirectoryNoisily(baseFolder);
     }
 
     @Test
@@ -172,11 +174,8 @@ public class XmlPartialConfigProviderTest {
 
         File[] matchingFiles = xmlPartialProvider.getFiles(tmpFolder, mock(PartialConfigLoadContext.class));
 
-        File[] expected = new File[3];
-        expected[0] = file1;
-        expected[1] = file3;
-        expected[2] = file4;
-        assertArrayEquals(expected,matchingFiles);
+        File[] expected = new File[] {file1, file3, file4};
+        assertArrayEquals("Matched files are: " + Arrays.asList(matchingFiles).toString(), expected, matchingFiles);
     }
 
     @Test

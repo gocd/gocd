@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -254,9 +256,28 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
                 PipelineConfigMother.createGroup("part1",
                         PipelineConfigMother.pipelineConfig("pipe1"),PipelineConfigMother.pipelineConfig("pipe1"))));
         mergedGoConfig.tryAssembleMergedConfig(fileHolder, Arrays.asList(badPart));
-
         assertSame(cachedFileGoConfig.loadConfigHolder(), mergedGoConfig.loadConfigHolder());
         assertSame(cachedFileGoConfig.currentConfig(), mergedGoConfig.currentConfig());
         assertSame(cachedFileGoConfig.loadForEditing(), mergedGoConfig.loadForEditing());
+    }
+
+    @Test
+    public void shouldDelegateWritePipelineConfigCallToFileService(){
+        CachedFileGoConfig fileService = mock(CachedFileGoConfig.class);
+        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
+        MergedGoConfig mergedGoConfig = new MergedGoConfig(mock(ServerHealthService.class), fileService, mock(GoPartialConfig.class));
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        CachedFileGoConfig.PipelineConfigSaveResult saveResult = mock(CachedFileGoConfig.PipelineConfigSaveResult.class);
+        GoConfigHolder savedConfig = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
+        when(saveResult.getConfigHolder()).thenReturn(savedConfig);
+        GoConfigHolder holderBeforeUpdate = mergedGoConfig.loadConfigHolder();
+        Username user = new Username(new CaseInsensitiveString("user"));
+        when(fileService.writePipelineWithLock(pipelineConfig, holderBeforeUpdate, saveCommand, user)).thenReturn(saveResult);
+
+        mergedGoConfig.writePipelineWithLock(pipelineConfig, saveCommand, user);
+        assertThat(mergedGoConfig.loadConfigHolder(), is(savedConfig));
+        assertThat(mergedGoConfig.currentConfig(), is(savedConfig.config));
+        assertThat(mergedGoConfig.loadForEditing(), is(savedConfig.configForEdit));
+        verify(fileService).writePipelineWithLock(pipelineConfig, holderBeforeUpdate, saveCommand, user);
     }
 }

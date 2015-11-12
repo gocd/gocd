@@ -145,10 +145,13 @@ public class GoConfigService implements Initializer {
     }
 
     private boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
+        return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
+    }
+
+    protected boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
         }
-        String groupName = findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
         if (!isUserAdminOfGroup(username.getUsername(), groupName)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", pipelineName), HealthStateType.unauthorisedForPipeline(pipelineName));
             return false;
@@ -244,6 +247,10 @@ public class GoConfigService implements Initializer {
 
     public void addAgent(AgentConfig agentConfig) {
         goConfigDao.addAgent(agentConfig);
+    }
+
+    public void updatePipeline(final PipelineConfig pipelineConfig, final Username currentUser, final LocalizedOperationResult result, PipelineConfigService.SaveCommand saveCommand) {
+        goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {

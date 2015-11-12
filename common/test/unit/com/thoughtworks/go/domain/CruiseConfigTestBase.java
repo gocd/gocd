@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -50,12 +50,12 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
-import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.*;
@@ -489,7 +489,7 @@ public abstract class CruiseConfigTestBase {
 
         config.validateAfterPreprocess();
 
-        verify(mockTask).validate(ValidationContext.forChain(
+        verify(mockTask).validate(ConfigSaveValidationContext.forChain(
                 config,
                 config.getGroups(),
                 config.getGroups().findGroup("defaultGroup"),
@@ -816,6 +816,29 @@ public abstract class CruiseConfigTestBase {
         assertNotNull(job);
     }
 
+
+    @Test
+    public void shouldCheckCyclicDependency() throws Exception {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        ConfigReposConfig reposConfig = new ConfigReposConfig();
+        GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
+        reposConfig.add(new ConfigRepoConfig(configRepo,"myplug"));
+        mainCruiseConfig.setConfigRepos(reposConfig);
+
+        PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,  partialConfig);
+        PipelineConfig p1 = createPipelineConfig("p1", "s1", "j1");
+        PipelineConfig p2 = createPipelineConfig("p2", "s2", "j1");
+        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
+        PipelineConfig p3 = createPipelineConfig("p3", "s3", "j1");
+        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
+        p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("s3")));
+        pipelines.addAll(Arrays.asList(p1,p2,p3));
+        cruiseConfig.validate(mock(ValidationContext.class));
+        List<ConfigErrors> allErrors = cruiseConfig.getAllErrors();
+        assertThat((allErrors.get(0).on("base")),is("Circular dependency: p1 <- p2 <- p3 <- p1"));
+
+    }
 
     private Role setupSecurityWithRole() {
         SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);

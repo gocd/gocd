@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 public class TrackingTool implements ParamsAttributeAware, Validatable, CommentRenderer {
     @ConfigAttribute(value = "link", optional = false)
     private String link = "";
-    @ConfigAttribute(value = "regex", optional = false) 
+    @ConfigAttribute(value = "regex", optional = false)
     private String regex = "";
 
     public static final String LINK = "link";
@@ -47,8 +47,16 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         return link;
     }
 
+    public void setLink(String link) {
+        this.link = link;
+    }
+
     public String getRegex() {
         return regex;
+    }
+
+    public void setRegex(String regex) {
+        this.regex = regex;
     }
 
     public String render(String text) {
@@ -66,10 +74,16 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
         }
     }
 
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        return errors().isEmpty();
+    }
+
     public void validate(ValidationContext validationContext) {
         if (StringUtils.isEmpty(link)) {
             configErrors.add(LINK, "Link should be populated");
-        } else if (StringUtils.isEmpty(regex)) {
+        }
+        if (StringUtils.isEmpty(regex)) {
             configErrors.add(REGEX, "Regex should be populated");
         }
         if (!link.contains("${ID}")) {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,23 @@
 
 define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', './environment_variables_config_widget', './tasks_config_widget', './artifacts_config_widget', './properties_config_widget', './tabs_config_widget'], function (m, _, f, tt, EnvironmentVariablesConfigWidget, TasksConfigWidget, ArtifactsConfigWidget, PropertiesConfigWidget, TabsConfigWidget) {
 
+  var undefinedOrNull = function (value) {
+    return _.isUndefined(value) || _.isNull(value);
+  };
+
   var JobTimeout = {
-    view: function (ctrl, args, children) {
+    controller: function (args) {
+      this.isCustomValue = m.prop(false);
+    },
+    view:       function (ctrl, args, children) {
       var job       = args.job;
       var radioName = 'radio-' + job.uuid() + '-timeout';
 
-      var isCustomValue = m.prop(false);
-
       var useValue = function (newValue) {
         return function (evt) {
-          isCustomValue(false);
+          ctrl.isCustomValue(false);
           job.timeout(newValue);
         };
-      };
-
-      var customValue = function (e) {
-        isCustomValue(false);
       };
 
       var noTimeout = function () {
@@ -39,12 +40,16 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
       };
 
       var defaultTimeout = function () {
-        return _.isUndefined(job.timeout()) || _.isNull(job.timeout());
+        return undefinedOrNull(job.timeout());
       };
 
       var otherTimeout = function () {
         return _.isNumber(job.timeout()) && job.timeout() !== 0;
       };
+
+      if (otherTimeout()) {
+        ctrl.isCustomValue(true);
+      }
 
       return (
         <div>
@@ -78,14 +83,92 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
                    name={radioName}
                    id={radioName + '-custom'}
                    checked={otherTimeout()}
-                   onchange={customValue}/>
+                   onchange={ctrl.isCustomValue.bind(ctrl, true)}/>
             <label for={radioName + '-custom'}>
               Cancel after{' '}
               <input type='text'
                      style={{display: 'inline', width: '50px'}} size={3}
-                     onchange={m.withAttr('value', job.timeout)}
-                     disabled={isCustomValue()}/>{' '}
+                     oninput={m.withAttr('value', job.timeout)}
+                     value={ctrl.isCustomValue() ? job.timeout() : null}/>{' '}
               minute(s) of inactivity</label>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  var RunOnAgent = {
+    controller: function (args) {
+      this.isCustomValue = m.prop(false);
+    },
+    view:       function (ctrl, args, children) {
+      var job       = args.job;
+      window.job    = job;
+      var radioName = 'radio-' + job.uuid() + '-runInstanceCount';
+
+      var useValue = function (newValue) {
+        return function (evt) {
+          ctrl.isCustomValue(false);
+          job.runInstanceCount(newValue);
+        };
+      };
+
+      var isOneJobInstance = function () {
+        return undefinedOrNull(job.runInstanceCount());
+      };
+
+      var isAllRunInstance = function () {
+        return job.runInstanceCount() === 'all';
+      };
+
+      var isRunOnSomeAgents = function () {
+        return _.isNumber(job.runInstanceCount());
+      };
+
+      if (isRunOnSomeAgents()) {
+        ctrl.isCustomValue(true);
+      }
+
+      return (
+        <div>
+          <label>
+            Number of Jobs
+            <f.tooltip tooltip={{
+                          content: tt.job.runInstanceCount.main,
+                          size: 'small',
+                          direction: 'bottom'
+                        }}
+                       model={job}
+                       attrName='runInstanceCount'/>
+          </label>
+
+          <div>
+            <input type='radio'
+                   name={radioName}
+                   id={radioName + '-one'}
+                   checked={isOneJobInstance()}
+                   onchange={useValue(null)}/>
+            <label for={radioName + '-one'}>Run on one instance</label>
+
+            <input type='radio'
+                   name={radioName}
+                   id={radioName + '-all'}
+                   checked={isAllRunInstance()}
+                   onchange={useValue('all')}/>
+            <label for={radioName + '-all'}>Run on all agents</label>
+
+            <input type='radio'
+                   name={radioName}
+                   id={radioName + '-custom'}
+                   checked={ctrl.isCustomValue()}
+                   onchange={ctrl.isCustomValue.bind(ctrl, true)}/>
+            <label for={radioName + '-custom'}>
+              Run on{' '}
+              <input type='text'
+                     style={{display: 'inline', width: '50px'}} size={3}
+                     value={ctrl.isCustomValue() ? job.runInstanceCount() : null}
+                     oninput={m.withAttr('value', job.runInstanceCount)}/>{' '}
+              agents</label>
           </div>
         </div>
       );
@@ -138,10 +221,17 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
                           content: tt.job.resources,
                           direction: 'bottom',
                           size: 'small'
-                        }}/>
+                        }}
+                        end={true}/>
+                    </f.row>
+
+                    <f.row>
+                      <f.column size={6}>
+                        <JobTimeout job={job}/>
+                      </f.column>
 
                       <f.column size={6} end={true}>
-                        <JobTimeout job={job}/>
+                        <RunOnAgent job={job}/>
                       </f.column>
                     </f.row>
 

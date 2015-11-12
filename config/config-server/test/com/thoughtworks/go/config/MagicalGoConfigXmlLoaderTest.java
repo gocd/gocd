@@ -1,5 +1,5 @@
-/* ************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * ************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -482,11 +482,11 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldLoadFromSvnPartial() throws Exception {
         String buildXmlPartial =
-                "<svn url=\"http://foo.bar\" username=\"cruise\" password=\"password\" />";
+                "<svn url=\"http://foo.bar\" username=\"cruise\" password=\"password\" materialName=\"http___foo.bar\"/>";
 
-        MaterialConfig jobs = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), SvnMaterialConfig.class);
+        MaterialConfig materialConfig = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), SvnMaterialConfig.class);
         MaterialConfig svnMaterial = MaterialConfigsMother.svnMaterialConfig("http://foo.bar", null, "cruise", "password", false, null);
-        assertThat(jobs, is(svnMaterial));
+        assertThat(materialConfig, is(svnMaterial));
     }
 
     @Test
@@ -1737,7 +1737,7 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigMigrator.loadWithMigration(content);
             fail("should not allow jobs with with name '" + marker + "'");
         } catch (Exception expected) {
-            assertThat(expected.getMessage(), containsString("A job cannot have '" + marker + "' in it's name: " + invalidJobName));
+            assertThat(expected.getMessage(), containsString(String.format("A job cannot have '%s' in it's name: %s because it is a reserved keyword", marker, invalidJobName)));
         }
     }
 
@@ -2860,7 +2860,7 @@ public class MagicalGoConfigXmlLoaderTest {
             fail("should not have permitted fetch from parent pipeline's stage after the one downstream depends on");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString(
-                    "Pipeline \"down_pipeline\" tries to fetch artifact from stage \"up_pipeline :: up_stage_2\" which does not complete before \"down_pipeline\" pipeline's dependencies."));
+                    "\"down_pipeline :: down_stage :: down_job\" tries to fetch artifact from stage \"up_pipeline :: up_stage_2\" which does not complete before \"down_pipeline\" pipeline's dependencies."));
         }
     }
 

@@ -23,10 +23,27 @@ module TaskMother
     exec
   end
 
-  def fetch_task(pipeline='pipeline', stage='stage', job='job', src_file='src', dest='dest')
-    fetch = FetchTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), src_file, dest)
+  def exec_task_without_on_cancel(command='ls')
+    args = Arguments.new([Argument.new("-la")].to_java(Argument))
+    exec = ExecTask.new(command, args, "hero/ka/directory")
+    exec
+  end
+
+  def exec_task_with_ant_oncancel_task(command='ls')
+    args = Arguments.new([Argument.new("-la")].to_java(Argument))
+    exec = ExecTask.new(command, args, "hero/ka/directory")
+    exec.setCancelTask(ant_task)
+    exec
+  end
+
+  def fetch_task_with_exec_on_cancel_task(pipeline='pipeline', stage='stage', job='job', src_file='src', dest='dest')
+    fetch = fetch_task(pipeline, stage, job, src_file, dest)
     fetch.setCancelTask(ExecTask.new("echo", "'failing'", "oncancel_working_dir"))
     fetch
+  end
+
+  def fetch_task(pipeline='pipeline', stage='stage', job='job', src_file='src', dest='dest')
+    FetchTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), src_file, dest)
   end
 
   def simple_exec_task
@@ -38,8 +55,10 @@ module TaskMother
     ExecTask.new("ls", args, "hero/ka/directory")
   end
 
-  def with_run_if(type, task)
-    task.getConditions().add(type)
+  def with_run_if(types, task)
+    [types].flatten.each do |type|
+      task.getConditions().add(type)
+    end
     task
   end
 
@@ -72,8 +91,8 @@ module TaskMother
     PluggableTask.new("", PluginConfiguration.new(plugin_id, "1.0"), configuration)
   end
 
-  def simple_task_plugin_with_on_cancel_config
-    task_plugin = plugin_task
+  def simple_task_plugin_with_on_cancel_config plugin_id = "curl.plugin", configurations = []
+    task_plugin = plugin_task plugin_id, configurations
     task_plugin.setCancelTask(simple_exec_task)
     task_plugin
   end
@@ -136,6 +155,27 @@ module TaskMother
 
     def view()
       ApiTaskViewForTest.new @options
+    end
+
+    def validate(configuration)
+    end
+  end
+
+  class StubTask
+    include com.thoughtworks.go.plugin.api.task.Task
+
+    def initialize()
+      @config = com.thoughtworks.go.plugin.api.task.TaskConfig.new()
+    end
+
+    def config
+      @config
+    end
+
+    def executor
+    end
+
+    def view
     end
 
     def validate(configuration)

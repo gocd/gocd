@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.result;
 
@@ -24,6 +24,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
  */
 public interface LocalizedOperationResult {
     void unauthorized(Localizable message, HealthStateType id);
+
+    void stale(Localizable message);
 
     void notFound(Localizable message, HealthStateType healthStateType);
 
@@ -42,4 +44,6 @@ public interface LocalizedOperationResult {
     void setMessage(Localizable message);
 
     void notImplemented(Localizable localizable);
+
+    void unprocessableEntity(Localizable localizable);
 }

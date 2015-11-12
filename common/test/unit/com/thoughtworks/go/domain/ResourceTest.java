@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -40,14 +40,14 @@ public class ResourceTest {
     @Test
     public void shouldAllowValidResourceNameForAgentResources() throws Exception {
         Resource resource = resource("- foo|bar baz.quux");
-        resource.validate(ValidationContext.forChain(new BasicCruiseConfig()));
+        resource.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(resource.errors().isEmpty(), is(true));
     }
 
     @Test
     public void shouldAllowParamsInsideResourceNameWhenInsideTemplates() throws Exception {
         Resource resource = resource("#{PARAMS}");
-        ValidationContext context = ValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
+        ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resource.validate(context);
         assertThat(resource.errors().isEmpty(), is(true));
     }
@@ -55,7 +55,7 @@ public class ResourceTest {
     @Test // Note : At the Resource class level there is no way of accurately validating Parameters. This will only be invalidated when template gets used.
     public void validate_shouldAllowAnyCombinationOfHashesAndCurlyBraces() throws Exception {
         Resource resource = resource("}#PARAMS{");
-        ValidationContext context = ValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
+        ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resource.validate(context);
         assertThat(resource.errors().isEmpty(), is(true));
     }
@@ -63,7 +63,7 @@ public class ResourceTest {
     @Test
     public void shouldNotAllowInvalidResourceNamesWhenInsideTemplates() throws Exception {
         Resource resource = resource("#?{45}");
-        ValidationContext context = ValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
+        ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig());
         resource.validate(context);
         assertThat(resource.errors().isEmpty(), is(false));
         assertThat(resource.errors().on(JobConfig.RESOURCES), is(String.format("Resource name '#?{45}' is not valid. Valid names can contain valid parameter syntax or valid alphanumeric with hyphens,dots or pipes")));
@@ -72,7 +72,7 @@ public class ResourceTest {
     @Test
     public void shouldNotAllowParamsInsideResourceNameWhenOutsideTemplates() throws Exception {
         Resource resource = resource("#{PARAMS}");
-        ValidationContext context = ValidationContext.forChain(new BasicCruiseConfig(), new PipelineConfig());
+        ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new PipelineConfig());
         resource.validate(context);
         assertThat(resource.errors().isEmpty(), is(false));
         assertThat(resource.errors().on(JobConfig.RESOURCES), is(String.format("Resource name '#{PARAMS}' is not valid. Valid names much match '%s'", Resource.VALID_REGEX)));
@@ -81,7 +81,7 @@ public class ResourceTest {
     @Test
     public void shouldNotAllowInvalidResourceNameForAgentResources() throws Exception {
         Resource resource = resource("foo$bar");
-        resource.validate(ValidationContext.forChain(new BasicCruiseConfig()));
+        resource.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         ConfigErrors configErrors = resource.errors();
         assertThat(configErrors.isEmpty(), is(false));
         assertThat(configErrors.on(JobConfig.RESOURCES), is(String.format("Resource name 'foo$bar' is not valid. Valid names much match '%s'", Resource.VALID_REGEX)));
@@ -119,7 +119,7 @@ public class ResourceTest {
         Resource resourceB = new Resource("bbb");
         assertThat(resourceA.compareTo(resourceB), is(lessThan(0)));
         assertThat(resourceB.compareTo(resourceA), is(greaterThan(0)));
-        assertThat(resourceA.compareTo(resourceA), is(0));        
+        assertThat(resourceA.compareTo(resourceA), is(0));
     }
 
     @Test

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineNotFoundException;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.PipelineConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
@@ -34,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +45,7 @@ import static org.apache.commons.collections.CollectionUtils.forAllDo;
  * @understands how to assign work to agents
  */
 @Service
-public class BuildAssignmentService implements ConfigChangedListener {
+public class BuildAssignmentService implements PipelineConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(BuildAssignmentService.class);
     public static final NoWork NO_WORK = new NoWork();
 
@@ -138,6 +137,34 @@ public class BuildAssignmentService implements ConfigChangedListener {
             for (JobPlan jobPlan : jobPlans) {
                 if (!newCruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
                     jobsToRemove.add(jobPlan);
+                }
+            }
+            forAllDo(jobsToRemove, new Closure() {
+                @Override
+                public void execute(Object o) {
+                    removeJob((JobPlan) o);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
+        LOGGER.info(String.format("[Configuration Changed] Removing deleted jobs for pipeline %s.", pipelineConfig.name()));
+
+        synchronized (this) {
+            List<JobPlan> jobsToRemove = new ArrayList<JobPlan>();
+            for (JobPlan jobPlan : jobPlans) {
+                if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
+                    StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
+                    if (stageConfig != null) {
+                        JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
+                        if(jobConfig == null){
+                            jobsToRemove.add(jobPlan);
+                        }
+                    } else {
+                        jobsToRemove.add(jobPlan);
+                    }
                 }
             }
             forAllDo(jobsToRemove, new Closure() {

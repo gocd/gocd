@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -20,11 +20,15 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.metrics.domain.context.Context;
 import com.thoughtworks.go.metrics.domain.probes.ProbeType;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.TriStateSelection;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.PipelineConfigService;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -167,6 +171,18 @@ public class GoConfigDao {
 
     public String md5OfConfigFile() {
         return cachedConfigService.currentConfig().getMd5();
+    }
+
+    public void updatePipeline(PipelineConfig pipelineConfig, LocalizedOperationResult result, Username currentUser, PipelineConfigService.SaveCommand saveCommand) {
+        synchronized (writeLock) {
+            if (saveCommand.hasWritePermissions()) {
+                try {
+                    cachedConfigService.writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
+                } catch (ConfigUpdateCheckFailedException e) {
+                    result.unprocessableEntity(LocalizedMessage.string("PIPELINE_CONFIG_VALIDATION_FAILED", pipelineConfig.name()));
+                }
+            }
+        }
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {

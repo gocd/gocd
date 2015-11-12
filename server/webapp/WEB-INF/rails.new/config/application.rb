@@ -38,6 +38,13 @@ module Go
       end
     end
 
+    initializer "weak etag" do |app|
+      app.middleware.use JettyWeakEtagMiddleware
+    end
+    initializer "catch json parser" do |app|
+      app.middleware.insert_before ActionDispatch::ParamsParser, CatchJsonParseErrors
+    end
+
     config.assets.enabled = true
     config.fail_if_unable_to_register_renderer = true
 

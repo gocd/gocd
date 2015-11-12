@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,7 +68,7 @@ public class AgentConfigTest {
     private void shouldBeInvalid(String address, String errorMsg) {
         AgentConfig agentConfig = new AgentConfig();
         agentConfig.setIpAddress(address);
-        agentConfig.validate(ValidationContext.forChain(cruiseConfig));
+        agentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(agentConfig.errors().on("ipAddress"), is(errorMsg));
     }
 
@@ -80,7 +77,7 @@ public class AgentConfigTest {
         AgentConfig agentConfig = new AgentConfig();
         agentConfig.setIpAddress(ipAddress);
         cruiseConfig.agents().add(agentConfig);
-        agentConfig.validate(ValidationContext.forChain(cruiseConfig));
+        agentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(agentConfig.errors().isEmpty(), is(true));
     }
 

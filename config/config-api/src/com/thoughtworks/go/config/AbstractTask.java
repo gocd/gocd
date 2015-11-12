@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -45,6 +45,10 @@ public abstract class AbstractTask implements Task  {
         return runIfConfigs;
     }
 
+    public void setConditions(RunIfConfigs runIfConfigs) {
+        this.runIfConfigs = runIfConfigs;
+    }
+
     public String getConditionsForDisplay() {
         if (runIfConfigs.isEmpty()) {
             return StringUtils.capitalize(RunIfConfig.PASSED.toString());
@@ -60,6 +64,9 @@ public abstract class AbstractTask implements Task  {
     public OnCancelConfig onCancelConfig() {
         return onCancelConfig;
     }
+    public OnCancelConfig getOnCancelConfig() {
+        return onCancelConfig;
+    }
 
     public boolean hasCancelTask() {
         return onCancelConfig.hasCancelTask();
@@ -67,6 +74,9 @@ public abstract class AbstractTask implements Task  {
 
     public void setCancelTask(Task task) {
         this.onCancelConfig = new OnCancelConfig(task);
+    }
+    public void setOnCancelConfig(OnCancelConfig onCancelConfig) {
+        this.onCancelConfig = onCancelConfig;
     }
 
     public boolean runIfConfigsPassed() {
@@ -164,6 +174,12 @@ public abstract class AbstractTask implements Task  {
     @Override
     public boolean hasSameTypeAs(Task task) {
         return this.getTaskType().equals(task.getTaskType());
+    }
+
+    @Override
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        return onCancelConfig.validateTree(validationContext) && errors.isEmpty();
     }
 
     protected abstract void setTaskConfigAttributes(Map attributes);

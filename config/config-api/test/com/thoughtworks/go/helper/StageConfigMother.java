@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ArtifactType;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 
 public class StageConfigMother {
@@ -88,6 +89,13 @@ public class StageConfigMother {
 
     public static StageConfig manualStage(String stageName) {
         return custom(stageName, new Approval());
+    }
+
+    public static StageConfig stageConfigWithEnvironmentVariable(String stageName) {
+        StageConfig stageConfig = StageConfigMother.stageConfig(stageName);
+        stageConfig.setVariables(EnvironmentVariablesConfigMother.environmentVariables());
+        stageConfig.getJobs().add(JobConfigMother.jobConfig());
+        return stageConfig;
     }
 
     public static StageConfig stageConfigWithArtifact(String stageName, String jobName , ArtifactType artifactType){

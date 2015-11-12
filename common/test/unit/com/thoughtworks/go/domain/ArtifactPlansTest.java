@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThat;
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.TestArtifactPlan;
+import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import org.junit.Test;
 
 public class ArtifactPlansTest {
@@ -106,5 +107,20 @@ public class ArtifactPlansTest {
         artifactPlans.setConfigAttributes(null);
 
         assertThat(artifactPlans.size(), is(0));
+    }
+
+    @Test
+    public void shouldValidateTree(){
+        ArtifactPlans artifactPlans = new ArtifactPlans();
+        artifactPlans.add(new ArtifactPlan("src", "dest"));
+        artifactPlans.add(new ArtifactPlan("src", "dest"));
+        artifactPlans.add(new ArtifactPlan("src", "../a"));
+
+        artifactPlans.validateTree(null);
+        assertThat(artifactPlans.get(0).errors().on(ArtifactPlan.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactPlans.get(0).errors().on(ArtifactPlan.SRC), is("Duplicate artifacts defined."));
+        assertThat(artifactPlans.get(1).errors().on(ArtifactPlan.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactPlans.get(1).errors().on(ArtifactPlan.SRC), is("Duplicate artifacts defined."));
+        assertThat(artifactPlans.get(2).errors().on(ArtifactPlan.DEST), is("Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN));
     }
 }

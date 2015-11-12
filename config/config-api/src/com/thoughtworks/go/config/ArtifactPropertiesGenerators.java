@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -35,6 +35,15 @@ public class ArtifactPropertiesGenerators extends BaseCollection<ArtifactPropert
 
     public ArtifactPropertiesGenerators(List<ArtifactPropertiesGenerator> generators) {
         super(generators);
+    }
+
+    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+        boolean isValid = errors().isEmpty();
+
+        for (ArtifactPropertiesGenerator artifactPropertiesGenerator : this) {
+            isValid = artifactPropertiesGenerator.validateTree(validationContext) && isValid;
+        }
+        return isValid;
     }
 
     public void validate(ValidationContext validationContext) {

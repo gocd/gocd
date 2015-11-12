@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -53,10 +53,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.DFSCycleDetector;
-import com.thoughtworks.go.util.Node;
-import com.thoughtworks.go.util.Pair;
+import com.thoughtworks.go.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -446,13 +443,32 @@ public class BasicCruiseConfig implements CruiseConfig {
         return hashtable;
     }
 
+    private class DependencyTable implements PipelineDependencyState {
+        private Hashtable<CaseInsensitiveString, Node> targetTable;
+
+        public DependencyTable(Hashtable<CaseInsensitiveString, Node> targetTable) {
+            this.targetTable = targetTable;
+        }
+
+        @Override
+        public boolean hasPipeline(CaseInsensitiveString key) {
+            return targetTable.containsKey(key);
+        }
+
+        @Override
+        public Node getDependencyMaterials(CaseInsensitiveString pipeline) {
+            return targetTable.get(pipeline);
+        }
+    }
+
     private void areThereCyclicDependencies() {
         final DFSCycleDetector dfsCycleDetector = new DFSCycleDetector();
         final Hashtable<CaseInsensitiveString, Node> dependencyTable = getDependencyTable();
         List<PipelineConfig> pipelineConfigs = this.getAllPipelineConfigs();
+        DependencyTable pipelineDependencyState = new DependencyTable(dependencyTable);
         for (PipelineConfig pipelineConfig : pipelineConfigs) {
             try {
-                dfsCycleDetector.topoSort(pipelineConfig.name(), dependencyTable);
+                dfsCycleDetector.topoSort(pipelineConfig.name(), pipelineDependencyState);
             } catch (Exception e) {
                 addToErrorsBaseOnMaterialsIfDoesNotExist(e.getMessage(), pipelineConfig.materialConfigs(), pipelineConfigs);
             }
@@ -1371,24 +1387,5 @@ public class BasicCruiseConfig implements CruiseConfig {
                 isGroupAdmin = true;
             }
         }
-    }
-
-    private static abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {
-        private final List<ConfigErrors> allErrors;
-
-        public ErrorCollectingHandler(List<ConfigErrors> allErrors) {
-            this.allErrors = allErrors;
-        }
-
-        public void handle(Validatable validatable, ValidationContext context) {
-            handleValidation(validatable, context);
-            ConfigErrors configErrors = validatable.errors();
-
-            if (!configErrors.isEmpty()) {
-                allErrors.add(configErrors);
-            }
-        }
-
-        public abstract void handleValidation(Validatable validatable, ValidationContext context);
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,13 +19,38 @@ define(['string', 'lodash'], function (s, _) {
     defaultToIfBlank: function (value, defaultValue) {
       return s.isBlank(value) ? defaultValue : value;
     },
-    overrideToJSON:   function (prop) {
+
+    overrideToJSON: function (prop) {
       if (prop && prop() && prop().toJSON) {
         prop.toJSON = prop().toJSON;
       }
       return prop;
     },
-    snakeCaser:       function (key, value) {
+
+    withNewJSONImpl: function (prop, jsonFunc) {
+      prop.toJSON = function () {
+        return jsonFunc(prop());
+      };
+
+      return prop;
+    },
+
+    stringToArray: function (string) {
+      if (_.isArray(string)) {
+        return string;
+      } else if (s.isBlank(string)) {
+        return [];
+      } else {
+        return _.map(string.split(','), _.trim);
+      }
+    },
+
+    toIntegerOrNull: function (str) {
+      var num = s.toNumber(str);
+      return Number.isNaN(num) ? null : num;
+    },
+
+    snakeCaser: function (key, value) {
       if (value && typeof value === 'object' && !_.isArray(value)) {
         var replacement = {};
         for (var k in value) {

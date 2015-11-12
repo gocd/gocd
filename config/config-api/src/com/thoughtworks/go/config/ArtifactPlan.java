@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.lang.StringUtils;
 
@@ -173,12 +174,17 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
         return normalizePath(StringUtils.isEmpty(getDest()) ? src.getName() : new File(getDest(), src.getName()).getPath());
     }
 
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        return errors().isEmpty();
+    }
+
     public void validate(ValidationContext validationContext) {
-        if (!(dest.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(dest))) {
+        if (!StringUtil.isBlank(dest) && (!(dest.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(dest)))) {
             addError(DEST, "Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
         }
-        if (src.isEmpty()) {
-            addError(SRC, String.format("Job '%s' has an aritfact with an empty source", validationContext.getJob().name()));
+        if (StringUtil.isBlank(src)) {
+            addError(SRC, String.format("Job '%s' has an artifact with an empty source", validationContext.getJob().name()));
         }
     }
 

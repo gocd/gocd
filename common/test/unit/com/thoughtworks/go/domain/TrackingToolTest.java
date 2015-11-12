@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -20,11 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.ValidationContext;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TrackingToolTest {
     private TrackingTool trackingTool;
@@ -84,5 +87,13 @@ public class TrackingToolTest {
 
         TrackingTool config = new TrackingTool("http://mingle05/projects/cce/cards/${ID}", "#(\\d+)");
         assertThat(config.render(toRender), is(toRender));
+    }
+
+    @Test
+    public void shouldValidate(){
+        TrackingTool tool = new TrackingTool();
+        tool.validateTree(null);
+        assertThat(tool.errors().on(TrackingTool.LINK), is("Link should be populated"));
+        assertThat(tool.errors().on(TrackingTool.REGEX), is("Regex should be populated"));
     }
 }

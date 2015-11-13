@@ -14,6 +14,21 @@ class JasmineWithSeleniumRunner
   end
 
   def run
+    tmp_dir = Rails.root.join('tmp/jasmine').to_s
+    RakeFileUtils.rm_rf tmp_dir
+    RakeFileUtils.mkdir_p tmp_dir
+
+    if Config::CONFIG['host_os'] =~ /windows|cygwin|bccwin|cygwin|djgpp|mingw|mswin|wince/i
+      tmp_dir = tmp_dir.gsub(::File::SEPARATOR, ::File::ALT_SEPARATOR || '\\')
+    end
+
+    uri       = URI(jasmine_server_url)
+    uri.query = nil
+
+    RakeFileUtils.sh("cd #{tmp_dir} && wget #{uri} --timeout=120 --waitretry=2 --tries=10 --recursive --quiet; EXIT_CODE=$?; echo wget exited with ${EXIT_CODE}; exit 0") do |ok, res|
+      $stderr.puts "There was a problem connecting to #{uri}, this may or may not cause tests to fail."
+    end
+
     web_driver.navigate.to jasmine_server_url
     wait_for_jasmine_to_start
     wait_for_suites_to_finish_running

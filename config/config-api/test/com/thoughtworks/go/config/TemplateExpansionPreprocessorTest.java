@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -30,19 +30,9 @@ import static org.junit.Assert.fail;
 public class TemplateExpansionPreprocessorTest {
     private TemplateExpansionPreprocessor preprocessor;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         preprocessor = new TemplateExpansionPreprocessor();
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenAPipelineHasNoStages() throws Exception {
-        PipelineConfig pipelineConfigWithNoStages = pipelineConfigWithGivenStages();
-        try {
-            preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfigWithGivenStages("foo"), pipelineConfigWithNoStages)));
-            fail("should fail when no stages");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Pipeline 'pipeline' does not have any stages configured. A pipeline must have at least one stage."));
-        }
     }
 
     @Test

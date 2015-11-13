@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,7 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
     jobs = new Jobs();
     job  = jobs.createJob({
       name:                 "UnitTest",
-      runOnAllAgents:       true,
-      runInstanceCount:     true,
+      runInstanceCount:     10,
       timeout:              10,
       environmentVariables: ["foo=bar", "boo=baz"],
       resources:            ['java', 'firefox'],
@@ -36,12 +35,8 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
       expect(job.name()).toBe("UnitTest");
     });
 
-    it("should initialize job model with runOnAllAgents", function () {
-      expect(job.runOnAllAgents()).toBe(true);
-    });
-
     it("should initialize job model with runInstanceCount", function () {
-      expect(job.runInstanceCount()).toBe(true);
+      expect(job.runInstanceCount()).toBe(10);
     });
 
     it("should initialize job model with timeout", function () {
@@ -107,8 +102,7 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
 
       it("should de-serialize from JSON", function () {
         expect(job.name()).toBe("UnitTest");
-        expect(job.runOnAllAgents()).toBe(true);
-        expect(job.runInstanceCount()).toBe(null);
+        expect(job.runInstanceCount()).toBe(10);
         expect(job.timeout()).toBe(20);
         expect(job.resources()).toEqual(['jdk5', 'tomcat']);
 
@@ -132,8 +126,7 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
       function sampleJobJSON() {
         return {
           name:                  "UnitTest",
-          run_on_all_agents:     true,
-          run_instance_count:    null,
+          run_instance_count:    10,
           timeout:               20,
           resources:             ["jdk5", "tomcat"],
           environment_variables: [

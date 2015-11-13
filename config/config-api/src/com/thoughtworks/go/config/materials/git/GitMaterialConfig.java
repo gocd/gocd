@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.git;
 
@@ -43,7 +43,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     public static final String BRANCH = "branch";
     public static final String DEFAULT_BRANCH = "master";
 
-    private GitMaterialConfig() {
+    public GitMaterialConfig() {
         super(TYPE);
     }
 
@@ -84,12 +84,17 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
+    public void setUrl(String url) {
+        this.url = new UrlArgument(url);
+    }
+
+    @Override
     public UrlArgument getUrlArgument() {
         return url;
     }
 
     @Override
-    public String getLongDescription(){
+    public String getLongDescription() {
         return String.format("URL: %s, Branch: %s", url.forDisplay(), branch);
     }
 
@@ -117,7 +122,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
             return false;
         }
 
-        return true;
+        return super.equals(that);
     }
 
     @Override
@@ -131,7 +136,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     protected void validateConcreteScmMaterial(ValidationContext validationContext) {
-        if (StringUtil.isBlank(url.forDisplay())) {
+        if (url == null || StringUtil.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }
     }
@@ -148,6 +153,10 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public String getBranch() {
         return this.branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 
     public String getSubmoduleFolder() {
@@ -181,8 +190,8 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     @Override
     public String getShortRevision(String revision) {
         if (revision == null) return null;
-        if (revision.length()<7) return revision;
-        return revision.substring(0,7);
+        if (revision.length() < 7) return revision;
+        return revision.substring(0, 7);
     }
 
     @Override

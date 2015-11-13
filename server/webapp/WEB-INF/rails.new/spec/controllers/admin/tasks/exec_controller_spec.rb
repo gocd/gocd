@@ -22,17 +22,20 @@ describe Admin::TasksController do
   include FormUI
 
   before do
-    @example_task = exec_task
-    @task_type = exec_task.getTaskType()
-    @updated_payload = {:command => 'lsblah', :workingDirectory => exec_task.workingDirectory()}
-    @updated_task = exec_task("lsblah")
+    @example_task = exec_task_with_ant_oncancel_task
+    @task_type = exec_task_with_ant_oncancel_task.getTaskType()
+    @updated_payload = {:command => 'lsblah', :workingDirectory => exec_task_with_ant_oncancel_task.workingDirectory(), :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'ant', :antOnCancel => {:buildFile => "build.xml", :target => "compile", :workingDirectory => "default/wd"}}}
+    @updated_task = exec_task_with_ant_oncancel_task("lsblah")
 
     @new_task = ExecTask.new
 
-    @create_payload= {:command => 'ls', :workingDirectory => "hero/ka/directory", :argListString => "-la"}
-    @created_task= exec_task
+    @create_payload= {:command => 'ls', :workingDirectory => "hero/ka/directory", :argListString => "-la", :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'ant', :antOnCancel => {:buildFile => "build.xml", :target => "compile", :workingDirectory => "default/wd"}}}
+    @created_task= exec_task_with_ant_oncancel_task
   end
 
   it_should_behave_like :task_controller
 
+  def controller_specific_setup task_view_service
+    task_view_service.stub(:taskInstanceFor).with("ant").and_return(ant_task)
+  end
 end

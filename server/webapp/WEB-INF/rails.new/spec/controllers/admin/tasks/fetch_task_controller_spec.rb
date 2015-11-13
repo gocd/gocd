@@ -24,16 +24,17 @@ describe Admin::TasksController, "fetch task" do
   include ConfigSaveStubbing
 
   before do
-    @example_task = fetch_task
-    @task_type = fetch_task.getTaskType()
-    @updated_payload = {:pipelineName => 'other-pipeline', :stage => 'other-stage', :job => 'other-job', :src => 'new-src', :dest => 'new-dest', :isSourceAFile => '1'}
-    @updated_task = fetch_task('other-pipeline', 'other-stage', 'other-job', 'new-src', 'new-dest')
+    @example_task = fetch_task_with_exec_on_cancel_task
+    @task_type = fetch_task_with_exec_on_cancel_task.getTaskType()
+    @updated_payload = {:pipelineName => 'other-pipeline', :stage => 'other-stage', :job => 'other-job', :src => 'new-src', :dest => 'new-dest', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
+    @updated_task = fetch_task_with_exec_on_cancel_task('other-pipeline', 'other-stage', 'other-job', 'new-src', 'new-dest')
 
     @new_task = FetchTask.new
 
-    @create_payload= {:pipelineName => 'pipeline', :stage => 'stage', :job => 'job', :src => 'src', :dest => 'dest', :isSourceAFile => '1'}
-    @created_task= fetch_task
+    @create_payload= {:pipelineName => 'pipeline', :stage => 'stage', :job => 'job', :src => 'src', :dest => 'dest', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
+    @created_task= fetch_task_with_exec_on_cancel_task
   end
+
 
   it_should_behave_like :task_controller
 
@@ -46,7 +47,7 @@ describe Admin::TasksController, "fetch task" do
       @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline.name", ["stage.one", "stage.two", "stage.three"].to_java(java.lang.String))
       @pipeline.addMaterialConfig(DependencyMaterialConfig.new(CaseInsensitiveString.new("parent-pipeline"), CaseInsensitiveString.new("parent-stage")))
       @tasks = @pipeline.getStage(CaseInsensitiveString.new("stage.three")).getJobs().get(0).getTasks()
-      @tasks.add(fetch_task)
+      @tasks.add(fetch_task_with_exec_on_cancel_task)
 
       @go_config_service = stub_service(:go_config_service)
       @pipeline_pause_service = stub_service(:pipeline_pause_service)
@@ -57,7 +58,7 @@ describe Admin::TasksController, "fetch task" do
       stage_one = StageConfigMother.stageWithTasks("stage_one")
       tasks = stage_one.jobConfigByConfigName(CaseInsensitiveString.new("job")).getTasks()
       tasks.clear
-      tasks.add(fetch_task)
+      tasks.add(fetch_task_with_exec_on_cancel_task)
       @template = PipelineTemplateConfig.new(CaseInsensitiveString.new("template.name"), [stage_one].to_java(StageConfig))
 
       @cruise_config = BasicCruiseConfig.new()
@@ -81,7 +82,7 @@ describe Admin::TasksController, "fetch task" do
         @pipeline_name_object = @pipeline_name
         @stage_name = "stage.three"
         @job_name = "dev"
-        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1'}
+        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
       end
 
       def form_load_expectation
@@ -111,7 +112,7 @@ describe Admin::TasksController, "fetch task" do
         @job_name = "job"
 
         @template_config_service = stub_service(:template_config_service)
-        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1'}
+        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
       end
 
       def form_load_expectation
@@ -142,5 +143,9 @@ describe Admin::TasksController, "fetch task" do
         ].to_json
       end
     end
+  end
+
+  def controller_specific_setup task_view_service
+    task_view_service.stub(:taskInstanceFor).with("exec").and_return(exec_task_without_on_cancel)
   end
 end

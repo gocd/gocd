@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -48,20 +48,35 @@ public class ParamConfig implements Validatable {
         return value;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        return errors().isEmpty();
+    }
+
     public void validate(ValidationContext validationContext) {
-        if (!new NameTypeValidator().isNameValid(name)) {
+        if (new NameTypeValidator().isNameInvalid(name)) {
             errors().add(NAME, NameTypeValidator.errorMessage("parameter", name));
         }
     }
 
 
     public void validateName(Map<String, ParamConfig> paramConfigMap, ValidationContext validationContext) {
-        String currentParamName = name.toLowerCase();
         CaseInsensitiveString parentName = validationContext.getPipeline().name();
-        if (StringUtil.isBlank(currentParamName)) {
+
+        if (StringUtil.isBlank(name)) {
             configErrors.add("name", String.format("Parameter cannot have an empty name for pipeline '%s'.", parentName));
             return;
         }
+        String currentParamName = name.toLowerCase();
+
         ParamConfig paramWithSameName = paramConfigMap.get(currentParamName);
         if (paramWithSameName != null) {
             paramWithSameName.addNameConflictError(name, parentName);

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,18 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.config.AbstractTask;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.OnCancelConfig;
-import com.thoughtworks.go.config.RunIfConfig;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.service.TaskFactory;
 import org.junit.Test;
 
@@ -82,11 +79,11 @@ public class AbstractTaskTest {
 
         assertThat(task.hasCancelTask(), is(true));
 
-        assertThat((ExecTask) task.cancelTask(), is(new ExecTask("sudo", "ls -la", "working_dir")));
-
-        assertThat(task.cancelTask().getConditions().match(RunIfConfig.ANY), is(true));
-        assertThat(task.cancelTask().getConditions().match(RunIfConfig.FAILED), is(true));
-        assertThat(task.cancelTask().getConditions().match(RunIfConfig.PASSED), is(true));
+        ExecTask expected = new ExecTask("sudo", "ls -la", "working_dir");
+        expected.getConditions().add(RunIfConfig.ANY);
+        expected.getConditions().add(RunIfConfig.FAILED);
+        expected.getConditions().add(RunIfConfig.PASSED);
+        assertThat((ExecTask) task.cancelTask(), is(expected));
     }
 
     @Test
@@ -134,7 +131,7 @@ public class AbstractTaskTest {
         ExecTask onCancelTask = new ExecTask();
         onCancelTask.setCancelTask(new ExecTask());
         task.setCancelTask(onCancelTask);
-        
+
         task.validate(null);
 
         assertThat(task.errors().isEmpty(), is(false));
@@ -176,6 +173,24 @@ public class AbstractTaskTest {
     public void shouldReturnPassedByDefaultWhenNoRunIfConfigIsSpecified() {
         AbstractTask execTask = new ExecTask("ls", "-la", "42");
         assertThat(execTask.getConditionsForDisplay(), is("Passed"));
+    }
+
+    @Test
+    public void shouldValidateTree(){
+        String pipelineName = "p1";
+        PipelineConfig pipelineConfig = GoConfigMother.configWithPipelines(pipelineName).pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        StageConfig stageConfig = pipelineConfig.getStages().get(0);
+        JobConfig jobConfig = stageConfig.getJobs().get(0);
+
+        AbstractTask execTask = new ExecTask("ls", "-la", "42");
+        AntTask antTask = new AntTask();
+        antTask.setWorkingDirectory("/abc");
+        execTask.setCancelTask(antTask);
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig, jobConfig);
+        assertThat(execTask.validateTree(context), is(false));
+        assertThat(antTask.errors().isEmpty(), is(false));
+        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).size(), is(1));
+        assertThat(antTask.errors().get(AntTask.WORKING_DIRECTORY).contains("Task of job 'job' in stage 'stage' of pipeline 'p1' has path '/abc' which is outside the working directory."), is(true));
     }
 
 }

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,25 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -168,7 +168,7 @@ public class GoFileConfigDataSource {
                 configFileContent = upgrader.upgradeIfNecessary(configFileContent);
             }
             GoConfigHolder configHolder = internalLoad(configFileContent, new ConfigModifyingUser());
-            String toWrite = configAsXml(configHolder.configForEdit);
+            String toWrite = configAsXml(configHolder.configForEdit, false);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Writing config file: " + configFile.getAbsolutePath());
             }
@@ -184,7 +184,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-    public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
+    private void writeToConfigXmlFile(String content) {
         FileChannel channel = null;
         FileOutputStream outputStream = null;
         FileLock lock = null;
@@ -192,27 +192,12 @@ public class GoFileConfigDataSource {
             RandomAccessFile randomAccessFile = new RandomAccessFile(fileLocation(), "rw");
             channel = randomAccessFile.getChannel();
             lock = channel.lock();
-
-            // Need to convert to xml before we try to write it to the config file.
-            // If our cruiseConfig fails XSD validation, we don't want to write it incorrectly.
-            String configAsXml = getModifiedConfig(updatingCommand, configHolder);
-
             randomAccessFile.seek(0);
             randomAccessFile.setLength(0);
             outputStream = new FileOutputStream(randomAccessFile.getFD());
-            LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
-            IOUtils.write(configAsXml, outputStream);
-            ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
-            return new GoConfigSaveResult(internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand)), configSaveState);
-        } catch (ConfigFileHasChangedException e) {
-            LOGGER.warn("Configuration file could not be merged successfully after a concurrent edit: " + e.getMessage(), e);
-            throw e;
-        } catch (GoConfigInvalidException e){
-            LOGGER.warn("Configuration file is invalid: " + e.getMessage(), e);
-            throw bomb(e.getMessage(), e);
+            IOUtils.write(content, outputStream);
         } catch (Exception e) {
-            LOGGER.error("Configuration file is not valid: " + e.getMessage(), e);
-            throw bomb(e.getMessage(), e);
+            throw new RuntimeException(e);
         } finally {
             if (channel != null && lock != null) {
                 try {
@@ -223,6 +208,52 @@ public class GoFileConfigDataSource {
                     LOGGER.error("Error occured when releasing file lock and closing file.", e);
                 }
             }
+        }
+    }
+
+    public synchronized CachedFileGoConfig.PipelineConfigSaveResult writePipelineWithLock(PipelineConfig pipelineConfig, GoConfigHolder serverCopy, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
+        CruiseConfig modifiedConfig = cloner.deepClone(serverCopy.configForEdit);
+        saveCommand.updateConfig(modifiedConfig, pipelineConfig);
+        CruiseConfig preprocessedConfig = cloner.deepClone(modifiedConfig);
+        MagicalGoConfigXmlLoader.preprocess(preprocessedConfig);
+        PipelineConfig preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
+        if (saveCommand.isValid(preprocessedConfig, preprocessedPipelineConfig)) {
+            try {
+                LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
+                String configAsXml = configAsXml(modifiedConfig, true);
+                writeToConfigXmlFile(configAsXml);
+                configRepository.checkin(new GoConfigRevision(configAsXml, CachedDigestUtils.md5Hex(configAsXml), currentUser.getUsername().toString(), serverVersion.version(), timeProvider));
+                LOGGER.debug("[Config Save] Done writing with lock");
+                return new CachedFileGoConfig.PipelineConfigSaveResult(pipelineConfig, saveCommand.getPipelineGroup(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
+            } catch (Exception e) {
+                throw new RuntimeException("failed to save : " + e.getMessage());
+            }
+        } else {
+            throw new ConfigUpdateCheckFailedException();
+        }
+    }
+
+    public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
+        try {
+
+            // Need to convert to xml before we try to write it to the config file.
+            // If our cruiseConfig fails XSD validation, we don't want to write it incorrectly.
+            String configAsXml = getModifiedConfig(updatingCommand, configHolder);
+
+            LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
+            writeToConfigXmlFile(configAsXml);
+            ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
+            return new GoConfigSaveResult(internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand)), configSaveState);
+        } catch (ConfigFileHasChangedException e) {
+            LOGGER.warn("Configuration file could not be merged successfully after a concurrent edit: " + e.getMessage(), e);
+            throw e;
+        } catch (GoConfigInvalidException e) {
+            LOGGER.warn("Configuration file is invalid: " + e.getMessage(), e);
+            throw bomb(e.getMessage(), e);
+        } catch (Exception e) {
+            LOGGER.error("Configuration file is not valid: " + e.getMessage(), e);
+            throw bomb(e.getMessage(), e);
+        } finally {
             LOGGER.debug("[Config Save] Done writing with lock");
         }
     }
@@ -234,14 +265,14 @@ public class GoFileConfigDataSource {
     private String getModifiedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) throws Exception {
         LOGGER.debug("[Config Save] ==-- Getting modified config");
         if (shouldMergeConfig(updatingCommand, configHolder)) {
-            if(!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
+            if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
                 throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
             }
             return getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5());
         }
         CruiseConfig config = updatingCommand.update(cloner.deepClone(configHolder.configForEdit));
         LOGGER.debug("[Config Save] ==-- Done getting modified config");
-        return configAsXml(config);
+        return configAsXml(config, false);
     }
 
     private boolean shouldMergeConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
@@ -283,7 +314,7 @@ public class GoFileConfigDataSource {
 
     private String convertMutatedConfigToXml(CruiseConfig modifiedConfig, String latestMd5) throws Exception {
         try {
-            return configAsXml(modifiedConfig);
+            return configAsXml(modifiedConfig, false);
         } catch (Exception e) {
             LOGGER.info(format("[CONFIG_MERGE] Pre merge validation failed, latest-md5: %s", latestMd5));
             throw new ConfigMergePreValidationException(e.getMessage(), e);
@@ -307,10 +338,10 @@ public class GoFileConfigDataSource {
         return configHolder;
     }
 
-    public String configAsXml(CruiseConfig config) throws Exception {
+    public String configAsXml(CruiseConfig config, boolean skipPreprocessingAndValidation) throws Exception {
         LOGGER.debug("[Config Save] === Converting config to XML");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        magicalGoConfigXmlWriter.write(config, outputStream, false);
+        magicalGoConfigXmlWriter.write(config, outputStream, skipPreprocessingAndValidation);
         LOGGER.debug("[Config Save] === Done converting config to XML");
         return outputStream.toString();
     }

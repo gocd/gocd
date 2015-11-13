@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,34 +19,32 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
 
   var StageConfigDefinitionWidget = {
     controller: function (args) {
-      this.stage            = args.stage;
       this.selectedJobIndex = m.prop(0);
-      this.onRemove         = args.onRemove;
     },
 
     view: function (ctrl, args, children) {
       return (
-        <div className='stage-definition' data-stage-name={ctrl.stage.name()}>
-          <f.removeButton onclick={ctrl.onRemove}
+        <div className='stage-definition' data-stage-name={args.stage.name()}>
+          <f.removeButton onclick={args.onRemove}
             />
           <f.row>
             <f.inputWithLabel attrName='name'
-                              model={ctrl.stage}/>
-            <f.checkBox model={ctrl.stage}
+                              model={args.stage}/>
+            <f.checkBox model={args.stage}
                         attrName='fetchMaterials'
                         tooltip={{
                                   content: tt.stage.fetchMaterials,
                                   direction: 'bottom',
                                   size: 'small'
                                 }}/>
-            <f.checkBox model={ctrl.stage}
+            <f.checkBox model={args.stage}
                         attrName='neverCleanArtifacts'
                         tooltip={{
                                   content: tt.stage.neverCleanArtifacts,
                                   direction: 'bottom',
                                   size: 'small'
                                 }}/>
-            <f.checkBox model={ctrl.stage}
+            <f.checkBox model={args.stage}
                         attrName='cleanWorkingDirectory'
                         tooltip={{
                                   content: tt.stage.cleanWorkingDirectory,
@@ -58,13 +56,13 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
 
           <f.row>
             <f.column size={12} end={true}>
-              <EnvironmentVariablesConfigWidget variables={ctrl.stage.environmentVariables()}/>
+              <EnvironmentVariablesConfigWidget variables={args.stage.environmentVariables()}/>
             </f.column>
           </f.row>
 
           <f.row>
             <f.column size={12} end={true}>
-              <JobsConfigWidget jobs={ctrl.stage.jobs()} selectedJobIndex={ctrl.selectedJobIndex}/>
+              <JobsConfigWidget jobs={args.stage.jobs()} selectedJobIndex={ctrl.selectedJobIndex}/>
             </f.column>
           </f.row>
         </div>
@@ -74,14 +72,13 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
 
   var MaterialConfigWrapper = {
     controller: function (args) {
-      this.materials             = args.materials;
       this.selectedMaterialIndex = m.prop(0);
     },
 
     view: function (ctrl, args, children) {
       return (
         <div className='material-definitions'>
-          <MaterialsConfigWidget materials={ctrl.materials} selectedMaterialIndex={ctrl.selectedMaterialIndex}/>
+          <MaterialsConfigWidget materials={args.materials} selectedMaterialIndex={ctrl.selectedMaterialIndex}/>
         </div>
       );
     }
@@ -89,25 +86,24 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
 
   var StagesConfigWidget = {
     controller: function (args) {
-      this.stages           = args.stages;
-      this.materials        = args.materials;
+      this.pipeline         = args.pipeline;
       this.currentSelection = args.currentSelection;
 
       this.removeStage = function (stage) {
-        var previousStage = this.stages.previousStage(stage);
-        this.stages.removeStage(stage);
-        var firstStage    = this.stages.firstStage();
+        var previousStage = this.pipeline().stages().previousStage(stage);
+        this.pipeline().stages().removeStage(stage);
+        var firstStage    = this.pipeline().stages().firstStage();
 
-        this.currentSelection(previousStage || firstStage || this.stages.createStage());
+        this.currentSelection(previousStage || firstStage || this.pipeline().stages().createStage());
       };
     },
 
     view: function (ctrl, args) {
       var componentToShow;
 
-      if (args.currentSelection() === args.materials) {
-        componentToShow = <MaterialConfigWrapper materials={args.materials}
-                                                 key='material-config-wrappper'/>;
+      if (args.currentSelection() === args.pipeline().materials()) {
+        componentToShow = <MaterialConfigWrapper materials={args.pipeline().materials()}
+                                                 key={args.pipeline().materials().uuid()}/>;
       } else {
         componentToShow = <StageConfigDefinitionWidget key={ctrl.currentSelection().uuid()}
                                                        stage={ctrl.currentSelection()}

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.pluggabletask;
 
@@ -63,6 +63,10 @@ public class PluggableTask extends AbstractTask {
         return pluginConfiguration;
     }
 
+    public void setPluginConfiguration(PluginConfiguration pluginConfiguration) {
+        this.pluginConfiguration = pluginConfiguration;
+    }
+
     public Configuration getConfiguration() {
         return configuration;
     }
@@ -87,6 +91,20 @@ public class PluggableTask extends AbstractTask {
                 configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
             }
         }
+    }
+
+    public void setConfiguration(ConfigurationProperty configurationProperty) {
+        TaskConfig taskConfig = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()).getConfig();
+        String configKeyName = configurationProperty.getConfigKeyName();
+        Property property_definition = taskConfig.get(configKeyName);
+        if (configuration.getProperty(configKeyName) == null) {
+            configuration.addNewConfiguration(configKeyName, property_definition.getOption(Property.SECURE));
+        }
+        ConfigurationProperty addedConfigProperty = configuration.getProperty(configKeyName);
+
+        addedConfigProperty.setConfigurationValue(configurationProperty.getConfigurationValue());
+        addedConfigProperty.setEncryptedConfigurationValue(configurationProperty.getEncryptedValue());
+        addedConfigProperty.handleSecureValueConfiguration(property_definition.getOption(Property.SECURE));
     }
 
     @Override

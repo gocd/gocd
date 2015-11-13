@@ -35,4 +35,6 @@ describe Admin::TasksController do
 
   it_should_behave_like :task_controller
 
+  def controller_specific_setup task_view_service
+  end
 end

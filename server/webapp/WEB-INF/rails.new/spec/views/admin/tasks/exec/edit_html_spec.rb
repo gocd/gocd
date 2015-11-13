@@ -23,7 +23,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
     assign(:cruise_config, config = BasicCruiseConfig.new)
     set(config, "md5", "abcd1234")
 
-    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel)))
     view.stub(:admin_task_update_path).and_return("task_edit_path")
   end
 
@@ -63,7 +63,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
 
   it "should render an on cancel exec task" do
     task = assign(:task, with_run_if(RunIfConfig::FAILED, exec_task))
-    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(task.cancelTask), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(task.cancelTask), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel)))
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 
     render

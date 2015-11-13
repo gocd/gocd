@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -52,17 +53,19 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        CruiseConfig cruiseConfig = validationContext.getCruiseConfig();
         // each of these references is defined in this.origin
-        for(EnvironmentPipelineConfig pipelineRefConfig : this.pipelines)
-        {
-            PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineRefConfig.getName());
-            if(pipelineConfig == null)
+        for (EnvironmentPipelineConfig pipelineRefConfig : this.pipelines) {
+            ConfigReposConfig configRepos = validationContext.getConfigRepos();
+            PipelineConfig pipelineConfig = validationContext.getPipelineConfigByName(pipelineRefConfig.getName());
+            if (pipelineConfig == null) {
                 continue;//other rule will error that we reference unknown pipeline
-            if(!cruiseConfig.getConfigRepos().isReferenceAllowed(this.origin,pipelineConfig.getOrigin()))
-                pipelineRefConfig.addError(EnvironmentPipelineConfig.ORIGIN,
-                        String.format("Environment defined in %s cannot reference a pipeline in %s",
-                                this.origin,displayNameFor(pipelineConfig.getOrigin())));
+            }
+            if (validationContext.shouldCheckConfigRepo()) {
+                if (!configRepos.isReferenceAllowed(this.origin, pipelineConfig.getOrigin()))
+                    pipelineRefConfig.addError(EnvironmentPipelineConfig.ORIGIN,
+                            String.format("Environment defined in %s cannot reference a pipeline in %s",
+                                    this.origin, displayNameFor(pipelineConfig.getOrigin())));
+            }
         }
     }
 

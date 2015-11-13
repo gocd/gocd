@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.validation;
 
@@ -30,6 +30,10 @@ public class NameTypeValidator {
 
     public boolean isNameValid(String name) {
         return name != null && name.length() <= MAX_LENGTH && XmlUtils.matchUsingRegex(NAME_TYPE_PATTERN_REGEX, name);
+    }
+
+    public boolean isNameInvalid(String name) {
+        return !isNameValid(name);
     }
 
     public boolean isNameValid(CaseInsensitiveString name) {

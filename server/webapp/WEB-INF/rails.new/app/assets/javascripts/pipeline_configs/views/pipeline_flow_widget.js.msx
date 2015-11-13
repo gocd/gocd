@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,14 +15,13 @@
  */
 
 define(['mithril', 'lodash', 'jquery', 'dragula', '../helpers/form_helper', './stages_config_widget'], function (m, _, $, dragula, f, StagesConfigWidget) {
-  var StagesWidget = {
+  var PipelineFlowWidget = {
     controller: function (args) {
-      this.stages           = args.stages;
-      this.materials        = args.materials;
+      this.pipeline         = args.pipeline;
       this.currentSelection = args.currentSelection;
 
       this.appendStage = function () {
-        this.currentSelection(this.stages.createStage());
+        this.currentSelection(this.pipeline().stages().createStage());
       };
     },
 
@@ -49,9 +48,9 @@ define(['mithril', 'lodash', 'jquery', 'dragula', '../helpers/form_helper', './s
           m.startComputation();
           try {
             var reorderedStages = _.map($(elem).find('.stage:not(.gu-mirror)'), function (eachStageElem) {
-              return ctrl.stages.stageAtIndex($(eachStageElem).attr('data-stage-index'));
+              return ctrl.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
             });
-            ctrl.stages.setStages(reorderedStages);
+            ctrl.pipeline().stages().setStages(reorderedStages);
           } finally {
             m.endComputation();
           }
@@ -63,15 +62,15 @@ define(['mithril', 'lodash', 'jquery', 'dragula', '../helpers/form_helper', './s
                      accordionKeys={['stages']}>
           <div>
             <div class='pipeline-flow-boxes'>
-              <div class={className(ctrl.materials, 'materials')}
-                   onclick={ctrl.currentSelection.bind(ctrl, ctrl.materials)}>
+              <div class={className(ctrl.pipeline().materials(), 'materials')}
+                   onclick={ctrl.currentSelection.bind(ctrl, ctrl.pipeline().materials())}>
                 <div className='label'>Materials</div>
                 <div class='bottom-triangle-outer'>
                   <div class='bottom-triangle-inner'></div>
                 </div>
               </div>
 
-              {ctrl.stages.mapStages(function (stage, stageIndex) {
+              {ctrl.pipeline().stages().mapStages(function (stage, stageIndex) {
                 return (
                   <div class={className(stage, 'stage')}
                        data-stage-index={stageIndex}
@@ -88,8 +87,7 @@ define(['mithril', 'lodash', 'jquery', 'dragula', '../helpers/form_helper', './s
               {appendStage}
             </div>
 
-            <StagesConfigWidget stages={pipeline.stages()}
-                                materials={pipeline.materials()}
+            <StagesConfigWidget pipeline={ctrl.pipeline}
                                 currentSelection={ctrl.currentSelection}/>
 
           </div>
@@ -98,6 +96,5 @@ define(['mithril', 'lodash', 'jquery', 'dragula', '../helpers/form_helper', './s
     }
 
   };
-
-  return StagesWidget;
+  return PipelineFlowWidget;
 });

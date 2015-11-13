@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -323,7 +323,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     private void verifyPipelineNameUniqueness() {
-        HashMap<String, PipelineConfig> hashMap = new HashMap<String, PipelineConfig>();
+        HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<CaseInsensitiveString, PipelineConfig>();
         for(PipelineConfig pipelineConfig : this){
             pipelineConfig.validateNameUniqueness(hashMap);
         }
@@ -436,7 +436,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public void validateGroupNameAndAddErrorsTo(ConfigErrors errors) {
-        if (StringUtils.isBlank(group) || !new NameTypeValidator().isNameValid(group)) {
+        if (StringUtils.isBlank(group) || new NameTypeValidator().isNameInvalid(group)) {
             String errorText = NameTypeValidator.errorMessage("group", group);
             errors.add(GROUP, errorText);
         }

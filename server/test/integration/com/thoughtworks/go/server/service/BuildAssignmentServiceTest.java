@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -255,6 +255,40 @@ public class BuildAssignmentServiceTest {
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState(), is(JobState.Completed));
         assertThat(job.getResult(), is(JobResult.Cancelled));
+    }
+
+    @Test
+    public void shouldCancelBuildsForDeletedStagesWhenPipelineConfigChanges() throws Exception {
+        fixture.createPipelineWithFirstStageScheduled();
+        buildAssignmentService.onTimer();
+        configHelper.removeStage(fixture.pipelineName, fixture.devStage);
+
+        buildAssignmentService.onPipelineConfigChange(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)), "g1");
+
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+        assertThat(job.getState(), is(JobState.Completed));
+        assertThat(job.getResult(), is(JobResult.Cancelled));
+    }
+
+    @Test
+    public void shouldCancelBuildsForDeletedJobsWhenPipelineConfigChanges() throws Exception {
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate).usingTwoJobs();
+        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        fixture.createPipelineWithFirstStageScheduled();
+
+        buildAssignmentService.onTimer();
+        configHelper.removeJob(fixture.pipelineName, fixture.devStage, fixture.JOB_FOR_DEV_STAGE);
+
+        buildAssignmentService.onPipelineConfigChange(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)), "g1");
+
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);
+        assertThat(deletedJob.getState(), is(JobState.Completed));
+        assertThat(deletedJob.getResult(), is(JobResult.Cancelled));
+        JobInstance retainedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
+        assertThat(retainedJob.getState(), is(JobState.Scheduled));
+        assertThat(retainedJob.getResult(), is(JobResult.Unknown));
     }
 
     @Test

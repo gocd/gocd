@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.packagerepository;
 
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
@@ -235,7 +235,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
     @Test
     public void shouldValidateIfNameIsMissing() {
         PackageDefinition packageDefinition = new PackageDefinition();
-        packageDefinition.validate(new ValidationContext(new BasicCruiseConfig(), null));
+        packageDefinition.validate(new ConfigSaveValidationContext(new BasicCruiseConfig(), null));
         assertThat(packageDefinition.errors().isEmpty(), is(false));
         assertThat(packageDefinition.errors().getAllOn("name"), is(asList("Package name is mandatory")));
     }
@@ -268,7 +268,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
     public void shouldValidateName() throws Exception {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setName("some name");
-        packageDefinition.validate(new ValidationContext(null));
+        packageDefinition.validate(new ConfigSaveValidationContext(null));
         assertThat(packageDefinition.errors().isEmpty(), is(false));
         assertThat(packageDefinition.errors().getAllOn(PackageDefinition.NAME).get(0),
                 is("Invalid Package name 'some name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,35 +14,106 @@
  * limitations under the License.
  */
 
-define(['mithril', 'string-plus', '../helpers/form_helper', '../helpers/tooltips', '../models/pipeline', '../models/tasks', './parameters_config_widget',
+define(['mithril', 'jquery', 'string-plus', '../helpers/form_helper', '../helpers/tooltips', '../models/pipeline', '../models/tasks', './parameters_config_widget',
     './tracking_tool_widget', './environment_variables_config_widget', './pipeline_flow_widget'],
-  function (m, s, f, tt, Pipeline, Tasks, ParametersConfigWidget, TrackingToolWidget, EnvironmentVariablesConfigWidget,
+  function (m, $, s, f, tt, Pipeline, Tasks, ParametersConfigWidget, TrackingToolWidget, EnvironmentVariablesConfigWidget,
             PipelineFlowWidget) {
 
     var PipelineConfigWidget = function (url, callback) {
       return {
         controller: function () {
+          var ctrl              = this;
+          this.pipeline         = m.prop();
           this.currentSelection = m.prop();
-          var self              = this;
+          this.etag             = m.prop();
+          this.url              = url;
 
-          Pipeline.get(url).then(function (data) {
-            self.pipeline   = Pipeline.fromJSON(data);
-            window.pipeline = self.pipeline;
-            self.currentSelection(self.pipeline.stages().firstStage());
-            if (callback) {
-              callback(self);
+          window.pipelineConfigWidget = m.prop(this);
+
+          this.setPipelineAndPreserveSelection = function (newPipeline) {
+            var oldPipeline = this.pipeline();
+            var newSelection;
+
+            if (oldPipeline) {
+              if (ctrl.currentSelection() === oldPipeline.materials()) {
+                newSelection = newPipeline.materials();
+              } else {
+                newSelection = newPipeline.stages().findStage(function (stage) {
+                  return stage.name() === ctrl.currentSelection().name();
+                });
+              }
+            }
+
+            newSelection = newSelection || newPipeline.stages().firstStage();
+
+            ctrl.pipeline(newPipeline);
+            ctrl.currentSelection(newSelection);
+          };
+
+          this.savePipeline = function () {
+            beforeSend: m.startComputation;
+            $.ajax({
+              type:       'PATCH',
+              url:        url,
+              cache:      false,
+              headers:    {
+                'Accept':       'application/vnd.go.cd.v1+json',
+                'Content-Type': "application/json",
+                'If-Match':     ctrl.etag()
+              },
+              data:       JSON.stringify(ctrl.pipeline, s.snakeCaser),
+              success:    function (data, status, xhr) {
+                var pipeline = Pipeline.fromJSON(data);
+                ctrl.etag(xhr.getResponseHeader('ETag'));
+
+                ctrl.setPipelineAndPreserveSelection(pipeline);
+              },
+              beforeSend: function () {
+                m.startComputation();
+              },
+              complete:   function () {
+                m.endComputation();
+              }
+            });
+          };
+
+          $.ajax({
+            type:       'GET',
+            url:        url,
+            cache:      false,
+            headers:    {
+              'Accept': 'application/vnd.go.cd.v1+json'
+            },
+            success:    function (data, status, xhr) {
+              var pipeline = Pipeline.fromJSON(data);
+              ctrl.etag(xhr.getResponseHeader('ETag'));
+
+              ctrl.setPipelineAndPreserveSelection(pipeline);
+
+              if (callback) {
+                callback(ctrl);
+              }
+            },
+            beforeSend: function () {
+              m.startComputation();
+            },
+            complete:   function () {
+              m.endComputation();
             }
           });
         },
 
         view: function (ctrl) {
-          var pipeline = ctrl.pipeline;
+          var pipeline = ctrl.pipeline();
 
           return (
             <form class='pipeline'>
               <f.row>
                 <f.column>
                   <h3 class="heading">Pipeline Details for {pipeline.name()}</h3>
+                </f.column>
+                <f.column>
+                  <f.link onclick={ctrl.savePipeline.bind(ctrl)} class='save-pipeline'>Save</f.link>
                 </f.column>
               </f.row>
               <f.row>
@@ -99,8 +170,7 @@ define(['mithril', 'string-plus', '../helpers/form_helper', '../helpers/tooltips
                         <TrackingToolWidget trackingTool={pipeline.trackingTool}/>
                         <ParametersConfigWidget parameters={pipeline.parameters()}/>
                         <EnvironmentVariablesConfigWidget variables={pipeline.environmentVariables()}/>
-                        <PipelineFlowWidget stages={pipeline.stages()}
-                                            materials={pipeline.materials()}
+                        <PipelineFlowWidget pipeline={ctrl.pipeline}
                                             currentSelection={ctrl.currentSelection}/>
 
                       </f.column>

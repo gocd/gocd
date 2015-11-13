@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,21 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.not;
@@ -127,6 +125,20 @@ public class AbstractMaterialConfigTest {
         verify(aPluggableSCM).getName();
     }
 
+    @Test
+    public void shouldHandleBlankMaterialName(){
+        TestMaterialConfig materialConfig = new TestMaterialConfig("");
+        materialConfig.setName(null);
+        materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
+        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME), is(Matchers.nullValue()));
+        materialConfig.setName(new CaseInsensitiveString(null));
+        materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
+        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME), is(Matchers.nullValue()));
+        materialConfig.setName(new CaseInsensitiveString(""));
+        materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
+        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME), is(Matchers.nullValue()));
+    }
+
     private Map<String, String> m(String key, String value) {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(key, value);
@@ -199,6 +211,11 @@ public class AbstractMaterialConfigTest {
         }
 
         public boolean isAutoUpdate() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setAutoUpdate(boolean autoUpdate) {
             throw new UnsupportedOperationException();
         }
 

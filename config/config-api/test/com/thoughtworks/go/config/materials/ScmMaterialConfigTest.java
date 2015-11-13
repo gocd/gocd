@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
 import java.util.Collections;
 import java.util.HashMap;
 
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class ScmMaterialConfigTest {
     @Test
     public void shouldNotValidateEmptyDestinationFolder() {
         material.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, ""));
-        material.validate(new ValidationContext(null));
+        material.validate(new ConfigSaveValidationContext(null));
         assertThat(material.errors.isEmpty(), is(true));
     }
 

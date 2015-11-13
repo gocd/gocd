@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
 import static java.util.Arrays.asList;
+
+import java.util.Date;
 import java.util.List;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
+
+import com.thoughtworks.go.config.TimerConfig;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -29,10 +36,16 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
+
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
@@ -166,6 +179,36 @@ public class TimerSchedulerTest {
         verify(goConfigService).register(timerScheduler);
         verify(schedulerFactory).getScheduler();
         verify(scheduler).start();
+    }
+
+    @Test
+    public void shouldRescheduleTimerTriggerPipelineWhenItsConfigChanges() throws SchedulerException {
+        when(schedulerFactory.getScheduler()).thenReturn(scheduler);
+        String pipelineName = "timer-based-pipeline";
+        when(scheduler.getJobDetail(pipelineName, TimerScheduler.QUARTZ_GROUP)).thenReturn(mock(JobDetail.class));
+        GoConfigService goConfigService = mock(GoConfigService.class);
+        TimerScheduler timerScheduler = new TimerScheduler(schedulerFactory, goConfigService, null, null);
+        timerScheduler.initialize();
+
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString(pipelineName));
+        when(pipelineConfig.getTimer()).thenReturn(new TimerConfig("* * * * * ?", true));
+        ArgumentCaptor<JobDetail> jobDetailArgumentCaptor = ArgumentCaptor.forClass(JobDetail.class);
+        ArgumentCaptor<CronTrigger> triggerArgumentCaptor = ArgumentCaptor.forClass(CronTrigger.class);
+        when(scheduler.scheduleJob(jobDetailArgumentCaptor.capture(), triggerArgumentCaptor.capture())).thenReturn(new Date());
+
+        timerScheduler.onPipelineConfigChange(pipelineConfig, "g1");
+
+        assertThat(jobDetailArgumentCaptor.getValue().getName(), is(pipelineName));
+        assertThat(triggerArgumentCaptor.getValue().getCronExpression(), is("* * * * * ?"));
+
+        verify(schedulerFactory).getScheduler();
+        verify(scheduler).start();
+        verify(scheduler).getJobDetail(pipelineName, TimerScheduler.QUARTZ_GROUP);
+
+        verify(scheduler).unscheduleJob(pipelineName, TimerScheduler.QUARTZ_GROUP);
+        verify(scheduler).deleteJob(pipelineName, TimerScheduler.QUARTZ_GROUP);
+        verify(scheduler).scheduleJob(jobDetailArgumentCaptor.getValue(), triggerArgumentCaptor.getValue());
     }
 
 }

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,18 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
-
-import java.util.List;
-import java.util.Map;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.GoConstants;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @understands the configuration for a stage
@@ -82,6 +82,11 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     public CaseInsensitiveString name() {
         return name;
     }
+
+    public void setName(CaseInsensitiveString name) {
+        this.name = name;
+    }
+
 
     /* Used in view */
     public boolean isFetchMaterials() {
@@ -185,6 +190,10 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return approval;
     }
 
+    public void setApproval(Approval approval) {
+        this.approval = approval;
+    }
+
     public boolean hasOperatePermissionDefined() {
         return this.approval.isAuthorizationDefined();
     }
@@ -236,20 +245,38 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         this.cleanWorkingDir = cleanWorkingDir;
     }
 
+    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+        validate(validationContext);
+        boolean isValid = errors.isEmpty();
+        PipelineConfigSaveValidationContext contextForChildren = validationContext.withParent(this);
+        isValid = jobConfigs.validateTree(contextForChildren) && isValid;
+        isValid = approval.validateTree(contextForChildren) && isValid;
+        isValid = variables.validateTree(contextForChildren) && isValid;
+        return isValid;
+    }
+
     public void validate(ValidationContext validationContext) {
+        isValidateName();
+    }
+
+    private boolean isValidateName() {
         if (!new NameTypeValidator().isNameValid(name)) {
             this.errors.add(NAME, NameTypeValidator.errorMessage("stage", name));
+            return false;
         }
+        return true;
     }
 
     public void validateNameUniqueness(Map<String, StageConfig> stageNameMap) {
-        String currentName = name.toLower();
-        StageConfig stageWithSameName = stageNameMap.get(currentName);
-        if (stageWithSameName == null) {
-            stageNameMap.put(currentName, this);
-        } else {
-            stageWithSameName.nameConflictError();
-            this.nameConflictError();
+        if (isValidateName()) {
+            String currentName = name.toLower();
+            StageConfig stageWithSameName = stageNameMap.get(currentName);
+            if (stageWithSameName == null) {
+                stageNameMap.put(currentName, this);
+            } else {
+                stageWithSameName.nameConflictError();
+                this.nameConflictError();
+            }
         }
     }
 
@@ -264,6 +291,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     public void setConfigAttributes(Object attributes) {
         setConfigAttributes(attributes, null);
     }
+
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {
         if (attributes == null) {
             return;
@@ -312,6 +340,10 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return jobConfigs;
     }
 
+    public void setJobs(JobConfigs jobConfigs) {
+        this.jobConfigs = jobConfigs;
+    }
+
     public List<AdminUser> getOperateUsers() {
         return getApproval().getAuthConfig().getUsers();
     }
@@ -322,6 +354,10 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
 
     public boolean isArtifactCleanupProhibited() {
         return artifactCleanupProhibited;
+    }
+
+    public void setArtifactCleanupProhibited(boolean artifactCleanupProhibited) {
+        this.artifactCleanupProhibited = artifactCleanupProhibited;
     }
 
     public void cleanupAllUsagesOfRole(Role roleToDelete) {

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.*;
@@ -26,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -262,6 +263,66 @@ public class CcTrayConfigChangeHandlerTest {
         assertThat(statuses.get(3).canBeViewedBy("user2"), is(false));
         assertThat(statuses.get(3).canBeViewedBy("user3"), is(true));
     }
+
+    @Test
+    public void shouldUpdateCacheWithPipelineDetailsWhenPipelineConfigChanges(){
+        String pipeline1Stage = "pipeline1 :: stage1";
+        String pipeline1job = "pipeline1 :: stage1 :: job1";
+        String pipeline2stage = "pipeline2 :: stage1";
+        String pipeline2job = "pipeline2 :: stage1 :: job1";
+
+        ProjectStatus statusOfPipeline1StageInCache = new ProjectStatus(pipeline1Stage, "OldActivity", "OldStatus", "OldLabel", new Date(), "p1-stage-url");
+        ProjectStatus statusOfPipeline1JobInCache = new ProjectStatus(pipeline1job, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "p1-job-url");
+        ProjectStatus statusOfPipeline2StageInCache = new ProjectStatus(pipeline1Stage, "OldActivity", "OldStatus", "OldLabel", new Date(), "p2-stage-url");
+        ProjectStatus statusOfPipeline2JobInCache = new ProjectStatus(pipeline1job, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "p2-job2-url");
+        when(cache.get(pipeline1Stage)).thenReturn(statusOfPipeline1StageInCache);
+        when(cache.get(pipeline1job)).thenReturn(statusOfPipeline1JobInCache);
+        when(cache.get(pipeline2stage)).thenReturn(statusOfPipeline2StageInCache);
+        when(cache.get(pipeline2job)).thenReturn(statusOfPipeline2JobInCache);
+
+        PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+
+        handler.call(pipeline1Config, "group1");
+        ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = new ArgumentCaptor<>();
+        verify(cache).putAll(argumentCaptor.capture());
+
+        List<ProjectStatus> allValues = argumentCaptor.getValue();
+        assertThat(allValues.get(0).name(), is(pipeline1Stage));
+        assertThat(allValues.get(1).name(), is(pipeline1job));
+
+        verify(cache, atLeastOnce()).get(pipeline1Stage);
+        verify(cache, atLeastOnce()).get(pipeline1job);
+        verifyNoMoreInteractions(cache);
+    }
+
+    @Test
+    public void shouldUpdateCacheWithAppropriateViewersForProjectStatusWhenPipelineConfigChanges(){
+        String pipeline1Stage = "pipeline1 :: stage1";
+        String pipeline1job = "pipeline1 :: stage1 :: job1";
+
+        ProjectStatus statusOfPipeline1StageInCache = new ProjectStatus(pipeline1Stage, "OldActivity", "OldStatus", "OldLabel", new Date(), "p1-stage-url");
+        ProjectStatus statusOfPipeline1JobInCache = new ProjectStatus(pipeline1job, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "p1-job-url");
+        when(cache.get(pipeline1Stage)).thenReturn(statusOfPipeline1StageInCache);
+        when(cache.get(pipeline1job)).thenReturn(statusOfPipeline1JobInCache);
+        when(ccTrayViewAuthority.groupsAndTheirViewers()).thenReturn(m("group1", viewers("user1", "user2"), "group2", viewers("user3")));
+
+        PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+
+        handler.call(pipeline1Config, "group1");
+        ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = new ArgumentCaptor<>();
+        verify(cache).putAll(argumentCaptor.capture());
+
+        List<ProjectStatus> allValues = argumentCaptor.getValue();
+        assertThat(allValues.get(0).name(), is(pipeline1Stage));
+        assertThat(allValues.get(0).viewers().contains("user1"), is(true));
+        assertThat(allValues.get(0).viewers().contains("user2"), is(true));
+        assertThat(allValues.get(0).viewers().contains("user3"), is(false));
+        assertThat(allValues.get(1).name(), is(pipeline1job));
+        assertThat(allValues.get(1).viewers().contains("user1"), is(true));
+        assertThat(allValues.get(1).viewers().contains("user2"), is(true));
+        assertThat(allValues.get(1).viewers().contains("user3"), is(false));
+    }
+
 
     private Viewers viewers(String... users) {
         return new AllowedViewers(s(users));

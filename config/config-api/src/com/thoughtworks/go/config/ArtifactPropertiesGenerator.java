@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
+import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.Property;
@@ -44,6 +45,7 @@ public class ArtifactPropertiesGenerator extends PersistentObject implements Ser
 
     private long jobId;
     private ConfigErrors configErrors = new ConfigErrors();
+    public static final String NAME = "name";
 
     public ArtifactPropertiesGenerator() {
     }
@@ -63,8 +65,21 @@ public class ArtifactPropertiesGenerator extends PersistentObject implements Ser
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setXpath(String xpath) {
+        this.xpath = xpath;
+    }
+
+
     public String getSrc() {
         return src;
+    }
+
+    public void setSrc(String src) {
+        this.src = src;
     }
 
     public String getXpath() {
@@ -141,7 +156,15 @@ public class ArtifactPropertiesGenerator extends PersistentObject implements Ser
         }
     }
 
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        return configErrors.isEmpty();
+    }
+
     public void validate(ValidationContext validationContext) {
+        if (new NameTypeValidator().isNameInvalid(name)) {
+            this.configErrors.add(NAME, NameTypeValidator.errorMessage("property", name));
+        }
     }
 
     public ConfigErrors errors() {

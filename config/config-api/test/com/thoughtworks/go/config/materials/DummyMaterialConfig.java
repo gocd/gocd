@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
@@ -20,6 +20,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.util.command.UrlArgument;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class DummyMaterialConfig extends ScmMaterialConfig {
     public DummyMaterialConfig() {
@@ -49,6 +50,11 @@ public class DummyMaterialConfig extends ScmMaterialConfig {
     @Override
     public String getUrl() {
         return null;
+    }
+
+    @Override
+    public void setUrl(String url) {
+        throw new NotImplementedException();
     }
 
     @Override

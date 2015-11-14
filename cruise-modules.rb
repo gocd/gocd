@@ -458,7 +458,7 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
 end
 
 define 'cruise:pkg', :layout => submodule_layout('pkg') do
-  task :zip => ['cruise:agent-bootstrapper:dist:zip', 'cruise:server:dist:zip'] do
+  task :zip => ['cruise:agent-bootstrapper:dist:zip', 'cruise:server:dist:zip', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:zip_package), _(:target)
     cp project('cruise:server:dist').path_to(:zip_package), _(:target)
@@ -469,32 +469,32 @@ define 'cruise:pkg', :layout => submodule_layout('pkg') do
     sh("unzip -o #{project('cruise:server:dist').path_to(:zip_package)} -d #{_(:target, '..')}")
   end
 
-  task :debian => ['cruise:agent-bootstrapper:dist:debian', 'cruise:server:dist:debian'] do
+  task :debian => ['cruise:agent-bootstrapper:dist:debian', 'cruise:server:dist:debian', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:debian_package), _(:target)
     cp project('cruise:server:dist').path_to(:debian_package), _(:target)
     cp project('cruise:server').path_to("../installers/server/debian/install-server.sh"), _(:target)
   end
 
-  task :redhat => ['cruise:agent-bootstrapper:dist:rpm', 'cruise:server:dist:rpm'] do
+  task :redhat => ['cruise:agent-bootstrapper:dist:rpm', 'cruise:server:dist:rpm', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:redhat_package), _(:target)
     cp project('cruise:server:dist').path_to(:redhat_package), _(:target)
   end
 
-  task :windows => ['cruise:agent-bootstrapper:dist:exe', 'cruise:server:dist:exe'] do
+  task :windows => ['cruise:agent-bootstrapper:dist:exe', 'cruise:server:dist:exe', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:windows_package), _(:target)
     cp project('cruise:server:dist').path_to(:windows_package), _(:target)
   end
 
-  task :solaris => ['cruise:agent-bootstrapper:dist:solaris', 'cruise:server:dist:solaris'] do
+  task :solaris => ['cruise:agent-bootstrapper:dist:solaris', 'cruise:server:dist:solaris', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:solaris_package), _(:target)
     cp project('cruise:server:dist').path_to(:solaris_package), _(:target)
   end
 
-  task :osx => ['cruise:agent-bootstrapper:dist:osx', 'cruise:server:dist:osx'] do
+  task :osx => ['cruise:agent-bootstrapper:dist:osx', 'cruise:server:dist:osx', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:osx_package), _(:target)
     cp project('cruise:server:dist').path_to(:osx_package), _(:target)

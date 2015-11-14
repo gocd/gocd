@@ -25,8 +25,16 @@ class JasmineWithSeleniumRunner
     uri       = URI(jasmine_server_url)
     uri.query = nil
 
-    RakeFileUtils.sh("cd #{tmp_dir} && wget #{uri} --timeout=120 --waitretry=2 --tries=10 --recursive --quiet; EXIT_CODE=$?; echo wget exited with ${EXIT_CODE}; exit 0") do |ok, res|
-      $stderr.puts "There was a problem connecting to #{uri}, this may or may not cause tests to fail."
+    wget_command = "cd #{tmp_dir} && wget #{uri} --timeout=120 --waitretry=2 --tries=10 --recursive --quiet; EXIT_CODE=$?; echo wget exited with ${EXIT_CODE}; exit 0"
+
+    RakeFileUtils.sh(wget_command) do |ok, res|
+      unless ok
+        RakeFileUtils.sh(wget_command) do |ok, res|
+          unless ok
+            $stderr.puts "There was a problem connecting to #{uri}, this may or may not cause tests to fail."
+          end
+        end
+      end
     end
 
     web_driver.navigate.to jasmine_server_url

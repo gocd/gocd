@@ -427,7 +427,7 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
     current_rev_file = "#{cmd_repo_verification_dir_absolute_path}/git_revision_current.txt"
 
     zip_file_name = ""
-    Dir.glob("#{cmd_repo_verification_dir}/zip/*").each do |f|
+    Dir.glob("#{cmd_repo_verification_dir}/pkg/*").each do |f|
       zip_file_name = f if !f.scan(/go-server-.*-[0-9]+.zip/).empty?
     end
 

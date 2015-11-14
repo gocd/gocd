@@ -25,7 +25,7 @@ class JasmineWithSeleniumRunner
     uri       = URI(jasmine_server_url)
     uri.query = nil
 
-    wget_command = "cd #{tmp_dir} && wget #{uri} --timeout=120 --waitretry=2 --tries=10 --recursive --quiet; EXIT_CODE=$?; echo wget exited with ${EXIT_CODE}; exit 0"
+    wget_command = "cd #{tmp_dir} && wget #{uri} --timeout=120 --waitretry=2 --tries=10 --recursive --quiet; EXIT_CODE=$?; echo wget exited with ${EXIT_CODE}"
 
     RakeFileUtils.sh(wget_command) do |ok, res|
       unless ok

@@ -154,8 +154,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (runInstanceCount != null ? !runInstanceCount.equals(jobConfig.runInstanceCount) : jobConfig.runInstanceCount != null)
             return false;
         if (timeout != null ? !timeout.equals(jobConfig.timeout) : jobConfig.timeout != null) return false;
-        return !(errors != null ? !errors.equals(jobConfig.errors) : jobConfig.errors != null);
-
+        return true;
     }
 
     @Override
@@ -170,7 +169,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         result = 31 * result + (runOnAllAgents ? 1 : 0);
         result = 31 * result + (runInstanceCount != null ? runInstanceCount.hashCode() : 0);
         result = 31 * result + (timeout != null ? timeout.hashCode() : 0);
-        result = 31 * result + (errors != null ? errors.hashCode() : 0);
         return result;
     }
 

@@ -239,6 +239,9 @@ Go::Application.routes.draw do
 
       post :material_test, controller: :material_test, action: :test, as: :material_test
 
+      get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
+      patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
+
       match '*url', via: :all, to: 'errors#not_found'
     end
   end

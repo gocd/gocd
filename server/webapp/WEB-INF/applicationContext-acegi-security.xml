@@ -274,6 +274,7 @@
                 /api/agents/**=ROLE_USER
                 /api/users/**=ROLE_USER
                 /api/material_test/**=ROLE_USER
+                /api/version_infos/**=ROLE_USER
                 /*/environments/*=ROLE_SUPERVISOR
 
                 /oauth/admin/**=ROLE_SUPERVISOR

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
+import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -49,6 +50,8 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String CONCATENATED_SPINNER_ICON_FILE_PATH = "concatenatedSpinnerIconFilePath";
     public static final String CONCATENATED_CRUISE_ICON_FILE_PATH = "concatenatedCruiseIconFilePath";
     public static final String PATH_RESOLVER = "pathResolver";
+    public static final String GO_UPDATE = "goUpdate";
+    public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
     private final SystemEnvironment systemEnvironment;
 
     public GoVelocityView() {
@@ -59,12 +62,17 @@ public class GoVelocityView extends VelocityToolboxView {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(RailsAssetsService.class);
     }
 
+    VersionInfoService getVersionInfoService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(VersionInfoService.class);
+    }
+
     public GoVelocityView(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
     }
 
     protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
         RailsAssetsService railsAssetsService = getRailsAssetsService();
+        VersionInfoService versionInfoService = getVersionInfoService();
         velocityContext.put(ADMINISTRATOR, true);
         velocityContext.put(GROUP_ADMINISTRATOR, true);
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
@@ -82,6 +90,8 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));
 
         velocityContext.put(PATH_RESOLVER, railsAssetsService);
+        velocityContext.put(GO_UPDATE, versionInfoService.getGoUpdate());
+        velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
 
         SecurityContext securityContext = (SecurityContext) request.getSession().getAttribute(
                 SPRING_SECURITY_CONTEXT_KEY);

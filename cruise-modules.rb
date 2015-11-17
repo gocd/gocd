@@ -271,7 +271,8 @@ define "cruise:server", :layout => server_layout("server") do
             _("../installers/server/release/cruise-config.xml"),
             _("../installers/server/release/config.properties"),
             _("properties/src/log4j.properties"),
-            _("config/jetty.xml"))
+            _("config/jetty.xml"),
+            _("config/go_update_server.pub"))
 
     onejar.path('lib/').include(server_launcher_dependencies).include(jetty_jars).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
     include_fileset_from_target(onejar, 'server', "**/GoMacLauncher*")

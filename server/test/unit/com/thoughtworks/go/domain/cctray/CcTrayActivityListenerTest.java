@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.cctray;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
@@ -24,14 +25,21 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -126,12 +134,20 @@ public class CcTrayActivityListenerTest {
 
     @Test
     public void shouldInvokeConfigChangeHandlerWhenPipelineConfigChanges() throws InterruptedException {
+        PipelineConfig pipelineConfig=mock(PipelineConfig.class);
+        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
+        when(pipelineConfig.name()).thenReturn(p1);
         CcTrayConfigChangeHandler ccTrayConfigChangeHandler = mock(CcTrayConfigChangeHandler.class);
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
+        when(goConfigService.findGroupNameByPipeline(p1)).thenReturn("group1");
         CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class),  mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
         listener.initialize();
-        PipelineConfig pipelineConfig=mock(PipelineConfig.class);
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
-        listener.onPipelineConfigChange(pipelineConfig, "group1");
+        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
         waitForProcessingToHappen();
 
         verify(ccTrayConfigChangeHandler).call(pipelineConfig, "group1");

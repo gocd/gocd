@@ -64,11 +64,11 @@ module ApiV2
       raise BadRequest.new(e.message)
     end
 
-    def render_http_operation_result(result)
+    def render_http_operation_result(result, data = {})
       if result.instance_of?(HttpOperationResult)
-        render json_hal_v2: { message: result.detailedMessage().strip }, status: result.httpCode()
+        render json_hal_v2: { message: result.detailedMessage().strip }.merge(data), status: result.httpCode()
       else
-        render json_hal_v2: { message: result.message(Spring.bean('localizer')).strip }, status: result.httpCode()
+        render json_hal_v2: { message: result.message(Spring.bean('localizer')).strip }.merge(data), status: result.httpCode()
       end
     end
   end

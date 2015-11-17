@@ -16,21 +16,15 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.ScheduleCheckMessageMatcher;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
-import com.thoughtworks.go.server.scheduling.ScheduleCheckCompletedMessage;
-import com.thoughtworks.go.server.scheduling.ScheduleCheckCompletedTopic;
-import com.thoughtworks.go.server.scheduling.ScheduleCheckQueue;
-import com.thoughtworks.go.server.scheduling.ScheduleOptions;
+import com.thoughtworks.go.server.scheduling.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -38,16 +32,19 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.internal.verification.NoMoreInteractions;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineSchedulerTest {
     private ScheduleCheckQueue queue;
@@ -167,10 +164,18 @@ public class PipelineSchedulerTest {
 
     @Test
     public void shouldAddPipelineConfigToPipelinesOnPipelineConfigChanged(){
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(configService).register(captor.capture());
+        scheduler.initialize();
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.contains(scheduler), is(true));
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+
         PipelineConfig newPipeline = mock(PipelineConfig.class);
         String pipelineName = "newly-added-pipeline";
         when(newPipeline.name()).thenReturn(new CaseInsensitiveString(pipelineName));
-        scheduler.onPipelineConfigChange(newPipeline, "g1");
+        entityConfigChangedListener.onEntityConfigChange(newPipeline);
         scheduler.checkPipelines();
         verify(queue,times(1)).post(ScheduleCheckMessageMatcher.matchScheduleCheckMessage(pipelineName));
     }

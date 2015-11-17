@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -28,7 +29,7 @@ import org.springframework.stereotype.Component;
  * @understands removing server health message on valid config changes
  */
 @Component
-public class InvalidConfigMessageRemover implements PipelineConfigChangedListener {
+public class InvalidConfigMessageRemover implements ConfigChangedListener {
     private final GoConfigService goConfigService;
     private final ServerHealthService serverHealthService;
     private boolean registering;
@@ -51,10 +52,16 @@ public class InvalidConfigMessageRemover implements PipelineConfigChangedListene
     public void initialize() {
         registering = true;
         goConfigService.register(this);
+        goConfigService.register(pipelineConfigChangedListener());
     }
 
-    @Override
-    public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-        onConfigChange(null);
+    private EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        final InvalidConfigMessageRemover invalidConfigMessageRemover = this;
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig entity) {
+                invalidConfigMessageRemover.onConfigChange(null);
+            }
+        };
     }
 }

@@ -16,43 +16,31 @@
 
 package com.thoughtworks.go.server.service;
 
-import static java.util.Arrays.asList;
-
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
-
 import com.thoughtworks.go.config.TimerConfig;
-import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
-import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.Test;
-import org.junit.Before;
 import org.junit.After;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.quartz.CronTrigger;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.Trigger;
+import org.quartz.*;
+
+import java.util.Date;
+import java.util.List;
+
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
+import static java.util.Arrays.asList;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class TimerSchedulerTest {
     private SchedulerFactory schedulerFactory;
@@ -183,12 +171,18 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldRescheduleTimerTriggerPipelineWhenItsConfigChanges() throws SchedulerException {
+        GoConfigService goConfigService = mock(GoConfigService.class);
+
         when(schedulerFactory.getScheduler()).thenReturn(scheduler);
         String pipelineName = "timer-based-pipeline";
         when(scheduler.getJobDetail(pipelineName, TimerScheduler.QUARTZ_GROUP)).thenReturn(mock(JobDetail.class));
-        GoConfigService goConfigService = mock(GoConfigService.class);
         TimerScheduler timerScheduler = new TimerScheduler(schedulerFactory, goConfigService, null, null);
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
         timerScheduler.initialize();
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString(pipelineName));
@@ -196,8 +190,7 @@ public class TimerSchedulerTest {
         ArgumentCaptor<JobDetail> jobDetailArgumentCaptor = ArgumentCaptor.forClass(JobDetail.class);
         ArgumentCaptor<CronTrigger> triggerArgumentCaptor = ArgumentCaptor.forClass(CronTrigger.class);
         when(scheduler.scheduleJob(jobDetailArgumentCaptor.capture(), triggerArgumentCaptor.capture())).thenReturn(new Date());
-
-        timerScheduler.onPipelineConfigChange(pipelineConfig, "g1");
+        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
 
         assertThat(jobDetailArgumentCaptor.getValue().getName(), is(pipelineName));
         assertThat(triggerArgumentCaptor.getValue().getCronExpression(), is("* * * * * ?"));

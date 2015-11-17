@@ -18,7 +18,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
@@ -42,7 +43,7 @@ import java.util.Map;
 import static java.lang.String.format;
 
 @Service
-public class PipelineScheduler implements PipelineConfigChangedListener, GoMessageListener<ScheduleCheckCompletedMessage> {
+public class PipelineScheduler implements ConfigChangedListener, GoMessageListener<ScheduleCheckCompletedMessage> {
     private static final Logger LOGGER = Logger.getLogger(PipelineScheduler.class);
 
     private GoConfigService goConfigService;
@@ -75,7 +76,19 @@ public class PipelineScheduler implements PipelineConfigChangedListener, GoMessa
 
     public void initialize() {
         goConfigService.register(this);
+        goConfigService.register(pipelineConfigChangedListener());
         scheduleCheckCompletedTopic.addListener(this);
+    }
+
+    private EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                synchronized (pipelines) {
+                    addPipelineIfNotPresent(pipelineConfig, pipelines);
+                }
+            }
+        };
     }
 
     //NOTE: This is called on a thread by Spring
@@ -210,14 +223,6 @@ public class PipelineScheduler implements PipelineConfigChangedListener, GoMessa
                 LOGGER.debug(String.format("[Configuration Changed] Marking new pipeline %s as IDLE", pipelineConfig.name()));
             }
         }
-    }
-
-    @Override
-    public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-        synchronized (pipelines) {
-            addPipelineIfNotPresent(pipelineConfig, pipelines);
-        }
-
     }
 
     public void onMessage(ScheduleCheckCompletedMessage message) {

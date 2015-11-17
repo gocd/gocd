@@ -1157,25 +1157,14 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public List<ConfigErrors> getAllErrors() {
-        return getAllErrors(this);
-    }
-
-    private List<ConfigErrors> getAllErrors(Validatable v) {
-        final List<ConfigErrors> allErrors = new ArrayList<ConfigErrors>();
-        new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {
-            @Override
-            public void handleValidation(Validatable validatable, ValidationContext context) {
-                // do nothing here
-            }
-        });
-        return allErrors;
+        return ErrorCollector.getAllErrors(this);
     }
 
     @Override
     public List<ConfigErrors> getAllErrorsExceptFor(Validatable skipValidatable) {
         List<ConfigErrors> all = getAllErrors();
         if (skipValidatable != null) {
-            all.removeAll(getAllErrors(skipValidatable));
+            all.removeAll(ErrorCollector.getAllErrors(skipValidatable));
         }
         return all;
     }

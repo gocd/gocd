@@ -112,6 +112,9 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(savedPipelineConfig, is(pipelineConfig));
         assertThat(configRepository.getCurrentRevCommit().name(), is(not(headCommitBeforeUpdate)));
         assertThat(configRepository.getCurrentRevision().getUsername(), is(user.getDisplayName()));
+        assertThat(configRepository.getCurrentRevision().getMd5(), is(not(goConfigHolderBeforeUpdate.config.getMd5())));
+        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().config.getMd5()));
+        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().configForEdit.getMd5()));
     }
 
     @Test
@@ -180,6 +183,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), contains("Invalid label"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));

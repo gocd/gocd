@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,21 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.listener;
 
+import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.server.service.AgentService;
 
-public class AgentChangeListener implements ConfigChangedListener {
+public class AgentChangeListener extends EntityConfigChangedListener<Agents> {
     private final AgentService agentService;
 
     public AgentChangeListener(AgentService agentService) {
         this.agentService = agentService;
     }
 
-    public void onConfigChange(CruiseConfig cruiseConfig) {
-        agentService.sync(cruiseConfig.agents());
+    @Override
+    public void onEntityConfigChange(Agents agents) {
+        agentService.sync(agents);
+    }
+
+    @Override
+    public void onConfigChange(CruiseConfig newCruiseConfig) {
+        onEntityConfigChange(newCruiseConfig.agents());
     }
 }

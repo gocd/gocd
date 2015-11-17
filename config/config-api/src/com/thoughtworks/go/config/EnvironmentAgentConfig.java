@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 public class EnvironmentAgentConfig implements Validatable{
     @ConfigAttribute(value = "uuid", optional = false) private String uuid;
     private ConfigErrors configErrors = new ConfigErrors();
+    public static final String UUID = "uuid";
 
     public EnvironmentAgentConfig() { }
 
@@ -39,10 +40,11 @@ public class EnvironmentAgentConfig implements Validatable{
         return this.uuid.equals(uuid);
     }
 
-    public void validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
+    public boolean validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
         if (!uuids.contains(uuid)) {
-            throw new RuntimeException(format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
+            this.addError(UUID, format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
         }
+        return errors().isEmpty();
     }
 
     public String getUuid() {

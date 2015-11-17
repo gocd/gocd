@@ -134,10 +134,12 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     @Override
-    public void validateContainsOnlyUuids(Set<String> uuids) {
+    public boolean validateContainsOnlyUuids(Set<String> uuids) {
+        boolean isValid = true;
         for (EnvironmentAgentConfig agent : this.getAgents()) {
-            agent.validateUuidPresent(this.name(), uuids);
+            isValid = agent.validateUuidPresent(this.name(), uuids) && isValid;
         }
+        return isValid;
     }
 
     @Override

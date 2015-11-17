@@ -20,7 +20,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.TimerConfig;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -31,7 +32,6 @@ import org.apache.log4j.Logger;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.text.ParseException;
 import java.util.List;
@@ -40,7 +40,7 @@ import java.util.List;
  * @understands scheduling pipelines based on a timer
  */
 @Component
-public class TimerScheduler implements PipelineConfigChangedListener {
+public class TimerScheduler implements ConfigChangedListener {
     private static final Logger LOG = Logger.getLogger(TimerScheduler.class);
 
     private GoConfigService goConfigService;
@@ -65,9 +65,20 @@ public class TimerScheduler implements PipelineConfigChangedListener {
             quartzScheduler.start();
             scheduleAllJobs(goConfigService.getAllPipelineConfigs());
             goConfigService.register(this);
+            goConfigService.register(pipelineConfigChangedListener());
         } catch (SchedulerException e) {
             showGlobalError("Failed to initialize timer", e);
         }
+    }
+
+    private EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                unscheduleJob(CaseInsensitiveString.str(pipelineConfig.name()));
+                scheduleJob(quartzScheduler, pipelineConfig);
+            }
+        };
     }
 
     private void scheduleAllJobs(List<PipelineConfig> pipelineConfigs) {
@@ -124,12 +135,6 @@ public class TimerScheduler implements PipelineConfigChangedListener {
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         unscheduleAllJobs();
         scheduleAllJobs(newCruiseConfig.getAllPipelineConfigs());
-    }
-
-    @Override
-    public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-        unscheduleJob(CaseInsensitiveString.str(pipelineConfig.name()));
-        scheduleJob(quartzScheduler, pipelineConfig);
     }
 
     private void unscheduleAllJobs() {

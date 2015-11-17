@@ -56,7 +56,6 @@ public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
     }
 
     public EnvironmentVariablesConfig load(final Long entityId, final EnvironmentVariableType type) {
-
         List<EnvironmentVariableConfig> result = (List<EnvironmentVariableConfig>) transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus transactionStatus) {

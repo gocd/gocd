@@ -33,7 +33,7 @@ module ApiV2
     end
 
     def to_hash(*options)
-      super.deep_symbolize_keys
+      super.deep_symbolize_keys unless @represented.nil?
     end
 
   end

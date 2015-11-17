@@ -44,6 +44,7 @@ module ApiV2
     property :build_state, exec_context: :decorator
     property :resources, exec_context: :decorator
     property :environments, exec_context: :decorator
+    property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
     def agent_config_state
       agent.getAgentConfigStatus()
@@ -81,6 +82,14 @@ module ApiV2
       else
         'unknown'
       end
+    end
+
+    def errors
+      mapped_errors = agent.errors
+      if ip_errors = mapped_errors.delete('ipAddress')
+        mapped_errors['ip_address'] = ip_errors
+      end
+      mapped_errors
     end
 
     private

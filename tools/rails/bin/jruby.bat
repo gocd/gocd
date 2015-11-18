@@ -1,6 +1,6 @@
 @ECHO OFF
 set GO_ROOT=%~dp0\..\..\..
-set JRUBY_BASE=%GO_ROOT%\tools\jruby-1.7.11
+set JRUBY_BASE=%GO_ROOT%\tools\jruby-9.0.4.0
 set SERVER_ROOT=%GO_ROOT%\server
 set RAILS_ROOT=%SERVER_ROOT%\webapp\WEB-INF\rails.new
 set GEM_HOME=%RAILS_ROOT%\vendor\bundle\jruby\1.9

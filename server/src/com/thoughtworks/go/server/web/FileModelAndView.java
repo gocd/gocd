@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.domain.ZippedArtifact;
 import com.thoughtworks.go.util.ArtifactLogUtil;
@@ -31,12 +24,14 @@ import com.thoughtworks.go.util.StringUtil;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.AbstractView;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_CREATED;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static javax.servlet.http.HttpServletResponse.*;
 
 public class FileModelAndView {
 
@@ -105,6 +100,10 @@ public class FileModelAndView {
 
     public static ModelAndView errorSavingChecksumFile(String filePath) {
         return ResponseCodeView.create(SC_INTERNAL_SERVER_ERROR, String.format("Error saving checksum file for the artifact at path '%s'", filePath));
+    }
+
+    public static ModelAndView notEnoughDiskSpace(String filePath) {
+        return ResponseCodeView.create(SC_REQUEST_ENTITY_TOO_LARGE, String.format("Not enough disk space to save the artifact at path '%s'", filePath));
     }
 
     public static ModelAndView invalidUploadRequest() throws IOException {

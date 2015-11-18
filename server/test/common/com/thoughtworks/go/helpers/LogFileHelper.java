@@ -63,7 +63,7 @@ public final class LogFileHelper {
     }
 
     private static ArtifactsService artifactsDao(File artifactsDir) throws IOException {
-        return new ArtifactsService(null, null, new ArtifactsDirHolder(null, new FakeGoConfigService(artifactsDir)), new ZipUtil(), null);
+        return new ArtifactsService(null, null, new ArtifactsDirHolder(null, new FakeGoConfigService(artifactsDir)), new ZipUtil(), null, null);
     }
 
     public void onTearDown() {
@@ -97,9 +97,9 @@ public final class LogFileHelper {
                                JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
         File logFile = artifactsService.findArtifact(jobIdentifier, "cruise-output/log.xml");
         File log = artifactsService.findArtifact(jobIdentifier, "cruise-output/" + logFile.getName());
-        artifactsService.saveFile(log, logFileStream, false, 1);
+        artifactsService.saveFile(log, logFileStream, false, 1, null);
         File test = artifactsService.findArtifact(jobIdentifier, "testoutput/result/index.html");
-        artifactsService.saveFile(test, indexhtml, false, 1);
+        artifactsService.saveFile(test, indexhtml, false, 1, null);
         createdFiles.add(logFile);
         createdFiles.add(artifactsService.serializedPropertiesFile(logFile));
 

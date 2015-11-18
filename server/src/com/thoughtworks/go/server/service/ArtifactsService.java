@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.legacywrapper.LogParser;
+import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
@@ -48,6 +49,8 @@ public class ArtifactsService implements ArtifactUrlReader {
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
     private final StageDao stageDao;
+    private final GoConfigService goConfigService;
+    private final SystemDiskSpaceChecker systemDiskSpaceChecker;
     private SystemService systemService;
     @Autowired
     private LogParser logParser;
@@ -57,17 +60,19 @@ public class ArtifactsService implements ArtifactUrlReader {
 
     @Autowired
     public ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
-                            ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService) {
-        this(jobResolverService, stageDao, artifactsDirHolder, zipUtil, systemService, new ArtifactDirectoryChooser());
+                            ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService, GoConfigService goConfigService) {
+        this(jobResolverService, stageDao, artifactsDirHolder, zipUtil, systemService, goConfigService, new ArtifactDirectoryChooser(), new SystemDiskSpaceChecker());
     }
 
     protected ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
-                               ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService, ArtifactDirectoryChooser chooser) {
+                               ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService, GoConfigService goConfigService, ArtifactDirectoryChooser chooser, SystemDiskSpaceChecker systemDiskSpaceChecker) {
         this.artifactsDirHolder = artifactsDirHolder;
         this.zipUtil = zipUtil;
         this.jobResolverService = jobResolverService;
         this.stageDao = stageDao;
+        this.goConfigService = goConfigService;
         this.systemService = systemService;
+        this.systemDiskSpaceChecker = systemDiskSpaceChecker;
 
         //This is a Chain of Responsibility to decide which view should be shown for a particular artifact URL
         this.chooser = chooser;
@@ -79,9 +84,10 @@ public class ArtifactsService implements ArtifactUrlReader {
         chooser.add(new BuildIdArtifactLocator(artifactsDirHolder.getArtifactsDir()));
     }
 
-    public boolean saveFile(File dest, InputStream stream, boolean shouldUnzip, int attempt) {
+    public boolean saveFile(File dest, InputStream stream, boolean shouldUnzip, int attempt, GoDiskSpaceMonitor diskSpaceMonitor) {
         String destPath = dest.getAbsolutePath();
         try {
+            checkDiskSpace(dest, diskSpaceMonitor);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Saving file [" + destPath + "]");
             }
@@ -102,16 +108,17 @@ public class ArtifactsService implements ArtifactUrlReader {
                 LOGGER.error(message, e);
             }
             return false;
-        } catch (IllegalPathException e){
+        } catch (IllegalPathException e) {
             final String message = format("Failed to save the file to: [%s]", destPath);
             LOGGER.error(message, e);
             return false;
         }
     }
 
-    public boolean saveOrAppendFile(File dest, InputStream stream) {
+    public boolean saveOrAppendFile(File dest, InputStream stream, GoDiskSpaceMonitor diskSpaceMonitor) {
         String destPath = dest.getAbsolutePath();
         try {
+            checkDiskSpace(dest, diskSpaceMonitor);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Appending file [" + destPath + "]");
             }
@@ -123,6 +130,19 @@ public class ArtifactsService implements ArtifactUrlReader {
         } catch (IOException e) {
             LOGGER.error("Failed to save the file to : [" + destPath + "]", e);
             return false;
+        }
+    }
+
+    private void checkDiskSpace(File dest, GoDiskSpaceMonitor diskSpaceMonitor) {
+        boolean notEnoughSpace = false;
+        if (goConfigService.serverConfig().isArtifactPurgingAllowed()) {
+            Double requiredSpaceInGb = goConfigService.serverConfig().getPurgeStart();
+            long availableSpace = systemDiskSpaceChecker.getUsableSpace(dest);
+            double requiredSpace = requiredSpaceInGb * GoConstants.GIGA_BYTE;
+            notEnoughSpace = availableSpace < requiredSpace;
+        }
+        if (diskSpaceMonitor.isLowOnDisk() || notEnoughSpace) {
+            throw new ArtifactDiskSpaceFullException(String.format("Not enough disk space to save the artifact at path '%s'", dest));
         }
     }
 

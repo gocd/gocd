@@ -1,0 +1,1 @@
+require 'digest' # bubblebabble gets in with Digest ext loading

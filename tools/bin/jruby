@@ -15,7 +15,7 @@
 # limitations under the License.
 #*************************GO-LICENSE-END**********************************
 
-JRUBY_BASE="$(dirname $0)/../jruby-1.7.11"
+JRUBY_BASE="$(dirname $0)/../jruby-9.0.4.0"
 unset GEM_HOME GEM_PATH
 export PATH=$JRUBY_BASE/bin:$PATH
 exec $JRUBY_BASE/bin/jruby "$@"

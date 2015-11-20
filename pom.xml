@@ -69,14 +69,10 @@
     <properties>
         <go.version>${project.version}</go.version>
         <main.dir>${project.basedir}</main.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring.version>3.1.3.RELEASE</spring.version>
         <spring-security.version>2.0.3</spring-security.version>
-        <commons.io.version>2.4</commons.io.version>
-
-        <jmock.version>2.4.0</jmock.version>
-        <pax-exam.version>3.0.0.M4</pax-exam.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>
         <module>base</module>

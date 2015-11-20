@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.util.ClassMockery;
@@ -26,22 +23,18 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.internal.verification.Times;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.io.File;
+import java.io.IOException;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-@RunWith(JMock.class)
 public class TestArtifactPlanTest {
     private DefaultGoPublisher mockArtifactPublisher;
     private final Mockery context = new ClassMockery();

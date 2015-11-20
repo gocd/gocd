@@ -250,8 +250,7 @@ public class GitCommand extends SCMCommand {
     }
 
     public void pull() {
-        String[] args = new String[]{"pull"};
-        CommandLine gitCommit = git().withArgs(args).withWorkingDir(workingDir);
+        CommandLine gitCommit = git().withArgs("pull", "--tags").withWorkingDir(workingDir);
         runOrBomb(gitCommit);
     }
 

@@ -83,6 +83,7 @@ define "cruise" do |project|
       f.puts(JSON.pretty_generate({
                                     go_version:       GO_VERSION,
                                     go_build_number:  RELEASE_REVISION,
+                                    go_full_version:  [GO_VERSION, RELEASE_REVISION].join('-'),
                                     maven_version:    VERSION_NUMBER,
                                     git_sha:          GIT_SHA,
                                     pipeline_name:    ENV['GO_PIPELINE_NAME'],

@@ -33,28 +33,28 @@ public class BuildDetailPageVelocityTemplateTest {
         HashMap<String, Object> data = new HashMap<String, Object>();
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalRealTemplate("shared/_header.vm", "/WEB-INF/vm/shared/_header.vm");
-        view.setupAdditionalRealTemplate("shared/_footer.vm", "/WEB-INF/vm/shared/_footer.vm");
-        view.setupAdditionalRealTemplate("shared/_page_intro_top.vm", "/WEB-INF/vm/shared/_page_intro_top.vm");
-        view.setupAdditionalRealTemplate("shared/_page_intro_bottom.vm", "/WEB-INF/vm/shared/_page_intro_bottom.vm");
-        view.setupAdditionalRealTemplate("shared/_flash_message.vm", "/WEB-INF/vm/shared/_flash_message.vm");
-        view.setupAdditionalRealTemplate("shared/_artifacts.vm", "/WEB-INF/vm/shared/_artifacts.vm");
-        view.setupAdditionalRealTemplate("shared/_artifact_entry.vm", "/WEB-INF/vm/shared/_artifact_entry.vm");
-        view.setupAdditionalRealTemplate("shared/_package_material_revision_comment.vm", "/WEB-INF/vm/shared/_package_material_revision_comment.vm");
-        view.setupAdditionalRealTemplate("shared/_job_details_breadcrumbs.vm", "/WEB-INF/vm/shared/_job_details_breadcrumbs.vm");
+        view.setupAdditionalRealTemplate("shared/_header.vm");
+        view.setupAdditionalRealTemplate("shared/_footer.vm");
+        view.setupAdditionalRealTemplate("shared/_page_intro_top.vm");
+        view.setupAdditionalRealTemplate("shared/_page_intro_bottom.vm");
+        view.setupAdditionalRealTemplate("shared/_flash_message.vm");
+        view.setupAdditionalRealTemplate("shared/_artifacts.vm");
+        view.setupAdditionalRealTemplate("shared/_artifact_entry.vm");
+        view.setupAdditionalRealTemplate("shared/_package_material_revision_comment.vm");
+        view.setupAdditionalRealTemplate("shared/_job_details_breadcrumbs.vm");
 
-        view.setupAdditionalRealTemplate("sidebar/_sidebar_build_list.vm", "/WEB-INF/vm/sidebar/_sidebar_build_list.vm");
+        view.setupAdditionalRealTemplate("sidebar/_sidebar_build_list.vm");
 
-        view.setupAdditionalRealTemplate("build_detail/_buildoutput.vm", "/WEB-INF/vm/build_detail/_buildoutput.vm");
-        view.setupAdditionalRealTemplate("build_detail/_build_output_raw.vm", "/WEB-INF/vm/build_detail/_build_output_raw.vm");
-        view.setupAdditionalRealTemplate("build_detail/_tests.vm", "/WEB-INF/vm/build_detail/_tests.vm");
-        view.setupAdditionalRealTemplate("build_detail/_test_output_config.vm", "/WEB-INF/vm/build_detail/_test_output_config.vm");
-        view.setupAdditionalRealTemplate("build_detail/_failures.vm", "/WEB-INF/vm/build_detail/_failures.vm");
-        view.setupAdditionalRealTemplate("build_detail/_artifacts.vm", "/WEB-INF/vm/build_detail/_artifacts.vm");
-        view.setupAdditionalRealTemplate("build_detail/_materials.vm", "/WEB-INF/vm/build_detail/_materials.vm");
-        view.setupAdditionalRealTemplate("build_detail/_properties.vm", "/WEB-INF/vm/build_detail/_properties.vm");
-        view.setupAdditionalRealTemplate("build_detail/_material_revisions_jstemplate.vm", "/WEB-INF/vm/build_detail/_material_revisions_jstemplate.vm");
-        view.setupAdditionalRealTemplate("build_detail/_build_detail_summary_jstemplate.vm", "/WEB-INF/vm/build_detail/_build_detail_summary_jstemplate.vm");
+        view.setupAdditionalRealTemplate("build_detail/_buildoutput.vm");
+        view.setupAdditionalRealTemplate("build_detail/_build_output_raw.vm");
+        view.setupAdditionalRealTemplate("build_detail/_tests.vm");
+        view.setupAdditionalRealTemplate("build_detail/_test_output_config.vm");
+        view.setupAdditionalRealTemplate("build_detail/_failures.vm");
+        view.setupAdditionalRealTemplate("build_detail/_artifacts.vm");
+        view.setupAdditionalRealTemplate("build_detail/_materials.vm");
+        view.setupAdditionalRealTemplate("build_detail/_properties.vm");
+        view.setupAdditionalRealTemplate("build_detail/_material_revisions_jstemplate.vm");
+        view.setupAdditionalRealTemplate("build_detail/_build_detail_summary_jstemplate.vm");
 
         view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some-version");
 

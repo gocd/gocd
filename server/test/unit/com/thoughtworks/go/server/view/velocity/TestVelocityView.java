@@ -54,6 +54,10 @@ public class TestVelocityView extends VelocityView {
         setupToolAttributes();
     }
 
+    public void setupAdditionalRealTemplate(String templateName) {
+        setupAdditionalRealTemplate(templateName, "/WEB-INF/vm/" + templateName);
+    }
+
     public void setupAdditionalRealTemplate(String templateName, String realPathToTemplate) {
         additionalTemplates.add(setupTemplate(loader, runtimeServices, templateName, getClass().getResourceAsStream(realPathToTemplate)));
     }

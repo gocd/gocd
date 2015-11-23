@@ -41,12 +41,12 @@ public class MyCruisePreferencePageVelocityTemplateTest {
         data.put("escaper", new Escaper());
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalRealTemplate("shared/_header.vm", "/WEB-INF/vm/shared/_header.vm");
-        view.setupAdditionalRealTemplate("shared/_breadcrumbs.vm", "/WEB-INF/vm/shared/_breadcrumbs.vm");
-        view.setupAdditionalRealTemplate("shared/_footer.vm", "/WEB-INF/vm/shared/_footer.vm");
-        view.setupAdditionalRealTemplate("shared/_page_intro_top.vm", "/WEB-INF/vm/shared/_page_intro_top.vm");
-        view.setupAdditionalRealTemplate("shared/_page_intro_bottom.vm", "/WEB-INF/vm/shared/_page_intro_bottom.vm");
-        view.setupAdditionalRealTemplate("mycruise/_notification.vm", "/WEB-INF/vm/mycruise/_notification.vm");
+        view.setupAdditionalRealTemplate("shared/_header.vm");
+        view.setupAdditionalRealTemplate("shared/_breadcrumbs.vm");
+        view.setupAdditionalRealTemplate("shared/_footer.vm");
+        view.setupAdditionalRealTemplate("shared/_page_intro_top.vm");
+        view.setupAdditionalRealTemplate("shared/_page_intro_bottom.vm");
+        view.setupAdditionalRealTemplate("mycruise/_notification.vm");
 
         view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some-version");
 

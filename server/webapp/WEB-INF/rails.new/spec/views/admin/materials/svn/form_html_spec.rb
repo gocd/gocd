@@ -74,7 +74,7 @@ describe "_form.html.erb" do
     render :partial => "admin/materials/svn/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
     expect(response.body).to have_selector(".popup_form button#check_connection_svn", :text => "CHECK CONNECTION")
-    expect(response.body).to have_selector(".popup_form #vcsconnection-message_svn", :text => "")
+    expect(response.body).to have_selector(".popup_form #vcsconnection-message_svn", :text => "", visible: false)
     expect(response.body).to have_selector(".url")
     expect(response.body).to have_selector(".username")
     expect(response.body).to have_selector(".password")

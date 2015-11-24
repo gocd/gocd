@@ -80,7 +80,7 @@ describe "_form.html.erb" do
     expect(response.body).to have_selector(".password")
     expect(response.body).to have_selector(".url")
     expect(response.body).to have_selector(".popup_form button#check_connection_p4", :text => "CHECK CONNECTION")
-    expect(response.body).to have_selector(".popup_form #vcsconnection-message_p4", :text => "")
+    expect(response.body).to have_selector(".popup_form #vcsconnection-message_p4", :text => "", visible: false)
   end
 
   it "should display new p4 material view with errors" do

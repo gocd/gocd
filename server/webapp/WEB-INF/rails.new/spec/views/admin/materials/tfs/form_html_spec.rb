@@ -79,7 +79,7 @@ describe "_form.html.erb" do
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
     expect(response.body).to have_selector(".popup_form button#check_connection_tfs", :text => "CHECK CONNECTION")
-    expect(response.body).to have_selector(".popup_form #vcsconnection-message_tfs", :text => "")
+    expect(response.body).to have_selector(".popup_form #vcsconnection-message_tfs", :text => "", visible: false)
     expect(response.body).to have_selector(".url")
     expect(response.body).to have_selector(".username")
     expect(response.body).to have_selector(".password")

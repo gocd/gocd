@@ -54,7 +54,7 @@ describe "_form.html.erb" do
 
     expect(response.body).to have_selector(".url")
     expect(response.body).to have_selector(".popup_form button#check_connection_git", :text => "CHECK CONNECTION")
-    expect(response.body).to have_selector(".popup_form #vcsconnection-message_git", :text => "")
+    expect(response.body).to have_selector(".popup_form #vcsconnection-message_git", :text => "", visible: false)
   end
 
   it "should display new git material view with errors" do

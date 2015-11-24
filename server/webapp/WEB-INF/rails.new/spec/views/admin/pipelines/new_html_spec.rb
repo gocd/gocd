@@ -209,16 +209,16 @@ describe "admin/pipelines/new.html.erb" do
         render
 
         expect(response.body).to have_selector("button#check_connection_svn", :text => "CHECK CONNECTION")
-        expect(response.body).to have_selector("#vcsconnection-message_svn", :text => "")
+        expect(response.body).to have_selector("#vcsconnection-message_svn", :text => "", visible: false)
 
         expect(response.body).to have_selector("button#check_connection_hg", :text => "CHECK CONNECTION")
-        expect(response.body).to have_selector("#vcsconnection-message_hg", :text => "")
+        expect(response.body).to have_selector("#vcsconnection-message_hg", :text => "", visible: false)
 
         expect(response.body).to have_selector("button#check_connection_git", :text => "CHECK CONNECTION")
-        expect(response.body).to have_selector("#vcsconnection-message_git", :text => "")
+        expect(response.body).to have_selector("#vcsconnection-message_git", :text => "", visible: false)
 
         expect(response.body).to have_selector("button#check_connection_p4", :text => "CHECK CONNECTION")
-        expect(response.body).to have_selector("#vcsconnection-message_p4", :text => "")
+        expect(response.body).to have_selector("#vcsconnection-message_p4", :text => "", visible: false)
       end
 
       it "should display new svn material view with errors" do

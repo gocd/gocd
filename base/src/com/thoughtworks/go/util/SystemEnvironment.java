@@ -166,7 +166,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String[]> GO_SSL_INCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.include", null);
     public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.exclude", null);
     public static GoSystemProperty<Boolean> GO_SSL_RENEGOTIATION_ALLOWED = new GoBooleanSystemProperty("go.ssl.renegotiation.allowed", true);
-    public static GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", false);
+    public static GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", true);
 
 
     private volatile static Integer agentConnectionTimeout;

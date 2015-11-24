@@ -192,7 +192,7 @@ public class JobConfigTest {
     @Test
     public void shouldValidateEmptyAndNullResources()
     {
-        PipelineConfig pipelineConfig=PipelineConfigMother.CreatePipelineConfigWithJobConfigs("pipeline1");
+        PipelineConfig pipelineConfig=PipelineConfigMother.createPipelineConfigWithJobConfigs("pipeline1");
         JobConfig jobConfig = JobConfigMother.createJobConfigWithJobNameAndEmptyResources();
         ValidationContext validationContext=mock(ValidationContext.class);
         when(validationContext.getPipeline()).thenReturn(pipelineConfig);

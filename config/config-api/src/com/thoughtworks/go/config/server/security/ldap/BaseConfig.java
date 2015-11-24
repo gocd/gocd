@@ -71,10 +71,7 @@ public class BaseConfig implements Validatable {
         }
 
         BaseConfig that = (BaseConfig) o;
-
-        if (errors != null ? !errors.equals(that.errors) : that.errors != null) {
-            return false;
-        }
+        
         if (value != null ? !value.equals(that.value) : that.value != null) {
             return false;
         }
@@ -84,8 +81,6 @@ public class BaseConfig implements Validatable {
 
     @Override
     public int hashCode() {
-        int result = errors != null ? errors.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        return result;
+        return value != null ? value.hashCode() : 0;
     }
 }

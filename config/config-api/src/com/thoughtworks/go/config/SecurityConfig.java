@@ -176,9 +176,6 @@ public class SecurityConfig implements Validatable {
         if (adminsConfig != null ? !adminsConfig.equals(that.adminsConfig) : that.adminsConfig != null) {
             return false;
         }
-        if (errors != null ? !errors.equals(that.errors) : that.errors != null) {
-            return false;
-        }
         if (ldapConfig != null ? !ldapConfig.equals(that.ldapConfig) : that.ldapConfig != null) {
             return false;
         }
@@ -200,7 +197,6 @@ public class SecurityConfig implements Validatable {
         result = 31 * result + (adminsConfig != null ? adminsConfig.hashCode() : 0);
         result = 31 * result + (anonymous ? 1 : 0);
         result = 31 * result + (allowOnlyKnownUsersToLogin ? 1 : 0);
-        result = 31 * result + (errors != null ? errors.hashCode() : 0);
         return result;
     }
 

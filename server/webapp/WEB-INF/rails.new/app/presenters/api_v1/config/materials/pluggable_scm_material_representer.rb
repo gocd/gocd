@@ -21,15 +21,10 @@ module ApiV1
                 alias_method :material_config, :represented
 
                 property :scm_id, as: :ref
-                property :filter, exec_context: :decorator, decorator: ApiV1::Config::Materials::FilterRepresenter, class:com.thoughtworks.go.config.materials.Filter
-
-                def filter
-                    material_config.filter
-                end
-
-                def filter=(value)
-                    material_config.setFilter(value)
-                end
+                property :filter,
+                         decorator:  ApiV1::Config::Materials::FilterRepresenter,
+                         class:      com.thoughtworks.go.config.materials.Filter,
+                         skip_parse: SkipParseOnBlank
             end
         end
     end

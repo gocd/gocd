@@ -66,7 +66,7 @@ public class PipelineConfigMother {
     public static PipelineConfig pipelineConfig(String name, MaterialConfigs materialConfigs) {
         return pipelineConfig(name, materialConfigs, new JobConfigs());
     }
-    public static PipelineConfig CreatePipelineConfigWithJobConfigs(String name) {
+    public static PipelineConfig createPipelineConfigWithJobConfigs(String name) {
         return pipelineConfig(name, new MaterialConfigs(),new JobConfigs(JobConfigMother.createJobConfigWithJobNameAndEmptyResources()));
     }
 

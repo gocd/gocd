@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-
 JsRoutes.setup do |config|
   config.prefix     = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
   config.camel_case = true
   config.include    = [
-    /^api_internal/
+    /^api_internal/,
+    /^apiv1/,
+    /^apiv2/,
   ]
 end

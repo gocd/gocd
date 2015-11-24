@@ -74,12 +74,12 @@ module ApiV1
       end
     end
 
-    def render_message(message, status, data = {})
+    def render_message(message, status = :ok, data = {})
       render json_hal_v1: { message: message.strip }.merge(data), status: status
     end
 
     def render_unprocessable_entity_error(exception)
-      render_message("Your request could not be processed. #{exception.message}", 422)
+      render_message("Your request could not be processed. #{exception.message}", :unprocessable_entity)
     end
   end
 end

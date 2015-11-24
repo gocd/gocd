@@ -237,6 +237,8 @@ Go::Application.routes.draw do
 
       get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
 
+      post :material_test, controller: :material_test, action: :test, as: :material_test
+
       match '*url', via: :all, to: 'errors#not_found'
     end
   end

@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/tooltips', '../models/materials'], function (m, _, $, f, tt, Materials) {
+define([
+  'mithril', 'lodash', 'jquery',
+  '../helpers/form_helper', '../helpers/tooltips', '../helpers/mithril_component_mixins',
+  '../models/materials'
+], function (m, _, $,
+             f, tt, ComponentMixins,
+             Materials) {
 
   var MaterialViews = {
     base: {
       controller: function (args) {
-        this.material              = args.material;
-        this.onRemove              = args.onRemove;
-        this.selectedMaterialIndex = args.selectedMaterialIndex;
+        this.material = args.material;
+        this.onRemove = args.onRemove;
       },
 
       view: function (ctrl, args, children) {
@@ -79,8 +84,7 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}
-                              selectedMaterialIndex={args.selectedMaterialIndex}>
+          <MaterialViews.base material={material} onRemove={args.onRemove}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
@@ -103,8 +107,7 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}
-                              selectedMaterialIndex={args.selectedMaterialIndex}>
+          <MaterialViews.base material={material} onRemove={args.onRemove}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
@@ -122,8 +125,7 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}
-                              selectedMaterialIndex={args.selectedMaterialIndex}>
+          <MaterialViews.base material={material} onRemove={args.onRemove}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
@@ -141,8 +143,7 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}
-                              selectedMaterialIndex={args.selectedMaterialIndex}>
+          <MaterialViews.base material={material} onRemove={args.onRemove}>
             <f.row>
               <f.inputWithLabel attrName='port'
                                 model={material}
@@ -173,8 +174,7 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}
-                              selectedMaterialIndex={args.selectedMaterialIndex}>
+          <MaterialViews.base material={material} onRemove={args.onRemove}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
@@ -229,23 +229,23 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
   var MaterialsConfigWidget = {
     controller: function (args) {
       this.materials = args.materials;
+      this.args      = args;
+      ComponentMixins.HasViewModel.call(this);
 
-      this.selectedMaterialIndex = args.selectedMaterialIndex;
+      this.vmState('selectedMaterialIndex', m.prop(0));
 
       this.removeMaterial = function (material) {
         var previousMaterial = this.materials.previousMaterial(material);
         this.materials.removeMaterial(material);
 
         var firstMaterial = this.materials.firstMaterial();
-        this.selectedMaterialIndex(this.materials.indexOfMaterial(previousMaterial || firstMaterial));
+        this.vmState('selectedMaterialIndex')(this.materials.indexOfMaterial(previousMaterial || firstMaterial));
       };
 
       this.createMaterial = function (type) {
         var newMaterial = this.materials.createMaterial({type: type()});
-        this.selectedMaterialIndex(this.materials.indexOfMaterial(newMaterial));
+        this.vmState('selectedMaterialIndex')(this.materials.indexOfMaterial(newMaterial));
       };
-
-      this.selectedMaterialIndex(0);
     },
 
     view: function (ctrl) {
@@ -254,18 +254,18 @@ define(['mithril', 'lodash', 'jquery', '../helpers/form_helper', '../helpers/too
           <f.accordion class="materials-definition"
                        accordionTitles={ctrl.materials.collectMaterialProperty('name')}
                        accordionKeys={ctrl.materials.collectMaterialProperty('uuid')}
-                       selectedIndex={ctrl.selectedMaterialIndex}>
+                       selectedIndex={ctrl.vmState('selectedMaterialIndex')}>
             {ctrl.materials.mapMaterials(function (material) {
               var materialView = MaterialViews[material.type()];
               return (m.component(materialView, {
-                material:              material,
-                selectedMaterialIndex: ctrl.selectedMaterialIndex,
-                onRemove:              ctrl.removeMaterial.bind(ctrl, material),
-                key:                   material.uuid()
+                material: material,
+                onRemove: ctrl.removeMaterial.bind(ctrl, material),
+                key:      material.uuid()
               }));
             })}
           </f.accordion>
-          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)} key='material-type-selector'/>
+          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)}
+                                key='material-type-selector'/>
         </div>
       );
     }

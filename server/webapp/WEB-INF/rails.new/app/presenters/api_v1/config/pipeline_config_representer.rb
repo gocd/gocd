@@ -39,9 +39,11 @@ module ApiV1
       property :name, case_insensitive_string: true
       property :template_name, as: :template, case_insensitive_string: true
 
-      collection :params, exec_context: :decorator, decorator: ApiV1::Config::ParamRepresenter,
-                 expect_hash:           true,
-                 class:                 com.thoughtworks.go.config.ParamConfig
+      collection :parameters,
+                 exec_context: :decorator,
+                 decorator:    ApiV1::Config::ParamRepresenter,
+                 expect_hash:  true,
+                 class:        com.thoughtworks.go.config.ParamConfig
 
       collection :environment_variables,
                  exec_context: :decorator,
@@ -67,7 +69,7 @@ module ApiV1
                decorator:    ApiV1::Config::TrackingTool::TrackingToolRepresenter,
                expect_hash:  true,
                class:        lambda { |object, *|
-                 ApiV1::Config::TrackingTool::TrackingToolRepresenter.get_class(object[:type]||object['type'])
+                 ApiV1::Config::TrackingTool::TrackingToolRepresenter.get_class(object[:type] || object['type'])
                }
 
       property :timer,
@@ -83,7 +85,13 @@ module ApiV1
 
 
       delegate :name, :name=, to: :pipeline
-      delegate :params, :params=, to: :pipeline
+      def parameters
+        pipeline.params
+      end
+
+      def parameters=(new_params)
+        pipeline.params = new_params
+      end
 
       def environment_variables
         pipeline.getVariables()

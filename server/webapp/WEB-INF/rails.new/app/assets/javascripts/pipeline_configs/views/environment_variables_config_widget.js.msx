@@ -14,75 +14,52 @@
  * limitations under the License.
  */
 
-define(['mithril', '../helpers/form_helper', '../helpers/tooltips'], function (m, f, tt) {
+define([
+  'mithril', '../helpers/form_helper', '../helpers/mithril_component_mixins', '../helpers/tooltips'
+], function (m, f, ComponentMixins, tt) {
   var EnvironmentVariablesConfigWidget = {
     controller: function (args) {
-      this.variables = args.variables;
-
-      this.add = function () {
-        this.variables.createVariable();
-      };
-
-      this.remove = function (variable) {
-        this.variables.removeVariable(variable);
-        this.variableChanged();
-      };
-
-      this.lastVariable = function () {
-        return this.variables.lastVariable();
-      };
-
-      this.variableChanged = function () {
-        if (!this.lastVariable() || !this.lastVariable().isBlank()) {
-          this.add();
-        }
-      };
-
-      this.variableChanged();
+      this.args = args;
+      ComponentMixins.ManagesCollection.call(this, {as: 'Variable'});
+      ComponentMixins.HasViewModel.call(this);
     },
 
     view: function (ctrl) {
-      var removeLink = function (variable) {
-        if (variable !== ctrl.lastVariable()) {
-          return (
-            <f.removeButton onclick={ctrl.remove.bind(ctrl, variable)}/>
-          );
-        }
-      };
-
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>EnvironmentVariables<f.tooltip tooltip={{content: tt.environmentVariables}}/></span>
+                          <span>Environment Variables<f.tooltip tooltip={{content: tt.environmentVariables.main}}/></span>
                         )
                      ]}
                      accordionKeys={['environment-variables']}
-                     selectedIndex={-1}
+                     selectedIndex={ctrl.vmState('accordionSelectedIndex', m.prop(-1))}
                      class='environment-variables'>
           <div>
-            {ctrl.variables.mapVariables(function (variable) {
+            {ctrl.map(function (variable) {
               return (
                 <f.row class='environment-variable' data-variable-name={variable.name()} key={variable.uuid()}>
                   <f.column size={4}>
                     <f.row collapse={true}>
                       <f.column size={2} class='prefix-container'>
-                        <span class="prefix"></span>
+                        <span class="prefix"/>
                       </f.column>
 
                       <f.input model={variable}
                                attrName='name'
-                               onchange={ctrl.variableChanged.bind(ctrl)}
+                               placeHolder='Name'
+                               onchange={ctrl.changed.bind(ctrl)}
                                size={10}
                                end={true}/>
                     </f.row>
                   </f.column>
                   <f.input model={variable}
                            attrName='value'
-                           onchange={ctrl.variableChanged.bind(ctrl)}
+                           placeHolder='Value'
+                           onchange={ctrl.changed.bind(ctrl)}
                            type={variable.secure() ? 'password' : 'text'}
                            size={4}/>
                   <f.column size={1} end={true}>
-                    {removeLink(variable)}
+                    {ctrl.removeLink.call(ctrl, variable)}
                   </f.column>
                 </f.row>
               );
@@ -92,5 +69,6 @@ define(['mithril', '../helpers/form_helper', '../helpers/tooltips'], function (m
       );
     }
   };
+
   return EnvironmentVariablesConfigWidget;
 });

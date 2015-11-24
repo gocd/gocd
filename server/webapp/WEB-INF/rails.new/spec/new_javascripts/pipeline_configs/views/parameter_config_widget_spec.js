@@ -17,19 +17,19 @@
 define(["jquery", "mithril", "pipeline_configs/models/parameters", "pipeline_configs/views/parameters_config_widget"], function ($, m, Parameters, ParametersConfigWidget) {
   describe("Parameter Widget", function () {
     var root, $root;
+    var parameters;
     beforeEach(function () {
-      var parameters = new Parameters.fromJSON([
+      parameters = m.prop(new Parameters.fromJSON([
         {name: "COMMAND", value: "echo"}
-      ]);
+      ]));
 
-      root  = document.createElement("div");
+      root = document.createElement("div");
       document.body.appendChild(root);
       $root = $(root);
 
       m.mount(root,
         m.component(ParametersConfigWidget, {parameters: parameters})
       );
-
       m.redraw(true);
 
       var accordion = $root.find('.parameters .accordion-navigation > a').get(0);
@@ -51,5 +51,6 @@ define(["jquery", "mithril", "pipeline_configs/models/parameters", "pipeline_con
       expect(paramName).toBe("COMMAND");
       expect(paramValue).toBe("echo");
     });
+
   });
 });

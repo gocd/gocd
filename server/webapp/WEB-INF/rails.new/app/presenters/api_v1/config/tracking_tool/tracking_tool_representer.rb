@@ -18,20 +18,23 @@ module ApiV1
   module Config
     module TrackingTool
       class TrackingToolRepresenter < ApiV1::BaseRepresenter
-        TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP={
-          'com.thoughtworks.go.config.MingleConfig' => MingleTrackingToolRepresenter,
-          'com.thoughtworks.go.config.TrackingTool' => ExternalTrackingToolRepresenter
+        TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP = {
+          com.thoughtworks.go.config.MingleConfig => MingleTrackingToolRepresenter,
+          com.thoughtworks.go.config.TrackingTool => ExternalTrackingToolRepresenter
         }
 
-        TRACKING_TOOL_TYPE_TO_CLASS_MAP={
-          'external' => com.thoughtworks.go.config.TrackingTool,
-          'mingle'   => com.thoughtworks.go.config.MingleConfig
-        }
+        TRACKING_TOOL_TYPE_TO_CLASS_MAP = {
+          'generic' => com.thoughtworks.go.config.TrackingTool,
+          'mingle'  => com.thoughtworks.go.config.MingleConfig
+        }.freeze
+
+        TRACKING_TOOL_CLASS_TO_TYPE_MAP = TRACKING_TOOL_TYPE_TO_CLASS_MAP.invert.freeze
+
         alias_method :tracking_tool, :represented
         property :type, exec_context: :decorator, skip_parse: true
         nested :attributes,
                decorator: lambda { |tracking_tool, *|
-                 TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP[tracking_tool.getClass.getName]
+                 TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP[tracking_tool.class]
                }
 
         property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
@@ -47,14 +50,14 @@ module ApiV1
 
         class << self
           def get_class(type)
-            TRACKING_TOOL_TYPE_TO_CLASS_MAP[type] || (raise UnprocessableEntity, "Invalid Tracking Tool type '#{type}'. It has to be one of '#{TRACKING_TOOL_TYPE_TO_CLASS_MAP.keys.join(', ')}.'")
+            TRACKING_TOOL_TYPE_TO_CLASS_MAP[type] || (raise ApiV1::UnprocessableEntity, "Invalid Tracking Tool type '#{type}'. It has to be one of '#{TRACKING_TOOL_TYPE_TO_CLASS_MAP.keys.join(', ')}.'")
           end
         end
 
         private
 
         def error_keys
-          tool_class = TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP[tracking_tool.getClass.getName]
+          tool_class = TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP[tracking_tool.class]
           tool_class.new(tracking_tool).error_keys
         end
 
@@ -64,13 +67,7 @@ module ApiV1
         end
 
         def type
-          if tracking_tool.instance_of? com.thoughtworks.go.config.MingleConfig
-            "mingle"
-          elsif tracking_tool.instance_of? com.thoughtworks.go.config.TrackingTool
-            "external"
-          else
-            raise UnprocessableEntity, "Invalid Tracking Tool type. It can be one of '{mingle, external}'"
-          end
+          TRACKING_TOOL_CLASS_TO_TYPE_MAP[tracking_tool.class] || (raise ApiV1::UnprocessableEntity, "Invalid Tracking Tool type '#{tracking_tool.class}'. It has to be one of '#{TRACKING_TOOL_CLASS_TO_TYPE_MAP.keys.join(', ')}.'")
         end
       end
     end

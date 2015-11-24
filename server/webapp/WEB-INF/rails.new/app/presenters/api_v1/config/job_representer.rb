@@ -26,8 +26,8 @@ module ApiV1
                exec_context: :decorator
 
       property :timeout,
-               getter: lambda { |options| timeout.to_i },
-               setter: lambda { |val, options| self.timeout = val.to_s }
+               exec_context: :decorator
+
       collection :environment_variables,
                  exec_context: :decorator,
                  decorator:    ApiV1::Config::EnvironmentVariableRepresenter,
@@ -73,6 +73,28 @@ module ApiV1
           job.setRunOnAllAgents(true)
         else
           job.setRunInstanceCount(val.to_s)
+        end
+      end
+
+      def timeout
+        if job.timeout == '0'
+          'never'
+        elsif job.timeout.present?
+          job.timeout.to_i
+        else
+          nil
+        end
+      end
+
+      def timeout=(val)
+        return if val.blank? || val.to_s.strip.downcase == 'null'
+
+        if val.to_s.strip.downcase == 'never'
+          job.timeout = '0'
+        elsif
+          job.timeout = nil
+        else
+          job.timeout = val.to_s
         end
       end
 

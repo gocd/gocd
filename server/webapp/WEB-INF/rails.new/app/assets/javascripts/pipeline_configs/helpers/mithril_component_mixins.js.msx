@@ -1,0 +1,76 @@
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['string-plus', './form_helper'], function (s, f) {
+  var ComponentMixins = {};
+
+  ComponentMixins.HasViewModel = function () {
+    var vm;
+
+    if (this.args && this.args.vm) {
+      vm = this.args.vm || {};
+      delete this.args.vm;
+    }
+
+    vm = vm || {};
+
+    this.vmState = function (key, value) {
+      return (vm[key] = vm[key] || value || {});
+    };
+  };
+
+  ComponentMixins.ManagesCollection = function (options) {
+    var associationName                  = options.as;
+    var associationNamePlural            = s.camelcase(s.defaultToIfBlank(options.plural, options.as + 's'), true);
+    var associationNamePluralCapitalized = s.camelcase(s.defaultToIfBlank(options.plural, options.as + 's'));
+
+    this.add = function () {
+      this.args[associationNamePlural]()['create' + associationName]();
+    };
+
+    this.remove = function (thing) {
+      this.args[associationNamePlural]()['remove' + associationName](thing);
+      this.changed();
+    };
+
+    this.last = function () {
+      return this.args[associationNamePlural]()['last' + associationName]();
+    };
+
+    this.changed = function () {
+      var last = this.last();
+      if (!last || !last.isBlank()) {
+        this.add();
+      }
+    };
+
+    this.removeLink = function (thing) {
+      if (thing !== this.last()) {
+        return (<f.removeButton onclick={this.remove.bind(this, thing)}/>);
+      }
+    };
+
+    this.map = function (callback) {
+      return this.args[associationNamePlural]()['map' + associationNamePluralCapitalized](function (thing, index) {
+        return callback(thing, index);
+      });
+    };
+
+    this.changed();
+  };
+
+  return ComponentMixins;
+});

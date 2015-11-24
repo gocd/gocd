@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "pipeline_configs/models/pipeline", "string-plus"], function (_, Pipeline, s) {
+define(['lodash', "pipeline_configs/models/pipeline", 'pipeline_configs/models/tracking_tool', "string-plus"], function (_, Pipeline, TrackingTool, s) {
   describe("Pipeline Model", function () {
     var pipeline, timer;
     beforeEach(function () {
@@ -28,7 +28,10 @@ define(['lodash', "pipeline_configs/models/pipeline", "string-plus"], function (
         environmentVariables:  ["foo=bar", "boo=baz"],
         parameters:            ["WORKING_DIR=something"],
         materials:             ["svn://svn.example.com/svn/myProject"],
-        trackingTool:          "mingle"
+        trackingTool:          new TrackingTool.Generic({
+          urlPattern: 'http://example.com/bugzilla?id=${ID}',
+          regex:      "bug-(\\d+)"
+        })
       });
     });
 
@@ -65,7 +68,7 @@ define(['lodash', "pipeline_configs/models/pipeline", "string-plus"], function (
     });
 
     it("should initialize pipeline model with trackingTool", function () {
-      expect(pipeline.trackingTool()).toBe('mingle');
+      expect(pipeline.trackingTool().type()).toBe('generic');
     });
 
     describe("validations", function () {
@@ -100,7 +103,7 @@ define(['lodash', "pipeline_configs/models/pipeline", "string-plus"], function (
         var expectedMaterialNames       = pipeline.materials().collectMaterialProperty('name');
 
         expect(pipeline.name()).toBe("yourproject");
-        expect(pipeline.trackingTool().type()).toBe('mingle');
+        expect(pipeline.trackingTool().type()).toBe('generic');
         expect(pipeline.labelTemplate()).toBe("foo-1.0.${COUNT}-${svn}");
         expect(pipeline.timer().spec()).toBe("0 0 22 ? * MON-FRI");
         expect(pipeline.timer().onlyOnChanges()).toBe(true);
@@ -153,11 +156,10 @@ define(['lodash', "pipeline_configs/models/pipeline", "string-plus"], function (
             }
           }],
           tracking_tool:           {
-            type:       "mingle",
+            type:       "generic",
             attributes: {
-              base_url:            "http://mingle.example.com",
-              project_identifier:  "my_project",
-              grouping_conditions: "status > 'In Dev'"
+              url_pattern: "http://mingle.example.com",
+              regex:       "my_project",
             }
           },
           stages:                  []

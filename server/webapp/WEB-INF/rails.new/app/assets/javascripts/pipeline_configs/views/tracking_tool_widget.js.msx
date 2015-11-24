@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '../models/tracking_tool'], function (m, _, f, tt, TrackingTool) {
+define([
+  'mithril', 'lodash',
+  '../helpers/form_helper', '../helpers/tooltips', '../helpers/mithril_component_mixins',
+  '../models/tracking_tool'
+], function (m, _,
+             f, tt, ComponentMixins,
+             TrackingTool) {
 
   var TrackingToolViews = {
     none: function () {
@@ -49,9 +55,9 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
 
           <f.row>
             <f.inputWithLabel model={trackingTool()}
-                              attrName='groupingConditions'
+                              attrName='mqlGroupingConditions'
                               tooltip={{
-                                          content: <tt.trackingTool.mingle.groupingConditions callback={trackingTool().groupingConditions}/>,
+                                          content: <tt.trackingTool.mingle.mqlGroupingConditions callback={trackingTool().mqlGroupingConditions}/>,
                                           direction: 'bottom',
                                           size: 'medium'
                                         }}
@@ -62,10 +68,6 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
     },
 
     generic: function (trackingTool) {
-
-      var useTrackingToolRegex = function () {
-        debugger;
-      };
       return (
         <div>
           <f.row>
@@ -98,25 +100,22 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
 
   var TrackingToolWidget = {
     controller: function (args) {
-      this.trackingTool          = args.trackingTool;
-      this.possibleTrackingTools = {
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
+      this.vmState('possibleTrackingTools', {
         none:    null,
-        mingle:  (this.trackingTool() && this.trackingTool().type() === 'mingle') ? this.trackingTool() : TrackingTool.create('mingle'),
-        generic: (this.trackingTool() && this.trackingTool().type() === 'generic') ? this.trackingTool() : TrackingTool.create('generic')
-      };
-
-      this.setTrackingTool = function (newTool) {
-        this.trackingTool(newTool);
-      };
+        mingle:  (args.trackingTool() && args.trackingTool().type() === 'mingle') ? args.trackingTool() : TrackingTool.create('mingle'),
+        generic: (args.trackingTool() && args.trackingTool().type() === 'generic') ? args.trackingTool() : TrackingTool.create('generic')
+      });
     },
 
-    view: function (ctrl, args, children) {
+    view: function (ctrl, args) {
       var isChecked = function (type) {
-        if (!type) {
-          return !ctrl.trackingTool();
+        if (type == 'none' && !args.trackingTool()) {
+          return true;
         }
 
-        return ctrl.trackingTool() && ctrl.trackingTool().type() === type;
+        return args.trackingTool() && args.trackingTool().type() === type;
       };
 
       var trackingTools = _.merge({none: {type: undefined, description: "None"}}, TrackingTool.Types);
@@ -128,7 +127,8 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
                         )
                      ]}
                      accordionKeys={['tracking-tool']}
-                     selectedIndex={-1}>
+                     selectedIndex={ctrl.vmState('accordionSelectedIndex', m.prop(-1))}
+                     class="tracking-tool">
           <div>
             <f.row>
               <f.column size={4} end={true}>
@@ -139,7 +139,7 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
                            name='tracking-tool-button-group'
                            id={'tracking-tool-' + key}
                            checked={isChecked(key)}
-                           onclick={ctrl.setTrackingTool.bind(ctrl, ctrl.possibleTrackingTools[key])}/>
+                           onclick={args.trackingTool.bind(args, ctrl.vmState('possibleTrackingTools')[key])}/>
                     <label for={'tracking-tool-' + key}> {value.description}</label>
                   </span>
                   );
@@ -147,9 +147,9 @@ define(['mithril', 'lodash', '../helpers/form_helper', '../helpers/tooltips', '.
               </f.column>
             </f.row>
 
-            <f.row class={'tracking-tool tracking-tool-' + (ctrl.trackingTool() ? ctrl.trackingTool().type() : 'none')}>
+            <f.row class={'tracking-tool tracking-tool-' + (args.trackingTool() ? args.trackingTool().type() : 'none')}>
               <f.column size={6} end={true}>
-                {TrackingToolViews[ctrl.trackingTool() ? ctrl.trackingTool().type() : 'none'](ctrl.trackingTool)}
+                {TrackingToolViews[args.trackingTool() ? args.trackingTool().type() : 'none'](args.trackingTool)}
               </f.column>
             </f.row>
           </div>

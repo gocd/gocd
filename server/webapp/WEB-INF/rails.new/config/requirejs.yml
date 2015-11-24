@@ -9,6 +9,7 @@ paths:
   es6shim: 'lib/es6-shim'
   angular: 'lib/angular-1.0.8'
   jquery: 'lib/jquery-1.7.2'
+  jquery.textcomplete: 'lib/jquery.textcomplete-0.8.1'
   mithril: 'lib/mithril-0.2.0'
   lodash: 'lib/lodash'
   dragula: 'lib/dragula-3.1.0'
@@ -47,6 +48,9 @@ shim:
     exports: 'm'
     deps:
       - es6shim
+  jquery.textcomplete:
+    deps:
+      - jquery
   string:
     exports: 's'
   es6shim:

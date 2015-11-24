@@ -20,7 +20,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     var pipeline;
 
     beforeEach(function (done) {
-      root  = document.createElement("div");
+      root = document.createElement("div");
       document.body.appendChild(root);
       $root = $(root);
 

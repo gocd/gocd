@@ -80,7 +80,7 @@ describe ApiV1::MaterialTestController do
           should_receive(:checkConnection).with(ApiV1::MaterialTestController.check_connection_execution_context).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
-        controller.go_config_service.should_receive(:pipelineConfigNamed).with(CaseInsensitiveString.new('BuildLinux')).and_return(PipelineConfigMother.CreatePipelineConfigWithJobConfigs('BuildLinux'))
+        controller.go_config_service.should_receive(:pipelineConfigNamed).with(CaseInsensitiveString.new('BuildLinux')).and_return(PipelineConfigMother.createPipelineConfigWithJobConfigs('BuildLinux'))
 
         com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor.any_instance.should_receive(:process) do |pipeline_config|
           expect(pipeline_config.name).to eq(CaseInsensitiveString.new('BuildLinux'))

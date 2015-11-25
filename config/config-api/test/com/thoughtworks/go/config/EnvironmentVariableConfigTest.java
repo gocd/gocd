@@ -291,6 +291,14 @@ public class EnvironmentVariableConfigTest {
         assertThat(copy.getEncryptedValue(), is(secureEnvironmentVariable.getEncryptedValue()));
         assertThat(copy.isSecure(), is(secureEnvironmentVariable.isSecure()));
     }
+
+    @Test
+    public void shouldNotConsiderErrorsForEqualsCheck(){
+        EnvironmentVariableConfig config1 = new EnvironmentVariableConfig("name", "value");
+        EnvironmentVariableConfig config2 = new EnvironmentVariableConfig("name", "value");
+        config2.addError("name", "errrr");
+        assertThat(config1.equals(config2), is(true));
+    }
     
     private HashMap getAttributeMap(String value, final String secure, String isChanged) {
         HashMap attrs;

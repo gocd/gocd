@@ -110,9 +110,6 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         if (isSecure != that.isSecure) {
             return false;
         }
-        if (configErrors != null ? !configErrors.equals(that.configErrors) : that.configErrors != null) {
-            return false;
-        }
         if (encryptedValue != null ? !encryptedValue.equals(that.encryptedValue) : that.encryptedValue != null) {
             return false;
         }

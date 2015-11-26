@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.thoughtworks.go.util.json.JsonMap;
-import com.thoughtworks.go.server.web.JsonStringRenderer;
+import org.hamcrest.core.Is;
+import org.json.JSONException;
 import org.junit.Test;
-import static org.junit.Assert.assertThat;
+import org.skyscreamer.jsonassert.JSONAssert;
+
+import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
+import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 
 public class ValidationBeanTest {
 
@@ -66,19 +69,17 @@ public class ValidationBeanTest {
 
     @Test
     public void shouldBeValid() {
-        assertThat(ValidationBean.valid().isValid(), is(true));
-        assertThat(ValidationBean.valid().getError(), is(""));
-        ValidationBean bean = ValidationBean.valid();
+        assertThat(valid().isValid(), is(true));
+        assertThat(valid().getError(), is(""));
+        ValidationBean bean = valid();
         assertThat(bean.isValid(), is(true));
-        JsonMap map = new JsonMap();
-        map.put("isValid", "true");
-        assertTrue(bean.toJson().contains(map));
+        assertThat(bean.toJson().get("isValid"), Is.<Object>is("true"));
     }
 
     @Test
-    public void shouldBeAbleToSerializeToJson() {
+    public void shouldBeAbleToSerializeToJson() throws JSONException {
         ValidationBean bean = ValidationBean.notValid("ErrorMessage");
-        String output = JsonStringRenderer.render(bean);
-        assertThat(output, is("{ \"isValid\": \"false\",\"error\": \"ErrorMessage\" }"));
+        String output = render(bean);
+        JSONAssert.assertEquals(output, "{ \"isValid\": \"false\",\"error\": \"ErrorMessage\" }", true);
     }
 }

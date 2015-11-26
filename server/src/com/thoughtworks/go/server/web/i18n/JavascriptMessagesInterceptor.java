@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web.i18n;
 
@@ -20,11 +20,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.util.json.JsonMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import com.thoughtworks.go.server.web.JsonView;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContext;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static com.thoughtworks.go.domain.JobState.Scheduled;
 
 public class JavascriptMessagesInterceptor implements HandlerInterceptor {
     public static final String JAVASCRIPT_MESSAGES_KEY = "i18n_messages";
@@ -46,10 +52,12 @@ public class JavascriptMessagesInterceptor implements HandlerInterceptor {
 
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o,
                            ModelAndView modelAndView) throws Exception {
-        if (modelAndView == null) { return; }
-        JsonMap messages = new JsonMap();
+        if (modelAndView == null) {
+            return;
+        }
+        Map<String, Object> messages = new LinkedHashMap<>();
         RequestContext requestContext = new RequestContext(httpServletRequest);
-        messages.put(JobState.Scheduled.toString().toLowerCase(), "Scheduled");
+        messages.put(Scheduled.toString().toLowerCase(), "Scheduled");
         messages.put(CurrentStatus.BUILDING.getStatus().toLowerCase(),
                 requestContext.getMessage(BUILDING));
         messages.put(CurrentStatus.DISCONTINUED.getStatus().toLowerCase(),

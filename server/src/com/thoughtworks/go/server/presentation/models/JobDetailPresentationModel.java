@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation.models;
 
@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.web.JsonStringRenderer;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.DirectoryReader;
 import com.thoughtworks.go.util.TimeConverter;
@@ -34,6 +33,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.TestArtifactPlan.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.domain.TestReportGenerator.TEST_RESULTS_FILE;
+import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.util.ArtifactLogUtil.*;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -141,7 +141,7 @@ public class JobDetailPresentationModel {
     public String getMaterialRevisionsJson() {
         MaterialRevisionsJsonBuilder jsonVisitor = new MaterialRevisionsJsonBuilder(trackingTool);
         pipeline.getMaterialRevisions().accept(jsonVisitor);
-        return JsonStringRenderer.render(jsonVisitor.json());
+        return render(jsonVisitor.json());
     }
 
     public String getModificationTime() {

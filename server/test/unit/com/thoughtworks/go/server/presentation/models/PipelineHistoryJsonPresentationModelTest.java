@@ -1,41 +1,44 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation.models;
-
-import java.util.Date;
 
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineHistoryMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.PipelineHistoryGroupingUtil;
 import com.thoughtworks.go.server.util.Pagination;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-
-import com.thoughtworks.go.util.GoConstants;
-import static org.hamcrest.core.Is.is;
+import com.thoughtworks.go.util.*;
+import org.hamcrest.core.Is;
 import org.junit.After;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class PipelineHistoryJsonPresentationModelTest {
     private PipelineConfig pipelineConfig;
@@ -94,18 +97,18 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineHistory() throws Exception {
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
         JsonTester jsonTester = new JsonTester(json);
         jsonTester.shouldContain(
                 "{    'groups' : [ {"
                         + "      'history' : ["
-                        + "         { 'pipelineId' : '1',"
+                        + "         { 'pipelineId' : 1,"
                         + "           'scheduled_date' : 'less than a minute ago',"
                         + "           'stages' : ["
-                        + "             { 'stageStatus' : 'Passed', 'stageName':'dev', 'stageId':'0',"
+                        + "             { 'stageStatus' : 'Passed', 'stageName':'dev', 'stageId':0,"
                         + "               'approvedBy' : '" + DEFAULT_APPROVED_BY + "', "
                         + "               'getCanRun' : 'false' , 'scheduled' : 'true' },"
-                        + "             { 'stageStatus' : 'Passed', 'stageName':'ft', 'stageId':'0',"
+                        + "             { 'stageStatus' : 'Passed', 'stageName':'ft', 'stageId':0,"
                         + "               'approvedBy' : '" + APPROVED_BY + "', "
                         + "               'getCanRun' : 'false', 'getCanCancel' : 'false',  'scheduled' : 'true'  }]"
                         + "         }"
@@ -117,12 +120,13 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineHistoryComments() throws Exception {
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
         JsonTester jsonTester = new JsonTester(json);
+
         jsonTester.shouldContain(
                 "{    'groups' : [ {"
                         + "      'history' : ["
-                        + "         { 'pipelineId' : '1',"
+                        + "         { 'pipelineId' : 1,"
                         + "           'comment' : 'build comment'"
                         + "         }"
                         + "       ]"
@@ -136,10 +140,10 @@ public class PipelineHistoryJsonPresentationModelTest {
         JsonTester jsonTester = new JsonTester(presenter.toJson());
         jsonTester.shouldContain(
                 "{ 'pipelineName' : 'mingle',"
-                        + "   'count' : '" + COUNT + "',"
+                        + "   'count' : " + COUNT + ","
                         + "   'canForce' : '" + (CAN_FORCE ? "true" : "false") + "',"
-                        + "   'start' : '" + START + "',"
-                        + "   'perPage' : '" + PER_PAGE + "',"
+                        + "   'start' : " + START + ","
+                        + "   'perPage' : " + PER_PAGE + ""
                         + "}"
         );
     }
@@ -147,14 +151,15 @@ public class PipelineHistoryJsonPresentationModelTest {
     @Test
     public void needsApprovalInJsonShouldBeFalseWhenPipelineIsPaused() throws Exception {
         pipelinePauseInfo.setPaused(true);
-        JsonTester jsonTester = new JsonTester(presenter.toJson());
-        jsonTester.shouldContain("{ 'paused' : 'true' }");
-        jsonTester.shouldNotContain("{ 'needsApproval' : 'true' }");
+        HashMap<String, Object> map = new HashMap(presenter.toJson());
+
+        assertThat(map.get("paused"), Is.<Object>is("true"));
+        assertThat(map, not(hasKey("needsApproval")));
     }
 
     @Test
     public void shouldShowFirstStageApproverNameInBuildCauseBy() throws Exception {
-        JsonMap jsonMap = presenter.toJson();
+        Map jsonMap = presenter.toJson();
         JsonValue jsonValue = JsonUtils.from(jsonMap);
         String revision = jsonValue.getString("groups", 0, "history", 0, "buildCauseBy");
         assertThat(revision, is("Triggered by " + GoConstants.DEFAULT_APPROVED_BY ));
@@ -162,7 +167,7 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainMaterialRevisions() throws Exception {
-        JsonMap jsonMap = presenter.toJson();
+        Map jsonMap = presenter.toJson();
         JsonValue jsonValue = JsonUtils.from(jsonMap);
         JsonValue revision = jsonValue.getObject("groups", 0, "history", 0, "materialRevisions", 0);
         assertThat(revision.getString("revision"), is("svn.100"));
@@ -172,7 +177,7 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineCounterOrLabel() throws Exception {
-        JsonMap jsonMap = presenter.toJson();
+        Map jsonMap = presenter.toJson();
         JsonValue jsonValue = JsonUtils.from(jsonMap);
         JsonValue pipeline = jsonValue.getObject("groups", 0, "history", 0);
         assertThat(pipeline.getString("counterOrLabel"), is("1"));

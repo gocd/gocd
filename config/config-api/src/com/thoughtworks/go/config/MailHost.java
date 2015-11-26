@@ -1,31 +1,36 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
 import javax.annotation.PostConstruct;
 
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.util.json.JsonMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 @ConfigTag("mailhost")
@@ -131,10 +136,10 @@ public class MailHost implements Validatable, PasswordEncrypter {
         return format("MailHost[%s, %s, %s, %s, %s, %s, %s]", hostName, port, username, password, encryptedPassword, tls, getFrom(), getAdminMail());
     }
 
-    public JsonMap json() {
-        JsonMap model = new JsonMap();
+    public Map json() {
+        Map<String, Object> model = new LinkedHashMap<>();
         model.put("hostName", defaultString(hostName));
-        model.put("port", port == 0 ? "" : String.valueOf(port));
+        model.put("port", port == 0 ? "" : valueOf(port));
         model.put("username", defaultString(username));
         model.put("password", defaultString(getPassword()));
         model.put("tls", tls == null ? "false" : tls.toString());

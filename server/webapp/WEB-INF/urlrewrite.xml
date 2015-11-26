@@ -217,12 +217,6 @@
     </rule>
 
     <rule>
-        <name>RESTful force - schedule pipeline or rerun its first stage</name>
-        <from>^/run/([^/]+)$</from>
-        <to type="forward">/admin/force?pipelineName=$1</to>
-    </rule>
-
-    <rule>
         <name>RESTful Artifacts - List All builds artifacts</name>
         <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.(json|html))?(\?.*)?$</from>
         <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>

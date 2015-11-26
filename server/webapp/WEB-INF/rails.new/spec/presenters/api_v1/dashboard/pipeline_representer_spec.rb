@@ -24,13 +24,14 @@ describe ApiV1::Dashboard::PipelineRepresenter do
     presenter   = ApiV1::Dashboard::PipelineRepresenter.new(pipeline)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_links(:self, :doc, :settings_path, :trigger, :trigger_with_options, :unpause)
+    expect(actual_json).to have_links(:self, :doc, :settings_path, :trigger, :trigger_with_options, :unpause, :pause)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/pipelines/pipeline_name/history')
     expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/current/#pipelines')
     expect(actual_json).to have_link(:settings_path).with_url('http://test.host/admin/pipelines/pipeline_name/general')
     expect(actual_json).to have_link(:trigger).with_url('http://test.host/api/pipelines/pipeline_name/schedule')
-    expect(actual_json).to have_link(:trigger_with_options).with_url('http://test.host/api/pipelines/pipeline_name/pause')
+    expect(actual_json).to have_link(:trigger_with_options).with_url('http://test.host/api/pipelines/pipeline_name/schedule')
     expect(actual_json).to have_link(:unpause).with_url('http://test.host/api/pipelines/pipeline_name/unpause')
+    expect(actual_json).to have_link(:pause).with_url('http://test.host/api/pipelines/pipeline_name/pause')
     actual_json.delete(:_links)
     actual_json.delete(:_embedded).should == {:instances => [expected_embedded_pipeline(presenter.instances.first)]}
     expect(actual_json).to eq(pipelines_hash)
@@ -44,10 +45,14 @@ describe ApiV1::Dashboard::PipelineRepresenter do
 
   def pipelines_hash
     {
-      name:         'pipeline_name',
-      locked:       false,
-      paused_by:    nil,
-      pause_reason: nil,
+      name:       'pipeline_name',
+      locked:     false,
+      pause_info: {
+        paused:    false,
+        paused_by:    nil,
+        pause_reason: nil
+      }
+
     }
   end
 

@@ -83,23 +83,14 @@ public class AuthorizationInterceptorTest {
     }
 
     @Test
-    public void shouldCheckOperatePermissionOnFirstStageForForcePipelineRequest() throws Exception {
-        request.setParameter("pipelineName", "cruise");
-        request.setRequestURI("/admin/force");
-        request.setMethod("post");
-        assumeUserHasOperatePermissionForFirstStage();
-        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-    }
-
-    @Test
     public void shouldCheckOperatePermissionForPutRequest() throws Exception {
         request.setParameter("pipelineName", "cruise");
         request.setMethod("put");
         assumeUserHasOperatePermissionForPipeline();
         assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
     }
-    
-    @Test 
+
+    @Test
     public void shouldNotCheckOperatePermissionForEditingConfigurationRequest() throws Exception {
         request.setParameter("pipelineName", "cruise");
         request.setRequestURI("/admin/restful/configuration");

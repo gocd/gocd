@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.controller;
 
@@ -21,15 +21,12 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.util.ErrorHandler;
-import com.thoughtworks.go.util.json.Json;
-import com.thoughtworks.go.util.json.JsonHelper;
-import com.thoughtworks.go.util.json.JsonList;
-import com.thoughtworks.go.util.json.JsonMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +38,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
+import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 
 /*
  * Handles requests for Build Details: See urlrewrite.xml.
@@ -139,7 +136,7 @@ public class JobController {
                                       @RequestParam(value = "stageName")String stageName,
                                       @RequestParam(value = "jobId")long jobId,
                                       HttpServletResponse response) {
-        Json json;
+        Object json;
         try {
             JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
             JobInstance mostRecentJobInstance = jobDetailService.findMostRecentBuild(requestedInstance.getIdentifier());
@@ -155,17 +152,17 @@ public class JobController {
         return jsonFound(json).respond(response);
     }
 
-    private JsonMap errorJsonMap(Exception e) {
-        JsonMap jsonMap = new JsonMap();
-        JsonHelper.addDeveloperErrorMessage(jsonMap, e);
+    private Map errorJsonMap(Exception e) {
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
+        addDeveloperErrorMessage(jsonMap, e);
         return jsonMap;
     }
 
-    private JsonList createBuildInfo(JobStatusJsonPresentationModel presenter) {
+    private List createBuildInfo(JobStatusJsonPresentationModel presenter) {
         // TODO: Hucking Fack alert. We shouldn't need "building_info"
-        JsonMap info = new JsonMap();
+        Map<String, Object> info = new LinkedHashMap<>();
         info.put("building_info", presenter.toJsonHash());
-        JsonList jsonList = new JsonList();
+        List jsonList = new ArrayList();
         jsonList.add(info);
         return jsonList;
     }

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.dependency;
 
@@ -23,13 +23,12 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.util.json.JsonMap;
-import com.thoughtworks.go.util.json.JsonString;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision.create;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.core.Is.is;
@@ -52,13 +51,13 @@ public class DependencyMaterialTest {
 
     @Test
     public void shouldReturnJson() {
-        JsonMap json = new JsonMap();
-        dependencyMaterial.toJson(json, DependencyMaterialRevision.create("pipeline", 10, "1.0.123", "stage", 1));
+        Map<String, String> json = new LinkedHashMap<>();
+        dependencyMaterial.toJson(json, create("pipeline", 10, "1.0.123", "stage", 1));
 
-        assertThat(json.getJsonString("location"), is(new JsonString("pipeline/stage")));
-        assertThat(json.getJsonString("scmType"), is(new JsonString("Dependency")));
-        assertThat(json.getJsonString("folder"), is(new JsonString("")));
-        assertThat(json.getJsonString("action"), is(new JsonString("Completed")));
+        assertThat(json.get("location"), is("pipeline/stage"));
+        assertThat(json.get("scmType"), is("Dependency"));
+        assertThat(json.get("folder"), is(""));
+        assertThat(json.get("action"), is("Completed"));
     }
 
     @Test
@@ -153,7 +152,7 @@ public class DependencyMaterialTest {
     @Test
     public void shouldUseACombinationOfPipelineAndStageNameAsURI() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
-        assertThat(material.getUriForDisplay(), is("pipeline-foo / stage-bar")); 
+        assertThat(material.getUriForDisplay(), is("pipeline-foo / stage-bar"));
     }
 
     @Test

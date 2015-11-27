@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation.models;
 
@@ -23,11 +23,12 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.util.JsonTester;
 import com.thoughtworks.go.util.JsonUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -43,7 +44,7 @@ public class JobStatusJsonPresentationModelTest {
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
                 agents.getAgentByUuid(instance.getAgentUuid()));
-        JsonMap json = presenter.toJsonHash();
+        Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
                 "{ 'name' : 'test',"
@@ -58,7 +59,7 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = JobInstanceMother.completed("test", JobResult.Passed);
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
-        JsonMap json = presenter.toJsonHash();
+        Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
                 "{ 'name' : 'test',"
@@ -72,7 +73,7 @@ public class JobStatusJsonPresentationModelTest {
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null,
                 new DurationBean(instance.getId(), 10L));
-        JsonMap json = presenter.toJsonHash();
+        Map json = presenter.toJsonHash();
 
         new JsonTester(json).shouldContain(
                 "{ 'name' : 'test',"
@@ -129,7 +130,7 @@ public class JobStatusJsonPresentationModelTest {
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
-        JsonMap json = presenter.toJsonHash();
+        Map json = presenter.toJsonHash();
 
         assertThat(JsonUtils.from(json).getString("buildLocator"), is("cruise-%25/1/dev-%25/1/job-%25"));
     }
@@ -139,7 +140,7 @@ public class JobStatusJsonPresentationModelTest {
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, null);
-        JsonMap json = presenter.toJsonHash();
+        Map json = presenter.toJsonHash();
 
         assertThat(JsonUtils.from(json).getString("buildLocatorForDisplay"), is("cruise-%/label-1/dev-%/1/job-%"));
     }

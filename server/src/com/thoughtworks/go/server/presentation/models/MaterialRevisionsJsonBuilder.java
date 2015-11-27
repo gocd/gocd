@@ -1,22 +1,21 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.domain.CommentRenderer;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.ModificationVisitorAdapter;
@@ -24,16 +23,22 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.json.JsonList;
-import com.thoughtworks.go.util.json.JsonMap;
-import com.thoughtworks.go.util.DateUtils;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.thoughtworks.go.config.materials.PackageMaterial.TYPE;
+import static com.thoughtworks.go.util.DateUtils.formatISO8601;
+import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
-    private JsonList materials = new JsonList();
-    private JsonMap materialJson;
-    private JsonList modificationsJson;
-    private JsonList modifiedFilesJson;
+    private List materials = new ArrayList();
+    private Map<String, Object> materialJson;
+    private List modificationsJson;
+    private List modifiedFilesJson;
     private boolean includeModifiedFiles = true;
     private final CommentRenderer commentRenderer;
     private MaterialRevision revision;
@@ -44,14 +49,14 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
 
     public void visit(MaterialRevision revision) {
         this.revision = revision;
-        modificationsJson = new JsonList();
+        modificationsJson = new ArrayList();
 
-        materialJson = new JsonMap();
+        materialJson = new LinkedHashMap();
         materialJson.put("revision", revision.getRevision().getRevision());
         materialJson.put("revision_href", revision.getRevision().getRevisionUrl());
         materialJson.put("user", revision.buildCausedBy());
-        materialJson.put("date", DateUtils.formatISO8601(revision.getDateOfLatestModification()));
-        materialJson.put("changed", String.valueOf(revision.isChanged()));
+        materialJson.put("date", formatISO8601(revision.getDateOfLatestModification()));
+        materialJson.put("changed", valueOf(revision.isChanged()));
         materialJson.put("modifications", modificationsJson);
 
         materials.add(materialJson);
@@ -62,14 +67,14 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
     }
 
     public void visit(Modification modification) {
-        modifiedFilesJson = new JsonList();
+        modifiedFilesJson = new ArrayList();
 
-        JsonMap jsonMap = new JsonMap();
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("user", escapeHtml(modification.getUserDisplayName()));
         jsonMap.put("revision", modification.getRevision());
-        jsonMap.put("date", DateUtils.formatISO8601(modification.getModifiedTime()));
+        jsonMap.put("date", formatISO8601(modification.getModifiedTime()));
         String comment = modification.getComment();
-        if (!revision.getMaterial().getType().equals(PackageMaterial.TYPE)) {
+        if (!revision.getMaterial().getType().equals(TYPE)) {
             comment = commentRenderer.render(comment);
         }
         jsonMap.put("comment", comment);
@@ -83,14 +88,14 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
             return;
         }
 
-        JsonMap jsonMap = new JsonMap();
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("action", file.getAction().toString());
         jsonMap.put("fileName", file.getFileName());
 
         modifiedFilesJson.add(jsonMap);
     }
 
-    public JsonList json() {
+    public List json() {
         return materials;
     }
 

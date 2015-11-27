@@ -202,9 +202,9 @@
         </dependency>
 
         <dependency>
-            <groupId>rhino</groupId>
-            <artifactId>js</artifactId>
-            <version>1.6R5</version>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>1.7.7</version>
         </dependency>
 
         <dependency>
@@ -227,6 +227,10 @@
                 <exclusion>
                     <groupId>xom</groupId>
                     <artifactId>xom</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>rhino</groupId>
+                    <artifactId>js</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>xerces</groupId>

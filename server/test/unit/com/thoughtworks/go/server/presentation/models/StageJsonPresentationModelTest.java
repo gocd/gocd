@@ -1,56 +1,46 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation.models;
 
-import java.util.Date;
-
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.dto.DurationBeans;
-import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
-import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.json.JsonMap;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
 
 public class StageJsonPresentationModelTest {
     private Pipeline pipeline;
@@ -76,14 +66,15 @@ public class StageJsonPresentationModelTest {
     @Test
     public void shouldGetAPresenterWithLabelAndRelevantBuildPlansAndPipelineNameAndId() throws Exception {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain(
                 "{ 'pipelineName' : 'pipeline',"
                         + "  'stageName' : 'stage',"
                         + "  'builds' : ["
                         + "    { 'name' : 'job-that-will-fail' },"
-                        + "    { 'name' : 'job-that-will-pass' }"
+                        + "    { 'name' : 'job-that-will-pass' },"
+                        + "    { 'name' : 'scheduledBuild' }"
                         + "  ],"
                         + " 'current_label' : '" + pipeline.getLabel() + "', "
                         + " 'pipelineCounter' : '" + pipeline.getCounter() + "', "
@@ -101,14 +92,14 @@ public class StageJsonPresentationModelTest {
 
         StageJsonPresentationModel presenter =
                 new StageJsonPresentationModel(pipeline, stage, null, new Agents(), durations, new TrackingTool());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain(
                 "{ 'stageName' : 'stage',"
                         + "  'builds' : ["
-                        + "    { 'name' : 'job-that-will-fail',"
-                        + "    'last_build_duration' : '12' },"
-                        + "    { 'name' : 'job-that-will-pass' }"
+                        + "    { 'name' : 'job-that-will-fail', 'last_build_duration' : '12' },"
+                        + "    { 'name' : 'job-that-will-pass' }, "
+                        + "    { 'name' : 'scheduledBuild' }"
                         + "  ],"
                         + " 'current_label' : '" + pipeline.getLabel() + "',"
                         + " 'id' : '1' "
@@ -120,7 +111,7 @@ public class StageJsonPresentationModelTest {
 
     @Test public void shouldReturnBuildingStatusIfAnyBuildsAreScheduled() throws Exception {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
 
         new JsonTester(json).shouldContain(
@@ -130,7 +121,7 @@ public class StageJsonPresentationModelTest {
 
     @Test public void shouldReturnJsonWithModifications() throws Exception {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
         JsonValue jsonValue = JsonUtils.from(json);
         JsonValue revision = jsonValue.getObject("materialRevisions", 0);
@@ -148,9 +139,9 @@ public class StageJsonPresentationModelTest {
         final StageConfig config = StageConfigMother.oneBuildPlanWithResourcesAndMaterials("newStage");
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(
                 pipeline, NullStage.createNullStage(config), null, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
-        new JsonTester(json.getJsonList("builds")).shouldContain(
+        new JsonTester((List)json.get("builds")).shouldContain(
                 "[{ 'current_status' : 'unknown' }]"
         );
     }
@@ -159,7 +150,7 @@ public class StageJsonPresentationModelTest {
         StageIdentifier successfulStage = new StageIdentifier(pipeline.getName(), 1, "LABEL:1", stage.getName(), "1");
         StageJsonPresentationModel presenter =
                 new StageJsonPresentationModel(pipeline, stage, successfulStage, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain(
                 "{ 'last_successful_label' : 'LABEL:1', 'last_successful_stage_locator' : '" +
@@ -172,7 +163,7 @@ public class StageJsonPresentationModelTest {
     public void shouldGetAPresenterWithCanRunStatus() throws Exception {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
         presenter.setCanRun(true);
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain("{ 'getCanRun' : 'true' }");
     }
@@ -181,7 +172,7 @@ public class StageJsonPresentationModelTest {
     public void shouldGetAPresenterWithCanCancelStatus() throws Exception {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, new Agents());
         presenter.setCanCancel(true);
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
 
         new JsonTester(json).shouldContain("{ 'getCanCancel' : 'true' }");
     }
@@ -191,7 +182,7 @@ public class StageJsonPresentationModelTest {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, unscheduled, null,
                 new Agents());
 
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
         new JsonTester(json).shouldContain("{ 'getCanRun' : 'false' }");
     }
 
@@ -211,7 +202,7 @@ public class StageJsonPresentationModelTest {
         Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
         assertThat(JsonUtils.from(json).getString("stageLocator"), is("pipeline-a%25b/1/stage-c%25d/1"));
     }
 
@@ -220,7 +211,7 @@ public class StageJsonPresentationModelTest {
         Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
         assertThat(JsonUtils.from(json).getString("stageLocatorForDisplay"), is("pipeline-a%b/label-1/stage-c%d/1"));
     }
 
@@ -231,7 +222,7 @@ public class StageJsonPresentationModelTest {
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
         job.setIdentifier(new JobIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1", "job-%", 0L));
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, new Agents());
-        JsonMap json = presenter.toJson();
+        Map json = presenter.toJson();
         assertThat(JsonUtils.from(json).getString("builds", 0, "buildLocator"),
                 is("pipeline-a%25b/1/stage-c%25d/1/job-%25"));
     }

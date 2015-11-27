@@ -16,13 +16,15 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.thoughtworks.go.server.web.JsonRenderer;
-import com.thoughtworks.go.util.json.Json;
-import com.thoughtworks.go.util.json.JsonMap;
+import com.thoughtworks.go.util.json.JsonAware;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
+import static java.lang.String.valueOf;
 
-public class ValidationBean implements Json {
+public class ValidationBean implements JsonAware {
     private final boolean isValid;
     private final String message;
 
@@ -50,9 +52,9 @@ public class ValidationBean implements Json {
     /**
      * @deprecated This method is obsolete
      */
-    public Json toJson() {
-        JsonMap jsonMap = new JsonMap();
-        jsonMap.put("isValid", String.valueOf(isValid));
+    public Map<String, Object> toJson() {
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
+        jsonMap.put("isValid", valueOf(isValid));
         jsonMap.put(ERROR_FOR_JSON, getError());
         return jsonMap;
     }
@@ -92,17 +94,6 @@ public class ValidationBean implements Json {
         result = (isValid ? 1 : 0);
         result = 31 * result + (message != null ? message.hashCode() : 0);
         return result;
-    }
-
-    public boolean contains(Json json) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public void renderTo(JsonRenderer renderer) {
-        JsonMap jsonMap = new JsonMap();
-        jsonMap.put("isValid", String.valueOf(isValid));
-        jsonMap.put(ERROR_FOR_JSON, getError());
-        jsonMap.renderTo(renderer);
     }
 
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "pipeline_configs/models/stages", "string-plus"], function (_, Stages, s) {
+define(['lodash', "pipeline_configs/models/stages", 'pipeline_configs/models/approval', "string-plus"], function (_, Stages, Approval, s) {
   describe("Stages Model", function () {
     var stages, stage;
     beforeEach(function () {
@@ -23,8 +23,9 @@ define(['lodash', "pipeline_configs/models/stages", "string-plus"], function (_,
         name:                  "UnitTest",
         fetchMaterials:        true,
         cleanWorkingDirectory: true,
-        neverCleanArtifacts:   true,
-        environmentVariables:  ["foo=bar", "boo=baz"]
+        neverCleanupArtifacts: true,
+        environmentVariables:  ["foo=bar", "boo=baz"],
+        approval:              new Approval({type: 'manual'})
       });
     });
 
@@ -40,17 +41,21 @@ define(['lodash', "pipeline_configs/models/stages", "string-plus"], function (_,
       expect(stage.cleanWorkingDirectory()).toBe(true);
     });
 
-    it("should initialize stage model with neverCleanArtifacts", function () {
-      expect(stage.neverCleanArtifacts()).toBe(true);
+    it("should initialize stage model with neverCleanupArtifacts", function () {
+      expect(stage.neverCleanupArtifacts()).toBe(true);
     });
 
     it("should initialize stage model with environmentVariables", function () {
       expect(stage.environmentVariables()).toEqual(['foo=bar', 'boo=baz']);
     });
 
+    it("should initialize stage model with approval", function () {
+      expect(stage.approval().type()).toEqual('manual');
+    });
+
     describe("validations", function () {
       it("should not allow blank stage names", function () {
-        var errors         = stage.validate();
+        var errors = stage.validate();
         expect(errors._isEmpty()).toBe(true);
 
         stage.name("");
@@ -88,7 +93,7 @@ define(['lodash', "pipeline_configs/models/stages", "string-plus"], function (_,
         expect(stage.name()).toBe("UnitTest");
         expect(stage.fetchMaterials()).toBe(true);
         expect(stage.cleanWorkingDirectory()).toBe(false);
-        expect(stage.neverCleanArtifacts()).toBe(true);
+        expect(stage.neverCleanupArtifacts()).toBe(true);
 
         var expectedEnvironmentVarNames = stage.environmentVariables().mapVariables(function (variable) {
           return variable.name();
@@ -107,7 +112,7 @@ define(['lodash', "pipeline_configs/models/stages", "string-plus"], function (_,
           name:                    "UnitTest",
           fetch_materials:         true,
           clean_working_directory: false,
-          never_clean_artifacts:   true,
+          never_cleanup_artifacts: true,
           environment_variables:   [
             {
               name:   "MULTIPLE_LINES",
@@ -120,7 +125,14 @@ define(['lodash', "pipeline_configs/models/stages", "string-plus"], function (_,
               secure: false
             }
           ],
-          jobs:                    []
+          jobs:                    [],
+          approval:                {
+            type:          'manual',
+            authorization: {
+              users: [],
+              roles: []
+            }
+          }
         };
       }
     });

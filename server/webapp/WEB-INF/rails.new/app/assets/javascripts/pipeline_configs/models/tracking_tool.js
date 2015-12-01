@@ -15,6 +15,7 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+  var URL_REGEX = /^http(s)?:\/\/.+/;
 
   var TrackingTool = function (type) {
     this.constructor.modelType = 'trackingTool';
@@ -47,7 +48,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
       if (s.isBlank(this.urlPattern())) {
         errors.add('urlPattern', Mixins.ErrorMessages.mustBePresent('URL pattern'));
       } else {
-        if (!this.urlPattern().match(/http(s)?:\/\/.+/)) {
+        if (!this.urlPattern().match(URL_REGEX)) {
           errors.add("urlPattern", Mixins.ErrorMessages.mustBeAUrl("urlPattern"));
         }
 
@@ -81,16 +82,16 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
   TrackingTool.Mingle = function (data) {
     TrackingTool.call(this, "mingle");
-    this.baseUrl            = m.prop(s.defaultToIfBlank(data.baseUrl, ''));
-    this.projectIdentifier  = m.prop(s.defaultToIfBlank(data.projectIdentifier, ''));
-    this.groupingConditions = m.prop(s.defaultToIfBlank(data.groupingConditions, ''));
+    this.baseUrl               = m.prop(s.defaultToIfBlank(data.baseUrl, ''));
+    this.projectIdentifier     = m.prop(s.defaultToIfBlank(data.projectIdentifier, ''));
+    this.mqlGroupingConditions = m.prop(s.defaultToIfBlank(data.mqlGroupingConditions, ''));
 
     this.validate = function () {
       var errors = new Mixins.Errors();
 
       if (s.isBlank(this.baseUrl())) {
         errors.add('baseUrl', Mixins.ErrorMessages.mustBePresent('Base URL'));
-      } else if (!this.baseUrl().match(/http(s)?:\/\/.+/)) {
+      } else if (!this.baseUrl().match(URL_REGEX)) {
         errors.add("baseUrl", Mixins.ErrorMessages.mustBeAUrl("baseUrl"));
       }
 
@@ -98,8 +99,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
         errors.add('projectIdentifier', Mixins.ErrorMessages.mustBePresent('projectIdentifier'));
       }
 
-      if (s.isBlank(this.groupingConditions())) {
-        errors.add('groupingConditions', Mixins.ErrorMessages.mustBePresent('groupingConditions'));
+      if (s.isBlank(this.mqlGroupingConditions())) {
+        errors.add('mqlGroupingConditions', Mixins.ErrorMessages.mustBePresent('mqlGroupingConditions'));
       }
 
       return errors;
@@ -107,9 +108,9 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
     this._attributesToJSON = function () {
       return {
-        baseUrl:            this.baseUrl(),
-        projectIdentifier:  this.projectIdentifier(),
-        groupingConditions: this.groupingConditions()
+        baseUrl:               this.baseUrl(),
+        projectIdentifier:     this.projectIdentifier(),
+        mqlGroupingConditions: this.mqlGroupingConditions()
       };
     };
 
@@ -117,9 +118,9 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
   TrackingTool.Mingle.fromJSON = function (data) {
     return new TrackingTool.Mingle({
-      baseUrl:            data.base_url,
-      projectIdentifier:  data.project_identifier,
-      groupingConditions: data.grouping_conditions
+      baseUrl:               data.base_url,
+      projectIdentifier:     data.project_identifier,
+      mqlGroupingConditions: data.mql_grouping_conditions
     });
   };
 

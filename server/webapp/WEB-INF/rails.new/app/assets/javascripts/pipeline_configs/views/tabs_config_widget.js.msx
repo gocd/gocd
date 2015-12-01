@@ -14,57 +14,33 @@
  * limitations under the License.
  */
 
-define(['mithril', '../helpers/form_helper'], function (m, f) {
+define([
+  'mithril', '../helpers/form_helper', '../helpers/mithril_component_mixins'
+], function (m, f, ComponentMixins) {
   var TabsConfigWidget = {
     controller: function (args) {
-      this.tabs = args.tabs;
-
-      this.add = function () {
-        this.tabs.createTab();
-      };
-
-      this.remove = function (tab) {
-        this.tabs.removeTab(tab);
-        this.tabChanged();
-      };
-
-      this.lastTab = function () {
-        return this.tabs.lastTab();
-      };
-
-      this.tabChanged = function () {
-        if (!this.lastTab() || !this.lastTab().isBlank()) {
-          this.add();
-        }
-      };
-
-      this.tabChanged();
+      this.args = args;
+      ComponentMixins.ManagesCollection.call(this, {as: 'Tab'});
     },
 
     view: function (ctrl) {
-      var removeLink = function (tab) {
-        if (tab !== ctrl.lastTab()) {
-          return (
-            <f.removeButton onclick={ctrl.remove.bind(ctrl, tab)}/>
-          );
-        }
-      };
-
       return (
         <div class='job-tabs'>
-          {ctrl.tabs.mapTabs(function (tab) {
+          {ctrl.map(function (tab) {
             return (
               <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
                 <f.input model={tab}
                          attrName='name'
-                         onchange={ctrl.tabChanged.bind(ctrl)}
+                         placeHolder='Tab name'
+                         onchange={ctrl.changed.bind(ctrl)}
                          size={4}/>
                 <f.input model={tab}
                          attrName='path'
-                         onchange={ctrl.tabChanged.bind(ctrl)}
+                         placeHolder='Path of artifact'
+                         onchange={ctrl.changed.bind(ctrl)}
                          size={4}/>
                 <f.column size={3} end={true}>
-                  {removeLink(tab)}
+                  {ctrl.removeLink.call(ctrl, tab)}
                 </f.column>
               </f.row>
             );

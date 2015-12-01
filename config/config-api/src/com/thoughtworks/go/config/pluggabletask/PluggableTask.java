@@ -42,6 +42,7 @@ import java.util.Map;
  */
 @ConfigTag("task")
 public class PluggableTask extends AbstractTask {
+    public static final String TYPE = "pluggable_task";
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
 

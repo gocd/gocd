@@ -17,54 +17,53 @@
 require 'spec_helper'
 
 describe ApiV1::Config::TrackingTool::TrackingToolRepresenter do
-  describe :external_tool do
-    it 'renders external tracking tool with hal representation' do
-
-      external_tracking_tool= TrackingTool.new("link", "regex")
-      presenter             = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(external_tracking_tool)
+  describe :generic_tool do
+    it 'renders generic tracking tool with hal representation' do
+      generic_tracking_tool = TrackingTool.new('link', 'regex')
+      presenter             = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(generic_tracking_tool)
       actual_json           = presenter.to_hash(url_builder: UrlBuilder.new)
-      expect(actual_json).to eq(external_tracking_tool_hash)
+      expect(actual_json).to eq(generic_tracking_tool_hash)
     end
 
-    it "should deserialize" do
+    it 'should deserialize' do
       presenter           = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(TrackingTool.new)
-      deserialized_object = presenter.from_hash(external_tracking_tool_hash)
-      expected            = TrackingTool.new("link", "regex")
+      deserialized_object = presenter.from_hash(generic_tracking_tool_hash)
+      expected            = TrackingTool.new('link', 'regex')
       expect(deserialized_object).to eq(expected)
     end
 
-    it "should render validation errors" do
+    it 'should render validation errors' do
       tracking_tool= TrackingTool.new
       tracking_tool.validateTree(nil)
 
       presenter   = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(tracking_tool)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
-      expect(actual_json).to eq(external_tracking_tool_with_errors_hash)
+      expect(actual_json).to eq(generic_tracking_tool_with_errors_hash)
     end
 
-    def external_tracking_tool_hash
+    def generic_tracking_tool_hash
       {
-        type:       "external",
+        type:       'generic',
         attributes: {
-          link:  "link",
-          regex: "regex"
+          url_pattern: 'link',
+          regex:       'regex'
         }
       }
     end
 
-    def external_tracking_tool_with_errors_hash
+    def generic_tracking_tool_with_errors_hash
       {
-        type:       "external",
+        type:       'generic',
         attributes: {
-          link:  "",
-          regex: ""
+          url_pattern: '',
+          regex:       ''
         },
         errors:     {
           link:  [
-                   "Link should be populated",
+                   'Link should be populated',
                    "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."
                  ],
-          regex: ["Regex should be populated"]
+          regex: ['Regex should be populated']
         }
       }
     end
@@ -73,44 +72,44 @@ describe ApiV1::Config::TrackingTool::TrackingToolRepresenter do
   describe :mingle do
     it 'renders mingle tracking tool with hal representation' do
 
-      mingle_tracking_tool= MingleConfig.new("http://mingle.example.com", "my_project", "status > 'In Dev'")
+      mingle_tracking_tool= MingleConfig.new('http://mingle.example.com', 'my_project', "status > 'In Dev'")
       presenter           = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(mingle_tracking_tool)
       actual_json         = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(mingle_tracking_tool_hash)
     end
 
-    it "should deserialize" do
+    it 'should deserialize' do
       presenter           = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(MingleConfig.new)
       deserialized_object = presenter.from_hash(mingle_tracking_tool_hash)
-      expected            = MingleConfig.new("http://mingle.example.com", "my_project", "status > 'In Dev'")
+      expected            = MingleConfig.new('http://mingle.example.com', 'my_project', "status > 'In Dev'")
       expect(deserialized_object).to eq(expected)
     end
 
-    it "should render validation errors" do
-      mingle_tracking_tool= MingleConfig.new("http://mingle.example.com", "my_project", "status > 'In Dev'")
+    it 'should render validation errors' do
+      mingle_tracking_tool= MingleConfig.new('http://mingle.example.com', 'my_project', "status > 'In Dev'")
       mingle_tracking_tool.validateTree(nil)
       mingle_tracking_tool_with_errors_hash={
-        type:       "mingle",
+        type:       'mingle',
         attributes: {
-          base_url:                "http://mingle.example.com",
-          project_identifier:      "my_project",
+          base_url:                'http://mingle.example.com',
+          project_identifier:      'my_project',
           mql_grouping_conditions: "status > 'In Dev'"
         },
         errors:     {
-          base_url: ["Should be a URL starting with https://"]
+          base_url: ['Should be a URL starting with https://']
         }
       }
-      presenter   = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(mingle_tracking_tool)
-      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      presenter                            = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(mingle_tracking_tool)
+      actual_json                          = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(mingle_tracking_tool_with_errors_hash)
     end
 
     def mingle_tracking_tool_hash
       {
-        type:       "mingle",
+        type:       'mingle',
         attributes: {
-          base_url:                "http://mingle.example.com",
-          project_identifier:      "my_project",
+          base_url:                'http://mingle.example.com',
+          project_identifier:      'my_project',
           mql_grouping_conditions: "status > 'In Dev'"
         }
       }

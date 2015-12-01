@@ -33,11 +33,19 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
 
       return timer;
     };
-    this.environmentVariables  = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
-    this.parameters            = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.parameters, new Parameters())));
-    this.materials             = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.materials, new Materials())));
-    this.trackingTool          = s.overrideToJSON(m.prop(data.trackingTool));
-    this.stages                = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
+    this.environmentVariables  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
+    this.parameters            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.parameters, new Parameters())));
+    this.materials             = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.materials, new Materials())));
+    this.trackingTool          = m.prop(data.trackingTool);
+    this.trackingTool.toJSON   = function () {
+      var value = this();
+      if (value) {
+        return value.toJSON();
+      } else {
+        return null;
+      }
+    };
+    this.stages                = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
 
     this.validate = function () {
       var errors = new Mixins.Errors();

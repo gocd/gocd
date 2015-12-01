@@ -21,7 +21,7 @@ describe ApiV1::Config::JobRepresenter do
   describe :serialize do
     it 'should render job with hal representation' do
 
-      presenter = ApiV1::Config::JobRepresenter.new(com.thoughtworks.go.helper.JobConfigMother.jobConfig())
+      presenter   = ApiV1::Config::JobRepresenter.new(com.thoughtworks.go.helper.JobConfigMother.jobConfig())
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to eq(job_hash)
@@ -51,6 +51,33 @@ describe ApiV1::Config::JobRepresenter do
       presenter   = ApiV1::Config::JobRepresenter.new(job_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json[:run_instance_count]).to be(nil)
+    end
+
+    it 'should serialize timeout with value set to `10` to `10`' do
+      job_config = JobConfig.new
+      job_config.setTimeout('10')
+
+      presenter   = ApiV1::Config::JobRepresenter.new(job_config)
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json[:timeout]).to be(10)
+    end
+
+    it 'should serialize timeout with value `0` to `never`' do
+      job_config = JobConfig.new
+      job_config.setTimeout('0')
+
+      presenter   = ApiV1::Config::JobRepresenter.new(job_config)
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json[:timeout]).to eq('never')
+    end
+
+    it 'should serialize timeout with value `nil` to `default`' do
+      job_config = JobConfig.new
+      job_config.setTimeout(nil)
+
+      presenter   = ApiV1::Config::JobRepresenter.new(job_config)
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json[:timeout]).to eq(nil)
     end
 
     def job_hash
@@ -84,8 +111,8 @@ describe ApiV1::Config::JobRepresenter do
     it 'should convert basic hash to Job' do
       job_config = JobConfig.new
       ApiV1::Config::JobRepresenter.new(job_config).from_hash({
-                                                                name:               'some-job',
-                                                                timeout:            '100',
+                                                                name:    'some-job',
+                                                                timeout: '100',
                                                               })
       expect(job_config.name.to_s).to eq('some-job')
       expect(job_config.timeout).to eq('100')
@@ -115,6 +142,28 @@ describe ApiV1::Config::JobRepresenter do
       ApiV1::Config::JobRepresenter.new(job_config).from_hash(run_instance_count: 10)
       expect(job_config.run_on_all_agents).to eq(false)
       expect(job_config.run_instance_count).to eq('10')
+    end
+
+    it 'should convert attribute timeout with value `never` to Job with timeout `0`' do
+      job_config = JobConfig.new
+      ApiV1::Config::JobRepresenter.new(job_config).from_hash(timeout: 'never')
+      expect(job_config.timeout).to eq('0')
+    end
+
+    it 'should convert attribute timeout with value `nil` to Job with timeout `nil`' do
+      job_config = JobConfig.new
+      ApiV1::Config::JobRepresenter.new(job_config).from_hash(timeout: nil)
+      expect(job_config.timeout).to eq(nil)
+    end
+
+    it 'should convert attribute timeout with integer value `10` to Job with timeout `10`' do
+      job_config = JobConfig.new
+      ApiV1::Config::JobRepresenter.new(job_config).from_hash(timeout: '10')
+      expect(job_config.timeout).to eq('10')
+
+      job_config = JobConfig.new
+      ApiV1::Config::JobRepresenter.new(job_config).from_hash(timeout: 10)
+      expect(job_config.timeout).to eq('10')
     end
 
     it 'should convert basic hash with environment variable to Job' do
@@ -222,7 +271,7 @@ describe ApiV1::Config::JobRepresenter do
     {
       name:                  nil,
       run_instance_count:    nil,
-      timeout:               0,
+      timeout:               nil,
       environment_variables: [],
       resources:             [],
       tasks:                 [

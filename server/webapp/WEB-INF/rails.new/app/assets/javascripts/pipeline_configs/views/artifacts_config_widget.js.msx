@@ -14,54 +14,28 @@
  * limitations under the License.
  */
 
-define(['mithril', '../helpers/form_helper'], function (m, f) {
+define(['mithril', '../helpers/form_helper', '../helpers/mithril_component_mixins'], function (m, f, ComponentMixins) {
   var ArtifactsConfigWidget = {
     controller: function (args) {
-      this.artifacts = args.artifacts;
-
-      this.add = function () {
-        this.artifacts.createArtifact();
-      };
-
-      this.remove = function (artifact) {
-        this.artifacts.removeArtifact(artifact);
-        this.artifactChanged();
-      };
-
-      this.lastArtifact = function () {
-        return this.artifacts.lastArtifact();
-      };
-
-      this.artifactChanged = function () {
-        if (!this.lastArtifact() || !this.lastArtifact().isBlank()) {
-          this.add();
-        }
-      };
-
-      this.artifactChanged();
+      this.args = args;
+      ComponentMixins.ManagesCollection.call(this, {as: 'Artifact'});
     },
 
     view: function (ctrl) {
-      var removeLink = function (artifact) {
-        if (artifact !== ctrl.lastArtifact()) {
-          return (
-            <f.removeButton onclick={ctrl.remove.bind(ctrl, artifact)}/>
-          );
-        }
-      };
-
       return (
         <div class='job-artifacts'>
-          {ctrl.artifacts.mapArtifacts(function (artifact) {
+          {ctrl.map(function (artifact) {
             return (
               <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
                 <f.input model={artifact}
                          attrName='source'
-                         onchange={ctrl.artifactChanged.bind(ctrl)}
+                         placeHolder='Source'
+                         onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.input model={artifact}
                          attrName='destination'
-                         onchange={ctrl.artifactChanged.bind(ctrl)}
+                         placeHolder='Destination'
+                         onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.select value={artifact.type}
                           class='inline'
@@ -71,7 +45,7 @@ define(['mithril', '../helpers/form_helper'], function (m, f) {
                           }}
                           size={2}/>
                 <f.column size={1} end={true}>
-                  {removeLink(artifact)}
+                  {ctrl.removeLink.call(ctrl, artifact)}
                 </f.column>
               </f.row>
             );

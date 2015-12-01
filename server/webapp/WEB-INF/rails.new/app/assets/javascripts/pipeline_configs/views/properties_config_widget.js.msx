@@ -14,61 +14,38 @@
  * limitations under the License.
  */
 
-define(['mithril', '../helpers/form_helper'], function (m, f) {
+define([
+  'mithril', '../helpers/form_helper', '../helpers/mithril_component_mixins'
+], function (m, f, ComponentMixins) {
   var PropertiesConfigWidget = {
     controller: function (args) {
-      this.properties = args.properties;
-
-      this.add = function () {
-        this.properties.createProperty();
-      };
-
-      this.remove = function (property) {
-        this.properties.removeProperty(property);
-        this.propertyChanged();
-      };
-
-      this.lastProperty = function () {
-        return this.properties.lastProperty();
-      };
-
-      this.propertyChanged = function () {
-        if (!this.lastProperty() || !this.lastProperty().isBlank()) {
-          this.add();
-        }
-      };
-
-      this.propertyChanged();
+      this.args = args;
+      ComponentMixins.ManagesCollection.call(this, {as: 'Property', plural: 'Properties'});
     },
 
     view: function (ctrl) {
-      var removeLink = function (property) {
-        if (property !== ctrl.lastProperty()) {
-          return (
-            <f.removeButton onclick={ctrl.remove.bind(ctrl, property)}/>
-          );
-        }
-      };
-
       return (
         <div class='job-properties'>
-          {ctrl.properties.mapProperties(function (property) {
+          {ctrl.map(function (property) {
             return (
               <f.row class='property' data-property-source={property.source()} key={property.uuid()}>
                 <f.input model={property}
                          attrName='name'
-                         onchange={ctrl.propertyChanged.bind(ctrl)}
+                         placeHolder='Property Name'
+                         onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.input model={property}
                          attrName='source'
-                         onchange={ctrl.propertyChanged.bind(ctrl)}
+                         placeHolder='The XML file source'
+                         onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.input model={property}
                          attrName='xpath'
-                         onchange={ctrl.propertyChanged.bind(ctrl)}
+                         placeHolder='XPath'
+                         onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.column size={1} end={true}>
-                  {removeLink(property)}
+                  {ctrl.removeLink.call(ctrl, property)}
                 </f.column>
               </f.row>
             );

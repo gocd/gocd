@@ -15,12 +15,14 @@
  */
 
 define(['string', 'lodash'], function (s, _) {
+  var POSITIVE_INTEGER = /^\d+$/;
+
   var mixins = {
     defaultToIfBlank: function (value, defaultValue) {
       return s.isBlank(value) ? defaultValue : value;
     },
 
-    overrideToJSON: function (prop) {
+    collectionToJSON: function (prop) {
       if (prop && prop() && prop().toJSON) {
         prop.toJSON = prop().toJSON;
       }
@@ -41,13 +43,18 @@ define(['string', 'lodash'], function (s, _) {
       } else if (s.isBlank(string)) {
         return [];
       } else {
-        return _.map(string.split(','), _.trim);
+        return _.chain(string.split(',')).map(_.trim).filter(function (thing) {
+          return !s.isBlank(thing);
+        }).value();
       }
     },
 
-    toIntegerOrNull: function (str) {
-      var num = s.toNumber(str);
-      return Number.isNaN(num) ? null : num;
+    undefinedOrNull: function (value) {
+      return _.isUndefined(value) || _.isNull(value);
+    },
+
+    isPositiveInteger: function (value) {
+      return POSITIVE_INTEGER.test(String(value).trim())
     },
 
     snakeCaser: function (key, value) {

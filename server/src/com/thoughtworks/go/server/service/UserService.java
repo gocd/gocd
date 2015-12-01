@@ -203,6 +203,10 @@ public class UserService {
         return roles;
     }
 
+    public Collection<String> allRoleNames() {
+        return allRoleNames(goConfigService.cruiseConfig());
+    }
+
     public Collection<Role> allRoles(CruiseConfig cruiseConfig) {
         return cruiseConfig.server().security().getRoles();
     }

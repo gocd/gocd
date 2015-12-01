@@ -28,12 +28,12 @@ module ApiV1
         }
 
         TASK_TYPE_TO_TASK_CLASS_MAP = {
-          ExecTask::TYPE   => ExecTask,
-          AntTask::TYPE    => AntTask,
-          NantTask::TYPE   => NantTask,
-          RakeTask::TYPE   => RakeTask,
-          FetchTask::TYPE  => FetchTask,
-          "pluggable_task" => PluggableTask,
+          ExecTask::TYPE      => ExecTask,
+          AntTask::TYPE       => AntTask,
+          NantTask::TYPE      => NantTask,
+          RakeTask::TYPE      => RakeTask,
+          FetchTask::TYPE     => FetchTask,
+          PluggableTask::TYPE => PluggableTask,
         }
 
         alias_method :task, :represented

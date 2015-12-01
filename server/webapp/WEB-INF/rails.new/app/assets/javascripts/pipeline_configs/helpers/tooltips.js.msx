@@ -390,12 +390,24 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
     </div>
   );
 
-  var stageFetchMaterials        = (
+  var stageFetchMaterials = (
     <div>
       <p>Perform material updates or checkouts.</p>
     </div>
   );
-  var stageNeverCleanArtifacts   = (
+
+  var stageType = (
+    <div>
+      <p>
+        'On Success' option will automatically schedule the stage after the preceding stage completes successfully.
+      </p>
+      <p>
+        The 'Manual' option will require a user to manually trigger the stage.
+      </p>
+    </div>
+  );
+
+  var stageNeverCleanupArtifacts = (
     <div>
       <p>Never cleanup artifacts for this stage, if purging artifacts is configured at the
         Server Level.</p>
@@ -480,14 +492,16 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
       }
     },
 
-    environmentVariables: environmentVariables,
+    environmentVariables: {
+      main: environmentVariables
+    },
 
     trackingTool: {
       main:   trackingToolMain,
       mingle: {
-        baseUrl:            trackingToolMingleBaseUrl,
-        projectIdentifier:  trackingToolMingleProjectIdentifier,
-        groupingConditions: trackingToolMingleGroupingConditions
+        baseUrl:               trackingToolMingleBaseUrl,
+        projectIdentifier:     trackingToolMingleProjectIdentifier,
+        mqlGroupingConditions: trackingToolMingleGroupingConditions
       },
 
       generic: {
@@ -502,14 +516,15 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
     },
 
     stage: {
+      stageType:             stageType,
       fetchMaterials:        stageFetchMaterials,
-      neverCleanArtifacts:   stageNeverCleanArtifacts,
+      neverCleanupArtifacts: stageNeverCleanupArtifacts,
       cleanWorkingDirectory: stageCleanWorkingDirectory
     },
 
     job: {
-      resources:   jobResources,
-      timeout:     jobTimeout,
+      resources:        jobResources,
+      timeout:          jobTimeout,
       runInstanceCount: {
         main: jobRunOnAgents,
         one:  jobRunOnOneAgent,

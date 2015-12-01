@@ -194,7 +194,7 @@ public class GoConfigService implements Initializer {
         return goConfigDao.loadForEditing();
     }
 
-    private CruiseConfig cruiseConfig() {
+    CruiseConfig cruiseConfig() {
         return goConfigDao.load();
     }
 

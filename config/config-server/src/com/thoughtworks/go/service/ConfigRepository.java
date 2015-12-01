@@ -396,7 +396,7 @@ public class ConfigRepository {
     }
 
     public void garbageCollect() throws Exception {
-        if (!systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_AUTO_GC)){
+        if (!systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)){
             return;
         }
         doLocked(new VoidThrowingFn<Exception>() {

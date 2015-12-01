@@ -60,7 +60,7 @@ public class ConfigRepositoryTest {
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getConfigRepoDir()).thenReturn(configRepoDir);
         when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE)).thenReturn(true);
-        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_AUTO_GC)).thenReturn(true);
+        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).thenReturn(true);
         configRepo = new ConfigRepository(systemEnvironment);
         configRepo.initialize();
     }
@@ -381,8 +381,8 @@ public class ConfigRepositoryTest {
     }
 
     @Test
-    public void shouldNotPerformGCWhenAutoGCIsTurnedOff() throws Exception {
-        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_AUTO_GC)).thenReturn(false);
+    public void shouldNotPerformGCWhenPeriodicGCIsTurnedOff() throws Exception {
+        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).thenReturn(false);
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
         Long numberOfLooseObjectsOld = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
         configRepo.garbageCollect();

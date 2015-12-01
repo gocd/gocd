@@ -43,7 +43,7 @@ public class ConfigRepositoryGCWarningService {
 
     public void checkRepoAndAddWarningIfRequired() {
         try {
-            if (configRepository.getLooseObjectCount() >= systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_WARNING_THRESHOLD)) {
+            if (configRepository.getLooseObjectCount() >= systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)) {
                 String message = "Action required: Run 'git gc' on config.git repo";
                 String description = "Number of loose objects in your Configuration repository(config.git) has grown beyond " +
                         "the configured threshold. As the size of config repo increases, the config save operations tend to slow down " +

@@ -45,7 +45,7 @@ public class ConfigRepositoryGCWarningServiceTest {
 
     @Test
     public void shouldAddWarningWhenConfigRepoLooseObjectCountGoesBeyondTheConfiguredThreshold() throws Exception {
-        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_WARNING_THRESHOLD)).thenReturn(10L);
+        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)).thenReturn(10L);
         when(configRepository.getLooseObjectCount()).thenReturn(20L);
 
         service.checkRepoAndAddWarningIfRequired();
@@ -64,7 +64,7 @@ public class ConfigRepositoryGCWarningServiceTest {
 
     @Test
     public void shouldNotAddWarningWhenConfigRepoLooseObjectCountIsBelowTheConfiguredThreshold() throws Exception {
-        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_WARNING_THRESHOLD)).thenReturn(10L);
+        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)).thenReturn(10L);
         when(configRepository.getLooseObjectCount()).thenReturn(1L);
 
         service.checkRepoAndAddWarningIfRequired();
@@ -77,7 +77,7 @@ public class ConfigRepositoryGCWarningServiceTest {
         serverHealthService.update(ServerHealthState.warning("message", "description", HealthStateType.general(HealthStateScope.forConfigRepo("GC"))));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forConfigRepo("GC")).isEmpty(), is(false));
 
-        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_WARNING_THRESHOLD)).thenReturn(10L);
+        when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)).thenReturn(10L);
         when(configRepository.getLooseObjectCount()).thenReturn(1L);
 
         service.checkRepoAndAddWarningIfRequired();

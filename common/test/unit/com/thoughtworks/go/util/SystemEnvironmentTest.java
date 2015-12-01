@@ -487,7 +487,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldTurnOffAutoGCByDefault(){
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_AUTO_GC), is(false));
+    public void shouldTurnOffPeriodicGCByDefault(){
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
     }
 }

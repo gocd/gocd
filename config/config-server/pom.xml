@@ -45,6 +45,11 @@
             <artifactId>metrics</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jgit</groupId>

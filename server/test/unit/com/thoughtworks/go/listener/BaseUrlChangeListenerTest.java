@@ -34,27 +34,28 @@ public class BaseUrlChangeListenerTest {
     @Test
     public void shouldFlushCacheWhenBaseUrlConfigChanges() throws IOException {
         GoCache cache = mock(GoCache.class);
-        BaseUrlChangeListener listener = new BaseUrlChangeListener(serverConfigWith("", ""), cache);
+        BaseUrlChangeListener listener = new BaseUrlChangeListener(new ServerSiteUrlConfig(""),
+                new ServerSiteUrlConfig(""), cache);
         CruiseConfig newCruiseConfig = new BasicCruiseConfig();
-        newCruiseConfig.setServerConfig(serverConfigWith("http://blah.com","https://blah.com"));
+        newCruiseConfig.setServerConfig(serverConfigWith("http://blah.com", "https://blah.com"));
 
         listener.onConfigChange(newCruiseConfig);
 
         verify(cache).remove("urls_cache");
     }
-    
+
     @Test
     public void shouldNotFlushCacheWhenBaseUrlConfigIsNotChanged() {
         GoCache cache = mock(GoCache.class);
-        BaseUrlChangeListener listener = new BaseUrlChangeListener(serverConfigWith("", ""), cache);
+        BaseUrlChangeListener listener = new BaseUrlChangeListener(new ServerSiteUrlConfig(""), new ServerSiteUrlConfig(""), cache);
         CruiseConfig newCruiseConfig = new BasicCruiseConfig();
-        newCruiseConfig.setServerConfig(serverConfigWith("",""));
+        newCruiseConfig.setServerConfig(serverConfigWith("", ""));
 
         listener.onConfigChange(newCruiseConfig);
         verifyZeroInteractions(cache);
     }
 
     private ServerConfig serverConfigWith(String siteUrl, String secureUrl) {
-        return new ServerConfig(null,null, new ServerSiteUrlConfig(siteUrl),new ServerSiteUrlConfig(secureUrl) );
+        return new ServerConfig(null, null, new ServerSiteUrlConfig(siteUrl), new ServerSiteUrlConfig(secureUrl));
     }
 }

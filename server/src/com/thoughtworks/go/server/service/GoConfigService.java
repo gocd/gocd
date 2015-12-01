@@ -118,7 +118,7 @@ public class GoConfigService implements Initializer {
     @Override
     public void initialize() {
         this.goConfigDao.load();
-        register(new BaseUrlChangeListener(serverConfig(), goCache));
+        register(new BaseUrlChangeListener(serverConfig().getSiteUrl(), serverConfig().getSecureSiteUrl(), goCache));
         File dir = artifactsDir();
         if (!dir.exists()) {
             boolean success = dir.mkdirs();

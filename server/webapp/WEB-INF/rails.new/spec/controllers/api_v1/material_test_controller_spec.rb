@@ -96,6 +96,23 @@ describe ApiV1::MaterialTestController do
 
         expect(response).to have_api_message_response(200, 'Connection OK.')
       end
+
+      it 'does not perform parameter expansion if pipeline_name param is blank' do
+        com.thoughtworks.go.config.materials.git.GitMaterial.
+          any_instance.
+          should_receive(:checkConnection).with(ApiV1::MaterialTestController.check_connection_execution_context).
+          and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
+
+        post_with_api_header :test, {
+          type:          'git',
+          pipeline_name: '',
+          attributes:    {
+            url: 'https://example.com/git/FooBarWidgets.git'
+          }
+        }
+
+        expect(response).to have_api_message_response(200, 'Connection OK.')
+      end
     end
   end
 end

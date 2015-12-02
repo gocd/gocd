@@ -28,7 +28,7 @@ module ApiV1
     def test
       material_config = ApiV1::Config::Materials::MaterialRepresenter.new(ApiV1::Config::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)
 
-      perform_param_expansion(material_config) if params[:pipeline_name]
+      perform_param_expansion(material_config) unless params[:pipeline_name].blank?
 
       material = MaterialConfigConverter.new.toMaterial(material_config)
       if material.respond_to?(:checkConnection)

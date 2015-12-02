@@ -47,7 +47,7 @@ define([
     };
 
     this.isRunOnOneAgent = function () {
-      return s.undefinedOrNull(this.runInstanceCount());
+      return s.isUndefinedOrNull(this.runInstanceCount());
     };
 
     this.isRunOnSomeAgents = function () {
@@ -62,7 +62,7 @@ define([
     };
 
     this.isTimeoutDefault = function () {
-      return s.undefinedOrNull(this.timeout());
+      return s.isUndefinedOrNull(this.timeout());
     };
 
     this.isTimeoutCustom = function () {

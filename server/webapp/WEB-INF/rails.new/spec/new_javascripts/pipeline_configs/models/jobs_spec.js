@@ -201,7 +201,7 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
           environment_variables: [
             {
               name:   "MULTIPLE_LINES",
-              value:  "multiplelines",
+              encrypted_value:  "multiplelines",
               secure: true
             },
             {

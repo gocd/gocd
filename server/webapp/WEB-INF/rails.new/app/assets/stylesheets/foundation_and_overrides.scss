@@ -88,6 +88,8 @@ $row-width: 100%;
 
 // We use these to define default font stacks
 // $font-family-sans-serif: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+   $font-family-sans-serif: "OpenSansRegular", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+   $font-family-sans-serif-bold: "OpenSansSemiBold", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 // $font-family-serif: Georgia, Cambria, "Times New Roman", Times, serif;
 // $font-family-monospace: Consolas, "Liberation Mono", Courier, monospace;
 
@@ -207,7 +209,7 @@ $row-width: 100%;
 // e. Typography
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-type-classes: true;
+$include-html-type-classes: true;
 
 // We use these to control header font styles
 // $header-font-family: $body-font-family;
@@ -330,15 +332,15 @@ $row-width: 100%;
 // 01. Accordion
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-accordion-classes: true;
+$include-html-accordion-classes: true;
 
-// $accordion-navigation-padding: rem-calc(16);
+$accordion-navigation-padding: rem-calc(8) rem-calc(16);
 // $accordion-navigation-bg-color: $silver;
 // $accordion-navigation-hover-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -5%);
 // $accordion-navigation-active-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -3%);
 // $accordion-navigation-font-color: $jet;
 // $accordion-navigation-font-size: rem-calc(16);
-// $accordion-navigation-font-family: $body-font-family;
+$accordion-navigation-font-family: $font-family-sans-serif-bold;
 
 // $accordion-content-padding: ($column-gutter/2);
 // $accordion-content-active-bg-color: $white;
@@ -346,7 +348,7 @@ $row-width: 100%;
 // 02. Alert Boxes
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-alert-classes: true;
+$include-html-alert-classes: true;
 
 // We use this to control alert padding.
 // $alert-padding-top: rem-calc(14);
@@ -435,7 +437,7 @@ $row-width: 100%;
 // 05. Buttons
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// $include-html-button-classes: $include-html-classes;
+ $include-html-button-classes: true;
 
 // We use these to build padding for buttons.
 // $button-tny: rem-calc(10);
@@ -528,7 +530,7 @@ $row-width: 100%;
 // 08. Dropdown
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-dropdown-classes: true;
+$include-html-dropdown-classes: true;
 
 // We use these to controls height and width styles.
 // $f-dropdown-max-width: 200px;
@@ -631,14 +633,14 @@ $row-width: 100%;
 // 11. Forms
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-form-classes: true;
+$include-html-form-classes: true;
 
 // We use this to set the base for lots of form spacing and positioning styles
 $form-spacing: rem-calc(12);
 
 // We use these to style the labels in different ways
 // $form-label-pointer: pointer;
-$form-label-font-size: rem-calc(12.5);
+$form-label-font-size: rem-calc(14);
 // $form-label-font-weight: $font-weight-normal;
 // $form-label-line-height: 1.5;
 // $form-label-font-color: scale-color($black, $lightness: 30%);
@@ -646,7 +648,7 @@ $form-label-font-size: rem-calc(12.5);
 // $form-label-bottom-margin: 0;
 // $input-font-family: inherit;
 // $input-font-color: rgba(0,0,0,0.75);
-$input-font-size: rem-calc(12.5);
+// $input-font-size: rem-calc(14);
 // $input-bg-color: $white;
 // $input-focus-bg-color: scale-color($white, $lightness: -2%);
 // $input-border-color: scale-color($white, $lightness: -20%);
@@ -1289,7 +1291,7 @@ $input-font-size: rem-calc(12.5);
 // 30. Tables
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-table-classes: true;
+$include-html-table-classes: true;
 
 // These control the background color for the table and even rows
 // $table-bg: $white;
@@ -1335,7 +1337,7 @@ $input-font-size: rem-calc(12.5);
 // 31. Tabs
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-tabs-classes: true;
+$include-html-tabs-classes: true;
 
 // $tabs-navigation-padding: rem-calc(16);
 // $tabs-navigation-bg-color: $silver;
@@ -1397,7 +1399,7 @@ $input-font-size: rem-calc(12.5);
 // 34. Top Bar
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
- $include-html-top-bar-classes: true;
+$include-html-top-bar-classes: true;
 
 // Background color for the top bar
 // $topbar-bg-color: $oil;

@@ -79,7 +79,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
   });
 
 
-  describe("Materials Model", function () {
+  describe("Material Model", function () {
     describe("validation", function () {
       it("should not allow materials with duplicate names", function () {
         var errorsOnOriginal = gitMaterial.validate();
@@ -135,7 +135,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
       });
 
       it("should initialize material model with password", function () {
-        expect(svnMaterial.password()).toBe("p@ssw0rd");
+        expect(svnMaterial.passwordValue()).toBe("p@ssw0rd");
       });
 
       it("should initialize material model with checkExternals", function () {
@@ -175,7 +175,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(svnMaterial.type()).toBe("svn");
           expect(svnMaterial.url()).toBe("http://svn.example.com/svn/myProject");
           expect(svnMaterial.username()).toBe("bob");
-          expect(svnMaterial.password()).toBe("p@ssw0rd");
+          expect(svnMaterial.passwordValue()).toBe("p@ssw0rd");
           expect(svnMaterial.checkExternals()).toBe(true);
           expect(svnMaterial.destination()).toBe("projectA");
           expect(svnMaterial.name()).toBe("materialA");
@@ -357,7 +357,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
       });
 
       it("should initialize material model with password", function () {
-        expect(perforceMaterial.password()).toBe("p@ssw0rd");
+        expect(perforceMaterial.passwordValue()).toBe("p@ssw0rd");
       });
 
       it("should initialize material model with useTickets", function () {
@@ -407,7 +407,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(perforceMaterial.type()).toBe("p4");
           expect(perforceMaterial.port()).toBe("p4.example.com:1666");
           expect(perforceMaterial.username()).toBe("bob");
-          expect(perforceMaterial.password()).toBe("p@ssw0rd");
+          expect(perforceMaterial.passwordValue()).toBe("p@ssw0rd");
           expect(perforceMaterial.useTickets()).toBe(true);
           expect(perforceMaterial.destination()).toBe("projectA");
           expect(perforceMaterial.name()).toBe("materialA");
@@ -451,7 +451,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
       });
 
       it("should initialize material model with password", function () {
-        expect(tfsMaterial.password()).toBe("p@ssw0rd");
+        expect(tfsMaterial.passwordValue()).toBe("p@ssw0rd");
       });
 
       it("should initialize material model with domain", function () {
@@ -511,7 +511,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(tfsMaterial.type()).toBe("tfs");
           expect(tfsMaterial.url()).toBe("http://tfs.example.com/tfs/projectA");
           expect(tfsMaterial.username()).toBe("bob");
-          expect(tfsMaterial.password()).toBe("p@ssw0rd");
+          expect(tfsMaterial.passwordValue()).toBe("p@ssw0rd");
           expect(tfsMaterial.domain()).toBe('AcmeCorp');
           expect(tfsMaterial.destination()).toBe("projectA");
           expect(tfsMaterial.name()).toBe("materialA");

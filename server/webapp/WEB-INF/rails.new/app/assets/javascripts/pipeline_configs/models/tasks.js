@@ -67,7 +67,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
         workingDirectory: this.workingDirectory,
         buildFile:        this.buildFile
       }
-    }
+    };
   };
 
   Tasks.Task.Ant.fromJSON = function (data) {
@@ -116,7 +116,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
         args:             this.args,
         workingDirectory: this.workingDirectory
       }
-    }
+    };
   };
 
   Tasks.Task.Exec.fromJSON = function (data) {

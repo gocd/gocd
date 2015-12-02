@@ -18,7 +18,12 @@ define(['mithril', '../helpers/form_helper', '../helpers/mithril_component_mixin
   var ArtifactsConfigWidget = {
     controller: function (args) {
       this.args = args;
-      ComponentMixins.ManagesCollection.call(this, {as: 'Artifact'});
+      ComponentMixins.ManagesCollection.call(this, {
+        as:           'Artifact',
+        onInitialize: function () {
+          this.changed();
+        }
+      });
     },
 
     view: function (ctrl) {
@@ -29,12 +34,12 @@ define(['mithril', '../helpers/form_helper', '../helpers/mithril_component_mixin
               <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
                 <f.input model={artifact}
                          attrName='source'
-                         placeHolder='Source'
+                         placeholder='Source'
                          onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.input model={artifact}
                          attrName='destination'
-                         placeHolder='Destination'
+                         placeholder='Destination'
                          onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.select value={artifact.type}

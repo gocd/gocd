@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', 'string-plus'], function (_, s) {
+define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
 
   var Mixins = {};
 
@@ -55,6 +55,45 @@ define(['lodash', 'string-plus'], function (_, s) {
 
   Mixins.HasUUID = function () {
     this.uuid = Mixins.GetterSetter(this.constructor.modelType + '-' + s.uuid());
+  };
+
+  Mixins.HasEncryptedAttribute = function (options) {
+    var _value          = options.attribute,
+        name            = options.name,
+        capitalizedName = _.capitalize(name);
+
+    this[name] = function () {
+      return _value().value.apply(_value(), arguments);
+    };
+
+    this['isSecure' + capitalizedName] = function () {
+      return _value().isSecure();
+    };
+
+    this['isPlain' + capitalizedName] = function () {
+      return _value().isPlain();
+    };
+
+    this['edit' + capitalizedName] = function () {
+      _value().edit();
+    };
+
+    this['isDirty' + capitalizedName] = function () {
+      return _value().isDirty();
+    };
+
+    this['isEditing' + capitalizedName] = function () {
+      return _value().isEditing();
+    };
+
+    this['resetToOriginal' + capitalizedName] = function () {
+      return _value().resetToOriginal();
+    };
+
+    this['becomeSecure' + capitalizedName] = function () {
+      return _value().becomeSecure();
+    }
+
   };
 
   Mixins.HasMany = function (options) {
@@ -121,6 +160,10 @@ define(['lodash', 'string-plus'], function (_, s) {
 
     this['find' + associationName] = function (cb, thisArg) {
       return _.find(collection(), cb, thisArg);
+    };
+
+    this['filter' + associationName] = function (cb, thisArg) {
+      return _.filter(collection(), cb, thisArg);
     };
 
     this['map' + associationNamePlural] = function (cb, thisArg) {

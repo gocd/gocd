@@ -23,7 +23,7 @@ module ApiV1
     before_action :check_user_and_401
 
     cattr_accessor :check_connection_execution_context
-    self.check_connection_execution_context = CheckConnectionSubprocessExecutionContext
+    self.check_connection_execution_context = CheckConnectionSubprocessExecutionContext.new
 
     def test
       material_config = ApiV1::Config::Materials::MaterialRepresenter.new(ApiV1::Config::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)

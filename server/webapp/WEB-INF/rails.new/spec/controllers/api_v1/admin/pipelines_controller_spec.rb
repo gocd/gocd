@@ -73,19 +73,19 @@ describe ApiV1::Admin::PipelinesController do
       it 'should allow anyone, with security disabled' do
         disable_security
         @pipeline_config_service.should_receive(:getPipelineConfig).with(anything()).and_return(nil)
-        expect(controller).to allow_action(:post, :create)
+        expect(controller).to allow_action(:post, :create, :group => "grp")
       end
 
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_user
-        expect(controller).to disallow_action(:post, :create, { :name => "pipeline1" }).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:post, :create, :pipeline => {:name => "pipeline1"}, :group => "grp").with(401, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
         @pipeline_config_service.should_receive(:getPipelineConfig).with(anything()).and_return(nil)
-        expect(controller).to allow_action(:post, :create)
+        expect(controller).to allow_action(:post, :create, :group => "grp")
       end
     end
   end
@@ -281,6 +281,18 @@ describe ApiV1::Admin::PipelinesController do
 
         json = JSON.parse(response.body).deep_symbolize_keys
         expect(json[:message]).to eq("Failed to create pipeline '#{@pipeline_name}' as another pipeline by the same name already exists.")
+      end
+
+      it "should fail if group is blank" do
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
+        @pipeline_config_service.should_not_receive(:createPipelineConfig).with(anything(), anything(), anything(), anything())
+
+        post_with_api_header :create, name: @pipeline_name, :pipeline => pipeline, :group => ""
+
+        expect(response.code).to eq("422")
+
+        json = JSON.parse(response.body).deep_symbolize_keys
+        expect(json[:message]).to eq("Pipeline group must be specified for creating a pipeline.")
       end
     end
 

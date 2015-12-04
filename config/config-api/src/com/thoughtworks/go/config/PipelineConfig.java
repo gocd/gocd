@@ -159,11 +159,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         validateLabelTemplate();
         validatePipelineName();
         validateStageNameUniqueness();
-        validateTemplate(validationContext);
     }
 
-    private void validateTemplate(ValidationContext validationContext) {
-
+    public void validateTemplate(PipelineTemplateConfig templateConfig) {
         if (hasTemplate()) {
             if (new NameTypeValidator().isNameInvalid(templateName.toString())) {
                 errors().add(TEMPLATE_NAME, NameTypeValidator.errorMessage("template", templateName));
@@ -172,7 +170,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 addError("stages", String.format("Cannot add stages to pipeline '%s' which already references template '%s'", this.name(), this.getTemplateName()));
                 addError("template", String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", this.getTemplateName(), this.name()));
             }
-            if (!validationContext.doesTemplateExist(templateName)) {
+            if (templateConfig==null) {
                 addError("pipeline", String.format("Pipeline '%s' refers to non-existent template '%s'.", name(), templateName));
             }
         } else {

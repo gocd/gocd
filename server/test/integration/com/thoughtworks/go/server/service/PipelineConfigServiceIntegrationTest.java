@@ -1,11 +1,14 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.domain.config.Admin;
+import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.security.GoCipher;
@@ -200,6 +203,25 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldNotUpdatePipelineWhenPipelineIsAssociatedWithTemplateAsWellAsHasStagesDefinedLocally() throws Exception {
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template_with_param");
+        saveTemplateWithParamToConfig(templateName);
+
+        GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
+        pipelineConfig.clear();
+        pipelineConfig.setTemplateName(templateName);
+        pipelineConfig.addStageWithoutValidityAssertion(StageConfigMother.stageConfig("local-stage"));
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(pipelineConfig.errors().on("stages"), is(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName)));
+        assertThat(pipelineConfig.errors().on("template"), is(String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", templateName, pipelineConfig.name())));
+        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
+        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+    }
+
+    @Test
     public void shouldCheckForUserPermissionBeforeUpdatingPipelineConfig() throws Exception {
         CaseInsensitiveString templateName = new CaseInsensitiveString("template_with_param");
         saveTemplateWithParamToConfig(templateName);
@@ -215,6 +237,22 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolderBeforeUpdate.config));
     }
 
+    @Test
+    public void shouldMapErrorsBackToScmMaterials() throws Exception {
+        GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
+        String scmid = "scmid";
+        saveScmMaterialToConfig(scmid);
+        PluggableSCMMaterialConfig scmMaterialConfig = new PluggableSCMMaterialConfig(scmid);
+        pipelineConfig.materialConfigs().add(scmMaterialConfig);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
+        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
+        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+    }
+
     private void saveTemplateWithParamToConfig(CaseInsensitiveString templateName) throws Exception {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
         ExecTask task = new ExecTask();
@@ -224,6 +262,18 @@ public class PipelineConfigServiceIntegrationTest {
         final PipelineTemplateConfig template = new PipelineTemplateConfig(templateName, new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
         CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
         cruiseConfig.addTemplate(template);
+        saveConfig(cruiseConfig);
+    }
+
+    private void saveScmMaterialToConfig(String id) throws Exception {
+        SCM scm = new SCM(id, new PluginConfiguration(id, "1.0"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
+        scm.setName(id);
+        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
+        cruiseConfig.getSCMs().add(scm);
+        saveConfig(cruiseConfig);
+    }
+
+    private void saveConfig(CruiseConfig cruiseConfig) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, buffer, false);
     }

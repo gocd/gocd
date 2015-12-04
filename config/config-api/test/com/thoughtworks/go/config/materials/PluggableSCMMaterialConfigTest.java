@@ -208,7 +208,7 @@ public class PluggableSCMMaterialConfigTest {
         // scmConfig null
         p1 = new PluggableSCMMaterialConfig();
         p2 = new PluggableSCMMaterialConfig();
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2), is(true));
 
         p2.setSCMConfig(scmConfig);
         assertThat(p1.equals(p2), is(false));
@@ -216,6 +216,9 @@ public class PluggableSCMMaterialConfigTest {
         p1.setSCMConfig(scmConfig);
         p2 = new PluggableSCMMaterialConfig();
         assertThat(p1.equals(p2), is(false));
+
+        p2.setSCMConfig(scmConfig);
+        assertThat(p1.equals(p2), is(true));
 
         // null comparison
         assertThat(p1.equals(null), is(false));

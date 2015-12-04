@@ -19,7 +19,7 @@ module ApiV1
     class PipelinesController < ApiV1::BaseController
       before_action :check_admin_user_and_401
       before_action :load_pipeline, only: [:show]
-      before_action :check_if_pipeline_by_same_name_already_exists, only: [:create]
+      before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
       def show
@@ -117,7 +117,14 @@ module ApiV1
           result.unprocessableEntity(LocalizedMessage::string("CANNOT_CREATE_PIPELINE_ALREADY_EXISTS", params[:name]))
           render_http_operation_result(result)
         end
+      end
 
+      def check_group_not_blank
+        if (params[:group].blank?)
+          result = HttpLocalizedOperationResult.new
+          result.unprocessableEntity(LocalizedMessage::string("PIPELINE_GROUP_MANDATORY_FOR_PIPELINE_CREATE"))
+          render_http_operation_result(result)
+        end
       end
     end
   end

@@ -74,45 +74,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       expect(deserialized_object).to eq(expected)
     end
 
-    it "should serialize pluggable scm material" do
 
-      presenter   = ApiV1::Config::Materials::MaterialRepresenter.prepare(PluggableSCMMaterialConfig.new("23a28171-3d5a-4912-9f36-d4e1536281b0"))
-      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
-      expect(actual_json).to eq(scm_material_basic_hash)
-    end
-
-    it "should deserialize pluggable scm material" do
-      presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
-      deserialized_object = presenter.from_hash({
-                                                    type: "plugin",
-                                                    attributes: {
-                                                      ref: "23a28171-3d5a-4912-9f36-d4e1536281b0",
-                                                      filter: {
-                                                        ignore: [
-                                                          "doc/**/*",
-                                                          "foo/**/*"
-                                                        ]
-                                                      }
-                                                    }
-                                                })
-      expect(deserialized_object.name.to_s).to eq("")
-      expect(deserialized_object.getScmId).to eq("23a28171-3d5a-4912-9f36-d4e1536281b0")
-      expect(deserialized_object.filter.getStringForDisplay).to eq("doc/**/*,foo/**/*")
-    end
-
-    it "should deserialize pluggable scm material with null filter" do
-      presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
-      deserialized_object = presenter.from_hash({
-                                                    type: "plugin",
-                                                    attributes: {
-                                                      ref: "23a28171-3d5a-4912-9f36-d4e1536281b0",
-                                                      filter: nil
-                                                    }
-                                                })
-      expect(deserialized_object.name.to_s).to eq("")
-      expect(deserialized_object.getScmId).to eq("23a28171-3d5a-4912-9f36-d4e1536281b0")
-      expect(ReflectionUtil::getField(deserialized_object, "filter")).to be_nil
-    end
 
     def material_hash
       {
@@ -142,16 +104,6 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           auto_update:      true,
           branch:           "master",
           submodule_folder: nil
-        }
-      }
-    end
-
-    def scm_material_basic_hash
-      {
-        type: "plugin",
-        attributes: {
-          ref: "23a28171-3d5a-4912-9f36-d4e1536281b0",
-          filter: nil
         }
       }
     end
@@ -340,6 +292,24 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       deserialized_object = presenter.from_hash(pluggable_scm_material_hash)
       expected            = MaterialConfigsMother.pluggableSCMMaterialConfig()
       expect(deserialized_object.getScmId).to eq("scm-id")
+      expect(deserialized_object.getFolder).to eq("des-folder")
+      expect(deserialized_object.filter.getStringForDisplay).to eq("**/*.html,**/foobar/")
+    end
+
+    it "should deserialize pluggable scm material with nulls" do
+      presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+      deserialized_object = presenter.from_hash({
+                                                    type: "plugin",
+                                                    attributes: {
+                                                    ref: "23a28171-3d5a-4912-9f36-d4e1536281b0",
+                                                    filter: nil,
+                                                    destination: nil
+                                                }
+                                                })
+      expect(deserialized_object.name.to_s).to eq("")
+      expect(deserialized_object.getScmId).to eq("23a28171-3d5a-4912-9f36-d4e1536281b0")
+      expect(deserialized_object.getFolder).to be_nil
+      expect(ReflectionUtil::getField(deserialized_object, "filter")).to be_nil
     end
 
     def pluggable_scm_material_hash
@@ -349,10 +319,10 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           ref:    "scm-id",
           filter: {
             ignore: %w(**/*.html **/foobar/)
-          }
+          },
+          destination: 'des-folder'
         }
       }
     end
-
   end
 end

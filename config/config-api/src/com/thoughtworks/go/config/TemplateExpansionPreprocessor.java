@@ -25,7 +25,8 @@ public class TemplateExpansionPreprocessor implements GoConfigPreprocessor {
             if (pipelineConfig.hasTemplate()) {
                 CaseInsensitiveString templateName = pipelineConfig.getTemplateName();
                 PipelineTemplateConfig pipelineTemplate = cruiseConfig.findTemplate(templateName);
-                if (pipelineTemplate != null && !pipelineConfig.hasTemplateApplied()) {
+                pipelineConfig.validateTemplate(pipelineTemplate);
+                if (pipelineConfig.errors().isEmpty() && !pipelineConfig.hasTemplateApplied()) {
                     pipelineConfig.usingTemplate(pipelineTemplate);
                 }
             }

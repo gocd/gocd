@@ -25,7 +25,8 @@ module ApiV1
                          decorator:  ApiV1::Config::Materials::FilterRepresenter,
                          class:      com.thoughtworks.go.config.materials.Filter,
                          skip_parse: SkipParseOnBlank
-            end
+                property :folder, as: :destination, skip_parse: SkipParseOnBlank
+           end
         end
     end
 end

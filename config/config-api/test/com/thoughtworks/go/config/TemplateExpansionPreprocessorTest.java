@@ -26,6 +26,8 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TemplateExpansionPreprocessorTest {
     private TemplateExpansionPreprocessor preprocessor;
@@ -39,6 +41,25 @@ public class TemplateExpansionPreprocessorTest {
     public void shouldNotThrowAnExceptionWhenAPipelineHasAtLeastOneStage() throws Exception {
         PipelineConfig pipelineConfig = pipelineConfigWithGivenStages("foo");
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
+    }
+
+    @Test
+    public void shouldNotExpandWhenTemplateAssociatedWithPipelineDoesNotExist() throws Exception {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        pipelineConfig.templatize(new CaseInsensitiveString("does_not_exist"));
+        preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
+        assertThat(pipelineConfig.hasTemplateApplied(), is(false));
+    }
+
+    @Test
+    public void shouldValidatePipelineToCheckItDoesNotAllowBothTemplateAndStages() throws Exception {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        pipelineConfig.templatize(new CaseInsensitiveString("template"));
+        pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
+        preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
+        assertThat(pipelineConfig.hasTemplateApplied(), is(false));
+        assertThat(pipelineConfig.errors().on("stages"), is("Cannot add stages to pipeline 'p' which already references template 'template'"));
+        assertThat(pipelineConfig.errors().on("template"), is("Cannot set template 'template' on pipeline 'p' because it already has stages defined"));
     }
 
     @Test

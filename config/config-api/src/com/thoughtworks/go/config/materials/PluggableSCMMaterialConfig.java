@@ -315,11 +315,11 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
             return false;
         }
 
-        if (scmConfig == null || that.scmConfig == null) {
+        if (scmConfig != null ? !scmConfig.equals(that.scmConfig) : that.scmConfig != null) {
             return false;
         }
 
-        return this.getFingerprint().equals(that.getFingerprint());
+        return super.equals(that);
     }
 
     @Override

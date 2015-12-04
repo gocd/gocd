@@ -159,6 +159,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         validateLabelTemplate();
         validatePipelineName();
         validateStageNameUniqueness();
+        if (!hasTemplate() && isEmpty()) {
+            addError("pipeline", String.format("Pipeline '%s' does not have any stages configured. A pipeline must have at least one stage.", name()));
+        }
     }
 
     public void validateTemplate(PipelineTemplateConfig templateConfig) {
@@ -172,10 +175,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             }
             if (templateConfig==null) {
                 addError("pipeline", String.format("Pipeline '%s' refers to non-existent template '%s'.", name(), templateName));
-            }
-        } else {
-            if (isEmpty()) {
-                addError("pipeline", String.format("Pipeline '%s' does not have any stages configured. A pipeline must have at least one stage.", name()));
             }
         }
     }

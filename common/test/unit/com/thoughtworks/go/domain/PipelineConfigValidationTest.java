@@ -373,7 +373,7 @@ public class PipelineConfigValidationTest {
     @Test
     public void shouldValidateAPipelineHasAtleastOneStage() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-        pipelineConfig.validateTemplate(null);
+        pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
         assertThat(pipelineConfig.errors().on("pipeline"), is("Pipeline 'p' does not have any stages configured. A pipeline must have at least one stage."));
     }
 

@@ -163,7 +163,7 @@ public class PipelineConfigValidationTest {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("name"), new MaterialConfigs());
         pipelineConfig.setTemplateName(new CaseInsensitiveString(".Name"));
         config.addPipeline("group",pipelineConfig);
-        pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, pipelineConfig));
+        pipelineConfig.validateTemplate(new PipelineTemplateConfig());
         assertThat(pipelineConfig.errors().isEmpty(), is(false));
         assertThat(pipelineConfig.errors().on(PipelineConfig.TEMPLATE_NAME), is("Invalid template name '.Name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
@@ -373,7 +373,7 @@ public class PipelineConfigValidationTest {
     @Test
     public void shouldValidateAPipelineHasAtleastOneStage() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-        pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
+        pipelineConfig.validateTemplate(null);
         assertThat(pipelineConfig.errors().on("pipeline"), is("Pipeline 'p' does not have any stages configured. A pipeline must have at least one stage."));
     }
 
@@ -402,7 +402,7 @@ public class PipelineConfigValidationTest {
         PipelineConfigurationCache.getInstance().onConfigChange(config);
         pipelineConfig.setTemplateName(new CaseInsensitiveString("template-name"));
         pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
-        pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, config.getGroups().first().getGroup(), config, pipelineConfig));
+        pipelineConfig.validateTemplate(null);
         assertThat(pipelineConfig.errors().on("stages"), is("Cannot add stages to pipeline 'wunderbar' which already references template 'template-name'"));
         assertThat(pipelineConfig.errors().on("template"), is("Cannot set template 'template-name' on pipeline 'wunderbar' because it already has stages defined"));
     }
@@ -413,7 +413,7 @@ public class PipelineConfigValidationTest {
         config.addPipeline("group", pipelineConfig);
         PipelineConfigurationCache.getInstance().onConfigChange(config);
         pipelineConfig.setTemplateName(new CaseInsensitiveString("does-not-exist"));
-        pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, pipelineConfig));
+        pipelineConfig.validateTemplate(null);
         assertThat(pipelineConfig.errors().on("pipeline"), is("Pipeline 'wunderbar' refers to non-existent template 'does-not-exist'."));
     }
 

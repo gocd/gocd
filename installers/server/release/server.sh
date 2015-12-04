@@ -112,53 +112,21 @@ fi
 if [ ! -z $SERVER_LISTEN_HOST ]; then
     GO_SERVER_SYSTEM_PROPERTIES="$GO_SERVER_SYSTEM_PROPERTIES -Dcruise.listen.host=$SERVER_LISTEN_HOST"
 fi
-SERVER_STARTUP_ARGS+=("-server")
-if [ "$YOURKIT" != "" ]; then
-   GO_SERVER_SYSTEM_PROPERTIES="$GO_SERVER_SYSTEM_PROPERTIES $YOURKIT"
-fi
-SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM")
-SERVER_STARTUP_ARGS+=("-Xmx$SERVER_MAX_MEM")
-SERVER_STARTUP_ARGS+=("-XX:PermSize=$SERVER_MIN_PERM_GEN")
-SERVER_STARTUP_ARGS+=("-XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
-if [ "$JVM_DEBUG" != "" ]; then
-   GO_SERVER_SYSTEM_PROPERTIES="$GO_SERVER_SYSTEM_PROPERTIES $JVM_DEBUG"
-fi
-if [ "$GC_LOG" != "" ]; then
-   GO_SERVER_SYSTEM_PROPERTIES="$GO_SERVER_SYSTEM_PROPERTIES $GC_LOG"
-fi
-SERVER_STARTUP_ARGS+=("-Duser.language=en")
-SERVER_STARTUP_ARGS+=("-Djruby.rack.request.size.threshold.bytes=30000000")
-SERVER_STARTUP_ARGS+=("-Duser.country=US")
-SERVER_STARTUP_ARGS+=("-Dcruise.config.dir=$GO_CONFIG_DIR")
-SERVER_STARTUP_ARGS+=("-Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
-SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT")
-SERVER_STARTUP_ARGS+=("-Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
-
-if [ "$GO_CONFIG_REPO_GC_CRON" != "" ]; then
-    SERVER_STARTUP_ARGS+=("-Dgo.config.repo.gc.cron=$GO_CONFIG_REPO_GC_CRON")
-fi
-
+SERVER_STARTUP_ARGS+=("-server $YOURKIT")
+SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM -Xmx$SERVER_MAX_MEM -XX:PermSize=$SERVER_MIN_PERM_GEN -XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
+SERVER_STARTUP_ARGS+=("$JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES")
+SERVER_STARTUP_ARGS+=("-Duser.language=en -Djruby.rack.request.size.threshold.bytes=30000000")
+SERVER_STARTUP_ARGS+=("-Duser.country=US -Dcruise.config.dir=$GO_CONFIG_DIR -Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
+SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
 if [ "$TMPDIR" != "" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.io.tmpdir=$TMPDIR")
 fi
-
 if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.security.egd=file:/dev/./urandom")
 fi
+CMD="$JAVA_HOME/bin/java ${SERVER_STARTUP_ARGS[@]} -jar $SERVER_DIR/go.jar"
 
-if [ "$GO_SERVER_SYSTEM_PROPERTIES" != "" ]; then
-    IFS=' ' read -r -a properties <<< "$GO_SERVER_SYSTEM_PROPERTIES"
-    for property in "${properties[@]}"
-    do
-        SERVER_STARTUP_ARGS+=("$property")
-    done
-fi
-
-CMD+=("$JAVA_HOME/bin/java")
-CMD+=("${SERVER_STARTUP_ARGS[@]}")
-CMD+=("-jar")
-CMD+=("$SERVER_DIR/go.jar")
-echo "Starting Go Server with command: ${CMD[@]}" >> $STDOUT_LOG_FILE
+echo "Starting Go Server with command: $CMD" >> $STDOUT_LOG_FILE
 echo "Starting Go Server in directory: $GO_WORK_DIR" >> $STDOUT_LOG_FILE
 cd "$SERVER_WORK_DIR"
 
@@ -166,10 +134,10 @@ if [ "$JAVA_HOME" == "" ]; then
     echo "Please set JAVA_HOME to proceed."
     exit 1
 fi
+
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup "${CMD[@]}" >> $STDOUT_LOG_FILE 2>&1 &
+    eval exec nohup "$CMD" >> $STDOUT_LOG_FILE 2>&1 &
     echo $! >$PID_FILE
 else
-    exec "${CMD[@]}"
+    eval exec "$CMD"
 fi
-

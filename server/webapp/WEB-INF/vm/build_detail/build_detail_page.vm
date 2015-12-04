@@ -166,7 +166,7 @@
         return jobstatus_json_array[0].building_info.is_completed.toString()  == "true"
     });
     var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}', {
-        colorize:      $color_logs_feature_toggle_key
+        colorize:      true
     });
     dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
     dashboard_periodical_executer.start();

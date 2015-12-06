@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
 public class Toggles {
-    public static String API_REQUESTS_SHORT_SESSION_FEATURE_TOGGLE_KEY = "api_requests_short_session_feature_toggle_key";
     public static String PIPELINE_COMMENT_FEATURE_TOGGLE_KEY = "pipeline_comment_feature_toggle_key";
     public static String PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY = "plugin_upload_feature_toggle_key";
 

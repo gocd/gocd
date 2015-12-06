@@ -272,7 +272,7 @@ describe Admin::Materials::PluggableScmController do
 
   def assert_material_is_initialized
     scm = com.thoughtworks.go.domain.scm.SCM.new
-    scm.setPluginConfiguration(PluginConfiguration.new('plugin-id', '1'))
+    scm.setPluginConfiguration(PluginConfiguration.new('plugin-id', nil))
     pluggable_scm = PluggableSCMMaterialConfig.new
     pluggable_scm.setSCMConfig(scm)
     assigns[:material].should == pluggable_scm

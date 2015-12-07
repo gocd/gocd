@@ -61,7 +61,7 @@ describe("build_detail_observer", function () {
 
     it("test_ajax_periodical_refresh_active_build_output_executer_oncomplete_should_update_output", function () {
         var build_output = "Build Failed.";
-        observer.update_live_output(build_output);
+        observer._update_live_output_color(build_output);
         assertEquals("Build Failed.", jQuery('.buildoutput_pre').text());
     });
 

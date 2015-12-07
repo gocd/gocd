@@ -17,7 +17,7 @@
 var BuildOutputObserver = Class.create();
 
 BuildOutputObserver.prototype = {
-    initialize: function(buildLocator, name, options) {
+    initialize: function(buildLocator, name) {
         var self = this;
         this.name = name;
         this.buildLocator = buildLocator;
@@ -26,15 +26,18 @@ BuildOutputObserver.prototype = {
         this.is_output_empty = false;
         this.is_completed = false;
         this.ansi_up = ansi_up.ansi_to_html_obj();
-        options = options || {};
         this.enableTailing = true;
         this.window = jQuery(window);
         this.originalWindowScrollTop = this.window.scrollTop();
         this.consoleElement = jQuery('.buildoutput_pre');
+        this.consoleTabElement = jQuery('#build_console');
         this.autoScrollButton = jQuery('.auto-scroll');
         this.autoScrollButton.toggleClass('tailing', this.enableTailing);
         this.autoScrollButton.on('click', function(){
             self.enableTailing = !self.enableTailing;
+            self.initializeScroll();
+        });
+        this.consoleTabElement.on('click', function(){
             self.initializeScroll();
         });
         this.initializeScroll();

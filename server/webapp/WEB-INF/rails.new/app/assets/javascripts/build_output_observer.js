@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END**********************************/
+ */
 
 var BuildOutputObserver = Class.create();
 
@@ -111,24 +111,24 @@ BuildOutputObserver.prototype = {
                 onSuccess: function(transport, next_start_as_json) {
                     if (next_start_as_json) {
                         _this.start_line_number = next_start_as_json[0];
-                        _this.is_output_empty = _this._update_live_output_color(transport.responseText);
+                        _this.is_output_empty = _this.update_live_output(transport.responseText);
                     } else {
                         _this.is_output_empty = true;
                     }
                 },
               onFailure: function(response){
                 if (404 === response.status){
-                  _this.is_output_empty = _this._update_live_output_color(response.responseText);
+                  _this.is_output_empty = _this.update_live_output(response.responseText);
                 } else {
                   var message = "There was an error contacting the server. The HTTP status was " + response.status + ".";
-                  _this.is_output_empty = _this._update_live_output_color(message);
+                  _this.is_output_empty = _this.update_live_output(message);
                 }
               }
             });
         }
     },
 
-    _update_live_output_color: function(build_output) {
+    update_live_output: function(build_output) {
         var is_output_empty = !build_output;
         if (!is_output_empty) {
 

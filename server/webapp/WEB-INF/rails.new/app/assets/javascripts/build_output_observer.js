@@ -111,24 +111,24 @@ BuildOutputObserver.prototype = {
                 onSuccess: function(transport, next_start_as_json) {
                     if (next_start_as_json) {
                         _this.start_line_number = next_start_as_json[0];
-                        _this.is_output_empty = _this.update_live_output(transport.responseText);
+                        _this.is_output_empty = _this._update_live_output_color(transport.responseText);
                     } else {
                         _this.is_output_empty = true;
                     }
                 },
               onFailure: function(response){
                 if (404 === response.status){
-                  _this.is_output_empty = _this.update_live_output(response.responseText);
+                  _this.is_output_empty = _this._update_live_output_color(response.responseText);
                 } else {
                   var message = "There was an error contacting the server. The HTTP status was " + response.status + ".";
-                  _this.is_output_empty = _this.update_live_output(message);
+                  _this.is_output_empty = _this._update_live_output_color(message);
                 }
               }
             });
         }
     },
 
-    update_live_output: function(build_output) {
+    _update_live_output_color: function(build_output) {
         var is_output_empty = !build_output;
         if (!is_output_empty) {
 

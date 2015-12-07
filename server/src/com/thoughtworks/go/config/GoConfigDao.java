@@ -29,7 +29,10 @@ import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,13 +40,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thoughtworks.go.util.ExceptionUtils.*;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 /**
  * @understands how to modify the cruise config sources
  */
 @Component
 public class GoConfigDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigDao.class);
     private CachedGoConfig cachedConfigService;
     private MetricsProbeService metricsProbeService;
     private final Object writeLock;
@@ -187,9 +192,11 @@ public class GoConfigDao {
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
         Context context = metricsProbeService.begin(ProbeType.UPDATE_CONFIG);
+        LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
         try {
             synchronized (writeLock) {
                 try {
+                    LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
                     if (command instanceof CheckedUpdateCommand) {
                         CheckedUpdateCommand checkedCommand = (CheckedUpdateCommand) command;
                         if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {
@@ -202,6 +209,7 @@ public class GoConfigDao {
                     if (command instanceof ConfigAwareUpdate) {
                         ((ConfigAwareUpdate) command).afterUpdate(clonedConfig());
                     }
+                    LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
                 }
             }
         } finally {

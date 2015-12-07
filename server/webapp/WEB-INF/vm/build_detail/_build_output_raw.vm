@@ -1,5 +1,4 @@
 <div class="console-area">
-#if($color_logs_feature_toggle_key)
 <div class="console-action-bar">
     <div>
         <a class="auto-scroll" title="Scroll to bottom">Scroll to end of logs</a>
@@ -7,13 +6,12 @@
         <a class='change-theme' href="javascript:void(0);">Change theme</a>
     </div>
 </div>
-<pre class="buildoutput_pre #if(!$color_logs_feature_toggle_key) white-theme #end"></pre>
+<pre class="buildoutput_pre"></pre>
 <div class="console-footer-action-bar">
     <div>
         <a href="javascript:void(0)" class="back-to-top-in-console"><span class="back-to-top-icon"></span>Back to top</a>
     </div>
 </div>
-#end
 #if($presenter.isCompleted())
 <div class="widget" id="build-output-console-warnning" style="display: none;">No console output.</div>
 #end

@@ -20,6 +20,11 @@ module ApiV1
       class MingleTrackingToolRepresenter < ApiV1::BaseRepresenter
         alias_method :mingle, :represented
 
+        ERROR_KEYS = {
+          'baseUrl'           => 'base_url',
+          'projectIdentifier' => 'project_identifier'
+        }
+
         property :base_url
         property :project_identifier
         property :mql_grouping_conditions, exec_context: :decorator
@@ -32,9 +37,7 @@ module ApiV1
           mingle.setMqlCriteria(value)
         end
 
-        def error_keys
-          {"baseUrl" => "base_url", "projectIdentifier" => "project_identifier"}
-        end
+
       end
     end
   end

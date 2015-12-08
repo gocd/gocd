@@ -19,11 +19,13 @@ module ApiV1
     module Tasks
       class BaseTaskRepresenter < ApiV1::BaseRepresenter
         alias_method :task, :represented
-        collection :run_if, embedded: false, exec_context: :decorator, skip_nil: true, render_empty: false
-        property :on_cancel_config, as: :on_cancel, skip_nil: true,
-                 exec_context:          :decorator,
-                 decorator:             OnCancelRepresenter,
-                 class:                 com.thoughtworks.go.config.OnCancelConfig
+        collection :run_if, embedded: false, exec_context: :decorator, expect_hash:  true
+        property :on_cancel_config,
+                 expect_hash:  true,
+                 as:           :on_cancel,
+                 exec_context: :decorator,
+                 decorator:    OnCancelRepresenter,
+                 class:        com.thoughtworks.go.config.OnCancelConfig
 
 
         def run_if

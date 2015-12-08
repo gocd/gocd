@@ -39,6 +39,14 @@ module ApiV1
         alias_method :task, :represented
         property :type, exec_context: :decorator, skip_parse: true
 
+        error_representer do |task|
+          if task
+            unless task.instance_of? PluggableTask
+              TASK_TYPE_TO_REPRESENTER_MAP[task.getTaskType()]::ERROR_KEYS
+            end
+          end
+        end
+
         nested :attributes,
                skip_parse: lambda { |fragment, options|
                  !fragment.respond_to?(:has_key?) || fragment.empty?
@@ -50,7 +58,6 @@ module ApiV1
                    TASK_TYPE_TO_REPRESENTER_MAP[task.getTaskType()]
                  end
                }
-        property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
         def type
           (task.instance_of? PluggableTask) ? 'pluggable_task' : task.getTaskType

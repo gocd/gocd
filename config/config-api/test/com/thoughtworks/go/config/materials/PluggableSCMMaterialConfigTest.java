@@ -103,17 +103,50 @@ public class PluggableSCMMaterialConfigTest {
 
     @Test
     public void shouldAddErrorIDestinationIsNotValid() throws Exception {
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), "/usr/home", null);
-        pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
+        ConfigSaveValidationContext configSaveValidationContext = mock(ConfigSaveValidationContext.class);
+        SCM scmConfig = mock(SCM.class);
+        when(configSaveValidationContext.findScmById(anyString())).thenReturn(scmConfig);
+        when(scmConfig.doesPluginExist()).thenReturn(true);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "/usr/home", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder."));
 
-        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), ".crap", null);
-        pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
+        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, ".crap", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Invalid directory name '.crap'. It should be a valid relative path."));
+    }
+
+
+    @Test
+    public void shouldAddErrorWhenScmIDDoesNotExists() throws Exception {
+        ConfigSaveValidationContext configSaveValidationContext = mock(ConfigSaveValidationContext.class);
+        when(configSaveValidationContext.findScmById(anyString())).thenReturn(null);
+        SCM scmConfig = mock(SCM.class);
+        when(scmConfig.doesPluginExist()).thenReturn(true);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find SCM for given package id:[scm-id]."));
+    }
+
+    @Test
+    public void shouldAddErrorWhenSCMPluginIsMissing() throws Exception {
+        ConfigSaveValidationContext configSaveValidationContext = mock(ConfigSaveValidationContext.class);
+        when(configSaveValidationContext.findScmById(anyString())).thenReturn(mock(SCM.class));
+        SCM scmConfig = mock(SCM.class);
+        when(scmConfig.doesPluginExist()).thenReturn(false);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find repository for given package id:[scm-id]."));
     }
 
     @Test

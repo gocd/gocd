@@ -19,10 +19,11 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Node;
 import org.apache.commons.lang.NotImplementedException;
 
-import java.util.Map;
 import java.util.Set;
 
 public class PipelineConfigSaveValidationContext implements ValidationContext {
@@ -70,7 +71,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
             this.stage = parentContext.stage;
         }
         this.pipelineBeingValidated = parentContext.pipelineBeingValidated;
-        if (parentContext.pipelineBeingValidated == null){
+        if (parentContext.pipelineBeingValidated == null) {
             this.pipelineBeingValidated = this.pipeline;
         }
     }
@@ -148,7 +149,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     }
 
     public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
-        if(pipelineBeingValidated.name().equals(pipelineName)) return pipelineBeingValidated;
+        if (pipelineBeingValidated.name().equals(pipelineName)) return pipelineBeingValidated;
         return PipelineConfigurationCache.getInstance().getPipelineConfig(pipelineName.toString());
     }
 
@@ -166,10 +167,20 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return cruiseConfig.getTemplates().hasTemplateNamed(template);
     }
 
+    @Override
+    public SCM findScmById(String scmID) {
+        return cruiseConfig.getSCMs().find(scmID);
+    }
+
+    @Override
+    public PackageRepository findPackageById(String packageId) {
+        return cruiseConfig.getPackageRepositories().findPackageRepositoryHaving(packageId) ;
+    }
+
     public Set<CaseInsensitiveString> getPipelinesWithDependencyMaterials() {
         return PipelineConfigurationCache.getInstance().getPipelinesWithDependencyMaterials();
     }
-    
+
     public PipelineGroups getGroups() {
         return cruiseConfig.getGroups();
     }

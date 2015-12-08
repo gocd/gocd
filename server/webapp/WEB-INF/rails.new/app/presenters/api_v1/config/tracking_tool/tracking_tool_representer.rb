@@ -31,22 +31,17 @@ module ApiV1
         TRACKING_TOOL_CLASS_TO_TYPE_MAP = TRACKING_TOOL_TYPE_TO_CLASS_MAP.invert.freeze
 
         alias_method :tracking_tool, :represented
+
+        error_representer(lambda { |tracking_tool|
+          if tracking_tool
+            TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP[tracking_tool.class()]::ERROR_KEYS
+          end
+        })
         property :type, exec_context: :decorator, skip_parse: true
         nested :attributes,
                decorator: lambda { |tracking_tool, *|
                  TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP[tracking_tool.class]
                }
-
-        property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
-
-
-        def errors
-          mapped_errors = {}
-          tracking_tool.errors.each do |key, value|
-            mapped_errors[matching_error_key(key)] = value
-          end
-          mapped_errors
-        end
 
         class << self
           def get_class(type)
@@ -55,16 +50,6 @@ module ApiV1
         end
 
         private
-
-        def error_keys
-          tool_class = TRACKING_TOOL_TYPE_TO_REPRESENTER_MAP[tracking_tool.class]
-          tool_class.new(tracking_tool).error_keys
-        end
-
-        def matching_error_key key
-          return error_keys[key] if error_keys[key]
-          key
-        end
 
         def type
           TRACKING_TOOL_CLASS_TO_TYPE_MAP[tracking_tool.class] || (raise ApiV1::UnprocessableEntity, "Invalid Tracking Tool type '#{tracking_tool.class}'. It has to be one of '#{TRACKING_TOOL_CLASS_TO_TYPE_MAP.keys.join(', ')}.'")

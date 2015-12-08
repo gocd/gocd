@@ -18,12 +18,14 @@ module ApiV1
   module Config
     class StageAuthorizationRepresenter < ApiV1::BaseRepresenter
       alias_method :authorization, :represented
+
+      error_representer
+
       collection :roles,
                  getter: lambda { |roles| roles().map { |role| role.getName().to_s } },
                  setter: lambda { |val, options| val.map { |role| self.add(com.thoughtworks.go.config.AdminRole.new(CaseInsensitiveString.new(role))) } }
       collection :users, getter: lambda { |users| users().map { |user| user.getName().to_s } },
                  setter:         lambda { |val, options| val.each { |user| self.add(com.thoughtworks.go.config.AdminUser.new(CaseInsensitiveString.new(user))) } }
-      property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
     end
   end
 end

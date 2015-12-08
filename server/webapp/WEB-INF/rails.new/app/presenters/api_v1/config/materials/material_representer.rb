@@ -43,13 +43,28 @@ module ApiV1
         }
         alias_method :material_config, :represented
 
+        error_representer({
+                            "materialName"      => "name",
+                            "folder"            => "destination",
+                            "autoUpdate"        => "auto_update",
+                            "filterAsString"    => "filter",
+                            "checkexternals"    => "check_externals",
+                            "serverAndPort"     => "port",
+                            "useTickets"        => "use_tickets",
+                            "pipelineName"      => "pipeline",
+                            "stageName"         => "stage",
+                            "pipelineStageName" => "pipeline",
+                            "packageId"         => "ref",
+                            "scmId"             => "ref"
+                          }
+        )
+
         property :type, getter: lambda { |options| MATERIAL_TO_TYPE_MAP[self.class] }, skip_parse: true
 
         nested :attributes,
                decorator: lambda { |material_config, *|
                  MATERIAL_TYPE_TO_REPRESENTER_MAP[material_config.class]
                }
-        property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
         class << self
           def get_material_type(type)

@@ -18,10 +18,9 @@ module ApiV1
   module Config
   class ParamRepresenter < ApiV1::BaseRepresenter
     alias_method :param, :represented
-
+    error_representer
     property :name
     property :value
-    property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
   end
     end

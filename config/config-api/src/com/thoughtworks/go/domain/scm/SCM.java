@@ -210,6 +210,10 @@ public class SCM implements Serializable, Validatable {
         return pluginConfiguration.getId();
     }
 
+    public Boolean doesPluginExist(){
+        return SCMMetadataStore.getInstance().hasPlugin(getPluginId());
+    }
+
     @PostConstruct
     public void applyPluginMetadata() {
         String pluginId = getPluginId();

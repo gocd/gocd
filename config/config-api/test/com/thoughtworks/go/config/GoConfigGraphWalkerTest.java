@@ -21,8 +21,8 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -120,10 +120,21 @@ public class GoConfigGraphWalkerTest {
         PackageDefinition packageDefinition = mock(PackageDefinition.class);
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("package-id");
         setField(packageMaterialConfig, "packageDefinition", packageDefinition);
+
+        BasicCruiseConfig config = new BasicCruiseConfig();
+        PackageRepository packageRepository=mock(PackageRepository.class);
+        when(packageRepository.getPackages()).thenReturn(new Packages(packageDefinition));
+        when(packageDefinition.getRepository()).thenReturn(packageRepository);
+        when(packageRepository.doesPluginExist()).thenReturn(true);
+        when(packageDefinition.getId()).thenReturn("package-id");
+        config.getPackageRepositories().add(packageRepository);
+
+        final ConfigSaveValidationContext context = new ConfigSaveValidationContext(config);
+
         new GoConfigGraphWalker(packageMaterialConfig).walk(new GoConfigGraphWalker.Handler() {
             @Override
             public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
+                validatable.validate(context);
             }
         });
         verify(packageDefinition, never()).validate(any(ValidationContext.class));
@@ -132,12 +143,17 @@ public class GoConfigGraphWalkerTest {
     @Test
     public void shouldNotWalkSCMMaterialWhileTraversingPluggableSCMMaterial() {
         SCM scmConfig = mock(SCM.class);
+        when(scmConfig.getName()).thenReturn("scm");
+        when(scmConfig.getId()).thenReturn("scm-id");
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
         setField(pluggableSCMMaterialConfig, "scmConfig", scmConfig);
+        BasicCruiseConfig config = new BasicCruiseConfig();
+        config.getSCMs().add(scmConfig);
+        final ConfigSaveValidationContext context = new ConfigSaveValidationContext(config);
         new GoConfigGraphWalker(pluggableSCMMaterialConfig).walk(new GoConfigGraphWalker.Handler() {
             @Override
             public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
+                validatable.validate(context);
             }
         });
         verify(scmConfig, never()).validate(any(ValidationContext.class));

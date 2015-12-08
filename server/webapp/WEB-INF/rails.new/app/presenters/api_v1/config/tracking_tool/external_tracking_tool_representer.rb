@@ -20,12 +20,10 @@ module ApiV1
       class ExternalTrackingToolRepresenter < ApiV1::BaseRepresenter
         alias_method :tracking_tool, :represented
 
+        ERROR_KEYS = {'link' => 'url_pattern'}
+
         property :link, as: :url_pattern
         property :regex
-
-        def error_keys
-          {}
-        end
       end
     end
   end

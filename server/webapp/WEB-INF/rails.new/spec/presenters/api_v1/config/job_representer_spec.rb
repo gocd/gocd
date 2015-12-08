@@ -91,7 +91,7 @@ describe ApiV1::Config::JobRepresenter do
                                ],
         resources:             %w(Linux Java),
         tasks:                 [
-                                 { type: 'ant', attributes: { working_directory: 'working-directory', build_file: 'build-file', target: 'target' } }
+                                 { type: 'ant', attributes: {working_directory: 'working-directory', build_file: 'build-file', target: 'target', run_if: [], on_cancel: nil} }
                                ],
         tabs:                  [
                                  { name: 'coverage', path: 'Jcoverage/index.html' },
@@ -255,6 +255,7 @@ describe ApiV1::Config::JobRepresenter do
 
   it 'should map errors' do
     job_config = JobConfig.new
+    job_config.setRunInstanceCount(-2);
     plans      = ArtifactPlans.new
     plans.add(TestArtifactPlan.new(nil, '../foo'))
     job_config.setArtifactPlans(plans)
@@ -270,56 +271,54 @@ describe ApiV1::Config::JobRepresenter do
   def job_hash_with_errors
     {
       name:                  nil,
-      run_instance_count:    nil,
+      run_instance_count:    -2,
       timeout:               nil,
       environment_variables: [],
       resources:             [],
       tasks:                 [
                                {
                                  type:       'fetch',
-                                 attributes: { pipeline: '', stage: '', job: '', is_source_a_file: false, source: nil, destination: '' },
+                                 attributes: {pipeline: '', stage: '', job: '', is_source_a_file: false, source: nil, destination: '', run_if: [], on_cancel: nil},
                                  errors:     {
-                                   job:   ['Job is a required field.'],
-                                   src:   ['Should provide either srcdir or srcfile'],
-                                   stage: ['Stage is a required field.']
+                                   job:    ['Job is a required field.'],
+                                   source: ['Should provide either srcdir or srcfile'],
+                                   stage:  ['Stage is a required field.']
                                  }
                                }
                              ],
       tabs:                  [
                                {
-                                 name:   'coverage#1',
-                                 path:   '/Jcoverage/index.html',
                                  errors: {
                                    name: ["Tab name 'coverage#1' is not unique.",
                                           "Tab name 'coverage#1' is invalid. This must be alphanumeric and can contain underscores and periods."
                                          ]
-                                 }
+                                 },
+                                 name:   'coverage#1',
+                                 path:   '/Jcoverage/index.html'
                                },
                                {
-                                 name:   'coverage#1',
-                                 path:   '/Jcoverage/path.html',
                                  errors: {
                                    name: ["Tab name 'coverage#1' is not unique.",
                                           "Tab name 'coverage#1' is invalid. This must be alphanumeric and can contain underscores and periods."
                                          ]
-                                 }
+                                 },
+                                 name:   'coverage#1',
+                                 path:   '/Jcoverage/path.html'
                                }
                              ],
       artifacts:             [
                                {
-                                 source:      nil,
-                                 destination: '../foo',
-                                 type:        'test',
                                  errors:      {
-                                   destination: ['Invalid destination path. Destination path should match the pattern '+ com.thoughtworks.go.config.validation.FilePathTypeValidator::PATH_PATTERN],
-                                   source:      ["Job 'null' has an artifact with an empty source"]
-
-                                 }
-                               }
-                             ],
+                                   source:      ["Job 'null' has an artifact with an empty source"],
+                                   destination: ["Invalid destination path. Destination path should match the pattern ([^. ].+[^. ])|([^. ][^. ])|([^. ])"]
+                                 },
+                                 source:      nil,
+                                 destination: "../foo",
+                                 type:        "test"}],
       properties:            nil,
       errors:                {
-        name: ['Name is a required field']
+        run_instance_count: ["'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime."],
+        name:               ["Name is a required field"]
       }
     }
   end

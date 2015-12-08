@@ -27,7 +27,7 @@ module ApiV1
 
         def to_hash(*options)
           return nil if on_cancel_config.getTask.getTaskType.eql?("killallchildprocess")
-          TaskRepresenter.new(on_cancel_config.getTask).to_hash(url_builder: nil)
+          TaskRepresenter.new(on_cancel_config.getTask).to_hash
         end
       end
     end

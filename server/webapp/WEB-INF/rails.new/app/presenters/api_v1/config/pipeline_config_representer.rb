@@ -19,6 +19,13 @@ module ApiV1
     class PipelineConfigRepresenter < ApiV1::BaseRepresenter
       alias_method :pipeline, :represented
 
+      error_representer({
+                          'labelTemplate' => 'label_template',
+                          'params'        => 'parameters',
+                          'variables'     => 'environment_variables',
+                          'trackingTool'  => 'tracking_tool'
+                        })
+
       link :self do |opts|
         opts[:url_builder].apiv1_admin_pipeline_url(name: pipeline.name)
       end
@@ -77,14 +84,8 @@ module ApiV1
                class:      com.thoughtworks.go.config.TimerConfig,
                skip_parse: SkipParseOnBlank
 
-      property :errors,
-               exec_context: :decorator,
-               decorator:    ApiV1::Config::ErrorRepresenter,
-               skip_parse:   true,
-               skip_render:  lambda { |object, options| object.empty? }
-
-
       delegate :name, :name=, to: :pipeline
+
       def parameters
         pipeline.params
       end
@@ -136,11 +137,13 @@ module ApiV1
         end
       end
 
-      def errors
+      def errors_with_material_config_errors
         pipeline.errors.addAll(pipeline.materialConfigs.errors)
-        pipeline.errors
+
+        errors_without_material_config_errors
       end
 
+      alias_method_chain :errors, :material_config_errors
     end
   end
 end

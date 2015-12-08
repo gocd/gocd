@@ -19,6 +19,8 @@ module ApiV1
     class ArtifactRepresenter < ApiV1::BaseRepresenter
       alias_method :artifact, :represented
 
+      error_representer({"src" => "source", "dest" => "destination"})
+
       ARTIFACT_TYPE_TO_STRING_TYPE_MAP = {
         ArtifactType::unit => 'test',
         ArtifactType::file => 'build'
@@ -32,24 +34,9 @@ module ApiV1
       property :src, as: :source
       property :dest, as: :destination
       property :type, exec_context: :decorator, skip_parse: true
-      property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
       def type
         ARTIFACT_TYPE_TO_STRING_TYPE_MAP[artifact.getArtifactType]
-      end
-
-      def errors
-        mapped_errors = artifact.errors
-
-        if src_errors = mapped_errors.delete('src')
-          mapped_errors['source'] = src_errors
-        end
-
-        if dest_errors = mapped_errors.delete('dest')
-          mapped_errors['destination'] = dest_errors
-        end
-
-        mapped_errors
       end
 
       class << self

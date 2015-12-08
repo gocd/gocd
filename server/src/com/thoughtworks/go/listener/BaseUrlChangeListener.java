@@ -48,7 +48,7 @@ public class BaseUrlChangeListener implements ConfigChangedListener {
                     + "Secure Site URL was changed from [%s] to [%s]", siteUrl, newSiteUrl, secureSiteUrl, newSecureSiteUrl));
         }
 
-        setUrls(siteUrl, secureSiteUrl);
+        setUrls(newSiteUrl, newSecureSiteUrl);
     }
 
     private void setUrls(ServerSiteUrlConfig siteUrl, ServerSiteUrlConfig secureSiteUrl) {

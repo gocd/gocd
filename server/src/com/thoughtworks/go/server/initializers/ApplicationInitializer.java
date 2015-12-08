@@ -79,6 +79,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
     @Autowired private PipelineConfigService pipelineConfigService;
+    @Autowired private ServerVersionInfoManager serverVersionInfoManager;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -132,6 +133,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             ServletHelper.init();
             // initialize static accessors
             Toggles.initializeWith(featureToggleService);
+            serverVersionInfoManager.initialize();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

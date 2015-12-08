@@ -163,6 +163,14 @@
         <set name="rails_bound">true</set>
     </rule>
 
+
+    <rule>
+        <name>Update Check URLs</name>
+        <from>^/(api/version_infos/.*)$</from>
+        <to last="true">/rails/$1</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
     <rule>
         <name>Already rails bound</name>
         <from>^/(rails/.*)$</from>

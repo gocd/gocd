@@ -240,4 +240,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.RunIfConfigs unless defined? RunIfConfigs
   java_import com.thoughtworks.go.plugin.api.task.TaskConfigProperty unless defined? TaskConfigProperty
   java_import com.thoughtworks.go.config.PipelineConfigSaveValidationContext unless defined? PipelineConfigSaveValidationContext
+  java_import com.thoughtworks.go.domain.GoVersion unless defined? GoVersion
+  java_import com.thoughtworks.go.domain.VersionInfo unless defined? VersionInfo
 end

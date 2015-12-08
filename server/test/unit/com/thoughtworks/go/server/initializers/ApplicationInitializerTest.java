@@ -123,6 +123,8 @@ public class ApplicationInitializerTest {
     private ContextRefreshedEvent contextRefreshedEvent;
     @Mock
     private PipelineConfigService pipelineConfigService;
+    @Mock
+    private ServerVersionInfoManager serverVersionInfoManager;
 
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();

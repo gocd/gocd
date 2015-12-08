@@ -31,7 +31,9 @@ import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
@@ -487,7 +489,32 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldTurnOffPeriodicGCByDefault(){
+    public void shouldTurnOffPeriodicGCByDefault() {
         assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+    }
+
+    @Test
+    public void shouldGetUpdateServerPublicKeyFilePath(){
+        assertThat(SystemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.propertyName(), is("go.update.server.public.key.file.name"));
+
+        System.setProperty("go.update.server.public.key.file.name", "public_key");
+        assertThat(systemEnvironment.getUpdateServerPublicKeyPath(), is(systemEnvironment.getConfigDir() + "/public_key"));
+    }
+
+    @Test
+    public void shouldGetUpdateServerUrl(){
+        assertThat(SystemEnvironment.GO_UPDATE_SERVER_URL.propertyName(), is("go.update.server.url"));
+
+        System.setProperty("go.update.server.url", "http://update_server_url");
+        assertThat(systemEnvironment.getUpdateServerUrl(), is("http://update_server_url"));
+    }
+
+    @Test
+    public void shouldCheckIfGOUpdatesIsEnabled(){
+        assertThat(SystemEnvironment.GO_CHECK_UPDATES.propertyName(), is("go.check.updates"));
+        assertTrue(systemEnvironment.isGOUpdateCheckEnabled());
+
+        System.setProperty("go.check.updates", "false");
+        assertFalse(systemEnvironment.isGOUpdateCheckEnabled());
     }
 }

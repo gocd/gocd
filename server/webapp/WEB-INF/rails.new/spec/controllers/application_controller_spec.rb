@@ -140,6 +140,11 @@ describe ApplicationController do
       expect(Spring).to receive(:bean).with('mingleConfigService').and_return(service = Object.new)
       expect(controller.mingle_config_service).to eq(service)
     end
+
+    it "should load version_info_service" do
+      expect(Spring).to receive(:bean).with('versionInfoService').and_return(service = Object.new)
+      expect(controller.version_info_service).to eq(service)
+    end
   end
 
   describe :default_as_empty_list do

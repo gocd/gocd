@@ -600,7 +600,21 @@ describe ApplicationHelper do
      )
      expect(actual).to eq(expected)
    end
-
   end
 
+  describe :go_update do
+    it 'should fetch the new go release' do
+      version_info_service.should_receive(:getGoUpdate).and_return("1.2.3-1")
+
+      expect(go_update).to eq("1.2.3-1")
+    end
+  end
+
+  describe :check_go_updates? do
+    it 'should return true if go version update check is enabled' do
+      version_info_service.should_receive(:isGOUpdateCheckEnabled).and_return(true)
+
+      expect(check_go_updates?).to be_true
+    end
+  end
 end

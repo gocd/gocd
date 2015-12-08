@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
+import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -42,6 +43,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
@@ -53,6 +55,7 @@ public class GoVelocityViewTest {
     private SecurityContextImpl securityContext;
     @Mock private RailsAssetsService railsAssetsService;
     @Mock private FeatureToggleService featureToggleService;
+    @Mock private VersionInfoService versionInfoService;
 
     @Before
     public void setUp() throws Exception {
@@ -61,6 +64,7 @@ public class GoVelocityViewTest {
         Toggles.initializeWith(featureToggleService);
         view = spy(new GoVelocityView());
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
+        doReturn(versionInfoService).when(view).getVersionInfoService();
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
         securityContext = new SecurityContextImpl();
@@ -72,6 +76,7 @@ public class GoVelocityViewTest {
             public String getUsername() {
                 return "test1";
             }
+
             public String getDn() {
                 return "cn=Test User, ou=Beijing, ou=Employees, ou=Enterprise, ou=Principal";
             }
@@ -172,6 +177,7 @@ public class GoVelocityViewTest {
         when(railsAssetsService.getAssetPath("cruise.ico")).thenReturn("assets/cruise.ico");
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
+        doReturn(versionInfoService).when(view).getVersionInfoService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 
@@ -197,6 +203,7 @@ public class GoVelocityViewTest {
         when(railsAssetsService.getAssetPath("css/application.css")).thenReturn("assets/css/application.css");
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
+        doReturn(versionInfoService).when(view).getVersionInfoService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 
@@ -216,5 +223,19 @@ public class GoVelocityViewTest {
         view.exposeHelpers(velocityContext, servletRequest);
 
         assertThat((Boolean) velocityContext.get(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY), is(true));
+    }
+
+    @Test
+    public void shouldSetGoUpdateFeatureValues() throws Exception {
+        Request servletRequest = mock(Request.class);
+
+        when(versionInfoService.isGOUpdateCheckEnabled()).thenReturn(true);
+        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
+        when(versionInfoService.getGoUpdate()).thenReturn("15.3.0-123");
+
+        view.exposeHelpers(velocityContext, servletRequest);
+
+        assertTrue((Boolean) velocityContext.get(GoVelocityView.GO_UPDATE_CHECK_ENABLED));
+        assertThat((String) velocityContext.get(GoVelocityView.GO_UPDATE), is("15.3.0-123"));
     }
 }

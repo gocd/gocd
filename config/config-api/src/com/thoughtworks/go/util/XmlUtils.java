@@ -32,6 +32,9 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 public class XmlUtils {
+    private static final String PROLOG_START = "<?xml ";
+    private static final String PROLOG_END = " ?>";
+
     public static void writeXml(Document document, OutputStream outputStream) throws IOException {
         xmlOutputer().output(document, outputStream);
     }
@@ -94,5 +97,17 @@ public class XmlUtils {
 
     public static boolean matchUsingRegex(Pattern pattern, String textToMatch) {
         return pattern.matcher(textToMatch).matches();
+    }
+
+    public static String stripProlog(String line) {
+        if (line.matches("^\\s*<\\?xml\\b.*$")) {
+            int start = line.indexOf(PROLOG_START);
+            int end = line.indexOf(PROLOG_END) + PROLOG_END.length();
+            if (end > start) {
+                String prolog = line.substring(start, end);
+                line = line.replace(prolog, "");
+            }
+        }
+        return line;
     }
 }

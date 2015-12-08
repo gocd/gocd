@@ -64,5 +64,41 @@ public class XmlUtilsTest {
         assertThat(document.getRootElement().getChildren().size(),is(2));
     }
 
+    @Test
+    public void shouldStripPrologAndLeaveLeadingWhitespace() throws Exception {
+        String xmlWithProlog = "           <?xml version=\"1.0\" encoding=\"UTF-8\" ?><something><good/></something>";
 
+        String actual = XmlUtils.stripProlog(xmlWithProlog);
+
+        assertThat(actual, is("           <something><good/></something>"));
+    }
+
+    @Test
+    public void shouldStripPrologWithoutEncoding() throws Exception {
+        String expected = "<something><good/></something>";
+        String xmlWithProlog = "<?xml version=\"1.0\" ?>" + expected;
+
+        String actual = XmlUtils.stripProlog(xmlWithProlog);
+
+        assertThat(actual, is(expected));
+    }
+
+    @Test
+    public void shouldStripOnlyLeadingPrologWithEmbeddedProlog() throws Exception {
+        String expected = "<something><![CDATA[ <?xml version=\"1.0\" encoding=\"UTF-8\" ?> ]]></something>";
+        String xmlWithProlog = "<?xml version=\"1.0\" ?>" + expected;
+
+        String actual = XmlUtils.stripProlog(xmlWithProlog);
+
+        assertThat(actual, is(expected));
+    }
+
+    @Test
+    public void shouldStripNothingWithoutLeadingPrologButWithEmbeddedProlog() throws Exception {
+        String xml = "         <something><![CDATA[ <?xml version=\"1.0\" encoding=\"UTF-8\" ?> ]]></something>";
+
+        String actual = XmlUtils.stripProlog(xml);
+
+        assertThat(actual, is(xml));
+    }
 }

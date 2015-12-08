@@ -20,17 +20,13 @@ import java.io.*;
 import java.util.UUID;
 
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
 
 import static com.thoughtworks.go.domain.UnitTestReportGenerator.FAILED_TEST_COUNT;
@@ -42,213 +38,156 @@ import static com.thoughtworks.go.util.TestUtils.restoreConsoleOutput;
 import static com.thoughtworks.go.util.TestUtils.suppressConsoleOutput;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-
-@RunWith(JMock.class)
 public class UnitTestReportGeneratorTest {
-    private final Mockery context = new ClassMockery();
-
     private File testFolder;
     private UnitTestReportGenerator generator;
-    private DefaultGoPublisher publisher;
+    @Mock private DefaultGoPublisher publisher;
 
     @Before
     public void setUp() {
+        initMocks(this);
+        suppressConsoleOutput();
         testFolder = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
-        publisher = context.mock(DefaultGoPublisher.class);
         generator = new UnitTestReportGenerator(publisher, testFolder);
     }
 
     @After
     public void tearDown() {
+        restoreConsoleOutput();
         FileUtil.deleteFolder(testFolder);
     }
 
     @Test
     public void shouldGenerateReportForNUnit() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "206"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "NaN"));
-            }
-        });
-
-
         copyAndClose(source("TestResult.xml"), target("test-result.xml"));
-        final Properties properties = generator.generate(testFolder.listFiles());
+
+        generator.generate(testFolder.listFiles());
+
         assertThat(testFolder.listFiles().length, is(2));
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "206"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "NaN"));
     }
 
     @Test
     public void shouldGenerateReportForNUnitXmlWithByteOrderMark() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "18"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "1.570"));
-            }
-        });
-
         copyAndClose(source("NunitTestResultWithByteOrderMark.xml"), target("test-result.xml"));
+
         generator.generate(testFolder.listFiles());
+
         assertThat(testFolder.listFiles().length, is(2));
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "18"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "1.570"));
     }
 
     @Test
     public void shouldNotGenerateAnyReportIfNoTestResultsWereFound() throws IOException, ArtifactPublishingException {
-        expectZeroedProperties();
-
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
-        restoreConsoleOutput();
+
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
     }
 
     @Test
     public void shouldNotGenerateAnyReportIfTestResultIsEmpty() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).consumeLine("Ignoring file empty.xml - it is not a recognised test file.");
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "0.000"));
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-            }
-        });
-
         copyAndClose(source("empty.xml"), target("empty.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
-        restoreConsoleOutput();
-    }
 
-    private void expectZeroedProperties() throws ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "0.000"));
-            }
-        });
+        verify(publisher).consumeLine("Ignoring file empty.xml - it is not a recognised test file.");
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
+        verify(publisher).upload(any(File.class), anyString());
     }
 
     @Test
     public void shouldNotGenerateAnyReportIfTestReportIsInvalid() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "0.000"));
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-            }
-        });
-
         copyAndClose(source("InvalidTestResult.xml"), target("Invalid.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
-        restoreConsoleOutput();
+
+        verify(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
+        verify(publisher).upload(any(File.class), anyString());
     }
 
     //This is bug #2319
     @Test
     public void shouldStillUploadResultsIfReportIsIllegalBug2319() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "0.000"));
-            }
-        });
-
         copyAndClose(source("xml_samples/Coverage.xml"), target("Coverage.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
-        restoreConsoleOutput();
+
+        verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "0.000"));
     }
 
     @Test
     public void shouldGenerateReportForJUnitAlso() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "1"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "0.456"));
-            }
-        });
-
         copyAndClose(source("SerializableProjectConfigUtilTest.xml"), target("AgentTest.xml"));
 
         generator.generate(testFolder.listFiles());
+
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "1"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "0.456"));
     }
 
     @Test
     public void shouldGenerateReportForJUnitWithMultipleFiles() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "5"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "3"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(TEST_TIME, "1.286"));
-            }
-        });
-
-
         copyAndClose(source("UnitTestReportGeneratorTest.xml"), target("UnitTestReportGeneratorTest.xml"));
         copyAndClose(source("SerializableProjectConfigUtilTest.xml"),
                 target("SerializableProjectConfigUtilTest.xml"));
 
         generator.generate(testFolder.listFiles());
+
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "5"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "3"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "1.286"));
     }
 
     @Test
-    public void shouldGenerateReportForNUnitGivenMutipleInputFiles() throws IOException, ArtifactPublishingException {
-        context.checking(new Expectations() {
-            {
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "2762"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "120"));
-                one(publisher).setProperty(new Property(TEST_TIME, "221.766"));
-            }
-        });
-
+    public void shouldGenerateReportForNUnitGivenMultipleInputFiles() throws IOException, ArtifactPublishingException {
         copyAndClose(source("TestReport-Integration.xml"), target("test-result1.xml"));
         copyAndClose(source("TestReport-Unit.xml"), target("test-result2.xml"));
 
         generator.generate(testFolder.listFiles());
+
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "2762"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "120"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "221.766"));
     }
 
     @Test
     public void shouldGenerateReportForXmlFilesRecursivelyInAFolder() throws ArtifactPublishingException, IOException {
-         context.checking(new Expectations() {
-            {
-                one(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
-                one(publisher).upload(with(any(File.class)), with(any(String.class)));
-                one(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "204"));
-                one(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
-                one(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "6"));
-                one(publisher).setProperty(new Property(TEST_TIME, "80.231"));
-            }
-        });
-
         File reports = new File(testFolder.getAbsoluteFile(), "reports");
         reports.mkdir();
         File module = new File(reports, "module");
@@ -256,9 +195,27 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("xml_samples/Coverage.xml"), target("reports/module/Coverage.xml"));
         copyAndClose(source("xml_samples/TestResult.xml"), target("reports/TestResult.xml"));
 
-        suppressConsoleOutput();
         generator.generate(testFolder.listFiles());
-        restoreConsoleOutput();
+
+        verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "204"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "6"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "80.231"));
+    }
+
+    @Test
+    public void shouldGenerateReportForMinifiedXmlFiles() throws IOException {
+        copyAndClose(source("MinifiedTestReport.xml"), target("MinifiedTestReport.xml"));
+
+        generator.generate(testFolder.listFiles());
+
+        verify(publisher).upload(any(File.class), anyString());
+        verify(publisher).setProperty(new Property(TOTAL_TEST_COUNT, "2"));
+        verify(publisher).setProperty(new Property(FAILED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(IGNORED_TEST_COUNT, "0"));
+        verify(publisher).setProperty(new Property(TEST_TIME, "0.004"));
     }
 
     private OutputStream target(String targetFile) throws FileNotFoundException {

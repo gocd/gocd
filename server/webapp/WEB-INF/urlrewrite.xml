@@ -134,6 +134,21 @@
         <set name="rails_bound">true</set>
     </rule>
 
+    <!-- Rule for Rails Users API should be above the generic rule 'Rails API' -->
+    <rule>
+        <name>Rails Users Index and Delete API</name>
+        <from>^/api/users$</from>
+        <to last="true">/rails/api/users</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Users Show and Delete API</name>
+        <from>^/api/users/(.*)$</from>
+        <to last="true">/rails/api/users/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
     <rule>
         <name>Rails API</name>
         <from>^/(api/(?!admin/config).*)$</from>

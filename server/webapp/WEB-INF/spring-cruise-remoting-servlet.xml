@@ -31,6 +31,7 @@
 
     <task:scheduled-tasks>
         <task:scheduled ref="configRepository" method="garbageCollect" cron="${go.config.repo.gc.cron}"/>
+        <task:scheduled ref="configRepositoryGCWarningService" method="checkRepoAndAddWarningIfRequired" fixed-delay="${go.config.repo.gc.check.interval}"/>
     </task:scheduled-tasks>
 
     <bean name="/remoteBuildRepository" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"

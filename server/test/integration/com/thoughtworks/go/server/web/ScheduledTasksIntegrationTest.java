@@ -1,22 +1,23 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.service.ConfigRepository;
+import com.thoughtworks.go.service.ConfigRepositoryGCWarningService;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.core.Is;
 import org.junit.Test;
@@ -46,23 +47,34 @@ public class ScheduledTasksIntegrationTest {
     private ScheduledTaskRegistrar scheduledTaskRegistrar;
     @Autowired
     private ConfigRepository configRepository;
+    @Autowired
+    private ConfigRepositoryGCWarningService configRepositoryGCWarningService;
 
     @Test
-    public void shouldSetupASchedulerForConfigRepoGarbageCollection(){
-        Map<Runnable, String> cronTasks = (Map<Runnable, String>) ReflectionUtil.getField(scheduledTaskRegistrar, "cronTasks");
+    public void shouldSetupASchedulerForConfigRepoGarbageCollection() {
+        assertScheduledTask("cronTasks", configRepository, "garbageCollect", "0 0 7 ? * SUN");
+    }
+
+    @Test
+    public void shouldSetupASchedulerForConfigRepoGarbageCollectionCheck() {
+        assertScheduledTask("fixedDelayTasks", configRepositoryGCWarningService, "checkRepoAndAddWarningIfRequired", 28800000L);
+    }
+
+    private void assertScheduledTask(String taskType, Object targetObject, String methodName, Object time) {
+        Map<Runnable, String> fixedDelayTasks = (Map<Runnable, String>) ReflectionUtil.getField(scheduledTaskRegistrar, taskType);
         boolean matchFound = false;
-        for (Runnable runnable : cronTasks.keySet()) {
+        for (Runnable runnable : fixedDelayTasks.keySet()) {
             if (runnable instanceof ScheduledMethodRunnable) {
                 ScheduledMethodRunnable scheduledMethodRunnable = (ScheduledMethodRunnable) runnable;
                 Object target = scheduledMethodRunnable.getTarget();
-                if (target.equals(configRepository)) {
+                if (target.equals(targetObject)) {
                     matchFound = true;
                     Method method = scheduledMethodRunnable.getMethod();
-                    assertThat(method.getName(), Is.is("garbageCollect"));
-                    assertThat(cronTasks.get(runnable), is("0 0 1 * * ?"));
+                    assertThat(method.getName(), Is.is(methodName));
+                    assertThat(fixedDelayTasks.get(runnable), is(time));
                 }
             }
         }
-        assertThat("Could not find a scheduled job for ConfigRepository.garbageCollect", matchFound, Is.is(true));
+        assertThat("Could not find a scheduled job for configRepositoryGCWarningService.checkRepoAndAddWarningIfRequired", matchFound, Is.is(true));
     }
 }

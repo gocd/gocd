@@ -25,14 +25,12 @@ import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 public class BaseUrlChangeListenerTest {
 
     @Test
-    public void shouldFlushCacheWhenBaseUrlConfigChanges() throws IOException {
+    public void shouldFlushCacheWhenBaseUrlConfigChangesAndUpdateTheSiteURLAndSecureSiteURLToTheNewValues() throws IOException {
         GoCache cache = mock(GoCache.class);
         BaseUrlChangeListener listener = new BaseUrlChangeListener(new ServerSiteUrlConfig(""),
                 new ServerSiteUrlConfig(""), cache);
@@ -40,8 +38,9 @@ public class BaseUrlChangeListenerTest {
         newCruiseConfig.setServerConfig(serverConfigWith("http://blah.com", "https://blah.com"));
 
         listener.onConfigChange(newCruiseConfig);
+        listener.onConfigChange(newCruiseConfig);
 
-        verify(cache).remove("urls_cache");
+        verify(cache, times(1)).remove("urls_cache");
     }
 
     @Test

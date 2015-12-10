@@ -46,27 +46,18 @@ public class ApiSessionFilterTest {
     private FilterChain chain;
     @Mock
     private HttpSession session;
-    @Mock
-    private FeatureToggleService featureToggleService;
     private ApiSessionFilter filter;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        Toggles.initializeWith(featureToggleService);
 
         when(systemEnvironment.get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS)).thenReturn(INACTIVE_INTERVAL);
         filter = new ApiSessionFilter(systemEnvironment);
     }
 
-    @After
-    public void tearDown() throws Exception {
-        Toggles.initializeWith(null);
-    }
-
     @Test
     public void shouldUseShortLivedSessionWhenSessionDoesNotExistForThisRequest() throws Exception {
-        when(featureToggleService.isToggleOn(Toggles.API_REQUESTS_SHORT_SESSION_FEATURE_TOGGLE_KEY)).thenReturn(true);
         ensureNoSessionExistsBeforeReachingFilter();
 
         filter.doFilterHttp(request, response, chain);
@@ -77,35 +68,12 @@ public class ApiSessionFilterTest {
 
     @Test
     public void shouldNotUseShortLivedSessionWhenSessionExistsForThisRequest() throws Exception {
-        when(featureToggleService.isToggleOn(Toggles.API_REQUESTS_SHORT_SESSION_FEATURE_TOGGLE_KEY)).thenReturn(true);
         ensureSessionExistsBeforeReachingFilter();
 
         filter.doFilterHttp(request, response, chain);
 
         verify(chain, times(1)).doFilter(request, response);
         verify(session, times(0)).setMaxInactiveInterval(INACTIVE_INTERVAL);
-    }
-
-    @Test
-    public void shouldNotUseShortLivedSessionWhenSessionDoesNotExistEvenAfterChainHasRun() throws Exception {
-        when(featureToggleService.isToggleOn(Toggles.API_REQUESTS_SHORT_SESSION_FEATURE_TOGGLE_KEY)).thenReturn(false);
-        when(request.getSession(false)).thenReturn(null, null);
-
-        filter.doFilterHttp(request, response, chain);
-
-        verify(chain, times(1)).doFilter(request, response);
-        verify(session, times(0)).setMaxInactiveInterval(anyInt());
-    }
-
-    @Test
-    public void shouldNotUseShortLivedSessionWhenTheFeatureIsToggledOff() throws Exception {
-        when(featureToggleService.isToggleOn(Toggles.API_REQUESTS_SHORT_SESSION_FEATURE_TOGGLE_KEY)).thenReturn(false);
-        ensureNoSessionExistsBeforeReachingFilter();
-
-        filter.doFilterHttp(request, response, chain);
-
-        verify(chain, times(1)).doFilter(request, response);
-        verify(session, times(0)).setMaxInactiveInterval(anyInt());
     }
 
     private void ensureNoSessionExistsBeforeReachingFilter() {

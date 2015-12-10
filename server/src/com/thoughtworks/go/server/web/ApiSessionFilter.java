@@ -41,22 +41,16 @@ public class ApiSessionFilter extends SpringSecurityFilter {
 
     @Override
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        boolean shouldUseLongLivedSessions = !Toggles.isToggleOn(Toggles.API_REQUESTS_SHORT_SESSION_FEATURE_TOGGLE_KEY);
+        boolean hadSessionBeforeStarting = request.getSession(false) != null;
 
-        if (shouldUseLongLivedSessions) {
+        try {
             chain.doFilter(request, response);
-        } else {
-            boolean hadSessionBeforeStarting = request.getSession(false) != null;
+        } finally {
+            HttpSession session = request.getSession(false);
+            boolean hasSessionNow = session != null;
 
-            try {
-                chain.doFilter(request, response);
-            } finally {
-                HttpSession session = request.getSession(false);
-                boolean hasSessionNow = session != null;
-
-                if (!hadSessionBeforeStarting && hasSessionNow) {
-                    session.setMaxInactiveInterval(idleTimeoutInSeconds);
-                }
+            if (!hadSessionBeforeStarting && hasSessionNow) {
+               session.setMaxInactiveInterval(idleTimeoutInSeconds);
             }
         }
     }

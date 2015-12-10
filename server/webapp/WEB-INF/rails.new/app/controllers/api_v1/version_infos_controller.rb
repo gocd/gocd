@@ -20,8 +20,10 @@ module ApiV1
 
     def update_server
       go_latest_version = ApiV1::GoLatestVersion.new(params, system_environment)
-
-      return render_message(message_tampered_error_message, 400, {}) unless go_latest_version.valid?
+      unless go_latest_version.valid?
+        Rails.logger.error('[Go Update Check] Latest version update failed, version information from update server tampered.')
+        return render_message(message_tampered_error_message, 400, {})
+      end
 
       result = HttpLocalizedOperationResult.new
       version_info = version_info_service.updateServerLatestVersion(go_latest_version.latest_version, result)

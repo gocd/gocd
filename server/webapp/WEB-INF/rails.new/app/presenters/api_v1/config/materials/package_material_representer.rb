@@ -21,8 +21,8 @@ module ApiV1
         alias_method :material_config, :represented
 
         property :packageId, as: :ref, setter: lambda { |value, options|
-          package_definition = options[:config].getPackageRepositories().findPackageWith(value)
-          self.setPackageDefinition(package_definition) if (package_definition)
+          package_definition = options[:go_config].getPackageRepositories().findPackageDefinitionWith(value)
+          self.setPackageDefinition(package_definition)
           self.setPackageId(value)
         }
       end

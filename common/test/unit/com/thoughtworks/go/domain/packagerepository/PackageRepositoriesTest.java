@@ -182,8 +182,8 @@ public class PackageRepositoriesTest {
 
 
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);
-        assertThat(packageRepositories.findPackageWith("pid3"), is(packageDefinitionThree));
-        assertThat(packageRepositories.findPackageWith("pid5"), is(nullValue()));
+        assertThat(packageRepositories.findPackageDefinitionWith("pid3"), is(packageDefinitionThree));
+        assertThat(packageRepositories.findPackageDefinitionWith("pid5"), is(nullValue()));
     }
 
     @Before

@@ -112,7 +112,7 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
         }
     }
 
-    public PackageDefinition findPackageWith(String packageId) {
+    public PackageDefinition findPackageDefinitionWith(String packageId) {
         for (PackageRepository packageRepository : this) {
             for (PackageDefinition packageDefinition : packageRepository.getPackages()) {
                 if (packageDefinition.getId().equals(packageId)) {

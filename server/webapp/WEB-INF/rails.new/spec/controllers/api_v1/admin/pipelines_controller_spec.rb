@@ -407,11 +407,11 @@ describe ApiV1::Admin::PipelinesController do
     end
 
     def pipeline (pipeline_name="pipeline1", material_type="hg", task_type="exec")
-      { label_template: "Jyoti-${COUNT}", enable_pipeline_locking: false, name: "#{pipeline_name}", template_name: nil, parameters: [], environment_variables: [], materials: [{ type: "#{material_type}", attributes: { url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: { ignore: [] } }, name: "dummyhg", auto_update: true }], stages: [{ name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: { roles: [], users: [] } }, environment_variables: [], jobs: [{ name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{ type: "#{task_type}", attributes: { command: "ls", working_dir: nil }, run_if: [] }], tabs: [], artifacts: [], properties: [] }] }], mingle: { base_url: nil, project_identifier: nil, mql_grouping_conditions: nil } }
+      { label_template: "Jyoti-${COUNT}", enable_pipeline_locking: false, name: pipeline_name, template_name: nil, parameters: [], environment_variables: [], materials: [{ type: material_type, attributes: { url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: { ignore: [] } }, name: "dummyhg", auto_update: true }], stages: [{ name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: { roles: [], users: [] } }, environment_variables: [], jobs: [{ name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{ type: task_type, attributes: { command: "ls", working_dir: nil }, run_if: [] }], tabs: [], artifacts: [], properties: [] }] }], mingle: { base_url: nil, project_identifier: nil, mql_grouping_conditions: nil } }
     end
 
     def pipeline_with_pluggable_material (pipeline_name, material_type, ref)
-      { label_template: "${COUNT}", name: "#{pipeline_name}", materials: [{ type: "#{material_type}", attributes: { ref: "#{ref}"}}], stages: [{ name: "up42_stage", jobs: [{ name: "up42_job", tasks: [{ type: "exec", attributes: { command: "ls"} }] }] }] }
+      { label_template: "${COUNT}", name: pipeline_name, materials: [{ type: material_type, attributes: { ref: ref}}], stages: [{ name: "up42_stage", jobs: [{ name: "up42_job", tasks: [{ type: "exec", attributes: { command: "ls"} }] }] }] }
     end
   end
 

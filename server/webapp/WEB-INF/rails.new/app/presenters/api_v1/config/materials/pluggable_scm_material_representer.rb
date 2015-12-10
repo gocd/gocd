@@ -21,8 +21,8 @@ module ApiV1
                 alias_method :material_config, :represented
 
                 property :scmId, as: :ref, setter: lambda { |value, options|
-                  scm = options[:config].getSCMs().find(value)
-                  self.setSCMConfig(scm) if(scm)
+                  scm = options[:go_config].getSCMs().find(value)
+                  self.setSCMConfig(scm)
                   self.setScmId(value)
                 }
 

@@ -43,6 +43,26 @@ describe ApiV1::Config::EnvironmentVariableRepresenter do
     expect(config).to eq(get_secure_variable)
   end
 
+  it 'should deserialize an ambiguous encrypted variable (with both value and encrypted_value) to a variable with errors' do
+    config    = EnvironmentVariableConfig.new
+    presenter = ApiV1::Config::EnvironmentVariableRepresenter.new(config)
+    config = presenter.from_hash(name: 'PASSWORD', secure: true, value: 'plainText', encrypted_value: 'c!ph3rt3xt')
+    expect(config.errors.getAllOn('value').to_a).to eq(['You may only specify `value` or `encrypted_value`, not both!'])
+    expect(config.errors.getAllOn('encryptedValue').to_a).to eq(['You may only specify `value` or `encrypted_value`, not both!'])
+  end
+
+  it 'should deserialize an unambiguous encrypted variable (with either value or encrypted_value) to a variable without errors' do
+    config    = EnvironmentVariableConfig.new
+    presenter = ApiV1::Config::EnvironmentVariableRepresenter.new(config)
+    config = presenter.from_hash(name: 'PASSWORD', secure: true, value: 'plainText')
+    expect(config.errors).to be_empty
+
+    config    = EnvironmentVariableConfig.new
+    presenter = ApiV1::Config::EnvironmentVariableRepresenter.new(config)
+    config = presenter.from_hash(name: 'PASSWORD', secure: true, encrypted_value: 'c!ph3rt3xt')
+    expect(config.errors).to be_empty
+  end
+
   def get_secure_variable
     EnvironmentVariableConfig.new(GoCipher.new, 'secure', 'confidential', true)
   end

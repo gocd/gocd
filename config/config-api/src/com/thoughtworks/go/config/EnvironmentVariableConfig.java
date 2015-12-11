@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.security.GoCipher;
@@ -31,6 +25,13 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+
+import javax.annotation.PostConstruct;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * @understands an environment variable value that will be passed to a job when it is run
@@ -91,7 +92,8 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         this.goCipher = goCipher;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
@@ -136,8 +138,9 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
-        this.name=name;
+        this.name = name;
     }
 
     void addTo(EnvironmentVariableContext context) {
@@ -218,8 +221,8 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         return isSecure;
     }
 
-    public void setIsSecure(boolean isSecure){
-        this.isSecure=isSecure;
+    public void setIsSecure(boolean isSecure) {
+        this.isSecure = isSecure;
     }
 
 
@@ -227,15 +230,26 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         return !isSecure();
     }
 
-    public void setValue(String value){
+    @Deprecated
+    // prefer using deserialize instead
+    public void setValue(String value) {
         if (isSecure) {
             encryptedValue = new EncryptedVariableValueConfig(encrypt(value));
         } else {
             this.value = new VariableValueConfig(value);
         }
     }
-    public void setEncryptedValue(String encrypted){
+
+    public void setEncryptedValue(String encrypted) {
         this.encryptedValue = new EncryptedVariableValueConfig(encrypted);
+    }
+
+    public void setValue(VariableValueConfig value) {
+        this.value = value;
+    }
+
+    public void setEncryptedValue(EncryptedVariableValueConfig encryptedValue) {
+        this.encryptedValue = encryptedValue;
     }
 
     public String getValue() {
@@ -250,8 +264,8 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         }
     }
 
-    public String getDisplayValue(){
-        if(isSecure()) return "****";
+    public String getDisplayValue() {
+        if (isSecure()) return "****";
         return getValue();
     }
 
@@ -263,28 +277,50 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         Map attributeMap = (Map) attributes;
         this.name = (String) attributeMap.get(EnvironmentVariableConfig.NAME);
         String value = (String) attributeMap.get(EnvironmentVariableConfig.VALUE);
-        if(StringUtil.isBlank(name) && StringUtil.isBlank(value)){
-            throw new IllegalArgumentException(String.format("Need not null/empty name & value %s:%s",this.name, value));
+        if (StringUtil.isBlank(name) && StringUtil.isBlank(value)) {
+            throw new IllegalArgumentException(String.format("Need not null/empty name & value %s:%s", this.name, value));
         }
         this.isSecure = BooleanUtils.toBoolean((String) attributeMap.get(EnvironmentVariableConfig.SECURE));
         Boolean isChanged = BooleanUtils.toBoolean((String) attributeMap.get(EnvironmentVariableConfig.ISCHANGED));
-        if(isSecure){
-                this.encryptedValue = isChanged? new EncryptedVariableValueConfig(encrypt(value)) : new EncryptedVariableValueConfig(value);
-        }else{
+        if (isSecure) {
+            this.encryptedValue = isChanged ? new EncryptedVariableValueConfig(encrypt(value)) : new EncryptedVariableValueConfig(value);
+        } else {
             this.value = new VariableValueConfig(value);
         }
     }
 
     @PostConstruct
     public void ensureEncrypted() {
-        if(isSecure && value != null) {
+        if (isSecure && value != null) {
             encryptedValue = new EncryptedVariableValueConfig(encrypt(value.getValue()));
             value = null;
         }
     }
 
-    public String getValueForDisplay(){
-        if(isSecure){
+    public void deserialize(String name, String value, boolean isSecure, String encryptedValue) throws InvalidCipherTextException {
+        setName(name);
+        setIsSecure(isSecure);
+
+        if (isSecure) {
+            if (isNotBlank(value) && isNotBlank(encryptedValue)) {
+                addError("value", "You may only specify `value` or `encrypted_value`, not both!");
+                addError("encryptedValue", "You may only specify `value` or `encrypted_value`, not both!");
+            }
+
+            if (isNotBlank(value)) {
+                setEncryptedValue(new EncryptedVariableValueConfig(new GoCipher().encrypt(value)));
+            }
+
+            if (isNotBlank(encryptedValue)) {
+                setEncryptedValue(new EncryptedVariableValueConfig(encryptedValue));
+            }
+        } else {
+            setValue(new VariableValueConfig(value));
+        }
+    }
+
+    public String getValueForDisplay() {
+        if (isSecure) {
             return getEncryptedValue();
         }
         return value.getValue();

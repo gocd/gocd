@@ -16,12 +16,10 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,10 +35,14 @@ import javax.xml.xpath.XPathFactory;
 
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.XmlUtils;
 import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
+import org.jdom.Document;
+import org.jdom.JDOMException;
 
 public class UnitTestReportGenerator implements TestReportGenerator {
     private final File folderToUpload;
@@ -151,18 +153,12 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     }
 
     private void pumpFileContent(File file, PrintStream out) throws IOException {
-        BufferedReader bufferedReader = null;
         try {
-            bufferedReader = new BufferedReader(new FileReader(file));
-            String line = bufferedReader.readLine();
-            if (!line.contains("<?xml")) { // skip prolog
-                out.println(line);
-            }
-            while ((line = bufferedReader.readLine()) != null) {
-                out.println(line);
-            }
-        } finally {
-            IOUtils.closeQuietly(bufferedReader);
+            String content = FileUtil.readToEnd(new BOMInputStream(new FileInputStream(file)));
+            final Document document = XmlUtils.buildXmlDocument(content);
+            XmlUtils.writeXml(document.getRootElement(), out);
+        } catch (JDOMException e) {
+            publisher.consumeLine(MessageFormat.format("The file {0} could not be parsed as XML document: {1}", file.getName(), e.getMessage()));
         }
     }
 

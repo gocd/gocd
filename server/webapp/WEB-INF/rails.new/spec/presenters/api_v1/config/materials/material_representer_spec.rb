@@ -263,16 +263,29 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
 
     it "should deserialize" do
       presenter           = ApiV1::Config::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
-      deserialized_object = presenter.from_hash(package_material_hash)
-      expected            = MaterialConfigsMother.package_material_config()
-      expect(deserialized_object.getPackageId).to eq(expected.getPackageId)
+      go_config = BasicCruiseConfig.new
+      repo = PackageRepositoryMother.create("repoid")
+      go_config.getPackageRepositories().add(repo)
+
+      deserialized_object = presenter.from_hash(package_material_hash("package-name"), {go_config: go_config})
+      expect(deserialized_object.getPackageId).to eq("package-name")
+      expect(deserialized_object.getPackageDefinition).to eq(repo.findPackage("package-name"))
     end
 
-    def package_material_hash
+    it "should set packageId during deserialisation if matching package definition is not present in config" do
+      presenter           = ApiV1::Config::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
+      go_config = BasicCruiseConfig.new
+
+      deserialized_object = presenter.from_hash(package_material_hash("package-name"), {go_config: go_config})
+      expect(deserialized_object.getPackageId).to eq("package-name")
+      expect(deserialized_object.getPackageDefinition).to eq(nil)
+    end
+
+    def package_material_hash(package_id = "p-id")
       {
         type:       'package',
         attributes: {
-          ref: "p-id"
+          ref: package_id
         }
       }
     end
@@ -280,6 +293,10 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
   end
 
   describe :pluggable do
+    before :each do
+      @go_config = BasicCruiseConfig.new
+
+    end
     it "should represent a pluggable scm material" do
       pluggable_scm_material = MaterialConfigsMother.pluggableSCMMaterialConfig()
       presenter              = ApiV1::Config::Materials::MaterialRepresenter.prepare(pluggable_scm_material)
@@ -288,12 +305,23 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     it "should deserialize" do
+      scm= SCMMother.create("scm-id")
+      @go_config.getSCMs().add(scm)
+
       presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
-      deserialized_object = presenter.from_hash(pluggable_scm_material_hash)
-      expected            = MaterialConfigsMother.pluggableSCMMaterialConfig()
+      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
       expect(deserialized_object.getScmId).to eq("scm-id")
+      expect(deserialized_object.getSCMConfig).to eq(scm)
       expect(deserialized_object.getFolder).to eq("des-folder")
       expect(deserialized_object.filter.getStringForDisplay).to eq("**/*.html,**/foobar/")
+    end
+
+    it "should set scmId during deserialisation if matching package definition is not present in config" do
+      presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+
+      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
+      expect(deserialized_object.getScmId).to eq("scm-id")
+      expect(deserialized_object.getSCMConfig).to eq(nil)
     end
 
     it "should deserialize pluggable scm material with nulls" do
@@ -305,7 +333,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
                                                     filter: nil,
                                                     destination: nil
                                                 }
-                                                })
+                                                }, {go_config: @go_config})
       expect(deserialized_object.name.to_s).to eq("")
       expect(deserialized_object.getScmId).to eq("23a28171-3d5a-4912-9f36-d4e1536281b0")
       expect(deserialized_object.getFolder).to be_nil

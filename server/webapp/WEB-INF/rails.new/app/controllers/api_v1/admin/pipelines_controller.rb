@@ -50,7 +50,7 @@ module ApiV1
 
       def get_pipeline_from_request
         @pipeline_config_from_request ||= PipelineConfig.new.tap do |config|
-          ApiV1::Config::PipelineConfigRepresenter.new(config).from_hash(params[:pipeline])
+          ApiV1::Config::PipelineConfigRepresenter.new(config).from_hash(params[:pipeline], {go_config: go_config_service.getCurrentConfig()})
         end
       end
 

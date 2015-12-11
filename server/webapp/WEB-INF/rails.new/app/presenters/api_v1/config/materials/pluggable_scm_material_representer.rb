@@ -20,7 +20,12 @@ module ApiV1
             class PluggableScmMaterialRepresenter < ApiV1::BaseRepresenter
                 alias_method :material_config, :represented
 
-                property :scm_id, as: :ref
+                property :scmId, as: :ref, setter: lambda { |value, options|
+                  scm = options[:go_config].getSCMs().find(value)
+                  self.setSCMConfig(scm)
+                  self.setScmId(value)
+                }
+
                 property :filter,
                          decorator:  ApiV1::Config::Materials::FilterRepresenter,
                          class:      com.thoughtworks.go.config.materials.Filter,

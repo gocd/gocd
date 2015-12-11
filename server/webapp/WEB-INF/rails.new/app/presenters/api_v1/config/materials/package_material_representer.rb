@@ -15,21 +15,17 @@
 ##########################################################################
 
 module ApiV1
-    module Config
-        module Materials
-            class PackageMaterialRepresenter < ApiV1::BaseRepresenter
-                alias_method :material_config, :represented
-        
-                property :package_id, as: :ref, exec_context: :decorator
+  module Config
+    module Materials
+      class PackageMaterialRepresenter < ApiV1::BaseRepresenter
+        alias_method :material_config, :represented
 
-                def package_id
-                    material_config.getPackageId
-                  end
-
-                def package_id=(value)
-                    material_config.setPackageId(value)
-                  end
-              end
-          end
+        property :packageId, as: :ref, setter: lambda { |value, options|
+          package_definition = options[:go_config].getPackageRepositories().findPackageDefinitionWith(value)
+          self.setPackageDefinition(package_definition)
+          self.setPackageId(value)
+        }
       end
+    end
   end
+end

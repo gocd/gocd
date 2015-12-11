@@ -22,6 +22,15 @@ describe ApiV1::Admin::PipelinesController do
     controller.stub("pipeline_config_service").and_return(@pipeline_config_service)
     @pipeline_pause_service = double("pipeline_pause_service")
     controller.stub("pipeline_pause_service").and_return(@pipeline_pause_service)
+    @go_config_service = double("go_config_service")
+    controller.stub("go_config_service").and_return(@go_config_service)
+    go_config = BasicCruiseConfig.new
+    @repo = PackageRepositoryMother.create("repoid")
+    @scm= SCMMother.create("scm-id")
+    go_config.getPackageRepositories().add(@repo)
+    go_config.getSCMs().add(@scm)
+    @go_config_service.stub(:getCurrentConfig).and_return(go_config)
+    @go_config_service.stub(:checkConfigFileValid).and_return(GoConfigValidity::valid())
   end
 
   after(:each) do
@@ -222,6 +231,36 @@ describe ApiV1::Admin::PipelinesController do
         expect(response.code).to eq("406")
         expect(actual_response).to eq({ :message => "Renaming of pipeline is not supported by this API." })
       end
+
+      it "should set package definition on to package material before save" do
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        pipeline_being_saved = nil
+        allow(@pipeline_config_service).to receive(:updatePipelineConfig) do |user, pipeline, result|
+          pipeline_being_saved = pipeline
+        end
+        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("latest-etag")}\""
+
+        put_with_api_header :update, name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "package", "package-name")
+
+        expect(response).to be_ok
+        expect(pipeline_being_saved.materialConfigs().first().getPackageDefinition()).to eq(@repo.findPackage("package-name"))
+      end
+
+      it "should set scm config on to pluggable scm material before save" do
+        pipeline_being_saved = nil
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+
+        allow(@pipeline_config_service).to receive(:updatePipelineConfig) do |user, pipeline, result|
+          pipeline_being_saved = pipeline
+        end
+        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("latest-etag")}\""
+
+        put_with_api_header :update, name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id")
+        expect(response).to be_ok
+        expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
+      end
+
+
     end
 
     describe :create do
@@ -294,6 +333,36 @@ describe ApiV1::Admin::PipelinesController do
         json = JSON.parse(response.body).deep_symbolize_keys
         expect(json[:message]).to eq("Pipeline group must be specified for creating a pipeline.")
       end
+
+      it "should set package definition on to package material before save" do
+        pipeline_being_saved = nil
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
+
+        allow(@pipeline_config_service).to receive(:createPipelineConfig) do |user, pipeline, result, group|
+          pipeline_being_saved = pipeline
+        end
+
+        post_with_api_header :create, name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "package", "package-name"), :group => "group"
+        expect(response).to be_ok
+        expect(pipeline_being_saved.materialConfigs().first().getPackageDefinition()).to eq(@repo.findPackage("package-name"))
+      end
+
+      it "should set scm config on to pluggable scm material before save" do
+        pipeline_being_saved = nil
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
+
+        allow(@pipeline_config_service).to receive(:createPipelineConfig) do |user, pipeline, result, group|
+          pipeline_being_saved = pipeline
+        end
+
+        post_with_api_header :create, name: @pipeline_name, :pipeline => pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id"), :group => "group"
+        expect(response).to be_ok
+        expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
+      end
     end
 
     def expected_data_with_validation_errors
@@ -338,7 +407,11 @@ describe ApiV1::Admin::PipelinesController do
     end
 
     def pipeline (pipeline_name="pipeline1", material_type="hg", task_type="exec")
-      { label_template: "Jyoti-${COUNT}", enable_pipeline_locking: false, name: "#{pipeline_name}", template_name: nil, parameters: [], environment_variables: [], materials: [{ type: "#{material_type}", attributes: { url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: { ignore: [] } }, name: "dummyhg", auto_update: true }], stages: [{ name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: { roles: [], users: [] } }, environment_variables: [], jobs: [{ name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{ type: "#{task_type}", attributes: { command: "ls", working_dir: nil }, run_if: [] }], tabs: [], artifacts: [], properties: [] }] }], mingle: { base_url: nil, project_identifier: nil, mql_grouping_conditions: nil } }
+      { label_template: "Jyoti-${COUNT}", enable_pipeline_locking: false, name: pipeline_name, template_name: nil, parameters: [], environment_variables: [], materials: [{ type: material_type, attributes: { url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: { ignore: [] } }, name: "dummyhg", auto_update: true }], stages: [{ name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: { roles: [], users: [] } }, environment_variables: [], jobs: [{ name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{ type: task_type, attributes: { command: "ls", working_dir: nil }, run_if: [] }], tabs: [], artifacts: [], properties: [] }] }], mingle: { base_url: nil, project_identifier: nil, mql_grouping_conditions: nil } }
+    end
+
+    def pipeline_with_pluggable_material (pipeline_name, material_type, ref)
+      { label_template: "${COUNT}", name: pipeline_name, materials: [{ type: material_type, attributes: { ref: ref}}], stages: [{ name: "up42_stage", jobs: [{ name: "up42_job", tasks: [{ type: "exec", attributes: { command: "ls"} }] }] }] }
     end
   end
 

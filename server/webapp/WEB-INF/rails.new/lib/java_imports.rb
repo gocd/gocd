@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,6 +58,8 @@ module JavaImports
   java_import com.thoughtworks.go.domain.materials.MatchedRevision unless defined? MatchedRevision
   java_import com.thoughtworks.go.domain.materials.Material unless defined? Material
   java_import com.thoughtworks.go.config.materials.Materials unless defined? Materials
+  java_import com.thoughtworks.go.config.materials.Filter unless defined? Filter
+  java_import com.thoughtworks.go.config.materials.IgnoredFiles unless defined? IgnoredFiles
   java_import com.thoughtworks.go.domain.materials.MaterialConfig unless defined? MaterialConfig
   java_import com.thoughtworks.go.config.materials.MaterialConfigs unless defined? MaterialConfigs
   java_import com.thoughtworks.go.domain.materials.Modification unless defined? Modification
@@ -107,7 +109,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.testinfo.FailureDetails unless defined? FailureDetails
   java_import com.thoughtworks.go.domain.testinfo.StageTestRuns unless defined? StageTestRuns
   java_import com.thoughtworks.go.domain.testinfo.TestStatus unless defined? TestStatus
-  java_import com.thoughtworks.go.config.TrackingTool unless defined? TrackingTool
   java_import com.thoughtworks.go.config.TrackingTool unless defined? TrackingTool
   java_import com.thoughtworks.go.domain.User unless defined? User
   java_import com.thoughtworks.go.i18n.Localizer unless defined? Localizer
@@ -234,4 +235,11 @@ module JavaImports
   java_import com.thoughtworks.go.config.pluggabletask.PluggableTask unless defined? PluggableTask
   java_import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore unless defined? PluggableTaskConfigStore
   java_import com.thoughtworks.go.server.service.support.toggle.Toggles unless defined? Toggles
+  java_import com.thoughtworks.go.config.AuthConfig unless defined? AuthConfig
+  java_import com.thoughtworks.go.config.RunIfConfig unless defined? RunIfConfig
+  java_import com.thoughtworks.go.domain.RunIfConfigs unless defined? RunIfConfigs
+  java_import com.thoughtworks.go.plugin.api.task.TaskConfigProperty unless defined? TaskConfigProperty
+  java_import com.thoughtworks.go.config.PipelineConfigSaveValidationContext unless defined? PipelineConfigSaveValidationContext
+  java_import com.thoughtworks.go.domain.GoVersion unless defined? GoVersion
+  java_import com.thoughtworks.go.domain.VersionInfo unless defined? VersionInfo
 end

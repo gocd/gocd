@@ -95,6 +95,17 @@
                     </ul>
                     #end
 
+                    #if( $goUpdateCheckEnabled && $goUpdate)
+                        <div class="notifications">
+                            <span class="bell"></span>
+                            <div class="hover-container">
+                                <div class="hover">
+                                    <span>A new release of GoCD - <a href="http://www.go.cd/download/" target="_blank">$goUpdate</a> is available.</span>
+                                </div>
+                            </div>
+                        </div>
+                    #end
+
                     <ul class="tabs">
                         <li id="cruise-header-tab-recent-activity"
                             class="#if($current_tab == 'pipeline' || $current_tab == 'Current Activity') current #end">

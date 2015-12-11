@@ -131,7 +131,8 @@ describe Admin::JobsController do
         assigns[:task_view_models].should == tvms
 
         actual_job_assigned = assigns[:job]
-        actual_job_assigned.should == JobConfig.new(CaseInsensitiveString.new(""), nil, nil, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
+        job_config_new = JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
+        actual_job_assigned.should == job_config_new
         actual_job_assigned.tasks().first.should == AntTask.new
         assert_template layout: false
       end

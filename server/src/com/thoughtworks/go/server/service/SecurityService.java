@@ -39,18 +39,11 @@ public class SecurityService {
     }
 
     public boolean hasViewPermissionForPipeline(Username username, String pipelineName) {
-        return hasViewPermissionForPipeline(CaseInsensitiveString.str(username.getUsername()), pipelineName);
-    }
-
-    /**
-     * @deprecated use hasViewPermissionForPipeline(Username username, String pipelineName) instead
-     */
-    public boolean hasViewPermissionForPipeline(String username, String pipelineName) {
         String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
         if (groupName == null) {
             return true;
         }
-        return hasViewPermissionForGroup(username, groupName);
+        return hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), groupName);
     }
 
     public boolean hasViewPermissionForGroup(String userName, String pipelineGroupName) {
@@ -150,7 +143,7 @@ public class SecurityService {
     }
 
     public boolean hasViewOrOperatePermissionForPipeline(Username username, String pipelineName) {
-        return hasViewPermissionForPipeline(CaseInsensitiveString.str(username.getUsername()), pipelineName) ||
+        return hasViewPermissionForPipeline(username, pipelineName) ||
                 hasOperatePermissionForPipeline(username.getUsername(), pipelineName);
     }
 

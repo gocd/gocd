@@ -17,10 +17,8 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.OperatingSystem;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
-import com.thoughtworks.go.util.command.ProcessRunner;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -56,6 +54,7 @@ public class DevelopmentServer {
 
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
+        setupPeriodicGC(systemEnvironment);
         File pluginsDist = new File("../tw-go-plugins/dist/");
         if (!pluginsDist.exists()) {
             pluginsDist.mkdirs();
@@ -77,6 +76,14 @@ public class DevelopmentServer {
             System.err.println("Failed to start Go server. Exception:");
             e.printStackTrace();
         }
+    }
+
+    private static void setupPeriodicGC(SystemEnvironment systemEnvironment) {
+        systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD, 1L);
+        systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC, true);
+        systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE, true);
+        systemEnvironment.setProperty("go.config.repo.gc.cron", "0 0/1 * 1/1 * ?");
+        systemEnvironment.setProperty("go.config.repo.gc.check.interval", "5000");
     }
 
     private static void copyDbFiles() throws IOException {

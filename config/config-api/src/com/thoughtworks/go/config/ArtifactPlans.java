@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,18 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
+
+import com.thoughtworks.go.domain.Artifact;
+import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.go.domain.Artifact;
-import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.domain.ConfigErrors;
 
 @ConfigTag("artifacts")
 @ConfigCollection(Artifact.class)
@@ -37,12 +36,21 @@ public class ArtifactPlans extends BaseCollection<ArtifactPlan> implements Valid
         super(plans);
     }
 
+    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+        validate(validationContext);
+        boolean isValid = errors().isEmpty();
+
+        for (ArtifactPlan artifactPlan : this) {
+            isValid = artifactPlan.validateTree(validationContext) && isValid;
+        }
+        return isValid;
+    }
     public void validate(ValidationContext validationContext) {
         validateUniqueness();
     }
 
     private void validateUniqueness() {
-        List<ArtifactPlan> plans = new ArrayList<ArtifactPlan>();
+        List<ArtifactPlan> plans = new ArrayList<>();
         for (ArtifactPlan artifactPlan : this) {
             artifactPlan.validateUniqueness(plans);
         }
@@ -69,18 +77,13 @@ public class ArtifactPlans extends BaseCollection<ArtifactPlan> implements Valid
                 continue;
             }
             String type = (String) attrMap.get("artifactTypeValue");
+
             if (TestArtifactPlan.TEST_PLAN_DISPLAY_NAME.equals(type)) {
-                TestArtifactPlan plan = new TestArtifactPlan();
-                plan.setSrc(source);
-                plan.setDest(destination);
-                this.add(plan);
+                this.add(new TestArtifactPlan(source, destination));
             } else {
-                this.add(artifactPlan(attrMap));
+                this.add(new ArtifactPlan(source, destination));
             }
         }
     }
 
-    private ArtifactPlan artifactPlan(Map attrMap) {
-        return new ArtifactPlan(ArtifactType.file, (String) attrMap.get(ArtifactPlan.SRC), (String) attrMap.get(ArtifactPlan.DEST));
-    }
 }

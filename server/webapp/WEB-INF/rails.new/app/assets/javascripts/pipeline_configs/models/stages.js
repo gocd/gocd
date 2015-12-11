@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins', './jobs', './environment_variables'], function (m, _, s, Mixins, Jobs, EnvironmentVariables) {
+define([
+  'mithril', 'lodash', 'string-plus',
+  './model_mixins',
+  './jobs', './environment_variables', './approval'
+], function (m, _, s,
+             Mixins,
+             Jobs, EnvironmentVariables, Approval) {
 
   var Stages = function (data) {
     Mixins.HasMany.call(this, {factory: Stages.Stage.create, as: 'Stage', collection: data, uniqueOn: 'name'});
@@ -29,9 +35,10 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './jobs', './envir
     this.name                  = m.prop(s.defaultToIfBlank(data.name, ''));
     this.fetchMaterials        = m.prop(data.fetchMaterials);
     this.cleanWorkingDirectory = m.prop(data.cleanWorkingDirectory);
-    this.neverCleanArtifacts   = m.prop(data.neverCleanArtifacts);
-    this.environmentVariables  = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
-    this.jobs                  = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.jobs, new Jobs())));
+    this.neverCleanupArtifacts = m.prop(data.neverCleanupArtifacts);
+    this.environmentVariables  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
+    this.jobs                  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.jobs, new Jobs())));
+    this.approval              = m.prop(data.approval);
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -62,9 +69,10 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './jobs', './envir
       name:                  data.name,
       fetchMaterials:        data.fetch_materials,
       cleanWorkingDirectory: data.clean_working_directory,
-      neverCleanArtifacts:   data.never_clean_artifacts,
+      neverCleanupArtifacts: data.never_cleanup_artifacts,
       environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
-      jobs:                  Jobs.fromJSON(data.jobs)
+      jobs:                  Jobs.fromJSON(data.jobs),
+      approval:              Approval.fromJSON(data.approval || {})
     });
   };
 

@@ -136,8 +136,8 @@ public class PackageDefinitionServiceTest {
 
         PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer);
 
-        ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = new ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>();
-        ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = new ArgumentCaptor<RepositoryConfiguration>();
+        ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
+        ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
         when(packageAsRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
                 packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture())).thenReturn(
@@ -167,8 +167,8 @@ public class PackageDefinitionServiceTest {
 
 
         PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer);
-        ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = new ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>();
-        ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = new ArgumentCaptor<RepositoryConfiguration>();
+        ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
+        ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
         when(packageAsRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
                 packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture())).thenReturn(
@@ -200,8 +200,8 @@ public class PackageDefinitionServiceTest {
         PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer);
 
 
-        ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = new ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>();
-        ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = new ArgumentCaptor<RepositoryConfiguration>();
+        ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
+        ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
         when(packageAsRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
                 packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture())).thenThrow(

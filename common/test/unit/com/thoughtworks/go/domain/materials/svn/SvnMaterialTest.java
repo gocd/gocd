@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.svn;
 
@@ -22,10 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
@@ -41,7 +38,8 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import com.thoughtworks.go.util.json.JsonMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
@@ -53,14 +51,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -299,10 +298,10 @@ public class SvnMaterialTest {
     @Test
     public void shouldBeAbleToConvertToJson() {
         SvnMaterial material = MaterialsMother.svnMaterial("url");
-        JsonMap json = new JsonMap();
+        Map<String, Object> json = new LinkedHashMap<>();
         material.toJson(json, revision);
 
-        JsonValue jsonValue = JsonUtils.from(json);
+        JsonValue jsonValue = from(json);
         assertThat(jsonValue.getString("scmType"), is("Subversion"));
         assertThat(new File(jsonValue.getString("location")), is(new File(material.getUrl())));
         assertThat(jsonValue.getString("action"), is("Modified"));

@@ -57,11 +57,11 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -231,7 +231,7 @@ public class StageServiceTest {
 
     private SecurityService alwaysAllow() {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(eq(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername())), any(String.class))).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(eq(ALWAYS_ALLOW_USER), any(String.class))).thenReturn(true);
         return securityService;
     }
 
@@ -266,7 +266,7 @@ public class StageServiceTest {
     @Test
     public void findStageSummaryByIdentifierShouldRespondWith401WhenUserDoesNotHavePermissionToViewThePipeline() throws Exception {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername()), "pipeline_name")).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_name")).thenReturn(false);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
                 goCache);
@@ -281,7 +281,7 @@ public class StageServiceTest {
     @Test
     public void findStageSummaryByIdentifierShouldRespondWith404WhenNoStagesFound() throws Exception {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername()), "pipeline_does_not_exist")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_does_not_exist")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
                 goCache);
@@ -299,7 +299,7 @@ public class StageServiceTest {
     @Test
     public void findStageSummaryByIdentifierShouldRespondWith404WhenStagesHavingGivenCounterIsNotFound() throws Exception {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(ALWAYS_ALLOW_USER.getUsername()), "dev")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "dev")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
                 goCache);
@@ -558,7 +558,7 @@ public class StageServiceTest {
 	public void shouldDelegateToDAO_findDetailedStageHistoryByOffset() {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
 		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
 		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
@@ -573,7 +573,7 @@ public class StageServiceTest {
 	public void shouldPopulateErrorWhenPipelineNotFound_findDetailedStageHistoryByOffset() {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
 		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
 		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
@@ -590,7 +590,7 @@ public class StageServiceTest {
 	public void shouldPopulateErrorWhenUnauthorized_findDetailedStageHistoryByOffset() {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
 		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
 		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
@@ -607,7 +607,7 @@ public class StageServiceTest {
     public void shouldPopulateErrorWhenPipelineNotFound_findStageWithIdentifier() {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
                 changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
@@ -623,7 +623,7 @@ public class StageServiceTest {
     public void shouldPopulateErrorWhenUnauthorized_findStageWithIdentifier() {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline("looser", "pipeline")).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
                 changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -91,7 +91,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigAttribute(value = "labeltemplate", optional = true)
     private String labelTemplate = PipelineLabel.COUNT_TEMPLATE;
 
-    @ConfigSubtag @SkipParameterResolution
+    @ConfigSubtag
+    @SkipParameterResolution
     private ParamsConfig params = new ParamsConfig();
 
     @ConfigSubtag
@@ -150,24 +151,37 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
     }
 
-
+    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+        return new PipelineConfigTreeValidator(this).validate(validationContext);
+    }
 
     public void validate(ValidationContext validationContext) {
         validateLabelTemplate();
         validatePipelineName();
         validateStageNameUniqueness();
-        validateTemplateName();
+        if (!hasTemplate() && isEmpty()) {
+            addError("pipeline", String.format("Pipeline '%s' does not have any stages configured. A pipeline must have at least one stage.", name()));
+        }
+    }
+
+    public void validateTemplate(PipelineTemplateConfig templateConfig) {
+        if (hasTemplate()) {
+            if (new NameTypeValidator().isNameInvalid(templateName.toString())) {
+                errors().add(TEMPLATE_NAME, NameTypeValidator.errorMessage("template", templateName));
+            }
+            if (hasStages() && !hasTemplateApplied()) {
+                addError("stages", String.format("Cannot add stages to pipeline '%s' which already references template '%s'", this.name(), this.getTemplateName()));
+                addError("template", String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", this.getTemplateName(), this.name()));
+            }
+            if (templateConfig==null) {
+                addError("pipeline", String.format("Pipeline '%s' refers to non-existent template '%s'.", name(), templateName));
+            }
+        }
     }
 
     private void validatePipelineName() {
         if (!new NameTypeValidator().isNameValid(name)) {
             errors().add(NAME, NameTypeValidator.errorMessage("pipeline", name));
-        }
-    }
-
-    private void validateTemplateName() {
-        if (templateName != null && !new NameTypeValidator().isNameValid(templateName)) {
-            errors().add(TEMPLATE_NAME, NameTypeValidator.errorMessage("template", templateName));
         }
     }
 
@@ -184,8 +198,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             return;
         }
 
-        if(validateLabelTemplateTruncation(labelTemplate)){
-            addError("labelTemplate", String.format("Length of zero not allowed on label %s defined on pipeline %s.",labelTemplate,name));
+        if (validateLabelTemplateTruncation(labelTemplate)) {
+            addError("labelTemplate", String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelTemplate, name));
             return;
         }
 
@@ -200,6 +214,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private boolean validateLabelTemplateTruncation(String labelTemplate) {
         return LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN.matcher(labelTemplate).find();
+    }
+
+    private boolean hasStages(){
+        return !isEmpty();
     }
 
     private Predicate withNameSameAs(final String templateVariable) {
@@ -218,9 +236,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return errors;
     }
 
-	public List<StageConfig> getStages() {
-		return this;
-	}
+    public List<StageConfig> getStages() {
+        return this;
+    }
 
     public StageConfig getStage(final CaseInsensitiveString stageName) {
         return findBy(stageName);
@@ -297,12 +315,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return null;
     }
 
-    public boolean isConfigOriginSameAsOneOfMaterials()
-    {
-        if(!(this.origin instanceof RepoConfigOrigin))
+    public boolean isConfigOriginSameAsOneOfMaterials() {
+        if (!(this.origin instanceof RepoConfigOrigin))
             return false;
 
-        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)this.origin;
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         MaterialConfig configMaterial = repoConfigOrigin.getMaterial();
 
         for(MaterialConfig material : this.materialConfigs())
@@ -312,17 +329,17 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
         return false;
     }
-    public boolean isConfigOriginFromRevision(String revision)
-    {
-        if(!(this.origin instanceof RepoConfigOrigin))
+
+    public boolean isConfigOriginFromRevision(String revision) {
+        if (!(this.origin instanceof RepoConfigOrigin))
             return false;
 
-        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)this.origin;
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         return repoConfigOrigin.isFromRevision(revision);
     }
 
-    private static <T> T as(Class<T> clazz, Object o){
-        if(clazz.isInstance(o)){
+    private static <T> T as(Class<T> clazz, Object o) {
+        if (clazz.isInstance(o)) {
             return clazz.cast(o);
         }
         return null;
@@ -340,10 +357,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public Node getDependenciesAsNode() {
-        List<CaseInsensitiveString> pipelineDeps = new ArrayList<CaseInsensitiveString>();
+        List<Node.DependencyNode> pipelineDeps = new ArrayList<>();
         for (MaterialConfig material : materialConfigs) {
             if (material instanceof DependencyMaterialConfig) {
-                pipelineDeps.add(((DependencyMaterialConfig) material).getPipelineName());
+                DependencyMaterialConfig dependencyMaterialConfig = (DependencyMaterialConfig) material;
+                pipelineDeps.add(new Node.DependencyNode(dependencyMaterialConfig.getPipelineName(), dependencyMaterialConfig.getStageName()));
             }
         }
         return new Node(pipelineDeps);
@@ -482,6 +500,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return timer;
     }
 
+    public void setTimer(TimerConfig timer) {
+        this.timer = timer;
+    }
+
     public boolean requiresApproval() {
         if (isEmpty()) {
             return false;
@@ -540,7 +562,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean hasTemplate() {
-        return templateName != null;
+        return templateName != null && !StringUtil.isBlank(templateName.toString());
     }
 
     public CaseInsensitiveString getTemplateName() {
@@ -634,6 +656,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.params = paramsConfig;
     }
 
+    public void setParams(List<ParamConfig> paramsConfig) {
+        setParams(new ParamsConfig(paramsConfig));
+    }
+
     public ParamResolver applyOver(ParamResolver enclosingScope) {
         return enclosingScope.override(CLONER.deepClone(params));
     }
@@ -653,7 +679,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
         Map attributeMap = (Map) attributes;
         if (attributeMap.containsKey(NAME)) {
-            name = new CaseInsensitiveString((String) attributeMap.get(NAME));
+            setName((String) attributeMap.get(NAME));
         }
         if (attributeMap.containsKey(MATERIALS)) {
             materialConfigs.setConfigAttributes(attributeMap.get(MATERIALS));
@@ -696,6 +722,14 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             StageConfig firstStage = first();
             firstStage.setConfigAttributes(attributeMap);
         }
+    }
+
+    public void setName(String name) {
+        this.name = new CaseInsensitiveString(name);
+    }
+
+    public void setName(CaseInsensitiveString name) {
+        this.name = name;
     }
 
     private void setConfigurationType(Map attributeMap) {
@@ -806,11 +840,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
     }
 
-    public void validateNameUniqueness(Map<String, PipelineConfig> pipelineNameMap) {
-        String currentName = name.toLower();
-        PipelineConfig pipelineWithSameName = pipelineNameMap.get(currentName);
+    public void validateNameUniqueness(Map<CaseInsensitiveString, PipelineConfig> pipelineNameMap) {
+        PipelineConfig pipelineWithSameName = pipelineNameMap.get(name);
         if (pipelineWithSameName == null) {
-            pipelineNameMap.put(currentName, this);
+            pipelineNameMap.put(name, this);
         } else {
             pipelineWithSameName.nameConflictError();
             this.nameConflictError();

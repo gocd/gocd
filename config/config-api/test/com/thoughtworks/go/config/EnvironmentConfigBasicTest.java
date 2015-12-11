@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigOrigin;
@@ -52,7 +52,7 @@ public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
         environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
         cruiseConfig.addEnvironment(environmentConfig);
 
-        environmentConfig.validate(ValidationContext.forChain(cruiseConfig, environmentConfig));
+        environmentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, environmentConfig));
         EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
         assertThat(reference.errors().isEmpty(),is(false));
@@ -99,7 +99,7 @@ public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
         environmentConfig.addPipeline(new CaseInsensitiveString("unknown"));
         cruiseConfig.addEnvironment(environmentConfig);
 
-        environmentConfig.validate(ValidationContext.forChain(cruiseConfig, environmentConfig));
+        environmentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, environmentConfig));
         EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
         assertThat(reference.errors().isEmpty(),is(true));
@@ -114,7 +114,7 @@ public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
         environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
         cruiseConfig.addEnvironment(environmentConfig);
 
-        environmentConfig.validate(ValidationContext.forChain(cruiseConfig, environmentConfig));
+        environmentConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, environmentConfig));
         EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
 
         assertThat(reference.errors().isEmpty(),is(true));

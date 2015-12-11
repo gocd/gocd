@@ -31,6 +31,7 @@ class ApplicationController < ActionController::Base
 
   LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
 
+  helper Oauth2Provider::ApplicationHelper
 
   if Rails.env.development?
     before_filter do |controller|

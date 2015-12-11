@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
@@ -22,11 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ParamsAttributeAware;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -155,10 +151,14 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     @Override
     public final void validate(ValidationContext validationContext) {
-        if (name != null && !new NameTypeValidator().isNameValid(name)) {
+        if (name != null && !StringUtils.isBlank(CaseInsensitiveString.str(name)) && !new NameTypeValidator().isNameValid(name)) {
             errors().add(MATERIAL_NAME, NameTypeValidator.errorMessage("material", name));
         }
         validateConcreteMaterial(validationContext);
+    }
+
+    public void validateTree(PipelineConfigSaveValidationContext validationContext) {
+        validate(validationContext);
     }
 
     protected abstract void validateConcreteMaterial(ValidationContext validationContext);

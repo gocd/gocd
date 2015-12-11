@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+<!--
+  ~ Copyright 2015 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
 <!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 2.6//EN"
         "http://tuckey.org/res/dtds/urlrewrite3.2.dtd">
@@ -134,6 +134,21 @@
         <set name="rails_bound">true</set>
     </rule>
 
+    <!-- Rule for Rails Users API should be above the generic rule 'Rails API' -->
+    <rule>
+        <name>Rails Users Index and Delete API</name>
+        <from>^/api/users$</from>
+        <to last="true">/rails/api/users</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Users Show and Delete API</name>
+        <from>^/api/users/(.*)$</from>
+        <to last="true">/rails/api/users/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
     <rule>
         <name>Rails API</name>
         <from>^/(api/(?!admin/config).*)$</from>
@@ -144,6 +159,14 @@
     <rule>
         <name>Rails Internal API</name>
         <from>^/(api/config/internal/.*)$</from>
+        <to last="true">/rails/$1</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+
+    <rule>
+        <name>Update Check URLs</name>
+        <from>^/(api/version_infos/.*)$</from>
         <to last="true">/rails/$1</to>
         <set name="rails_bound">true</set>
     </rule>
@@ -214,12 +237,6 @@
         <name>RESTful rerun - Rerun a stage</name>
         <from>^/run/([^/]+)/([^/]+)/([^/]+)$</from>
         <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3</to>
-    </rule>
-
-    <rule>
-        <name>RESTful force - schedule pipeline or rerun its first stage</name>
-        <from>^/run/([^/]+)$</from>
-        <to type="forward">/admin/force?pipelineName=$1</to>
     </rule>
 
     <rule>
@@ -346,12 +363,6 @@
         <name>Pipeline history</name>
         <from>/tab/pipeline/history/([^/]+)</from>
         <to type="forward">/tab/pipeline/history?pipelineName=$1</to>
-    </rule>
-
-    <rule>
-        <name>Add Simple Pipeline</name>
-        <from>/tab/admin/pipelines/([^/]+)\.json(\?.+)?$</from>
-        <to type="forward">/tab/admin/pipelines/management.json?name=$1</to>
     </rule>
 
     <rule>

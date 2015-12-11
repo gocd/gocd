@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************#
 
-<div id="tab-content-of-failures" class="widget ansi-color-toggle-$color_logs_feature_toggle_key" $errors_extra_attrs >
+<div id="tab-content-of-failures" class="widget ansi-color-toggle" $errors_extra_attrs >
 <div>
     #if (!$presenter.hasBuildError() && !$presenter.hasFailedTests() && !$presenter.hasStacktrace() && !$presenter.hasServerFailure())
         #if ($presenter.isFailed())

@@ -10,3 +10,4 @@
     <li><%= link_to(l.string("SERVER_DETAILS"), url_for_path('about')) -%></li>
     <li class="last"><%= link_to(l.string("HELP_SMALL"), "http://www.go.cd/documentation/user/current", :target => "_blank") -%></li>
 </ul>
+<%= render :partial => "shared/version_updater" %>

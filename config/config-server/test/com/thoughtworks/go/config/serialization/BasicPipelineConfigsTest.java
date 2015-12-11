@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.serialization;
 
@@ -65,7 +65,7 @@ public class BasicPipelineConfigsTest {
             + "    </pipeline>\n"
             + "  </pipelines>\n"
             + "</cruise>\n\n";
-    
+
     private static final String VIEW_PERMISSION = "    <view>\n"
             + "      <user>jez</user>\n"
             + "      <user>lqiao</user>\n"
@@ -98,7 +98,7 @@ public class BasicPipelineConfigsTest {
                 + "  </authorization>\n"
                 + "  <pipeline name=\"pipeline1\">\n"
                 + "    <materials>\n"
-                + "      <svn url=\"http://some/svn/url\" dest=\"svnDir\" />\n"
+                + "      <svn url=\"http://some/svn/url\" dest=\"svnDir\" materialName=\"http___some_svn_url\" />\n"
                 + "    </materials>\n"
                 + "    <stage name=\"mingle\">\n"
                 + "      <jobs />\n"

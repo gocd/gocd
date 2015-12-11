@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.svn;
 
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -69,18 +69,18 @@ public class SvnMaterialConfigTest {
     @Test
     public void validate_shouldEnsureUrlIsNotBlank() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("", "", "", false);
-        svnMaterialConfig.validate(new ValidationContext(null));
+        svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.URL), is("URL cannot be blank"));
     }
 
     @Test
     public void validate_shouldEnsureMaterialNameIsValid() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("/foo", "", "", false);
-        svnMaterialConfig.validate(new ValidationContext(null));
+        svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.MATERIAL_NAME), is(nullValue()));
 
         svnMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
-        svnMaterialConfig.validate(new ValidationContext(null));
+        svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.MATERIAL_NAME),
                 is("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
@@ -89,7 +89,7 @@ public class SvnMaterialConfigTest {
     public void validate_shouldEnsureDestFilePathIsValid() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("/foo", "", "", false);
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "../a"));
-        svnMaterialConfig.validate(new ValidationContext(null));
+        svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.FOLDER), is("Dest folder '../a' is not valid. It must be a sub-directory of the working folder."));
     }
 

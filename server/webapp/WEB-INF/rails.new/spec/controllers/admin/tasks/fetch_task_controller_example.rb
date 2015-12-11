@@ -31,7 +31,7 @@ shared_examples_for :fetch_task_controller do
 
     it "should load auto-suggest data for fetch-edit form" do
       get :edit, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :type => FetchTask.new.getTaskType(), :stage_parent => @parent_type, :task_index => '0'
-      assigns[:task].should == fetch_task
+      assigns[:task].should == fetch_task_with_exec_on_cancel_task
       assigns[:pipeline_json].should == pipelines_json
     end
   end
@@ -45,18 +45,18 @@ shared_examples_for :fetch_task_controller do
 
     it "should load auto-suggest(off updated config) data when updating fetch task" do
       stub_save_for_success
-      put :update, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task.getTaskType(), :stage_parent => @parent_type, :task_index => '0',
+      put :update, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task_index => '0',
           :task => @modify_payload
 
-      assigns[:task].should == fetch_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir")
+      assigns[:task].should == fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir")
       assigns[:pipeline_json].should == pipelines_json
     end
 
     it "should load auto-suggest(off updated config) data when create fetch task" do
       stub_save_for_success
-      post :create, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task.getTaskType(), :stage_parent => @parent_type, :task => @modify_payload
+      post :create, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task => @modify_payload
 
-      assigns[:task].should == fetch_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir")
+      assigns[:task].should == fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir")
       assigns[:pipeline_json].should == pipelines_json
     end
   end

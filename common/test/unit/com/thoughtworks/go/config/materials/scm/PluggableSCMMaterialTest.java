@@ -1,18 +1,19 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
+
 package com.thoughtworks.go.config.materials.scm;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -36,7 +37,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
-import com.thoughtworks.go.util.json.JsonMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,8 +45,10 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -172,19 +174,19 @@ public class PluggableSCMMaterialTest {
 
     @Test
     public void shouldGetJsonRepresentationForPluggableSCMMaterial() {
-        ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+        ConfigurationProperty k1 = create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
         material.setFolder("folder");
-        JsonMap jsonMap = new JsonMap();
+        Map<String, String> jsonMap = new LinkedHashMap<>();
         material.toJson(jsonMap, new PluggableSCMMaterialRevision("rev123", new Date()));
 
-        assertThat(jsonMap.hasEntry("scmType", "SCM"), is(true));
-        assertThat(jsonMap.hasEntry("materialName", "scm-name"), is(true));
-        assertThat(jsonMap.hasEntry("location", material.getUriForDisplay()), is(true));
-        assertThat(jsonMap.hasEntry("folder", "folder"), is(true));
-        assertThat(jsonMap.hasEntry("action", "Modified"), is(true));
+        assertThat(jsonMap.get("scmType"), is("SCM"));
+        assertThat(jsonMap.get("materialName"), is("scm-name"));
+        assertThat(jsonMap.get("location"), is(material.getUriForDisplay()));
+        assertThat(jsonMap.get("folder"), is("folder"));
+        assertThat(jsonMap.get("action"), is("Modified"));
     }
 
     @Test

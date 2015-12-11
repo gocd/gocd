@@ -38,9 +38,9 @@ SERVER_DIR=`(cd "$CWD" && pwd)`
 [ ! -z "$YOURKIT_DISBALE_TRACING" ] || YOURKIT_DISBALE_TRACING=""
 
 if [ -d /var/log/go-server ]; then
-    LOG_FILE=/var/log/go-server/go-server.log
+    STDOUT_LOG_FILE=/var/log/go-server/go-server.out.log
 else
-    LOG_FILE=go-server.log
+    STDOUT_LOG_FILE=go-server.out.log
 fi
 
 if [ "$PID_FILE" ]; then
@@ -126,8 +126,8 @@ if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
 fi
 CMD="$JAVA_HOME/bin/java ${SERVER_STARTUP_ARGS[@]} -jar $SERVER_DIR/go.jar"
 
-echo "Starting Go Server with command: $CMD" >>$LOG_FILE
-echo "Starting Go Server in directory: $GO_WORK_DIR" >>$LOG_FILE
+echo "Starting Go Server with command: $CMD" >> $STDOUT_LOG_FILE
+echo "Starting Go Server in directory: $GO_WORK_DIR" >> $STDOUT_LOG_FILE
 cd "$SERVER_WORK_DIR"
 
 if [ "$JAVA_HOME" == "" ]; then
@@ -136,8 +136,8 @@ if [ "$JAVA_HOME" == "" ]; then
 fi
 
 if [ "$DAEMON" == "Y" ]; then
-    exec nohup $CMD >>$LOG_FILE 2>&1 &
+    eval exec nohup "$CMD" >> $STDOUT_LOG_FILE 2>&1 &
     echo $! >$PID_FILE
 else
-    exec $CMD
+    eval exec "$CMD"
 fi

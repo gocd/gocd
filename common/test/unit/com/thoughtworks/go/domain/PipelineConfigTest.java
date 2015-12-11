@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,34 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.MqlCriteria;
-import com.thoughtworks.go.config.ParamsConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.Tasks;
-import com.thoughtworks.go.config.TimerConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -59,29 +36,26 @@ import com.thoughtworks.go.util.Node;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
+import java.util.*;
+
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineConfigTest {
     private static final String BUILDING_PLAN_NAME = "building";
 
     EnvironmentVariablesConfig mockEnvironmentVariablesConfig = mock(EnvironmentVariablesConfig.class);
     ParamsConfig mockParamsConfig = mock(ParamsConfig.class);
-    private String md5 = "md5-test";
 
     public enum Foo {
         Bar, Baz;
@@ -89,7 +63,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldFindByName() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), (MaterialConfigs) null, completedStage(), buildingStage());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
         assertThat(pipelineConfig.findBy(new CaseInsensitiveString("completed stage")).name(), is(new CaseInsensitiveString("completed stage")));
     }
 
@@ -171,9 +145,11 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("framework"), new CaseInsensitiveString("dev")));
         pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev")));
-        assertThat(pipelineConfig.getDependenciesAsNode(), is(new Node(new CaseInsensitiveString("framework"), new CaseInsensitiveString("middleware"))));
+        assertThat(pipelineConfig.getDependenciesAsNode(),
+                is(new Node(
+                        new Node.DependencyNode(new CaseInsensitiveString("framework"), new CaseInsensitiveString("dev")),
+                        new Node.DependencyNode(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev")))));
     }
-
 
     @Test
     public void shouldReturnTrueIfFirstStageIsManualApproved() {
@@ -244,7 +220,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldValidateCorrectPipelineLabelWithoutAnyMaterial() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(),new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()));
         pipelineConfig.setLabelTemplate("pipeline-${COUNT}-alpha");
         pipelineConfig.validate(null);
         assertThat(pipelineConfig.errors().isEmpty(), is(true));
@@ -298,7 +274,7 @@ public class PipelineConfigTest {
     public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax() throws Exception {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.",labelFormat,pipelineConfig.name())));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name())));
     }
 
     @Test
@@ -448,6 +424,7 @@ public class PipelineConfigTest {
         valueHashMap.put("param-value", "BAR");
         map.put(PipelineConfig.PARAMS, valueHashMap);
         map.put(PipelineConfig.CONFIGURATION_TYPE, PipelineConfig.CONFIGURATION_TYPE_TEMPLATE);
+        map.put(PipelineConfig.TEMPLATE_NAME, "template");
         pipelineConfig.setParams(mockParamsConfig);
 
         pipelineConfig.setConfigAttributes(map);
@@ -785,6 +762,10 @@ public class PipelineConfigTest {
         assertThat(config.hasTemplateApplied(), is(false));
         assertThat(config.getTemplateName(), is(new CaseInsensitiveString("template")));
         assertThat(config.isEmpty(), is(true));
+        config.templatize(new CaseInsensitiveString(""));
+        assertThat(config.hasTemplate(), is(false));
+        config.templatize(null);
+        assertThat(config.hasTemplate(), is(false));
     }
 
     @Test
@@ -855,7 +836,7 @@ public class PipelineConfigTest {
     {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(true));
     }
@@ -880,7 +861,7 @@ public class PipelineConfigTest {
     {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = new GitMaterialConfig("http://git");
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(false));
     }
@@ -899,7 +880,7 @@ public class PipelineConfigTest {
     {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("1233"),is(true));
     }
@@ -908,7 +889,7 @@ public class PipelineConfigTest {
     {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material,"plugin"),"1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("32"),is(false));
     }

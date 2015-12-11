@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.pluggabletask;
 
@@ -279,6 +279,43 @@ public class PluggableTaskTest {
 
         assertThat(task.configAsMap().get("KEY1").get(PluggableTask.VALUE_KEY), is("value1"));
         assertThat(task.configAsMap().get("Key2").get(PluggableTask.VALUE_KEY), is("value2"));
+    }
+
+    @Test
+    public void shouldAddPropertyGivenConfigurationPropertyIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
+
+        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1", false, "value1");
+
+        TaskConfig taskConfig = new TaskConfig();
+        TaskProperty property1 = new TaskProperty("KEY1", "value1");
+        taskConfig.addProperty(property1.getName());
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
+        task.setConfiguration(configurationProperty);
+        assertThat(task.configAsMap().get("KEY1").get(PluggableTask.VALUE_KEY), is("value1"));
+    }
+
+    @Test
+    public void shouldAddSecurePropertyGivenConfigurationPropertyIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
+
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("secureKey"));
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
+
+        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("secureKey"), new ConfigurationValue("secureValue"), new EncryptedConfigurationValue("old-encrypted-text"),
+                new GoCipher());
+
+        TaskConfig taskConfig = new TaskConfig();
+        TaskProperty property = new TaskProperty("secureKey", "secureValue");
+        taskConfig.addProperty(property.getName()).with(Property.SECURE, true);
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
+        task.setConfiguration(configurationProperty);
+        assertThat(task.getConfiguration().getProperty("secureKey").getConfigurationValue(), is(nullValue()));
+        assertThat(task.getConfiguration().getProperty("secureKey").getEncryptedValue().getValue(), is(new GoCipher().encrypt("secureValue")));
     }
 
     private void assertProperty(TaskProperty taskProperty, String name, String value, String cssClass) {

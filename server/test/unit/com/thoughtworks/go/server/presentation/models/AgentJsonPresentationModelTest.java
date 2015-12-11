@@ -1,49 +1,42 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation.models;
-
-import java.util.Set;
-import java.util.HashSet;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.helper.AgentInstanceMother;
-import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.JsonTester;
-import com.thoughtworks.go.util.JsonUtils;
-import com.thoughtworks.go.util.JsonValue;
-import static org.hamcrest.core.Is.is;
+import com.thoughtworks.go.util.*;
 import org.junit.After;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Map;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class AgentJsonPresentationModelTest {
     private static final String PENDING = AgentStatus.Pending.toString().toLowerCase();
     private static final String DENIED = AgentStatus.Disabled.toString().toLowerCase();
     private SystemEnvironment systemEnvironment;
-    private Set<EnvironmentPipelineMatcher> noEnvironment = new HashSet<EnvironmentPipelineMatcher>();
 
     @Before
     public void setup() {
@@ -55,13 +48,12 @@ public class AgentJsonPresentationModelTest {
         new SystemEnvironment().setProperty("agent.connection.timeout", "300");
     }
 
-
     @Test
     public void shouldTurnPendingAgentIntoAMapForJsonViewToConsume() {
         AgentConfig agentConfig = new AgentConfig(null, "localhost", "192.168.0.1");
         AgentInstance activity = AgentInstance.create(agentConfig, false, systemEnvironment);
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(activity);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'hostname' : 'localhost',"
                         + "  'status' : '" + PENDING + "',"
@@ -80,7 +72,7 @@ public class AgentJsonPresentationModelTest {
         instance.deny();
 
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(instance);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'hostname' : 'localhost',"
                         + "  'status' : '" + DENIED + "',"
@@ -95,7 +87,7 @@ public class AgentJsonPresentationModelTest {
                 systemEnvironment);
         activity.enable();
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(activity);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'agentId' : '12345',"
                         + "  'hostname' : 'localhost',"
@@ -113,7 +105,7 @@ public class AgentJsonPresentationModelTest {
                 systemEnvironment);
         activity.enable();
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(activity);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'hostname' : 'localhost',"
                         + "  'status' : 'idle' }"
@@ -129,7 +121,7 @@ public class AgentJsonPresentationModelTest {
         agentInstance.building(new AgentBuildingInfo(buildingInfo, "buildLocator"));
 
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(agentInstance);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'hostname' : 'localhost',"
                         + "  'status' : 'building',"
@@ -146,7 +138,7 @@ public class AgentJsonPresentationModelTest {
         activity.building(new AgentBuildingInfo("something", "buildLocator"));
 
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(activity);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'hostname' : 'localhost',"
                         + "  'status' : 'building' }"
@@ -160,7 +152,7 @@ public class AgentJsonPresentationModelTest {
         agentConfig.addResource(new Resource("jdk1.5"));
         AgentInstance activity = AgentInstance.create(agentConfig, false, systemEnvironment);
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(activity);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'resources' : [ 'jdk1.4', 'jdk1.5' ] }"
         );
@@ -176,7 +168,7 @@ public class AgentJsonPresentationModelTest {
         agentInstance.refresh(null);
 
         AgentJsonPresentationModel adaptor = new AgentJsonPresentationModel(agentInstance);
-        JsonMap json = adaptor.toJsonHash();
+        Map json = adaptor.toJsonHash();
         new JsonTester(json).shouldContain(
                 "{ 'humanizedStatus' : 'lost contact',"
                         + " 'status' : 'lostcontact'}");

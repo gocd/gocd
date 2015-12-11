@@ -117,10 +117,9 @@
         }
       }
 
-      a.remove {
-        position: relative;
-        left:     calc(100% - 28px);
-        top:      -58px;
+      > .remove {
+        position: absolute;
+        left:     calc(100% - 76px);
       }
     }
 
@@ -136,8 +135,8 @@
       }
 
       > .remove {
-        position: relative;
-        left:     calc(100% - 8px);
+        position: absolute;
+        left:     calc(100% - 47px);
       }
 
       .job-definitions {
@@ -173,10 +172,16 @@
 
         .job-definition {
           .add-task {
-            padding-top: rem(28px);
+            padding-top: rem(1px);
             a {
               @include icon-before($type: plus-circle);
             }
+          }
+
+          .remove {
+            position: absolute;
+            top:      0;
+            left:     calc(100% - 25px);
           }
 
           legend {
@@ -192,10 +197,12 @@
           }
 
           .task-definition {
+            position: relative;
+
             .remove {
               position: absolute;
-              top:      39px;
-              left:     calc(100% - 42px);
+              top:      15px;
+              left:     calc(100% - 26px);
             }
           }
 

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.scm;
 
@@ -168,7 +168,7 @@ public class SCM implements Serializable, Validatable {
     public void validate(ValidationContext validationContext) {
         if (isBlank(name)) {
             errors().add(NAME, "Please provide name");
-        } else if (!new NameTypeValidator().isNameValid(name)) {
+        } else if (new NameTypeValidator().isNameInvalid(name)) {
             errors().add(NAME, NameTypeValidator.errorMessage("SCM", name));
         }
         configuration.validateUniqueness(String.format("SCM '%s'", name));

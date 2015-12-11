@@ -1,30 +1,30 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
-import java.io.PrintWriter;
-import java.util.Map;
+import com.thoughtworks.go.util.json.JsonFakeMap;
+import org.springframework.web.servlet.view.AbstractView;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.go.util.json.Json;
-import com.thoughtworks.go.util.json.JsonFakeMap;
-import com.thoughtworks.go.util.json.JsonMap;
-import org.springframework.web.servlet.view.AbstractView;
+import java.io.PrintWriter;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JsonView extends AbstractView {
 
@@ -39,7 +39,7 @@ public class JsonView extends AbstractView {
     }
 
     //TODO: ChrisS - this should just be a normal HashMap
-    public static JsonFakeMap asMap(Json json) {
+    public static JsonFakeMap asMap(Object json) {
         return new JsonFakeMap(json);
     }
 
@@ -54,21 +54,24 @@ public class JsonView extends AbstractView {
                 throw e;
             }
         }
-        Json json = (Json) map.get("json");
+        Object json = map.get("json");
 
         PrintWriter writer = httpServletResponse.getWriter();
-        JsonRenderer renderer = new JsonStreamRenderer(requestContext, writer);
-        json.renderTo(renderer);
+        JsonRenderer.render(json, requestContext, writer);
         writer.close();
     }
 
-    public String renderJson(Json json) {
-        return JsonStringRenderer.render(json, requestContext);
-    }
-
-    public static JsonMap getSimpleAjaxResult(String messageKey, String message){
-        JsonMap result = new JsonMap();
+    public static Map getSimpleAjaxResult(String messageKey, String message) {
+        Map<String, Object> result = new LinkedHashMap<>();
         result.put(messageKey, message);
         return result;
+    }
+
+    public String renderJson(Map<String, Object> json) {
+        return JsonRenderer.render(json, requestContext);
+    }
+
+    public String renderJson(List json) {
+        return JsonRenderer.render(json, requestContext);
     }
 }

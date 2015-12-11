@@ -1,0 +1,57 @@
+@import '../../pipeline_configs/_font-awesome-glyphs';
+
+.notifications {
+  float: right;
+  margin: 7px 10px 0;
+  position: relative;
+
+  .hover-container {
+    display: none;
+    position: absolute;
+    right: -7px;
+    top: 100%;
+    padding-top: 5px;
+  }
+
+  .hover {
+    position: relative;
+    background: #fff;
+    color: #000;
+    padding: 10px;
+    border-radius: 5px;
+    width: 296px;
+    font-size: 13px;
+    -webkit-box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.2);
+    &:after {
+      bottom: 100%;
+      right: 14px;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(255, 255, 255, 0);
+      border-bottom-color: #ffffff;
+      border-width: 6px;
+
+    }
+    a, a:hover {
+      color: #1F66BD;
+      font-size: 13px;
+    }
+
+  }
+  &:hover {
+    .hover-container {
+      display: block;
+    }
+  }
+
+  .bell {
+    @include icon-before(bell-o);
+    font-size: 18px;
+  }
+}

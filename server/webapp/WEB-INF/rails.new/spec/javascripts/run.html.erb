@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <!--
+  This is a "fork" of the `run.html.erb` file in the jasmine gem, to force IE to run in IE9 compatibility mode
+  -->
+  <meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <title>Jasmine suite</title>
+  <link rel="shortcut icon" type="image/png" href="/__images__/jasmine_favicon.png">
+  <% css_files.each do |css_file| %>
+    <link rel="stylesheet" href="<%= css_file %>" type="text/css" media="screen"/>
+  <% end %>
+  <% js_files.each do |js_file| %>
+    <script src="<%= js_file %>" type="text/javascript"></script>
+  <% end %>
+
+</head>
+<!-- TODO: turbolinks breaks spec filter links -->
+<body data-no-turbolink>
+<div id="jasmine_content"></div>
+</body>
+</html>

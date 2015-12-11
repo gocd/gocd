@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
+
 package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.config.*;
@@ -20,10 +21,8 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -79,7 +78,7 @@ public class ConfigRepoConfigTest {
 
         PipelineConfig pipeline1 = mother.addPipeline(cruiseConfig, "badpipe", "build", materialConfigs, "build");
 
-        configRepoConfig.validate(ValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
+        configRepoConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
 
         assertThat(svn.errors().isEmpty(),is(false));
         assertThat(svn.errors().on(ScmMaterialConfig.AUTO_UPDATE),

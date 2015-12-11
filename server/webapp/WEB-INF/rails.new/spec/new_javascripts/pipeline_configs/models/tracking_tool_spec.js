@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "pipeline_configs/models/tracking_tool"], function (_, TrackingTool) {
+define(['lodash', "pipeline_configs/models/tracking_tool", 'string-plus'], function (_, TrackingTool, s) {
   describe("TrackingTool Model", function () {
     var trackingTool;
     describe("Generic", function () {
@@ -37,7 +37,7 @@ define(['lodash', "pipeline_configs/models/tracking_tool"], function (_, Trackin
         expect(trackingTool.regex()).toBe("bug-(\\d+)");
       });
 
-      describe("Deserialization from JSON", function () {
+      describe("Deserialization to/from JSON", function () {
         beforeEach(function () {
           trackingTool = TrackingTool.fromJSON(sampleJSON());
         });
@@ -46,6 +46,10 @@ define(['lodash', "pipeline_configs/models/tracking_tool"], function (_, Trackin
           expect(trackingTool.type()).toBe("generic");
           expect(trackingTool.urlPattern()).toBe('http://example.com/bugzilla?id=${ID}');
           expect(trackingTool.regex()).toBe("bug-(\\d+)");
+        });
+
+        it('should serialize to json', function () {
+          expect(JSON.parse(JSON.stringify(trackingTool, s.snakeCaser))).toEqual(sampleJSON());
         });
 
         function sampleJSON() {
@@ -58,14 +62,16 @@ define(['lodash', "pipeline_configs/models/tracking_tool"], function (_, Trackin
           };
         }
       });
+
+
     });
 
     describe("Mingle", function () {
       beforeEach(function () {
         trackingTool = new TrackingTool.Mingle({
-          baseUrl:            'http://mingle.example.com',
-          projectIdentifier:  "gocd",
-          groupingConditions: "status > 'In Dev'"
+          baseUrl:               'http://mingle.example.com',
+          projectIdentifier:     "gocd",
+          mqlGroupingConditions: "status > 'In Dev'"
         });
       });
 
@@ -81,8 +87,8 @@ define(['lodash', "pipeline_configs/models/tracking_tool"], function (_, Trackin
         expect(trackingTool.projectIdentifier()).toBe("gocd");
       });
 
-      it("should initialize trackingTool model with groupingConditions", function () {
-        expect(trackingTool.groupingConditions()).toBe("status > 'In Dev'");
+      it("should initialize trackingTool model with mqlGroupingConditions", function () {
+        expect(trackingTool.mqlGroupingConditions()).toBe("status > 'In Dev'");
       });
 
       describe("Deserialization from JSON", function () {
@@ -94,16 +100,16 @@ define(['lodash', "pipeline_configs/models/tracking_tool"], function (_, Trackin
           expect(trackingTool.type()).toBe("mingle");
           expect(trackingTool.baseUrl()).toBe('http://mingle.example.com');
           expect(trackingTool.projectIdentifier()).toBe('gocd');
-          expect(trackingTool.groupingConditions()).toBe("status > 'In Dev'");
+          expect(trackingTool.mqlGroupingConditions()).toBe("status > 'In Dev'");
         });
 
         function sampleJSON() {
           return {
             type:       "mingle",
             attributes: {
-              base_url:            'http://mingle.example.com',
-              project_identifier:  "gocd",
-              grouping_conditions: "status > 'In Dev'"
+              base_url:                'http://mingle.example.com',
+              project_identifier:      "gocd",
+              mql_grouping_conditions: "status > 'In Dev'"
             }
           };
         }

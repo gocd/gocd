@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,35 @@ import org.apache.log4j.Logger;
 public class BaseUrlChangeListener implements ConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(BaseUrlChangeListener.class);
 
-    private ServerConfig serverConfig;
+    private ServerSiteUrlConfig siteUrl;
+    private ServerSiteUrlConfig secureSiteUrl;
     private GoCache goCache;
 
     public static final String URLS_CACHE_KEY = "urls_cache";
 
-    public BaseUrlChangeListener(ServerConfig existingServerConfig, GoCache goCache) {
-        this.serverConfig = existingServerConfig;
+    public BaseUrlChangeListener(ServerSiteUrlConfig siteUrl, ServerSiteUrlConfig secureSiteUrl,
+                                 GoCache goCache) {
+        setUrls(siteUrl, secureSiteUrl);
         this.goCache = goCache;
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        ServerSiteUrlConfig newSecureSiteUrl = newCruiseConfig.server().getSecureSiteUrl();
-        ServerSiteUrlConfig newSiteUrl = newCruiseConfig.server().getSiteUrl();
-        if(!(serverConfig.getSecureSiteUrl().equals(newSecureSiteUrl) && serverConfig.getSiteUrl().equals(newSiteUrl))) {
+        ServerConfig newServerConfig = newCruiseConfig.server();
+        ServerSiteUrlConfig newSecureSiteUrl = newServerConfig.getSecureSiteUrl();
+        ServerSiteUrlConfig newSiteUrl = newServerConfig.getSiteUrl();
+
+        if (!(secureSiteUrl.equals(newSecureSiteUrl) && siteUrl.equals(newSiteUrl))) {
             goCache.remove(URLS_CACHE_KEY);
             LOGGER.info(String.format("[Configuration Changed] Site URL was changed from [%s] to [%s] and "
-                + "Secure Site URL was changed from [%s] to [%s]", serverConfig.getSiteUrl(), newSiteUrl, serverConfig.getSecureSiteUrl(), newSecureSiteUrl));
+                    + "Secure Site URL was changed from [%s] to [%s]", siteUrl, newSiteUrl, secureSiteUrl, newSecureSiteUrl));
         }
+
+        setUrls(newSiteUrl, newSecureSiteUrl);
     }
+
+    private void setUrls(ServerSiteUrlConfig siteUrl, ServerSiteUrlConfig secureSiteUrl) {
+        this.siteUrl = siteUrl;
+        this.secureSiteUrl = secureSiteUrl;
+    }
+
 }

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.controller;
 
@@ -25,10 +25,12 @@ import static com.thoughtworks.go.util.json.JsonHelper.addFriendlyErrorMessage;
 
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.GoUnauthorizedException;
-import com.thoughtworks.go.util.json.JsonMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonOK;
+import static java.lang.String.format;
 
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -42,6 +44,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Controller
 public class StageController {
@@ -101,11 +106,11 @@ public class StageController {
 
     @ErrorHandler
     public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response, Exception e) {
-        JsonMap json = new JsonMap();
+        Map<String, Object> json = new LinkedHashMap<>();
         String message = e.getMessage();
         if (e instanceof StageNotFoundException) {
             StageNotFoundException stageNotFoundException = (StageNotFoundException) e;
-            message = String.format(
+            message = format(
                     "Stage '%s' of pipeline '%s' does not exist in current configuration. You can not rerun it.",
                     stageNotFoundException.getStageName(), stageNotFoundException.getPipelineName());
         }

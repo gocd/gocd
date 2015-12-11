@@ -38,7 +38,7 @@ module ApiV1
                   else
                     params[:resources]
                   end
-      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], resources, to_tristate(params[:enabled]))
+      agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], resources, nil, to_tristate(params[:enabled]))
 
       if result.isSuccess
         load_agent

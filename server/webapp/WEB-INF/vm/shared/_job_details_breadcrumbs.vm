@@ -14,28 +14,13 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************#
 
-#set ($breadcrumb_divider="<span class=\"divider\">&gt;</span>")
-
 #if($_page_title)
 <div class="job_details entity_title page_header">
     <ul class="entity_title">
-##        <li><a href="$req.getContextPath()/pipelines" title="Go to the pipelines dashboard">Pipelines</a></li>
         <li class="name"><a href="$req.getContextPath()/tab/pipeline/history/$presenter.pipelineName" title="View this pipeline's activity">$presenter.pipelineName</a></li>
         <li class="pipeline_label"><a href="$req.getContextPath()/pipelines/value_stream_map/$presenter.pipelineName/$presenter.pipelineCounter" title="View this stage's jobs summary">$presenter.pipelineLabel</a></li>
         <li class="stage_name"><a href="$req.getContextPath()/pipelines/$presenter.stageLocator" title="View this stage's details">$presenter.stageName / $presenter.stageCounter</a></li>
         <li class='last'><h1>$presenter.buildName</h1></li>
     </ul>
-##    <h1 id="page-title" class="entity_title">
-##        <a href="$req.getContextPath()/pipelines" title="Go to the pipelines dashboard">Pipelines</a> &raquo;
-##        <span class="name">
-##        <a href="$req.getContextPath()/tab/pipeline/history/$presenter.pipelineName" title="View this pipeline's activity">$presenter.pipelineName</a>
-##    </span> &raquo;
-##        <span class="pipeline_label">
-##        <a href="$req.getContextPath()/pipelines/$presenter.stageLocator/jobs" title="View this stage's jobs summary">$presenter.pipelineLabel</a>
-##    </span> &raquo;
-##        <span class="stage_name">
-##        <a href="$req.getContextPath()/pipelines/$presenter.stageLocator" title="View this stage's details">$presenter.stageName / $presenter.stageCounter</a>
-##    </span>
-##    </h1>
 </div>
 #end

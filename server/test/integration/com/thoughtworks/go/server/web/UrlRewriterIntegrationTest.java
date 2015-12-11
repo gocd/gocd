@@ -261,6 +261,9 @@ public class UrlRewriterIntegrationTest {
 
     @DataPoint public static ResponseAssertion RAILS_INTERNAL_API = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/api/config/internal/pluggable_task/indix.s3fetch", "http://127.1.1.1:" + HTTP + "/go/rails/api/config/internal/pluggable_task/indix.s3fetch", METHOD.GET);
 
+    @DataPoint public static ResponseAssertion USERS_INDEX_API = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/api/users", "http://127.1.1.1:" + HTTP + "/go/rails/api/users", METHOD.GET);
+    @DataPoint public static ResponseAssertion USERS_SHOW_API = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/api/users/some.one", "http://127.1.1.1:" + HTTP + "/go/rails/api/users/some.one", METHOD.GET);
+
     public static String enc(String str) {
         try {
             return URLEncoder.encode(str, "UTF-8");

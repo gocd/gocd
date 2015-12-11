@@ -1,4 +1,4 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.PipelineConfigChangedListener;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.initializers.Initializer;
@@ -27,6 +29,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -37,7 +40,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * for processing, and to make sure that the upstream processes are not blocked.
  */
 @Component
-public class CcTrayActivityListener implements Initializer, JobStatusListener, StageStatusListener, ConfigChangedListener {
+public class CcTrayActivityListener implements Initializer, JobStatusListener, StageStatusListener, PipelineConfigChangedListener {
     private static Logger LOGGER = Logger.getLogger(CcTrayActivityListener.class);
 
     private final GoConfigService goConfigService;
@@ -68,9 +71,12 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
 
     @Override
     public void jobStatusChanged(final JobInstance job) {
+        LOGGER.debug("Adding CCTray activity for job into queue: " + job);
+
         queue.add(new Action() {
             @Override
             public void call() {
+                LOGGER.debug("Handling CCTray activity for job: " + job);
                 jobStatusChangeHandler.call(job);
             }
         });
@@ -78,9 +84,12 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
 
     @Override
     public void stageStatusChanged(final Stage stage) {
+        LOGGER.debug("Adding CCTray activity for stage into queue: " + stage);
+
         queue.add(new Action() {
             @Override
             public void call() {
+                LOGGER.debug("Handling CCTray activity for stage: " + stage);
                 stageStatusChangeHandler.call(stage);
             }
         });
@@ -88,10 +97,23 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
 
     @Override
     public void onConfigChange(final CruiseConfig newConfig) {
+        LOGGER.debug("Adding CCTray activity for config change into queue.");
+
         queue.add(new Action() {
             @Override
             public void call() {
+                LOGGER.debug("Handling CCTray activity for config change.");
                 configChangeHandler.call(newConfig);
+            }
+        });
+    }
+
+    @Override
+    public void onPipelineConfigChange(final PipelineConfig pipelineConfig, final String group) {
+        queue.add(new Action() {
+            @Override
+            public void call() {
+                configChangeHandler.call(pipelineConfig, group);
             }
         });
     }

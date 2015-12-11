@@ -34,7 +34,7 @@ public class LengthValidator extends Validator<String> {
         if (value.length() <= length) {
             return ValidationBean.valid();
         } else {
-            return ValidationBean.notValid("Only " + length + " charactors are allowed");
+            return ValidationBean.notValid(errorMessage);
         }
     }
 }

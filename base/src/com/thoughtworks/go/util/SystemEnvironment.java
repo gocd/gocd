@@ -166,7 +166,13 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String[]> GO_SSL_INCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.include", null);
     public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.exclude", null);
     public static GoSystemProperty<Boolean> GO_SSL_RENEGOTIATION_ALLOWED = new GoBooleanSystemProperty("go.ssl.renegotiation.allowed", true);
+    public static GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", true);
+    public static GoSystemProperty<Long> GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD = new GoLongSystemProperty("go.config.repo.gc.warning.looseobject.threshold", 10000L);
+    public static GoSystemProperty<Boolean> GO_CONFIG_REPO_PERIODIC_GC = new GoBooleanSystemProperty("go.config.repo.gc.periodic", false);
 
+    public static GoSystemProperty<String> GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME = new GoStringSystemProperty("go.update.server.public.key.file.name", "go_update_server.pub");
+    public static GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.go.cd/channels/supported/latest.json");
+    public static GoSystemProperty<Boolean> GO_CHECK_UPDATES = new GoBooleanSystemProperty("go.check.updates", true);
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
@@ -669,6 +675,18 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public void switchToPassiveState() {
         set(GO_SERVER_STATE, "passive");
+    }
+
+    public String getUpdateServerPublicKeyPath(){
+        return String.format("%s/%s", getConfigDir(), GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.getValue());
+    }
+
+    public boolean isGOUpdateCheckEnabled(){
+        return GO_CHECK_UPDATES.getValue();
+    }
+
+    public String getUpdateServerUrl(){
+        return GO_UPDATE_SERVER_URL.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

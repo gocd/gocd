@@ -19,29 +19,9 @@
 // make sure to load after foundation
 @import "bourbon";
 @import './_font-awesome-glyphs';
+@import './_autocomplete';
 
 form {
-  .switch.inline {
-    display:        inline-block;
-    padding-top:    21px;
-    padding-bottom: 0;
-    margin-bottom:  0;
-    ~ label {
-      display:      inline-block;
-      position:     relative;
-      top:          -7px;
-      padding-left: $column-gutter/2;
-
-      &.has-tooltip {
-        ~ .tooltip-wrapper {
-          display:  inline-block;
-          position: relative;
-          top:      -7px;
-        }
-      }
-    }
-  }
-
   .accordion-navigation {
     border: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
 

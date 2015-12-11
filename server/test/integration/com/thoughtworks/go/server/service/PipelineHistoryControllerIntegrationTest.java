@@ -1,23 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -29,8 +26,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.json.JsonList;
-import com.thoughtworks.go.util.json.JsonMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +36,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.fixture.IntegrationTestsFixture.login;
 import static com.thoughtworks.go.fixture.IntegrationTestsFixture.resetSecurityContext;
@@ -61,7 +61,7 @@ public class PipelineHistoryControllerIntegrationTest {
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    
+
     private PipelineWithMultipleStages fixture;
     private HttpServletResponse response;
     private HttpServletRequest request;
@@ -91,8 +91,8 @@ public class PipelineHistoryControllerIntegrationTest {
     @Test
     public void shouldHaveGroupsInJson() throws Exception {
         fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
-        JsonMap jsonMap = requestPipelineHistoryPage();
-        JsonList groups = jsonMap.getJsonList("groups");
+        Map jsonMap = requestPipelineHistoryPage();
+        List groups = (List) jsonMap.get("groups");
         assertThat(groups.size(), is(1));
     }
 
@@ -103,7 +103,7 @@ public class PipelineHistoryControllerIntegrationTest {
 
         fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
 
-        JsonMap jsonMap = requestPipelineHistoryPage();
+        Map jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "canForce"), is("false"));
     }
 
@@ -113,7 +113,7 @@ public class PipelineHistoryControllerIntegrationTest {
         fixture.configStageAsManualApprovalWithApprovedUsers(fixture.devStage, "userA");
 
         login("userA", "");
-        JsonMap jsonMap = requestPipelineHistoryPage();
+        Map jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "canForce"), is("true"));
     }
 
@@ -122,7 +122,7 @@ public class PipelineHistoryControllerIntegrationTest {
         configHelper.addSecurityWithAdminConfig();
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
 
-        JsonMap jsonMap = requestPipelineHistoryPage();
+        Map jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "canPause"), is("false"));
     }
 
@@ -131,7 +131,7 @@ public class PipelineHistoryControllerIntegrationTest {
         configHelper.addSecurityWithAdminConfig();
         configHelper.setOperatePermissionForGroup("defaultGroup", CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()));
 
-        JsonMap jsonMap = requestPipelineHistoryPage();
+        Map jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "canPause"), is("true"));
     }
 
@@ -139,7 +139,7 @@ public class PipelineHistoryControllerIntegrationTest {
     public void hasModificationShouldBeTrueIfThereIsBuildCauseInBuffer() throws Exception {
         fixture.createNewCheckin();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(fixture.pipelineName);
-        JsonMap jsonMap = requestPipelineHistoryPage();
+        Map jsonMap = requestPipelineHistoryPage();
         assertThat(getItemInJson(jsonMap, "showForceBuildButton"), is("true"));
     }
 
@@ -147,18 +147,18 @@ public class PipelineHistoryControllerIntegrationTest {
     public void shouldCreateGroupIfPipelineHasModificationEvenNoPipelineHistory() throws Exception {
         fixture.createNewCheckin();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(fixture.pipelineName);
-        JsonMap jsonMap = requestPipelineHistoryPage();
-        JsonList groups = jsonMap.getJsonList("groups");
+        Map jsonMap = requestPipelineHistoryPage();
+        List groups = (List) jsonMap.get("groups");
         assertThat("Should create group for the coming pipeline", groups.size(), is(1));
     }
 
-    private String getItemInJson(JsonMap jsonMap, String key) {
-        return jsonMap.getJsonString(key).withoutQuote();
+    private String getItemInJson(Map jsonMap, String key) {
+        return (String) jsonMap.get(key);
     }
 
-    private JsonMap requestPipelineHistoryPage() throws Exception {
+    private Map requestPipelineHistoryPage() throws Exception {
         ModelAndView modelAndView = controller.list(fixture.pipelineName, 10, 0, response, request);
-        return (JsonMap) modelAndView.getModel().get("json");
+        return (Map) modelAndView.getModel().get("json");
     }
 
 }

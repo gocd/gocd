@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -30,15 +25,19 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.annotation.PostConstruct;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class EnvironmentVariableConfigTest {
 
@@ -291,7 +290,15 @@ public class EnvironmentVariableConfigTest {
         assertThat(copy.getEncryptedValue(), is(secureEnvironmentVariable.getEncryptedValue()));
         assertThat(copy.isSecure(), is(secureEnvironmentVariable.isSecure()));
     }
-    
+
+    @Test
+    public void shouldNotConsiderErrorsForEqualsCheck(){
+        EnvironmentVariableConfig config1 = new EnvironmentVariableConfig("name", "value");
+        EnvironmentVariableConfig config2 = new EnvironmentVariableConfig("name", "value");
+        config2.addError("name", "errrr");
+        assertThat(config1.equals(config2), is(true));
+    }
+
     private HashMap getAttributeMap(String value, final String secure, String isChanged) {
         HashMap attrs;
         attrs = new HashMap();
@@ -300,5 +307,20 @@ public class EnvironmentVariableConfigTest {
         attrs.put(EnvironmentVariableConfig.SECURE, secure);
         attrs.put(EnvironmentVariableConfig.ISCHANGED, isChanged);
         return attrs;
+    }
+
+    @Test
+    public void shouldDeserializeWithErrorFlagIfAnEncryptedVarialeHasBothClearTextAndCipherText() throws Exception {
+        EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
+        variable.deserialize("PASSWORD", "clearText", true, "c!ph3rt3xt");
+        assertThat(variable.errors().getAllOn("value"), is(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!")));
+        assertThat(variable.errors().getAllOn("encryptedValue"), is(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!")));
+    }
+
+    @Test
+    public void shouldDeserializeWithNoErrorFlagIfAnEncryptedVarialeHasEitherClearTextOrCipherText() throws Exception {
+        EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
+        variable.deserialize("PASSWORD", "clearText", true, null);
+        assertTrue(variable.errors().isEmpty());
     }
 }

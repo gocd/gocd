@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -21,12 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.config.ArtifactPlan;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -42,7 +37,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.CoreMatchers.containsString;
 
 public class DefaultJobPlanTest {
 
@@ -107,8 +102,8 @@ public class DefaultJobPlanTest {
         ArtifactPlans artifactPlans = new ArtifactPlans();
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1,
                 null);
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
+        artifactPlans.add(new TestArtifactPlan("test1", "test"));
+        artifactPlans.add(new TestArtifactPlan("test2", "test"));
 
         final File firstTestFolder = prepareTestFolder(workingFolder, "test1");
         final File secondTestFolder = prepareTestFolder(workingFolder, "test2");
@@ -127,8 +122,8 @@ public class DefaultJobPlanTest {
         ArtifactPlans artifactPlans = new ArtifactPlans();
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1,
                 null);
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test1", "test"));
-        artifactPlans.add(new ArtifactPlan(ArtifactType.unit, "test2", "test"));
+        artifactPlans.add(new TestArtifactPlan("test1", "test"));
+        artifactPlans.add(new TestArtifactPlan("test2", "test"));
 
         prepareTestFolder(workingFolder, "test1");
         prepareTestFolder(workingFolder, "test2");
@@ -146,11 +141,11 @@ public class DefaultJobPlanTest {
         ArtifactPlans artifactPlans = new ArtifactPlans();
         final File src1 = TestFileUtil.createTestFolder(workingFolder, "src1");
         TestFileUtil.createTestFile(src1, "test.txt");
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src1.getName(), "dest"));
+        artifactPlans.add(new ArtifactPlan(src1.getName(), "dest"));
         final File src2 = TestFileUtil.createTestFolder(workingFolder, "src2");
         TestFileUtil.createTestFile(src1, "test.txt");
 
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src2.getName(), "test"));
+        artifactPlans.add(new ArtifactPlan(src2.getName(), "test"));
         StubGoPublisher publisher = new StubGoPublisher();
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1,
                 null);
@@ -174,7 +169,7 @@ public class DefaultJobPlanTest {
         final File testFile1 = TestFileUtil.createTestFile(src1, "test1.txt");
         final File testFile2 = TestFileUtil.createTestFile(src1, "test2.txt");
         final File testFile3 = TestFileUtil.createTestFile(src1, "readme.pdf");
-        artifactPlans.add(new ArtifactPlan(ArtifactType.file, src1.getName() + "/*", "dest"));
+        artifactPlans.add(new ArtifactPlan(src1.getName() + "/*", "dest"));
         StubGoPublisher publisher = new StubGoPublisher();
 
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1,

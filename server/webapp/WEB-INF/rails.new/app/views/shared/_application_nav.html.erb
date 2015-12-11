@@ -25,6 +25,17 @@
         </ul>
     <% end %>
 
+    <% if check_go_updates? and go_update %>
+        <div class="notifications">
+            <span class="bell"></span>
+            <div class="hover-container">
+                <div class="hover">
+                    <span>A new release of GoCD - <a href="http://www.go.cd/download/" target="_blank"><%= go_update %></a> is available.</span>
+                </div>
+            </div>
+        </div>
+    <% end %>
+
   <% unless @no_tabs %>
     <ul class="tabs">
         <li id='cruise-header-tab-pipelines' class="<%= "current" if @current_tab_name == "pipelines" %>">

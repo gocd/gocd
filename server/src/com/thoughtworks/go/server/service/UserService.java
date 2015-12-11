@@ -1,27 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.NotificationFilter;
-import com.thoughtworks.go.domain.NullUser;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -37,7 +33,6 @@ import com.thoughtworks.go.server.persistence.OauthRepository;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -57,7 +52,6 @@ public class UserService {
     private final SecurityService securityService;
     private final GoConfigService goConfigService;
     private final OauthRepository oauthRepository;
-    private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final TransactionTemplate transactionTemplate;
 
     private final Object disableUserMutex = new Object();
@@ -65,12 +59,11 @@ public class UserService {
 
     @Autowired
     public UserService(UserDao userDao, SecurityService securityService, GoConfigService goConfigService, TransactionTemplate transactionTemplate,
-                       TransactionSynchronizationManager transactionSynchronizationManager, OauthRepository oauthRepository) {
+                       OauthRepository oauthRepository) {
         this.userDao = userDao;
         this.securityService = securityService;
         this.goConfigService = goConfigService;
         this.transactionTemplate = transactionTemplate;
-        this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.oauthRepository = oauthRepository;
     }
 
@@ -121,7 +114,7 @@ public class UserService {
         return false;
     }
 
-    public User update(final User user, TriState enabled, TriState emailMe, String email, String checkinAliases, LocalizedOperationResult result) {
+    public User save(final User user, TriState enabled, TriState emailMe, String email, String checkinAliases, LocalizedOperationResult result) {
         if (enabled.isTrue()) {
             user.enable();
         }
@@ -144,6 +137,10 @@ public class UserService {
 
         if (emailMe.isFalse()) {
             user.setEmailMe(false);
+        }
+
+        if (validate(result, user)) {
+            return user;
         }
 
         try {
@@ -204,6 +201,10 @@ public class UserService {
             roles.add(CaseInsensitiveString.str(role.getName()));
         }
         return roles;
+    }
+
+    public Collection<String> allRoleNames() {
+        return allRoleNames(goConfigService.cruiseConfig());
     }
 
     public Collection<Role> allRoles(CruiseConfig cruiseConfig) {
@@ -358,6 +359,12 @@ public class UserService {
         }
     }
 
+    public void withEnableUserMutex(Runnable runnable) {
+        synchronized (enableUserMutex) {
+            runnable.run();
+        }
+    }
+
     private void assertUnknownUsersAreAllowedToLogin() {
         if (goConfigService.isOnlyKnownUserAllowedToLogin()) {
             throw new OnlyKnownUsersAllowedException("Please ask the administrator to add you to Go");
@@ -410,12 +417,13 @@ public class UserService {
         return users.filter(new Filter<User>() {
             public boolean matches(User user) {
                 return user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
-                       securityService.hasViewPermissionForPipeline(user.getName(), identifier.getPipelineName());
+                        securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName());
             }
         });
     }
 
     public void validate(User user) throws ValidationException {
+        user.validateLoginName();
         user.validateMatcher();
         user.validateEmail();
     }
@@ -469,7 +477,7 @@ public class UserService {
                     return;
                 }
 
-                if (!userSearchModel.getUserSourceType().equals(UserSourceType.PASSWORD_FILE) && validateEmailAndMatcher(result, user)) {
+                if (!userSearchModel.getUserSourceType().equals(UserSourceType.PASSWORD_FILE) && validate(result, user)) {
                     return;
                 }
                 userDao.saveOrUpdate(user);
@@ -509,7 +517,7 @@ public class UserService {
         return new HashSet<Role>(security.getRoles());
     }
 
-    private boolean validateEmailAndMatcher(HttpLocalizedOperationResult result, User user) {
+    private boolean validate(LocalizedOperationResult result, User user) {
         try {
             validate(user);
         } catch (ValidationException e) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
        default-init-method="init">
 
     <context:annotation-config/>
@@ -28,6 +28,11 @@
     <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
 
     <import resource="propertyConfigurer.xml"/>
+
+    <task:scheduled-tasks>
+        <task:scheduled ref="configRepository" method="garbageCollect" cron="${go.config.repo.gc.cron}"/>
+        <task:scheduled ref="configRepositoryGCWarningService" method="checkRepoAndAddWarningIfRequired" fixed-delay="${go.config.repo.gc.check.interval}"/>
+    </task:scheduled-tasks>
 
     <bean name="/remoteBuildRepository" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"
           p:service-ref="buildRepositoryImpl"

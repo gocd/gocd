@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
@@ -129,7 +129,21 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
                 return material;
             }
         }
-        throw new RuntimeException("Material not found: " + other);//IMP: because, config can change between BCPS call and build cause production - shilpa/jj 
+        throw new RuntimeException("Material not found: " + other);//IMP: because, config can change between BCPS call and build cause production - shilpa/jj
+    }
+
+    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+        if (isEmpty()){
+            errors().add("materials", "A pipeline must have at least one material");
+        }
+        validate(validationContext);
+        boolean isValid = errors().isEmpty();
+
+        for (MaterialConfig materialConfig : this) {
+            materialConfig.validate(validationContext);
+            isValid = materialConfig.errors().isEmpty() && isValid;
+        }
+        return isValid;
     }
 
     public void validate(ValidationContext validationContext) {
@@ -145,23 +159,24 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
         if (validationContext.isWithinPipelines()) {
             PipelineConfig currentPipeline = validationContext.getPipeline();
-            CruiseConfig cruiseConfig = validationContext.getCruiseConfig();
-            validateOrigins(currentPipeline, cruiseConfig);
+            validateOrigins(currentPipeline, validationContext);
         }
     }
 
-    private void validateOrigins(PipelineConfig currentPipeline, CruiseConfig cruiseConfig) {
+    private void validateOrigins(PipelineConfig currentPipeline, ValidationContext validationContext) {
         for (DependencyMaterialConfig material : filterDependencyMaterials()) {
-            PipelineConfig upstream = cruiseConfig.getPipelineConfigByName(material.getPipelineName());
-            if(upstream == null)
+            PipelineConfig upstream = validationContext.getPipelineConfigByName(material.getPipelineName());
+            if (upstream == null)
                 continue; // other rule validates existence of upstream
             ConfigOrigin myOrigin = currentPipeline.getOrigin();
             ConfigOrigin upstreamOrigin = upstream.getOrigin();
-            if(!cruiseConfig.getConfigRepos().isReferenceAllowed(myOrigin, upstreamOrigin))
-            {
-                material.addError(DependencyMaterialConfig.ORIGIN,
-                        String.format("Dependency from pipeline defined in %s to pipeline defined in %s is not allowed",
-                                displayNameFor(myOrigin), displayNameFor(upstreamOrigin)));
+
+            if (validationContext.shouldCheckConfigRepo()) {
+                if (!validationContext.getConfigRepos().isReferenceAllowed(myOrigin, upstreamOrigin)) {
+                    material.addError(DependencyMaterialConfig.ORIGIN,
+                            String.format("Dependency from pipeline defined in %s to pipeline defined in %s is not allowed",
+                                    displayNameFor(myOrigin), displayNameFor(upstreamOrigin)));
+                }
             }
         }
     }
@@ -244,7 +259,13 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
     private void validateAutoUpdateState(ValidationContext validationContext) {
         for (MaterialConfig material : filterScmMaterials()) {
-            MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
+            String fingerprint;
+            try {
+                fingerprint = material.getFingerprint();
+            } catch (Exception e) {
+                continue;
+            }
+            MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(fingerprint);
             if (allMaterialsByFingerPrint != null && ((ScmMaterialConfig) material).isAutoUpdateStateMismatch(allMaterialsByFingerPrint)) {
                 ((ScmMaterialConfig) material).setAutoUpdateMismatchError();
             }

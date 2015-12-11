@@ -14,42 +14,20 @@
  * limitations under the License.
  */
 
-define(['mithril', '../helpers/form_helper', '../helpers/tooltips'], function (m, f, tt) {
+define([
+  'mithril',
+  '../helpers/form_helper', '../helpers/mithril_component_mixins',
+  '../helpers/tooltips'
+], function (m,
+             f, ComponentMixins, tt) {
   var ParametersConfigWidget = {
     controller: function (args) {
-      this.parameters = args.parameters;
-
-      this.add = function () {
-        this.parameters.createParameter();
-      };
-
-      this.remove = function (parameter) {
-        this.parameters.removeParameter(parameter);
-        this.paramChanged();
-      };
-
-      this.lastParameter = function () {
-        return this.parameters.lastParameter();
-      };
-
-      this.paramChanged = function () {
-        if (!this.lastParameter() || !this.lastParameter().isBlank()) {
-          this.add();
-        }
-      };
-
-      this.paramChanged();
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
+      ComponentMixins.ManagesCollection.call(this, {as: 'Parameter'});
     },
 
     view: function (ctrl) {
-      var removeLink = function (parameter) {
-        if (parameter !== ctrl.lastParameter()) {
-          return (
-            <f.removeButton onclick={ctrl.remove.bind(ctrl, parameter)}/>
-          );
-        }
-      };
-
       return (
         <f.accordion accordionTitles={[
                         (
@@ -57,22 +35,24 @@ define(['mithril', '../helpers/form_helper', '../helpers/tooltips'], function (m
                         )
                      ]}
                      accordionKeys={['parameters']}
-                     selectedIndex={-1}
+                     selectedIndex={ctrl.vmState('accordionSelectedIndex', m.prop(-1))}
                      class='parameters'>
           <div>
-            {ctrl.parameters.mapParameters(function (parameter) {
+            {ctrl.map(function (parameter) {
               return (
                 <f.row class='parameter' data-parameter-name={parameter.name()} key={parameter.uuid()}>
                   <f.input model={parameter}
                            attrName='name'
-                           onchange={ctrl.paramChanged.bind(ctrl)}
+                           placeHolder='Name'
+                           onchange={ctrl.changed.bind(ctrl)}
                            size={4}/>
                   <f.input model={parameter}
                            attrName='value'
-                           onchange={ctrl.paramChanged.bind(ctrl)}
+                           placeHolder='Value'
+                           onchange={ctrl.changed.bind(ctrl)}
                            size={4}/>
                   <f.column size={3} end={true}>
-                    {removeLink(parameter)}
+                    {ctrl.removeLink.call(ctrl, parameter)}
                   </f.column>
                 </f.row>
               );

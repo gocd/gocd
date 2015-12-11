@@ -51,7 +51,7 @@ describe "_form.html.erb" do
     render :partial => "admin/materials/hg/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
 
     expect(response.body).to have_selector(".popup_form button#check_connection_hg", :text => "CHECK CONNECTION")
-    expect(response.body).to have_selector(".popup_form #vcsconnection-message_hg", :text => "")
+    expect(response.body).to have_selector(".popup_form #vcsconnection-message_hg", :text => "", visible: false)
   end
 
   it "should display new hg material view with errors" do

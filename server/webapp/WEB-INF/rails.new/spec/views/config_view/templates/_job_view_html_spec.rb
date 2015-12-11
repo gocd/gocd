@@ -164,10 +164,8 @@ describe "config_view/templates/_job_view.html.erb" do
 
   it "should render artifacts tab for a job" do
     artifact_plans = ArtifactPlans.new()
-    artifact_plans.add(ArtifactPlan.new(ArtifactType.unit, "build-result", "build-output"))
-    test_artifact = TestArtifactPlan.new()
-    test_artifact.setSrc('test-result')
-    test_artifact.setDest('test-output')
+    artifact_plans.add(ArtifactPlan.new("build-result", "build-output"))
+    test_artifact = TestArtifactPlan.new('test-result', 'test-output')
     artifact_plans.add(test_artifact)
     job = JobConfig.new(CaseInsensitiveString.new("jobName"), Resources.new(), artifact_plans)
     job.addTask(ant_task)
@@ -343,7 +341,7 @@ describe "config_view/templates/_job_view.html.erb" do
 
     it "should display fetch artifact task of a job" do
       job = JobConfig.new('job1')
-      job.addTask(fetch_task)
+      job.addTask(fetch_task_with_exec_on_cancel_task)
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
       Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
         job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
@@ -366,7 +364,7 @@ describe "config_view/templates/_job_view.html.erb" do
 
     it "should display fetch artifact task of a job when it fetches from same pipeline" do
       job = JobConfig.new('job1')
-      task = fetch_task(nil)
+      task = fetch_task_with_exec_on_cancel_task(nil)
       job.addTask(task)
       render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
       Capybara.string(response.body).find("#stage_id_job_1").tap do |job|

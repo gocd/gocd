@@ -140,7 +140,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 			result.notFound("Not Found", "Pipeline " + pipelineName + " not found", HealthStateType.general(HealthStateScope.GLOBAL));
 			return null;
 		}
-		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+		if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
 			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
 			return null;
 		}
@@ -166,7 +166,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
 			return null;
 		}
-		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+		if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
 			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
 			return null;
 		}

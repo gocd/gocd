@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-requirejs(['jquery', 'mithril', 'pipeline_configs/models/pluggable_tasks', 'pipeline_configs/views/pipeline_config_widget', 'foundation.topbar'], function ($, m, PluggableTasks, PipelineConfigWidget) {
+requirejs([
+  'jquery', 'mithril',
+  'pipeline_configs/models/pluggable_tasks', 'pipeline_configs/models/resources', 'pipeline_configs/models/users', 'pipeline_configs/models/roles',
+  'pipeline_configs/views/pipeline_config_widget', 'foundation.topbar'
+], function ($, m,
+             PluggableTasks, Resources, Users, Roles,
+             PipelineConfigWidget) {
 
   $(function () {
     $(document).foundation();
@@ -22,7 +28,14 @@ requirejs(['jquery', 'mithril', 'pipeline_configs/models/pluggable_tasks', 'pipe
     var pipelineConfigElem            = $('#pipeline-config');
     var url                           = pipelineConfigElem.attr('data-pipeline-api-url');
     var taskPluginTemplateDescriptors = JSON.parse(pipelineConfigElem.attr('data-task-template-plugins'));
+    var allResourceNames              = JSON.parse(pipelineConfigElem.attr('data-resource-names'));
+    var allUserNames                  = JSON.parse(pipelineConfigElem.attr('data-user-names'));
+    var allRoleNames                  = JSON.parse(pipelineConfigElem.attr('data-role-names'));
+
     PluggableTasks.initializeWith(taskPluginTemplateDescriptors);
+    Resources.initializeWith(allResourceNames);
+    Users.initializeWith(allUserNames);
+    Roles.initializeWith(allRoleNames);
 
     m.mount(pipelineConfigElem.get(0), PipelineConfigWidget(url));
   });

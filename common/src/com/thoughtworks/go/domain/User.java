@@ -102,6 +102,9 @@ public class  User extends PersistentObject {
         this.name = StringUtils.trim(name);
     }
 
+    public Username getUsername() {
+        return Username.valueOf(name);
+    }
     /**
      * only used by ibatis
      *
@@ -239,6 +242,10 @@ public class  User extends PersistentObject {
     public void validateEmail() throws ValidationException {
         validate(Validator.lengthValidator(255), getEmail());
         validate(Validator.EMAIL, getEmail());
+    }
+
+    public void validateLoginName() throws ValidationException {
+        validate(Validator.presenceValidator("Login name field must be non-blank."), getName());
     }
 
     public boolean isEnabled() {

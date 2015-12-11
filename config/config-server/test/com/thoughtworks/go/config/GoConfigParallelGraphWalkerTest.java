@@ -19,12 +19,16 @@ package com.thoughtworks.go.config;
 import java.util.List;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -110,6 +114,21 @@ public class GoConfigParallelGraphWalkerTest {
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().size(), is(1));
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().get(0).errors().getAll().size(), is(1));
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().get(0).errors().firstError(), is("y"));
+    }
+
+    @Test
+    public void shouldCopyErrorsForFieldsOnPipelineConfig(){
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline", MaterialConfigsMother.defaultMaterialConfigs(), new JobConfigs(JobConfigMother.createJobConfigWithJobNameAndEmptyResources()));
+        pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("name", "value"))));
+
+        PipelineConfig pipelineWithErrors = new Cloner().deepClone(pipelineConfig);
+        pipelineWithErrors.getVariables().get(0).addError("name", "error on environment variable");
+        pipelineWithErrors.first().addError("name", "error on stage");
+        pipelineWithErrors.first().getJobs().first().addError("name", "error on job");
+        BasicCruiseConfig.copyErrors(pipelineWithErrors, pipelineConfig);
+        assertThat(pipelineConfig.getVariables().get(0).errors().on("name"), is("error on environment variable"));
+        assertThat(pipelineConfig.first().errors().on("name"), is("error on stage"));
+        assertThat(pipelineConfig.first().getJobs().first().errors().on("name"), is("error on job"));
     }
 
     private class AValidatableObjectWithAList implements Validatable {

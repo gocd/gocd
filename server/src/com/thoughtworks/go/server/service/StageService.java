@@ -129,7 +129,7 @@ public class StageService implements StageRunFinder, StageFinder {
             result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
-        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+        if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
             result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return null;
         }
@@ -142,7 +142,7 @@ public class StageService implements StageRunFinder, StageFinder {
     }
 
     public StageSummaryModel findStageSummaryByIdentifier(StageIdentifier stageId, Username username, LocalizedOperationResult result) {
-        if (!securityService.hasViewPermissionForPipeline(CaseInsensitiveString.str(username.getUsername()), stageId.getPipelineName())) {
+        if (!securityService.hasViewPermissionForPipeline(username, stageId.getPipelineName())) {
             result.unauthorized(LocalizedMessage.cannotViewPipeline(stageId.getPipelineName()), HealthStateType.general(HealthStateScope.forPipeline(stageId.getPipelineName())));
             return null;
         }
@@ -412,7 +412,7 @@ public class StageService implements StageRunFinder, StageFinder {
 			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
 			return null;
 		}
-		if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+		if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
 			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
 			return null;
 		}

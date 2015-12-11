@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,10 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
+import com.google.caja.util.Sets;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.*;
@@ -48,7 +49,10 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.SystemTimeClock;
+import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
@@ -114,7 +118,7 @@ public class GoConfigService implements Initializer {
     @Override
     public void initialize() {
         this.goConfigDao.load();
-        register(new BaseUrlChangeListener(serverConfig(), goCache));
+        register(new BaseUrlChangeListener(serverConfig().getSiteUrl(), serverConfig().getSecureSiteUrl(), goCache));
         File dir = artifactsDir();
         if (!dir.exists()) {
             boolean success = dir.mkdirs();
@@ -141,10 +145,13 @@ public class GoConfigService implements Initializer {
     }
 
     private boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
+        return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
+    }
+
+    protected boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
         }
-        String groupName = findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
         if (!isUserAdminOfGroup(username.getUsername(), groupName)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", pipelineName), HealthStateType.unauthorisedForPipeline(pipelineName));
             return false;
@@ -187,7 +194,7 @@ public class GoConfigService implements Initializer {
         return goConfigDao.loadForEditing();
     }
 
-    private CruiseConfig cruiseConfig() {
+    CruiseConfig cruiseConfig() {
         return goConfigDao.load();
     }
 
@@ -240,6 +247,10 @@ public class GoConfigService implements Initializer {
 
     public void addAgent(AgentConfig agentConfig) {
         goConfigDao.addAgent(agentConfig);
+    }
+
+    public void updatePipeline(final PipelineConfig pipelineConfig, final Username currentUser, final LocalizedOperationResult result, PipelineConfigService.SaveCommand saveCommand) {
+        goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
@@ -315,7 +326,7 @@ public class GoConfigService implements Initializer {
             } else {
                 result.badRequest(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
             }
-        }finally {
+        } finally {
             metricsProbeService.end(ProbeType.SAVE_CONFIG_XML_THROUGH_CLICKY_ADMIN, context);
         }
 
@@ -473,9 +484,9 @@ public class GoConfigService implements Initializer {
         return allGroup;
     }
 
-	public PipelineGroups groups() {
-		return getCurrentConfig().getGroups();
-	}
+    public PipelineGroups groups() {
+        return getCurrentConfig().getGroups();
+    }
 
     public List<Task> tasksForJob(String pipelineName, String stageName, String jobName) {
         return getCurrentConfig().tasksForJob(pipelineName, stageName, jobName);
@@ -568,10 +579,10 @@ public class GoConfigService implements Initializer {
         updateConfig(command);
     }
 
-    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources, TriState enable, AgentInstances agentInstances) {
+    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources, String environments, TriState enable, AgentInstances agentInstances) {
         GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
 
-        if (!hasAgent(uuid) && enable.isTrue()){
+        if (!hasAgent(uuid) && enable.isTrue()) {
             AgentInstance agentInstance = agentInstances.findAgent(uuid);
             AgentConfig agentConfig = agentInstance.agentConfig();
             command.addCommand(GoConfigDao.createAddAgentCommand(agentConfig));
@@ -581,17 +592,33 @@ public class GoConfigService implements Initializer {
             command.addCommand(GoConfigDao.updateApprovalStatus(uuid, false));
         }
 
-        if (enable.isFalse()){
+        if (enable.isFalse()) {
             command.addCommand(GoConfigDao.updateApprovalStatus(uuid, true));
         }
 
         if (hostname != null) {
             command.addCommand(new GoConfigDao.UpdateAgentHostname(uuid, hostname, userName));
         }
+
         if (resources != null) {
             command.addCommand(new GoConfigDao.UpdateResourcesCommand(uuid, new Resources(resources)));
         }
 
+        if (environments != null) {
+            Set<String> existingEnvironments = cruiseConfig().getEnvironments().environmentsForAgent(uuid);
+            Set<String> newEnvironments = new HashSet<>(Arrays.asList(environments.split(",")));
+
+            Set<String> environmentsToRemove = Sets.difference(existingEnvironments, newEnvironments);
+            Set<String> environmentsToAdd = Sets.difference(newEnvironments, existingEnvironments);
+
+            for (String environmentToRemove : environmentsToRemove) {
+                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToRemove, TriStateSelection.Action.remove));
+            }
+
+            for (String environmentToAdd : environmentsToAdd) {
+                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToAdd, TriStateSelection.Action.add));
+            }
+        }
 
         goConfigDao.updateConfig(command);
     }
@@ -723,9 +750,9 @@ public class GoConfigService implements Initializer {
         return pipelines;
     }
 
-	public PipelineConfigs getAllPipelinesInGroup(String group) {
-		return getCurrentConfig().pipelines(group);
-	}
+    public PipelineConfigs getAllPipelinesInGroup(String group) {
+        return getCurrentConfig().pipelines(group);
+    }
 
     public GoConfigValidity checkConfigFileValid() {
         return goConfigDao.checkConfigFileValid();

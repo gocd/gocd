@@ -23,7 +23,7 @@ describe "admin/tasks/nant/new.html.erb" do
 
   before :each do
     assign(:cruise_config, config = BasicCruiseConfig.new)
-    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel)))
     set(config, "md5", "abcd1234")
     view.stub(:admin_task_create_path).and_return("task_create_path")
     view.stub(:admin_task_update_path).and_return("task_update_path")
@@ -112,7 +112,7 @@ describe "admin/tasks/nant/new.html.erb" do
     oncancel.setNantPath(File.dirname(__FILE__))
     task.setCancelTask(oncancel)
 
-    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(task.cancelTask()), vm_for(rake_task), vm_for(fetch_task)].to_java(TaskViewModel)))
+    assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(task.cancelTask()), vm_for(rake_task), vm_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel)))
     assign(:task, task)
     assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
 

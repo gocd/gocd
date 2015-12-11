@@ -1,4 +1,4 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.initializers;
 
@@ -121,6 +121,10 @@ public class ApplicationInitializerTest {
     private ConsoleService consoleService;
     @Mock
     private ContextRefreshedEvent contextRefreshedEvent;
+    @Mock
+    private PipelineConfigService pipelineConfigService;
+    @Mock
+    private ServerVersionInfoManager serverVersionInfoManager;
 
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
@@ -142,6 +146,11 @@ public class ApplicationInitializerTest {
     @Test
     public void shouldInitializeCcTrayActivityListenerAfterGoConfigServiceAndPipelineSqlMapDaoAreInitialized() throws Exception {
         verifyOrder(goConfigService, pipelineSqlMapDao, ccTrayActivityListener);
+    }
+
+    @Test
+    public void shouldInitializePipelineConfigServiceAfterGoConfigServiceIsInitialized() throws Exception {
+        verifyOrder(goConfigService, pipelineConfigService);
     }
 
     private void verifyOrder(Initializer... initializers) {

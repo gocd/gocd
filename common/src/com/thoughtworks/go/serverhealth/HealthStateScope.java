@@ -67,6 +67,9 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     public static HealthStateScope forMaterialConfigUpdate(MaterialConfig materialConfig) {
         return new HealthStateScope(ScopeType.MATERIAL_UPDATE, materialConfig.getFingerprint());
     }
+    public static HealthStateScope forConfigRepo(String operation) {
+        return new HealthStateScope(ScopeType.CONFIG_REPO, operation);
+    }
 
     public boolean isSame(String scope) {
         return StringUtils.endsWithIgnoreCase(this.scope, scope);
@@ -147,6 +150,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     enum ScopeType {
 
         GLOBAL,
+        CONFIG_REPO,
         GROUP{
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String group){
                 return !cruiseConfig.hasPipelineGroup(group);

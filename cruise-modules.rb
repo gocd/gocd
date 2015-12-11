@@ -17,7 +17,7 @@
 require 'buildr/core/util'
 
 task :prepare do
-  system("mvn install -DskipTests") || raise("Failed to run: mvn install -DskipTests")
+  system("mvn install -DskipTests --batch-mode") || raise("Failed to run: mvn install -DskipTests")
   task("cruise:server:db:refresh").invoke
 end
 
@@ -111,11 +111,14 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
   end
 end
 
+def command_repo_url(username = nil, password = nil)
+  credentials = username.nil? ? "" : "#{username}:#{password}@"
+  "https://#{credentials}github.com/gocd/go-command-repo.git"
+end
+
 def clone_command_repo(command_repository_default_dir)
-  protocol = ENV["COMMAND_REPO_PROTOCOL"] || "https://"
-  url = ENV["COMMAND_REPO_URL"] || 'github.com/gocd/go-command-repo.git'
   rm_rf command_repository_default_dir
-  sh "git clone #{protocol}#{url} #{command_repository_default_dir}"
+  sh "git clone #{command_repo_url} #{command_repository_default_dir}"
 end
 
 define "cruise:server", :layout => server_layout("server") do
@@ -268,7 +271,8 @@ define "cruise:server", :layout => server_layout("server") do
             _("../installers/server/release/cruise-config.xml"),
             _("../installers/server/release/config.properties"),
             _("properties/src/log4j.properties"),
-            _("config/jetty.xml"))
+            _("config/jetty.xml"),
+            _("config/go_update_server.pub"))
 
     onejar.path('lib/').include(server_launcher_dependencies).include(jetty_jars).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
     include_fileset_from_target(onejar, 'server', "**/GoMacLauncher*")
@@ -358,13 +362,15 @@ define "cruise:server", :layout => server_layout("server") do
   end
 
   task :bump_version_of_command_repository do
-    repo_full_url = ENV["COMMAND_REPO_URL"] || 'git@github.com:gocd/go-command-repo.git'
+    username = ENV['COMMAND_REPO_USER'] || (raise "Environment variable: COMMAND_REPO_USER is unset. Needs to be set to a user with access to the command repo.")
+    password = ENV['COMMAND_REPO_PASSWORD'] || (raise "Environment variable: COMMAND_REPO_PASSWORD is unset. Needs to be set.")
+
     require 'tmpdir'
     tmp_dir = Dir.tmpdir
     temp_checkout_dir_location = File.join(tmp_dir, 'go-command-repo-for-push')
     rm_rf temp_checkout_dir_location
     mkdir_p temp_checkout_dir_location
-    sh "git clone #{repo_full_url} #{temp_checkout_dir_location}"
+    sh "git clone #{command_repo_url} #{temp_checkout_dir_location}"
 
     version_file_location = File.join(temp_checkout_dir_location, 'version.txt')
     version_content_array = File.read(version_file_location).split('=')
@@ -376,8 +382,7 @@ define "cruise:server", :layout => server_layout("server") do
         'git config user.email go-cd@googlegroups.com',
         "git add #{version_file_location}",
         "git commit -m 'Version - #{bump_version}'",
-        "git config remote.origin.url #{repo_full_url}",
-        'git push'
+        "git push #{command_repo_url(username, password)} master"
       ].each do |cmd|
         sh cmd
       end
@@ -423,7 +428,7 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
     current_rev_file = "#{cmd_repo_verification_dir_absolute_path}/git_revision_current.txt"
 
     zip_file_name = ""
-    Dir.glob("#{cmd_repo_verification_dir}/zip/*").each do |f|
+    Dir.glob("#{cmd_repo_verification_dir}/pkg/*").each do |f|
       zip_file_name = f if !f.scan(/go-server-.*-[0-9]+.zip/).empty?
     end
 
@@ -449,12 +454,12 @@ define "cruise:misc", :layout => submodule_layout_for_different_src("server") do
   end
 
   task :maven_clean do
-    system("mvn clean") || raise("Failed to run: mvn clean")
+    system("mvn clean --batch-mode") || raise("Failed to run: mvn clean")
   end
 end
 
 define 'cruise:pkg', :layout => submodule_layout('pkg') do
-  task :zip => ['cruise:agent-bootstrapper:dist:zip', 'cruise:server:dist:zip'] do
+  task :zip => ['cruise:agent-bootstrapper:dist:zip', 'cruise:server:dist:zip', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:zip_package), _(:target)
     cp project('cruise:server:dist').path_to(:zip_package), _(:target)
@@ -465,32 +470,32 @@ define 'cruise:pkg', :layout => submodule_layout('pkg') do
     sh("unzip -o #{project('cruise:server:dist').path_to(:zip_package)} -d #{_(:target, '..')}")
   end
 
-  task :debian => ['cruise:agent-bootstrapper:dist:debian', 'cruise:server:dist:debian'] do
+  task :debian => ['cruise:agent-bootstrapper:dist:debian', 'cruise:server:dist:debian', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:debian_package), _(:target)
     cp project('cruise:server:dist').path_to(:debian_package), _(:target)
     cp project('cruise:server').path_to("../installers/server/debian/install-server.sh"), _(:target)
   end
 
-  task :redhat => ['cruise:agent-bootstrapper:dist:rpm', 'cruise:server:dist:rpm'] do
+  task :redhat => ['cruise:agent-bootstrapper:dist:rpm', 'cruise:server:dist:rpm', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:redhat_package), _(:target)
     cp project('cruise:server:dist').path_to(:redhat_package), _(:target)
   end
 
-  task :windows => ['cruise:agent-bootstrapper:dist:exe', 'cruise:server:dist:exe'] do
+  task :windows => ['cruise:agent-bootstrapper:dist:exe', 'cruise:server:dist:exe', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:windows_package), _(:target)
     cp project('cruise:server:dist').path_to(:windows_package), _(:target)
   end
 
-  task :solaris => ['cruise:agent-bootstrapper:dist:solaris', 'cruise:server:dist:solaris'] do
+  task :solaris => ['cruise:agent-bootstrapper:dist:solaris', 'cruise:server:dist:solaris', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:solaris_package), _(:target)
     cp project('cruise:server:dist').path_to(:solaris_package), _(:target)
   end
 
-  task :osx => ['cruise:agent-bootstrapper:dist:osx', 'cruise:server:dist:osx'] do
+  task :osx => ['cruise:agent-bootstrapper:dist:osx', 'cruise:server:dist:osx', 'cruise:version_file'] do
     mkdir_p _(:target)
     cp project('cruise:agent-bootstrapper:dist').path_to(:osx_package), _(:target)
     cp project('cruise:server:dist').path_to(:osx_package), _(:target)

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -95,7 +95,7 @@ public class MaterialExpansionServiceTest {
     @Test
     public void shouldExpandSvnMaterialWithExternalsIntoMultipleSvnMaterialsWhenExpandingForScheduling() {
         SvnMaterialConfig svn = svnMaterialConfig(svnRepo.projectRepositoryUrl(), "mainRepo");
-        SvnMaterialConfig svnExt = svnMaterialConfig(svnRepo.externalRepositoryUrl(), "mainRepo/end2end");
+        SvnMaterialConfig svnExt = svnMaterialConfig(svnRepo.externalRepositoryUrl(), "mainRepo/end2end", null);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(svn);
@@ -116,7 +116,7 @@ public class MaterialExpansionServiceTest {
     public void shouldExpandSvnMaterialWithFolders() {
         SvnMaterialConfig svn = svnMaterialConfig(svnRepo.projectRepositoryUrl(), null);
         SvnMaterialConfig svnExt = svnMaterialConfig(svnRepo.externalRepositoryUrl(), "end2end");
-
+        svnExt.setName(null);
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(svn);
         String cacheKeyForSvn = MaterialExpansionService.class + "_cacheKeyForSvnMaterialCheckExternalCommand_" + svn.getFingerprint();

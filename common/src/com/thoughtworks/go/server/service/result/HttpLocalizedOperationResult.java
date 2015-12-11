@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.result;
 
@@ -55,10 +55,22 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         httpCode = HttpStatus.SC_NOT_IMPLEMENTED;
     }
 
+    @Override
+    public void unprocessableEntity(Localizable message) {
+        this.message = message;
+        this.httpCode = HttpStatus.SC_UNPROCESSABLE_ENTITY;
+    }
+
     public void unauthorized(Localizable message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
         httpCode = HttpStatus.SC_UNAUTHORIZED;
+    }
+
+    @Override
+    public void stale(Localizable message) {
+        this.message = message;
+        httpCode = HttpStatus.SC_PRECONDITION_FAILED;
     }
 
     public void notFound(Localizable message, HealthStateType healthStateType) {

@@ -1,23 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END**********************************/
+ */
 
 var BuildOutputObserver = Class.create();
 
 BuildOutputObserver.prototype = {
-    initialize: function(buildLocator, name, options) {
+    initialize: function(buildLocator, name) {
         var self = this;
         this.name = name;
         this.buildLocator = buildLocator;
@@ -26,16 +26,18 @@ BuildOutputObserver.prototype = {
         this.is_output_empty = false;
         this.is_completed = false;
         this.ansi_up = ansi_up.ansi_to_html_obj();
-        options = options || {};
         this.enableTailing = true;
         this.window = jQuery(window);
         this.originalWindowScrollTop = this.window.scrollTop();
         this.consoleElement = jQuery('.buildoutput_pre');
-        this.chosen_update_of_live_output = options.colorize == true ? this._update_live_output_color : this._update_live_output_raw;
+        this.consoleTabElement = jQuery('#build_console');
         this.autoScrollButton = jQuery('.auto-scroll');
         this.autoScrollButton.toggleClass('tailing', this.enableTailing);
         this.autoScrollButton.on('click', function(){
             self.enableTailing = !self.enableTailing;
+            self.initializeScroll();
+        });
+        this.consoleTabElement.on('click', function(){
             self.initializeScroll();
         });
         this.initializeScroll();
@@ -112,43 +114,21 @@ BuildOutputObserver.prototype = {
                 onSuccess: function(transport, next_start_as_json) {
                     if (next_start_as_json) {
                         _this.start_line_number = next_start_as_json[0];
-                        _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, transport.responseText);
+                        _this.is_output_empty = _this._update_live_output_color(transport.responseText);
                     } else {
                         _this.is_output_empty = true;
                     }
                 },
               onFailure: function(response){
                 if (404 === response.status){
-                  _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, response.responseText);
+                  _this.is_output_empty = _this._update_live_output_color(response.responseText);
                 } else {
                   var message = "There was an error contacting the server. The HTTP status was " + response.status + ".";
-                  _this.is_output_empty = _this.chosen_update_of_live_output.call(_this, message);
+                  _this.is_output_empty = _this._update_live_output_color(message);
                 }
               }
             });
         }
-    },
-
-    _update_live_output_raw: function (build_output) {
-        var is_output_empty = !build_output;
-        // we loop through these elements below, because there's 2 of those
-        // on on the console tab, and another on failures tab
-        var buildoutputPreElement = $$('.buildoutput_pre');
-        if (!is_output_empty && buildoutputPreElement) {
-            var escapedOutPut = build_output.escapeHTML();
-            if (Prototype.Browser.IE) {
-                // Fix for the IE not wrap /r in pre bug
-                escapedOutPut = '<br/>' + escapedOutPut.replace(/\n/ig, '<br\/>');
-                buildoutputPreElement.each(function(e, i){
-                    e.innerHTML += escapedOutPut;
-                })
-            } else {
-                buildoutputPreElement.each(function(e, i) {
-                    e.insert({bottom: escapedOutPut})
-                });
-            }
-        }
-        return is_output_empty;
     },
 
     _update_live_output_color: function(build_output) {

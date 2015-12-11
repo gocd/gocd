@@ -14,6 +14,6 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************#
 
-<div id="tab-content-of-console" class="ansi-color-toggle-$color_logs_feature_toggle_key" $buildoutput_extra_attrs>
+<div id="tab-content-of-console" class="ansi-color-toggle" $buildoutput_extra_attrs>
     #parse("build_detail/_build_output_raw.vm")
 </div>

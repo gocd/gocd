@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,57 +14,179 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helpers/tooltips', './materials_config_widget', './environment_variables_config_widget',
-  './jobs_config_widget'], function (m, _, s, f, tt, MaterialsConfigWidget, EnvironmentVariablesConfigWidget, JobsConfigWidget) {
+define([
+  'mithril', 'lodash', 'string-plus', 'jquery',
+  '../helpers/form_helper', '../helpers/tooltips', '../helpers/mithril_component_mixins',
+  '../models/users', '../models/roles',
+  './materials_config_widget', './environment_variables_config_widget', './jobs_config_widget',
+  'jquery.textcomplete'
+], function (m, _, s, $,
+             f, tt, ComponentMixins,
+             Users, Roles,
+             MaterialsConfigWidget, EnvironmentVariablesConfigWidget, JobsConfigWidget) {
+
+  var autoComplete = function (values, model, attrName) {
+    return function (elem, isInitialized) {
+      if (!isInitialized) {
+        var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+
+        $inputElem.textcomplete([
+          {
+            words:   values, //the list of auto-completes
+            match:   /(^|,)\s*([^,]+)$/,
+            index:   2, // use the second match in the regex to extract the search term
+            search:  function (term, callback) {
+              term = term.toLowerCase();
+              callback($.map(this.words, function (word) {
+                return word.toLowerCase().indexOf(term) === 0 ? word : null;
+              }));
+            },
+            replace: function (word) {
+              return '$1 ' + word + ', ';
+            }
+          }
+        ]);
+
+        $inputElem.on('textComplete:select', function () {
+          model[attrName]($inputElem.val());
+        });
+      }
+    };
+  };
+
+  var ApprovalWidget = {
+    view: function (ctrl, args, children) {
+      if (!args.approval().isManual()) {
+        return (<div/>);
+      }
+
+      return (
+        <f.row>
+          <f.column size={11}>
+            <f.row>
+              <f.inputWithLabel config={autoComplete(Users.list, args.approval().authorization(), 'users')}
+                                attrName='users'
+                                model={args.approval().authorization()}
+                                size={12}/>
+
+            </f.row>
+            <f.row>
+              <f.inputWithLabel config={autoComplete(Roles.list, args.approval().authorization(), 'roles')}
+                                attrName='roles'
+                                model={args.approval().authorization()}
+                                size={12}/>
+            </f.row>
+          </f.column>
+        </f.row>
+      );
+    }
+  };
 
   var StageConfigDefinitionWidget = {
     controller: function (args) {
-      this.stage            = args.stage;
-      this.selectedJobIndex = m.prop(0);
-      this.onRemove         = args.onRemove;
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
     },
 
     view: function (ctrl, args, children) {
+      var stage     = args.stage;
+      var radioName = 'radio-' + stage.uuid() + '-approval-type';
+
       return (
-        <div className='stage-definition' data-stage-name={ctrl.stage.name()}>
-          <f.removeButton onclick={ctrl.onRemove}
-            />
+        <div class='stage-definition' data-stage-name={stage.name()}>
+          <f.removeButton onclick={args.onRemove}/>
           <f.row>
-            <f.inputWithLabel attrName='name'
-                              model={ctrl.stage}/>
-            <f.checkBox model={ctrl.stage}
-                        attrName='fetchMaterials'
-                        tooltip={{
+            <f.column size={4}>
+              <f.row>
+                <f.inputWithLabel attrName='name'
+                                  model={stage}
+                                  size={11}/>
+              </f.row>
+            </f.column>
+
+            <f.column size={4}>
+              <label>Stage Type
+                <f.tooltip tooltip={{
+                            content: tt.stage.stageType,
+                            direction: 'bottom',
+                            size: 'small'
+                           }}/>
+              </label>
+              <f.row>
+                <f.column size={12}>
+                  <input type='radio'
+                         name={radioName}
+                         id={radioName + '-success'}
+                         checked={stage.approval().isSuccess()}
+                         onchange={stage.approval().makeOnSuccess.bind(stage.approval())}/>
+                  <label for={radioName + '-success'}>On Success</label>
+                </f.column>
+              </f.row>
+
+              <f.row>
+                <f.column size={12}>
+                  <input type='radio'
+                         name={radioName}
+                         id={radioName + '-manual'}
+                         checked={stage.approval().isManual()}
+                         onchange={stage.approval().makeManual.bind(stage.approval())}/>
+                  <label for={radioName + '-manual'}>Manual</label>
+                </f.column>
+              </f.row>
+
+              <ApprovalWidget approval={stage.approval}/>
+            </f.column>
+
+            <f.column size={4}>
+              <label></label>
+              <f.row>
+                <f.checkBox model={stage}
+                            attrName='fetchMaterials'
+                            size={12}
+                            tooltip={{
                                   content: tt.stage.fetchMaterials,
                                   direction: 'bottom',
                                   size: 'small'
                                 }}/>
-            <f.checkBox model={ctrl.stage}
-                        attrName='neverCleanArtifacts'
-                        tooltip={{
-                                  content: tt.stage.neverCleanArtifacts,
+              </f.row>
+              <f.row>
+                <f.checkBox model={stage}
+                            attrName='neverCleanupArtifacts'
+                            size={12}
+                            tooltip={{
+                                  content: tt.stage.neverCleanupArtifacts,
                                   direction: 'bottom',
                                   size: 'small'
                                 }}/>
-            <f.checkBox model={ctrl.stage}
-                        attrName='cleanWorkingDirectory'
-                        tooltip={{
+              </f.row>
+              <f.row>
+                <f.checkBox model={stage}
+                            attrName='cleanWorkingDirectory'
+                            size={12}
+                            tooltip={{
                                   content: tt.stage.cleanWorkingDirectory,
                                   direction: 'bottom',
                                   size: 'small'
                                 }}
-                        end={true}/>
+                            end={true}/>
+              </f.row>
+            </f.column>
+
           </f.row>
 
           <f.row>
             <f.column size={12} end={true}>
-              <EnvironmentVariablesConfigWidget variables={ctrl.stage.environmentVariables()}/>
+              <EnvironmentVariablesConfigWidget variables={stage.environmentVariables}
+                                                key={stage.environmentVariables().uuid()}
+                                                vm={ctrl.vmState('environmentVariables')}/>
             </f.column>
           </f.row>
 
           <f.row>
             <f.column size={12} end={true}>
-              <JobsConfigWidget jobs={ctrl.stage.jobs()} selectedJobIndex={ctrl.selectedJobIndex}/>
+              <JobsConfigWidget jobs={stage.jobs}
+                                key={stage.jobs().uuid()}
+                                vm={ctrl.vmState('jobsWidget')}/>
             </f.column>
           </f.row>
         </div>
@@ -74,14 +196,15 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
 
   var MaterialConfigWrapper = {
     controller: function (args) {
-      this.materials             = args.materials;
-      this.selectedMaterialIndex = m.prop(0);
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
     },
 
     view: function (ctrl, args, children) {
       return (
         <div className='material-definitions'>
-          <MaterialsConfigWidget materials={ctrl.materials} selectedMaterialIndex={ctrl.selectedMaterialIndex}/>
+          <MaterialsConfigWidget materials={args.materials}
+                                 key={args.materials.uuid()}/>
         </div>
       );
     }
@@ -89,29 +212,31 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
 
   var StagesConfigWidget = {
     controller: function (args) {
-      this.stages           = args.stages;
-      this.materials        = args.materials;
+      this.args             = args;
+      this.pipeline         = args.pipeline;
       this.currentSelection = args.currentSelection;
 
-      this.removeStage = function (stage) {
-        var previousStage = this.stages.previousStage(stage);
-        this.stages.removeStage(stage);
-        var firstStage    = this.stages.firstStage();
+      ComponentMixins.HasViewModel.call(this);
 
-        this.currentSelection(previousStage || firstStage || this.stages.createStage());
+      this.removeStage = function (stage) {
+        var previousStage = this.pipeline().stages().previousStage(stage);
+        this.pipeline().stages().removeStage(stage);
+        var firstStage = this.pipeline().stages().firstStage();
+
+        this.currentSelection(previousStage || firstStage || this.pipeline().stages().createStage());
       };
     },
 
     view: function (ctrl, args) {
       var componentToShow;
 
-      if (args.currentSelection() === args.materials) {
-        componentToShow = <MaterialConfigWrapper materials={args.materials}
-                                                 key='material-config-wrappper'/>;
+      if (args.currentSelection() === args.pipeline().materials()) {
+        componentToShow = <MaterialConfigWrapper materials={args.pipeline().materials()}
+                                                 vm={ctrl.vmState('materialConfigs')}/>;
       } else {
-        componentToShow = <StageConfigDefinitionWidget key={ctrl.currentSelection().uuid()}
-                                                       stage={ctrl.currentSelection()}
-                                                       onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}/>;
+        componentToShow = <StageConfigDefinitionWidget stage={ctrl.currentSelection()}
+                                                       onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}
+                                                       vm={ctrl.vmState('stageConfigs')}/>;
       }
       return (
         <div class='stage-and-material-definitions'>

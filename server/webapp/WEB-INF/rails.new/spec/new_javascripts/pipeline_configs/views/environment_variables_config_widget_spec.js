@@ -17,8 +17,10 @@
 define(["jquery", "mithril", "pipeline_configs/models/environment_variables", "pipeline_configs/views/environment_variables_config_widget"], function ($, m, EnvironmentVariables, EnvironmentVariableWidget) {
   describe("Environment Variable Widget", function () {
     var $root;
+    var variables;
+
     beforeEach(function () {
-      var variables = EnvironmentVariables.fromJSON([
+      variables = m.prop(EnvironmentVariables.fromJSON([
         {
           name:  "COMMAND",
           value: "echo"
@@ -27,10 +29,11 @@ define(["jquery", "mithril", "pipeline_configs/models/environment_variables", "p
           value:  "s3cr3t",
           secure: true
         }
-      ]);
-      root  = document.createElement("div");
+      ]));
+
+      root = document.createElement("div");
       document.body.appendChild(root);
-      $root         = $(root);
+      $root = $(root);
 
       m.mount(root,
         m.component(EnvironmentVariableWidget, {variables: variables})

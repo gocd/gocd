@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
   var Materials = function (data) {
     Mixins.HasMany.call(this, {factory: Materials.create, as: 'Material', collection: data, uniqueOn: 'name'});
+    Mixins.HasUUID.call(this);
   };
 
   Materials.create = function (data) {
@@ -30,12 +31,22 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
     this.ignore = m.prop(s.defaultToIfBlank(data.ignore, []));
 
+    this.isBlank = function () {
+      return s.isBlank(this.ignore());
+    };
+
     this.toJSON = function () {
-      return {
-        filter: {
-          ignore: this.ignore()
-        }
-      };
+      if (this.isBlank()) {
+        return {
+          filter: null
+        };
+      } else {
+        return {
+          filter: {
+            ignore: this.ignore()
+          }
+        };
+      }
     };
   };
 

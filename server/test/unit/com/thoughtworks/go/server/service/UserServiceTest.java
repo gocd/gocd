@@ -71,7 +71,7 @@ public class UserServiceTest {
     @Before
     public void setUp() {
 
-        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, transactionSynchronizationManager, oauthRepo);
+        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, oauthRepo);
     }
 
     @Test
@@ -491,8 +491,8 @@ public class UserServiceTest {
         quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
 
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
-        when(securityService.hasViewPermissionForPipeline(foo.getName(), "p1")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(bar.getName(), "p1")).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
         assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
     }
 
@@ -504,8 +504,8 @@ public class UserServiceTest {
         bar.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
 
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
-        when(securityService.hasViewPermissionForPipeline(foo.getName(), "p1")).thenReturn(true);
-        when(securityService.hasViewPermissionForPipeline(bar.getName(), "p1")).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
         assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
     }
 

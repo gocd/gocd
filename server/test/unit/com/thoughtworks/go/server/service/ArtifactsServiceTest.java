@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.mockito.Mockito;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,10 +54,10 @@ import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static java.lang.System.getProperty;
-import static junit.framework.Assert.fail;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.Assert.fail;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -122,6 +124,19 @@ public class ArtifactsServiceTest {
         artifactsService.saveFile(destFile.getParentFile(), stream, true, 1);
 
         Mockito.verify(zipUtil).unzip(any(ZipInputStream.class), eq(destFile.getParentFile()));
+    }
+
+    @Test
+    public void shouldNotSaveArtifactWhenItsAZipContainingDirectoryTraversalPath() throws URISyntaxException, IOException {
+        final File logsDir = new File("logs");
+
+        final ByteArrayInputStream stream = new ByteArrayInputStream(FileUtils.readFileToByteArray(new File(getClass().getResource("/archive_traversal_attack.zip").toURI())));
+        String buildInstanceId = "1";
+        final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
+        assumeArtifactsRoot(logsDir);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, new ZipUtil(), systemService);
+        boolean saved = artifactsService.saveFile(destFile, stream, true, 1);
+        assertThat(saved, is(false));
     }
 
     @Test

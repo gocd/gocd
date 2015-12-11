@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -49,11 +51,13 @@ public class FetchTask extends AbstractTask implements Serializable {
     private String dest;
 
     public static final String PIPELINE_NAME = "pipelineName";
+    public static final String PIPELINE = "pipeline";
     public static final String STAGE = "stage";
     public static final String JOB = "job";
     public static final String DEST = "dest";
     public static final String SRC = "src";
     public static final String ORIGIN = "origin";
+    public static final String TYPE="fetch";
 
     public static final String IS_SOURCE_A_FILE = "isSourceAFile";
     private final String FETCH_ARTIFACT = "Fetch Artifact";
@@ -182,11 +186,11 @@ public class FetchTask extends AbstractTask implements Serializable {
             this.pipelineName = new PathFromAncestor(new CaseInsensitiveString((String) attributeMap.get(PIPELINE_NAME)));
         }
         if (attributeMap.containsKey(STAGE)) {
-            this.stage = new CaseInsensitiveString((String) attributeMap.get(STAGE));
+            setStage(new CaseInsensitiveString((String) attributeMap.get(STAGE)));
         }
         if (attributeMap.containsKey(JOB)) {
             String jobString = (String) attributeMap.get(JOB);
-            this.job = jobString == null ? null : new CaseInsensitiveString(jobString);
+            setJob(new CaseInsensitiveString(jobString));
         }
 
         if (attributeMap.containsKey(SRC)) {
@@ -202,12 +206,24 @@ public class FetchTask extends AbstractTask implements Serializable {
         }
         if (attributeMap.containsKey(DEST)) {
             String dest = (String) attributeMap.get(DEST);
-            if (StringUtils.isBlank(dest)) {
-                this.dest = null;
-            } else {
-                this.dest = dest;
-            }
+            setDest(dest);
         }
+    }
+
+    public void setDest(String dest) {
+        if (StringUtils.isBlank(dest)) {
+            this.dest = null;
+        } else {
+            this.dest = dest;
+        }
+    }
+
+    public void setJob(CaseInsensitiveString job) {
+        this.job = job;
+    }
+
+    public void setStage(CaseInsensitiveString stage) {
+        this.stage = stage;
     }
 
     protected void validateTask(ValidationContext validationContext) {
@@ -217,43 +233,36 @@ public class FetchTask extends AbstractTask implements Serializable {
         }
         if (validationContext.isWithinPipelines()) {
             PipelineConfig currentPipeline = validationContext.getPipeline();
-            CruiseConfig cruiseConfig = validationContext.getCruiseConfig();
             if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath())) {
                 pipelineName = new PathFromAncestor(currentPipeline.name());
             }
-            if (validateExistenceAndOrigin(currentPipeline, cruiseConfig, validationContext)) {
+            if (validateExistenceAndOrigin(currentPipeline, validationContext)) {
                 return;
             }
             if(pipelineName.isAncestor()){
-                validatePathFromAncestor(currentPipeline, cruiseConfig);
+                validatePathFromAncestor(currentPipeline, validationContext);
             } else if (currentPipeline.name().equals(pipelineName.getPath())) {
-                validateStagesOfSamePipeline(validationContext, currentPipeline, cruiseConfig);
+                validateStagesOfSamePipeline(validationContext, currentPipeline);
             } else {
-                validateDependencies(validationContext, currentPipeline, cruiseConfig);
+                validateDependencies(validationContext, currentPipeline);
             }
         }
     }
 
-    private void validatePathFromAncestor(PipelineConfig currentPipeline, CruiseConfig cruiseConfig) {
+    private void validatePathFromAncestor(PipelineConfig currentPipeline, ValidationContext validationContext) {
         List<CaseInsensitiveString> parentPipelineNames = pipelineName.pathIncludingAncestor();
         PipelineConfig pipeline = currentPipeline;
         CaseInsensitiveString dependencyStage = null;
         for (CaseInsensitiveString parentPipelineName : parentPipelineNames) {
-            if (! cruiseConfig.hasPipelineNamed(parentPipelineName)) {
+            if (validationContext.getPipelineConfigByName(parentPipelineName) == null) {
                 addError(FetchTask.PIPELINE_NAME, String.format("Pipeline named '%s' which is declared ancestor of '%s' through path '%s' does not exist.", parentPipelineName, currentPipeline.name(), pipelineName.getPath()));
                 return;
             }
-            List<PipelineConfig> parentConfigs = pipeline.allFirstLevelUpstreamPipelines(cruiseConfig);
-            boolean foundPipeline = false;
-            for (PipelineConfig parentConfig : parentConfigs) {
-                foundPipeline = parentPipelineName.equals(parentConfig.name());
-                if (foundPipeline) {
-                    dependencyStage = pipeline.materialConfigs().findDependencyMaterial(parentPipelineName).getStageName();
-                    pipeline = parentConfig;
-                    break;
-                }
-            }
-            if (! foundPipeline) {
+            DependencyMaterialConfig matchingDependencyMaterial = findMatchingDependencyMaterial(pipeline, parentPipelineName);
+            if (matchingDependencyMaterial != null) {
+                dependencyStage = matchingDependencyMaterial.getStageName();
+                pipeline = validationContext.getPipelineConfigByName(matchingDependencyMaterial.getPipelineName());
+            } else {
                 addError(FetchTask.PIPELINE_NAME,
                         String.format("Pipeline named '%s' exists, but is not an ancestor of '%s' as declared in '%s'.", parentPipelineName, currentPipeline.name(), pipelineName.getPath()));
                 return;
@@ -261,7 +270,7 @@ public class FetchTask extends AbstractTask implements Serializable {
         }
 
         boolean foundStageAtOrBeforeDependency = dependencyStage.equals(stage);
-        if (! foundStageAtOrBeforeDependency) {
+        if (!foundStageAtOrBeforeDependency) {
             for (StageConfig stageConfig : pipeline.allStagesBefore(dependencyStage)) {
                 foundStageAtOrBeforeDependency = stage.equals(stageConfig.name());
                 if (foundStageAtOrBeforeDependency) {
@@ -270,8 +279,8 @@ public class FetchTask extends AbstractTask implements Serializable {
             }
         }
 
-        if (! foundStageAtOrBeforeDependency) {
-            addStageMayNotCompleteBeforeDownstreamError(currentPipeline);
+        if (!foundStageAtOrBeforeDependency) {
+            addStageMayNotCompleteBeforeDownstreamError(currentPipeline, validationContext);
         }
     }
 
@@ -305,59 +314,87 @@ public class FetchTask extends AbstractTask implements Serializable {
             return;
         }
         if (!FileUtil.isFolderInsideSandbox(path)) {
-            String parentType = validationContext.isWithinPipeline() ? "pipeline" : "template";
-            CaseInsensitiveString parentName = validationContext.isWithinPipeline() ? validationContext.getPipeline().name() : validationContext.getTemplate().name();
-            String message = String.format("Task of job '%s' in stage '%s' of %s '%s' has path '%s' which is outside the working directory.",
-                    validationContext.getJob().name(), validationContext.getStage().name(), parentType, parentName, path);
+            String parentType = validationContext.isWithinPipelines() ? "pipeline" : "template";
+            CaseInsensitiveString parentName = validationContext.isWithinPipelines() ? validationContext.getPipeline().name() : validationContext.getTemplate().name();
+            String message = String.format("Task of job '%s' in stage '%s' of %s '%s' has %s path '%s' which is outside the working directory.",
+                    validationContext.getJob().name(), validationContext.getStage().name(), parentType, parentName, propertyName, path);
             addError(propertyName, message);
         }
     }
 
-    private void validateDependencies(ValidationContext validationContext, PipelineConfig currentPipeline, CruiseConfig cruiseConfig) {
-        List<PipelineConfig> pipelineConfigList = currentPipeline.allFirstLevelUpstreamPipelines(cruiseConfig);
+    private void validateDependencies(ValidationContext validationContext, PipelineConfig currentPipeline) {
+        DependencyMaterialConfig matchingMaterial = findMatchingDependencyMaterial(currentPipeline, pipelineName.getAncestorName());
 
-        if (!pipelineConfigList.contains(cruiseConfig.pipelineConfigByName(pipelineName.getAncestorName()))) {
+        PipelineConfig ancestor = validationContext.getPipelineConfigByName(pipelineName.getAncestorName());
+        if (matchingMaterial == null) {
             addError(PIPELINE_NAME, String.format("Pipeline \"%s\" tries to fetch artifact from pipeline "
                     + "\"%s\" which is not an upstream pipeline", currentPipeline.name(), pipelineName));
             return;
         }
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(pipelineName.getAncestorName());
-        List<StageConfig> validStages = pipelineConfig.validStagesForFetchArtifact(currentPipeline, validationContext.getStage().name());
-        if (!validStages.contains(cruiseConfig.stageConfigByName(pipelineName.getAncestorName(), stage))) {
-            addStageMayNotCompleteBeforeDownstreamError(currentPipeline);
+        List<StageConfig> validStages = ancestor.validStagesForFetchArtifact(currentPipeline, validationContext.getStage().name());
+        if (!validStages.contains(ancestor.findBy(stage))) {
+            addStageMayNotCompleteBeforeDownstreamError(currentPipeline, validationContext);
         }
     }
 
-    private void addStageMayNotCompleteBeforeDownstreamError(PipelineConfig currentPipeline) {
-        addError(STAGE, String.format("Pipeline \"%s\" tries to fetch artifact from stage \"%s :: %s\" which does not complete before \"%s\" pipeline's dependencies."
-                , currentPipeline.name(), pipelineName.getAncestorName(), stage, currentPipeline.name()));
+    private DependencyMaterialConfig findMatchingDependencyMaterial(PipelineConfig pipeline, final CaseInsensitiveString ancestorName) {
+        return ListUtil.find(pipeline.dependencyMaterialConfigs(), new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                DependencyMaterialConfig dependencyMaterialConfig = (DependencyMaterialConfig) item;
+                return dependencyMaterialConfig.getPipelineName().equals(ancestorName);
+            }
+        });
     }
 
-    private void validateStagesOfSamePipeline(ValidationContext validationContext, PipelineConfig currentPipeline, CruiseConfig cruiseConfig) {
+    private void addStageMayNotCompleteBeforeDownstreamError(PipelineConfig currentPipeline, ValidationContext validationContext) {
+        addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from stage \"%s :: %s\" which does not complete before \"%s\" pipeline's dependencies."
+                , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage, currentPipeline.name()));
+    }
+
+    private void validateStagesOfSamePipeline(ValidationContext validationContext, PipelineConfig currentPipeline) {
         List<StageConfig> validStages = currentPipeline.validStagesForFetchArtifact(currentPipeline, validationContext.getStage().name());
-        if (!validStages.contains(cruiseConfig.stageConfigByName(currentPipeline.name(), stage))) {
-            addError(STAGE, String.format("Pipeline \"%s\" tries to fetch artifact from its stage \"%s\" which does not complete before the current stage \"%s\"."
-                    , currentPipeline.name(), stage, validationContext.getStage().name()));
+        StageConfig matchingStage = ListUtil.find(validStages, new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                StageConfig valid = (StageConfig) item;
+                return valid.name().equals(stage);
+            }
+        });
+        if (matchingStage == null) {
+            addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from its stage \"%s\" which does not complete before the current stage \"%s\"."
+                    , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), stage, validationContext.getStage().name()));
         }
     }
 
-    private boolean validateExistenceAndOrigin(PipelineConfig currentPipeline, CruiseConfig cruiseConfig, ValidationContext validationContext) {
-        if (!cruiseConfig.hasStageConfigNamed(pipelineName.getAncestorName(), stage, true)) {
-            addError(STAGE, String.format("Pipeline \"%s\" tries to fetch artifact from stage \"%s :: %s\" which does not exist. It is used in stage \"%s\" inside job \"%s\"."
-                    , currentPipeline.name(), pipelineName.getAncestorName(), stage, validationContext.getStage().name(), validationContext.getJob().name()));
-            return true;
-        }
+    private boolean validateExistenceAndOrigin(PipelineConfig currentPipeline, ValidationContext validationContext) {
+        PipelineConfig srcPipeline = validationContext.getPipelineConfigByName(pipelineName.getAncestorName());
 
-        if (!cruiseConfig.hasBuildPlan(pipelineName.getAncestorName(), stage, CaseInsensitiveString.str(job), true)) {
-            addError(JOB, String.format("Pipeline \"%s\" tries to fetch artifact from job \"%s :: %s :: %s\" which does not exist.", currentPipeline.name(), pipelineName.getAncestorName(), stage, job));
+        if (srcPipeline == null) {
+            //"ProdDeploy :: deploy :: scp" tries|attempts to fetch artifact from pipeline "not-found" which does not exist.
+            addError(PIPELINE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from pipeline \"%s\" which does not exist."
+                    , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName()));
             return true;
-        }
+        } else {
+            StageConfig srcStage = srcPipeline.findBy(stage);
+            if (srcStage == null) {
+                addError(STAGE, String.format("\"%s :: %s :: %s\" tries to fetch artifact from stage \"%s :: %s\" which does not exist."
+                        , currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage));
+                return true;
+            } else {
+                if (srcStage.jobConfigByInstanceName(CaseInsensitiveString.str(job), true) == null) {
+                    addError(JOB, String.format("\"%s :: %s :: %s\" tries to fetch artifact from job \"%s :: %s :: %s\" which does not exist.", currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage, job));
+                    return true;
+                }
 
-        PipelineConfig srcPipeline = cruiseConfig.getPipelineConfigByName(pipelineName.getAncestorName());
-        if (!cruiseConfig.getConfigRepos().isReferenceAllowed(currentPipeline.getOrigin(),srcPipeline.getOrigin())) {
-            addError(ORIGIN, String.format("Pipeline \"%s\" tries to fetch artifact from job \"%s :: %s :: %s\" which is defined in %s - reference is not allowed",
-                    currentPipeline.name(), pipelineName.getAncestorName(), stage, job,displayNameFor(srcPipeline.getOrigin())));
-            return true;
+            }
+            if (validationContext.shouldCheckConfigRepo()) {
+                if (!validationContext.getConfigRepos().isReferenceAllowed(currentPipeline.getOrigin(), srcPipeline.getOrigin())) {
+                    addError(ORIGIN, String.format("\"%s :: %s :: %s\" tries to fetch artifact from job \"%s :: %s :: %s\" which is defined in %s - reference is not allowed",
+                            currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage, job, displayNameFor(srcPipeline.getOrigin())));
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -407,7 +444,7 @@ public class FetchTask extends AbstractTask implements Serializable {
             return false;
         }
 
-        return true;
+        return super.equals(fetchTask);
     }
 
     @Override

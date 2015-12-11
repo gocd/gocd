@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -25,9 +25,14 @@ import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.PipelineConfigService;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import java.io.File;
 import java.util.List;
@@ -42,8 +47,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 
 public abstract class GoConfigDaoTestBase {
@@ -557,6 +561,53 @@ public abstract class GoConfigDaoTestBase {
         assertThat(updatedConfig.hasPipelineNamed(new CaseInsensitiveString("p2")), is(true));
         assertThat(updatedConfig.mailHost().getHostName(), is("mailhost.local"));
         assertThat(configSaveState, is(ConfigSaveState.MERGED));
+    }
+
+    @Test
+    public void shouldNotUpdatePipelineConfigIfUserDoesNotHaveRequiredPermissionsToDoSo(){
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
+        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
+        when(saveCommand.hasWritePermissions()).thenReturn(false);
+
+        CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
+        goConfigDao = new GoConfigDao(cachedConfigService, null);
+        goConfigDao.updatePipeline(pipelineConfig, result, new Username(new CaseInsensitiveString("user")), saveCommand);
+
+        verifyZeroInteractions(cachedConfigService);
+    }
+
+    @Test
+    public void shouldUpdateResultWithErrorCodeWhenPipelineConfigValidationFails(){
+        Username username = new Username(new CaseInsensitiveString("user"));
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
+        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
+        when(saveCommand.hasWritePermissions()).thenReturn(true);
+
+        CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
+        doThrow(new ConfigUpdateCheckFailedException()).when(cachedConfigService).writePipelineWithLock(pipelineConfig, saveCommand, username);
+        goConfigDao = new GoConfigDao(cachedConfigService, null);
+        goConfigDao.updatePipeline(pipelineConfig, result, username, saveCommand);
+
+        verify(result).unprocessableEntity(Matchers.<Localizable>any());
+    }
+
+
+    @Test
+    public void shouldUpdateValidPipelineConfig(){
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
+        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
+        when(saveCommand.hasWritePermissions()).thenReturn(true);
+
+        CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
+        goConfigDao = new GoConfigDao(cachedConfigService, null);
+        Username currentUser = new Username(new CaseInsensitiveString("user"));
+        goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
+
+        verifyZeroInteractions(result);
+        verify(cachedConfigService).writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
     }
 
     private void assertCurrentConfigIs(CruiseConfig cruiseConfig) throws Exception {

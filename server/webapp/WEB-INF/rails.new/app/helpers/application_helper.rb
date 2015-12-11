@@ -253,6 +253,14 @@ module ApplicationHelper
     File.readlines(version_file)[0]
   end
 
+  def go_update
+    version_info_service.getGoUpdate
+  end
+
+  def check_go_updates?
+    version_info_service.isGOUpdateCheckEnabled
+  end
+
   def json_escape data
     data.respond_to?(:java_class) && (data = data.to_s)
     data.is_a?(String) ? data.to_json.gsub(/\A"|"\Z/, "") : data.to_json

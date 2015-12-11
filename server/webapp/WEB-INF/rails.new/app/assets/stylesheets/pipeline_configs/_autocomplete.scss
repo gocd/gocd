@@ -1,0 +1,10 @@
+.dropdown-menu {
+  @include dropdown-container();
+
+  li {
+    @include dropdown-style;
+    &.active {
+     background-color: $f-dropdown-list-hover-bg;
+    }
+  }
+}

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -51,7 +51,7 @@ public class PluggableSCMMaterialConfigTest {
     @Test
     public void shouldAddErrorIfMaterialDoesNotHaveASCMId() throws Exception {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
-        pluggableSCMMaterialConfig.validateConcreteMaterial(new ValidationContext(null, null));
+        pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Please select a SCM"));
@@ -104,13 +104,13 @@ public class PluggableSCMMaterialConfigTest {
     @Test
     public void shouldAddErrorIDestinationIsNotValid() throws Exception {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), "/usr/home", null);
-        pluggableSCMMaterialConfig.validateConcreteMaterial(new ValidationContext(null, null));
+        pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder."));
 
         pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), ".crap", null);
-        pluggableSCMMaterialConfig.validateConcreteMaterial(new ValidationContext(null, null));
+        pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Invalid directory name '.crap'. It should be a valid relative path."));
@@ -208,7 +208,7 @@ public class PluggableSCMMaterialConfigTest {
         // scmConfig null
         p1 = new PluggableSCMMaterialConfig();
         p2 = new PluggableSCMMaterialConfig();
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2), is(true));
 
         p2.setSCMConfig(scmConfig);
         assertThat(p1.equals(p2), is(false));
@@ -216,6 +216,9 @@ public class PluggableSCMMaterialConfigTest {
         p1.setSCMConfig(scmConfig);
         p2 = new PluggableSCMMaterialConfig();
         assertThat(p1.equals(p2), is(false));
+
+        p2.setSCMConfig(scmConfig);
+        assertThat(p1.equals(p2), is(true));
 
         // null comparison
         assertThat(p1.equals(null), is(false));

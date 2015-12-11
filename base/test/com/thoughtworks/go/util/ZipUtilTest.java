@@ -230,7 +230,7 @@ public class ZipUtilTest {
         try {
             zipUtil.unzip(new File(getClass().getResource("/archive_traversal_attack.zip").toURI()), destDir);
             fail("squash.zip is capable of causing archive traversal attack and hence should not be allowed.");
-        } catch (IllegalStateException e) {
+        } catch (IllegalPathException e) {
             assertThat(e.getMessage(), is("File ../2.txt is outside extraction target directory"));
         }
     }

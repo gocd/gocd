@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -366,7 +367,7 @@ public class PipelineHistoryServiceTest {
         PipelineInstanceModels activePipelineInstances = createPipelineInstanceModels(
                 activePipeline("pipeline1", 1, 1.0),
                 activePipeline("pipeline2", 1, 1.0),
-                activePipeline("pipeline4", 1, 1.0),                    
+                activePipeline("pipeline4", 1, 1.0),
                 activePipeline("non-operatable-pipeline", 1, 1.0)
         );
         for (String pipeline : new String[]{"pipeline1", "pipeline2", "pipeline3", "pipeline4", "non-operatable-pipeline"}) {
@@ -375,7 +376,7 @@ public class PipelineHistoryServiceTest {
         }
         when(pipelineDao.loadActivePipelines()).thenReturn(activePipelineInstances);
 
-        
+
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
         List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(foo, new PipelineSelections(Arrays.asList("pipeline1","pipeline2")));
         assertThat(groups.size(),is(2));
@@ -486,7 +487,7 @@ public class PipelineHistoryServiceTest {
                 new StageInstanceModel("stage1", "3", StageResult.Failed, new StageIdentifier())));
 
         //2>1>3
-        
+
         when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
         when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
 
@@ -736,7 +737,7 @@ public class PipelineHistoryServiceTest {
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         PipelineConfig downOneConfig = PipelineConfigMother.pipelineConfig("down1");
         stubConfigServiceToReturnPipeline("down1", downOneConfig);
-        
+
         when(goConfigService.isLockable("blahPipeline")).thenReturn(true);
         when(pipelineUnlockService.canUnlock("blahPipeline", USERNAME, new HttpOperationResult())).thenReturn(true);
         when(pipelineTimeline.pipelineBefore(23)).thenReturn(-1L);
@@ -774,7 +775,9 @@ public class PipelineHistoryServiceTest {
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline", new StageConfig(new CaseInsensitiveString("first"), new JobConfigs())));
         ensureHasPermission(USERNAME, "blahPipeline");
 
-        stubConfigServiceToReturnMaterialAndPipeline("down1", new MaterialConfigs(MaterialConfigsMother.svnMaterialConfig()), PipelineConfigMother.pipelineConfig("down1", new StageConfig(
+        SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
+        svnMaterialConfig.setName(null);
+        stubConfigServiceToReturnMaterialAndPipeline("down1", new MaterialConfigs(svnMaterialConfig), PipelineConfigMother.pipelineConfig("down1", new StageConfig(
                 new CaseInsensitiveString("first"), new JobConfigs()
         )));
         ensureHasPermission(USERNAME, "down1");
@@ -813,7 +816,7 @@ public class PipelineHistoryServiceTest {
         PipelinePauseInfo pipelinePauseInfo = new PipelinePauseInfo(true,"pausing pipeline for some-reason", "some-one");
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("user-name", "pipeline-name")).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(true);
 		when(pipelinePauseService.pipelinePauseInfo("pipeline-name")).thenReturn(pipelinePauseInfo);
 		when(pipelineLockService.isLocked("pipeline-name")).thenReturn(true);
 		when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any(ServerHealthStateOperationResult.class))).thenReturn(true);
@@ -846,7 +849,7 @@ public class PipelineHistoryServiceTest {
 		PipelineConfig pipelineConfig = new PipelineConfig();
 		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline("user-name", "pipeline-name")).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(false);
 
 		HttpOperationResult result = new HttpOperationResult();
 		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", result);
@@ -879,8 +882,8 @@ public class PipelineHistoryServiceTest {
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-		when(securityService.hasViewPermissionForPipeline(noAccessUserName, pipelineName)).thenReturn(false);
-		when(securityService.hasViewPermissionForPipeline(withAccessUserName, pipelineName)).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf(noAccessUserName), pipelineName)).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(Username.valueOf(withAccessUserName), pipelineName)).thenReturn(true);
 
 		when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
 
@@ -957,7 +960,7 @@ public class PipelineHistoryServiceTest {
     private PipelineInstanceModel pim(String pipelineName) {
         return PipelineHistoryMother.singlePipeline(pipelineName, new StageInstanceModels());
     }
- 
+
     private void ensureConfigHasPipeline(String pipelineName) {
         ensureConfigContainsPipelineIs(pipelineName, true);
     }

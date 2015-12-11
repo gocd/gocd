@@ -29,6 +29,7 @@
                     <li><a href="$req.getContextPath()/about">$l.localize("SERVER_DETAILS")</a></li>
                     <li class="last"><a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a></li>
                 </ul>
+
                 <ul id="footer-links">
                 </ul>
                 <div class="clear"></div>
@@ -39,6 +40,13 @@
     </div></div></div><!-- end of body_bg, body_hightlight, body_wrapper-->
            <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
     </body>
+
+#if( $goUpdateCheckEnabled )
+<script type="text/javascript">
+    var updater = new VersionUpdater("/go/api/version_infos/stale", "/go/api/version_infos/go_server");
+    updater.update();
+</script>
+#end
     <script type="text/javascript">
         restoreSidebarStatus();
 

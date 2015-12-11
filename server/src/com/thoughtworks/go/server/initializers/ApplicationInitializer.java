@@ -1,4 +1,4 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.initializers;
 
@@ -78,6 +78,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private RailsAssetsService railsAssetsService;
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
+    @Autowired private PipelineConfigService pipelineConfigService;
+    @Autowired private ServerVersionInfoManager serverVersionInfoManager;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -96,6 +98,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             goFileConfigDataSource.upgradeIfNecessary();
             mergedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
+            pipelineConfigService.initialize();
 
             //artifacts
             artifactsDirHolder.initialize();
@@ -130,6 +133,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             ServletHelper.init();
             // initialize static accessors
             Toggles.initializeWith(featureToggleService);
+            serverVersionInfoManager.initialize();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

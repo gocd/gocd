@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,28 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.helper;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.ArtifactPlan;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.AuthConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ArtifactType;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 
 public class StageConfigMother {
@@ -49,10 +37,10 @@ public class StageConfigMother {
 
     public static StageConfig twoBuildPlansWithResourcesAndMaterials(String stageName) {
         JobConfig windoze = new JobConfig(
-                new CaseInsensitiveString("WinBuild"), new Resources(new Resource("Windows"), new Resource(".NET")), new ArtifactPlans(Arrays.asList(new ArtifactPlan(ArtifactType.unit, "junit", "junit")))
+                new CaseInsensitiveString("WinBuild"), new Resources(new Resource("Windows"), new Resource(".NET")), new ArtifactPlans(Arrays.<ArtifactPlan>asList(new TestArtifactPlan("junit", "junit")))
         );
         JobConfig linux = new JobConfig(
-                new CaseInsensitiveString("NixBuild"), new Resources(new Resource("Linux"), new Resource("java")), new ArtifactPlans(Arrays.asList(new ArtifactPlan(ArtifactType.unit, "junit", "junit")))
+                new CaseInsensitiveString("NixBuild"), new Resources(new Resource("Linux"), new Resource("java")), new ArtifactPlans(Arrays.<ArtifactPlan>asList(new TestArtifactPlan("junit", "junit")))
         );
         JobConfigs jobConfigs = new JobConfigs(windoze, linux);
         return stageConfig(stageName, jobConfigs);
@@ -103,9 +91,16 @@ public class StageConfigMother {
         return custom(stageName, new Approval());
     }
 
+    public static StageConfig stageConfigWithEnvironmentVariable(String stageName) {
+        StageConfig stageConfig = StageConfigMother.stageConfig(stageName);
+        stageConfig.setVariables(EnvironmentVariablesConfigMother.environmentVariables());
+        stageConfig.getJobs().add(JobConfigMother.jobConfig());
+        return stageConfig;
+    }
+
     public static StageConfig stageConfigWithArtifact(String stageName, String jobName , ArtifactType artifactType){
         ArtifactPlans artifactPlansWithTests = new ArtifactPlans();
-        artifactPlansWithTests.add(new ArtifactPlan(artifactType, "src", "dest"));
+        artifactPlansWithTests.add(ArtifactPlan.create(artifactType, "src", "dest"));
         JobConfig job1 = new JobConfig(new CaseInsensitiveString(jobName), new Resources("abc"), artifactPlansWithTests);
         StageConfig stage = new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job1));
         return stage;

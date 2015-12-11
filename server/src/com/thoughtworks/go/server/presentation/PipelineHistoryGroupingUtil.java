@@ -38,7 +38,7 @@ public class PipelineHistoryGroupingUtil {
     private PipelineInstanceGroupModel createGroupFor(PipelineInstanceModel pipelineInstanceModel) {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
         group.getPipelineInstances().add(pipelineInstanceModel);
-        group.getConfig().addAll(pipelineInstanceModel.getStageHistory());
+        group.getStages().addAll(pipelineInstanceModel.getStageHistory());
         return group;
     }
 

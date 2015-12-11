@@ -2,8 +2,8 @@ package com.thoughtworks.go.plugin.infra;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class PluginValidatorTest {
     private PluginValidator pluginValidator = new PluginValidator();

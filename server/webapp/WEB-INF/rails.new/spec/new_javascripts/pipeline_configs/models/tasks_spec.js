@@ -20,9 +20,9 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     describe("Ant", function () {
       beforeEach(function () {
         task = new Tasks.Task.Ant({
-          buildFile:  'build-moduleA.xml',
-          target:     "clean",
-          workingDir: "moduleA"
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
+          workingDirectory: "moduleA"
         });
       });
 
@@ -34,8 +34,8 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.target()).toBe("clean");
       });
 
-      it("should initialize task model with workingDir", function () {
-        expect(task.workingDir()).toBe("moduleA");
+      it("should initialize task model with workingDirectory", function () {
+        expect(task.workingDirectory()).toBe("moduleA");
       });
 
       it("should initialize task model with buildFile", function () {
@@ -50,7 +50,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         it("should de-serialize from JSON", function () {
           expect(task.type()).toBe("ant");
           expect(task.target()).toBe('clean');
-          expect(task.workingDir()).toBe("moduleA");
+          expect(task.workingDirectory()).toBe("moduleA");
         });
 
         it("should serialize to JSON", function () {
@@ -61,9 +61,9 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           return {
             type:       "ant",
             attributes: {
-              build_file:  'build-moduleA.xml',
-              target:      'clean',
-              working_dir: "moduleA"
+              build_file:        'build-moduleA.xml',
+              target:            'clean',
+              working_directory: "moduleA"
             }
           };
         }
@@ -73,10 +73,10 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     describe("NAnt", function () {
       beforeEach(function () {
         task = new Tasks.Task.NAnt({
-          buildFile:  'build-moduleA.xml',
-          target:     "clean",
-          workingDir: "moduleA",
-          nantHome:   'C:\\NAnt'
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
+          workingDirectory: "moduleA",
+          nantPath:         'C:\\NAnt'
         });
       });
 
@@ -88,15 +88,15 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.target()).toBe("clean");
       });
 
-      it("should initialize task model with workingDir", function () {
-        expect(task.workingDir()).toBe("moduleA");
+      it("should initialize task model with workingDirectory", function () {
+        expect(task.workingDirectory()).toBe("moduleA");
       });
 
       it("should initialize task model with buildFile", function () {
         expect(task.buildFile()).toBe("build-moduleA.xml");
       });
-      it("should initialize task model with nantHome", function () {
-        expect(task.nantHome()).toBe("C:\\NAnt");
+      it("should initialize task model with nantPath", function () {
+        expect(task.nantPath()).toBe("C:\\NAnt");
       });
 
       describe("Serialize from/to JSON", function () {
@@ -107,8 +107,8 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         it("should de-serialize from JSON", function () {
           expect(task.type()).toBe("nant");
           expect(task.target()).toBe('clean');
-          expect(task.workingDir()).toBe("moduleA");
-          expect(task.nantHome()).toBe("C:\\NAnt");
+          expect(task.workingDirectory()).toBe("moduleA");
+          expect(task.nantPath()).toBe("C:\\NAnt");
         });
 
         it("should serialize to JSON", function () {
@@ -119,10 +119,10 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           return {
             type:       "nant",
             attributes: {
-              build_file:  'build-moduleA.xml',
-              target:      'clean',
-              working_dir: "moduleA",
-              nant_home:   "C:\\NAnt"
+              build_file:        'build-moduleA.xml',
+              target:            'clean',
+              working_directory: "moduleA",
+              nant_path:         "C:\\NAnt"
             }
           };
         }
@@ -132,9 +132,9 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     describe("Exec", function () {
       beforeEach(function () {
         task = new Tasks.Task.Exec({
-          command:    'bash',
-          args:       ['-c', 'ls -al /'],
-          workingDir: "moduleA"
+          command:          'bash',
+          args:             ['-c', 'ls -al /'],
+          workingDirectory: "moduleA"
         });
       });
 
@@ -146,8 +146,8 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.args()).toEqual(['-c', 'ls -al /']);
       });
 
-      it("should initialize task model with workingDir", function () {
-        expect(task.workingDir()).toBe("moduleA");
+      it("should initialize task model with workingDirectory", function () {
+        expect(task.workingDirectory()).toBe("moduleA");
       });
 
       describe("Serialize from/to JSON", function () {
@@ -169,9 +169,9 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           return {
             type:       "exec",
             attributes: {
-              command:     'bash',
-              args:        ['-c', 'ls -al /'],
-              working_dir: "moduleA"
+              command:           'bash',
+              args:              ['-c', 'ls -al /'],
+              working_directory: "moduleA"
             }
           };
         }
@@ -181,9 +181,9 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     describe("Rake", function () {
       beforeEach(function () {
         task = new Tasks.Task.Rake({
-          buildFile:  'foo.rake',
-          target:     "clean",
-          workingDir: "moduleA"
+          buildFile:        'foo.rake',
+          target:           "clean",
+          workingDirectory: "moduleA"
         });
       });
 
@@ -195,8 +195,8 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.target()).toBe("clean");
       });
 
-      it("should initialize task model with workingDir", function () {
-        expect(task.workingDir()).toBe("moduleA");
+      it("should initialize task model with workingDirectory", function () {
+        expect(task.workingDirectory()).toBe("moduleA");
       });
 
       it("should initialize task model with buildFile", function () {
@@ -211,7 +211,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         it("should de-serialize from json", function () {
           expect(task.type()).toBe("rake");
           expect(task.target()).toBe('clean');
-          expect(task.workingDir()).toBe("moduleA");
+          expect(task.workingDirectory()).toBe("moduleA");
         });
 
         it("should serialize to JSON", function () {
@@ -222,9 +222,9 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           return {
             type:       "rake",
             attributes: {
-              build_file:  'foo.rake',
-              target:      'clean',
-              working_dir: "moduleA"
+              build_file:        'foo.rake',
+              target:            'clean',
+              working_directory: "moduleA"
             }
           };
         }

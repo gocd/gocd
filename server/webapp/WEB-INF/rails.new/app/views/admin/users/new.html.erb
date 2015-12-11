@@ -6,7 +6,7 @@
 <div class="user_search_box form_item ">
     <p>
         <label for="search_text"><%= l.string("SEARCH_FOR_USERS") %></label>
-        <%== text_field_tag "search_text", nil, :maxLength => 255, :class => "searchbox", :id => "search_id"-%>
+        <%== text_field_tag "search_text", nil, :maxLength => 400, :class => "searchbox", :id => "search_id"-%>
         <%== submit_button(l.string('Search'), :id => 'search_user_submit', :class => 'primary') %>
     </p>
 </div>

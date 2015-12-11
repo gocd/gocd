@@ -220,7 +220,7 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
       resources :backups, only: [:create]
 
-      resources :users, param: :login_name, only: [:index, :show, :destroy], constraints: { login_name: USER_NAME_FORMAT } do
+      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], :format => false, constraints: { login_name: /(.*?)/ } do
         patch :update, on: :member
       end
 
@@ -228,10 +228,19 @@ Go::Application.routes.draw do
         patch :update, on: :member
       end
 
+      namespace :admin do
+        resources :pipelines, param: :name, only: [:show, :update, :create]
+      end
+
       get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api
       get 'stages/:pipeline_name/:stage_name' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, as: :stage_history_api
 
       get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
+
+      post :material_test, controller: :material_test, action: :test, as: :material_test
+
+      get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
+      patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
 
       match '*url', via: :all, to: 'errors#not_found'
     end

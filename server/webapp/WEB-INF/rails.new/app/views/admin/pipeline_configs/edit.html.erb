@@ -1,2 +1,8 @@
-<div id="pipeline-config" data-pipeline-api-url="<%= edit_admin_pipeline_config_path(format: :json) %>" data-task-template-plugins="<%= plugin_templates.to_json %>">
+<div id="pipeline-config"
+     data-pipeline-api-url="<%= apiv1_admin_pipeline_url(name: params[:pipeline_name]) %>"
+     data-task-template-plugins="<%= plugin_templates.to_json %>"
+     data-resource-names="<%= @all_resources.to_json %>"
+     data-user-names="<%= @all_users.to_json %>"
+     data-role-names="<%= @all_roles.to_json %>"
+>
 </div>

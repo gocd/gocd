@@ -36,6 +36,10 @@ module ApiV1
       end
 
       link :trigger_with_options do |opts|
+        opts[:url_builder].api_pipeline_action_url(pipeline.getName(), action: :'schedule')
+      end
+
+      link :pause do |opts|
         opts[:url_builder].pause_pipeline_url(pipeline.getName())
       end
 
@@ -45,8 +49,17 @@ module ApiV1
 
       property :getName, as: :name
       property :locked, exec_context: :decorator
-      property :paused_by, exec_context: :decorator
-      property :pause_reason, exec_context: :decorator
+      property :getPausedInfo, as: :pause_info do
+        property :paused, as: :paused
+        property :pauseBy,
+                 as:         :paused_by,
+                 getter:     lambda { |options| pauseBy.blank? ? nil : pauseBy },
+                 render_nil: true
+        property :pauseCause,
+                 as:         :pause_reason,
+                 getter:     lambda { |options| pauseCause.blank? ? nil : pauseCause },
+                 render_nil: true
+      end
       collection :instances, embedded: true, exec_context: :decorator, decorator: PipelineInstanceRepresenter
 
       def locked
@@ -59,21 +72,6 @@ module ApiV1
         end
       end
 
-      def paused_by
-        paused_by = pause_info.getPauseBy()
-        paused_by unless paused_by.blank?
-      end
-
-      def pause_reason
-        cause = pause_info.getPauseCause()
-        cause unless cause.blank?
-      end
-
-      private
-
-      def pause_info
-        pipeline.getPausedInfo()
-      end
     end
   end
 end

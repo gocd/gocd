@@ -57,39 +57,39 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
   Tasks.Task.Ant = function (data) {
     Tasks.Task.call(this, "ant");
-    this.target     = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDir = m.prop(s.defaultToIfBlank(data.workingDir, ''));
-    this.buildFile  = m.prop(s.defaultToIfBlank(data.buildFile, ''));
+    this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
+    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
 
     this._attributesToJSON = function () {
       return {
-        target:     this.target,
-        workingDir: this.workingDir,
-        buildFile:  this.buildFile
+        target:           this.target,
+        workingDirectory: this.workingDirectory,
+        buildFile:        this.buildFile
       }
     }
   };
 
   Tasks.Task.Ant.fromJSON = function (data) {
     return new Tasks.Task.Ant({
-      target:     data.target,
-      workingDir: data.working_dir,
-      buildFile:  data.build_file
+      target:           data.target,
+      workingDirectory: data.working_directory,
+      buildFile:        data.build_file
     });
   };
 
   Tasks.Task.NAnt = function (data) {
     Tasks.Task.call(this, "nant");
     this.target            = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDir        = m.prop(s.defaultToIfBlank(data.workingDir, ''));
+    this.workingDirectory  = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.buildFile         = m.prop(s.defaultToIfBlank(data.buildFile, ''));
-    this.nantHome          = m.prop(s.defaultToIfBlank(data.nantHome, ''));
+    this.nantPath          = m.prop(s.defaultToIfBlank(data.nantPath, ''));
     this._attributesToJSON = function () {
       return {
-        target:     this.target,
-        workingDir: this.workingDir,
-        buildFile:  this.buildFile,
-        nantHome:   this.nantHome
+        target:           this.target,
+        workingDirectory: this.workingDirectory,
+        buildFile:        this.buildFile,
+        nantPath:         this.nantPath
       }
     }
 
@@ -97,56 +97,56 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
   Tasks.Task.NAnt.fromJSON = function (data) {
     return new Tasks.Task.NAnt({
-      target:     data.target,
-      workingDir: data.working_dir,
-      buildFile:  data.build_file,
-      nantHome:   data.nant_home
+      target:           data.target,
+      workingDirectory: data.working_directory,
+      buildFile:        data.build_file,
+      nantPath:         data.nant_path
     });
   };
 
   Tasks.Task.Exec = function (data) {
     Tasks.Task.call(this, "exec");
-    this.command    = m.prop(s.defaultToIfBlank(data.command, ''));
-    this.args       = m.prop(s.defaultToIfBlank(data.args, ''));
-    this.workingDir = m.prop(s.defaultToIfBlank(data.workingDir, ''));
+    this.command          = m.prop(s.defaultToIfBlank(data.command, ''));
+    this.args             = m.prop(s.defaultToIfBlank(data.args, ''));
+    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
 
     this._attributesToJSON = function () {
       return {
-        command:    this.command,
-        args:       this.args,
-        workingDir: this.workingDir
+        command:          this.command,
+        args:             this.args,
+        workingDirectory: this.workingDirectory
       }
     }
   };
 
   Tasks.Task.Exec.fromJSON = function (data) {
     return new Tasks.Task.Exec({
-      command:    data.command,
-      args:       data.args,
-      workingDir: data.working_dir
+      command:          data.command,
+      args:             data.args,
+      workingDirectory: data.working_directory
     });
   };
 
   Tasks.Task.Rake = function (data) {
     Tasks.Task.call(this, "rake");
-    this.target     = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDir = m.prop(s.defaultToIfBlank(data.workingDir, ''));
-    this.buildFile  = m.prop(s.defaultToIfBlank(data.buildFile, ''));
+    this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
+    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
 
     this._attributesToJSON = function () {
       return {
-        target:     this.target,
-        workingDir: this.workingDir,
-        buildFile:  this.buildFile
+        target:           this.target,
+        workingDirectory: this.workingDirectory,
+        buildFile:        this.buildFile
       }
     }
   };
 
   Tasks.Task.Rake.fromJSON = function (data) {
     return new Tasks.Task.Rake({
-      target:     data.target,
-      workingDir: data.working_dir,
-      buildFile:  data.build_file
+      target:           data.target,
+      workingDirectory: data.working_directory,
+      buildFile:        data.build_file
     });
   };
 
@@ -188,7 +188,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
     this.pluginId      = m.prop(s.defaultToIfBlank(data.pluginId, ''));
     this.version       = m.prop(s.defaultToIfBlank(data.version, ''));
-    this.configuration = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.configuration, new Tasks.Task.PluginTask.Configurations())));
+    this.configuration = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.configuration, new Tasks.Task.PluginTask.Configurations())));
 
     this._attributesToJSON = function () {
       return {

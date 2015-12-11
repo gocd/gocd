@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../models/tasks', '../models/pluggable_tasks', 'js-routes'], function (m, _, $, angular, f, Tasks, PluggableTasks, Routes) {
+define([
+  'mithril', 'lodash', 'jquery', 'angular',
+  '../helpers/form_helper', '../helpers/dragula_config',
+  '../models/tasks', '../models/pluggable_tasks', 'js-routes'
+], function (m, _, $, angular,
+             f, dragulaConfig,
+             Tasks, PluggableTasks, Routes) {
 
   var TaskViews = {
     base: {
       view: function (ctrl, args, children) {
-        var task = args.task;
         return (
-          <fieldset className={'task-definition task-type-' + task.type()}>
-            <legend class='task-type'>{task.type()}</legend>
+          <fieldset className={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
+            <legend class='task-type'>{args.task.type()}</legend>
             <f.removeButton onclick={args.onRemove}/>
             {children}
           </fieldset>
@@ -34,13 +39,13 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <TaskViews.base task={task} onRemove={args.onRemove}>
+          <TaskViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='target'
                                 model={task}/>
               <f.inputWithLabel attrName='buildFile'
                                 model={task}/>
-              <f.inputWithLabel attrName='workingDir'
+              <f.inputWithLabel attrName='workingDirectory'
                                 model={task}
                                 end={true}/>
             </f.row>
@@ -52,11 +57,11 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <TaskViews.base task={task} onRemove={args.onRemove}>
+          <TaskViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='target'
                                 model={task}/>
-              <f.inputWithLabel attrName='workingDir'
+              <f.inputWithLabel attrName='workingDirectory'
                                 model={task}/>
               <f.inputWithLabel attrName='buildFile'
                                 model={task}
@@ -64,7 +69,7 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
             </f.row>
 
             <f.row>
-              <f.inputWithLabel attrName='nantHome'
+              <f.inputWithLabel attrName='nantPath'
                                 model={task}
                                 end={true}/>
             </f.row>
@@ -78,13 +83,13 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <TaskViews.base task={task} onRemove={args.onRemove}>
+          <TaskViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='command'
                                 model={task}/>
               <f.inputWithLabel attrName='args'
                                 model={task}/>
-              <f.inputWithLabel attrName='workingDir'
+              <f.inputWithLabel attrName='workingDirectory'
                                 model={task}
                                 end={true}/>
             </f.row>
@@ -97,13 +102,13 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <TaskViews.base task={task} onRemove={args.onRemove}>
+          <TaskViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='target'
                                 model={task}/>
               <f.inputWithLabel attrName='buildFile'
                                 model={task}/>
-              <f.inputWithLabel attrName='workingDir'
+              <f.inputWithLabel attrName='workingDirectory'
                                 model={task}
                                 end={true}/>
             </f.row>
@@ -116,7 +121,7 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <TaskViews.base task={task} onRemove={args.onRemove}>
+          <TaskViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='pipeline'
                                 model={task}/>
@@ -222,9 +227,10 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
 
         return (
           <div id={'pluggable-task-' + ctrl.task.uuid()} style='display:none' config={config}>
-            <TaskViews.base task={ctrl.task} onRemove={args.onRemove}>
+            <TaskViews.base {...args}>
               <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName}>
-                <div class="alert-box alert" ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
+                <div class="alert-box alert"
+                     ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
                 {m.trust(ctrl.templateHTML)}
               </div>
             </TaskViews.base>
@@ -239,12 +245,11 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
       this.tasks    = args.tasks;
       this.selected = m.prop('exec');
       this.addTask  = function (type) {
-
         if (Tasks.isBuiltInTaskType(type())) {
-          this.tasks.createTask({type: type()});
+          this.tasks().createTask({type: type()});
         } else {
           var pluggableTaskDescriptor = PluggableTasks.Types[type()];
-          this.tasks.createTask({
+          this.tasks().createTask({
             type:     type(),
             pluginId: type(),
             version:  pluggableTaskDescriptor.version
@@ -274,23 +279,29 @@ define(['mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../
   };
 
   var TasksConfigWidget = {
-    controller: function (args) {
-      this.tasks = args.tasks;
-    },
-
     view: function (ctrl, args) {
-      var tasks = args.tasks;
+
+      var dragDropConfig = function (elem, isInitialized) {
+        dragulaConfig(elem, isInitialized, function () {
+          var reorderedTasks = _.map($(elem).find('.task-definition:not(.gu-mirror)'), function (eachTaskElem) {
+            return args.tasks().taskAtIndex($(eachTaskElem).attr('data-task-index'));
+          });
+          args.tasks().setTasks(reorderedTasks);
+        });
+      };
+
       return (
-        <div className='task-definitions'>
-          {tasks.mapTasks(function (task) {
+        <div className='task-definitions' key="task-definitions" config={dragDropConfig}>
+          {args.tasks().mapTasks(function (task, taskIndex) {
             var taskView = TaskViews[task.type()];
             return (m.component(taskView, {
-              task:     task,
-              onRemove: ctrl.tasks.removeTask.bind(ctrl.tasks, task),
-              key:      task.uuid()
+              task:      task,
+              onRemove:  args.tasks().removeTask.bind(args.tasks(), task),
+              taskIndex: taskIndex,
+              key:       task.uuid()
             }));
           })}
-          <TaskTypeSelector tasks={tasks}/>
+          <TaskTypeSelector tasks={args.tasks} key="task-type-selector"/>
         </div>
       );
     }

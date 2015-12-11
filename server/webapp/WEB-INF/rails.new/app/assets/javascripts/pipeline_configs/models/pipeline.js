@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,28 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
     this.templateName          = m.prop(s.defaultToIfBlank(data.templateName, ''));
     this.labelTemplate         = m.prop(s.defaultToIfBlank(data.labelTemplate, ''));
     this.timer                 = m.prop(s.defaultToIfBlank(data.timer, new Pipeline.Timer({})));
-    this.environmentVariables  = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
-    this.parameters            = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.parameters, new Parameters())));
-    this.materials             = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.materials, new Materials())));
-    this.trackingTool          = s.overrideToJSON(m.prop(data.trackingTool));
-    this.stages                = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
+    this.timer.toJSON          = function () {
+      var timer = this();
+
+      if (timer && timer.isBlank()) {
+        return null;
+      }
+
+      return timer;
+    };
+    this.environmentVariables  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
+    this.parameters            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.parameters, new Parameters())));
+    this.materials             = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.materials, new Materials())));
+    this.trackingTool          = m.prop(data.trackingTool);
+    this.trackingTool.toJSON   = function () {
+      var value = this();
+      if (value) {
+        return value.toJSON();
+      } else {
+        return null;
+      }
+    };
+    this.stages                = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -41,10 +58,6 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
 
       return errors;
     };
-  };
-
-  Pipeline.get = function (url) {
-    return m.request({method: 'GET', url: url});
   };
 
   Pipeline.fromJSON = function (data) {
@@ -68,6 +81,10 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
 
     this.spec          = m.prop(s.defaultToIfBlank(data.spec, ''));
     this.onlyOnChanges = m.prop(data.onlyOnChanges);
+
+    this.isBlank = function () {
+      return s.isBlank(this.spec()) && !this.onlyOnChanges();
+    };
   };
 
   Pipeline.Timer.fromJSON = function (data) {

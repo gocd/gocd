@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,24 +20,24 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     var pipeline;
 
     beforeEach(function (done) {
-      root  = document.createElement("div");
+      root = document.createElement("div");
       document.body.appendChild(root);
       $root = $(root);
 
       jasmine.Ajax.install();
-      jasmine.Ajax.stubRequest('/pipeline.json').andReturn({
-        contentType:  'application/json',
+      jasmine.Ajax.stubRequest(/\/pipeline.json\?_=\d+/).andReturn({
+        contentType:  'application/vnd.go.cd.v1+json',
         responseText: JSON.stringify(samplePipelineJSON())
       });
 
       // needed because the widget needs to fetch data via ajax, and complete rendering
-      var reallyDone = _.after(2, function(){
+      var reallyDone = _.after(2, function () {
         m.redraw(true);
         done();
       });
 
       var component = PipelineConfigWidget('/pipeline.json', function (controller) {
-        pipeline = controller.pipeline;
+        pipeline = controller.pipeline();
         reallyDone();
       });
 
@@ -91,7 +91,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
 
       var accordion = $root.find('.parameters.accordion .accordion-navigation > a').get(0);
 
-      var evObj     = document.createEvent('MouseEvents');
+      var evObj = document.createEvent('MouseEvents');
       evObj.initEvent('click', true, false);
       accordion.onclick(evObj);
       m.redraw(true);

@@ -14,8 +14,6 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************#
 
-#set ($breadcrumb_divider="<span class=\"divider\">&gt;</span>")
-
 #if($_page_title)
 <div class="$_page_title $current_page">
 <h2 id="page-title" class="entity_title">

@@ -16,18 +16,22 @@
 
 package com.thoughtworks.go.legacywrapper;
 
-import junit.framework.TestCase;
+import com.thoughtworks.go.helpers.FileSystemUtils;
+import org.junit.Test;
 
 import java.io.File;
 
-import com.thoughtworks.go.helpers.FileSystemUtils;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public class CCProjectFolderFilterTest extends TestCase {
+public class CCProjectFolderFilterTest {
+    @Test
     public void testShouldRejectEmptyDirectory() {
         File project = FileSystemUtils.createDirectory("project");
         assertFalse(new CCProjectFolderFilter().accept(project));
     }
 
+    @Test
     public void testShouldAcceptDirectoryContainsAtLeastOneCXmlFile() throws Exception {
         File project = FileSystemUtils.createDirectory("project");
         FileSystemUtils.createFile("log12340505121212.xml", project);
@@ -35,6 +39,7 @@ public class CCProjectFolderFilterTest extends TestCase {
         assertTrue(new CCProjectFolderFilter().accept(project));
     }
 
+    @Test
     public void testShouldRejectDirectoryContainsNonCCLogFile() throws Exception {
         File project = FileSystemUtils.createDirectory("project2");
         FileSystemUtils.createFile("readme.txt", project);

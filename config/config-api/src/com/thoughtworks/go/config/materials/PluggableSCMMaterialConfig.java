@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
@@ -165,6 +165,11 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
+    public void setAutoUpdate(boolean autoUpdate) {
+        scmConfig.setAutoUpdate(autoUpdate);
+    }
+
+    @Override
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         return Boolean.FALSE;
     }
@@ -310,11 +315,11 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
             return false;
         }
 
-        if (scmConfig == null || that.scmConfig == null) {
+        if (scmConfig != null ? !scmConfig.equals(that.scmConfig) : that.scmConfig != null) {
             return false;
         }
 
-        return this.getFingerprint().equals(that.getFingerprint());
+        return super.equals(that);
     }
 
     @Override

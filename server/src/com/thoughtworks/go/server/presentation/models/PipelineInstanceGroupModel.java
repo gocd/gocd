@@ -26,7 +26,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 
 public class PipelineInstanceGroupModel {
-    private StageConfigurationModels config;
+    private StageConfigurationModels stages;
     private PipelineInstanceModels pipelineInstances;
     private Map<String, StageIdentifier> latestStages;
 
@@ -42,18 +42,13 @@ public class PipelineInstanceGroupModel {
         this(new StageConfigurationModels());
     }
 
-    public PipelineInstanceGroupModel(StageConfigurationModels config) {
-        this.config = config;
+    public PipelineInstanceGroupModel(StageConfigurationModels stages) {
+        this.stages = stages;
         pipelineInstances = PipelineInstanceModels.createPipelineInstanceModels();
     }
 
-    @Deprecated
-    public StageConfigurationModels getConfig() {
-        return config;
-    }
-
     public Collection<StageConfigurationModel> getStages() {
-        return config;
+        return stages;
     }
 
     public PipelineInstanceModels getPipelineInstances() {
@@ -62,11 +57,11 @@ public class PipelineInstanceGroupModel {
 
     public boolean hasSameStagesAs(PipelineInstanceModel pipelineInstanceModel) {
         StageInstanceModels stageHistory = pipelineInstanceModel.getStageHistory();
-        if (config.size() != stageHistory.size()) {
+        if (stages.size() != stageHistory.size()) {
             return false;
         }
-        for (int i = 0; i < config.size(); i++) {
-            if (!equals(config.get(i), stageHistory.get(i))) {
+        for (int i = 0; i < stages.size(); i++) {
+            if (!equals(stages.get(i), stageHistory.get(i))) {
                 return false;
             }
         }
@@ -74,7 +69,7 @@ public class PipelineInstanceGroupModel {
     }
 
     public boolean match(PipelineConfig pipelineConfig) {
-        return config.match(pipelineConfig);
+        return stages.match(pipelineConfig);
     }
 
     private boolean equals(StageConfigurationModel obj1, StageConfigurationModel obj2) {

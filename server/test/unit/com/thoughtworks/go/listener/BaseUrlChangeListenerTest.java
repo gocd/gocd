@@ -25,36 +25,36 @@ import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 public class BaseUrlChangeListenerTest {
 
     @Test
-    public void shouldFlushCacheWhenBaseUrlConfigChanges() throws IOException {
+    public void shouldFlushCacheWhenBaseUrlConfigChangesAndUpdateTheSiteURLAndSecureSiteURLToTheNewValues() throws IOException {
         GoCache cache = mock(GoCache.class);
-        BaseUrlChangeListener listener = new BaseUrlChangeListener(serverConfigWith("", ""), cache);
+        BaseUrlChangeListener listener = new BaseUrlChangeListener(new ServerSiteUrlConfig(""),
+                new ServerSiteUrlConfig(""), cache);
         CruiseConfig newCruiseConfig = new BasicCruiseConfig();
-        newCruiseConfig.setServerConfig(serverConfigWith("http://blah.com","https://blah.com"));
+        newCruiseConfig.setServerConfig(serverConfigWith("http://blah.com", "https://blah.com"));
 
         listener.onConfigChange(newCruiseConfig);
+        listener.onConfigChange(newCruiseConfig);
 
-        verify(cache).remove("urls_cache");
+        verify(cache, times(1)).remove("urls_cache");
     }
-    
+
     @Test
     public void shouldNotFlushCacheWhenBaseUrlConfigIsNotChanged() {
         GoCache cache = mock(GoCache.class);
-        BaseUrlChangeListener listener = new BaseUrlChangeListener(serverConfigWith("", ""), cache);
+        BaseUrlChangeListener listener = new BaseUrlChangeListener(new ServerSiteUrlConfig(""), new ServerSiteUrlConfig(""), cache);
         CruiseConfig newCruiseConfig = new BasicCruiseConfig();
-        newCruiseConfig.setServerConfig(serverConfigWith("",""));
+        newCruiseConfig.setServerConfig(serverConfigWith("", ""));
 
         listener.onConfigChange(newCruiseConfig);
         verifyZeroInteractions(cache);
     }
 
     private ServerConfig serverConfigWith(String siteUrl, String secureUrl) {
-        return new ServerConfig(null,null, new ServerSiteUrlConfig(siteUrl),new ServerSiteUrlConfig(secureUrl) );
+        return new ServerConfig(null, null, new ServerSiteUrlConfig(siteUrl), new ServerSiteUrlConfig(secureUrl));
     }
 }

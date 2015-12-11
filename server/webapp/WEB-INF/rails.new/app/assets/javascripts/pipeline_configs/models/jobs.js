@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_variables', './tasks', './artifacts', './tabs', './properties'], function (m, _, s, Mixins, EnvironmentVariables, Tasks, Artifacts, Tabs, Properties) {
+define([
+  'mithril', 'lodash', 'string-plus',
+  './model_mixins',
+  './environment_variables', './tasks', './artifacts', './tabs', './properties'
+], function (m, _, s,
+             Mixins,
+             EnvironmentVariables, Tasks, Artifacts, Tabs, Properties) {
 
   var Jobs = function (data) {
     Mixins.HasMany.call(this, {factory: Jobs.Job.create, as: 'Job', collection: data, uniqueOn: 'name'});
@@ -27,15 +33,44 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
     this.parent = Mixins.GetterSetter();
 
     this.name                 = m.prop(s.defaultToIfBlank(data.name, ''));
-    this.runOnAllAgents       = m.prop(data.runOnAllAgents);
     this.runInstanceCount     = m.prop(data.runInstanceCount);
     this.timeout              = m.prop(data.timeout);
-    this.resources            = m.prop(s.defaultToIfBlank(data.resources, ''));
-    this.environmentVariables = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
-    this.tasks                = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.tasks, new Tasks())));
-    this.artifacts            = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.artifacts, new Artifacts())));
-    this.tabs                 = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.tabs, new Tabs())));
-    this.properties           = s.overrideToJSON(m.prop(s.defaultToIfBlank(data.properties, new Properties())));
+    this.resources            = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.resources, '')), s.stringToArray);
+    this.environmentVariables = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
+    this.tasks                = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.tasks, new Tasks())));
+    this.artifacts            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.artifacts, new Artifacts())));
+    this.tabs                 = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.tabs, new Tabs())));
+    this.properties           = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new Properties())));
+
+    this.isRunOnAllAgents = function () {
+      return this.runInstanceCount() == 'all';
+    };
+
+    this.isRunOnOneAgent = function () {
+      return s.undefinedOrNull(this.runInstanceCount());
+    };
+
+    this.isRunOnSomeAgents = function () {
+      if (s.isBlank(this.runInstanceCount())) {
+        return false;
+      }
+      return s.isPositiveInteger(this.runInstanceCount());
+    };
+
+    this.isTimeoutNever = function () {
+      return this.timeout() === 'never';
+    };
+
+    this.isTimeoutDefault = function () {
+      return s.undefinedOrNull(this.timeout());
+    };
+
+    this.isTimeoutCustom = function () {
+      if (s.isBlank(this.timeout())) {
+        return false;
+      }
+      return s.isPositiveInteger(this.timeout());
+    };
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -43,7 +78,17 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
       if (s.isBlank(this.name())) {
         errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
       } else {
-        this.parent().validateUniqueJobName(this, errors);
+        if (this.parent()) {
+          this.parent().validateUniqueJobName(this, errors);
+        }
+      }
+
+      if (!(this.isTimeoutNever() || this.isTimeoutDefault() || this.isTimeoutCustom())) {
+        errors.add('timeout', Mixins.ErrorMessages.mustBePositiveNumber('timeout'));
+      }
+
+      if (!(this.isRunOnAllAgents() || this.isRunOnOneAgent() || this.isRunOnSomeAgents())) {
+        errors.add('runInstanceCount', Mixins.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
       }
 
       return errors;
@@ -63,7 +108,6 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
   Jobs.Job.fromJSON = function (data) {
     return new Jobs.Job({
       name:                 data.name,
-      runOnAllAgents:       data.run_on_all_agents,
       runInstanceCount:     data.run_instance_count,
       timeout:              data.timeout,
       resources:            data.resources,

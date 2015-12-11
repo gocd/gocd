@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials;
 
@@ -34,14 +34,15 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
-import com.thoughtworks.go.util.json.JsonMap;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -160,15 +161,15 @@ public class PackageMaterialTest {
     @Test
     public void shouldGetJsonRepresentationForPackageMaterial() {
         PackageMaterial material = new PackageMaterial();
-        PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
+        PackageRepository repository = create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        JsonMap jsonMap = new JsonMap();
+        Map<String, String> jsonMap = new LinkedHashMap<>();
         material.toJson(jsonMap, new PackageMaterialRevision("rev123", new Date()));
 
-        assertThat(jsonMap.hasEntry("scmType", "Package"), is(true));
-        assertThat(jsonMap.hasEntry("materialName", "repo-name:package-name"), is(true));
-        assertThat(jsonMap.hasEntry("action", "Modified"), is(true));
-        assertThat(jsonMap.hasEntry("location", material.getUriForDisplay()), is(true));
+        assertThat(jsonMap.get("scmType"), is("Package"));
+        assertThat(jsonMap.get("materialName"), is("repo-name:package-name"));
+        assertThat(jsonMap.get("action"), is("Modified"));
+        assertThat(jsonMap.get("location"), is(material.getUriForDisplay()));
     }
 
     @Test

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -247,12 +247,13 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
           </p>
 
           <f.row>
-            <f.column size={4}>
+            <f.column size={7}>
               <table>
                 <thead>
                 <tr>
                   <th>Field</th>
-                  <th>Value</th>
+                  <th>Allowed Values</th>
+                  <th>Allowed Special Characters</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -261,11 +262,17 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
                   <td>
                     <code>0-59</code>
                   </td>
+                  <td>
+                    <code>, - * /</code>
+                  </td>
                 </tr>
                 <tr>
                   <td>minutes</td>
                   <td>
                     <code>0-59</code>
+                  </td>
+                  <td>
+                    <code>, - * /</code>
                   </td>
                 </tr>
                 <tr>
@@ -273,11 +280,17 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
                   <td>
                     <code>0-23</code>
                   </td>
+                  <td>
+                    <code>, - * /</code>
+                  </td>
                 </tr>
                 <tr>
                   <td>day of month</td>
                   <td>
                     <code>0-31</code>
+                  </td>
+                  <td>
+                    <code>, - * ? / L W</code>
                   </td>
                 </tr>
                 <tr>
@@ -285,11 +298,17 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
                   <td>
                     <code>1-12</code>{' '}OR{' '}<code>jan-dec</code>
                   </td>
+                  <td>
+                    <code>, - * /</code>
+                  </td>
                 </tr>
                 <tr>
                   <td>day of week</td>
                   <td>
                     <code>1-7</code>{' '}OR{' '}<code>sun-sat</code>
+                  </td>
+                  <td>
+                    <code>, - * ? / L #</code>
                   </td>
                 </tr>
                 <tr>
@@ -297,13 +316,28 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
                   <td>
                     <code>1970-2099</code>
                   </td>
+                  <td>
+                    <code>, - * /</code>
+                  </td>
                 </tr>
                 </tbody>
               </table>
             </f.column>
-            <f.column size={8} end={true} class='cron-field-explanation'>
+            <f.column size={5} end={true} class='cron-field-explanation'>
               <p>
                 A field may be an asterix (<code>*</code>), which stands for "all possible values".
+              </p>
+
+              <p>
+                A field may be a question mark (<code>?</code>), which stands for "no specific value". This is useful if
+                I want my trigger to fire on a particular day of the month (say, the 10th), but don't care what day of
+                the week that happens to be, I would put <code>10</code> in the day-of-month field, and <code>?</code>
+                in the day-of-week field.
+              </p>
+
+              <p>
+                A field may contain a slash (<code>/</code>) to signify increments. For example, <code>0/15</code> in
+                the seconds field means "the seconds 0, 15, 30, and 45".
               </p>
 
               <p>
@@ -311,7 +345,8 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
                 <code>8-11</code> for an "hours" entry specifies execution at hours 8, 9, 10 and 11.
               </p>
 
-              <p>Lists are allowed. A list is a set of numbers (or ranges) separated by commas. Examples:
+              <p>
+                Lists are allowed. A list is a set of numbers (or ranges) separated by commas. Examples:
                 <code>1,2,5,9</code>, <code>0-4,8-12</code>
               </p>
 
@@ -325,9 +360,10 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
 
           <ExampleTable callback={args.callback}
                         examples={{
-                    '0 0 */4 * * *': 'Run every 4th hour',
-                    '0 0 1 * * *': 'Run at 1:00 AM everyday',
-                    '0 43 2 * * sat': 'Run at 2:43 AM every saturday'
+                    '0 0 0/4 * * ?': 'Run every 4th hour',
+                    '0 0 1 * * ?': 'Run at 1:00 AM everyday',
+                    '0 43 2 * * sat': 'Run at 2:43 AM every saturday',
+                    '0 15 10 3 * ?	': 'Run at 10:15am on the 3rd day of every month'
                   }}/>
 
 
@@ -354,12 +390,24 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
     </div>
   );
 
-  var stageFetchMaterials        = (
+  var stageFetchMaterials = (
     <div>
       <p>Perform material updates or checkouts.</p>
     </div>
   );
-  var stageNeverCleanArtifacts   = (
+
+  var stageType = (
+    <div>
+      <p>
+        'On Success' option will automatically schedule the stage after the preceding stage completes successfully.
+      </p>
+      <p>
+        The 'Manual' option will require a user to manually trigger the stage.
+      </p>
+    </div>
+  );
+
+  var stageNeverCleanupArtifacts = (
     <div>
       <p>Never cleanup artifacts for this stage, if purging artifacts is configured at the
         Server Level.</p>
@@ -406,6 +454,14 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
     </div>
   );
 
+  var jobRunOnAgents = (
+    <div>
+      <p>
+        Specify the number of agents that this job will run on.
+      </p>
+    </div>
+  );
+
   var jobRunOnAllAgents = (
     <div>
       <p>
@@ -436,14 +492,16 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
       }
     },
 
-    environmentVariables: environmentVariables,
+    environmentVariables: {
+      main: environmentVariables
+    },
 
     trackingTool: {
       main:   trackingToolMain,
       mingle: {
-        baseUrl:            trackingToolMingleBaseUrl,
-        projectIdentifier:  trackingToolMingleProjectIdentifier,
-        groupingConditions: trackingToolMingleGroupingConditions
+        baseUrl:               trackingToolMingleBaseUrl,
+        projectIdentifier:     trackingToolMingleProjectIdentifier,
+        mqlGroupingConditions: trackingToolMingleGroupingConditions
       },
 
       generic: {
@@ -458,15 +516,17 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
     },
 
     stage: {
+      stageType:             stageType,
       fetchMaterials:        stageFetchMaterials,
-      neverCleanArtifacts:   stageNeverCleanArtifacts,
+      neverCleanupArtifacts: stageNeverCleanupArtifacts,
       cleanWorkingDirectory: stageCleanWorkingDirectory
     },
 
     job: {
-      resources:   jobResources,
-      timeout:     jobTimeout,
-      runOnAgents: {
+      resources:        jobResources,
+      timeout:          jobTimeout,
+      runInstanceCount: {
+        main: jobRunOnAgents,
         one:  jobRunOnOneAgent,
         all:  jobRunOnAllAgents,
         many: jobRunOnManyAgents

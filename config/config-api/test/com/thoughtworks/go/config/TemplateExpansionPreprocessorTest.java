@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -26,29 +26,40 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TemplateExpansionPreprocessorTest {
     private TemplateExpansionPreprocessor preprocessor;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         preprocessor = new TemplateExpansionPreprocessor();
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenAPipelineHasNoStages() throws Exception {
-        PipelineConfig pipelineConfigWithNoStages = pipelineConfigWithGivenStages();
-        try {
-            preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfigWithGivenStages("foo"), pipelineConfigWithNoStages)));
-            fail("should fail when no stages");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("Pipeline 'pipeline' does not have any stages configured. A pipeline must have at least one stage."));
-        }
     }
 
     @Test
     public void shouldNotThrowAnExceptionWhenAPipelineHasAtLeastOneStage() throws Exception {
         PipelineConfig pipelineConfig = pipelineConfigWithGivenStages("foo");
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
+    }
+
+    @Test
+    public void shouldNotExpandWhenTemplateAssociatedWithPipelineDoesNotExist() throws Exception {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        pipelineConfig.templatize(new CaseInsensitiveString("does_not_exist"));
+        preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
+        assertThat(pipelineConfig.hasTemplateApplied(), is(false));
+    }
+
+    @Test
+    public void shouldValidatePipelineToCheckItDoesNotAllowBothTemplateAndStages() throws Exception {
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        pipelineConfig.templatize(new CaseInsensitiveString("template"));
+        pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
+        preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
+        assertThat(pipelineConfig.hasTemplateApplied(), is(false));
+        assertThat(pipelineConfig.errors().on("stages"), is("Cannot add stages to pipeline 'p' which already references template 'template'"));
+        assertThat(pipelineConfig.errors().on("template"), is("Cannot set template 'template' on pipeline 'p' because it already has stages defined"));
     }
 
     @Test

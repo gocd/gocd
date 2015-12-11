@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -21,6 +21,9 @@ import java.util.List;
 
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -94,11 +97,35 @@ public class CachedFileGoConfig implements CachedGoConfig {
         try {
             GoConfigHolder configHolder = dataSource.load();
             if (configHolder != null) {
-                saveValidConfigToCache(configHolder);
+                saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
             }
         } catch (Exception e) {
             LOGGER.warn("Error loading cruise-config.xml from disk, keeping previous one", e);
             saveConfigError(e);
+        }
+    }
+
+    static class PipelineConfigSaveResult {
+        private PipelineConfig pipelineConfig;
+        private String group;
+        private GoConfigHolder configHolder;
+
+        public PipelineConfigSaveResult(PipelineConfig pipelineConfig, String group, GoConfigHolder configHolder) {
+            this.pipelineConfig = pipelineConfig;
+            this.group = group;
+            this.configHolder = configHolder;
+        }
+
+        public PipelineConfig getPipelineConfig() {
+            return pipelineConfig;
+        }
+
+        public String getGroup() {
+            return group;
+        }
+
+        public GoConfigHolder getConfigHolder() {
+            return configHolder;
         }
     }
 
@@ -110,8 +137,43 @@ public class CachedFileGoConfig implements CachedGoConfig {
 
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand, GoConfigHolder holder) {
         GoFileConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeWithLock(updateConfigCommand, holder);
-        saveValidConfigToCache(saveResult.getConfigHolder());
+        saveValidConfigToCacheAndNotifyConfigChangeListeners(saveResult.getConfigHolder());
         return saveResult.getConfigSaveState();
+    }
+
+    public synchronized void writePipelineWithLock(PipelineConfig pipelineConfig, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
+        GoConfigHolder serverCopy = new GoConfigHolder(currentConfig, currentConfigForEdit);
+        writePipelineWithLock(pipelineConfig, serverCopy, saveCommand, currentUser);
+    }
+
+    public synchronized PipelineConfigSaveResult writePipelineWithLock(PipelineConfig pipelineConfig, GoConfigHolder serverCopy, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
+        PipelineConfigSaveResult saveResult = dataSource.writePipelineWithLock(pipelineConfig, serverCopy, saveCommand, currentUser);
+        saveValidConfigToCacheAndNotifyPipelineConfigChangeListeners(saveResult);
+        return saveResult;
+    }
+
+    private void saveValidConfigToCacheAndNotifyPipelineConfigChangeListeners(CachedFileGoConfig.PipelineConfigSaveResult saveResult) {
+        saveValidConfigToCache(saveResult.getConfigHolder());
+        LOGGER.info("About to notify pipeline config listeners");
+
+        for (ConfigChangedListener listener : listeners) {
+            if(listener instanceof PipelineConfigChangedListener){
+                try {
+                    ((PipelineConfigChangedListener) listener).onPipelineConfigChange(saveResult.getPipelineConfig(), saveResult.getGroup());
+                } catch (Exception e) {
+                    LOGGER.error("failed to fire config changed event for listener: " + listener, e);
+                }
+
+            }
+        }
+        LOGGER.info("Finished notifying pipeline config listeners");
+    }
+
+    private synchronized void saveValidConfigToCacheAndNotifyConfigChangeListeners(GoConfigHolder configHolder) {
+        saveValidConfigToCache(configHolder);
+        if(configHolder!=null) {
+            notifyListeners(currentConfig);
+        }
     }
 
     private synchronized void saveValidConfigToCache(GoConfigHolder configHolder) {
@@ -122,9 +184,6 @@ public class CachedFileGoConfig implements CachedGoConfig {
             this.currentConfig = this.configHolder.config;
             this.currentConfigForEdit = this.configHolder.configForEdit;
             serverHealthService.update(ServerHealthState.success(invalidConfigType()));
-            LOGGER.info("About to notify config listeners");
-            notifyListeners(currentConfig);
-            LOGGER.info("Finished notifying all listeners");
         }
     }
 
@@ -146,7 +205,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
     @Override
     public synchronized void save(String configFileContent, boolean shouldMigrate) throws Exception {
         GoConfigHolder newConfigHolder = dataSource.write(configFileContent, shouldMigrate);
-        saveValidConfigToCache(newConfigHolder);
+        saveValidConfigToCacheAndNotifyConfigChangeListeners(newConfigHolder);
     }
 
     @Override
@@ -167,6 +226,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
     }
 
     private synchronized void notifyListeners(CruiseConfig newCruiseConfig) {
+        LOGGER.info("About to notify config listeners");
         for (ConfigChangedListener listener : listeners) {
             try {
                 listener.onConfigChange(newCruiseConfig);
@@ -174,6 +234,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
                 LOGGER.error("failed to fire config changed event for listener: " + listener, e);
             }
         }
+        LOGGER.info("Finished notifying all listeners");
     }
 
     /**

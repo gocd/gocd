@@ -1,39 +1,37 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.perforce;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.helper.P4TestRepo;
-import com.thoughtworks.go.util.json.JsonMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.StringUtil;
 import org.junit.Test;
-import org.junit.matchers.JUnitMatchers;
 
+import static com.thoughtworks.go.util.JsonUtils.from;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -235,10 +233,10 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
     public void shouldBeAbleToConvertToJson() {
         P4Material p4Material = p4Fixture.material(VIEW);
 
-        JsonMap json = new JsonMap();
+        Map<String, Object> json = new LinkedHashMap<>();
         p4Material.toJson(json, new StringRevision("123"));
 
-        JsonValue jsonValue = JsonUtils.from(json);
+        JsonValue jsonValue = from(json);
         assertThat(jsonValue.getString("scmType"), is("Perforce"));
         assertThat(jsonValue.getString("location"), is(p4Material.getServerAndPort()));
         assertThat(jsonValue.getString("action"), is("Modified"));

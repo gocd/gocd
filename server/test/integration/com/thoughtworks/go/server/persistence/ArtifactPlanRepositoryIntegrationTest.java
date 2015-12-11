@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.persistence;
 
@@ -84,7 +84,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldSaveArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan("src", "dest");
         artifactPlan.setBuildId(jobInstance.getId());
 
         // Act
@@ -98,7 +98,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedArtifactPlan() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        ArtifactPlan savedArtifactPlan = new ArtifactPlan("src", "dest");
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -114,7 +114,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
     public void shouldLoadSavedArtifactPlanWithTypeUnit() {
         // Arrange
         JobInstance jobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        ArtifactPlan savedArtifactPlan = new ArtifactPlan(ArtifactType.unit, "src", "dest");
+        ArtifactPlan savedArtifactPlan = new TestArtifactPlan("src", "dest");
         savedArtifactPlan.setBuildId(jobInstance.getId());
         artifactPlanRepository.save(savedArtifactPlan);
 
@@ -148,7 +148,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
         // Arrange
         JobInstance firstJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "1"));
         JobInstance secondJobInstance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME + "2"));
-        ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactType.file, "src", "dest");
+        ArtifactPlan artifactPlan = new ArtifactPlan("src", "dest");
 
         // Act
         ArtifactPlan artifactPlanOfFirstJob = artifactPlanRepository.saveCopyOf(firstJobInstance.getId(), artifactPlan);

@@ -44,11 +44,11 @@ module ApiSpecHelper
   end
 
   def allow_current_user_to_access_pipeline(pipeline_name)
-    @security_service.stub(:hasViewPermissionForPipeline).with(controller.string_username, pipeline_name).and_return(true)
+    @security_service.stub(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(true)
   end
 
   def allow_current_user_to_not_access_pipeline(pipeline_name)
-    @security_service.stub(:hasViewPermissionForPipeline).with(controller.string_username, pipeline_name).and_return(false)
+    @security_service.stub(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(false)
   end
 
   def disable_security

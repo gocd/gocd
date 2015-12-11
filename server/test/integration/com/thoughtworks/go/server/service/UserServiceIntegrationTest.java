@@ -64,13 +64,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -617,7 +617,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.FALSE, TriState.UNSET, null, null, result);
+        userService.save(user, TriState.FALSE, TriState.UNSET, null, null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.isEnabled(), is(false));
     }
@@ -629,7 +629,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.TRUE, TriState.UNSET, null, null, result);
+        userService.save(user, TriState.TRUE, TriState.UNSET, null, null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.isEnabled(), is(true));
     }
@@ -641,7 +641,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        userService.save(user, TriState.UNSET, TriState.UNSET, null, null, result);
         assertThat(user.isEnabled(), is(false));
     }
 
@@ -653,7 +653,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.TRUE, null, null, result);
+        userService.save(user, TriState.UNSET, TriState.TRUE, null, null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.isEmailMe(), is(true));
     }
@@ -667,7 +667,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.FALSE, null, null, result);
+        userService.save(user, TriState.UNSET, TriState.FALSE, null, null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.isEmailMe(), is(false));;
     }
@@ -680,7 +680,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        userService.save(user, TriState.UNSET, TriState.UNSET, null, null, result);
         assertThat(user.isEmailMe(), is(true));
     }
 
@@ -690,12 +690,12 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.UNSET, "foo@example.com", null, result);
+        userService.save(user, TriState.UNSET, TriState.UNSET, "foo@example.com", null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.getEmail(), is("foo@example.com"));
 
         result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.TRUE, TriState.UNSET, "", null, result);
+        userService.save(user, TriState.TRUE, TriState.UNSET, "", null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.getEmail(), is(""));
     }
@@ -707,7 +707,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        userService.save(user, TriState.UNSET, TriState.UNSET, null, null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.getEmail(), is("foo@example.com"));
     }
@@ -718,12 +718,12 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.UNSET, null, "foo,bar", result);
+        userService.save(user, TriState.UNSET, TriState.UNSET, null, "foo,bar", result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.getMatcher(), is("foo,bar"));
 
         result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.UNSET, null, "", result);
+        userService.save(user, TriState.UNSET, TriState.UNSET, null, "", result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.getMatcher(), is(""));
     }
@@ -735,7 +735,7 @@ public class UserServiceIntegrationTest {
         addUser(user);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.update(user, TriState.UNSET, TriState.UNSET, null, null, result);
+        userService.save(user, TriState.UNSET, TriState.UNSET, null, null, result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(user.getMatcher(), is("foo,bar"));
     }

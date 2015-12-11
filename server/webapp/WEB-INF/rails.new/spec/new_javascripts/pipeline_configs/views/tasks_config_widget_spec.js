@@ -22,28 +22,28 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
     var antTask, nantTask, execTask, rakeTask, fetchArtifactTask;
     beforeEach(function () {
       antTask = new Tasks.Task.Ant({
-        buildFile:  'build-moduleA.xml',
-        target:     "clean",
-        workingDir: "moduleA"
+        buildFile:        'build-moduleA.xml',
+        target:           "clean",
+        workingDirectory: "moduleA"
       });
 
       nantTask = new Tasks.Task.NAnt({
-        buildFile:  'build-moduleA.xml',
-        target:     "clean",
-        workingDir: "moduleA",
-        nantHome:   'C:\\NAnt'
+        buildFile:        'build-moduleA.xml',
+        target:           "clean",
+        workingDirectory: "moduleA",
+        nantPath:         'C:\\NAnt'
       });
 
       execTask = new Tasks.Task.Exec({
-        command:    'bash',
-        args:       ['-c', 'ls -al /'],
-        workingDir: "moduleA"
+        command:          'bash',
+        args:             ['-c', 'ls -al /'],
+        workingDirectory: "moduleA"
       });
 
       rakeTask = new Tasks.Task.Rake({
-        buildFile:  'foo.rake',
-        target:     "clean",
-        workingDir: "moduleA"
+        buildFile:        'foo.rake',
+        target:           "clean",
+        workingDirectory: "moduleA"
       });
 
       fetchArtifactTask = new Tasks.Task.FetchArtifact({
@@ -53,36 +53,44 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'})
       });
 
-      tasks = new Tasks();
+      tasks = m.prop(new Tasks());
 
-      _.invoke([
-          antTask,
-          nantTask,
-          execTask,
-          rakeTask,
-          fetchArtifactTask
-        ],
-        'parent', tasks);
+      _.each([
+        antTask,
+        nantTask,
+        execTask,
+        rakeTask,
+        fetchArtifactTask
+      ], function (task) {
+        tasks().addTask(task);
+      });
 
-      root  = document.createElement("div");
+      root = document.createElement("div");
       document.body.appendChild(root);
       $root = $(root);
 
-      m.render(root,
+      m.mount(root,
         m.component(TasksConfigWidget, {tasks: tasks})
       );
+      m.redraw(true);
     });
 
     afterEach(function () {
       root.parentNode.removeChild(root);
     });
 
-    describe("SVN", function () {
-      it("should foo", function () {
-        expect(true).toBe(true);
-      });
+    it("should add a new task", function () {
+      expect(tasks().countTask()).toBe(5);
+      expect($root.find('.task-definition').length).toBe(5);
 
+      var addTaskButton = $root.find('.add-task a').get(0);
+      var evObj         = document.createEvent('MouseEvents');
+      evObj.initEvent('click', true, false);
+      addTaskButton.onclick(evObj);
+      m.redraw(true);
+
+      expect(tasks().countTask()).toBe(6);
+      expect($root.find('.task-definition').length).toBe(6);
     });
-
   });
 });

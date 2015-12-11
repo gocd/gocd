@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation.models;
 
@@ -22,10 +22,15 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.dto.DurationBean;
-import com.thoughtworks.go.util.json.JsonMap;
 import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.TimeConverter;
 import org.joda.time.DateTime;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static com.thoughtworks.go.domain.JobState.*;
+import static java.lang.String.valueOf;
 
 
 public class JobStatusJsonPresentationModel {
@@ -48,22 +53,22 @@ public class JobStatusJsonPresentationModel {
         this(instance, null, new DurationBean(instance.getId()));
     }
 
-    public JsonMap toJsonHash() {
-        JsonMap jsonParams = new JsonMap();
+    public Map toJsonHash() {
+        Map<String, Object> jsonParams = new LinkedHashMap<>();
         jsonParams.put("agent", agentConfig.getHostNameForDispaly());
         jsonParams.put("agent_ip", agentConfig.getIpAddress());
         jsonParams.put("agent_uuid", agentConfig.getUuid());
         jsonParams.put("build_scheduled_date", getPreciseScheduledDate());
-        jsonParams.put("build_assigned_date", getPreciseDateFor(JobState.Assigned));
-        jsonParams.put("build_preparing_date", getPreciseDateFor(JobState.Preparing));
-        jsonParams.put("build_building_date", getPreciseDateFor(JobState.Building));
-        jsonParams.put("build_completing_date", getPreciseDateFor(JobState.Completing));
-        jsonParams.put("build_completed_date", getPreciseDateFor(JobState.Completed));
+        jsonParams.put("build_assigned_date", getPreciseDateFor(Assigned));
+        jsonParams.put("build_preparing_date", getPreciseDateFor(Preparing));
+        jsonParams.put("build_building_date", getPreciseDateFor(Building));
+        jsonParams.put("build_completing_date", getPreciseDateFor(Completing));
+        jsonParams.put("build_completed_date", getPreciseDateFor(Completed));
         jsonParams.put("current_status", instance.displayStatusWithResult());
         jsonParams.put("current_build_duration", instance.getCurrentBuildDuration());
-        jsonParams.put("last_build_duration", this.durationBean.getDuration());
+        jsonParams.put("last_build_duration", Long.toString(this.durationBean.getDuration()));
         jsonParams.put("id", Long.toString(getBuildInstanceId()));
-        jsonParams.put("is_completed", String.valueOf(instance.isCompleted()));
+        jsonParams.put("is_completed", valueOf(instance.isCompleted()));
         jsonParams.put("name", getName());
         jsonParams.put("result", getResult().toString());
         jsonParams.put("buildLocator", instance.buildLocator());
@@ -72,7 +77,7 @@ public class JobStatusJsonPresentationModel {
     }
 
     public String toJsonString() {
-        JsonMap info = new JsonMap();
+        Map<String, Object> info = new LinkedHashMap<>();
         info.put("building_info", this.toJsonHash());
         return new JsonView().renderJson(info);
     }

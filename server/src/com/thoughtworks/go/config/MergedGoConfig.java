@@ -34,6 +34,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
 /**
  * @understands when to reload the config file or other config source
  */

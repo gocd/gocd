@@ -54,6 +54,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.mock;
 
@@ -350,10 +351,13 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();
         materialConfig = hgRepo.createMaterialConfig("dest1");
+        materialConfig.setAutoUpdate(true);
         pipelineConfig.materialConfigs().add(materialConfig);
         // new material is added
         GitMaterial gitMaterial = otherGitRepo.createMaterial("dest2");
+        gitMaterial.setAutoUpdate(true);
         MaterialConfig otherMaterialConfig = gitMaterial.config();
+        otherMaterialConfig.setAutoUpdate(true);
         pipelineConfig.materialConfigs().add(otherMaterialConfig);
 
         List<Modification> mod = configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
@@ -439,8 +443,10 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();
         materialConfig = hgRepo.createMaterialConfig("dest1");
+        materialConfig.setAutoUpdate(true);
         // new material is added
         MaterialConfig otherMaterialConfig = hgRepo.createMaterialConfig("dest2");
+        otherMaterialConfig.setAutoUpdate(true);
 
         pipelineConfig.materialConfigs().add(materialConfig);
         pipelineConfig.materialConfigs().add(otherMaterialConfig);

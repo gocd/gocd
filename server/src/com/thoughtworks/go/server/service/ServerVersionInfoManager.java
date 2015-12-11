@@ -23,6 +23,8 @@ import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +42,7 @@ public class ServerVersionInfoManager {
     private DateTime versionInfoUpdatingFrom;
     private static String GO_UPDATE = "GOUpdate";
     private static final Object VERSION_INFO_MUTEX = new Object();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerVersionInfoManager.class.getName());
 
     @Autowired
     public ServerVersionInfoManager(ServerVersionInfoBuilder builder, VersionInfoDao versionInfoDao, Clock clock, GoCache goCache, SystemEnvironment systemEnvironment) {
@@ -53,6 +56,10 @@ public class ServerVersionInfoManager {
     public void initialize() {
         this.serverVersionInfo = builder.getServerVersionInfo();
 
+        if (!systemEnvironment.isGOUpdateCheckEnabled()) {
+            LOGGER.info("[Go Update Check] Update check disabled.");
+        }
+
         addGoUpdateToCacheIfAvailable();
     }
 
@@ -61,6 +68,8 @@ public class ServerVersionInfoManager {
             if (isDevelopmentServer() || isVersionInfoUpdatedToday() || isUpdateInProgress()) return null;
 
             versionInfoUpdatingFrom = clock.currentDateTime();
+            LOGGER.info("[Go Update Check] Starting update check at: {}", new Date());
+
             return this.serverVersionInfo;
         }
     }
@@ -74,6 +83,7 @@ public class ServerVersionInfoManager {
             versionInfoUpdatingFrom = null;
             addGoUpdateToCacheIfAvailable();
 
+            LOGGER.info("[Go Update Check] Update check done at: {}, latest available version: {}", new Date(), latestVersion);
             return serverVersionInfo;
         }
     }

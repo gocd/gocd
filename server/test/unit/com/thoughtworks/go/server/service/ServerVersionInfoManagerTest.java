@@ -38,13 +38,17 @@ public class ServerVersionInfoManagerTest {
     ServerVersionInfoBuilder builder;
     ServerVersionInfoManager manager;
     GoCache goCache;
+    SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() {
         builder = mock(ServerVersionInfoBuilder.class);
         versionInfoDao = mock(VersionInfoDao.class);
         goCache = mock(GoCache.class);
-        manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, null);
+        systemEnvironment = mock(SystemEnvironment.class);
+        manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, systemEnvironment);
+
+        when(systemEnvironment.isGOUpdateCheckEnabled()).thenReturn(true);
     }
 
     @Test
@@ -154,7 +158,7 @@ public class ServerVersionInfoManagerTest {
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
         when(systemTimeClock.currentDateTime()).thenReturn(halfAnHourFromNow);
 
-        manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, null);
+        manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, systemEnvironment);
         manager.initialize();
 
         VersionInfo serverVersionInfo1 = manager.versionInfoForUpdate();
@@ -173,7 +177,7 @@ public class ServerVersionInfoManagerTest {
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
         when(systemTimeClock.currentTime()).thenReturn(now);
 
-        manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, null);
+        manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, systemEnvironment);
 
         manager.initialize();
         VersionInfo info = manager.updateLatestVersion("15.0.1-123");
@@ -192,7 +196,7 @@ public class ServerVersionInfoManagerTest {
         when(builder.getServerVersionInfo()).thenReturn(versionInfo);
         when(systemTimeClock.currentTime()).thenReturn(now);
 
-        manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, null);
+        manager = new ServerVersionInfoManager(builder, versionInfoDao, systemTimeClock, goCache, systemEnvironment);
         manager.initialize();
         manager.updateLatestVersion("15.0.1-123");
 

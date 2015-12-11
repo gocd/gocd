@@ -21,6 +21,8 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class GoVersionTest {
     @Test
@@ -66,5 +68,12 @@ public class GoVersionTest {
         GoVersion goVersion = new GoVersion("15.1.0-2321");
 
         assertThat(goVersion.toString(), is("15.1.0-2321"));
+    }
+
+    @Test
+    public void shouldCheckIfGreaterThan(){
+        assertTrue(new GoVersion("15.2.0-2321").isGreaterThan(new GoVersion("15.1.0-2321")));
+        assertFalse(new GoVersion("15.2.0-2321").isGreaterThan(new GoVersion("15.2.0-2321")));
+        assertFalse(new GoVersion("15.1.0-2321").isGreaterThan(new GoVersion("15.2.0-2321")));
     }
 }

@@ -21,7 +21,8 @@ import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.domain.exception.VersionFormatException;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.server.util.ServerVersion;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,7 @@ public class ServerVersionInfoBuilder {
     private static final String GO_SERVER = "go_server";
     private VersionInfoDao versionInfoDao;
     private ServerVersion serverVersion;
-    private static final Logger LOGGER = Logger.getLogger(ServerVersionInfoBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerVersionInfoBuilder.class.getName());
 
     @Autowired
     public ServerVersionInfoBuilder(VersionInfoDao versionInfoDao, ServerVersion serverVersion) {
@@ -97,7 +98,7 @@ public class ServerVersionInfoBuilder {
         try {
             version = new GoVersion(installedVersion);
         } catch (VersionFormatException e) {
-           LOGGER.error(String.format("Server Version: %s format is Invalid.", installedVersion));
+           LOGGER.error("[Go Update Check] Server Version: {} format is Invalid.", installedVersion);
         }
         return version;
     }

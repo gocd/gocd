@@ -412,6 +412,7 @@ public class BuildCauseProducerServiceTest {
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1,"plug"),"revision1"));
 
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
+        when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
                 new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
@@ -471,6 +472,7 @@ public class BuildCauseProducerServiceTest {
         pipelineConfig1.addMaterialConfig(materialConfig1);
         pipelineConfig1.addMaterialConfig(materialConfig2);
         when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig1);
+        when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
 
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
         statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));

@@ -18,7 +18,6 @@ module ApiV1
   module Config
     module Materials
       class GitMaterialRepresenter < ScmMaterialRepresenter
-        alias_method :material_config, :represented
         property :branch
         property :submodule_folder
       end

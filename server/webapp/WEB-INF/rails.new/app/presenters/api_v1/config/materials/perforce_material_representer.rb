@@ -17,18 +17,13 @@
 module ApiV1
   module Config
     module Materials
-
       class PerforceMaterialRepresenter < ScmMaterialRepresenter
-        alias_method :material_config, :represented
-
-        property :url,skip_render: true
+        property :url, skip_render: true
         property :server_and_port, as: :port
         property :user_name, as: :username
         property :password,
-                 skip_render: true,
-                 setter:      lambda { |value, options|
-                   self.setPassword(value)
-                 }
+                 skip_nil:    true,
+                 skip_render: true
         property :encrypted_password, skip_nil: true
         property :use_tickets
         property :view

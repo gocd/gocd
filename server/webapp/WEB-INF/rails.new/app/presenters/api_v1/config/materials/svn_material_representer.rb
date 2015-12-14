@@ -18,16 +18,11 @@ module ApiV1
   module Config
     module Materials
       class SvnMaterialRepresenter < ScmMaterialRepresenter
-        alias_method :material_config, :represented
-
         property :check_externals, exec_context: :decorator
         property :user_name, as: :username
         property :password,
-                 skip_nil: true,
-                 getter: lambda{|value|},
-                 setter:      lambda { |value, options|
-                   self.setPassword(value)
-                 }
+                 skip_nil:    true,
+                 skip_render: true
         property :encrypted_password, skip_nil: true
 
         delegate :check_externals, :check_externals=, to: :material_config

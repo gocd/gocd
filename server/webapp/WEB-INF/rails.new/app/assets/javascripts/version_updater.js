@@ -44,11 +44,15 @@ var VersionUpdater = function (staleVersionInfoUrl, updateServerVersionInfoUrl) 
       $.ajax({
         headers: {Accept: "application/vnd.update.go.cd.v1+json"},
         type: 'GET',
-        url: versionInfo['update_server_url'],
+        url: _this.updateServerUrl(versionInfo),
         success: function (data) {
           _this.updateLatestVersion(data);
         }
       });
+    },
+
+    updateServerUrl: function(versionInfo){
+      return versionInfo['update_server_url'].concat("?current_version=", versionInfo['installed_version'])
     },
 
     updateLatestVersion: function (data) {

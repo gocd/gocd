@@ -21,8 +21,11 @@ module ApiV1
         property :domain
         property :user_name, as: :username
         property :password,
-                 skip_nil:    true,
-                 skip_render: true
+                 skip_render: true,
+                 skip_nil: true,
+                 setter:      lambda { |value, options|
+                   self.setCleartextPassword(value)
+                 }
         property :encrypted_password, skip_nil: true
 
         property :project_path

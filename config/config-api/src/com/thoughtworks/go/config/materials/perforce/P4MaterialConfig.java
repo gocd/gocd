@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "p4", label = "Perforce")
 public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -180,6 +181,11 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         resetPassword(password);
     }
 
+    public void setCleartextPassword(String password) {
+        this.password = password;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -227,6 +233,10 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         }
         if (StringUtil.isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
+        }
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
+            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
     }
 

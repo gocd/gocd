@@ -866,7 +866,8 @@ public class PipelineHistoryServiceTest {
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
 		HttpOperationResult result = new HttpOperationResult();
-		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 0, 10), "looser", result);
+		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName,
+                Pagination.pageFor(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
 
 		assertThat(pipelineInstanceModels, is(nullValue()));
 		assertThat(result.httpCode(), is(404));
@@ -875,15 +876,15 @@ public class PipelineHistoryServiceTest {
 
 	@Test
 	public void shouldPopulateResultAsUnauthorizedWhenUserNotAllowedToViewPipeline_loadMinimalData() {
-		String noAccessUserName = "foo";
-		String withAccessUserName = "admin";
+		Username noAccessUserName = new Username(new CaseInsensitiveString("foo"));
+		Username withAccessUserName = new Username(new CaseInsensitiveString("admin"));
 		String pipelineName = "no-access-pipeline";
 		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf(noAccessUserName), pipelineName)).thenReturn(false);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf(withAccessUserName), pipelineName)).thenReturn(true);
+		when(securityService.hasViewPermissionForPipeline(noAccessUserName, pipelineName)).thenReturn(false);
+		when(securityService.hasViewPermissionForPipeline(withAccessUserName, pipelineName)).thenReturn(true);
 
 		when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
 

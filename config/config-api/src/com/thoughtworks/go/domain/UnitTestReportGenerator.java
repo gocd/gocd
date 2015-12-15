@@ -1,20 +1,37 @@
-/*
- * Copyright 2015 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.domain;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.text.MessageFormat;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -26,16 +43,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.jdom.Document;
 import org.jdom.JDOMException;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.*;
-import java.text.MessageFormat;
 
 public class UnitTestReportGenerator implements TestReportGenerator {
     private final File folderToUpload;
@@ -146,16 +153,12 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     }
 
     private void pumpFileContent(File file, PrintStream out) throws IOException {
-        BOMInputStream input = null;
         try {
-            input = new BOMInputStream(new FileInputStream(file));
-            String content = FileUtil.readToEnd(input);
+            String content = FileUtil.readToEnd(new BOMInputStream(new FileInputStream(file)));
             final Document document = XmlUtils.buildXmlDocument(content);
             XmlUtils.writeXml(document.getRootElement(), out);
         } catch (JDOMException e) {
             publisher.consumeLine(MessageFormat.format("The file {0} could not be parsed as XML document: {1}", file.getName(), e.getMessage()));
-        } finally {
-            IOUtils.closeQuietly(input);
         }
     }
 

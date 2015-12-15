@@ -36,6 +36,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class PackageRepositoriesTest {
@@ -76,16 +77,23 @@ public class PackageRepositoriesTest {
 
 
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);
-        PackageRepository actual = packageRepositories.findPackageRepositoryHaving("pid3");
 
-        assertThat(actual, is(repo2));
+        assertThat(packageRepositories.findPackageRepositoryHaving("pid3"), is(repo2));
+        assertThat(packageRepositories.findPackageRepositoryWithPackageIdOrBomb("pid3"), is(repo2));
+    }
+
+    @Test
+    public void shouldReturnNullWhenRepositoryForGivenPackageNotFound() throws Exception {
+        PackageRepositories packageRepositories = new PackageRepositories();
+        assertThat(packageRepositories.findPackageRepositoryHaving("invalid"), is(nullValue()));
     }
 
     @Test
     public void shouldThrowExceptionWhenRepositoryForGivenPackageNotFound() throws Exception {
         PackageRepositories packageRepositories = new PackageRepositories();
+
         try {
-            packageRepositories.findPackageRepositoryHaving("invalid");
+            packageRepositories.findPackageRepositoryWithPackageIdOrBomb("invalid");
             fail("should have thrown exception for not finding package repository");
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("Could not find repository for given package id:[invalid]"));
@@ -104,7 +112,7 @@ public class PackageRepositoriesTest {
     }
 
     @Test
-    public void shouldThrowRuntimeExceptionWhenRepoIdIsNotFound() throws Exception {
+    public void shouldReturnNullExceptionWhenRepoIdIsNotFound() throws Exception {
         PackageRepositories packageRepositories = new PackageRepositories();
         try {
             packageRepositories.removePackageRepository("repo1");

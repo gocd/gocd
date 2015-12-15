@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
@@ -48,14 +49,14 @@ public class PackageMaterialConfigTest {
 
     @Test
     public void shouldAddErrorIfPackageDoesNotExistsForGivenPackageId() throws Exception {
-        ConfigSaveValidationContext configSaveValidationContext=mock(ConfigSaveValidationContext.class);
+        PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
         when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
-        PackageRepository packageRepository=mock(PackageRepository.class);
+        PackageRepository packageRepository = mock(PackageRepository.class);
         when(packageRepository.doesPluginExist()).thenReturn(true);
-        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"),"package-id",PackageDefinitionMother.create("package-id"));
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"), "package-id", PackageDefinitionMother.create("package-id"));
         packageMaterialConfig.getPackageDefinition().setRepository(packageRepository);
 
-        packageMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+        packageMaterialConfig.validateTree(configSaveValidationContext);
 
         assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
         assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));
@@ -63,14 +64,14 @@ public class PackageMaterialConfigTest {
 
     @Test
     public void shouldAddErrorIfPackagePluginDoesNotExistsForGivenPackageId() throws Exception {
-        ConfigSaveValidationContext configSaveValidationContext=mock(ConfigSaveValidationContext.class);
+        PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
         when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
-        PackageRepository packageRepository=mock(PackageRepository.class);
+        PackageRepository packageRepository = mock(PackageRepository.class);
         when(packageRepository.doesPluginExist()).thenReturn(false);
-        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"),"package-id",PackageDefinitionMother.create("package-id"));
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"), "package-id", PackageDefinitionMother.create("package-id"));
         packageMaterialConfig.getPackageDefinition().setRepository(packageRepository);
 
-        packageMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+        packageMaterialConfig.validateTree(configSaveValidationContext);
 
         assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
         assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));

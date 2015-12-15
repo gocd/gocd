@@ -50,7 +50,15 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
         });
     }
 
-    public PackageRepository findPackageRepositoryHaving(String packageId) throws RuntimeException {
+    public PackageRepository findPackageRepositoryWithPackageIdOrBomb(String packageId) {
+        PackageRepository packageRepository = findPackageRepositoryHaving(packageId);
+        if (packageRepository == null){
+            throw new RuntimeException(format("Could not find repository for given package id:[%s]", packageId));
+        }
+        return packageRepository;
+    }
+
+    public PackageRepository findPackageRepositoryHaving(String packageId) {
         for (PackageRepository packageRepository : this) {
             for (PackageDefinition packageDefinition : packageRepository.getPackages()) {
                 if (packageDefinition.getId().equals(packageId)) {
@@ -58,7 +66,7 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
                 }
             }
         }
-        throw new RuntimeException(format("Could not find repository for given package id:[%s]", packageId));
+        return null;
     }
 
     @Override

@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -124,29 +125,29 @@ public class PluggableSCMMaterialConfigTest {
 
 
     @Test
-    public void shouldAddErrorWhenScmIDDoesNotExists() throws Exception {
-        ConfigSaveValidationContext configSaveValidationContext = mock(ConfigSaveValidationContext.class);
-        when(configSaveValidationContext.findScmById(anyString())).thenReturn(null);
+    public void shouldAddErrorWhenMatchingScmConfigDoesNotExist() throws Exception {
+        PipelineConfigSaveValidationContext validationContext = mock(PipelineConfigSaveValidationContext.class);
+        when(validationContext.findScmById(anyString())).thenReturn(null);
         SCM scmConfig = mock(SCM.class);
         when(scmConfig.doesPluginExist()).thenReturn(true);
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
         pluggableSCMMaterialConfig.setScmId("scm-id");
-        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+        pluggableSCMMaterialConfig.validateTree(validationContext);
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find SCM for given package id:[scm-id]."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find SCM for given scm-id: [scm-id]."));
     }
 
     @Test
-    public void shouldAddErrorWhenSCMPluginIsMissing() throws Exception {
-        ConfigSaveValidationContext configSaveValidationContext = mock(ConfigSaveValidationContext.class);
+    public void shouldAddErrorWhenAssociatedSCMPluginIsMissing() throws Exception {
+        PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
         when(configSaveValidationContext.findScmById(anyString())).thenReturn(mock(SCM.class));
         SCM scmConfig = mock(SCM.class);
         when(scmConfig.doesPluginExist()).thenReturn(false);
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
         pluggableSCMMaterialConfig.setScmId("scm-id");
-        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+        pluggableSCMMaterialConfig.validateTree(configSaveValidationContext);
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find repository for given package id:[scm-id]."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find plugin for scm-id: [scm-id]."));
     }
 
     @Test

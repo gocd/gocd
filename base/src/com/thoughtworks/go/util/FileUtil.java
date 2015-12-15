@@ -78,7 +78,11 @@ public class FileUtil {
 
     public static String readToEnd(File file) throws IOException {
         FileInputStream input = new FileInputStream(file);
-        return readToEnd(input);
+        try {
+            return readToEnd(input);
+        } finally {
+            IOUtils.closeQuietly(input);
+        }
     }
 
     public static String readToEnd(InputStream input) throws IOException {

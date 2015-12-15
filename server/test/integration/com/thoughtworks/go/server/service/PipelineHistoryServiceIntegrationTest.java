@@ -604,7 +604,8 @@ public class PipelineHistoryServiceIntegrationTest {
 		pipelineOne.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
 
 		HttpOperationResult result = new HttpOperationResult();
-		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineOne.pipelineName, Pagination.pageStartingAt(0, 1, 10), "admin1", result);
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineOne.pipelineName,
+                Pagination.pageStartingAt(0, 1, 10), new Username(new CaseInsensitiveString("admin1")), result);
 
 		StageInstanceModels stageHistory = pipelineInstanceModels.first().getStageHistory();
 		assertThat("Should populate 2 placeholder stages from config", stageHistory.size(), is(3));

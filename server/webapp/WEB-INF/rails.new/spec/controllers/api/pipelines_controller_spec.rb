@@ -64,7 +64,7 @@ describe Api::PipelinesController do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       controller.should_receive(:current_user).and_return(loser)
       @pipeline_history_service.should_receive(:totalCount).and_return(10)
-      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, "loser", anything).and_return(create_pipeline_history_model)
+      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, loser, anything).and_return(create_pipeline_history_model)
 
       get :history, :pipeline_name => 'up42', :offset => '5', :no_layout => true
 
@@ -75,7 +75,7 @@ describe Api::PipelinesController do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       controller.should_receive(:current_user).and_return(loser)
       @pipeline_history_service.should_receive(:totalCount).and_return(10)
-      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, "loser", anything) do |pipeline_name, pagination, username, result|
+      @pipeline_history_service.should_receive(:loadMinimalData).with('up42', anything, loser, anything) do |pipeline_name, pagination, username, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 

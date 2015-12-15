@@ -19,10 +19,17 @@ module ApiV1
     module Tasks
       class RakeTaskRepresenter < ApiV1::Config::Tasks::BaseTaskRepresenter
         alias_method :task, :represented
+        ERROR_KEYS = {
+          'workingDirectory' => 'working_directory',
+          'buildFile'        => 'build_file',
+          'onCancelConfig'   => 'on_cancel',
+          'runIf'            => 'run_if'
+        }
 
         property :working_directory
         property :build_file
         property :target
+
       end
     end
   end

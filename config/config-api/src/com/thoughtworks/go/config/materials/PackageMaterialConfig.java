@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.IgnoreTraversal;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import org.apache.commons.lang.StringUtils;
 
 @ConfigTag(value = "package")
@@ -105,6 +106,13 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
     protected void validateConcreteMaterial(ValidationContext validationContext) {
         if (StringUtils.isBlank(packageId)) {
             addError(PACKAGE_ID, "Please select a repository and package");
+        } else {
+            PackageRepository packageRepository = validationContext.findPackageById(packageId);
+            if (packageRepository == null) {
+                addError(PACKAGE_ID, String.format("Could not find repository for given package id:[%s]", packageId));
+            } else if (!packageRepository.doesPluginExist()) {
+                addError(PACKAGE_ID, String.format("Could not find plugin for given package id:[%s].", packageId));
+            }
         }
     }
 

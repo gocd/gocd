@@ -33,9 +33,8 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class PackageMaterialConfigTest {
     @Test
@@ -45,6 +44,36 @@ public class PackageMaterialConfigTest {
 
         assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
         assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Please select a repository and package"));
+    }
+
+    @Test
+    public void shouldAddErrorIfPackageDoesNotExistsForGivenPackageId() throws Exception {
+        ConfigSaveValidationContext configSaveValidationContext=mock(ConfigSaveValidationContext.class);
+        when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
+        PackageRepository packageRepository=mock(PackageRepository.class);
+        when(packageRepository.doesPluginExist()).thenReturn(true);
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"),"package-id",PackageDefinitionMother.create("package-id"));
+        packageMaterialConfig.getPackageDefinition().setRepository(packageRepository);
+
+        packageMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+
+        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));
+    }
+
+    @Test
+    public void shouldAddErrorIfPackagePluginDoesNotExistsForGivenPackageId() throws Exception {
+        ConfigSaveValidationContext configSaveValidationContext=mock(ConfigSaveValidationContext.class);
+        when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
+        PackageRepository packageRepository=mock(PackageRepository.class);
+        when(packageRepository.doesPluginExist()).thenReturn(false);
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"),"package-id",PackageDefinitionMother.create("package-id"));
+        packageMaterialConfig.getPackageDefinition().setRepository(packageRepository);
+
+        packageMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
+
+        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));
     }
 
     @Test

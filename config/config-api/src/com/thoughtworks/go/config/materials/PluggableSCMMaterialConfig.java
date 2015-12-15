@@ -238,11 +238,22 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     protected void validateConcreteMaterial(ValidationContext validationContext) {
-        if (StringUtils.isBlank(scmId)) {
-            addError(SCM_ID, "Please select a SCM");
-        }
         validateDestFolderPath();
         validateNotOutsideSandbox();
+        validateScmID(validationContext);
+    }
+
+    private void validateScmID(ValidationContext validationContext) {
+        if (StringUtils.isBlank(scmId)) {
+            addError(SCM_ID, "Please select a SCM");
+        } else {
+            SCM scm = validationContext.findScmById(scmId);
+            if (scm == null) {
+                addError(SCM_ID, String.format("Could not find SCM for given package id:[%s].", scmId));
+            } else if (!scm.doesPluginExist()) {
+                addError(SCM_ID, String.format("Could not find repository for given package id:[%s].", scmId));
+            }
+        }
     }
 
     private void validateDestFolderPath() {

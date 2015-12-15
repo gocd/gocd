@@ -19,6 +19,8 @@ module ApiV1
     class EnvironmentVariableRepresenter < ApiV1::BaseRepresenter
       alias_method :environment_variable, :represented
 
+      error_representer({'encryptedValue' => 'encrypted_value'})
+
       property :isSecure, as: :secure, writable: false
       property :name, writable: false
       property :value, skip_nil: true, writable: false, exec_context: :decorator
@@ -37,25 +39,6 @@ module ApiV1
         data = data.with_indifferent_access
         environment_variable.deserialize(data[:name], data[:value], data[:secure].to_bool, data[:encrypted_value])
         environment_variable
-      end
-
-      private
-
-      def errors
-        mapped_errors = {}
-        environment_variable.errors.each do |key, value|
-          mapped_errors[matching_error_key(key)] = value
-        end
-        mapped_errors
-      end
-
-      def error_keys
-        { 'encryptedValue' => 'encrypted_value' }
-      end
-
-      def matching_error_key key
-        return error_keys[key] if error_keys[key]
-        key
       end
 
     end

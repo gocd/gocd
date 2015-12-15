@@ -203,6 +203,10 @@ public class PackageRepository implements Serializable, Validatable {
         return prefix + "Repository: " + configuration.forDisplay(propertiesToBeUsedForDisplay);
     }
 
+    public boolean doesPluginExist(){
+        return RepositoryMetadataStore.getInstance().hasPlugin(pluginConfiguration.getId());
+    }
+
     @PostConstruct
     public void applyPackagePluginMetadata() {
         String pluginId = pluginConfiguration.getId();

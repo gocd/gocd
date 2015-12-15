@@ -19,6 +19,13 @@ module ApiV1
     module Tasks
       class FetchTaskRepresenter < ApiV1::Config::Tasks::BaseTaskRepresenter
         alias_method :fetch_task, :represented
+        ERROR_KEYS = {
+          'src'            => 'source',
+          'dest'           => 'destination',
+          'pipelineName'   => 'pipeline',
+          'onCancelConfig' => 'on_cancel',
+          'runIf'          => 'run_if'
+        }
 
         property :pipeline_name, as: :pipeline, case_insensitive_string: true
         property :stage, case_insensitive_string: true
@@ -47,6 +54,8 @@ module ApiV1
             fetch_task.setSrcdir(value)
           end
         end
+
+
       end
     end
   end

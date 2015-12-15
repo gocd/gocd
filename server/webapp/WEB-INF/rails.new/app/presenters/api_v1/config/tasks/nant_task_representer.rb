@@ -19,11 +19,20 @@ module ApiV1
     module Tasks
       class NantTaskRepresenter < ApiV1::Config::Tasks::BaseTaskRepresenter
         alias_method :task, :represented
+        ERROR_KEYS = {
+          'workingDirectory' => 'working_directory',
+          'buildFile'        => 'build_file',
+          'onCancelConfig'   => 'on_cancel',
+          'runIf'            => 'run_if',
+          'nantPath'         => 'nant_path'
+        }
 
         property :working_directory
         property :build_file
         property :target
         property :nant_path
+
+
       end
     end
   end

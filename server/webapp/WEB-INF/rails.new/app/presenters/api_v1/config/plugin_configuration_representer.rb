@@ -19,9 +19,10 @@ module ApiV1
     class PluginConfigurationRepresenter < ApiV1::BaseRepresenter
       alias_method :plugin_configuration, :represented
 
+      error_representer
+
       property :id
       property :version
-      property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
     end
   end

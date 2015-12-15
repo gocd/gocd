@@ -19,6 +19,7 @@ module Admin
     include ApiV1::AuthenticationHelper
 
     layout 'pipeline_configs'
+    before_action :check_feature_toggle
     before_action :check_admin_user_and_401
     before_action :load_pipeline
 
@@ -57,6 +58,12 @@ module Admin
     end
 
     helper_method :plugin_templates
+
+    def check_feature_toggle
+      unless Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
+        render :text => 'This feature is not enabled!'
+      end
+    end
 
   end
 

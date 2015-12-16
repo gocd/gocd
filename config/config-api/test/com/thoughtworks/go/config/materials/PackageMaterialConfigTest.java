@@ -172,7 +172,7 @@ public class PackageMaterialConfigTest {
 
         p1 = new PackageMaterialConfig();
         p2 = new PackageMaterialConfig();
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2), is(true));
 
         p2.setPackageDefinition(packageDefinition);
         assertThat(p1.equals(p2), is(false));

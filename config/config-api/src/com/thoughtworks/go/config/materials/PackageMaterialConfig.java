@@ -213,10 +213,10 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
         PackageMaterialConfig that = (PackageMaterialConfig) o;
 
-        if (packageDefinition == null) {
+        if (packageDefinition != null ? !packageDefinition.equals(that.packageDefinition) : that.packageDefinition != null) {
             return false;
         }
-        return this.getFingerprint().equals(that.getFingerprint());
+        return super.equals(that);
     }
 
     @Override

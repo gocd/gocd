@@ -157,6 +157,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         validateConcreteMaterial(validationContext);
     }
 
+    @Override
     public void validateTree(PipelineConfigSaveValidationContext validationContext) {
         validate(validationContext);
         validateExtras(validationContext);

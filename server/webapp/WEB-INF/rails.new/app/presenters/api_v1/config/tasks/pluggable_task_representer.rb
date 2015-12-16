@@ -22,7 +22,6 @@ module ApiV1
 
         property :plugin_configuration, decorator: PluginConfigurationRepresenter, class: PluginConfiguration
         collection :configuration, exec_context: :decorator, decorator: PluginConfigurationPropertyRepresenter, class: com.thoughtworks.go.domain.config.ConfigurationProperty
-        #TODO: handle property_definition being nil
 
         def configuration
           pluggable_task.getConfiguration()

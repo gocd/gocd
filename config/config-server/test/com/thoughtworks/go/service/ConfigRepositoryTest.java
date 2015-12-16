@@ -56,7 +56,6 @@ public class ConfigRepositoryTest {
     @Before
     public void setUp() throws IOException {
         File configRepoDir = this.temporaryFolder.newFolder();
-        System.out.println("configRepoDir.getAbsolutePath() = " + configRepoDir.getAbsolutePath());
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getConfigRepoDir()).thenReturn(configRepoDir);
         when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE)).thenReturn(true);

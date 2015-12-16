@@ -35,7 +35,7 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
       });
 
       execTask = new Tasks.Task.Exec({
-        command:          'bash',
+        executable:       'bash',
         args:             ['-c', 'ls -al /'],
         workingDirectory: "moduleA"
       });

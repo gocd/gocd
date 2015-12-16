@@ -20,9 +20,9 @@ module ApiV1
       class DependencyMaterialRepresenter < ApiV1::BaseRepresenter
         alias_method :material_config, :represented
 
-        property :pipeline_name, as: :pipeline,case_insensitive_string: true
-        property :stage_name, as: :stage,case_insensitive_string: true
-        property :name,case_insensitive_string: true
+        property :pipeline_name, as: :pipeline, case_insensitive_string: true
+        property :stage_name, as: :stage, case_insensitive_string: true
+        property :name, case_insensitive_string: true
         property :auto_update
       end
     end

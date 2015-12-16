@@ -89,7 +89,7 @@ define([
         return (
           <TaskViews.base {...args}>
             <f.row>
-              <f.inputWithLabel attrName='command'
+              <f.inputWithLabel attrName='executable'
                                 model={task}/>
               <f.inputWithLabel attrName='args'
                                 model={task}/>

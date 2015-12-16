@@ -15,23 +15,23 @@
 ##########################################################################
 
 module ApiV1
-    module Config
-        module Materials
-            class PluggableScmMaterialRepresenter < ApiV1::BaseRepresenter
-                alias_method :material_config, :represented
+  module Config
+    module Materials
+      class PluggableScmMaterialRepresenter < ApiV1::BaseRepresenter
+        alias_method :material_config, :represented
 
-                property :scmId, as: :ref, setter: lambda { |value, options|
-                  scm = options[:go_config].getSCMs().find(value)
-                  self.setSCMConfig(scm)
-                  self.setScmId(value)
-                }
+        property :scmId, as: :ref, setter: lambda { |value, options|
+          scm = options[:go_config].getSCMs().find(value)
+          self.setSCMConfig(scm)
+          self.setScmId(value)
+        }
 
-                property :filter,
-                         decorator:  ApiV1::Config::Materials::FilterRepresenter,
-                         class:      com.thoughtworks.go.config.materials.Filter,
-                         skip_parse: SkipParseOnBlank
-                property :folder, as: :destination, skip_parse: SkipParseOnBlank
-           end
-        end
+        property :filter,
+                 decorator:  ApiV1::Config::Materials::FilterRepresenter,
+                 class:      com.thoughtworks.go.config.materials.Filter,
+                 skip_parse: SkipParseOnBlank
+        property :folder, as: :destination, skip_parse: SkipParseOnBlank
+      end
     end
+  end
 end

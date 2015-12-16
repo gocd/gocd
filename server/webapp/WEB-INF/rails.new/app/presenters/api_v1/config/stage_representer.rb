@@ -39,15 +39,6 @@ module ApiV1
                  expect_hash:  true,
                  class:        com.thoughtworks.go.config.JobConfig
 
-      delegate :name, :name=, to: :stage
-
-      # delegate :fetch_materials, :fetch_materials=, to: :stage
-
-      # delegate :clean_working_dir, :clean_working_dir=, to: :stage
-
-      # delegate :artifact_cleanup_prohibited, :artifact_cleanup_prohibited=, to: :stage
-
-
       def jobs
         stage.getJobs()
       end

@@ -106,13 +106,13 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
   Tasks.Task.Exec = function (data) {
     Tasks.Task.call(this, "exec");
-    this.command          = m.prop(s.defaultToIfBlank(data.command, ''));
+    this.executable       = m.prop(s.defaultToIfBlank(data.executable, ''));
     this.args             = m.prop(s.defaultToIfBlank(data.args, ''));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
 
     this._attributesToJSON = function () {
       return {
-        command:          this.command,
+        executable:       this.executable,
         args:             this.args,
         workingDirectory: this.workingDirectory
       }
@@ -121,7 +121,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
   Tasks.Task.Exec.fromJSON = function (data) {
     return new Tasks.Task.Exec({
-      command:          data.command,
+      executable:       data.executable,
       args:             data.args,
       workingDirectory: data.working_directory
     });

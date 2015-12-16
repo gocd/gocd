@@ -99,17 +99,17 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
       {
         type:       'exec',
         attributes: {
-          command:           'ls',
+          executable:        'ls',
           arguments:         ['-l', '-a'],
           working_directory: 'hero/ka/directory',
-          run_if:     [],
-          on_cancel:  nil
+          run_if:            [],
+          on_cancel:         nil
         }
       }
     end
 
     it 'should represent errors' do
-      task         = ExecTask.new()
+      task = ExecTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
       validation_context.stub(:isWithinPipelines).and_return(true)
@@ -127,12 +127,12 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
 
     def errors_hash
       {
-          type:       'exec',
-          attributes: { run_if: [], on_cancel: nil, command: "", working_directory: "../outside"},
-          errors: {
-            command: ["Command cannot be empty"],
-            working_directory: ["The path of the working directory for the custom command in job 'dev' in stage 'stage' of pipeline 'this_pipeline' is outside the agent sandbox."]
-          }
+        type:       'exec',
+        attributes: { run_if: [], on_cancel: nil, executable: "", working_directory: "../outside" },
+        errors:     {
+          executable:        ["Command cannot be empty"],
+          working_directory: ["The path of the working directory for the custom command in job 'dev' in stage 'stage' of pipeline 'this_pipeline' is outside the agent sandbox."]
+        }
       }
     end
   end
@@ -162,7 +162,7 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
     end
 
     it 'should represent errors' do
-      task         = AntTask.new()
+      task = AntTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
       validation_context.stub(:isWithinPipelines).and_return(true)
@@ -180,11 +180,11 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
 
     def errors_hash
       {
-          type:       'ant',
-          attributes: { run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil},
-          errors: {
-            working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
-          }
+        type:       'ant',
+        attributes: { run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil },
+        errors:     {
+          working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
+        }
       }
     end
   end
@@ -208,14 +208,14 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
           target:            'package',
           working_directory: 'hero/ka/directory',
           nant_path:         nil,
-          run_if:     [],
-          on_cancel:  nil
+          run_if:            [],
+          on_cancel:         nil
         }
       }
     end
 
     it 'should represent errors' do
-      task         = NantTask.new()
+      task = NantTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
       validation_context.stub(:isWithinPipelines).and_return(true)
@@ -233,11 +233,11 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
 
     def errors_hash
       {
-          type:       'nant',
-          attributes: { run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil, nant_path:nil},
-          errors: {
-            working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
-          }
+        type:       'nant',
+        attributes: { run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil, nant_path: nil },
+        errors:     {
+          working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
+        }
       }
     end
   end
@@ -260,14 +260,14 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
           build_file:        'rakefile',
           target:            'package',
           working_directory: 'hero/ka/directory',
-          run_if:     [],
-          on_cancel:  nil
+          run_if:            [],
+          on_cancel:         nil
         }
       }
     end
 
     it 'should represent errors' do
-      task         = RakeTask.new()
+      task = RakeTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
       validation_context.stub(:isWithinPipelines).and_return(true)
@@ -285,11 +285,11 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
 
     def errors_hash
       {
-          type:       'rake',
-          attributes: {run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil},
-          errors: {
-            working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
-          }
+        type:       'rake',
+        attributes: { run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil },
+        errors:     {
+          working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
+        }
 
       }
     end
@@ -326,12 +326,12 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
     def errors_hash
       {
         type:       'fetch',
-        attributes: {pipeline: "this_pipeline", stage: "", job: "", is_source_a_file: true, source: "../src", destination: "../dest", run_if: [], on_cancel: nil},
+        attributes: { pipeline: "this_pipeline", stage: "", job: "", is_source_a_file: true, source: "../src", destination: "../dest", run_if: [], on_cancel: nil },
         errors:     {
-          job:   ['Job is a required field.'],
-          stage: ['Stage is a required field.'],
+          job:         ['Job is a required field.'],
+          stage:       ['Stage is a required field.'],
           destination: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has dest path '../dest' which is outside the working directory."],
-          source: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has src path '../src' which is outside the working directory."]
+          source:      ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has src path '../src' which is outside the working directory."]
         }
       }
     end
@@ -346,8 +346,8 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
           source:           'src',
           is_source_a_file: true,
           destination:      'dest',
-          run_if:     [],
-          on_cancel:  nil
+          run_if:           [],
+          on_cancel:        nil
         }
       }
     end
@@ -368,7 +368,6 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
 
       PluggableTaskConfigStore.store().setPreferenceFor("curl", task_preference);
     end
-
 
 
     def existing_task
@@ -412,7 +411,7 @@ describe ApiV1::Config::Tasks::TaskRepresenter do
 
   it 'should raise error when de-serializing a type that does not exist' do
     expect do
-      ApiV1::Config::Tasks::TaskRepresenter.from_hash({type: :foo})
+      ApiV1::Config::Tasks::TaskRepresenter.from_hash({ type: :foo })
     end.to raise_error(ApiV1::UnprocessableEntity, /Invalid task type 'foo'. It has to be one of/)
   end
 end

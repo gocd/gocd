@@ -16,12 +16,11 @@
 
 module ApiV1
   module Config
-  class ParamRepresenter < ApiV1::BaseRepresenter
-    alias_method :param, :represented
-    error_representer
-    property :name
-    property :value
-
-  end
+    class ParamRepresenter < ApiV1::BaseRepresenter
+      alias_method :param, :represented
+      error_representer
+      property :name
+      property :value
     end
+  end
 end

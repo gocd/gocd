@@ -18,7 +18,7 @@ module ApiV1
   module Config
     module Materials
       class PerforceMaterialRepresenter < ScmMaterialRepresenter
-        property :url, skip_render: true
+        representable_attrs.remove('url')
         property :server_and_port, as: :port
         property :user_name, as: :username
         property :password,

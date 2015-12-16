@@ -24,7 +24,7 @@ module ApiV1
 
         def to_hash(*options)
           ignored_files=filter.map { |item| item.getPattern() }
-          {ignore: ignored_files} if !ignored_files.empty?
+          { ignore: ignored_files } if !ignored_files.empty?
         end
 
         def ignore=(value)

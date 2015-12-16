@@ -54,8 +54,6 @@ module ApiV1
             fetch_task.setSrcdir(value)
           end
         end
-
-
       end
     end
   end

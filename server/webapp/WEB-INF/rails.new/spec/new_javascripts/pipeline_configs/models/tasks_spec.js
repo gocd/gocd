@@ -132,13 +132,13 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     describe("Exec", function () {
       beforeEach(function () {
         task = new Tasks.Task.Exec({
-          command:          'bash',
+          executable:       'bash',
           args:             ['-c', 'ls -al /'],
           workingDirectory: "moduleA"
         });
       });
 
-      it("should initialize task model with command", function () {
+      it("should initialize task model with executable", function () {
         expect(task.type()).toBe("exec");
       });
 
@@ -157,7 +157,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
 
         it("should de-serialize from JSON", function () {
           expect(task.type()).toBe("exec");
-          expect(task.command()).toBe('bash');
+          expect(task.executable()).toBe('bash');
           expect(task.args()).toEqual(['-c', 'ls -al /']);
         });
 
@@ -169,7 +169,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           return {
             type:       "exec",
             attributes: {
-              command:           'bash',
+              executable:        'bash',
               args:              ['-c', 'ls -al /'],
               working_directory: "moduleA"
             }

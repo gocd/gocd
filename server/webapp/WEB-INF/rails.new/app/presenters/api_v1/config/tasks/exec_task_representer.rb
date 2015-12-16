@@ -24,17 +24,17 @@ module ApiV1
           "buildFile"        => "build_file",
           "onCancelConfig"   => "on_cancel",
           "runIf"            => "run_if",
-          "nantPath"         => "nant_path"
+          "nantPath"         => "nant_path",
+          "command"          => "executable"
         }
 
-        property :command
+        property :command, as: :executable
         collection :arguments, skip_nil: true, exec_context: :decorator
         property :args, skip_nil: true, exec_context: :decorator
         property :working_directory
 
         def arguments
-          return nil if task.getArgList().isEmpty()
-          task.getArgList().map { |arg| arg.getValue() }
+          task.getArgList().map { |arg| arg.getValue() } unless task.getArgList().empty?
         end
 
         def arguments=(value)
@@ -42,8 +42,7 @@ module ApiV1
         end
 
         def args
-          return nil if com.thoughtworks.go.util.StringUtil.isBlank(task.getArgs)
-          task.getArgs
+          task.getArgs unless task.getArgs.blank?
         end
 
         def args=(value)

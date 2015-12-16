@@ -19,7 +19,7 @@ module ApiV1
     class EnvironmentVariableRepresenter < ApiV1::BaseRepresenter
       alias_method :environment_variable, :represented
 
-      error_representer({'encryptedValue' => 'encrypted_value'})
+      error_representer({ 'encryptedValue' => 'encrypted_value' })
 
       property :isSecure, as: :secure, writable: false
       property :name, writable: false

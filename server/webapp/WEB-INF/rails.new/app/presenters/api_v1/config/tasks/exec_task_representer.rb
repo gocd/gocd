@@ -24,11 +24,10 @@ module ApiV1
           "buildFile"        => "build_file",
           "onCancelConfig"   => "on_cancel",
           "runIf"            => "run_if",
-          "nantPath"         => "nant_path",
-          "command"          => "executable"
+          "nantPath"         => "nant_path"
         }
 
-        property :command, as: :executable
+        property :executable
         collection :arguments, skip_nil: true, exec_context: :decorator
         property :args, skip_nil: true, exec_context: :decorator
         property :working_directory

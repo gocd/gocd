@@ -32,7 +32,7 @@ import java.util.Map;
 public class ExecTask extends AbstractTask implements CommandTask {
 
     public static final String TYPE = "exec";
-    @ConfigAttribute("command") private String command = "";
+    @ConfigAttribute("executable") private String executable = "";
     @ConfigAttribute(value = "args", allowNull = true) private String args = "";
     @ConfigAttribute(value = "workingdir", allowNull = true) private String workingDirectory;
     @ConfigAttribute("timeout") private Long timeout = NO_TIMEOUT_FOR_COMMANDLINE;
@@ -60,25 +60,25 @@ public class ExecTask extends AbstractTask implements CommandTask {
         this("echo", args, argList);//TODO: delete me, there is a validation that enforces not both attributes are populated - shilpa / jj
     }
 
-    public ExecTask(String command, String args, Arguments argList) {
-        this.command = command;
+    public ExecTask(String executable, String args, Arguments argList) {
+        this.executable = executable;
         this.args = args;
         this.argList = argList;
     }
 
-    public ExecTask(String command, Arguments argList, String workingDir) {
-        this(command, workingDir);
+    public ExecTask(String executable, Arguments argList, String workingDir) {
+        this(executable, workingDir);
         this.argList = argList;
     }
 
-    private ExecTask(String command, String workingDir) {
-        this.command = command;
+    private ExecTask(String executable, String workingDir) {
+        this.executable = executable;
         this.workingDirectory = workingDir;
     }
 
     protected void setTaskConfigAttributes(Map attributeMap) {
         if (attributeMap.containsKey(COMMAND)) {
-            command = (String) attributeMap.get(COMMAND);
+            executable = (String) attributeMap.get(COMMAND);
         }
         if (attributeMap.containsKey(ARG_LIST_STRING)) {
             clearCurrentArgsAndArgList();
@@ -144,7 +144,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     private void validateCommand() {
-        if (StringUtil.isBlank(command)) {
+        if (StringUtil.isBlank(executable)) {
             errors.add(COMMAND, "Command cannot be empty");
         }
     }
@@ -160,7 +160,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
-        taskProperties.add(new TaskProperty("COMMAND", command));
+        taskProperties.add(new TaskProperty("COMMAND", executable));
         String arguments = arguments();
         if (!arguments.isEmpty()) {
             taskProperties.add(new TaskProperty("ARGUMENTS", arguments));
@@ -204,7 +204,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         if (argList != null ? !argList.equals(execTask.argList) : execTask.argList != null) {
             return false;
         }
-        if (command != null ? !command.equals(execTask.command) : execTask.command != null) {
+        if (executable != null ? !executable.equals(execTask.executable) : execTask.executable != null) {
             return false;
         }
         if (workingDirectory != null ? !workingDirectory.equals(execTask.workingDirectory) : execTask.workingDirectory != null) {
@@ -215,7 +215,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
     public int hashCode() {
         int result;
-        result = command.hashCode();
+        result = executable.hashCode();
         result = 31 * result + (args != null ? args.hashCode() : 0);
         result = 31 * result + (workingDirectory != null ? workingDirectory.hashCode() : 0);
         result = 31 * result + (int) (timeout ^ (timeout >>> 32));
@@ -243,15 +243,25 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     public String command() {
-        return command;
+        return executable;
     }
 
+    @Deprecated
     public String getCommand() {
-        return command();
+        return getExecutable();
     }
 
+    @Deprecated
     public void setCommand(String command) {
-        this.command = command;
+        setExecutable(command);
+    }
+
+    public String getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(String executable) {
+        this.executable = executable;
     }
 
     public String getArgs() {
@@ -265,7 +275,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     @Override
     public String toString() {
         return "ExecTask{" +
-                "command='" + command + '\'' +
+                "executable='" + executable + '\'' +
                 ", args='" + args + '\'' +
                 ", workingDir='" + workingDirectory + '\'' +
                 ", timeout=" + timeout +

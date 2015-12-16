@@ -76,7 +76,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="77"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="76"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -768,12 +768,12 @@
         <xsd:attribute name="agentAutoRegisterKey" type="xsd:string"/>
     </xsd:attributeGroup>
     <xsd:attributeGroup name="execAttributes">
-        <xsd:attribute name="executable" type="executableType" use="required"/>
+        <xsd:attribute name="command" type="commandType" use="required"/>
         <xsd:attribute name="args" type="xsd:string"/>
         <xsd:attribute name="workingdir" type="filePathType"/>
         <xsd:attribute name="timeout" type="xsd:positiveInteger"/>
     </xsd:attributeGroup>
-    <xsd:simpleType name="executableType">
+    <xsd:simpleType name="commandType">
         <xsd:restriction base="xsd:string">
             <xsd:pattern value="\S+(.*\S+)*"/>
         </xsd:restriction>

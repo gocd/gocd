@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
@@ -43,14 +35,9 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.ServerVersion;
-import com.thoughtworks.go.serverhealth.HealthStateLevel;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthStates;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.jdom.Document;
@@ -63,6 +50,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.readToEnd;
@@ -71,13 +66,12 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -1113,6 +1107,37 @@ public class GoConfigMigrationIntegrationTest {
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
         assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+    }
+
+    @Test
+    public void shouldRenameCommandAttributeToElement_asPartOfMigration77() throws Exception {
+        String configXml =
+                "<cruise schemaVersion='76'>" +
+                        "  <pipelines group='first'>" +
+                        "    <pipeline name='Test' template='test_template'>" +
+                        "      <materials>" +
+                        "        <hg url='../manual-testing/ant_hg/dummy' />" +
+                        "      </materials>" +
+                        "     </pipeline>" +
+                        "  </pipelines>" +
+                        "  <templates>" +
+                        "    <pipeline name='test_template'>" +
+                        "      <stage name='Functional'>" +
+                        "        <jobs>" +
+                        "          <job name='Functional'>" +
+                        "            <tasks>" +
+                        "              <exec command='chown' args='755 ./script.sh' />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "  </templates>" +
+                        "</cruise>";
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 76);
+        Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
+        assertThat(task, is(instanceOf(ExecTask.class)));
+        assertThat((ExecTask) task, is(new ExecTask("chown", "755 ./script.sh", (String) null)));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

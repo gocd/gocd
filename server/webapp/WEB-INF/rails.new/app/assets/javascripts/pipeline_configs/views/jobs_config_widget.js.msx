@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,7 +62,6 @@ define([
       if (errors.errors('timeout')) {
         timeoutError = (<small class='error'>{errors.errorsForDisplay('timeout')}</small>)
       }
-
       return (
         <div>
           <f.row>
@@ -81,7 +80,7 @@ define([
           </f.row>
 
           <f.row>
-            <f.column>
+            <f.column size={12}>
               <input type='radio'
                      name={radioName}
                      id={radioName + '-never'}
@@ -94,11 +93,7 @@ define([
                      checked={job.isTimeoutDefault()}
                      onchange={job.timeout.bind(job, null)}/>
               <label for={radioName + '-default'}>Default</label>
-            </f.column>
-          </f.row>
 
-          <f.row>
-            <f.column size={12}>
               <input type='radio'
                      name={radioName}
                      id={radioName + '-custom'}
@@ -107,13 +102,14 @@ define([
               <label for={radioName + '-custom'}>
                 Cancel after
                 <span style={{display: 'inline-table'}}>
-                {m.trust('&nbsp')}
+                {m.trust('&nbsp;')}
                   <input type='number'
+                         min="1"
                          style={{display: 'inline', width: '60px'}} size={3}
                          oninput={m.withAttr('value', job.timeout)}
                          class={timeoutError ? 'error' : ''}
                          value={(!(job.isTimeoutNever() || job.isTimeoutDefault())) ? job.timeout() : null}/>
-                  {m.trust('&nbsp')}
+                  {m.trust('&nbsp;')}
                   minute(s) of inactivity
                   {timeoutError}
                   </span>
@@ -122,6 +118,7 @@ define([
           </f.row>
         </div>
       );
+
     }
   };
 
@@ -141,7 +138,7 @@ define([
           <f.row>
             <f.column size={12}>
               <label>
-                Number of Jobs
+                Number of jobs
                 <f.tooltip tooltip={{
                           content: tt.job.runInstanceCount.main,
                           size: 'small',
@@ -155,13 +152,12 @@ define([
 
           <f.row>
             <f.column size={12}>
-
               <input type='radio'
                      name={radioName}
                      id={radioName + '-one'}
                      checked={job.isRunOnOneAgent()}
                      onchange={job.runInstanceCount.bind(job, null)}/>
-              <label for={radioName + '-one'}>Run on one instance</label>
+              <label for={radioName + '-one'}>Run on one agent</label>
 
               <input type='radio'
                      name={radioName}
@@ -169,27 +165,23 @@ define([
                      checked={job.isRunOnAllAgents()}
                      onchange={job.runInstanceCount.bind(job, 'all')}/>
               <label for={radioName + '-all'}>Run on all agents</label>
-            </f.column>
-          </f.row>
-
-          <f.row>
-            <f.column size={12}>
               <input type='radio'
                      name={radioName}
                      id={radioName + '-custom'}
                      checked={!(job.isRunOnOneAgent() || !job.isRunOnAllAgents())}
                      onchange={job.runInstanceCount.bind(job, '')}/>
               <label for={radioName + '-custom'}>
-                Run on
+                Run
                 <span style={{display: 'inline-table'}}>
-                  {m.trust('&nbsp')}
+                  {m.trust('&nbsp;')}
                   <input type='number'
+                         min="1"
                          style={{display: 'inline', width: '60px'}} size={3}
                          value={!(job.isRunOnOneAgent() || job.isRunOnAllAgents()) ? job.runInstanceCount() : null}
                          class={runInstanceCounteError ? 'error' : ''}
                          oninput={m.withAttr('value', job.runInstanceCount)}/>
-                  {m.trust('&nbsp')}
-                  agents
+                  {m.trust('&nbsp;')}
+                  instances of job
                   {runInstanceCounteError}
                 </span>
 
@@ -204,63 +196,66 @@ define([
   var JobsConfigWidget = {
     controller: function (args) {
       this.args = args;
-      this.jobs = args.jobs;
       ComponentMixins.HasViewModel.call(this);
-      this.vmState('selectedJobIndex', m.prop(0));
-
-      this.appendJob = function () {
-        var newJob = this.jobs().createJob();
-        this.vmState('selectedJobIndex')(this.jobs().indexOfJob(newJob));
-      };
-
-      this.removeJob = function (job) {
-        var previousJob = this.jobs().previousJob(job);
-        this.jobs().removeJob(job);
-
-        var firstJob = this.jobs().firstJob() || this.jobs().createJob();
-        this.vmState('selectedJobIndex')(this.jobs().indexOfJob(previousJob || firstJob));
-      };
-
-      this.vmState('selectedJobIndex')(this.jobs().indexOfJob(this.jobs().firstJob() || this.jobs().createJob()));
+      ComponentMixins.ManagesCollection.call(this, {as: 'Job'});
     },
 
     view: function (ctrl) {
+      var allJobNames = ctrl.map(function (job) {
+        return job.name();
+      });
+
+      var allJobUUIDs = ctrl.map(function (job) {
+        return job.uuid();
+      });
+
+      var tabTitles = _(allJobNames).concat((
+        <f.link onclick={ctrl.add.bind(ctrl)} class='add-job'>Add Job</f.link>)
+      ).value();
+
+      var tabUUIDs = _(allJobUUIDs).concat('add-job');
+
       return (
         <div>
           <f.tabs class="job-definitions"
-                  tabTitles={ctrl.jobs().collectJobProperty('name')}
-                  tabKeys={ctrl.jobs().collectJobProperty('uuid')}
+                  tabTitles={tabTitles}
+                  tabKeys={tabUUIDs}
                   isVertical={true}
-                  selectedIndex={ctrl.vmState('selectedJobIndex')}>
-            {ctrl.jobs().mapJobs(function (job) {
+                  selectedIndex={ctrl.vmState('selectedJobIndex', m.prop(0))}>
+            {ctrl.map(function (job) {
               return (
                 <f.row class='job-definition' key={job.uuid()}>
                   <f.column size={9}>
-                    <f.removeButton onclick={ctrl.removeJob.bind(ctrl, job)} class='remove-job'/>
+                    <f.removeButton onclick={ctrl.remove.bind(ctrl, job)} class='remove-job'/>
                     <f.row>
-                      <f.inputWithLabel
-                        attrName='name'
-                        model={job}/>
+                      <f.column size={12}>
+                        <f.row>
+                          <f.inputWithLabel
+                            attrName='name'
+                            model={job}
+                            size={4}/>
+                          <f.column size={8}>
+                            <JobTimeout job={job}/>
+                          </f.column>
+                        </f.row>
+                        <f.row>
+                          <f.inputWithLabel
+                            config={autoComplete(Resources.list, job, 'resources')}
+                            attrName='resources'
+                            model={job}
+                            tooltip={{
+                              content: tt.job.resources,
+                              direction: 'bottom',
+                              size: 'small'
+                            }}
+                            size={4}
+                            end={true}/>
 
-                      <f.inputWithLabel
-                        config={autoComplete(Resources.list, job, 'resources')}
-                        attrName='resources'
-                        model={job}
-                        tooltip={{
-                          content: tt.job.resources,
-                          direction: 'bottom',
-                          size: 'small'
-                        }}
-                        end={true}/>
-                    </f.row>
+                          <f.column size={8}>
+                            <RunOnAgent job={job}/>
+                          </f.column>
 
-                    <f.row>
-                      <f.column size={6}>
-                        <JobTimeout job={job}/>
-                      </f.column>
-
-                      <f.column size={6} end={true}>
-                        <RunOnAgent job={job}/>
+                        </f.row>
                       </f.column>
                     </f.row>
 
@@ -298,15 +293,6 @@ define([
               );
             })}
           </f.tabs>
-          <f.row>
-            <f.column size={2} end={true}>
-              <div class='add-job'>
-                <a href="javascript:void(0)"
-                   onclick={ctrl.appendJob.bind(ctrl)}
-                   class='add-job'>Add Job</a>
-              </div>
-            </f.column>
-          </f.row>
         </div>
       );
     }

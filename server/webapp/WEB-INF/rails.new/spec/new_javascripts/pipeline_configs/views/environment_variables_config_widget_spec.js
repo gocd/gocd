@@ -15,7 +15,7 @@
  */
 
 define(["jquery", "mithril", "pipeline_configs/models/environment_variables", "pipeline_configs/views/environment_variables_config_widget"], function ($, m, EnvironmentVariables, EnvironmentVariableWidget) {
-  describe("Environment Variable Widget", function () {
+  describe("EnvironmentVariable Widget", function () {
     var $root;
     var variables;
 
@@ -62,17 +62,25 @@ define(["jquery", "mithril", "pipeline_configs/models/environment_variables", "p
     });
 
     it("should display normal text field for non-secure variables", function () {
-      var environmentVariableFields = $root.find('.environment-variables div.environment-variable[data-variable-name=COMMAND]');
-      var valueField                = environmentVariableFields.find("input[data-prop-name=value]");
+      var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=plain][data-variable-name=COMMAND]');
+      var valueField               = environmentVariableField.find("input[data-prop-name=value]");
 
       expect(valueField.attr('type')).toBe('text');
     });
 
-    it("should display password field for secure variable", function () {
-      var environmentVariableFields = $root.find('.environment-variables div.environment-variable[data-variable-name=PASSWORD]');
-      var valueField                = environmentVariableFields.find("input[data-prop-name=value]");
+    it("should display edit link for secure variable", function () {
+      var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=secure][data-variable-name=PASSWORD]');
+      var editLink                 = environmentVariableField.find("a.edit-secure-variable");
 
-      expect(valueField.attr('type')).toBe('password');
+      expect(editLink.text()).toBe('Edit');
+
+      var evObj = document.createEvent('MouseEvents');
+      evObj.initEvent('click', true, false);
+      editLink.get(0).onclick(evObj);
+      m.redraw(true);
+
+      var editLink = environmentVariableField.find("a.edit-secure-variable");
+      expect(editLink.length).toBe(0);
     });
   });
 });

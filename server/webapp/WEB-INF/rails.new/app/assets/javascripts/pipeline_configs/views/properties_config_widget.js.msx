@@ -20,7 +20,13 @@ define([
   var PropertiesConfigWidget = {
     controller: function (args) {
       this.args = args;
-      ComponentMixins.ManagesCollection.call(this, {as: 'Property', plural: 'Properties'});
+      ComponentMixins.ManagesCollection.call(this, {
+        as:           'Property',
+        plural:       'Properties',
+        onInitialize: function () {
+          this.changed();
+        }
+      });
     },
 
     view: function (ctrl) {
@@ -31,17 +37,17 @@ define([
               <f.row class='property' data-property-source={property.source()} key={property.uuid()}>
                 <f.input model={property}
                          attrName='name'
-                         placeHolder='Property Name'
+                         placeholder='Property Name'
                          onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.input model={property}
                          attrName='source'
-                         placeHolder='The XML file source'
+                         placeholder='The XML file source'
                          onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.input model={property}
                          attrName='xpath'
-                         placeHolder='XPath'
+                         placeholder='XPath'
                          onchange={ctrl.changed.bind(ctrl)}
                          size={3}/>
                 <f.column size={1} end={true}>

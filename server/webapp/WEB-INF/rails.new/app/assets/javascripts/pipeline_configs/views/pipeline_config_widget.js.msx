@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ define([
         this.currentSelection = m.prop();
         this.etag             = m.prop();
         this.url              = url;
+        this.saveState        = m.prop('');
         ComponentMixins.HasViewModel.call(this);
 
         window.pipelineConfigWidget = m.prop(this);
@@ -57,7 +58,8 @@ define([
         };
 
         this.savePipeline = function () {
-          beforeSend: m.startComputation;
+          ctrl.saveState('in-progress disabled');
+          m.redraw();
           $.ajax({
             type:       'PATCH',
             url:        url,
@@ -68,14 +70,17 @@ define([
               'If-Match':     ctrl.etag()
             },
             data:       JSON.stringify(ctrl.pipeline, s.snakeCaser),
+            beforeSend: function () {
+              m.startComputation();
+            },
             success:    function (data, status, xhr) {
               var pipeline = Pipeline.fromJSON(data);
               ctrl.etag(xhr.getResponseHeader('ETag'));
-
+              ctrl.saveState('success');
               ctrl.setPipelineAndPreserveSelection(pipeline);
             },
-            beforeSend: function () {
-              m.startComputation();
+            error:      function () {
+              ctrl.saveState('alert')
             },
             complete:   function () {
               m.endComputation();
@@ -100,12 +105,8 @@ define([
               callback(ctrl);
             }
           },
-          beforeSend: function () {
-            m.startComputation();
-          },
-          complete:   function () {
-            m.endComputation();
-          }
+          beforeSend: m.startComputation,
+          complete:   m.endComputation
         });
       },
 
@@ -114,81 +115,86 @@ define([
 
         return (
           <form class='pipeline'>
-            <f.row>
-              <f.column>
-                <h3 class="heading">Pipeline Details for {pipeline.name()}</h3>
+            <f.row class="heading">
+              <f.column size={6}>
+                <h3>
+                  <small>Pipeline configuation for pipeline</small>
+                  {' '}
+                  {pipeline.name()}
+                </h3>
               </f.column>
               <f.column>
-                <f.link onclick={ctrl.savePipeline.bind(ctrl)} class='save-pipeline'>Save</f.link>
+                <f.button onclick={ctrl.savePipeline.bind(ctrl)}
+                          class={'save-pipeline tiny right ' + ctrl.saveState()}>
+                  <span class={'save-state ' + ctrl.saveState()}/>
+                  Save
+                </f.button>
               </f.column>
             </f.row>
             <f.row>
-              <f.column end={true} size={12}>
-                <fieldset>
-                  <f.row>
-                    <f.inputWithLabel model={pipeline}
-                                      attrName='labelTemplate'
-                                      tooltip={{
+              <f.column>
+                <f.row>
+                  <f.inputWithLabel model={pipeline}
+                                    attrName='labelTemplate'
+                                    tooltip={{
                                           content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
                                           direction: 'bottom',
                                           size: 'large'
                                         }}
-                                      size={4}/>
-                  </f.row>
-
-                  <f.row>
-                    <f.checkBox model={pipeline}
-                                attrName='enablePipelineLocking'
-                                tooltip={{
+                                    size={6}/>
+                  <f.checkBox model={pipeline}
+                              attrName='enablePipelineLocking'
+                              class="push-1"
+                              addPadding={true}
+                              tooltip={{
                                           content: tt.pipeline.enablePipelineLocking,
                                           direction: 'bottom'
                                         }}
-                                end={true}/>
-                  </f.row>
+                              size={6}/>
 
-                  <f.row>
-                    <f.inputWithLabel model={pipeline.timer()}
-                                      attrName='spec'
-                                      label='Cron timer specification'
-                                      tooltip={{
+                </f.row>
+                <f.row>
+                  <f.inputWithLabel model={pipeline.timer()}
+                                    attrName='spec'
+                                    label='Cron timer specification'
+                                    tooltip={{
                                           content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
                                           direction: 'bottom',
                                           size: 'large'
                                         }}
-                                      size={4}
-                                      end={true}/>
-                  </f.row>
-                  <f.row>
-                    <f.checkBox model={pipeline.timer()}
-                                attrName='onlyOnChanges'
-                                label='Run only on new material'
-                                disabled={s.isBlank(pipeline.timer().spec())}
-                                tooltip={{
+                                    size={6}/>
+
+                  <f.checkBox model={pipeline.timer()}
+                              class="push-1"
+                              addPadding={true}
+                              attrName='onlyOnChanges'
+                              label='Run only on new material'
+                              disabled={s.isBlank(pipeline.timer().spec())}
+                              tooltip={{
                                           content: tt.pipeline.timer.onlyOnChanges,
                                           direction: 'bottom'
                                         }}
-                                size={4}
-                                end={true}/>
-                  </f.row>
+                              size={6}/>
 
-                  <f.row>
-                    <f.column end={true} size={12}>
-                      <TrackingToolWidget trackingTool={pipeline.trackingTool}
-                                          vm={ctrl.vmState('trackingTool')}
-                                          key={_.result(pipeline.trackingTool(), 'uuid', 'tracking-tool-none')}/>
-                      <ParametersConfigWidget parameters={pipeline.parameters}
-                                              key={pipeline.parameters().uuid()}
-                                              vm={ctrl.vmState('params')}/>
-                      <EnvironmentVariablesConfigWidget variables={pipeline.environmentVariables}
-                                                        key={pipeline.environmentVariables().uuid()}
-                                                        vm={ctrl.vmState('environmentVariables')}/>
-                      <PipelineFlowWidget pipeline={ctrl.pipeline}
-                                          currentSelection={ctrl.currentSelection}
-                                          vm={ctrl.vmState('pipelineFlow')}/>
+                </f.row>
+              </f.column>
+            </f.row>
 
-                    </f.column>
-                  </f.row>
-                </fieldset>
+            <f.row>
+              <f.column end={true} size={12}>
+                <TrackingToolWidget trackingTool={pipeline.trackingTool}
+                                    vm={ctrl.vmState('trackingTool')}
+                                    key={_.result(pipeline.trackingTool(), 'uuid', 'tracking-tool-none')}/>
+                <ParametersConfigWidget parameters={pipeline.parameters}
+                                        key={pipeline.parameters().uuid()}
+                                        vm={ctrl.vmState('params')}/>
+                <EnvironmentVariablesConfigWidget variables={pipeline.environmentVariables}
+                                                  key={pipeline.environmentVariables().uuid()}
+                                                  vm={ctrl.vmState('environmentVariables')}/>
+                <PipelineFlowWidget pipeline={ctrl.pipeline}
+                                    currentSelection={ctrl.currentSelection}
+                                    vm={ctrl.vmState('pipelineFlow')}/>
+
               </f.column>
             </f.row>
           </form>
@@ -199,4 +205,3 @@ define([
 
   return PipelineConfigWidget;
 });
-

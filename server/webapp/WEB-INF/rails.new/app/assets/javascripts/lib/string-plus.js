@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-define(['string', 'lodash'], function (s, _) {
+define(['string', 'lodash', 'mithril'], function (s, _, m) {
   var POSITIVE_INTEGER = /^\d+$/;
 
   var mixins = {
     defaultToIfBlank: function (value, defaultValue) {
       return s.isBlank(value) ? defaultValue : value;
+    },
+
+    coerceToMprop: function (param, defaultValue) {
+      return typeof param === 'function' ? param : m.prop(typeof param === 'undefined' ? defaultValue : param);
     },
 
     collectionToJSON: function (prop) {
@@ -49,7 +53,7 @@ define(['string', 'lodash'], function (s, _) {
       }
     },
 
-    undefinedOrNull: function (value) {
+    isUndefinedOrNull: function (value) {
       return _.isUndefined(value) || _.isNull(value);
     },
 

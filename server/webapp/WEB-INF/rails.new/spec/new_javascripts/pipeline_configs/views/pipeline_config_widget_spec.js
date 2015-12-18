@@ -59,7 +59,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     }
 
     it("should render the pipeline name", function () {
-      expect($root.find('.pipeline .heading')).toHaveText('Pipeline Details for yourproject');
+      expect($root.find('.pipeline .heading h3')).toHaveText('Pipeline configuation for pipeline yourproject');
     });
 
 
@@ -114,11 +114,12 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
       accordion.onclick(evObj);
       m.redraw(true);
 
-      expect($root.find('.environment-variables .environment-variable').length).toBe(3);
+      expect($root.find('.environment-variables .environment-variable[data-variable-type=plain]').length).toBe(2);
+      expect($root.find('.environment-variables .environment-variable[data-variable-type=secure]').length).toBe(2);
 
       expect($root.find('.environment-variable').map(function () {
         return $(this).attr('data-variable-name');
-      })).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
+      })).toEqual(['USERNAME', 'PASSWORD']);
     });
 
     it("should not render the template name if pipeline is not built from template", function () {
@@ -148,14 +149,14 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
       ],
       environment_variables:   [
         {
-          name:   "MULTIPLE_LINES",
-          value:  "multiplelines",
-          secure: true
+          name:   "USERNAME",
+          value:  "bob",
+          secure: false
         },
         {
-          name:   "COMPLEX",
-          value:  "This has very <complex> data",
-          secure: false
+          name:           "PASSWORD",
+          encryptedValue: "c!ph3rt3xt",
+          secure:         true
         }
       ],
       stages:                  [

@@ -37,11 +37,11 @@ describe ApiV1::VersionInfosController do
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
         @result.stub(:isSuccessful).and_return(true);
         @go_latest_version.stub(:valid?).and_return(true)
-        @go_latest_version.stub(:latest_version).and_return("15.3.0-123")
+        @go_latest_version.stub(:latest_version).and_return("16.1.0-123")
       end
 
       it 'should update the latest version for a go server' do
-        message = %Q({\n  "latest-version": "15.3.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n})
+        message = %Q({\n  "latest-version": "16.1.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n})
         message_signature = 'message_signature'
         signing_public_key = "signing_public_key"
         signing_public_key_signature = "signing_public_key_signature"
@@ -52,7 +52,7 @@ describe ApiV1::VersionInfosController do
 
         ApiV1::GoLatestVersion.stub(:new).with(latest_version_hash, @system_environment).and_return(@go_latest_version)
         @go_latest_version.should_receive(:valid?).and_return(true)
-        @version_info_service.should_receive(:updateServerLatestVersion).with('15.3.0-123', @result).and_return(@model)
+        @version_info_service.should_receive(:updateServerLatestVersion).with('16.1.0-123', @result).and_return(@model)
 
         patch_with_api_header :update_server, :message => @message, :message_signature => @message_signature, :signing_public_key => @signing_public_key, :signing_public_key_signature => @signing_public_key_signature
 

@@ -21,7 +21,7 @@ describe ApiV1::GoLatestVersion do
     before(:each) do
       @public_key_path = 'update_server_public_key_path'
       @public_key = 'public_key'
-      @message = %Q({\n  "latest-version": "15.3.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n})
+      @message = %Q({\n  "latest-version": "16.1.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n})
       @message_signature = 'message_signature'
       @signing_public_key = "signing_public_key"
       @signing_public_key_signature = "signing_public_key_signature"
@@ -79,14 +79,14 @@ describe ApiV1::GoLatestVersion do
   end
   describe :latest_version do
     it 'should return the latest_version'do
-      latest_version_hash = {:message => %Q({\n  "latest-version": "15.3.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n}),
+      latest_version_hash = {:message => %Q({\n  "latest-version": "16.1.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n}),
                               :message_signature => 'message_signature',
                               :signing_public_key => 'signing_public_key',
                               :signing_public_key_signature => 'signing_public_key_signature'}
 
       go_latest_version = ApiV1::GoLatestVersion.new(latest_version_hash, nil)
 
-      expect(go_latest_version.latest_version).to eq("15.3.0-123")
+      expect(go_latest_version.latest_version).to eq("16.1.0-123")
     end
   end
 end

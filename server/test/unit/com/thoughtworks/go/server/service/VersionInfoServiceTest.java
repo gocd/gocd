@@ -47,9 +47,9 @@ public class VersionInfoServiceTest {
         ServerVersionInfoManager versionInfoManager = mock(ServerVersionInfoManager.class);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        new VersionInfoService(versionInfoManager).updateServerLatestVersion("15.3.0-123", result);
+        new VersionInfoService(versionInfoManager).updateServerLatestVersion("16.1.0-123", result);
 
-        verify(versionInfoManager).updateLatestVersion("15.3.0-123");
+        verify(versionInfoManager).updateLatestVersion("16.1.0-123");
         assertTrue(result.isSuccessful());
     }
 
@@ -57,9 +57,9 @@ public class VersionInfoServiceTest {
     public void shouldAddErrorToResultIfVersionFormatIsInValid(){
         ServerVersionInfoManager versionInfoManager = mock(ServerVersionInfoManager.class);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(versionInfoManager.updateLatestVersion("15.3.0-123")).thenThrow(new VersionFormatException("fail"));
+        when(versionInfoManager.updateLatestVersion("16.1.0-123")).thenThrow(new VersionFormatException("fail"));
 
-        new VersionInfoService(versionInfoManager).updateServerLatestVersion("15.3.0-123", result);
+        new VersionInfoService(versionInfoManager).updateServerLatestVersion("16.1.0-123", result);
 
         assertFalse(result.isSuccessful());
     }

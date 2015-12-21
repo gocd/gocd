@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Arguments;
@@ -27,12 +25,16 @@ import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class ExecTaskTest {
 
@@ -187,8 +189,8 @@ public class ExecTaskTest {
     public void shouldReturnCommandTaskAttributes(){
         ExecTask task = new ExecTask("ls", "-laht", "src/build");
         assertThat(task.command(),is("ls"));
-        assertThat(task.arguments(),is("-laht"));
-        assertThat(task.workingDirectory(),is("src/build"));
+        assertThat(task.arguments(), is("-laht"));
+        assertThat(task.workingDirectory(), is("src/build"));
     }
 
     @Test
@@ -201,5 +203,33 @@ public class ExecTaskTest {
     public void shouldReturnEmptyCommandArguments(){
         ExecTask task = new ExecTask("./bn", new Arguments(), "src/build" );
         assertThat(task.arguments(),is(""));
+    }
+
+    @Test
+    public void shouldBeSameIfCommandMatches() {
+        ExecTask task = new ExecTask("ls", new Arguments());
+
+        assertTrue(task.equals(new ExecTask("ls", new Arguments())));
+    }
+
+    @Test
+    public void shouldUnEqualIfCommandsDontMatch() {
+        ExecTask task = new ExecTask("ls", new Arguments());
+
+        assertFalse(task.equals(new ExecTask("rm", new Arguments())));
+    }
+
+    @Test
+    public void shouldUnEqualIfCommandIsNull() {
+        ExecTask task = new ExecTask(null, new Arguments());
+
+        assertFalse(task.equals(new ExecTask("rm", new Arguments())));
+    }
+
+    @Test
+    public void shouldUnEqualIfOtherTaskCommandIsNull() {
+        ExecTask task = new ExecTask("ls", new Arguments());
+
+        assertFalse(task.equals(new ExecTask(null, new Arguments())));
     }
 }

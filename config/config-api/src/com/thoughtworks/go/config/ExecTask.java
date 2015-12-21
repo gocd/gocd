@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This was copied from the ExecBuilder class in ccmain. Look for references there.
@@ -204,7 +204,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         if (argList != null ? !argList.equals(execTask.argList) : execTask.argList != null) {
             return false;
         }
-        if (!command.equals(execTask.command)) {
+        if (command != null ? !command.equals(execTask.command) : execTask.command != null) {
             return false;
         }
         if (workingDirectory != null ? !workingDirectory.equals(execTask.workingDirectory) : execTask.workingDirectory != null) {

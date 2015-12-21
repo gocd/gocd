@@ -36,6 +36,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class JobConfigTest {
@@ -217,6 +218,24 @@ public class JobConfigTest {
 
         assertThat(defaultJobAllLowerCase.errors().isEmpty(), is(false));
         assertThat(defaultJobAllLowerCase.errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'defaultjob'. Job names are case-insensitive and must be unique."));
+    }
+
+    @Test
+    public void shouldNotValidateJobNameUniquenessInAbsenceOfName(){
+        JobConfig job = new JobConfig();
+
+        job.validateNameUniqueness(new HashMap<String, JobConfig>());
+
+        assertTrue(job.errors().isEmpty());
+    }
+
+    @Test
+    public void shouldNotValidateJobNameUniquenessIfNameIsEmptyString(){
+        JobConfig job = new JobConfig(" ");
+
+        job.validateNameUniqueness(new HashMap<String, JobConfig>());
+
+        assertTrue(job.errors().isEmpty());
     }
 
     @Test

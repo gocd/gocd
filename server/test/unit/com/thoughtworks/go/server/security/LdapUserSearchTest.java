@@ -32,6 +32,7 @@ import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.security.ldap.SpringSecurityContextSource;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.userdetails.UsernameNotFoundException;
@@ -74,7 +75,7 @@ public class LdapUserSearchTest {
     }
 
     @Test
-    public void shouldThrowUserNameNotFoundExceptionWhenNoUserFound_WithOneSearchBase() {
+    public void shouldThrowBadCredentialsExceptionWhenNoUserFound_WithOneSearchBase() {
         final FilterBasedLdapUserSearch filterBasedLdapUserSearch = mock(FilterBasedLdapUserSearch.class);
         LdapConfig ldapConfig = setLdapConfig(new BasesConfig(new BaseConfig("search_base,foo")));
         doReturn(filterBasedLdapUserSearch).when(spy).getFilterBasedLdapUserSearch(ldapConfig.getBasesConfig().first().getValue(), ldapConfig.searchFilter());
@@ -83,14 +84,14 @@ public class LdapUserSearchTest {
         try {
             spy.searchForUser("username");
             fail("should have throw up");
-        } catch (UsernameNotFoundException e) {
-            assertThat(e.getMessage(), is("User username not found in directory."));
+        } catch (BadCredentialsException e) {
+            assertThat(e.getMessage(), is("Bad credentials"));
         }
         verify(filterBasedLdapUserSearch).searchForUser("username");
     }
 
     @Test
-    public void shouldThrowUserNameNotFoundExceptionWhenNoUserFound_WithMultipleSearchBase() {
+    public void shouldThrowBadCredentialsExceptionWhenNoUserFound_WithMultipleSearchBase() {
         final FilterBasedLdapUserSearch filter1 = mock(FilterBasedLdapUserSearch.class);
         final FilterBasedLdapUserSearch filter2 = mock(FilterBasedLdapUserSearch.class);
         LdapConfig ldapConfig = setLdapConfig(new BasesConfig(new BaseConfig("base1"), new BaseConfig("base2")));
@@ -102,8 +103,8 @@ public class LdapUserSearchTest {
         try {
             spy.searchForUser("username");
             fail("Should have thrown up");
-        } catch (UsernameNotFoundException e) {
-            assertThat(e.getMessage(), is("User username not found in directory."));
+        } catch (BadCredentialsException e) {
+            assertThat(e.getMessage(), is("Bad credentials"));
         }
         verify(filter1).searchForUser("username");
         verify(filter2).searchForUser("username");

@@ -99,27 +99,34 @@ public class GoSslSocketConnectorTest {
         ServerConnector connector = (ServerConnector) sslSocketConnector.getConnector();
         Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
 
-        HttpConnectionFactory httpConnectionFactory = (HttpConnectionFactory) ListUtil.find(connectionFactories, new ListUtil.Condition() {
-            @Override
-            public <T> boolean isMet(T item) {
-                ConnectionFactory factory = (ConnectionFactory) item;
-                return factory instanceof HttpConnectionFactory;
-            }
-        });
+        HttpConnectionFactory httpConnectionFactory = getHttpConnectionFactory(connectionFactories);
         assertThat(httpConnectionFactory.getHttpConfiguration().getOutputBufferSize(), is(100));
         assertThat(httpConnectionFactory.getHttpConfiguration().getCustomizers().size(), is(1));
         assertThat(httpConnectionFactory.getHttpConfiguration().getCustomizers().get(0) instanceof SecureRequestCustomizer, is(true));
     }
 
-    private SslContextFactory findSslContextFactory(Collection<ConnectionFactory> connectionFactories) {
-        return ((SslConnectionFactory) ListUtil.find(connectionFactories, new ListUtil.Condition() {
-            @Override
-            public <T> boolean isMet(T item) {
-                ConnectionFactory factory = (ConnectionFactory) item;
-                return factory instanceof SslConnectionFactory;
-            }
-        })).getSslContextFactory();
+    @Test
+    public void shouldNotSendAServerHeaderForSecurityReasons() throws Exception {
+        HttpConnectionFactory httpConnectionFactory = getHttpConnectionFactory(sslSocketConnector.getConnector().getConnectionFactories());
+        HttpConfiguration configuration = httpConnectionFactory.getHttpConfiguration();
+
+        assertThat(configuration.getSendServerVersion(), is(false));
     }
 
+    private HttpConnectionFactory getHttpConnectionFactory(Collection<ConnectionFactory> connectionFactories) {
+        return (HttpConnectionFactory) getConnectionFactoryOfType(connectionFactories, HttpConnectionFactory.class);
+    }
 
+    private SslContextFactory findSslContextFactory(Collection<ConnectionFactory> connectionFactories) {
+        return ((SslConnectionFactory) getConnectionFactoryOfType(connectionFactories, SslConnectionFactory.class)).getSslContextFactory();
+    }
+
+    private ConnectionFactory getConnectionFactoryOfType(Collection<ConnectionFactory> connectionFactories, final Class<?> aClass) {
+        return ListUtil.find(connectionFactories, new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                return aClass.isInstance(item);
+            }
+        });
+    }
 }

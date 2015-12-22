@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.util;
 import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.*;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -29,8 +30,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GoPlainSocketConnectorTest {
-    @Test
-    public void shouldCreateAServerConnectorWithConfiguredPortAndBuffersize() throws Exception {
+
+    private ServerConnector connector;
+    private HttpConfiguration configuration;
+
+    @Before
+    public void setUp() {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
@@ -40,12 +45,23 @@ public class GoPlainSocketConnectorTest {
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
         Jetty9Server server = new Jetty9Server(systemEnvironment, null, mock(SSLSocketFactory.class));
 
-        ServerConnector connector = (ServerConnector) new GoPlainSocketConnector(server, systemEnvironment).getConnector();
+        connector = (ServerConnector) new GoPlainSocketConnector(server, systemEnvironment).getConnector();
 
+        HttpConnectionFactory connectionFactory = (HttpConnectionFactory) connector.getDefaultConnectionFactory();
+        configuration = connectionFactory.getHttpConfiguration();
+    }
+
+    @Test
+    public void shouldCreateAServerConnectorWithConfiguredPortAndBuffersize() throws Exception {
         assertThat(connector.getPort(), is(1234));
         assertThat(connector.getHost(), is("foo"));
         assertThat(connector.getIdleTimeout(), is(200l));
-        HttpConnectionFactory connectionFactory = (HttpConnectionFactory) connector.getDefaultConnectionFactory();
-        assertThat(connectionFactory.getHttpConfiguration().getOutputBufferSize(), is(100));
+
+        assertThat(configuration.getOutputBufferSize(), is(100));
+    }
+
+    @Test
+    public void shouldNotSendAServerHeaderForSecurityReasons() throws Exception {
+        assertThat(configuration.getSendServerVersion(), is(false));
     }
 }

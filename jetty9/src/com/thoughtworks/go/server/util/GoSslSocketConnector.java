@@ -59,6 +59,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
         HttpConfiguration httpsConfig = new HttpConfiguration();
         httpsConfig.setOutputBufferSize(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE));
         httpsConfig.addCustomizer(new SecureRequestCustomizer());
+        httpsConfig.setSendServerVersion(false);
 
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setKeyStorePath(keystore.getPath());

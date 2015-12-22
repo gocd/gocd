@@ -35,6 +35,7 @@ public class GoPlainSocketConnector implements GoSocketConnector {
     private Connector plainConnector(Jetty9Server server) {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setOutputBufferSize(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE));
+        httpConfig.setSendServerVersion(false);
 
         ServerConnector httpConnector = new ServerConnector(server.getServer(), new HttpConnectionFactory(httpConfig));
         httpConnector.setHost(systemEnvironment.getListenHost());

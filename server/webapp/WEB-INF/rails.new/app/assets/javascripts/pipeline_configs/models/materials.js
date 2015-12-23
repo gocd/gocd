@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,12 +69,10 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   Materials.Material = function (type, hasFilter, data) {
     this.constructor.modelType = 'material';
     Mixins.HasUUID.call(this);
-
-    this.parent = Mixins.GetterSetter();
-
-    this.type       = m.prop(type);
-    this.name       = m.prop(s.defaultToIfBlank(data.name, ''));
-    this.autoUpdate = m.prop(data.autoUpdate);
+    this.parent           = Mixins.GetterSetter();
+    this.type             = m.prop(type);
+    this.name             = m.prop(s.defaultToIfBlank(data.name, ''));
+    this.autoUpdate       = m.prop(data.autoUpdate);
 
     if (hasFilter) {
       this.filter = m.prop(s.defaultToIfBlank(data.filter, new Materials.Filter(s.defaultToIfBlank(data.filter, {}))));
@@ -85,7 +83,6 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         this.parent().validateUniqueMaterialName(this, errors);
       }
     };
-
 
     this.toJSON = function () {
       var attrs = {
@@ -107,6 +104,12 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
       throw new Error("Subclass responsibility!");
     };
 
+    this._passwordHash = function() {
+      if (this.isPlainPasswordValue() || this.isDirtyPasswordValue()) {
+        return { password: this.passwordValue() };
+      }
+      return { encryptedPassword: this.passwordValue() };
+    };
   };
 
   Mixins.fromJSONCollection({
@@ -117,12 +120,12 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
 
   Materials.Material.SVN = function (data) {
     Materials.Material.call(this, "svn", true, data);
-    this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
-    this.url         = m.prop(s.defaultToIfBlank(data.url, ''));
-    this.username    = m.prop(s.defaultToIfBlank(data.username, ''));
-    var _password    = m.prop(plainOrCipherValue(data));
-    Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
+    this.destination    = m.prop(s.defaultToIfBlank(data.destination, ''));
+    this.url            = m.prop(s.defaultToIfBlank(data.url, ''));
+    this.username       = m.prop(s.defaultToIfBlank(data.username, ''));
+    var _password       = m.prop(plainOrCipherValue(data));
     this.checkExternals = m.prop(data.checkExternals);
+    Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -144,13 +147,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         checkExternals: this.checkExternals()
       };
 
-      if (this.isPlainPasswordValue() || this.isDirtyPasswordValue()) {
-        attrs.password = this.passwordValue();
-      } else {
-        attrs.encryptedPassword = this.passwordValue();
-      }
-
-      return attrs;
+      return _.merge(attrs, this._passwordHash());
     };
   };
 
@@ -250,10 +247,9 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.port        = m.prop(s.defaultToIfBlank(data.port, ''));
     this.username    = m.prop(s.defaultToIfBlank(data.username, ''));
     var _password    = m.prop(plainOrCipherValue(data));
+    this.view        = m.prop(s.defaultToIfBlank(data.view, ''));
+    this.useTickets  = m.prop(data.useTickets);
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
-    this.view       = m.prop(s.defaultToIfBlank(data.view, ''));
-    this.useTickets = m.prop(data.useTickets);
-
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -280,12 +276,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         useTickets:  this.useTickets()
       };
 
-      if (this.isPlainPasswordValue() || this.isDirtyPasswordValue()) {
-        attrs.password = this.passwordValue();
-      } else {
-        attrs.encryptedPassword = this.passwordValue();
-      }
-      return attrs;
+      return _.merge(attrs, this._passwordHash());
     };
 
   };
@@ -312,8 +303,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.domain      = m.prop(s.defaultToIfBlank(data.domain, ''));
     this.username    = m.prop(s.defaultToIfBlank(data.username, ''));
     var _password    = m.prop(plainOrCipherValue(data));
-    Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
     this.projectPath = m.prop(s.defaultToIfBlank(data.projectPath, ''));
+    Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -344,15 +335,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         project_path: this.projectPath()
       };
 
-      if (this.isPlainPasswordValue() || this.isDirtyPasswordValue()) {
-        attrs.password = this.passwordValue();
-      } else {
-        attrs.encryptedPassword = this.passwordValue();
-      }
-
-      return attrs;
+      return _.merge(attrs, this._passwordHash());
     };
-
   };
 
   Materials.Material.TFS.fromJSON = function (data) {

@@ -16,6 +16,12 @@
 
 package com.thoughtworks.go.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
@@ -25,12 +31,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -43,7 +43,12 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(JunitExtRunner.class)
 public class FileUtilTest {
@@ -62,24 +67,6 @@ public class FileUtilTest {
         File file = TestFileUtil.writeStringToTempFileInFolder("foo", "txt", content);
         String message = FileUtil.readToEnd(file);
         assertThat(message, is(content));
-    }
-
-    @Test
-    public void testReadToEndShouldCloseInputStream() throws Exception {
-        String content = "Hello" + FileUtil.lineSeparator() + "World";
-        File file = TestFileUtil.writeStringToTempFileInFolder("foo", "txt", content);
-        final boolean[] isClosed = {false};
-        FileInputStream inputStream = new FileInputStream(file) {
-            @Override
-            public void close() throws IOException {
-                isClosed[0] = true;
-                super.close();
-            }
-        };
-
-        String message = FileUtil.readToEnd(inputStream);
-        assertThat(message, is(content));
-        assertTrue(isClosed[0]);
     }
 
     @Test

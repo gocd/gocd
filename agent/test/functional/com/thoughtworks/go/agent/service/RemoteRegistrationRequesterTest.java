@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.service;
 
@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.thoughtworks.go.config.AgentRegistrationPropertiesReader;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -60,12 +59,12 @@ public class RemoteRegistrationRequesterTest {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
-        properties.put(AgentRegistrationPropertiesReader.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
+        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
 
-        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentRegistrationPropertiesReader(properties));
+        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationProperties(null, properties));
         verify(httpClient).executeMethod(argThat(hasAllParams(defaultAgentRegistry.uuid())));
     }
 

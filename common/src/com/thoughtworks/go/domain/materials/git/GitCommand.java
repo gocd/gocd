@@ -145,7 +145,7 @@ public class GitCommand extends SCMCommand {
 
     private void printSubmoduleStatus(ProcessOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Git sub-module status");
-        CommandLine gitCmd = git().withArgs("submodule", "status").withWorkingDir(workingDir);
+        CommandLine gitCmd = git().withArgs("submodule", "status", "--recursive").withWorkingDir(workingDir);
         run(gitCmd, outputStreamConsumer);
     }
 
@@ -289,7 +289,7 @@ public class GitCommand extends SCMCommand {
     }
 
     public List<String> submoduleFolders() {
-        CommandLine gitCmd = git().withArgs("submodule", "status").withWorkingDir(workingDir);
+        CommandLine gitCmd = git().withArgs("submodule", "status", "--recursive").withWorkingDir(workingDir);
         ConsoleResult result = runOrBomb(gitCmd);
         return submoduleFolders(result.output());
     }

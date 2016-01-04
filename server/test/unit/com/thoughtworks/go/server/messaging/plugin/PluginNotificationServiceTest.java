@@ -22,15 +22,13 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
@@ -47,7 +45,7 @@ public class PluginNotificationServiceTest {
 
     public static final String PIPELINE_STATUS = "pipeline-status";
     public static final String STAGE_STATUS = "stage-status";
-    public static final Map REQUEST_BODY = new HashMap();
+    public static final Map<String,String> REQUEST_BODY = new HashMap();
 
     @Mock
     private NotificationExtension notificationExtension;
@@ -63,17 +61,16 @@ public class PluginNotificationServiceTest {
         initMocks(this);
 
         REQUEST_BODY.put("key", "value");
-
-        when(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).thenReturn(new HashSet<String>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
-        when(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS)).thenReturn(new HashSet<String>(asList(PLUGIN_ID_3)));
-
         serverHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
     }
 
     @Test
     public void shouldNotifyInterestedPluginsCorrectly() throws Exception {
         Result result = new Result();
-        result.withSuccessMessages(asList("success message"));
+        result.withSuccessMessages("success message");
+        when(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(STAGE_STATUS)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_3)));
+
         when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
         when(notificationExtension.notify(PLUGIN_ID_2, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
 
@@ -90,6 +87,9 @@ public class PluginNotificationServiceTest {
     public void shouldHandleErrorDuringPluginNotificationCorrectly() throws Exception {
         Result result = new Result();
         result.withErrorMessages(asList(new String[]{"message 1", "message 2"}));
+
+        when(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+
         when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenReturn(result);
         when(serverHealthService.update(serverHealthState.capture())).thenReturn(null);
 
@@ -104,7 +104,8 @@ public class PluginNotificationServiceTest {
 
     @Test
     public void shouldHandleExceptionDuringPluginNotificationCorrectly() throws Exception {
-        when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenThrow(new RuntimeException("crap!"));
+        when(notificationPluginRegistry.getPluginsInterestedIn(PIPELINE_STATUS)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationExtension.notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY)).thenThrow(new RuntimeException("error!"));
         when(serverHealthService.update(serverHealthState.capture())).thenReturn(null);
 
         PluginNotificationService pluginNotificationService = new PluginNotificationService(notificationExtension, notificationPluginRegistry, serverHealthService);
@@ -112,7 +113,7 @@ public class PluginNotificationServiceTest {
 
         verify(notificationExtension).notify(PLUGIN_ID_1, PIPELINE_STATUS, REQUEST_BODY);
         assertThat(serverHealthState.getValue().getMessage(), is("Notification update failed for plugin: plugin-id-1"));
-        assertThat(serverHealthState.getValue().getDescription(), is("crap!"));
+        assertThat(serverHealthState.getValue().getDescription(), is("error!"));
         verify(serverHealthService, never()).removeByScope(any(HealthStateScope.class));
     }
 }

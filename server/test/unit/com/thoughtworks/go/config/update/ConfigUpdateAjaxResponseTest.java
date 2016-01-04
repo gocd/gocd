@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Test;
 
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -37,13 +38,13 @@ public class ConfigUpdateAjaxResponseTest {
         String jsonString = response.toJson();
         assertThat(response.getStatusCode(),is(HttpStatus.SC_BAD_REQUEST));
         assertThat(jsonString,
-                is("{\"fieldErrors\":{\"field2\":[\"error 2\"],\"field1\":[\"error 1\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}"));
+                jsonEquals("{\"fieldErrors\":{\"field1\":[\"error 1\"], \"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}"));
     }
 
     @Test
     public void shouldGetJsonRepresentationForSuccess() throws Exception {
         ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success("id", HttpStatus.SC_OK, "saved successful");
         String jsonString = response.toJson();
-        assertThat(jsonString, is("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"saved successful\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\"}"));
+        assertThat(jsonString, jsonEquals("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"saved successful\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\"}"));
     }
 }

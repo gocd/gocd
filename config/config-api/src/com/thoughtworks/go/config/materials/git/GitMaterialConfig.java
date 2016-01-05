@@ -80,12 +80,14 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public String getUrl() {
-        return url.forCommandline();
+        return url != null ? url.forCommandline() : null;
     }
 
     @Override
     public void setUrl(String url) {
-        this.url = new UrlArgument(url);
+        if (url != null) {
+            this.url = new UrlArgument(url);
+        }
     }
 
     @Override

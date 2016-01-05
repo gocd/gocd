@@ -85,12 +85,14 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     public String getUrl() {
-        return url.forCommandline();
+        return url != null ? url.forCommandline() : null;
     }
 
     @Override
-    public void setUrl(String hgUrl) {
-        this.url = new HgUrlArgument(hgUrl);
+    public void setUrl(String url) {
+        if (url != null) {
+            this.url = new HgUrlArgument(url);
+        }
     }
 
     @Override

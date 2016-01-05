@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.config.materials.tfs;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
@@ -33,10 +29,15 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -209,5 +210,31 @@ public class TfsMaterialConfigUpdateTest {
         catch (Exception e) {
             assertThat(e.getMessage(), is("Password encryption failed. Please verify your cipher key."));
         }
+    }
+
+    @Test
+    public void shouldReturnTheUrl() {
+        String url = "git@github.com/my/repo";
+        TfsMaterialConfig config = new TfsMaterialConfig();
+
+        config.setUrl(url);
+
+        assertThat(config.getUrl(), is(url));
+    }
+
+    @Test
+    public void shouldReturnNullIfUrlForMaterialNotSpecified() {
+        TfsMaterialConfig config = new TfsMaterialConfig();
+
+        assertNull(config.getUrl());
+    }
+
+    @Test
+    public void shouldHandleNullWhenSettingUrlForAMaterial() {
+        TfsMaterialConfig config = new TfsMaterialConfig();
+
+        config.setUrl(null);
+
+        assertNull(config.getUrl());
     }
 }

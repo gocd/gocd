@@ -81,8 +81,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String CONFIGURATION_TYPE = "configurationType";
     public static final String CONFIGURATION_TYPE_STAGES = "configurationType_stages";
     public static final String CONFIGURATION_TYPE_TEMPLATE = "configurationType_template";
-    public static final String LABEL_TEMPLATE_ERROR_MESSAGE =
-            "Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.";
+    public static final String LABEL_TEMPLATE_FORMAT_MESSAGE = "Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.";
+    public static final String LABEL_TEMPLATE_ERROR_MESSAGE = "Invalid label. ".concat(LABEL_TEMPLATE_FORMAT_MESSAGE);
+    public static final String BLANK_LABEL_TEMPLATE_ERROR_MESSAGE = "Label cannot be blank. ".concat(LABEL_TEMPLATE_FORMAT_MESSAGE);
 
     @SkipParameterResolution
     @ConfigAttribute(value = "name", optional = false)
@@ -193,6 +194,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private void validateLabelTemplate() {
+        if (StringUtil.isBlank(labelTemplate)) {
+            addError("labelTemplate", BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
+            return;
+        }
+
         if (XmlUtils.doesNotMatchUsingXsdRegex(LABEL_TEMPLATE_FORMAT_REGEX, labelTemplate)) {
             addError("labelTemplate", LABEL_TEMPLATE_ERROR_MESSAGE);
             return;

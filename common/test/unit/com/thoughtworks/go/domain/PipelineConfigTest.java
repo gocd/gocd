@@ -228,6 +228,15 @@ public class PipelineConfigTest {
     }
 
     @Test
+    public void shouldValidateMissingLabel() {
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(null);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE));
+
+        pipelineConfig = createAndValidatePipelineLabel("");
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(PipelineConfig.BLANK_LABEL_TEMPLATE_ERROR_MESSAGE));
+    }
+
+    @Test
     public void shouldValidateCorrectPipelineLabelWithoutTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git}-454";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);

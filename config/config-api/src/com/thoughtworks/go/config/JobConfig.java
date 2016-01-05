@@ -451,6 +451,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 	}
 
     public void validateNameUniqueness(Map<String, JobConfig> visitedConfigs) {
+        if (StringUtil.isBlank(CaseInsensitiveString.str(name()))) return;
+
         String currentJob = name().toLower();
         if (visitedConfigs.containsKey(CaseInsensitiveString.str(name())) || visitedConfigs.containsKey(currentJob)) {
             JobConfig conflictingConfig = visitedConfigs.get(currentJob);

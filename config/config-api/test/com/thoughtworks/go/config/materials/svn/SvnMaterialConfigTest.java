@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
@@ -32,8 +28,13 @@ import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class SvnMaterialConfigTest {
@@ -120,5 +121,30 @@ public class SvnMaterialConfigTest {
 
         assertThat(svnMaterial.getPassword(), is(nullValue()));
         assertThat(svnMaterial.getEncryptedPassword(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnTheUrl() {
+        String url = "git@github.com/my/repo";
+        SvnMaterialConfig config = new SvnMaterialConfig();
+        config.setUrl(url);
+
+        assertThat(config.getUrl(), is(url));
+    }
+
+    @Test
+    public void shouldReturnNullIfUrlForMaterialNotSpecified() {
+        SvnMaterialConfig config = new SvnMaterialConfig();
+
+        assertNull(config.getUrl());
+    }
+
+    @Test
+    public void shouldHandleNullWhenSettingUrlForAMaterial() {
+        SvnMaterialConfig config = new SvnMaterialConfig();
+
+        config.setUrl(null);
+
+        assertNull(config.getUrl());
     }
 }

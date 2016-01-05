@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -53,6 +53,7 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.filter.ElementFilter;
 import org.junit.After;
@@ -1113,6 +1114,73 @@ public class GoConfigMigrationIntegrationTest {
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
         assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+    }
+
+    @Test
+    public void shouldNotRemoveNonEmptyUserTags_asPartOfMigration78() throws Exception {
+        String configXml =
+                "<cruise schemaVersion='77'>"
+                +"  <pipelines group='first'>"
+                +"    <authorization>"
+                +"       <view>"
+                +"         <user>abc</user>"
+                +"       </view>"
+                +"    </authorization>"
+                +"    <pipeline name='Test' template='test_template'>"
+                +"      <materials>"
+                +"        <hg url='../manual-testing/ant_hg/dummy' />"
+                +"      </materials>"
+                +"     </pipeline>"
+                +"  </pipelines>"
+                +"</cruise>";
+        String migratedXml = migrateXmlString(configXml, 77);
+        assertThat(migratedXml, containsString("<user>"));
+    }
+
+    @Test
+    public void shouldRemoveEmptyTags_asPartOfMigration78() throws Exception {
+        String configXml =
+                "<cruise schemaVersion='77'>"
+                +"  <pipelines group='first'>"
+                +"    <authorization>"
+                +"       <view>"
+                +"         <user>foo</user>"
+                +"         <user></user>"
+                +"         <user>      </user>"
+                +"       </view>"
+                +"    </authorization>"
+                +"    <pipeline name='Test' template='test_template'>"
+                +"      <materials>"
+                +"        <hg url='../manual-testing/ant_hg/dummy' />"
+                +"      </materials>"
+                +"     </pipeline>"
+                +"  </pipelines>"
+                +"</cruise>";
+        String migratedXml = migrateXmlString(configXml, 77);
+        assertThat(StringUtils.countMatches(migratedXml, "<user>"), is(1));
+    }
+
+    @Test
+    public void shouldRemoveEmptyTagsRecursively_asPartOfMigration78() throws Exception {
+        String configXml =
+                "<cruise schemaVersion='77'>"
+                +"  <pipelines group='first'>"
+                +"    <authorization>"
+                +"       <view>"
+                +"         <user></user>"
+                +"       </view>"
+                +"    </authorization>"
+                +"    <pipeline name='Test' template='test_template'>"
+                +"      <materials>"
+                +"        <hg url='../manual-testing/ant_hg/dummy' />"
+                +"      </materials>"
+                +"     </pipeline>"
+                +"  </pipelines>"
+                +"</cruise>";
+        String migratedXml = migrateXmlString(configXml, 77);
+        assertThat(migratedXml, not(containsString("<user>")));
+        assertThat(migratedXml, not(containsString("<view>")));
+        assertThat(migratedXml, not(containsString("<authorization>")));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

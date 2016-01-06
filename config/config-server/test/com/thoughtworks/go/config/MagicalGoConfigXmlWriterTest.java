@@ -51,6 +51,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -379,6 +381,12 @@ public class MagicalGoConfigXmlWriterTest {
         thrown.expectMessage("Invalid content was found starting with element 'ant'. No child element is expected at this point.");
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
         xmlWriter.write(cruiseConfig, output, false);
+    }
+
+    @Test
+    public void shouldBeAValidXSD() throws  Exception {
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+        factory.newSchema(new StreamSource(getClass().getResourceAsStream("/cruise-config.xsd")));
     }
 
     @Test

@@ -18,10 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 import com.thoughtworks.go.config.*;
@@ -30,24 +27,10 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -67,11 +50,16 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.websocket.Action;
+import com.thoughtworks.go.server.websocket.Agent;
+import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
+import com.thoughtworks.go.server.websocket.Ping;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.SerializationTester;
@@ -124,6 +112,7 @@ public class BuildAssignmentServiceTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private BuilderFactory builderFactory;
     @Autowired private InstanceFactory instanceFactory;
+    @Autowired private AgentRemoteHandler agentRemoteHandler;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -336,7 +325,7 @@ public class BuildAssignmentServiceTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, timeProvider, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory);
+                agentService, environmentConfigService, timeProvider, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler);
 
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
@@ -379,7 +368,7 @@ public class BuildAssignmentServiceTest {
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, timeProvider,
-                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory);
+                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler);
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();
@@ -677,6 +666,122 @@ public class BuildAssignmentServiceTest {
 
         Stages allStages = stageDao.findAllStagesFor(p1_2.getName(), p1_2.getCounter());
         assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState(), is(StageState.Cancelled));
+    }
+
+    @Test
+    public void shouldAssignMatchedJobToAgentsRegisteredInAgentRemoteHandler() {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        configHelper.addAgent(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        info.setCookie("cookie");
+
+        final List<Action> actions = new ArrayList<Action>();
+        Agent agent = createWebsocketAgent(actions);
+
+        agentRemoteHandler.process(agent, new Ping(info));
+
+        int before = agentService.numberOfActiveRemoteAgents();
+
+        buildAssignmentService.onTimer();
+
+        assertThat(actions.size(), is(1));
+        assertThat(actions.get(0).data(), instanceOf(BuildWork.class));
+        assertThat(agentService.numberOfActiveRemoteAgents(), is(before + 1));
+    }
+
+    @Test
+    public void shouldNotAssignNoWorkToAgentsRegisteredInAgentRemoteHandler() {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        configHelper.addAgent(agentConfig);
+        fixture.createdPipelineWithAllStagesPassed();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        info.setCookie("cookie");
+
+        final List<Action> actions = new ArrayList<Action>();
+        Agent agent = createWebsocketAgent(actions);
+
+        agentRemoteHandler.process(agent, new Ping(info));
+
+        buildAssignmentService.onTimer();
+
+        assertThat(actions.size(), is(0));
+    }
+
+    @Test
+    public void shouldNotAssignDeniedAgentWorkToAgentsRegisteredInAgentRemoteHandler() {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        agentConfig.disable();
+
+        configHelper.addAgent(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        info.setCookie("cookie");
+
+        final List<Action> actions = new ArrayList<Action>();
+        Agent agent = createWebsocketAgent(actions);
+
+        agentRemoteHandler.process(agent, new Ping(info));
+        buildAssignmentService.onTimer();
+
+        assertThat(actions.size(), is(0));
+    }
+
+    @Test
+    public void shouldOnlyAssignWorkToIdleAgentsRegisteredInAgentRemoteHandler() {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        configHelper.addAgent(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        info.setCookie("cookie");
+
+        AgentStatus[] statuses = new AgentStatus[] {
+                AgentStatus.Building, AgentStatus.Pending,
+                AgentStatus.Disabled, AgentStatus.Disabled,
+                AgentStatus.LostContact, AgentStatus.Missing
+        };
+        for (AgentStatus status : statuses) {
+            info.setStatus(status);
+
+            final List<Action> actions = new ArrayList<Action>();
+            Agent agent = createWebsocketAgent(actions);
+
+            agentRemoteHandler.process(agent, new Ping(info));
+            buildAssignmentService.onTimer();
+
+            assertThat("Should not assign work when agent status is " + status, actions.size(), is(0));
+        }
+    }
+
+    @Test
+    public void shouldNotAssignWorkToCanceledAgentsRegisteredInAgentRemoteHandler() {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        configHelper.addAgent(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        info.setCookie("cookie");
+
+        final List<Action> actions = new ArrayList<Action>();
+        Agent agent = createWebsocketAgent(actions);
+
+        agentRemoteHandler.process(agent, new Ping(info));
+
+        AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(info.getUUId());
+        agentInstance.cancel();
+
+        buildAssignmentService.onTimer();
+
+        assertThat("Should not assign work when agent status is Canceled", actions.size(), is(0));
+    }
+
+    private Agent createWebsocketAgent(final List<Action> actions) {
+        return new Agent() {
+            @Override
+            public boolean send(Action action) {
+                actions.add(action);
+                return true;
+            }
+        };
     }
 
     private JobInstance buildOf(Pipeline pipeline) {

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
@@ -36,8 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -60,6 +60,7 @@ public class PluginServiceTest {
     private PluginSqlMapDao pluginDao;
 
     private PluginService pluginService;
+    private List<GoPluginExtension> extensions;
 
     @Before
     public void setUp() {
@@ -89,7 +90,8 @@ public class PluginServiceTest {
         configuration2.add(new PluginSettingsProperty("p2-k3"));
         PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
 
-        pluginService = new PluginService(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension, pluginDao);
+        extensions = Arrays.asList(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension);
+        pluginService = new PluginService(extensions, pluginDao);
     }
 
     @After
@@ -134,63 +136,23 @@ public class PluginServiceTest {
     }
 
     @Test
-    public void shouldTalkToPluginForPluginSettingsValidation_PackageRepository() {
-        when(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-id-4")).thenReturn(true);
-        when(packageAsRepositoryExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+    public void shouldCallValidationOnPlugin() throws Exception {
+        for (GoPluginExtension extension : extensions) {
+            String pluginId = UUID.randomUUID().toString();
+            when(extension.canHandlePlugin(pluginId)).thenReturn(true);
+            when(extension.validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginService.validatePluginSettingsFor(pluginSettings);
+            PluginSettings pluginSettings = new PluginSettings(pluginId);
+            pluginService.validatePluginSettingsFor(pluginSettings);
 
-        verify(packageAsRepositoryExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
+            verify(extension).validatePluginSettings(eq(pluginId), any(PluginSettingsConfiguration.class));
+        }
     }
 
-    @Test
-    public void shouldTalkToPluginForPluginSettingsValidation_SCM() {
-        when(scmExtension.isSCMPlugin("plugin-id-4")).thenReturn(true);
-        when(scmExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginService.validatePluginSettingsFor(pluginSettings);
-
-        verify(scmExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
-    }
-
-    @Test
-    public void shouldTalkToPluginForPluginSettingsValidation_Task() {
-        when(taskExtension.isTaskPlugin("plugin-id-4")).thenReturn(true);
-        when(taskExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginService.validatePluginSettingsFor(pluginSettings);
-
-        verify(taskExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
-    }
-
-    @Test
-    public void shouldTalkToPluginForPluginSettingsValidation_Notification() {
-        when(notificationExtension.isNotificationPlugin("plugin-id-4")).thenReturn(true);
-        when(notificationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginService.validatePluginSettingsFor(pluginSettings);
-
-        verify(notificationExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
-    }
-
-    @Test
-    public void shouldTalkToPluginForPluginSettingsValidation_Authentication() {
-        when(authenticationExtension.isAuthenticationPlugin("plugin-id-4")).thenReturn(true);
-        when(authenticationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
-
-        PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
-        pluginService.validatePluginSettingsFor(pluginSettings);
-
-        verify(authenticationExtension).validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class));
-    }
 
     @Test
     public void shouldUpdatePluginSettingsWithErrorsIfExists() {
-        when(notificationExtension.isNotificationPlugin("plugin-id-4")).thenReturn(true);
+        when(notificationExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("p4-k1", "m1"));
         validationResult.addError(new ValidationError("p4-k3", "m3"));
@@ -211,7 +173,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldNotUpdatePluginSettingsWithErrorsIfNotExists() {
-        when(notificationExtension.isNotificationPlugin("plugin-id-4")).thenReturn(true);
+        when(notificationExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
         when(notificationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
         Map<String, String> parameterMap = new HashMap<String, String>();
@@ -226,7 +188,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldStorePluginSettingsToDBIfItDoesNotExist() {
-        Map<String, String> parameterMap = new HashMap<String, String>();
+        Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("p2-k1", "v1");
         parameterMap.put("p2-k2", "");
         parameterMap.put("p2-k3", null);
@@ -242,7 +204,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldUpdatePluginSettingsToDBIfItExists() {
-        Map<String, String> parameterMap = new HashMap<String, String>();
+        Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("p1-k1", "v1");
         parameterMap.put("p1-k2", "v2");
         parameterMap.put("p1-k3", null);

@@ -18,10 +18,19 @@ package com.thoughtworks.go.plugin.access;
 
 import java.util.Map;
 
-public interface PluginInteractionCallback<T> {
-    String requestBody(String resolvedExtensionVersion);
+public class DefaultPluginInteractionCallback<T> implements PluginInteractionCallback<T> {
+    @Override
+    public String requestBody(String resolvedExtensionVersion) {
+        return null;
+    }
 
-    Map<String, String> requestParams(String resolvedExtensionVersion);
+    @Override
+    public Map<String, String> requestParams(String resolvedExtensionVersion) {
+        return null;
+    }
 
-    T onSuccess(String responseBody, String resolvedExtensionVersion);
+    @Override
+    public T onSuccess(String responseBody, String resolvedExtensionVersion) {
+        return null;
+    }
 }

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.notification;
 
-import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
@@ -42,7 +42,7 @@ public class NotificationExtension extends AbstractExtension {
 
     public static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
 
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public NotificationExtension(PluginManager pluginManager) {
@@ -52,16 +52,8 @@ public class NotificationExtension extends AbstractExtension {
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_NOTIFICATIONS_INTERESTED_IN, new PluginInteractionCallback<List<String>>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_NOTIFICATIONS_INTERESTED_IN, new DefaultPluginInteractionCallback<List<String>>() {
 
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
 
             @Override
             public List<String> onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -71,15 +63,10 @@ public class NotificationExtension extends AbstractExtension {
     }
 
     public Result notify(String pluginId, final String requestName, final Map requestMap) {
-        return pluginRequestHelper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Result>() {
+        return pluginRequestHelper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForNotify(requestName, requestMap);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override

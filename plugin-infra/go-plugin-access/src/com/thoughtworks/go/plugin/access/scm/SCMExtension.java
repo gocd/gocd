@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
-import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
@@ -58,16 +58,7 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public SCMPropertyConfiguration getSCMConfiguration(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SCM_CONFIGURATION, new PluginInteractionCallback<SCMPropertyConfiguration>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SCM_CONFIGURATION, new DefaultPluginInteractionCallback<SCMPropertyConfiguration>() {
 
             @Override
             public SCMPropertyConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -77,16 +68,7 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public SCMView getSCMView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SCM_VIEW, new PluginInteractionCallback<SCMView>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SCM_VIEW, new DefaultPluginInteractionCallback<SCMView>() {
 
             @Override
             public SCMView onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -96,15 +78,10 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public ValidationResult isSCMConfigurationValid(String pluginId, final SCMPropertyConfiguration scmConfiguration) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_SCM_CONFIGURATION, new PluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_SCM_CONFIGURATION, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForIsSCMConfigurationValid(scmConfiguration);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override
@@ -115,15 +92,10 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public Result checkConnectionToSCM(String pluginId, final SCMPropertyConfiguration scmConfiguration) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CHECK_SCM_CONNECTION, new PluginInteractionCallback<Result>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CHECK_SCM_CONNECTION, new DefaultPluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForCheckConnectionToSCM(scmConfiguration);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override
@@ -134,15 +106,10 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public MaterialPollResult getLatestRevision(String pluginId, final SCMPropertyConfiguration scmConfiguration, final Map<String, String> materialData, final String flyweightFolder) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISION, new PluginInteractionCallback<MaterialPollResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISION, new DefaultPluginInteractionCallback<MaterialPollResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevision(scmConfiguration, materialData, flyweightFolder);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override
@@ -153,15 +120,10 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public MaterialPollResult latestModificationSince(String pluginId, final SCMPropertyConfiguration scmConfiguration, final Map<String, String> materialData, final String flyweightFolder, final SCMRevision previouslyKnownRevision) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISIONS_SINCE, new PluginInteractionCallback<MaterialPollResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISIONS_SINCE, new DefaultPluginInteractionCallback<MaterialPollResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevisionsSince(scmConfiguration, materialData, flyweightFolder, previouslyKnownRevision);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override
@@ -172,15 +134,10 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     }
 
     public Result checkout(String pluginId, final SCMPropertyConfiguration scmConfiguration, final String destinationFolder, final SCMRevision revision) {
-        return pluginRequestHelper.submitRequest(pluginId, SCMExtension.REQUEST_CHECKOUT, new PluginInteractionCallback<Result>() {
+        return pluginRequestHelper.submitRequest(pluginId, SCMExtension.REQUEST_CHECKOUT, new DefaultPluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForCheckout(scmConfiguration, destinationFolder, revision);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override

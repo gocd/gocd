@@ -1,22 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
-import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class JsonBasedPluggableTask implements Task {
     private PluginRequestHelper pluginRequestHelper;
@@ -40,17 +39,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskConfig config() {
-        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.CONFIGURATION_REQUEST, new PluginInteractionCallback<TaskConfig>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
+        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<TaskConfig>() {
             @Override
             public TaskConfig onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertJsonToTaskConfig(responseBody);
@@ -65,16 +54,8 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskView view() {
-        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.TASK_VIEW_REQUEST, new PluginInteractionCallback<TaskView>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
+        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.TASK_VIEW_REQUEST, new DefaultPluginInteractionCallback<TaskView>() {
 
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
 
             @Override
             public TaskView onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -85,15 +66,10 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public ValidationResult validate(final TaskConfig configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.VALIDATION_REQUEST, new PluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.VALIDATION_REQUEST, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertTaskConfigToJson(configuration);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override

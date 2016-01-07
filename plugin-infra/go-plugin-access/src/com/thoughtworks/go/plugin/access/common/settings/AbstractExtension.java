@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -39,17 +39,7 @@ public abstract class AbstractExtension {
     }
 
     public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, new PluginInteractionCallback<PluginSettingsConfiguration>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
+        return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, new DefaultPluginInteractionCallback<PluginSettingsConfiguration>() {
             @Override
             public PluginSettingsConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginSettingsConfiguration(responseBody);
@@ -58,17 +48,7 @@ public abstract class AbstractExtension {
     }
 
     public String getPluginSettingsView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, new PluginInteractionCallback<String>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
+        return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginSettingsView(responseBody);
@@ -77,15 +57,10 @@ public abstract class AbstractExtension {
     }
 
     public ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, new PluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).requestMessageForPluginSettingsValidation(configuration);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override

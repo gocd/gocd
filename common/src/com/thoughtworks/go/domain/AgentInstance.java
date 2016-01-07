@@ -365,7 +365,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         AgentConfig config = agentRuntimeInfo.agent();
         AgentType type = config.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
         AgentInstance instance;
-        if (config.isFromLocalHost()) {
+        if (systemEnvironment.isAutoRegisterLocalAgentEnabled() && config.isFromLocalHost()) {
             instance = new AgentInstance(config, type, systemEnvironment);
             instance.agentConfigStatus = AgentConfigStatus.Enabled;
             instance.agentRuntimeInfo.idle();

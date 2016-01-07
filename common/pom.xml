@@ -32,7 +32,6 @@
     <properties>
         <main.dir>${project.basedir}/..</main.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>
 
     <dependencies>
@@ -155,11 +154,6 @@
                     <artifactId>xalan</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-api</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
 

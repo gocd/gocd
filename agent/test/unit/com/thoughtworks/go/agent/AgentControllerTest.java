@@ -17,9 +17,11 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
+import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -29,7 +31,10 @@ import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
+import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.websocket.Action;
+import com.thoughtworks.go.server.websocket.Message;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -39,9 +44,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.CountDownLatch;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
@@ -78,6 +86,8 @@ public class AgentControllerTest {
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
+    @Mock
+    private AgentWebsocketService agentWebsocketService;
 
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
@@ -97,7 +107,7 @@ public class AgentControllerTest {
 
     @Test
     public void shouldSetPluginManagerReference() throws Exception {
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         assertThat(PluginManagerReference.reference().getPluginManager(),is(pluginManager));
     }
 
@@ -105,7 +115,7 @@ public class AgentControllerTest {
     public void shouldRetrieveWorkFromServerAndDoIt() throws Exception {
         when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         agentController.init();
         agentController.ping();
         agentController.retrieveWork();
@@ -121,7 +131,7 @@ public class AgentControllerTest {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         when(loopServer.getWork(infoWithCookie)).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         agentController.init();
         agentController.loop();
         verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(infoWithCookie), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
@@ -131,7 +141,7 @@ public class AgentControllerTest {
     public void shouldNotTellServerWorkIsCompletedWhenThereIsNoWork() throws Exception {
         when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         agentController.init();
         agentController.retrieveWork();
         verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
@@ -143,7 +153,7 @@ public class AgentControllerTest {
         Exception exception = new Exception(new RuntimeException(new GeneralSecurityException()));
         when(agentRegistry.uuid()).thenReturn(agentUuid);
 
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         agentController.init();
         assertTrue(agentController.isCausedBySecurity(exception));
         verify(sslInfrastructureService).createSslInfrastructure();
@@ -155,7 +165,7 @@ public class AgentControllerTest {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
 
 
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         agentController.init();
         assertFalse(agentController.isCausedBySecurity(exception));
         verify(sslInfrastructureService).createSslInfrastructure();
@@ -165,7 +175,7 @@ public class AgentControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService);
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -175,7 +185,7 @@ public class AgentControllerTest {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(sslInfrastructureService.isRegistered()).thenReturn(false);
 
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         agentController.init();
         agentController.ping();
         verify(sslInfrastructureService).createSslInfrastructure();
@@ -185,7 +195,7 @@ public class AgentControllerTest {
     public void shouldPingIfAfterRegistered() throws Exception {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         agentController.init();
         agentController.ping();
         verify(sslInfrastructureService).createSslInfrastructure();
@@ -194,10 +204,119 @@ public class AgentControllerTest {
 
     @Test
     public void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = createAgentController();
         InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
         agentController.loop();
         inOrder.verify(agentUpgradeService).checkForUpgrade();
         inOrder.verify(sslInfrastructureService).registerIfNecessary();
+    }
+
+    @Test
+    public void websocketPing() throws Exception {
+        when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
+        when(agentWebsocketService.isRunning()).thenReturn(false);
+        when(sslInfrastructureService.isRegistered()).thenReturn(true);
+
+        agentController = createAgentController();
+        agentController.init();
+
+        agentController.ping();
+
+        verify(agentUpgradeService).checkForUpgrade();
+        verify(sslInfrastructureService).registerIfNecessary();
+        verify(agentWebsocketService).start();
+        verify(agentWebsocketService).send(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
+    }
+
+    @Test
+    public void shouldHandleSecurityErrorWhenOpenningWebsocketFailed() throws Exception {
+        when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
+        when(sslInfrastructureService.isRegistered()).thenReturn(true);
+
+        when(agentWebsocketService.isRunning()).thenReturn(false);
+        doThrow(new GeneralSecurityException()).when(agentWebsocketService).start();
+
+        agentController = createAgentController();
+        agentController.init();
+
+        agentController.ping();
+
+        verify(agentUpgradeService).checkForUpgrade();
+        verify(sslInfrastructureService).registerIfNecessary();
+        verify(sslInfrastructureService).invalidateAgentCertificate();
+    }
+
+    @Test
+    public void processSetCookieAction() throws IOException {
+        agentController = createAgentController();
+        agentController.init();
+
+        agentController.process(new Message(Action.setCookie, "cookie"));
+
+        assertThat(agentController.getAgentRuntimeInfo().getCookie(), is("cookie"));
+    }
+
+    @Test
+    public void processAssignWorkAction() throws IOException {
+        when(agentRegistry.uuid()).thenReturn(agentUuid);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                AgentRuntimeInfo info = (AgentRuntimeInfo) invocationOnMock.getArguments()[4];
+                info.busy(new AgentBuildingInfo("locator for display", "build locator"));
+                return null;
+            }
+        }).when(work).doWork(any(AgentIdentifier.class), any(BuildRepositoryRemote.class), any(GoArtifactsManipulator.class), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), any(PackageAsRepositoryExtension.class), any(SCMExtension.class), any(TaskExtension.class));
+
+        agentController = createAgentController();
+        agentController.init();
+        agentController.process(new Message(Action.assignWork, work));
+
+        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+    }
+
+    @Test
+    public void processCancelJobAction() throws IOException, InterruptedException {
+        agentController = createAgentController();
+        agentController.init();
+        final CountDownLatch cancelJob = new CountDownLatch(1);
+        final CountDownLatch doWork = new CountDownLatch(1);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                cancelJob.countDown();
+                doWork.await();
+                return null;
+            }
+        }).when(work).doWork(any(AgentIdentifier.class), any(BuildRepositoryRemote.class), any(GoArtifactsManipulator.class), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), any(PackageAsRepositoryExtension.class), any(SCMExtension.class), any(TaskExtension.class));
+
+        Thread buildingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                agentController.process(new Message(Action.assignWork, work));
+            }
+        });
+        buildingThread.start();
+        cancelJob.await();
+        agentController.process(new Message(Action.cancelJob));
+        doWork.countDown();
+        buildingThread.join();
+        verify(work).cancel(any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()));
+    }
+
+    @Test
+    public void processReregisterAction() throws IOException {
+        when(agentRegistry.uuid()).thenReturn(agentUuid);
+        agentController = createAgentController();
+        agentController.init();
+        agentController.process(new Message(Action.reregister));
+
+        verify(sslInfrastructureService).invalidateAgentCertificate();
+        verify(agentWebsocketService).stop();
+    }
+
+    private AgentController createAgentController() {
+        return new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService);
     }
 }

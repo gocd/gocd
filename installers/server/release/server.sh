@@ -35,7 +35,7 @@ SERVER_DIR=`(cd "$CWD" && pwd)`
 [ ! -z $GO_SERVER_PORT ] || GO_SERVER_PORT="8153"
 [ ! -z $GO_SERVER_SSL_PORT ] || GO_SERVER_SSL_PORT="8154"
 [ ! -z "$SERVER_WORK_DIR" ] || SERVER_WORK_DIR="$SERVER_DIR"
-[ ! -z "$YOURKIT_DISBALE_TRACING" ] || YOURKIT_DISBALE_TRACING=""
+[ ! -z "$YOURKIT_DISABLE_TRACING" ] || YOURKIT_DISABLE_TRACING=""
 
 if [ -d /var/log/go-server ]; then
     STDOUT_LOG_FILE=/var/log/go-server/go-server.out.log

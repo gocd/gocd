@@ -18,8 +18,10 @@ package com.thoughtworks.go.server.websocket;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import org.eclipse.jetty.websocket.api.extensions.Frame;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 @WebSocket
 public class AgentRemoteSocket implements Agent {
@@ -59,6 +61,13 @@ public class AgentRemoteSocket implements Agent {
     @OnWebSocketError
     public void onError(Throwable error) {
         LOGGER.error(sessionName() + " error", error);
+    }
+
+    @OnWebSocketFrame
+    public void onFrame(Frame frame) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sessionName() + " receive frame: " + frame.getPayloadLength());
+        }
     }
 
     @Override

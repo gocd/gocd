@@ -17,12 +17,25 @@
 package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentController;
+import com.thoughtworks.go.agent.JobRunner;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.AgentInstruction;
+import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.Work;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.websocket.Action;
 import com.thoughtworks.go.server.websocket.Message;
+import com.thoughtworks.go.server.websocket.Report;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +47,50 @@ import java.net.URI;
 @Component
 @WebSocket
 public class AgentWebsocketService {
+    public static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
+        private JobRunner runner;
+        private AgentWebsocketService service;
+
+        public BuildRepositoryRemoteAdapter(JobRunner runner, AgentWebsocketService service) {
+            this.runner = runner;
+            this.service = service;
+        }
+        @Override
+        public AgentInstruction ping(AgentRuntimeInfo info) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Work getWork(AgentRuntimeInfo runtimeInfo) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
+            service.send(new Message(Action.reportCurrentStatus, new Report(agentRuntimeInfo, jobIdentifier, jobState)));
+        }
+
+        @Override
+        public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
+            service.send(new Message(Action.reportCompleting, new Report(agentRuntimeInfo, jobIdentifier, result)));
+        }
+
+        @Override
+        public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
+            service.send(new Message(Action.reportCompleted, new Report(agentRuntimeInfo, jobIdentifier, result)));
+        }
+
+        @Override
+        public boolean isIgnored(JobIdentifier jobIdentifier) {
+            return runner.isJobCancelled();
+        }
+
+        @Override
+        public String getCookie(AgentIdentifier identifier, String location) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     private static final Logger LOGGER = Logger.getLogger(AgentWebsocketService.class);
     private AgentController controller;
     private Session session;
@@ -54,7 +111,10 @@ public class AgentWebsocketService {
         sslContextFactory.setTrustStorePassword(SslInfrastructureService.AGENT_STORE_PASSWORD);
         sslContextFactory.setWantClientAuth(true);
         if (client == null || client.isStopped()) {
+            SystemEnvironment environment = new SystemEnvironment();
             client = new WebSocketClient(sslContextFactory);
+            client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
+            client.setMaxTextMessageBufferSize(environment.getWebsocketMaxTextMessageSize());
             client.start();
         }
         if (session != null) {
@@ -65,6 +125,9 @@ public class AgentWebsocketService {
 
     public synchronized void stop() {
         if (isRunning()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("close " + sessionName());
+            }
             session.close();
             session = null;
         }
@@ -113,6 +176,13 @@ public class AgentWebsocketService {
     @OnWebSocketError
     public void onError(Throwable error) {
         LOGGER.error(sessionName() + " error", error);
+    }
+
+    @OnWebSocketFrame
+    public void onFrame(Frame frame) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sessionName() + " receive frame: " + frame.getPayloadLength());
+        }
     }
 
     private String sessionName() {

@@ -33,7 +33,8 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.websocket.*;
+import com.thoughtworks.go.server.websocket.Action;
+import com.thoughtworks.go.server.websocket.Message;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -275,9 +276,11 @@ public class AgentController {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Got work from server: [%s]", work.description()));
                 }
+
                 runner = new JobRunner();
                 try {
-                    runner.run(work, agentIdentifier(), server, manipulator, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+                    runner.run(work, agentIdentifier(), new AgentWebsocketService.BuildRepositoryRemoteAdapter(runner, websocketService),
+                            manipulator, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
                 } finally {
                     agentRuntimeInfo.idle();
                 }

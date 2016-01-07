@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -25,7 +26,6 @@ import javax.servlet.ServletException;
 
 public class AgentRemoteServlet extends WebSocketServlet {
 
-    public static final int SECONDS_10 = 10 * 1000;
     private WebApplicationContext wac;
 
     @Override
@@ -36,7 +36,9 @@ public class AgentRemoteServlet extends WebSocketServlet {
 
     @Override
     public void configure(WebSocketServletFactory factory) {
-        factory.getPolicy().setIdleTimeout(SECONDS_10);
+        SystemEnvironment environment = new SystemEnvironment();
+        factory.getPolicy().setIdleTimeout(environment.getWebsocketMaxIdleTime());
+        factory.getPolicy().setMaxTextMessageBufferSize(environment.getWebsocketMaxTextMessageSize());
         factory.setCreator(wac.getBean(AgentRemoteSocketCreator.class));
     }
 }

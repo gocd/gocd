@@ -27,24 +27,26 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class JobRunner {
-    private boolean handled = false;
-    private boolean isJobCancelled = false;
+    private AtomicBoolean handled = new AtomicBoolean(false);
+    private AtomicBoolean isJobCancelled = new AtomicBoolean(false);
     private Work work;
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
     public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
-        if (instruction.isShouldCancelJob() && !handled) {
+        if (instruction.isShouldCancelJob() && !handled.get()) {
             cancelJob(agentStatus);
         }
     }
 
     private void cancelJob(AgentRuntimeInfo agentRuntimeInfo) {
-        isJobCancelled = true;
+        isJobCancelled.set(true);
         if (work != null) {
             work.cancel(environmentVariableContext, agentRuntimeInfo);
         }
-        handled = true;
+        handled.set(true);
     }
 
     public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
@@ -54,7 +56,7 @@ public class JobRunner {
     }
 
     public boolean isJobCancelled() {
-        return isJobCancelled;
+        return isJobCancelled.get();
     }
 
     //Used for tests only

@@ -17,8 +17,7 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentStatus;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -63,21 +62,6 @@ public class AgentRemoteHandlerTest implements Agent {
         assertEquals(1, handler.connectedAgents().size());
         assertEquals(this, handler.connectedAgents().get("uuid"));
         assertTrue(messages.isEmpty());
-    }
-
-    @Test
-    public void shouldCallForRegisterIfAgentInstanceIsNotRegistered() {
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(new AgentIdentifier("HostName", "ipAddress", "uuid"));
-        info.setCookie("cookie");
-        info.setStatus(AgentStatus.Pending);
-        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment());
-        when(agentService.findAgent("uuid")).thenReturn(agentInstance);
-
-        handler.process(this, new Message(Action.ping, info));
-
-        assertEquals(0, handler.connectedAgents().size());
-        assertEquals(1, messages.size());
-        assertEquals(Action.reregister, messages.get(0).getAction());
     }
 
     @Test
@@ -129,8 +113,42 @@ public class AgentRemoteHandlerTest implements Agent {
     }
 
     @Test
-    public void removeAgentShouldChangeAgentStatusToLostContest() {
+    public void reportCurrentStatus() {
+        AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(identifier);
+        info.setCookie("cookie");
+        info.setStatus(AgentStatus.Building);
 
+        JobIdentifier jobIdentifier = new JobIdentifier();
+        handler.process(this, new Message(Action.reportCurrentStatus, new Report(info, jobIdentifier, JobState.Preparing)));
+
+        verify(remote).reportCurrentStatus(info, jobIdentifier, JobState.Preparing);
+    }
+
+    @Test
+    public void reportCompleting() {
+        AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(identifier);
+        info.setCookie("cookie");
+        info.setStatus(AgentStatus.Building);
+
+        JobIdentifier jobIdentifier = new JobIdentifier();
+        handler.process(this, new Message(Action.reportCompleting, new Report(info, jobIdentifier, JobResult.Passed)));
+
+        verify(remote).reportCompleting(info, jobIdentifier, JobResult.Passed);
+    }
+
+    @Test
+    public void reportCompleted() {
+        AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(identifier);
+        info.setCookie("cookie");
+        info.setStatus(AgentStatus.Building);
+
+        JobIdentifier jobIdentifier = new JobIdentifier();
+        handler.process(this, new Message(Action.reportCompleted, new Report(info, jobIdentifier, JobResult.Passed)));
+
+        verify(remote).reportCompleted(info, jobIdentifier, JobResult.Passed);
     }
 
     @Override

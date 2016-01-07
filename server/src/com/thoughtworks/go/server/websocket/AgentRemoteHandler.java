@@ -50,11 +50,6 @@ public class AgentRemoteHandler {
         switch (msg.getAction()) {
             case ping:
                 AgentRuntimeInfo info = (AgentRuntimeInfo) msg.getData();
-                AgentInstance agentInstance = agentService.findAgent(info.getUUId());
-                if (!agentInstance.isRegistered()) {
-                    agent.send(new Message(Action.reregister));
-                    return;
-                }
                 this.agentSessions.put(info.getUUId(), agent);
                 if (info.getCookie() == null) {
                     String cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
@@ -67,6 +62,18 @@ public class AgentRemoteHandler {
                 if (instruction.isShouldCancelJob()) {
                     agent.send(new Message(Action.cancelJob, instruction));
                 }
+                break;
+            case reportCurrentStatus:
+                Report report = (Report) msg.getData();
+                buildRepositoryRemote.reportCurrentStatus(report.getAgentRuntimeInfo(), report.getJobIdentifier(), report.getJobState());
+                break;
+            case reportCompleting:
+                report = (Report) msg.getData();
+                buildRepositoryRemote.reportCompleting(report.getAgentRuntimeInfo(), report.getJobIdentifier(), report.getResult());
+                break;
+            case reportCompleted:
+                report = (Report) msg.getData();
+                buildRepositoryRemote.reportCompleted(report.getAgentRuntimeInfo(), report.getJobIdentifier(), report.getResult());
                 break;
             default:
                 throw new RuntimeException("Unknown action: " + msg.getAction());

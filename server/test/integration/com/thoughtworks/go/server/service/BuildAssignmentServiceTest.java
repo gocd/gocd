@@ -774,6 +774,28 @@ public class BuildAssignmentServiceTest {
         assertThat("Should not assign work when agent status is Canceled", messages.size(), is(0));
     }
 
+
+    @Test
+    public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        agentService.requestRegistration(info);
+
+        assertThat(agentService.findAgent(info.getUUId()).isRegistered(), is(false));
+
+        final List<Message> messages = new ArrayList<>();
+        Agent agent = createWebsocketAgent(messages);
+
+        info.setCookie("cookie");
+        agentRemoteHandler.process(agent, new Message(Action.ping, info));
+        buildAssignmentService.onTimer();
+
+        assertThat(messages.size(), is(1));
+        assertThat(messages.get(0).getAction(), is(Action.reregister));
+    }
+
+
     private Agent createWebsocketAgent(final List<Message> messages) {
         return new Agent() {
             @Override

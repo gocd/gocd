@@ -143,9 +143,13 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             @Override
             public void accept(String agentUUId, Agent agent) {
                 AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
-                if (!agentInstance.isRegistered() || agentInstance.isDisabled() || !agentInstance.isIdle()) {
+                if (!agentInstance.isRegistered()) {
+                    agent.send(new Message(Action.reregister));
+                    return;
+                }
+                if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignore agent that is not enabled and idling: " + agentInstance);
+                        LOGGER.debug("Ignore agent that is disabled or is not idling: " + agentInstance);
                     }
                     return;
                 }

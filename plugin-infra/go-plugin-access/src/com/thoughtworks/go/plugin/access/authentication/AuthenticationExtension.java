@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.authentication;
 
-import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.access.authentication.model.User;
@@ -52,17 +52,7 @@ public class AuthenticationExtension extends AbstractExtension {
     }
 
     public AuthenticationPluginConfiguration getPluginConfiguration(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PLUGIN_CONFIGURATION, new PluginInteractionCallback<AuthenticationPluginConfiguration>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PLUGIN_CONFIGURATION, new DefaultPluginInteractionCallback<AuthenticationPluginConfiguration>() {
             @Override
             public AuthenticationPluginConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginConfiguration(responseBody);
@@ -71,15 +61,10 @@ public class AuthenticationExtension extends AbstractExtension {
     }
 
     public User authenticateUser(String pluginId, final String username, final String password) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new PluginInteractionCallback<User>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<User>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForAuthenticateUser(username, password);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override
@@ -90,15 +75,10 @@ public class AuthenticationExtension extends AbstractExtension {
     }
 
     public List<User> searchUser(String pluginId, final String searchTerm) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SEARCH_USER, new PluginInteractionCallback<List<User>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SEARCH_USER, new DefaultPluginInteractionCallback<List<User>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForSearchUser(searchTerm);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override

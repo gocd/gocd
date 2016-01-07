@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
@@ -145,15 +145,15 @@ public class PackageAsRepositoryExtensionTest {
     public void shouldFindPluginToBeOfTypePackageRepository() throws Exception {
         when(pluginManager.hasReferenceFor(PackageMaterialProvider.class, "plugin-one")).thenReturn(true);
         when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, "plugin-two")).thenReturn(true);
-        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-one"), is(true));
-        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-two"), is(true));
+        assertThat(packageAsRepositoryExtension.canHandlePlugin("plugin-one"), is(true));
+        assertThat(packageAsRepositoryExtension.canHandlePlugin("plugin-two"), is(true));
     }
 
     @Test
     public void shouldNotFindPluginToBeOfTypePackageRepository() throws Exception {
         when(pluginManager.hasReferenceFor(PackageMaterialProvider.class, "plugin-one")).thenReturn(false);
         when(pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, "plugin-two")).thenReturn(false);
-        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-one"), is(false));
-        assertThat(packageAsRepositoryExtension.isPackageRepositoryPlugin("plugin-two"), is(false));
+        assertThat(packageAsRepositoryExtension.canHandlePlugin("plugin-one"), is(false));
+        assertThat(packageAsRepositoryExtension.canHandlePlugin("plugin-two"), is(false));
     }
 }

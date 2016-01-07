@@ -16,31 +16,82 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import com.google.gson.Gson;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
-public class Message {
-    public static String encode(Action obj) {
-        Gson gson = new Gson();
-        return gson.toJson(new Message(obj.getClass().getCanonicalName(), gson.toJson(obj)), Message.class);
+import java.io.*;
+
+public class Message implements Serializable {
+    public static String encode(Message msg) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream output;
+        try {
+            output = new ObjectOutputStream(out);
+            output.writeObject(msg);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        BASE64Encoder encoder = new BASE64Encoder();
+        return encoder.encode(out.toByteArray());
     }
 
-    public static Action decode(String message) {
-        Gson gson = new Gson();
-        Message msg = gson.fromJson(message, Message.class);
+    public static Message decode(String message) {
+        BASE64Decoder decoder = new BASE64Decoder();
         try {
-            Class k = Class.forName(msg.className);
-            return (Action) gson.fromJson(msg.json, k);
+            byte[] data = decoder.decodeBuffer(message);
+            ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(data));
+            return (Message) input.readObject();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not find class: " + msg.className, e);
+            throw new RuntimeException(e);
         }
     }
 
-    public Message(String className, String json) {
-        this.className = className;
-        this.json = json;
+    private final Action action;
+    private final Object data;
+
+    public Message(Action action) {
+        this(action, null);
     }
 
-    private final String className;
-    private final String json;
+    public Message(Action action, Object data) {
+        this.action = action;
+        this.data = data;
+    }
 
+    public Action getAction() {
+        return action;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "action=" + action +
+                ", data=" + data +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Message message = (Message) o;
+
+        if (action != message.action) return false;
+        return data != null ? data.equals(message.data) : message.data == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = action != null ? action.hashCode() : 0;
+        result = 31 * result + (data != null ? data.hashCode() : 0);
+        return result;
+    }
 }

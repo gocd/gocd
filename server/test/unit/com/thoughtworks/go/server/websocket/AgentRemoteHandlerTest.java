@@ -16,10 +16,15 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,26 +39,45 @@ import static org.mockito.Mockito.when;
 public class AgentRemoteHandlerTest implements Agent {
     private AgentRemoteHandler handler;
     private BuildRepositoryRemote remote;
-    private List<Action> sendActions = new ArrayList<Action>();
+    private AgentService agentService;
+    private List<Message> messages = new ArrayList<>();
 
     @Before
     public void setUp() {
         remote = mock(BuildRepositoryRemote.class);
-        handler = new AgentRemoteHandler(remote);
+        agentService = mock(AgentService.class);
+        handler = new AgentRemoteHandler(remote, agentService);
     }
 
     @Test
-    public void registerAgentByPing() {
+    public void registerConnectedAgentsByPing() {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(new AgentIdentifier("HostName", "ipAddress", "uuid"));
         info.setCookie("cookie");
+        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment());
+        when(agentService.findAgent("uuid")).thenReturn(agentInstance);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
 
-        handler.process(this, new Ping(info));
+        handler.process(this, new Message(Action.ping, info));
 
         verify(remote).ping(info);
         assertEquals(1, handler.connectedAgents().size());
         assertEquals(this, handler.connectedAgents().get("uuid"));
-        assertTrue(sendActions.isEmpty());
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
+    public void shouldCallForRegisterIfAgentInstanceIsNotRegistered() {
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(new AgentIdentifier("HostName", "ipAddress", "uuid"));
+        info.setCookie("cookie");
+        info.setStatus(AgentStatus.Pending);
+        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment());
+        when(agentService.findAgent("uuid")).thenReturn(agentInstance);
+
+        handler.process(this, new Message(Action.ping, info));
+
+        assertEquals(0, handler.connectedAgents().size());
+        assertEquals(1, messages.size());
+        assertEquals(Action.reregister, messages.get(0).getAction());
     }
 
     @Test
@@ -62,14 +86,14 @@ public class AgentRemoteHandlerTest implements Agent {
         info.setCookie("cookie");
         when(remote.ping(info)).thenReturn(new AgentInstruction(true));
 
-        handler.process(this, new Ping(info));
+        handler.process(this, new Message(Action.ping, info));
 
         verify(remote).ping(info);
         assertEquals(1, handler.connectedAgents().size());
         assertEquals(this, handler.connectedAgents().get("uuid"));
 
-        assertEquals(1, sendActions.size());
-        assertEquals(sendActions.get(0).getClass(), CancelJob.class);
+        assertEquals(1, messages.size());
+        assertEquals(messages.get(0).getAction(), Action.cancelJob);
     }
 
     @Test
@@ -79,13 +103,13 @@ public class AgentRemoteHandlerTest implements Agent {
         when(remote.getCookie(identifier, info.getLocation())).thenReturn("new cookie");
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
 
-        handler.process(this, new Ping(info));
+        handler.process(this, new Message(Action.ping, info));
 
         verify(remote).ping(info);
         verify(remote).getCookie(identifier, info.getLocation());
-        assertEquals(1, sendActions.size());
-        assertEquals(sendActions.get(0).getClass(), SetCookie.class);
-        assertEquals(sendActions.get(0).data(), "new cookie");
+        assertEquals(1, messages.size());
+        assertEquals(messages.get(0).getAction(), Action.setCookie);
+        assertEquals(messages.get(0).getData(), "new cookie");
     }
 
     @Test
@@ -95,18 +119,23 @@ public class AgentRemoteHandlerTest implements Agent {
         when(remote.getCookie(identifier, info.getLocation())).thenReturn("new cookie");
         when(remote.ping(info)).thenReturn(new AgentInstruction(true));
 
-        handler.process(this, new Ping(info));
+        handler.process(this, new Message(Action.ping, info));
 
         verify(remote).ping(info);
-        assertEquals(2, sendActions.size());
-        assertEquals(sendActions.get(0).getClass(), SetCookie.class);
-        assertEquals(sendActions.get(0).data(), "new cookie");
-        assertEquals(sendActions.get(1).getClass(), CancelJob.class);
+        assertEquals(2, messages.size());
+        assertEquals(messages.get(0).getAction(), Action.setCookie);
+        assertEquals(messages.get(0).getData(), "new cookie");
+        assertEquals(messages.get(1).getAction(), Action.cancelJob);
+    }
+
+    @Test
+    public void removeAgentShouldChangeAgentStatusToLostContest() {
+
     }
 
     @Override
-    public boolean send(Action action) {
-        sendActions.add(action);
+    public boolean send(Message msg) {
+        messages.add(msg);
         return true;
     }
 }

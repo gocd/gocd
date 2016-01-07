@@ -25,22 +25,20 @@ import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.websocket.Action;
 import com.thoughtworks.go.server.websocket.Agent;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
-import com.thoughtworks.go.server.websocket.AssignWork;
+import com.thoughtworks.go.server.websocket.Message;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.collections.Closure;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.ParseState;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
 import static java.lang.String.format;
@@ -145,12 +143,15 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             @Override
             public void accept(String agentUUId, Agent agent) {
                 AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
-
-                if (agentInstance.isRegistered() && !agentInstance.isDisabled() && agentInstance.isIdle()) {
-                    Work work = BuildAssignmentService.this.assignWorkToAgent(agentInstance);
-                    if (work != NO_WORK) {
-                        agent.send(new AssignWork(work));
+                if (!agentInstance.isRegistered() || agentInstance.isDisabled() || !agentInstance.isIdle()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignore agent that is not enabled and idling: " + agentInstance);
                     }
+                    return;
+                }
+                Work work = BuildAssignmentService.this.assignWorkToAgent(agentInstance);
+                if (work != NO_WORK) {
+                    agent.send(new Message(Action.assignWork, work));
                 }
             }
         });

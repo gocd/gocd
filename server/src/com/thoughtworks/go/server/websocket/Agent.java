@@ -17,5 +17,5 @@
 package com.thoughtworks.go.server.websocket;
 
 public interface Agent {
-    boolean send(Action action);
+    boolean send(Message msg);
 }

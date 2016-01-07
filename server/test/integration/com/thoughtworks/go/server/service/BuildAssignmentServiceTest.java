@@ -16,22 +16,16 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.Semaphore;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
-import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
@@ -50,7 +44,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
@@ -59,9 +52,11 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.Action;
 import com.thoughtworks.go.server.websocket.Agent;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
-import com.thoughtworks.go.server.websocket.Ping;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.server.websocket.Message;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.hamcrest.Matchers;
 import org.junit.*;
@@ -69,6 +64,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Semaphore;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -80,10 +83,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -676,17 +676,17 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Action> actions = new ArrayList<Action>();
-        Agent agent = createWebsocketAgent(actions);
+        final List<Message> messages = new ArrayList<>();
+        Agent agent = createWebsocketAgent(messages);
 
-        agentRemoteHandler.process(agent, new Ping(info));
+        agentRemoteHandler.process(agent, new Message(Action.ping, info));
 
         int before = agentService.numberOfActiveRemoteAgents();
 
         buildAssignmentService.onTimer();
 
-        assertThat(actions.size(), is(1));
-        assertThat(actions.get(0).data(), instanceOf(BuildWork.class));
+        assertThat(messages.size(), is(1));
+        assertThat(messages.get(0).getData(), instanceOf(BuildWork.class));
         assertThat(agentService.numberOfActiveRemoteAgents(), is(before + 1));
     }
 
@@ -698,14 +698,14 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Action> actions = new ArrayList<Action>();
-        Agent agent = createWebsocketAgent(actions);
+        final List<Message> messages = new ArrayList<>();
+        Agent agent = createWebsocketAgent(messages);
 
-        agentRemoteHandler.process(agent, new Ping(info));
+        agentRemoteHandler.process(agent, new Message(Action.ping, info));
 
         buildAssignmentService.onTimer();
 
-        assertThat(actions.size(), is(0));
+        assertThat(messages.size(), is(0));
     }
 
     @Test
@@ -718,13 +718,13 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Action> actions = new ArrayList<Action>();
-        Agent agent = createWebsocketAgent(actions);
+        final List<Message> messages = new ArrayList<>();
+        Agent agent = createWebsocketAgent(messages);
 
-        agentRemoteHandler.process(agent, new Ping(info));
+        agentRemoteHandler.process(agent, new Message(Action.ping, info));
         buildAssignmentService.onTimer();
 
-        assertThat(actions.size(), is(0));
+        assertThat(messages.size(), is(0));
     }
 
     @Test
@@ -743,13 +743,13 @@ public class BuildAssignmentServiceTest {
         for (AgentStatus status : statuses) {
             info.setStatus(status);
 
-            final List<Action> actions = new ArrayList<Action>();
-            Agent agent = createWebsocketAgent(actions);
+            final List<Message> messages = new ArrayList<>();
+            Agent agent = createWebsocketAgent(messages);
 
-            agentRemoteHandler.process(agent, new Ping(info));
+            agentRemoteHandler.process(agent, new Message(Action.ping, info));
             buildAssignmentService.onTimer();
 
-            assertThat("Should not assign work when agent status is " + status, actions.size(), is(0));
+            assertThat("Should not assign work when agent status is " + status, messages.size(), is(0));
         }
     }
 
@@ -761,24 +761,24 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Action> actions = new ArrayList<Action>();
-        Agent agent = createWebsocketAgent(actions);
+        final List<Message> messages = new ArrayList<>();
+        Agent agent = createWebsocketAgent(messages);
 
-        agentRemoteHandler.process(agent, new Ping(info));
+        agentRemoteHandler.process(agent, new Message(Action.ping, info));
 
         AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(info.getUUId());
         agentInstance.cancel();
 
         buildAssignmentService.onTimer();
 
-        assertThat("Should not assign work when agent status is Canceled", actions.size(), is(0));
+        assertThat("Should not assign work when agent status is Canceled", messages.size(), is(0));
     }
 
-    private Agent createWebsocketAgent(final List<Action> actions) {
+    private Agent createWebsocketAgent(final List<Message> messages) {
         return new Agent() {
             @Override
-            public boolean send(Action action) {
-                actions.add(action);
+            public boolean send(Message msg) {
+                messages.add(msg);
                 return true;
             }
         };

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.google.gson.Gson;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.ConfigCache;

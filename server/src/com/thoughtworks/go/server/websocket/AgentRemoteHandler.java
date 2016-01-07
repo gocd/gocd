@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -35,29 +37,39 @@ public class AgentRemoteHandler {
     @Qualifier("buildRepositoryMessageProducer")
     @Autowired
     private BuildRepositoryRemote buildRepositoryRemote;
+    @Autowired
+    private AgentService agentService;
 
     @Autowired
-    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote) {
+    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote, AgentService agentService) {
         this.buildRepositoryRemote = buildRepositoryRemote;
+        this.agentService = agentService;
     }
 
-    public void process(Agent agent, Action action) {
-        if (action instanceof Ping) {
-            AgentRuntimeInfo info = (AgentRuntimeInfo) action.data();
-            this.agentSessions.put(info.getUUId(), agent);
-            if (info.getCookie() == null) {
-                String cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
-                info.setCookie(cookie);
-                if (!agent.send(new SetCookie(cookie))) {
+    public void process(Agent agent, Message msg) {
+        switch (msg.getAction()) {
+            case ping:
+                AgentRuntimeInfo info = (AgentRuntimeInfo) msg.getData();
+                AgentInstance agentInstance = agentService.findAgent(info.getUUId());
+                if (!agentInstance.isRegistered()) {
+                    agent.send(new Message(Action.reregister));
                     return;
                 }
-            }
-            AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
-            if (instruction.isShouldCancelJob()) {
-                agent.send(new CancelJob());
-            }
-        } else {
-            throw new RuntimeException("Unknown action: " + action);
+                this.agentSessions.put(info.getUUId(), agent);
+                if (info.getCookie() == null) {
+                    String cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
+                    info.setCookie(cookie);
+                    if (!agent.send(new Message(Action.setCookie, cookie))) {
+                        return;
+                    }
+                }
+                AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
+                if (instruction.isShouldCancelJob()) {
+                    agent.send(new Message(Action.cancelJob, instruction));
+                }
+                break;
+            default:
+                throw new RuntimeException("Unknown action: " + msg.getAction());
         }
     }
 

@@ -40,11 +40,12 @@ public class AgentRemoteSocket implements Agent {
     }
 
     @OnWebSocketMessage
-    public void onMessage(String json) {
+    public void onMessage(String raw) {
+        Message msg = Message.decode(raw);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " json: " + json);
+            LOGGER.debug(sessionName() + " message: " + msg);
         }
-        handler.process(this, Message.decode(json));
+        handler.process(this, msg);
     }
 
     @OnWebSocketClose
@@ -61,9 +62,12 @@ public class AgentRemoteSocket implements Agent {
     }
 
     @Override
-    public boolean send(Action action) {
+    public boolean send(Message msg) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(sessionName() + " send message: " + msg);
+        }
         try {
-            this.session.getRemote().sendString(Message.encode(action));
+            this.session.getRemote().sendString(Message.encode(msg));
             return true;
         } catch (IOException e) {
             onError(e);

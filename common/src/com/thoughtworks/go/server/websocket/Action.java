@@ -16,6 +16,10 @@
 
 package com.thoughtworks.go.server.websocket;
 
-public interface Action {
-    Object data();
+public enum Action {
+    assignWork,
+    cancelJob,
+    ping,
+    reregister,
+    setCookie
 }

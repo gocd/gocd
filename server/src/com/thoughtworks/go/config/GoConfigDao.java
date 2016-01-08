@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,21 +51,21 @@ public class GoConfigDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigDao.class);
     private CachedGoConfig cachedConfigService;
     private MetricsProbeService metricsProbeService;
-    private final Object writeLock;
+    private final GoConfigWriteLock goConfigWriteLock;
     private Cloner cloner = new Cloner();
 
     //used in tests
-    public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
+    public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService, GoConfigWriteLock goConfigWriteLock) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
-        writeLock = new Object();
+        this.goConfigWriteLock = goConfigWriteLock;
     }
 
     @Autowired
-    public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
+    public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService, GoConfigWriteLock goConfigWriteLock) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
-        writeLock = new Object();
+        this.goConfigWriteLock = goConfigWriteLock;
     }
 
     public String fileLocation() {
@@ -179,7 +179,7 @@ public class GoConfigDao {
     }
 
     public void updatePipeline(PipelineConfig pipelineConfig, LocalizedOperationResult result, Username currentUser, PipelineConfigService.SaveCommand saveCommand) {
-        synchronized (writeLock) {
+        synchronized (goConfigWriteLock.mutex()) {
             if (saveCommand.hasWritePermissions()) {
                 try {
                     cachedConfigService.writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
@@ -194,7 +194,7 @@ public class GoConfigDao {
         Context context = metricsProbeService.begin(ProbeType.UPDATE_CONFIG);
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
         try {
-            synchronized (writeLock) {
+            synchronized (goConfigWriteLock.mutex()) {
                 try {
                     LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
                     if (command instanceof CheckedUpdateCommand) {

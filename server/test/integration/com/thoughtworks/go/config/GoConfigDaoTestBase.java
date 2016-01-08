@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -571,7 +571,7 @@ public abstract class GoConfigDaoTestBase {
         when(saveCommand.hasWritePermissions()).thenReturn(false);
 
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
-        goConfigDao = new GoConfigDao(cachedConfigService, null);
+        goConfigDao = new GoConfigDao(cachedConfigService, null, new GoConfigWriteLock());
         goConfigDao.updatePipeline(pipelineConfig, result, new Username(new CaseInsensitiveString("user")), saveCommand);
 
         verifyZeroInteractions(cachedConfigService);
@@ -587,7 +587,7 @@ public abstract class GoConfigDaoTestBase {
 
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
         doThrow(new ConfigUpdateCheckFailedException()).when(cachedConfigService).writePipelineWithLock(pipelineConfig, saveCommand, username);
-        goConfigDao = new GoConfigDao(cachedConfigService, null);
+        goConfigDao = new GoConfigDao(cachedConfigService, null, new GoConfigWriteLock());
         goConfigDao.updatePipeline(pipelineConfig, result, username, saveCommand);
 
         verify(result).unprocessableEntity(Matchers.<Localizable>any());
@@ -602,7 +602,7 @@ public abstract class GoConfigDaoTestBase {
         when(saveCommand.hasWritePermissions()).thenReturn(true);
 
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
-        goConfigDao = new GoConfigDao(cachedConfigService, null);
+        goConfigDao = new GoConfigDao(cachedConfigService, null, new GoConfigWriteLock());
         Username currentUser = new Username(new CaseInsensitiveString("user"));
         goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
 
     private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
+    private final GoConfigWriteLock goConfigWriteLock;
     private List<ConfigChangedListener> listeners = new ArrayList<ConfigChangedListener>();
 
     private volatile CruiseConfig currentConfig;
@@ -50,9 +51,10 @@ public class CachedFileGoConfig implements CachedGoConfig {
     private volatile Exception lastException;
     private volatile GoConfigHolder configHolder;
 
-    @Autowired public CachedFileGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService) {
+    @Autowired public CachedFileGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService, GoConfigWriteLock goConfigWriteLock) {
         this.dataSource = dataSource;
         this.serverHealthService = serverHealthService;
+        this.goConfigWriteLock = goConfigWriteLock;
     }
 
     @Override
@@ -83,9 +85,8 @@ public class CachedFileGoConfig implements CachedGoConfig {
     }
 
     @Override
-    public void forceReload()
-    {
-        loadFromDisk();
+    public void forceReload() {
+            loadFromDisk();
     }
 
     //NOTE: This method is called on a thread from Spring
@@ -95,9 +96,12 @@ public class CachedFileGoConfig implements CachedGoConfig {
 
     private synchronized void loadFromDisk() {
         try {
-            GoConfigHolder configHolder = dataSource.load();
-            if (configHolder != null) {
-                saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+            synchronized (goConfigWriteLock.mutex())
+            {
+                GoConfigHolder configHolder = dataSource.load();
+                if (configHolder != null) {
+                    saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+                }
             }
         } catch (Exception e) {
             LOGGER.warn("Error loading cruise-config.xml from disk, keeping previous one", e);

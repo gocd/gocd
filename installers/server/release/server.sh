@@ -31,6 +31,7 @@ SERVER_DIR=`(cd "$CWD" && pwd)`
 [ ! -z $SERVER_MEM ] || SERVER_MEM="512m"
 [ ! -z $SERVER_MAX_MEM ] || SERVER_MAX_MEM="1024m"
 [ ! -z $SERVER_MAX_PERM_GEN ] || SERVER_MAX_PERM_GEN="256m"
+[ ! -z $SERVER_MAX_METASPACE ] || SERVER_MAX_METASPACE="256m"
 [ ! -z $SERVER_MIN_PERM_GEN ] || SERVER_MIN_PERM_GEN="128m"
 [ ! -z $GO_SERVER_PORT ] || GO_SERVER_PORT="8153"
 [ ! -z $GO_SERVER_SSL_PORT ] || GO_SERVER_SSL_PORT="8154"
@@ -113,9 +114,11 @@ if [ ! -z $SERVER_LISTEN_HOST ]; then
     GO_SERVER_SYSTEM_PROPERTIES="$GO_SERVER_SYSTEM_PROPERTIES -Dcruise.listen.host=$SERVER_LISTEN_HOST"
 fi
 SERVER_STARTUP_ARGS+=("-server $YOURKIT")
+SERVER_STARTUP_ARGS+=("-XX:+IgnoreUnrecognizedVMOptions")
 SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM -Xmx$SERVER_MAX_MEM -XX:PermSize=$SERVER_MIN_PERM_GEN -XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
+SERVER_STARTUP_ARGS+=("-XX:MaxMetaspaceSize=$SERVER_MAX_METASPACE")
 SERVER_STARTUP_ARGS+=("$JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES")
-SERVER_STARTUP_ARGS+=("-Duser.language=en -Djruby.rack.request.size.threshold.bytes=30000000")
+SERVER_STARTUP_ARGS+=("-Duser.language=en -Djruby.rack.request.size.threshold.bytes=30000000 -Djruby.compile.invokedynamic=false")
 SERVER_STARTUP_ARGS+=("-Duser.country=US -Dcruise.config.dir=$GO_CONFIG_DIR -Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
 SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
 if [ "$TMPDIR" != "" ]; then

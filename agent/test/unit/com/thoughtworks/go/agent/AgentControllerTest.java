@@ -39,6 +39,7 @@ import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.SleepWork;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +51,7 @@ import org.mockito.stubbing.Answer;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
@@ -62,6 +64,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class AgentControllerTest {
+    public static final int MAX_WAIT_IN_TEST = 10000;
     @Mock
     private BuildRepositoryRemote loopServer;
     @Mock
@@ -220,7 +223,7 @@ public class AgentControllerTest {
         agentController = createAgentController();
         agentController.init();
 
-        agentController.ping();
+        agentController.loop();
 
         verify(agentUpgradeService).checkForUpgrade();
         verify(sslInfrastructureService).registerIfNecessary();
@@ -239,7 +242,7 @@ public class AgentControllerTest {
         agentController = createAgentController();
         agentController.init();
 
-        agentController.ping();
+        agentController.loop();
 
         verify(agentUpgradeService).checkForUpgrade();
         verify(sslInfrastructureService).registerIfNecessary();
@@ -280,29 +283,22 @@ public class AgentControllerTest {
     public void processCancelJobAction() throws IOException, InterruptedException {
         agentController = createAgentController();
         agentController.init();
-        final CountDownLatch cancelJob = new CountDownLatch(1);
-        final CountDownLatch doWork = new CountDownLatch(1);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                cancelJob.countDown();
-                doWork.await();
-                return null;
-            }
-        }).when(work).doWork(any(AgentIdentifier.class), any(BuildRepositoryRemote.class), any(GoArtifactsManipulator.class), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), any(PackageAsRepositoryExtension.class), any(SCMExtension.class), any(TaskExtension.class));
+        final SleepWork sleep1secWork = new SleepWork();
 
         Thread buildingThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                agentController.process(new Message(Action.assignWork, work));
+                agentController.process(new Message(Action.assignWork, sleep1secWork));
             }
         });
         buildingThread.start();
-        cancelJob.await();
+        sleep1secWork.started.await(MAX_WAIT_IN_TEST, TimeUnit.MILLISECONDS);
+
         agentController.process(new Message(Action.cancelJob));
-        doWork.countDown();
-        buildingThread.join();
-        verify(work).cancel(any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()));
+        buildingThread.join(MAX_WAIT_IN_TEST);
+
+        assertThat(sleep1secWork.done.get(), is(true));
+        assertThat(sleep1secWork.canceled.get(), is(true));
     }
 
     @Test
@@ -314,6 +310,29 @@ public class AgentControllerTest {
 
         verify(sslInfrastructureService).invalidateAgentCertificate();
         verify(agentWebsocketService).stop();
+    }
+
+    @Test
+    public void shouldCancelPreviousRunningJobIfANewAssignWorkMessageIsReceived() throws IOException, InterruptedException {
+        agentController = createAgentController();
+        agentController.init();
+        final SleepWork work1 = new SleepWork();
+        Thread work1Thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                agentController.process(new Message(Action.assignWork, work1));
+            }
+        });
+        work1Thread.start();
+        work1.started.await(MAX_WAIT_IN_TEST, TimeUnit.MILLISECONDS);
+        SleepWork work2 = new SleepWork(0);
+        agentController.process(new Message(Action.assignWork, work2));
+        work1Thread.join(MAX_WAIT_IN_TEST);
+
+        assertThat(work1.done.get(), is(true));
+        assertThat(work1.canceled.get(), is(true));
+        assertThat(work2.done.get(), is(true));
+        assertThat(work2.canceled.get(), is(false));
     }
 
     private AgentController createAgentController() {

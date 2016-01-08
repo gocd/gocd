@@ -261,9 +261,7 @@ public class AgentController {
     public void process(Message message) {
         switch (message.getAction()) {
             case cancelJob:
-                if (runner != null) {
-                    runner.handleInstruction(new AgentInstruction(true), agentRuntimeInfo);
-                }
+                cancelJobIfThereIsOneRunning();
                 break;
             case setCookie:
                 String cookie = (String) message.getData();
@@ -271,15 +269,19 @@ public class AgentController {
                 LOG.info(String.format("Got cookie: %s ", cookie));
                 break;
             case assignWork:
+                cancelJobIfThereIsOneRunning();
                 Work work = (Work) message.getData();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Got work from server: [%s]", work.description()));
                 }
-
+                agentRuntimeInfo.idle();
                 runner = new JobRunner();
                 try {
-                    runner.run(work, agentIdentifier(), new AgentWebsocketService.BuildRepositoryRemoteAdapter(runner, websocketService),
-                            manipulator, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+                    runner.run(work, agentIdentifier(),
+                            new AgentWebsocketService.BuildRepositoryRemoteAdapter(runner, websocketService),
+                            manipulator, agentRuntimeInfo,
+                            packageAsRepositoryExtension, scmExtension,
+                            taskExtension);
                 } finally {
                     agentRuntimeInfo.idle();
                 }
@@ -292,6 +294,18 @@ public class AgentController {
             default:
                 throw new RuntimeException("Unknown action: " + message.getAction());
 
+        }
+    }
+
+    private void cancelJobIfThereIsOneRunning() {
+        if (runner == null || !runner.isRunning()) {
+            return;
+        }
+        LOG.info("Cancel running job");
+        runner.handleInstruction(new AgentInstruction(true), agentRuntimeInfo);
+        runner.waitUntilDone(30);
+        if (runner.isRunning()) {
+            LOG.error("Waited 30 seconds for canceling job finish, but the job is still running. Maybe canceling job does not work as expected, here is running job details: " + runner);
         }
     }
 }

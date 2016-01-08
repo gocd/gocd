@@ -27,11 +27,15 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JobRunner {
     private AtomicBoolean handled = new AtomicBoolean(false);
     private AtomicBoolean isJobCancelled = new AtomicBoolean(false);
+    private AtomicBoolean running = new AtomicBoolean(false);
+    private CountDownLatch doneSignal = new CountDownLatch(1);
     private Work work;
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -51,8 +55,26 @@ public class JobRunner {
 
     public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
                     PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+        running.set(true);
         this.work = work;
-        work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+        try {
+            work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+        } finally {
+            running.set(false);
+            doneSignal.countDown();
+        }
+    }
+
+    public boolean isRunning() {
+        return running.get();
+    }
+
+    public void waitUntilDone(long seconds) {
+        try {
+            doneSignal.await(seconds, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isJobCancelled() {
@@ -62,5 +84,17 @@ public class JobRunner {
     //Used for tests only
     void setWork(Work work) {
         this.work = work;
+    }
+
+    @Override
+    public String toString() {
+        return "JobRunner{" +
+                "handled=" + handled +
+                ", isJobCancelled=" + isJobCancelled +
+                ", running=" + running +
+                ", doneSignal=" + doneSignal +
+                ", work=" + work +
+                ", environmentVariableContext=" + environmentVariableContext +
+                '}';
     }
 }

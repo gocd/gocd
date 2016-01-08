@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,6 +199,7 @@ define([
   var MaterialConfigWrapper = {
     controller: function (args) {
       this.args = args;
+      this.pipelineName= args.pipelineName
       ComponentMixins.HasViewModel.call(this);
     },
 
@@ -207,6 +208,7 @@ define([
         <div class='material-definitions'>
           <MaterialsConfigWidget materials={args.materials}
                                  key={args.materials.uuid()}
+                                 pipelineName={args.pipelineName}
                                  vm={ctrl.vmState('materialsConfig')}/>
         </div>
       );
@@ -235,6 +237,7 @@ define([
 
       if (args.currentSelection() === args.pipeline().materials()) {
         componentToShow = <MaterialConfigWrapper materials={args.pipeline().materials()}
+                                                 pipelineName={args.pipeline().name}
                                                  vm={ctrl.vmState('materialConfigs')}/>;
       } else {
         componentToShow = <StageConfigDefinitionWidget stage={ctrl.currentSelection()}

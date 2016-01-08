@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 define([
   'mithril', 'lodash', 'jquery', 'string-plus',
   '../helpers/form_helper', '../helpers/tooltips', '../helpers/mithril_component_mixins',
-  '../models/materials'
+  '../models/materials', './test_connection_widget'
 ], function (m, _, $, s,
              f, tt, ComponentMixins,
-             Materials) {
+             Materials, TestConnectionWidget) {
 
   var FORM_FIELD_SIZE = 3;
 
@@ -61,12 +61,12 @@ define([
         this.args     = args;
         this.material = args.material;
         this.onRemove = args.onRemove;
+        this.pipelineName = args.pipelineName;
         ComponentMixins.HasViewModel.call(this);
       },
 
       view: function (ctrl, args, children) {
         var destinationField, filterField;
-
         if (ctrl.material.destination) {
           destinationField = (
             <f.inputWithLabel attrName='destination'
@@ -110,9 +110,11 @@ define([
                             attrName='autoUpdate'
                             addPadding={true}
                             end={true}/>
+                <TestConnectionWidget material={ctrl.material}
+                                      pipelineName={ctrl.pipelineName}
+                                      vm={ctrl.vmState('testConnection')}/>
               </f.row>
               {children}
-
               <f.row>
                 {filterField}
               </f.row>
@@ -149,6 +151,7 @@ define([
     git: {
       view: function (controller, args) {
         var material = args.material;
+
         return (
           <MaterialViews.base {...args}>
             <f.row>
@@ -272,6 +275,7 @@ define([
     controller: function (args) {
       this.materials = args.materials;
       this.args      = args;
+      this.pipelineName = args.pipelineName;
       ComponentMixins.HasViewModel.call(this);
 
       this.removeMaterial = function (material) {
@@ -294,6 +298,7 @@ define([
               material: material,
               onRemove: ctrl.removeMaterial.bind(ctrl, material),
               key:      material.uuid(),
+              pipelineName: ctrl.pipelineName,
               vm:       ctrl.vmState('material-' + index)
             }));
           })}

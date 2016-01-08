@@ -540,6 +540,5 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
         }
       });
     });
-
   });
 });

@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,13 +33,10 @@ public class AgentRemoteHandler {
     @Qualifier("buildRepositoryMessageProducer")
     @Autowired
     private BuildRepositoryRemote buildRepositoryRemote;
-    @Autowired
-    private AgentService agentService;
 
     @Autowired
-    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote, AgentService agentService) {
+    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote) {
         this.buildRepositoryRemote = buildRepositoryRemote;
-        this.agentService = agentService;
     }
 
     public void process(Agent agent, Message msg) {

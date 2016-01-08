@@ -38,22 +38,18 @@ import static org.mockito.Mockito.when;
 public class AgentRemoteHandlerTest implements Agent {
     private AgentRemoteHandler handler;
     private BuildRepositoryRemote remote;
-    private AgentService agentService;
     private List<Message> messages = new ArrayList<>();
 
     @Before
     public void setUp() {
         remote = mock(BuildRepositoryRemote.class);
-        agentService = mock(AgentService.class);
-        handler = new AgentRemoteHandler(remote, agentService);
+        handler = new AgentRemoteHandler(remote);
     }
 
     @Test
     public void registerConnectedAgentsByPing() {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(new AgentIdentifier("HostName", "ipAddress", "uuid"));
         info.setCookie("cookie");
-        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment());
-        when(agentService.findAgent("uuid")).thenReturn(agentInstance);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
 
         handler.process(this, new Message(Action.ping, info));

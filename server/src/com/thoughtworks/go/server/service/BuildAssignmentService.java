@@ -39,6 +39,7 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 import static java.lang.String.format;
@@ -129,17 +130,22 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
 
     public void onTimer() {
         reloadJobPlans();
+        matchingJobForRegisteredAgents();
     }
 
     private void reloadJobPlans() {
         synchronized (this) {
             jobPlans = jobInstanceService.orderedScheduledBuilds();
         }
-        matchingJobForRegisteredAgents();
     }
 
     private void matchingJobForRegisteredAgents() {
-        agentRemoteHandler.connectedAgents().forEach(new BiConsumer<String, Agent>() {
+        Map<String, Agent> agents = agentRemoteHandler.connectedAgents();
+        if (agents.isEmpty()) {
+            return;
+        }
+        Long start = System.currentTimeMillis();
+        agents.forEach(new BiConsumer<String, Agent>() {
             @Override
             public void accept(String agentUUId, Agent agent) {
                 AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
@@ -159,6 +165,7 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
                 }
             }
         });
+        LOGGER.info(format("Matching %d agents with %d jobs took: %dms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start));
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {

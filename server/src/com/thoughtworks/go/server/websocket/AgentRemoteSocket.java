@@ -20,8 +20,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 
 @WebSocket
 public class AgentRemoteSocket implements Agent {
@@ -71,17 +70,11 @@ public class AgentRemoteSocket implements Agent {
     }
 
     @Override
-    public boolean send(Message msg) {
+    public Future<Void> send(Message msg) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sessionName() + " send message: " + msg);
         }
-        try {
-            this.session.getRemote().sendString(Message.encode(msg));
-            return true;
-        } catch (IOException e) {
-            onError(e);
-            return false;
-        }
+        return this.session.getRemote().sendStringByFuture(Message.encode(msg));
     }
 
     private String sessionName() {

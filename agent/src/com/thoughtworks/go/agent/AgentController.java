@@ -241,7 +241,6 @@ public class AgentController {
             sslInfrastructureService.registerIfNecessary();
             if (sslInfrastructureService.isRegistered()) {
                 if (!websocketService.isRunning()) {
-                    LOG.info("Connect to server by websocket");
                     websocketService.start();
                 }
                 AgentIdentifier agent = agentIdentifier();

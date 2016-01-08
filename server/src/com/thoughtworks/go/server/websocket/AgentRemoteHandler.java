@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -28,15 +30,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class AgentRemoteHandler {
-    private Map<String, Agent> agentSessions = new ConcurrentHashMap();
+    private Map<String, Agent> agentSessions = new ConcurrentHashMap<>();
 
     @Qualifier("buildRepositoryMessageProducer")
     @Autowired
     private BuildRepositoryRemote buildRepositoryRemote;
+    @Autowired
+    private AgentService agentService;
 
     @Autowired
-    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote) {
+    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote, AgentService agentService) {
         this.buildRepositoryRemote = buildRepositoryRemote;
+        this.agentService = agentService;
     }
 
     public void process(Agent agent, Message msg) {
@@ -47,9 +52,7 @@ public class AgentRemoteHandler {
                 if (info.getCookie() == null) {
                     String cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
                     info.setCookie(cookie);
-                    if (!agent.send(new Message(Action.setCookie, cookie))) {
-                        return;
-                    }
+                    agent.send(new Message(Action.setCookie, cookie));
                 }
                 AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
                 if (instruction.isShouldCancelJob()) {
@@ -77,6 +80,8 @@ public class AgentRemoteHandler {
         for(Map.Entry<String, Agent> entry : agentSessions.entrySet()) {
             if (entry.getValue().equals(agent)) {
                 agentSessions.remove(entry.getKey());
+                AgentInstance instance = agentService.findAgent(entry.getKey());
+                instance.lostContact();
                 return;
             }
         }

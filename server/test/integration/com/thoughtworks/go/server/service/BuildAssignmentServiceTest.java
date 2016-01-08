@@ -49,10 +49,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.websocket.Action;
-import com.thoughtworks.go.server.websocket.Agent;
-import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
-import com.thoughtworks.go.server.websocket.Message;
+import com.thoughtworks.go.server.websocket.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -71,7 +68,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -124,6 +121,7 @@ public class BuildAssignmentServiceTest {
     private PipelineWithTwoStages fixture;
     private String md5 = "md5-test";
     private Username loserUser = new Username(new CaseInsensitiveString("loser"));
+    private AgentStub agent;
 
     @BeforeClass
     public static void setupRepos() throws IOException {
@@ -151,6 +149,8 @@ public class BuildAssignmentServiceTest {
         goConfigService.forceNotifyListeners();
         goCache.clear();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
+
+        agent = new AgentStub();
     }
 
     @After
@@ -676,17 +676,14 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Message> messages = new ArrayList<>();
-        Agent agent = createWebsocketAgent(messages);
-
         agentRemoteHandler.process(agent, new Message(Action.ping, info));
 
         int before = agentService.numberOfActiveRemoteAgents();
 
         buildAssignmentService.onTimer();
 
-        assertThat(messages.size(), is(1));
-        assertThat(messages.get(0).getData(), instanceOf(BuildWork.class));
+        assertThat(agent.messages.size(), is(1));
+        assertThat(agent.messages.get(0).getData(), instanceOf(BuildWork.class));
         assertThat(agentService.numberOfActiveRemoteAgents(), is(before + 1));
     }
 
@@ -698,14 +695,11 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Message> messages = new ArrayList<>();
-        Agent agent = createWebsocketAgent(messages);
-
         agentRemoteHandler.process(agent, new Message(Action.ping, info));
 
         buildAssignmentService.onTimer();
 
-        assertThat(messages.size(), is(0));
+        assertThat(agent.messages.size(), is(0));
     }
 
     @Test
@@ -718,13 +712,10 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Message> messages = new ArrayList<>();
-        Agent agent = createWebsocketAgent(messages);
-
         agentRemoteHandler.process(agent, new Message(Action.ping, info));
         buildAssignmentService.onTimer();
 
-        assertThat(messages.size(), is(0));
+        assertThat(agent.messages.size(), is(0));
     }
 
     @Test
@@ -742,14 +733,12 @@ public class BuildAssignmentServiceTest {
         };
         for (AgentStatus status : statuses) {
             info.setStatus(status);
-
-            final List<Message> messages = new ArrayList<>();
-            Agent agent = createWebsocketAgent(messages);
+            agent = new AgentStub();
 
             agentRemoteHandler.process(agent, new Message(Action.ping, info));
             buildAssignmentService.onTimer();
 
-            assertThat("Should not assign work when agent status is " + status, messages.size(), is(0));
+            assertThat("Should not assign work when agent status is " + status, agent.messages.size(), is(0));
         }
     }
 
@@ -761,9 +750,6 @@ public class BuildAssignmentServiceTest {
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
         info.setCookie("cookie");
 
-        final List<Message> messages = new ArrayList<>();
-        Agent agent = createWebsocketAgent(messages);
-
         agentRemoteHandler.process(agent, new Message(Action.ping, info));
 
         AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(info.getUUId());
@@ -771,7 +757,7 @@ public class BuildAssignmentServiceTest {
 
         buildAssignmentService.onTimer();
 
-        assertThat("Should not assign work when agent status is Canceled", messages.size(), is(0));
+        assertThat("Should not assign work when agent status is Canceled", agent.messages.size(), is(0));
     }
 
 
@@ -784,26 +770,12 @@ public class BuildAssignmentServiceTest {
 
         assertThat(agentService.findAgent(info.getUUId()).isRegistered(), is(false));
 
-        final List<Message> messages = new ArrayList<>();
-        Agent agent = createWebsocketAgent(messages);
-
         info.setCookie("cookie");
         agentRemoteHandler.process(agent, new Message(Action.ping, info));
         buildAssignmentService.onTimer();
 
-        assertThat(messages.size(), is(1));
-        assertThat(messages.get(0).getAction(), is(Action.reregister));
-    }
-
-
-    private Agent createWebsocketAgent(final List<Message> messages) {
-        return new Agent() {
-            @Override
-            public boolean send(Message msg) {
-                messages.add(msg);
-                return true;
-            }
-        };
+        assertThat(agent.messages.size(), is(1));
+        assertThat(agent.messages.get(0).getAction(), is(Action.reregister));
     }
 
     private JobInstance buildOf(Pipeline pipeline) {

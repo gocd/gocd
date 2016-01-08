@@ -200,6 +200,13 @@ public class AgentInstance implements Comparable<AgentInstance> {
         }
     }
 
+    public void lostContact() {
+        if (agentConfigStatus == AgentConfigStatus.Pending || agentConfigStatus == AgentConfigStatus.Disabled) {
+            return;
+        }
+        agentRuntimeInfo.setRuntimeStatus(AgentRuntimeStatus.LostContact, null);
+    }
+
     boolean isTimeout(Date lastHeardTime) {
         return (timeProvider.currentTime().getTime() - lastHeardTime.getTime()) / 1000 >= systemEnvironment.getAgentConnectionTimeout();
     }

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import java.util.concurrent.Future;
+
 public interface Agent {
-    boolean send(Message msg);
+    Future<Void> send(Message msg);
 }

@@ -120,6 +120,7 @@ public class AgentWebsocketService {
         if (session != null) {
             session.close();
         }
+        LOGGER.info("Connecting to websocket endpoint: " + urlService.getAgentRemoteWebSocketUrl());
         session = client.connect(this, new URI(urlService.getAgentRemoteWebSocketUrl()), new ClientUpgradeRequest()).get();
     }
 

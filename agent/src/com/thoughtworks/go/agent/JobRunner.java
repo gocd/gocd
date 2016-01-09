@@ -24,49 +24,48 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JobRunner {
-    private AtomicBoolean handled = new AtomicBoolean(false);
-    private AtomicBoolean isJobCancelled = new AtomicBoolean(false);
-    private AtomicBoolean running = new AtomicBoolean(false);
+    private volatile boolean handled = false;
+    private volatile boolean isJobCancelled = false;
+    private volatile boolean running = false;
     private CountDownLatch doneSignal = new CountDownLatch(1);
     private Work work;
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
     public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
-        if (instruction.isShouldCancelJob() && !handled.get()) {
+        if (instruction.isShouldCancelJob() && !handled) {
             cancelJob(agentStatus);
         }
     }
 
     private void cancelJob(AgentRuntimeInfo agentRuntimeInfo) {
-        isJobCancelled.set(true);
+        isJobCancelled = true;
         if (work != null) {
             work.cancel(environmentVariableContext, agentRuntimeInfo);
         }
-        handled.set(true);
+        handled = true;
     }
 
-    public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
-                    PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
-        running.set(true);
+    public void run(Work work, final AgentIdentifier agentIdentifier, final BuildRepositoryRemote server, final GoArtifactsManipulator manipulator, final AgentRuntimeInfo agentRuntimeInfo,
+                    final PackageAsRepositoryExtension packageAsRepositoryExtension, final SCMExtension scmExtension, final TaskExtension taskExtension) {
+        running = true;
         this.work = work;
         try {
             work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
         } finally {
-            running.set(false);
+            running = false;
             doneSignal.countDown();
         }
     }
 
     public boolean isRunning() {
-        return running.get();
+        return running;
     }
 
     public void waitUntilDone(long seconds) {
@@ -78,7 +77,7 @@ public class JobRunner {
     }
 
     public boolean isJobCancelled() {
-        return isJobCancelled.get();
+        return isJobCancelled;
     }
 
     //Used for tests only

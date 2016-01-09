@@ -43,6 +43,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @Component
 @WebSocket
@@ -96,6 +98,7 @@ public class AgentWebsocketService {
     private Session session;
     private URLService urlService;
     private WebSocketClient client;
+    private Executor executor = Executors.newFixedThreadPool(5);
 
     @Autowired
     public AgentWebsocketService(URLService urlService) {
@@ -160,11 +163,16 @@ public class AgentWebsocketService {
 
     @OnWebSocketMessage
     public void onMessage(String raw) {
-        Message msg = Message.decode(raw);
+        final Message msg = Message.decode(raw);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sessionName() + " message: " + msg);
         }
-        this.controller.process(msg);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                AgentWebsocketService.this.controller.process(msg);
+            }
+        });
     }
 
     @OnWebSocketClose

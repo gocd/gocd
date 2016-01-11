@@ -102,8 +102,7 @@ public class ApprovalTest {
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -125,8 +124,7 @@ public class ApprovalTest {
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
-        AdminRole role = approval.getAuthConfig().getRoles().get(0);
-        assertThat(role.errors().getAll().toString(), role.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getRoles().get(0));
     }
 
     @Test
@@ -237,8 +235,7 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -255,8 +252,7 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -273,8 +269,7 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -291,8 +286,30 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
+    }
+
+    @Test
+    public void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() throws Exception {
+        CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
+                new Role(new CaseInsensitiveString("role"),
+                        new RoleUser(new CaseInsensitiveString("first")),
+                        new RoleUser(new CaseInsensitiveString("second"))),
+                new AdminUser(new CaseInsensitiveString("admin")));
+
+        addRoleAsAdminToDefaultGroup(cruiseConfig, "role");
+
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
+        StageConfig stage = pipeline.get(0);
+        StageConfigMother.addApprovalWithUsers(stage, "first", "some-other-user-who-is-not-operate-authorized");
+        Approval approval = stage.getApproval();
+        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
+
+        approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
+
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
+        /* https://github.com/gocd/gocd/pull/1779#issuecomment-170161521 */
+        assertNoErrors(approval.getAuthConfig().getUsers().get(1));
     }
 
     @Test
@@ -308,8 +325,7 @@ public class ApprovalTest {
         Approval approval = stage.getApproval();
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new TemplatesConfig(), stage));
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -363,5 +379,9 @@ public class ApprovalTest {
         HashMap nameMap = new HashMap();
         nameMap.put("name", name);
         return nameMap;
+    }
+
+    private void assertNoErrors(Admin userOrRole) {
+        assertThat(userOrRole.errors().getAll().toString(), userOrRole.errors().isEmpty(), is(true));
     }
 }

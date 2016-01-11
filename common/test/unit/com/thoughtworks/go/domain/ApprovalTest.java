@@ -102,8 +102,7 @@ public class ApprovalTest {
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -125,8 +124,7 @@ public class ApprovalTest {
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
-        AdminRole role = approval.getAuthConfig().getRoles().get(0);
-        assertThat(role.errors().getAll().toString(), role.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getRoles().get(0));
     }
 
     @Test
@@ -237,8 +235,7 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -255,8 +252,7 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -273,8 +269,7 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -291,8 +286,7 @@ public class ApprovalTest {
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -331,8 +325,7 @@ public class ApprovalTest {
         Approval approval = stage.getApproval();
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new TemplatesConfig(), stage));
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test

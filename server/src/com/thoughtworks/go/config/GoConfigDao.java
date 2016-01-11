@@ -51,21 +51,18 @@ public class GoConfigDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigDao.class);
     private CachedGoConfig cachedConfigService;
     private MetricsProbeService metricsProbeService;
-    private final GoConfigWriteLock goConfigWriteLock;
     private Cloner cloner = new Cloner();
 
     //used in tests
-    public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService, GoConfigWriteLock goConfigWriteLock) {
+    public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
-        this.goConfigWriteLock = goConfigWriteLock;
     }
 
     @Autowired
-    public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService, GoConfigWriteLock goConfigWriteLock) {
+    public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
-        this.goConfigWriteLock = goConfigWriteLock;
     }
 
     public String fileLocation() {
@@ -179,7 +176,7 @@ public class GoConfigDao {
     }
 
     public void updatePipeline(PipelineConfig pipelineConfig, LocalizedOperationResult result, Username currentUser, PipelineConfigService.SaveCommand saveCommand) {
-        synchronized (goConfigWriteLock.mutex()) {
+        synchronized (GoConfigWriteLock.class) {
             if (saveCommand.hasWritePermissions()) {
                 try {
                     cachedConfigService.writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
@@ -194,7 +191,7 @@ public class GoConfigDao {
         Context context = metricsProbeService.begin(ProbeType.UPDATE_CONFIG);
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
         try {
-            synchronized (goConfigWriteLock.mutex()) {
+            synchronized (GoConfigWriteLock.class) {
                 try {
                     LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
                     if (command instanceof CheckedUpdateCommand) {

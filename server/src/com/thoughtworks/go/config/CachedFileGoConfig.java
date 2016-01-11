@@ -43,7 +43,6 @@ public class CachedFileGoConfig implements CachedGoConfig {
 
     private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
-    private final GoConfigWriteLock goConfigWriteLock;
     private List<ConfigChangedListener> listeners = new ArrayList<ConfigChangedListener>();
 
     private volatile CruiseConfig currentConfig;
@@ -51,10 +50,9 @@ public class CachedFileGoConfig implements CachedGoConfig {
     private volatile Exception lastException;
     private volatile GoConfigHolder configHolder;
 
-    @Autowired public CachedFileGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService, GoConfigWriteLock goConfigWriteLock) {
+    @Autowired public CachedFileGoConfig(GoFileConfigDataSource dataSource, ServerHealthService serverHealthService) {
         this.dataSource = dataSource;
         this.serverHealthService = serverHealthService;
-        this.goConfigWriteLock = goConfigWriteLock;
     }
 
     @Override
@@ -86,7 +84,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
 
     @Override
     public void forceReload() {
-            loadFromDisk();
+        loadFromDisk();
     }
 
     //NOTE: This method is called on a thread from Spring
@@ -94,10 +92,9 @@ public class CachedFileGoConfig implements CachedGoConfig {
         this.forceReload();
     }
 
-    private synchronized void loadFromDisk() {
+    private void loadFromDisk() {
         try {
-            synchronized (goConfigWriteLock.mutex())
-            {
+            synchronized (GoConfigWriteLock.class) {
                 GoConfigHolder configHolder = dataSource.load();
                 if (configHolder != null) {
                     saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);

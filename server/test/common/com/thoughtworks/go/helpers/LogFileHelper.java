@@ -221,8 +221,8 @@ public final class LogFileHelper {
             super(new GoConfigDao(new MergedGoConfig(new ServerHealthService(),
                           new CachedFileGoConfig(new GoFileConfigDataSource(new DoNotUpgrade(), mock(ConfigRepository.class), new SystemEnvironment(), new TimeProvider(),
                                   new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService, new ServerHealthService()),
-                                  new ServerHealthService(), new GoConfigWriteLock()),mock(GoPartialConfig.class)),
-                    metricsProbeService, new GoConfigWriteLock()) {
+                                  new ServerHealthService()),mock(GoPartialConfig.class)),
+                    metricsProbeService) {
                 public CruiseConfig load() {
                     return null;
                 }

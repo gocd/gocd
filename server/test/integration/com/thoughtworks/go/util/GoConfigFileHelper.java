@@ -122,14 +122,14 @@ public class GoConfigFileHelper {
                     configCache, new ServerVersion(), configElementImplementationRegistry, probeService, serverHealthService);
             dataSource.upgradeIfNecessary();
             GoConfigWriteLock goConfigWriteLock = new GoConfigWriteLock();
-            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService, goConfigWriteLock);
+            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
             GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
                     new GoConfigPluginService(configCache,configElementImplementationRegistry,probeService));
             GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
-            return new GoConfigDao(cachedConfigService, probeService, goConfigWriteLock);
+            return new GoConfigDao(cachedConfigService, probeService);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -148,10 +148,10 @@ public class GoConfigFileHelper {
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), probeService, serverHealthService);
             dataSource.upgradeIfNecessary();
-            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService, goConfigWriteLock);
+            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
-            return new GoConfigDao(cachedConfigService, probeService, goConfigWriteLock );
+            return new GoConfigDao(cachedConfigService, probeService);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

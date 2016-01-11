@@ -20,13 +20,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GoConfigWriteLock {
-    private final Object writeLock;
-
-    public GoConfigWriteLock() {
-        this.writeLock = new Object();
-    }
-
-    public Object mutex() {
-        return writeLock;
-    }
 }

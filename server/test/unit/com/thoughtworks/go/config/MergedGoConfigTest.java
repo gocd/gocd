@@ -67,7 +67,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
                 new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 metricsProbeService, serverHealthService);
         serverHealthService = new ServerHealthService();
-        cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService, goConfigWriteLock);
+        cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService);
         cachedFileGoConfig.loadConfigIfNull();
 
         configPluginService = mock(GoConfigPluginService.class);
@@ -81,7 +81,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
         partials = new GoPartialConfig(repoConfigDataSource,configWatchList);
 
         cachedGoConfig = new MergedGoConfig(serverHealthService,cachedFileGoConfig, partials);
-        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig, metricsProbeService, goConfigWriteLock));
+        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig, metricsProbeService));
     }
 
     @Test

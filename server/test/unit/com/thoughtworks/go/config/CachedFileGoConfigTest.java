@@ -41,9 +41,9 @@ public class CachedFileGoConfigTest extends CachedGoConfigTestBase {
                 new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 metricsProbeService, serverHealthService);
         serverHealthService = new ServerHealthService();
-        CachedFileGoConfig cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService, goConfigWriteLock);
+        CachedFileGoConfig cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService);
         cachedGoConfig = cachedFileGoConfig;
         cachedGoConfig.loadConfigIfNull();
-        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig, mock(MetricsProbeService.class), goConfigWriteLock));
+        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig, mock(MetricsProbeService.class)));
     }
 }

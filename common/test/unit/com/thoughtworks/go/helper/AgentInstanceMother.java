@@ -20,9 +20,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
@@ -32,6 +30,8 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+
+import static org.mockito.Mockito.mock;
 
 public class AgentInstanceMother {
     private static final Set<EnvironmentPipelineMatcher> NO_ENVIRONMENTS = new HashSet<EnvironmentPipelineMatcher>();
@@ -209,5 +209,14 @@ public class AgentInstanceMother {
 
     public static AgentInstance idle(String hostname) {
         return updateHostname(idle(new Date(), "CCeDev01"), hostname);
+    }
+
+    public static AgentInstance agentWithConfigErrors() {
+        Resource resource1 = new Resource("foo%");
+        Resource resource2 = new Resource("bar$");
+        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new Resources(resource1, resource2));
+        agentConfig.validateTree(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        return agentInstance;
     }
 }

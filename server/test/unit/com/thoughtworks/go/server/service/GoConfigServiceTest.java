@@ -789,49 +789,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldEnableAgentWhenPending() {
-        String agentId = DatabaseAccessHelper.AGENT_UUID;
-        AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), "cookie", null);
-        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
-        goConfigService.disableAgents(false, instance);
-        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(GoConfigDao.createAddAgentCommand(agentConfig)));
-    }
-
-    private void shouldPerformCommand(UpdateConfigCommand command) {
-        verify(goConfigDao).updateConfig(command);
-    }
-
-    @Test
-    public void shouldEnableMultipleAgents() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), "cookie", null);
-        AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
-
-        AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");
-        agentConfig.disable();
-        AgentInstance fromConfigFile = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
-        goConfigService.currentCruiseConfig().agents().add(agentConfig);
-
-        goConfigService.disableAgents(false, pending, fromConfigFile);
-
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand(
-                GoConfigDao.createAddAgentCommand(pending.agentConfig()),
-                GoConfigDao.updateApprovalStatus("UUID2", false));
-        verify(goConfigDao).updateConfig(command);
-    }
-
-    @Test
-    public void shouldEnableAgentWhenAlreadyInTheConfig() {
-        String agentId = DatabaseAccessHelper.AGENT_UUID;
-        AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
-        agentConfig.disable();
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
-        goConfigService.currentCruiseConfig().agents().add(agentConfig);
-        goConfigService.disableAgents(false, instance);
-        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(GoConfigDao.updateApprovalStatus(agentId, false)));
-    }
-
-    @Test
     public void shouldFindMaterialConfigBasedOnFingerprint() throws Exception {
         SvnMaterialConfig expected = new SvnMaterialConfig("repo", null, null, false);
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(expected));

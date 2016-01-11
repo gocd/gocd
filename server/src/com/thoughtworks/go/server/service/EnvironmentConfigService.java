@@ -33,7 +33,9 @@ import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -64,6 +66,12 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void initialize() {
         goConfigService.register(this);
+        goConfigService.register(new EntityConfigChangedListener<Agents>(){
+            @Override
+            public void onEntityConfigChange(Agents entity) {
+                sync(goConfigService.getEnvironments());
+            }
+        });
     }
 
     public void sync(EnvironmentsConfig environments) {

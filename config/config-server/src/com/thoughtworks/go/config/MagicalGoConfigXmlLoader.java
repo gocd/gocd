@@ -140,7 +140,7 @@ public class MagicalGoConfigXmlLoader {
         try {
             List<ConfigErrors> allErrors = validate(config);
             if (!allErrors.isEmpty()) {
-                throw new GoConfigInvalidException(config, allErrors);
+                throw new GoConfigInvalidException(config, allErrors.get(0).firstError());
             }
 
             LOGGER.debug("[Config Save] In validateCruiseConfig: Running validate.");

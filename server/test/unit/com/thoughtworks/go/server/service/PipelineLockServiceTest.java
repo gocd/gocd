@@ -20,17 +20,19 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineLockServiceTest {
     private PipelineLockService pipelineLockService;
@@ -145,27 +147,40 @@ public class PipelineLockServiceTest {
         verify(pipelineDao).unlockPipeline("twist");
     }
 
+    private EntityConfigChangedListener<PipelineConfig> getPipelineConfigEntityConfigChangedListener() {
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
+        pipelineLockService.initialize();
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+        return pipelineConfigChangeListener;
+    }
+
+
     @Test public void shouldUnlockCurrentlyLockedPipelineThatIsNoLongerLockableWhenPipelineConfigChanges() throws Exception {
+        EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
         when(pipelineDao.lockedPipelines()).thenReturn(asList("locked_pipeline", "other_pipeline"));
         when(pipelineConfig.isLock()).thenReturn(false);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
-        pipelineLockService.onPipelineConfigChange(pipelineConfig, "g1");
+        changedListener.onEntityConfigChange(pipelineConfig);
 
         verify(pipelineDao, never()).unlockPipeline("other_pipeline");
         verify(pipelineDao).unlockPipeline("locked_pipeline");
     }
 
     @Test public void shouldNotUnlockCurrentlyLockedPipelineThatContinuesToBeLockableWhenPipelineConfigChanges() throws Exception {
+        EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
         when(pipelineDao.lockedPipelines()).thenReturn(asList("locked_pipeline"));
         when(pipelineConfig.isLock()).thenReturn(true);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
-        pipelineLockService.onPipelineConfigChange(pipelineConfig, "g1");
+        changedListener.onEntityConfigChange(pipelineConfig);
 
         verify(pipelineDao, never()).unlockPipeline("locked_pipeline");
     }

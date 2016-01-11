@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -57,6 +59,8 @@ import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.DeniedAgentWork;
@@ -71,13 +75,16 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.Is;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -92,10 +99,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -103,7 +107,7 @@ import static org.mockito.Mockito.when;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-public class BuildAssignmentServiceTest {
+public class BuildAssignmentServiceIntegrationTest {
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
@@ -124,6 +128,7 @@ public class BuildAssignmentServiceTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private BuilderFactory builderFactory;
     @Autowired private InstanceFactory instanceFactory;
+    @Autowired private PipelineConfigService pipelineConfigService;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -259,11 +264,15 @@ public class BuildAssignmentServiceTest {
 
     @Test
     public void shouldCancelBuildsForDeletedStagesWhenPipelineConfigChanges() throws Exception {
+        buildAssignmentService.initialize();
+
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
-        configHelper.removeStage(fixture.pipelineName, fixture.devStage);
 
-        buildAssignmentService.onPipelineConfigChange(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)), "g1");
+        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
+        pipelineConfig.remove(devStage);
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
@@ -273,14 +282,17 @@ public class BuildAssignmentServiceTest {
 
     @Test
     public void shouldCancelBuildsForDeletedJobsWhenPipelineConfigChanges() throws Exception {
+        buildAssignmentService.initialize();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate).usingTwoJobs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         fixture.createPipelineWithFirstStageScheduled();
 
         buildAssignmentService.onTimer();
-        configHelper.removeJob(fixture.pipelineName, fixture.devStage, fixture.JOB_FOR_DEV_STAGE);
 
-        buildAssignmentService.onPipelineConfigChange(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)), "g1");
+        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
+        devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);

@@ -16,17 +16,21 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
@@ -77,18 +81,32 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void shouldRemovePipelineConfigFromCacheWhenPresentOnPipelineConfigChange() {
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = getPipelineConfigEntityConfigChangedListener();
         when(goCache.get("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p")).thenReturn(new Object());
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-        pipelineConfigService.onPipelineConfigChange(pipelineConfig, "grp");
+
+        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
         verify(goCache).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p");
+    }
+
+    private EntityConfigChangedListener<PipelineConfig> getPipelineConfigEntityConfigChangedListener() {
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
+        pipelineConfigService.initialize();
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+        return pipelineConfigChangeListener;
     }
 
     @Test
     public void shouldNotRemovePipelineConfigFromCacheWhenNotPresentOnPipelineConfigChange(){
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-        pipelineConfigService.onPipelineConfigChange(pipelineConfig, "grp");
+        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
         verify(goCache, never()).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p");
     }
+
     @Test
     public void shouldRemovePipelineConfigsFromCacheWhenPresentOnGoConfigChange() {
         when(goCache.get("GO_PIPELINE_CONFIGS_ETAGS_CACHE")).thenReturn(new Object());

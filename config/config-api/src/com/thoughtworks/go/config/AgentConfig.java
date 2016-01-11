@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemUtil;
 
 import static java.lang.String.format;
@@ -43,6 +46,8 @@ public class AgentConfig implements Validatable {
 
     private transient Boolean cachedIsFromLocalHost;
     private ConfigErrors errors = new ConfigErrors();
+    public static final String IP_ADDRESS = "ipAddress";
+    public static final String UUID = "uuid";
 
     public AgentConfig() {
     }
@@ -62,8 +67,17 @@ public class AgentConfig implements Validatable {
         this.resources = resources;
     }
 
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        boolean isValid = errors().isEmpty();
+        isValid = resources.validateTree(validationContext) && isValid;
+        return isValid;
+    }
     public void validate(ValidationContext validationContext) {
         validateIpAddress();
+        if(StringUtil.isBlank(uuid)){
+            addError(UUID, "UUID cannot be empty");
+        }
     }
 
     private void validateIpAddress() {
@@ -71,14 +85,14 @@ public class AgentConfig implements Validatable {
         if (address == null) {
             return;
         }
-        if (address.trim().isEmpty()) {
-            addError("ipAddress", "IpAddress cannot be empty if it is present.");
+        if (StringUtil.isBlank(address)) {
+            addError(IP_ADDRESS, "IpAddress cannot be empty if it is present.");
             return;
         }
         try {
             IpAddress.create(address);
         } catch (Exception e) {
-            addError("ipAddress", "IpAddress is invalid.");
+            addError(IP_ADDRESS, String.format("'%s' is an invalid IP address.", address));
         }
     }
 

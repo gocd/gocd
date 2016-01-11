@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.CheckedUpdateCommand;
+import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
 import com.thoughtworks.go.config.ConfigAwareUpdate;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.NoOverwriteUpdateConfigCommand;

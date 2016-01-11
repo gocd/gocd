@@ -23,7 +23,8 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialType;
@@ -58,7 +59,7 @@ import static java.lang.String.format;
  * @understands when to send requests to update a material on the database
  */
 @Service
-public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCompletedMessage>, PipelineConfigChangedListener {
+public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCompletedMessage>, ConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(MaterialUpdateService.class);
 
     private final MaterialUpdateQueue updateQueue;
@@ -101,6 +102,17 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     public void initialize() {
         goConfigService.register(this);
+        goConfigService.register(pipelineConfigChangedListener());
+    }
+
+    private EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        final MaterialUpdateService materialUpdateService = this;
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                materialUpdateService.onConfigChange(goConfigService.getCurrentConfig());
+            }
+        };
     }
 
     public void onTimer() {
@@ -211,12 +223,6 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             }
         }
     }
-
-    @Override
-    public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-        onConfigChange(goConfigService.getCurrentConfig());
-    }
-
 
     ProcessManager getProcessManager() {
         return ProcessManager.getInstance();

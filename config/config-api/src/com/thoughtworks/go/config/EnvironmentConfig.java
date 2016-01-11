@@ -43,7 +43,7 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     boolean hasAgent(String uuid);
 
-    void validateContainsOnlyUuids(Set<String> uuids);
+    boolean validateContainsOnlyUuids(Set<String> uuids);
 
     boolean containsPipeline(CaseInsensitiveString pipelineName);
 

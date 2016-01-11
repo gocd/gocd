@@ -101,4 +101,16 @@ public final class ListUtil {
         return results;
     }
 
+    public interface Transformer<T>{
+        T transform(Object obj);
+    }
+
+    public static <T> ArrayList<T> map(List list, Transformer<T> transformer){
+        ArrayList<T> transformedList = new ArrayList<T>();
+        for (Object obj : list) {
+            transformedList.add(transformer.transform(obj));
+        }
+        return transformedList;
+    }
+
 }

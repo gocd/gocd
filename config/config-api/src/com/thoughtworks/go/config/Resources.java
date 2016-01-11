@@ -78,7 +78,7 @@ public class Resources extends BaseCollection<Resource> implements Comparable<Re
         return new AlphaAsciiCollectionComparator<Resource>().compare(this, other);
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         boolean isValid = errors().isEmpty();
         for (Resource resource : this) {
             isValid = resource.validateTree(validationContext) && isValid;

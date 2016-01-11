@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.google.caja.util.Sets;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -37,7 +37,6 @@ import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.UserDao;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
@@ -52,7 +51,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
@@ -148,7 +146,7 @@ public class GoConfigService implements Initializer {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
 
-    protected boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
+    public boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
         }
@@ -178,6 +176,10 @@ public class GoConfigService implements Initializer {
     @Deprecated()
     public CruiseConfig currentCruiseConfig() {
         return getCurrentConfig();
+    }
+
+    public EnvironmentsConfig getEnvironments() {
+        return cruiseConfig().getEnvironments();
     }
 
     public int getNumberOfApprovedRemoteAgents() {
@@ -245,16 +247,12 @@ public class GoConfigService implements Initializer {
         return getCurrentConfig().hasStageConfigNamed(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), true);
     }
 
-    public void addAgent(AgentConfig agentConfig) {
-        goConfigDao.addAgent(agentConfig);
-    }
-
-    public void updatePipeline(final PipelineConfig pipelineConfig, final Username currentUser, final LocalizedOperationResult result, PipelineConfigService.SaveCommand saveCommand) {
-        goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
-    }
-
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
         return goConfigDao.updateConfig(command);
+    }
+
+    public void updateConfig(EntityConfigUpdateCommand command, Username currentUser) {
+        goConfigDao.updateConfig(command, currentUser);
     }
 
     public long getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {
@@ -429,18 +427,6 @@ public class GoConfigService implements Initializer {
         goConfigDao.addPipeline(pipeline, groupName);
     }
 
-    public void updateAgentResources(String uuid, Resources newResources) {
-        goConfigDao.updateAgentResources(uuid, newResources);
-    }
-
-    public void updateAgentIpByUuid(String uuid, String ipAddress, String userName) {
-        goConfigDao.updateAgentIp(uuid, ipAddress, userName);
-    }
-
-    public void updateAgentApprovalStatus(String uuid, Boolean isDenied) {
-        goConfigDao.updateAgentApprovalStatus(uuid, isDenied);
-    }
-
     public void register(ConfigChangedListener listener) {
         goConfigDao.registerListener(listener);
     }
@@ -563,78 +549,6 @@ public class GoConfigService implements Initializer {
         return getCurrentConfig().adminEmail();
     }
 
-    public void disableAgents(boolean disabled, AgentInstance... instances) {
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
-        for (AgentInstance agentInstance : instances) {
-            String uuid = agentInstance.getUuid();
-
-            if (hasAgent(uuid)) {
-                command.addCommand(GoConfigDao.updateApprovalStatus(uuid, disabled));
-            } else {
-                AgentConfig agentConfig = agentInstance.agentConfig();
-                agentConfig.disable(disabled);
-                command.addCommand(GoConfigDao.createAddAgentCommand(agentConfig));
-            }
-        }
-        updateConfig(command);
-    }
-
-    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources, String environments, TriState enable, AgentInstances agentInstances) {
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
-
-        if (!hasAgent(uuid) && enable.isTrue()) {
-            AgentInstance agentInstance = agentInstances.findAgent(uuid);
-            AgentConfig agentConfig = agentInstance.agentConfig();
-            command.addCommand(GoConfigDao.createAddAgentCommand(agentConfig));
-        }
-
-        if (enable.isTrue()) {
-            command.addCommand(GoConfigDao.updateApprovalStatus(uuid, false));
-        }
-
-        if (enable.isFalse()) {
-            command.addCommand(GoConfigDao.updateApprovalStatus(uuid, true));
-        }
-
-        if (hostname != null) {
-            command.addCommand(new GoConfigDao.UpdateAgentHostname(uuid, hostname, userName));
-        }
-
-        if (resources != null) {
-            command.addCommand(new GoConfigDao.UpdateResourcesCommand(uuid, new Resources(resources)));
-        }
-
-        if (environments != null) {
-            Set<String> existingEnvironments = cruiseConfig().getEnvironments().environmentsForAgent(uuid);
-            Set<String> newEnvironments = new HashSet<>(Arrays.asList(environments.split(",")));
-
-            Set<String> environmentsToRemove = Sets.difference(existingEnvironments, newEnvironments);
-            Set<String> environmentsToAdd = Sets.difference(newEnvironments, existingEnvironments);
-
-            for (String environmentToRemove : environmentsToRemove) {
-                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToRemove, TriStateSelection.Action.remove));
-            }
-
-            for (String environmentToAdd : environmentsToAdd) {
-                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToAdd, TriStateSelection.Action.add));
-            }
-        }
-
-        goConfigDao.updateConfig(command);
-    }
-
-    public void deleteAgents(AgentInstance... agentInstances) {
-        goConfigDao.deleteAgents(agentInstances);
-    }
-
-    public void approvePendingAgent(AgentInstance agentInstance) {
-        agentInstance.enable();
-        if (hasAgent(agentInstance.getUuid())) {
-            LOGGER.warn("Registered agent with the same uuid [" + agentInstance + "] already approved.");
-        } else {
-            this.addAgent(agentInstance.agentConfig());
-        }
-    }
 
     public Set<MaterialConfig> getSchedulableMaterials() {
         return getCurrentConfig().getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos();
@@ -684,18 +598,6 @@ public class GoConfigService implements Initializer {
         return getCurrentConfig().isPipelineLocked(pipelineName);
     }
 
-    public void modifyResources(AgentInstance[] instances, List<TriStateSelection> selections) {
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
-        for (AgentInstance agentInstance : instances) {
-            String uuid = agentInstance.getUuid();
-            if (hasAgent(uuid)) {
-                for (TriStateSelection selection : selections) {
-                    command.addCommand(new GoConfigDao.ModifyResourcesCommand(uuid, new Resource(selection.getValue()), selection.getAction()));
-                }
-            }
-        }
-        updateConfig(command);
-    }
 
     public GoConfigDao.CompositeConfigCommand modifyRolesCommand(List<String> users, List<TriStateSelection> roleSelections) {
         GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
@@ -1433,15 +1335,6 @@ public class GoConfigService implements Initializer {
         @Override
         protected String getXpath() {
             return String.format("//cruise/pipelines[@group='%s']", groupName);
-        }
-    }
-
-    public void saveOrUpdateAgent(AgentInstance agent) {
-        AgentConfig agentConfig = agent.agentConfig();
-        if (hasAgent(agentConfig.getUuid())) {
-            this.updateAgentApprovalStatus(agentConfig.getUuid(), agentConfig.isDisabled());
-        } else {
-            this.addAgent(agentConfig);
         }
     }
 

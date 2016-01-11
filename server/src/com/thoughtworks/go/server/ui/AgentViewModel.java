@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.ui;
 
 import java.util.*;
 
+import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
@@ -231,5 +232,14 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
 
     public boolean needsUpgrade() {
         return agentInstance.needsUpgrade();
+    }
+
+    public ConfigErrors errors() {
+        ConfigErrors configErrors = new ConfigErrors();
+        configErrors.addAll(agentInstance.agentConfig().errors());
+        for (Resource resource : agentInstance.getResources()) {
+            configErrors.addAll(resource.errors());
+        }
+        return configErrors;
     }
 }

@@ -16,26 +16,26 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.PipelineConfigService;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.LogFixture;
+import com.thoughtworks.go.util.Procedure;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 import java.io.File;
-import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
@@ -109,86 +109,6 @@ public abstract class GoConfigDaoTestBase {
                 "cardlist", true).artifactPlans();
         assertThat(cardListArtifacts.size(), is(0));
         assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "bluemonkeybutt", true).artifactPlans().size(), is(1));
-    }
-
-    @Test
-    public void shouldAddAgentToConfigFile() throws Exception {
-        Resources resources = new Resources("java");
-        AgentConfig approvedAgentConfig = new AgentConfig("uuid", "test1", "192.168.0.1", resources);
-        AgentConfig deniedAgentConfig = new AgentConfig("", "test2", "192.168.0.2", resources);
-        deniedAgentConfig.disable();
-        goConfigDao.addAgent(approvedAgentConfig);
-        goConfigDao.addAgent(deniedAgentConfig);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().size(), is(2));
-        assertThat(cruiseConfig.agents().get(0), is(approvedAgentConfig));
-        assertThat(cruiseConfig.agents().get(0).getResources(), is(resources));
-        assertThat(cruiseConfig.agents().get(1), is(deniedAgentConfig));
-        assertThat(cruiseConfig.agents().get(1).isDisabled(), is(Boolean.TRUE));
-        assertThat(cruiseConfig.agents().get(1).getResources(), is(resources));
-    }
-
-    @Test
-    public void shouldDeleteMultipleAgents() {
-        AgentConfig agentConfig1 = new AgentConfig("UUID1", "remote-host1", "50.40.30.21");
-        AgentConfig agentConfig2 = new AgentConfig("UUID2", "remote-host2", "50.40.30.22");
-        agentConfig1.disable();
-        agentConfig2.disable();
-        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
-
-        GoConfigDao.CompositeConfigCommand command = goConfigDao.commandForDeletingAgents(fromConfigFile1, fromConfigFile2);
-
-        List<UpdateConfigCommand> commands = command.getCommands();
-        assertThat(commands.size(), is(2));
-        String uuid1 = (String) ReflectionUtil.getField(commands.get(0), "uuid");
-        String uuid2 = (String) ReflectionUtil.getField(commands.get(1), "uuid");
-        assertThat(uuid1, is("UUID1"));
-        assertThat(uuid2, is("UUID2"));
-    }
-
-    @Test
-    public void shouldDeleteAgentFromConfigFileGivenUUID() throws Exception {
-        AgentConfig agentConfig1 = new AgentConfig("uuid1", "test1", "192.168.0.1");
-        AgentConfig agentConfig2 = new AgentConfig("uuid2", "test2", "192.168.0.2");
-        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-        AgentInstance fromConfigFile2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
-
-        goConfigDao.addAgent(agentConfig1);
-        goConfigDao.addAgent(agentConfig2);
-
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().size(), is(2));
-
-        goConfigDao.deleteAgents(fromConfigFile1);
-
-        cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().size(), is(1));
-        assertThat(cruiseConfig.agents().get(0), is(agentConfig2));
-    }
-
-    @Test
-    public void shouldRemoveAgentFromEnvironmentBeforeDeletingAgent() throws Exception {
-        AgentConfig agentConfig1 = new AgentConfig("uuid1", "hostname", "127.0.0.1");
-        AgentInstance fromConfigFile1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
-
-        goConfigDao.addAgent(agentConfig1);
-        goConfigDao.addAgent(new AgentConfig("uuid2", "hostname", "127.0.0.1"));
-
-        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment"));
-        env.addAgent("uuid1");
-        env.addAgent("uuid2");
-        goConfigDao.addEnvironment(env);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-
-        assertThat(cruiseConfig.getEnvironments().get(0).getAgents().size(), is(2));
-
-        goConfigDao.deleteAgents(fromConfigFile1);
-
-        cruiseConfig = goConfigDao.load();
-
-        assertThat(cruiseConfig.getEnvironments().get(0).getAgents().size(), is(1));
-        assertThat(cruiseConfig.getEnvironments().get(0).getAgents().get(0).getUuid(), is("uuid2"));
     }
 
     @Test
@@ -429,37 +349,6 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldUpdateAgentResourcesToConfigFile() throws Exception {
-        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java"));
-        goConfigDao.addAgent(agentConfig);
-        Resources newResources = new Resources("firefox");
-        goConfigDao.updateAgentResources(agentConfig.getUuid(), newResources);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().get(0).getResources(), is(newResources));
-    }
-
-    @Test
-    public void shouldUpdateAgentApprovalStatusByUuidToConfigFile() throws Exception {
-        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java"));
-        goConfigDao.addAgent(agentConfig);
-        goConfigDao.updateAgentApprovalStatus(agentConfig.getUuid(), Boolean.TRUE);
-
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().get(0).isDisabled(), is(true));
-    }
-
-    @Test
-    public void shouldRemoveAgentResourcesInConfigFile() throws Exception {
-        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new Resources("java, resource1, resource2"));
-        goConfigDao.addAgent(agentConfig);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().get(0).getResources().size(), is(3));
-        goConfigDao.updateAgentResources(agentConfig.getUuid(), new Resources("java"));
-        cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().get(0).getResources().size(), is(1));
-    }
-
-    @Test
     public void shouldOverwriteConfigContentAfterSave() throws Exception {
         useConfigString(WITH_3_AGENT_CONFIG);
         cachedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
@@ -565,49 +454,36 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldNotUpdatePipelineConfigIfUserDoesNotHaveRequiredPermissionsToDoSo(){
-        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
-        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
-        when(saveCommand.hasWritePermissions()).thenReturn(false);
-
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
-        goConfigDao = new GoConfigDao(cachedConfigService, null);
-        goConfigDao.updatePipeline(pipelineConfig, result, new Username(new CaseInsensitiveString("user")), saveCommand);
-
-        verifyZeroInteractions(cachedConfigService);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
+        goConfigDao = new GoConfigDao(cachedConfigService, mock(MetricsProbeService.class));
+        EntityConfigUpdateCommand command = mock(EntityConfigUpdateCommand.class);
+        when(command.canContinue(cruiseConfig)).thenReturn(false);
+        try {
+            goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user")));
+            fail("Expected to throw exception of type:" + ConfigUpdateCheckFailedException.class.getName());
+        }catch (Exception e) {
+            assertTrue(e instanceof ConfigUpdateCheckFailedException);
+        }
+        verify(cachedConfigService).currentConfig();
+        verifyNoMoreInteractions(cachedConfigService);
     }
 
     @Test
-    public void shouldUpdateResultWithErrorCodeWhenPipelineConfigValidationFails(){
-        Username username = new Username(new CaseInsensitiveString("user"));
-        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
-        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
-        when(saveCommand.hasWritePermissions()).thenReturn(true);
-
+    public void shouldUpdateValidEntity(){
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
-        doThrow(new ConfigUpdateCheckFailedException()).when(cachedConfigService).writePipelineWithLock(pipelineConfig, saveCommand, username);
-        goConfigDao = new GoConfigDao(cachedConfigService, null);
-        goConfigDao.updatePipeline(pipelineConfig, result, username, saveCommand);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
+        EntityConfigUpdateCommand saveCommand = mock(EntityConfigUpdateCommand.class);
+        when(saveCommand.isValid(cruiseConfig)).thenReturn(true);
+        when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
 
-        verify(result).unprocessableEntity(Matchers.<Localizable>any());
-    }
-
-
-    @Test
-    public void shouldUpdateValidPipelineConfig(){
-        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
-        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
-        when(saveCommand.hasWritePermissions()).thenReturn(true);
-
-        CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
-        goConfigDao = new GoConfigDao(cachedConfigService, null);
+        goConfigDao = new GoConfigDao(cachedConfigService, mock(MetricsProbeService.class));
         Username currentUser = new Username(new CaseInsensitiveString("user"));
-        goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
+        goConfigDao.updateConfig(saveCommand, currentUser);
 
-        verifyZeroInteractions(result);
-        verify(cachedConfigService).writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
+        verify(cachedConfigService).writeEntityWithLock(saveCommand, currentUser);
     }
 
     private void assertCurrentConfigIs(CruiseConfig cruiseConfig) throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -169,26 +168,20 @@ public class AgentService {
         return true;
     }
 
-    public void updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources, String environments, TriState enable) {
+    public AgentInstance updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources, String environments, TriState enable) {
         if (!hasOperatePermission(username, result)) {
-            return;
+            return null;
         }
 
         AgentInstance agentInstance = findAgent(uuid);
         if (isUnknownAgent(agentInstance, result)) {
-            return;
+            return null;
         }
 
-        try {
-            agentConfigService.updateAgentAttributes(uuid, username.getUsername().toString(), newHostname, resources, environments, enable, agentInstances);
-            result.ok(String.format("Updated agent with uuid %s.", uuid));
-        } catch (Exception e) {
-            if (e.getCause() instanceof GoConfigInvalidException || e.getCause() instanceof NoSuchEnvironmentException) {
-                result.unprocessibleEntity("Updating agents failed:", e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
-            } else {
-                result.internalServerError("Updating agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
-            }
-        }
+        AgentConfig agentConfig = agentConfigService.updateAgentAttributes(uuid, username, newHostname, resources, environments, enable, agentInstances, result);
+        if(agentConfig !=null)
+            return AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        return null;
     }
 
     public void enableAgents(Username username, OperationResult operationResult, List<String> uuids) {
@@ -200,7 +193,7 @@ public class AgentService {
             return;
         }
         try {
-            agentConfigService.enableAgents(agents.toArray((new AgentInstance[0])));
+            agentConfigService.enableAgents(username, agents.toArray((new AgentInstance[0])));
             operationResult.ok(String.format("Enabled %s agent(s)", uuids.size()));
         } catch (Exception e) {
             operationResult.internalServerError("Enabling agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
@@ -216,7 +209,7 @@ public class AgentService {
             return;
         }
         try {
-            agentConfigService.disableAgents(agents.toArray(new AgentInstance[0]));
+            agentConfigService.disableAgents(username, agents.toArray(new AgentInstance[0]));
             operationResult.ok(String.format("Disabled %s agent(s)", uuids.size()));
         } catch (Exception e) {
             operationResult.internalServerError("Disabling agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
@@ -258,7 +251,7 @@ public class AgentService {
         agents.removeAll(failedToDeleteAgents);
 
         try {
-            agentConfigService.deleteAgents(agents.toArray(new AgentInstance[0]));
+            agentConfigService.deleteAgents(username, agents.toArray(new AgentInstance[0]));
 
             if (failedToDeleteAgents.isEmpty()) {
                 operationResult.ok(String.format("Deleted %s agent(s).", agents.size()));
@@ -280,7 +273,7 @@ public class AgentService {
             return;
         }
         try {
-            agentConfigService.modifyResources(agents.toArray(new AgentInstance[0]), selections);
+            agentConfigService.modifyResources(agents.toArray(new AgentInstance[0]), selections, username);
             operationResult.ok(String.format("Resource(s) modified on %s agent(s)", uuids.size()));
         } catch (Exception e) {
             operationResult.notAcceptable("Could not modify resources:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
@@ -323,10 +316,14 @@ public class AgentService {
             LOGGER.warn(
                     String.format("Agent with UUID [%s] changed IP Address from [%s] to [%s]",
                             info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress()));
-            String userName = String.format("agent_%s_%s_%s", info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDispaly());
+            String userName = usernameForAgent(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDispaly());
             agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
         }
         agentInstances.updateAgentRuntimeInfo(info);
+    }
+
+    private String usernameForAgent(String uuId, String ipAddress, String hostNameForDisplay) {
+        return String.format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay);
     }
 
     public Registration requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
@@ -336,7 +333,8 @@ public class AgentService {
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
         if (agentInstance.isRegistered()) {
-            agentConfigService.saveOrUpdateAgent(agentInstance);
+            String userName = usernameForAgent(agentInstance.getUuid(), agentInstance.getIpAddress(), agentInstance.getHostname());
+            agentConfigService.saveOrUpdateAgent(agentInstance, new Username(new CaseInsensitiveString(userName)));
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("New Agent approved " + agentRuntimeInfo);
             }
@@ -344,6 +342,7 @@ public class AgentService {
         return registration;
     }
 
+    @Deprecated
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
         agentConfigService.approvePendingAgent(agentInstance);

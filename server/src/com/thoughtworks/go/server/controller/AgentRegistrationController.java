@@ -18,19 +18,28 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.ApproveAgentCommand;
+import com.thoughtworks.go.config.update.ErrorCollector;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +52,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.FileDigester.copyAndDigest;
@@ -50,20 +60,22 @@ import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 
 @Controller
 public class AgentRegistrationController {
-    private static final Log LOG = LogFactory.getLog(AgentRegistrationController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentRegistrationController.class);
     private final AgentService agentService;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
+    private final AgentConfigService agentConfigService;
     private volatile String agentChecksum;
     private volatile String agentLauncherChecksum;
 
     @Autowired
-    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip) {
+    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService) {
         this.agentService = agentService;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.pluginsZip = pluginsZip;
+        this.agentConfigService = agentConfigService;
     }
 
     @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.HEAD)
@@ -186,20 +198,25 @@ public class AgentRegistrationController {
                                      HttpServletRequest request) throws IOException {
         final String ipAddress = request.getRemoteAddr();
         if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Processing registration request from agent [%s/%s]", hostname, ipAddress));
+            LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
         }
         Registration keyEntry;
         String preferredHostname = hostname;
         try {
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
-                LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
+                LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
                         new ApproveAgentCommand(uuid, ipAddress, preferredHostname),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)
                 );
-                goConfigService.updateConfig(compositeConfigCommand);
+                HttpOperationResult result = new HttpOperationResult();
+                AgentConfig agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, Username.ANONYMOUS);
+                if(!result.isSuccess()){
+                    List<ConfigErrors> errors = com.thoughtworks.go.config.ErrorCollector.getAllErrors(agentConfig);
+                    throw new GoConfigInvalidException(null, errors);
+                }
             }
             keyEntry = agentService.requestRegistration(
                     AgentRuntimeInfo.fromServer(new AgentConfig(uuid, preferredHostname, ipAddress), goConfigService.hasAgent(uuid), location,

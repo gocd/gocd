@@ -14,10 +14,26 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.listener;
+package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.PipelineConfig;
+public class EntityConfigSaveResult<T> {
+    private T entityConfig;
+    private GoConfigHolder configHolder;
 
-public interface PipelineConfigChangedListener extends  ConfigChangedListener{
-    void onPipelineConfigChange(PipelineConfig pipelineConfig, String group);
+    public EntityConfigSaveResult(T entityConfig, GoConfigHolder configHolder) {
+        this.entityConfig = entityConfig;
+        this.configHolder = configHolder;
+    }
+
+    public T getEntityConfig() {
+        return entityConfig;
+    }
+
+    public GoConfigHolder getConfigHolder() {
+        return configHolder;
+    }
+
+    public ConfigSaveState getConfigSaveState() {
+        return ConfigSaveState.UPDATED;
+    }
 }

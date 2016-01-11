@@ -55,6 +55,12 @@ module AgentMother
     handle_options(agent, options)
   end
 
+  def agent_with_config_errors(options={})
+    agent = AgentInstanceMother.agentWithConfigErrors()
+    handle_options(agent, options)
+  end
+
+
   private
 
   def handle_options(agent, options)

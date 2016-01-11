@@ -16,10 +16,29 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.google.gson.*;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class AgentMetadata {
+
+    private static final Gson GSON = new GsonBuilder().
+            excludeFieldsWithoutExposeAnnotation().
+            serializeNulls().
+            setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).
+            create();
+
+    @Expose
+    @SerializedName("agent_id")
     private final String elasticAgentId;
+    @Expose
+    @SerializedName("agent_state")
     private final String agentState;
+    @Expose
+    @SerializedName("build_state")
     private final String buildState;
+    @Expose
+    @SerializedName("config_state")
     private final String configState;
 
     public AgentMetadata(String elasticAgentId, String agentState, String buildState, String configState) {
@@ -43,5 +62,9 @@ public class AgentMetadata {
 
     public String configState() {
         return configState;
+    }
+
+    public JsonElement toJSON() {
+        return GSON.toJsonTree(this);
     }
 }

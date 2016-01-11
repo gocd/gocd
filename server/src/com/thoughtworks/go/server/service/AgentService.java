@@ -240,8 +240,7 @@ public class AgentService {
 
         List<AgentInstance> failedToDeleteAgents = new ArrayList<>();
         for (AgentInstance agentInstance : agents) {
-            boolean isBuildingOrCancelled = agentInstance.isBuilding() || agentInstance.isCancelled();
-            if (!agentInstance.isDisabled() || isBuildingOrCancelled) {
+            if (!agentInstance.canBeDeleted()) {
                 failedToDeleteAgents.add(agentInstance);
             }
         }
@@ -417,5 +416,9 @@ public class AgentService {
 
     public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgents() {
         return agentInstances.allElasticAgentsGroupedByPluginId();
+    }
+
+    public AgentInstance findElasticAgent(String elasticAgentId, String elasticPluginId) {
+        return agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
     }
 }

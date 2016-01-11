@@ -52,20 +52,20 @@ public class ElasticAgentExtensionConverterV1Test {
 
     @Test
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().shouldAssignWorkRequestBody("42", Arrays.asList("foo", "bar"), "prod");
-        JSONAssert.assertEquals(json, "{\"elastic_agent_id\": \"42\",\"resources\":[\"foo\",\"bar\"],\"environment\":\"prod\"}", true);
+        String json = new ElasticAgentExtensionConverterV1().shouldAssignWorkRequestBody(elasticAgent(), Arrays.asList("foo", "bar"), "prod");
+        JSONAssert.assertEquals(json, "{\"resources\":[\"foo\",\"bar\"],\"environment\":\"prod\",\"agent\":{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"}}", true);
     }
 
     @Test
     public void shouldJSONizeNotifyAgentBusyRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().notifyAgentBusyRequestBody("42");
-        JSONAssert.assertEquals(json, "{\"elastic_agent_id\": \"42\"}", true);
+        String json = new ElasticAgentExtensionConverterV1().notifyAgentBusyRequestBody(elasticAgent());
+        JSONAssert.assertEquals(json, "{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"}", true);
     }
 
     @Test
     public void shouldJSONizeNotifyAgentIdleRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().notifyAgentIdleRequestBody("42");
-        JSONAssert.assertEquals(json, "{\"elastic_agent_id\": \"42\"}", true);
+        String json = new ElasticAgentExtensionConverterV1().notifyAgentIdleRequestBody(elasticAgent());
+        JSONAssert.assertEquals(json, "{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"}", true);
     }
 
     @Test
@@ -73,5 +73,10 @@ public class ElasticAgentExtensionConverterV1Test {
         String json = new ElasticAgentExtensionConverterV1().serverPingRequestBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
         JSONAssert.assertEquals(json, "[{\"agent_id\":\"42\",\"agent_state\":\"AgentState\",\"config_state\":\"ConfigState\",\"build_state\":\"BuildState\"}]", true);
     }
+
+    private AgentMetadata elasticAgent() {
+        return new AgentMetadata("42", "Idle", "Idle", "Enabled");
+    }
+
 }
 

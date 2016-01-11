@@ -16,10 +16,28 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.api.request.GoApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoApiResponse;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
-public interface GoPluginApiRequestProcessor {
-    GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest);
+import com.thoughtworks.go.plugin.api.request.GoApiRequest;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Service
+public class PluginRequestProcessorRegistry {
+
+    private Map<String, GoPluginApiRequestProcessor> processorMap = new ConcurrentHashMap<>();
+
+    public void registerProcessorFor(String request, GoPluginApiRequestProcessor processor) {
+        processorMap.put(request, processor);
+    }
+
+    public boolean canProcess(GoApiRequest request) {
+        return processorMap.containsKey(request.api());
+    }
+
+    public GoPluginApiRequestProcessor processorFor(GoApiRequest request) {
+        return processorMap.get(request.api());
+    }
 }
+

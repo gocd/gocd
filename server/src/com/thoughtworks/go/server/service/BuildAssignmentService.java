@@ -5,14 +5,13 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.server.service;
@@ -42,10 +41,12 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
+import static org.apache.commons.collections.CollectionUtils.disjunction;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
 
@@ -69,12 +70,14 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private final UpstreamPipelineResolver resolver;
     private final BuilderFactory builderFactory;
     private AgentRemoteHandler agentRemoteHandler;
+    private final ElasticAgentPluginService elasticAgentPluginService;
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
                                   AgentService agentService, EnvironmentConfigService environmentConfigService,
                                   TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory,
-                                  AgentRemoteHandler agentRemoteHandler) {
+                                  AgentRemoteHandler agentRemoteHandler,
+                                  ElasticAgentPluginService elasticAgentPluginService) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
@@ -85,6 +88,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         this.resolver = pipelineService;
         this.builderFactory = builderFactory;
         this.agentRemoteHandler = agentRemoteHandler;
+        this.elasticAgentPluginService = elasticAgentPluginService;
     }
 
     public void initialize() {
@@ -146,6 +150,15 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 Work buildWork = createWork(agent, job);
                 AgentBuildingInfo buildingInfo = new AgentBuildingInfo(job.getIdentifier().buildLocatorForDisplay(),
                         job.getIdentifier().buildLocator());
+
+                if (agent.isElastic()) {
+                    if (!elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), new Resources(job.getResources()).resourceNames(), environmentConfigService.envForPipeline(job.getPipelineName()))) {
+                        return NO_WORK;
+                    } else {
+                        elasticAgentPluginService.notifyAgentBusy(agent.elasticAgentMetadata());
+                    }
+                }
+
                 agentService.building(agent.getUuid(), buildingInfo);
                 LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.agentConfig().getAgentIdentifier());
                 return buildWork;
@@ -169,7 +182,16 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     private void reloadJobPlans() {
         synchronized (this) {
-            jobPlans = jobInstanceService.orderedScheduledBuilds();
+            if (jobPlans == null) {
+                jobPlans = jobInstanceService.orderedScheduledBuilds();
+                elasticAgentPluginService.createAgentsFor(jobPlans);
+            } else {
+                List<JobPlan> old = jobPlans;
+                List<JobPlan> newPlan = jobInstanceService.orderedScheduledBuilds();
+                Collection changedPlans = disjunction(old, newPlan);
+                jobPlans = newPlan;
+                elasticAgentPluginService.createAgentsFor(changedPlans);
+            }
         }
     }
 

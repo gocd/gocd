@@ -105,7 +105,7 @@ public final class ListUtil {
         V transform(T obj);
     }
 
-    public static <T, V> ArrayList<V> map(List<T> list, Transformer<T, V> transformer) {
+    public static <T, V> ArrayList<V> map(Collection<T> list, Transformer<T, V> transformer) {
         ArrayList<V> transformedList = new ArrayList<>();
         for (T obj : list) {
             transformedList.add(transformer.transform(obj));

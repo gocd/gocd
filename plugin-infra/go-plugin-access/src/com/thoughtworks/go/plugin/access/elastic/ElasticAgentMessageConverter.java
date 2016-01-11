@@ -16,22 +16,24 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface ElasticAgentMessageConverter {
-    String canHandlePluginRequestBody(List<String> resources, String environment);
+    String canHandlePluginRequestBody(Collection<String> resources, String environment);
 
-    String createAgentRequestBody(List<String> resources, String environment);
+    String createAgentRequestBody(Collection<String> resources, String environment);
 
     Boolean canHandlePluginResponseFromBody(String responseBody);
 
-    String shouldAssignWorkRequestBody(String elasticAgentId, List<String> resources, String environment);
+    String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, Collection<String> resources, String environment);
 
     Boolean shouldAssignWorkResponseFromBody(String responseBody);
 
-    String notifyAgentBusyRequestBody(String elasticAgentId);
+    String notifyAgentBusyRequestBody(AgentMetadata elasticAgent);
 
-    String notifyAgentIdleRequestBody(String elasticAgentId);
+    String notifyAgentIdleRequestBody(AgentMetadata elasticAgent);
 
-    String serverPingRequestBody(List<AgentMetadata> metadata);
+    String serverPingRequestBody(Collection<AgentMetadata> metadata);
+
+    Collection<AgentMetadata> deleteAgentRequestBody(String requestBody);
 }

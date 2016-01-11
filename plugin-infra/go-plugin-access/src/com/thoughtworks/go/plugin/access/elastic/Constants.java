@@ -20,10 +20,15 @@ public class Constants {
     public final static String EXTENSION_NAME = "elastic-agent";
 
     public static final String REQUEST_PREFIX = "go.cd.elastic-agent";
+    public static final String PROCESSOR_PREFIX = "go.processor.elasticagent";
 
     public static final String REQUEST_CREATE_AGENT = REQUEST_PREFIX + ".create-agent";
     public static final String REQUEST_CAN_PLUGIN_HANDLE = REQUEST_PREFIX + ".can-plugin-handle";
     public static final String REQUEST_SERVER_PING = REQUEST_PREFIX + ".server-ping";
     public static final String REQUEST_SHOULD_ASSIGN_WORK = REQUEST_PREFIX + ".should-assign-work";
     public static final String REQUEST_NOTIFY_AGENT_BUSY = REQUEST_PREFIX + ".notify-agent-busy";
+
+    public static final String PROCESS_DISABLE_AGENT = PROCESSOR_PREFIX + ".disable-agent";
+    public static final String PROCESS_DELETE_AGENT = PROCESSOR_PREFIX + ".delete-agent";
+
 }

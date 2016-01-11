@@ -16,18 +16,19 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
-import java.util.List;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
 
     public static final String VERSION = "1.0";
 
     @Override
-    public String canHandlePluginRequestBody(List<String> resources, String environment) {
+    public String canHandlePluginRequestBody(Collection<String> resources, String environment) {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("resources", gson.toJsonTree(resources));
@@ -36,46 +37,46 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public String createAgentRequestBody(List<String> resources, String environment) {
+    public String createAgentRequestBody(Collection<String> resources, String environment) {
         return canHandlePluginRequestBody(resources, environment);
     }
 
     @Override
-    public String shouldAssignWorkRequestBody(String elasticAgentId, List<String> resources, String environment) {
+    public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, Collection<String> resources, String environment) {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("resources", gson.toJsonTree(resources));
         jsonObject.addProperty("environment", environment);
-        jsonObject.addProperty("elastic_agent_id", elasticAgentId);
+        jsonObject.add("agent", elasticAgent.toJSON());
         return gson.toJson(jsonObject);
     }
 
     @Override
-    public String notifyAgentBusyRequestBody(String elasticAgentId) {
-        Gson gson = new Gson();
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("elastic_agent_id", elasticAgentId);
-        return gson.toJson(jsonObject);
+    public String notifyAgentBusyRequestBody(AgentMetadata elasticAgent) {
+        return new Gson().toJson(elasticAgent.toJSON());
     }
 
     @Override
-    public String notifyAgentIdleRequestBody(String elasticAgentId) {
-        return notifyAgentBusyRequestBody(elasticAgentId);
+    public String notifyAgentIdleRequestBody(AgentMetadata elasticAgent) {
+        return notifyAgentBusyRequestBody(elasticAgent);
     }
 
     @Override
-    public String serverPingRequestBody(List<AgentMetadata> metadata) {
+    public String serverPingRequestBody(Collection<AgentMetadata> metadata) {
         Gson gson = new Gson();
         JsonArray array = new JsonArray();
         for (AgentMetadata agentMetadata : metadata) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("agent_id", agentMetadata.elasticAgentId());
-            jsonObject.addProperty("agent_state", agentMetadata.agentState());
-            jsonObject.addProperty("config_state", agentMetadata.configState());
-            jsonObject.addProperty("build_state", agentMetadata.buildState());
-            array.add(jsonObject);
+            array.add(agentMetadata.toJSON());
         }
         return gson.toJson(array);
+    }
+
+    @Override
+    public Collection<AgentMetadata> deleteAgentRequestBody(String requestBody) {
+        Type AGENT_METADATA_LIST_TYPE = new TypeToken<ArrayList<AgentMetadata>>() {
+        }.getType();
+        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        return gson.fromJson(requestBody, AGENT_METADATA_LIST_TYPE);
     }
 
     @Override

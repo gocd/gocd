@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.ApproveAgentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
 import com.thoughtworks.go.domain.AllConfigErrors;
@@ -27,11 +26,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -54,6 +49,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.server.service.AgentConfigService.createAddAgentCommand;
 import static com.thoughtworks.go.util.FileDigester.copyAndDigest;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 
@@ -205,22 +201,31 @@ public class AgentRegistrationController {
         Registration keyEntry;
         String preferredHostname = hostname;
         try {
+            preferredHostname = hostname;
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
+            }
+
+            AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
+            agentConfig.setElasticAgentId(elasticAgentId);
+            agentConfig.setElasticPluginId(elasticPluginId);
+
+            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
+                LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
-                        new ApproveAgentCommand(uuid, ipAddress, preferredHostname),
+                        createAddAgentCommand(agentConfig),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)
                 );
                 HttpOperationResult result = new HttpOperationResult();
-                AgentConfig agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, Username.ANONYMOUS);
-                if(!result.isSuccess()){
+                agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, Username.ANONYMOUS);
+                if (!result.isSuccess()) {
                     List<ConfigErrors> errors = com.thoughtworks.go.config.ErrorCollector.getAllErrors(agentConfig);
                     throw new GoConfigInvalidException(null, new AllConfigErrors(errors).asString());
                 }
             }
-            AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
+
             boolean registeredAlready = goConfigService.hasAgent(uuid);
             long usablespace = Long.parseLong(usablespaceAsString);
 

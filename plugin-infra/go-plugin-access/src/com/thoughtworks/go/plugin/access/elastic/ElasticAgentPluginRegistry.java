@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,7 +60,30 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         return Collections.unmodifiableList(plugins);
     }
 
-    public PluginDescriptor findPluginsMatching(List<String> resources, String environment) {
+    public void createAgent(Collection<String> resources, String environment) {
+        PluginDescriptor plugin = findPluginMatching(resources, environment);
+        if (plugin != null) {
+            elasticAgentExtension.createAgent(plugin.id(), resources, environment);
+        }
+    }
+
+    public void serverPing(String pluginId, Collection<AgentMetadata> agents) {
+        elasticAgentExtension.serverPing(pluginId, agents);
+    }
+
+    public boolean shouldAssignWork(PluginDescriptor descriptor, AgentMetadata agent, Collection<String> resources, String environment) {
+        return elasticAgentExtension.shouldAssignWork(descriptor.id(), agent, resources, environment);
+    }
+
+    public void notifyAgentBusy(PluginDescriptor descriptor, AgentMetadata agent) {
+        elasticAgentExtension.notifyAgentBusy(descriptor.id(), agent);
+    }
+
+    public void notifyAgentIdle(PluginDescriptor descriptor, AgentMetadata agent) {
+        elasticAgentExtension.notifyAgentIdle(descriptor.id(), agent);
+    }
+
+    private PluginDescriptor findPluginMatching(Collection<String> resources, String environment) {
         for (PluginDescriptor pluginDescriptor : plugins) {
             if (elasticAgentExtension.canPluginHandle(pluginDescriptor.id(), resources, environment)) {
                 return pluginDescriptor;
@@ -67,27 +91,4 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         }
         return null;
     }
-
-    public void createAgent(PluginDescriptor descriptor, List<String> resources, String environment) {
-        elasticAgentExtension.createAgent(descriptor.id(), resources, environment);
-    }
-
-    public void serverPing(String pluginId, ArrayList<AgentMetadata> metadata) {
-        for (PluginDescriptor descriptor : plugins) {
-            elasticAgentExtension.serverPing(descriptor.id(), metadata);
-        }
-    }
-
-    public boolean shouldAssignWork(PluginDescriptor descriptor, String elasticAgentId, List<String> resources, String environment) {
-        return elasticAgentExtension.shouldAssignWork(descriptor.id(), elasticAgentId, resources, environment);
-    }
-
-    public void notifyJobAssigned(PluginDescriptor descriptor, String elasticAgentId) {
-        elasticAgentExtension.notifyAgentBusy(descriptor.id(), elasticAgentId);
-    }
-
-    public void notifyAgentIdle(PluginDescriptor descriptor, String elasticAgentId) {
-        elasticAgentExtension.notifyAgentIdle(descriptor.id(), elasticAgentId);
-    }
-
 }

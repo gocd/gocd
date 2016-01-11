@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
@@ -32,7 +31,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import sun.management.resources.agent;
 
 import java.util.Date;
 import java.util.List;
@@ -52,7 +50,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
 
-    protected AgentInstance(AgentConfig agentConfig,AgentType agentType, SystemEnvironment systemEnvironment) {
+    protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
         this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
         this.agentConfigStatus = AgentConfigStatus.Pending;
@@ -96,7 +94,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         }
     }
 
-    @Deprecated
     public void building(AgentBuildingInfo agentBuildingInfo) {
         syncStatus(AgentRuntimeStatus.Building);
         agentRuntimeInfo.busy(agentBuildingInfo);
@@ -370,6 +367,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public ElasticAgentMetadata elasticAgentMetadata() {
         ElasticAgentRuntimeInfo runtimeInfo = (ElasticAgentRuntimeInfo) this.agentRuntimeInfo;
         return new ElasticAgentMetadata(getUuid(), runtimeInfo.getElasticAgentId(), runtimeInfo.getElasticPluginId(), this.agentRuntimeInfo.getRuntimeStatus(), getAgentConfigStatus());
+    }
+
+    public boolean canBeDeleted() {
+        return isDisabled() && !(isBuilding() || isCancelled());
     }
 
     public static enum AgentType {

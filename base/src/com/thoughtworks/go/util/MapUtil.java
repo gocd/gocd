@@ -14,12 +14,26 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.infra;
+package com.thoughtworks.go.util;
 
-import com.thoughtworks.go.plugin.api.request.GoApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoApiResponse;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
-public interface GoPluginApiRequestProcessor {
-    GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest);
+public class MapUtil {
+
+    public interface Predicate<V> {
+        boolean apply(V obj);
+    }
+
+    public static <T, V> Collection<V> filterValues(Map<T, V> map, Predicate<V> predicate) {
+        ArrayList<V> result = new ArrayList<>();
+        Collection<V> values = map.values();
+        for (V value : values) {
+            if (predicate.apply(value)) {
+                result.add(value);
+            }
+        }
+        return result;
+    }
 }

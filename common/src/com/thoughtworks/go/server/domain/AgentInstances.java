@@ -25,11 +25,15 @@ import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.ListUtil;
+import com.thoughtworks.go.util.MapUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.thoughtworks.go.util.ListUtil.join;
 
 public class AgentInstances implements Iterable<AgentInstance> {
 
@@ -315,5 +319,35 @@ public class AgentInstances implements Iterable<AgentInstance> {
         }
 
         return map;
+    }
+
+    public AgentInstance findElasticAgent(final String elasticAgentId, final String elasticPluginId) {
+        Collection<AgentInstance> values = MapUtil.filterValues(agentInstances, new MapUtil.Predicate<AgentInstance>() {
+            public boolean apply(AgentInstance agentInstance) {
+                if (!agentInstance.isElastic()) {
+                    return false;
+                }
+
+                ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
+                return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
+
+            }
+        });
+
+
+        if (values.size() == 0) {
+            return null;
+        }
+        if (values.size() > 1) {
+            Collection<String> uuids = ListUtil.map(values, new ListUtil.Transformer<AgentInstance, String>() {
+                @Override
+                public String transform(AgentInstance input) {
+                    return input.getUuid();
+                }
+            });
+            throw new IllegalStateException(String.format("Found multiple agents with the same elastic agent id [%s]", join(uuids)));
+        }
+
+        return values.iterator().next();
     }
 }

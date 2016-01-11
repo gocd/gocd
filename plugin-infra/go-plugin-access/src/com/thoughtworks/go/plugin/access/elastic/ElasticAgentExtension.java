@@ -25,15 +25,15 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
 
-    private final static List<String> supportedVersions = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION);
+    public final static List<String> supportedVersions = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION);
 
     private final HashMap<String, ElasticAgentMessageConverter> messageHandlerMap = new HashMap<>();
 
@@ -48,69 +48,73 @@ public class ElasticAgentExtension extends AbstractExtension {
         messageHandlerMap.put(ElasticAgentExtensionConverterV1.VERSION, extensionHandler);
     }
 
-    public boolean canPluginHandle(String pluginId, final List<String> resources, final String environment) {
+    public boolean canPluginHandle(String pluginId, final Collection<String> resources, final String environment) {
         return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_CAN_PLUGIN_HANDLE, new DefaultPluginInteractionCallback<Boolean>() {
 
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).canHandlePluginRequestBody(resources, environment);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).canHandlePluginRequestBody(resources, environment);
             }
 
             @Override
             public Boolean onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).canHandlePluginResponseFromBody(responseBody);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).canHandlePluginResponseFromBody(responseBody);
             }
         });
     }
 
-    public void createAgent(String pluginId, final List<String> resources, final String environment) {
+    public void createAgent(String pluginId, final Collection<String> resources, final String environment) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).createAgentRequestBody(resources, environment);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(resources, environment);
             }
         });
     }
 
-    public void serverPing(final String pluginId, final ArrayList<AgentMetadata> metadata) {
+    public void serverPing(final String pluginId, final Collection<AgentMetadata> metadata) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>(){
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).serverPingRequestBody(metadata);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).serverPingRequestBody(metadata);
             }
         });
     }
 
-    public boolean shouldAssignWork(String pluginId, final String elasticAgentId, final List<String> resources, final String environment) {
+    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final Collection<String> resources, final String environment) {
         return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
 
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).shouldAssignWorkRequestBody(elasticAgentId, resources, environment);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkRequestBody(agent, resources, environment);
             }
 
             @Override
             public Boolean onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).shouldAssignWorkResponseFromBody(responseBody);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkResponseFromBody(responseBody);
             }
         });
     }
 
-    public void notifyAgentBusy(String pluginId, final String elasticAgentId) {
+    public void notifyAgentBusy(String pluginId, final AgentMetadata agent) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_NOTIFY_AGENT_BUSY, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).notifyAgentBusyRequestBody(elasticAgentId);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).notifyAgentBusyRequestBody(agent);
             }
         });
     }
 
-    public void notifyAgentIdle(String pluginId, final String elasticAgentId) {
+    public void notifyAgentIdle(String pluginId, final AgentMetadata agent) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_NOTIFY_AGENT_BUSY, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).notifyAgentIdleRequestBody(elasticAgentId);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).notifyAgentIdleRequestBody(agent);
             }
         });
+    }
+
+    public ElasticAgentMessageConverter getElasticAgentMessageConverter(String version) {
+        return messageHandlerMap.get(version);
     }
 }

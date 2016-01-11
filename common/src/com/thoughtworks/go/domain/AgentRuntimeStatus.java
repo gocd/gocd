@@ -37,8 +37,8 @@ public enum AgentRuntimeStatus {
         }
     }
 
-    public AgentRuntimeStatus agentState(){
-        switch(this){
+    public AgentRuntimeStatus agentState() {
+        switch (this) {
             case Idle:
                 return this;
             case Building:

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -216,7 +216,7 @@ public class JobInstanceService implements JobPlanLoader {
         List<JobPlan> jobPlans = orderedScheduledBuilds();
         List<WaitingJobPlan> waitingJobPlans = new ArrayList<>();
         for (JobPlan jobPlan : jobPlans) {
-            String envForJob = environmentConfigService.envForJob(jobPlan.getPipelineName());
+            String envForJob = environmentConfigService.envForPipeline(jobPlan.getPipelineName());
             waitingJobPlans.add(new WaitingJobPlan(jobPlan, envForJob));
         }
         return waitingJobPlans;

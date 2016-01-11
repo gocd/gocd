@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.server.domain;
 
-import java.io.Serializable;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.io.Serializable;
 
 public class Username implements Serializable {
     public static final Username ANONYMOUS = new Username(new CaseInsensitiveString("anonymous"));

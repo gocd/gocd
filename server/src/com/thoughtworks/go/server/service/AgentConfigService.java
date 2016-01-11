@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.google.caja.util.Sets;
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -91,7 +91,7 @@ public class AgentConfigService {
             } else {
                 AgentConfig agentConfig = agentInstance.agentConfig();
                 agentConfig.disable(disabled);
-                command.addCommand(createAddAgentCommand(agentConfig));
+                command.addCommand(new AddAgentCommand(agentConfig));
             }
         }
         updateAgentWithoutValidations(command, currentUser);
@@ -252,7 +252,7 @@ public class AgentConfigService {
         if (!goConfigService.hasAgent(uuid) && enable.isTrue()) {
             AgentInstance agentInstance = agentInstances.findAgent(uuid);
             AgentConfig agentConfig = agentInstance.agentConfig();
-            command.addCommand(createAddAgentCommand(agentConfig));
+            command.addCommand(new AddAgentCommand(agentConfig));
         }
 
         if (enable.isTrue()) {
@@ -305,11 +305,11 @@ public class AgentConfigService {
         if (goConfigService.hasAgent(agentInstance.getUuid())) {
             LOGGER.warn("Registered agent with the same uuid [" + agentInstance + "] already approved.");
         } else {
-            updateAgent(createAddAgentCommand(agentInstance.agentConfig()), agentInstance.getUuid(), new HttpOperationResult(), Username.ANONYMOUS);
+            updateAgent(new AddAgentCommand(agentInstance.agentConfig()), agentInstance.getUuid(), new HttpOperationResult(), Username.ANONYMOUS);
         }
     }
 
-    protected static UpdateConfigCommand createAddAgentCommand(final AgentConfig agentConfig) {
+    public static UpdateConfigCommand createAddAgentCommand(final AgentConfig agentConfig) {
         return new AddAgentCommand(agentConfig);
     }
 
@@ -527,6 +527,5 @@ public class AgentConfigService {
             return new ConfigModifyingUser(userName);
         }
     }
-
 
 }

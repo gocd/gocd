@@ -127,7 +127,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         }
         if (validationContext.isWithinPipelines()) {
             PipelineConfigs group = validationContext.getPipelineGroup();
-            if (!group.hasAuthorizationDefined()) {
+            if (!group.hasOperationPermissionDefined()) {
                 return;
             }
 

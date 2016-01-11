@@ -296,6 +296,29 @@ public class ApprovalTest {
     }
 
     @Test
+    public void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() throws Exception {
+        CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
+                new Role(new CaseInsensitiveString("role"),
+                        new RoleUser(new CaseInsensitiveString("first")),
+                        new RoleUser(new CaseInsensitiveString("second"))),
+                new AdminUser(new CaseInsensitiveString("admin")));
+
+        addRoleAsAdminToDefaultGroup(cruiseConfig, "role");
+
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
+        StageConfig stage = pipeline.get(0);
+        StageConfigMother.addApprovalWithUsers(stage, "first", "some-other-user-who-is-not-operate-authorized");
+        Approval approval = stage.getApproval();
+        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
+
+        approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
+
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
+        /* https://github.com/gocd/gocd/pull/1779#issuecomment-170161521 */
+        assertNoErrors(approval.getAuthConfig().getUsers().get(1));
+    }
+
+    @Test
     public void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
@@ -363,5 +386,9 @@ public class ApprovalTest {
         HashMap nameMap = new HashMap();
         nameMap.put("name", name);
         return nameMap;
+    }
+
+    private void assertNoErrors(Admin userOrRole) {
+        assertThat(userOrRole.errors().getAll().toString(), userOrRole.errors().isEmpty(), is(true));
     }
 }

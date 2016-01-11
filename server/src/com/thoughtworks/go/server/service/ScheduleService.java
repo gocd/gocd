@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -89,6 +89,7 @@ public class ScheduleService {
     private PipelinePauseService pipelinePauseService;
     private InstanceFactory instanceFactory;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    private ElasticAgentPluginService elasticAgentPluginService;
 
     protected ScheduleService() {
     }
@@ -117,7 +118,9 @@ public class ScheduleService {
                            ConsoleActivityMonitor consoleActivityMonitor,
                            PipelinePauseService pipelinePauseService,
                            InstanceFactory instanceFactory,
-                           SchedulingPerformanceLogger schedulingPerformanceLogger) {
+                           SchedulingPerformanceLogger schedulingPerformanceLogger,
+                           ElasticAgentPluginService elasticAgentPluginService
+                           ) {
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
         this.stageService = stageService;
@@ -142,6 +145,7 @@ public class ScheduleService {
         this.pipelinePauseService = pipelinePauseService;
         this.instanceFactory = instanceFactory;
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
+        this.elasticAgentPluginService = elasticAgentPluginService;
     }
 
     //Note: This is called from a Spring timer

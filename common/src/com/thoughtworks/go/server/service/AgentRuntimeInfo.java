@@ -316,4 +316,8 @@ public class AgentRuntimeInfo implements Serializable {
     public void setSupportsBuildCommandProtocol(boolean b) {
         this.supportsBuildCommandProtocol = b;
     }
+
+    public boolean isElastic() {
+        return false;
+    }
 }

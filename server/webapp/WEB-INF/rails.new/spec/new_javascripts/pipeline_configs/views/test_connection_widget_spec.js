@@ -62,90 +62,39 @@ define(["mithril", "lodash", "pipeline_configs/models/materials", "pipeline_conf
       var vm, controller, deferred, pipelineName, material;
 
       beforeEach(function(){
+        deferred = $.Deferred();
         material = new Materials().createMaterial({
           type: 'git',
           url: "http://git.example.com/git/myProject"
         });
         pipelineName = m.prop('testPipeLine');
-        deferred = $.Deferred();
         vm = new TestConnectionWidget.Connection.State();
         controller = new TestConnectionWidget.controller({material: material, pipelineName: pipelineName, vm: {connectionState: vm}});
 
-        spyOn(TestConnectionWidget.Connection, 'test').and.callFake(function(){
+        spyOn(material, 'testConnection').and.callFake(function(){
           return deferred.promise();
         })
       });
 
       it('should mark connection state to in progress', function(){
-        controller.testConnection(material, m.prop('testPipeline'));
+        controller.testConnection();
 
         expect(vm.status()).toBe('InProgress');
       });
 
       it('should mark connection state to success if test passes', function() {
-        controller.testConnection(material, m.prop('testPipeline'));
+        controller.testConnection();
         deferred.resolve();
 
-        expect(TestConnectionWidget.Connection.test).toHaveBeenCalledWith(material, pipelineName);
+        expect(material.testConnection).toHaveBeenCalledWith(pipelineName);
         expect(vm.status()).toBe('Success');
       });
 
       it('should mark connection state to error if test fails', function() {
-        controller.testConnection(material, m.prop('testPipeline'));
+        controller.testConnection();
         deferred.reject();
 
         expect(vm.status()).toBe('Error');
-      });
-    });
-
-    describe('Connection Test', function() {
-      var requestArgs, material;
-
-      beforeEach(function(){
-        material = new Materials().createMaterial({
-          type: 'git',
-          url: "http://git.example.com/git/myProject"
-        });
-
-        spyOn(m, 'request');
-        TestConnectionWidget.Connection.test(material, m.prop('testPipeline'));
-        requestArgs = m.request.calls.mostRecent().args[0]
-      });
-
-      describe('post', function(){
-        it('should post to material_test url', function () {
-          expect(requestArgs.method).toBe('POST');
-          expect(requestArgs.url).toBe('/go/api/material_test');
-        });
-
-        it('should post required headers', function () {
-          var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-          requestArgs.config(xhr);
-
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-        });
-
-        it('should post the material for test connection', function(){
-          var payload = _.merge(material.toJSON(), {pipeline_name: 'testPipeline'});
-
-          expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify(payload));
-        });
-
-        it('should return test connection failure message', function () {
-          var errorMessage = "Failed to find 'hg' on your PATH";
-
-          expect(requestArgs.unwrapError({message: errorMessage})).toBe(errorMessage);
-        });
-
-        it('should stringfy the request payload', function() {
-          var payload = {'keyOne': 'value'};
-
-          spyOn(JSON, 'stringify').and.callThrough();
-
-          expect(requestArgs.serialize(payload)).toBe(JSON.stringify({ key_one: 'value' }));
-          expect(JSON.stringify).toHaveBeenCalled();
-        })
       });
     });
   });

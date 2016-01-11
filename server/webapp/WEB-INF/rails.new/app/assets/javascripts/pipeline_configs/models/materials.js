@@ -100,6 +100,36 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
       };
     };
 
+    this.testConnection = function (pipelineName) {
+      var self = this;
+
+      var xhrConfig = function(xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
+      };
+
+      var payload = function () {
+        return _.merge(self.toJSON(), {pipeline_name: pipelineName()});
+      };
+
+      var stringfy = function (data) {
+        return JSON.stringify(data, s.snakeCaser)
+      };
+
+      var onError = function (response) {
+        return response.message ? response.message : 'There was an unknown error while checking connection';
+      };
+
+      return m.request({
+        url:         Routes.apiv1MaterialTestPath(),
+        method:      'POST',
+        config:      xhrConfig,
+        data:        payload(),
+        unwrapError: onError,
+        serialize:   stringfy
+      });
+    };
+
     this._attributesToJSON = function () {
       throw new Error("Subclass responsibility!");
     };

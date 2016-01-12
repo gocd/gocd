@@ -121,7 +121,6 @@ public class GoConfigFileHelper {
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configCache, new ServerVersion(), configElementImplementationRegistry, probeService, serverHealthService);
             dataSource.upgradeIfNecessary();
-            GoConfigWriteLock goConfigWriteLock = new GoConfigWriteLock();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
             GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
@@ -144,7 +143,6 @@ public class GoConfigFileHelper {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
-            GoConfigWriteLock goConfigWriteLock = new GoConfigWriteLock();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), probeService, serverHealthService);
             dataSource.upgradeIfNecessary();

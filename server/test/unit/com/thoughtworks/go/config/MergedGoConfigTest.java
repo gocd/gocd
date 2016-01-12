@@ -62,7 +62,6 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
         SystemEnvironment env = new SystemEnvironment();
         ConfigRepository configRepository = new ConfigRepository(env);
         configRepository.initialize();
-        GoConfigWriteLock goConfigWriteLock = new GoConfigWriteLock();
         dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, env, new TimeProvider(),
                 new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 metricsProbeService, serverHealthService);

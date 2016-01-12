@@ -190,6 +190,16 @@ task :jasmine_tests do
       'CLASSPATH'           => classpath
     }
     sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", environment.merge('JASMINE_CONFIG_PATH' => './spec/javascripts/support/jasmine-ci-old.yml'))
+  end
+end
+
+task :new_jasmine_tests do
+  cd rails_root do
+    environment = {
+      'RAILS_ENV'           => 'test',
+      'REPORTERS'           => 'console,junit',
+      'CLASSPATH'           => classpath
+    }
     sh_with_environment("#{ruby_executable} -S ./bin/rake jasmine:ci", environment.merge("JASMINE_CONFIG_PATH" => './spec/javascripts/support/jasmine-ci-new.yml', 'REQUIRE_JS' => 'true'))
   end
 end

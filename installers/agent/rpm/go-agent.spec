@@ -1,3 +1,12 @@
+%define __spec_install_pre %{___build_pre}
+
+# use md5 for digest algorithm because it works on most platforms
+%define _binary_filedigest_algorithm 1
+%define _build_binary_file_digest_algo 1
+
+# use gzip for compression because it works on most platforms
+%define _binary_payload w9.gzdio
+
 Name: go-agent
 Version: @VERSION@
 Release: @RELEASE@
@@ -99,4 +108,3 @@ fi
 /etc/init.d/go-agent
 %config /etc/default/go-agent
 %config /var/lib/go-agent/log4j.properties
-

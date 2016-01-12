@@ -40,7 +40,6 @@ import org.springframework.transaction.support.TransactionCallback;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 import static java.lang.String.format;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
@@ -145,26 +144,25 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             return;
         }
         Long start = System.currentTimeMillis();
-        agents.forEach(new BiConsumer<String, Agent>() {
-            @Override
-            public void accept(String agentUUId, Agent agent) {
-                AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
-                if (!agentInstance.isRegistered()) {
-                    agent.send(new Message(Action.reregister));
-                    return;
-                }
-                if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignore agent that is disabled or is not idling: " + agentInstance);
-                    }
-                    return;
-                }
-                Work work = BuildAssignmentService.this.assignWorkToAgent(agentInstance);
-                if (work != NO_WORK) {
-                    agent.send(new Message(Action.assignWork, work));
-                }
+        for (Map.Entry<String, Agent> entry : agents.entrySet()) {
+            String agentUUId = entry.getKey();
+            Agent agent = entry.getValue();
+            AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
+            if (!agentInstance.isRegistered()) {
+                agent.send(new Message(Action.reregister));
+                return;
             }
-        });
+            if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Ignore agent that is disabled or is not idling: " + agentInstance);
+                }
+                return;
+            }
+            Work work = BuildAssignmentService.this.assignWorkToAgent(agentInstance);
+            if (work != NO_WORK) {
+                agent.send(new Message(Action.assignWork, work));
+            }
+        }
         LOGGER.info(format("Matching %d agents with %d jobs took: %dms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start));
     }
 

@@ -92,7 +92,6 @@ public class GoFileConfigDataSourceTest {
         }, configRepository, new TimeProvider(), configCache, registry, metricsProbeService),
                 configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, metricsProbeService, mock(ServerHealthService.class));
         dataSource.upgradeIfNecessary();
-        GoConfigWriteLock goConfigWriteLock = new GoConfigWriteLock();
         CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource, new ServerHealthService());
         fileService.loadConfigIfNull();
         goConfigDao = new GoConfigDao(fileService, metricsProbeService);

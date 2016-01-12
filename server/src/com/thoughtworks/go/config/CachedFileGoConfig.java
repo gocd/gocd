@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,8 +83,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
     }
 
     @Override
-    public void forceReload()
-    {
+    public void forceReload() {
         loadFromDisk();
     }
 
@@ -93,11 +92,13 @@ public class CachedFileGoConfig implements CachedGoConfig {
         this.forceReload();
     }
 
-    private synchronized void loadFromDisk() {
+    private void loadFromDisk() {
         try {
-            GoConfigHolder configHolder = dataSource.load();
-            if (configHolder != null) {
-                saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+            synchronized (GoConfigWriteLock.class) {
+                GoConfigHolder configHolder = dataSource.load();
+                if (configHolder != null) {
+                    saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+                }
             }
         } catch (Exception e) {
             LOGGER.warn("Error loading cruise-config.xml from disk, keeping previous one", e);

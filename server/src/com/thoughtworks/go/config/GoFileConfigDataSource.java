@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -221,9 +221,13 @@ public class GoFileConfigDataSource {
             try {
                 LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
                 String configAsXml = configAsXml(modifiedConfig, true);
+                String md5 = CachedDigestUtils.md5Hex(configAsXml);
+                MagicalGoConfigXmlLoader.setMd5(modifiedConfig, md5);
+                MagicalGoConfigXmlLoader.setMd5(preprocessedConfig, md5);
                 writeToConfigXmlFile(configAsXml);
-                configRepository.checkin(new GoConfigRevision(configAsXml, CachedDigestUtils.md5Hex(configAsXml), currentUser.getUsername().toString(), serverVersion.version(), timeProvider));
+                configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser.getUsername().toString(), serverVersion.version(), timeProvider));
                 LOGGER.debug("[Config Save] Done writing with lock");
+                reloadStrategy.latestState(preprocessedConfig);
                 return new CachedFileGoConfig.PipelineConfigSaveResult(pipelineConfig, saveCommand.getPipelineGroup(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
             } catch (Exception e) {
                 throw new RuntimeException("failed to save : " + e.getMessage());

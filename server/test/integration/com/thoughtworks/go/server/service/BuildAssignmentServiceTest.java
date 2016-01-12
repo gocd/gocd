@@ -162,6 +162,7 @@ public class BuildAssignmentServiceTest {
         configHelper.onTearDown();
         FileUtil.deleteFolder(goConfigService.artifactsDir());
         agentAssignment.clear();
+        agentRemoteHandler.connectedAgents().clear();
     }
 
     @Test

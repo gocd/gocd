@@ -154,7 +154,7 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             }
             if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Ignore agent that is disabled or is not idling: " + agentInstance);
+                    LOGGER.debug("Ignore agent that is " + agentInstance.getStatus());
                 }
                 return;
             }
@@ -163,7 +163,9 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
                 agent.send(new Message(Action.assignWork, work));
             }
         }
-        LOGGER.info(format("Matching %d agents with %d jobs took: %dms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(format("Matching %d agents with %d jobs took: %dms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start));
+        }
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {

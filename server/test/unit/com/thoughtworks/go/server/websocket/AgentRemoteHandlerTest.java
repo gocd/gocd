@@ -76,7 +76,7 @@ public class AgentRemoteHandlerTest {
 
         verify(remote).ping(info);
         assertEquals(1, handler.connectedAgents().size());
-        assertEquals(this, handler.connectedAgents().get("uuid"));
+        assertEquals(agent, handler.connectedAgents().get("uuid"));
 
         assertEquals(1, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.cancelJob);

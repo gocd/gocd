@@ -176,7 +176,9 @@ public class GoConfigDao {
     }
 
     public void updatePipeline(PipelineConfig pipelineConfig, LocalizedOperationResult result, Username currentUser, PipelineConfigService.SaveCommand saveCommand) {
+        LOGGER.info("Config update for pipeline request by {} is in queue - {}", currentUser, saveCommand);
         synchronized (GoConfigWriteLock.class) {
+            LOGGER.info("Config update for pipeline request by {} is being processed", currentUser);
             if (saveCommand.hasWritePermissions()) {
                 try {
                     cachedConfigService.writePipelineWithLock(pipelineConfig, saveCommand, currentUser);

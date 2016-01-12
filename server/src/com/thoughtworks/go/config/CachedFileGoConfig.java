@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.PipelineConfigChangedListener;
@@ -27,9 +24,13 @@ import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.server.service.GoConfigService.INVALID_CRUISE_CONFIG_XML;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -39,7 +40,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  */
 @Component
 public class CachedFileGoConfig implements CachedGoConfig {
-    private static final Logger LOGGER = Logger.getLogger(CachedFileGoConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CachedFileGoConfig.class);
 
     private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
@@ -94,7 +95,9 @@ public class CachedFileGoConfig implements CachedGoConfig {
 
     private void loadFromDisk() {
         try {
+            LOGGER.debug("Config file (on disk) update check is in queue");
             synchronized (GoConfigWriteLock.class) {
+                LOGGER.debug("Config file (on disk) update check is in progress");
                 GoConfigHolder configHolder = dataSource.load();
                 if (configHolder != null) {
                     saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
@@ -160,7 +163,9 @@ public class CachedFileGoConfig implements CachedGoConfig {
         for (ConfigChangedListener listener : listeners) {
             if(listener instanceof PipelineConfigChangedListener){
                 try {
+                    long startTime = System.currentTimeMillis();
                     ((PipelineConfigChangedListener) listener).onPipelineConfigChange(saveResult.getPipelineConfig(), saveResult.getGroup());
+                    LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
                 } catch (Exception e) {
                     LOGGER.error("failed to fire config changed event for listener: " + listener, e);
                 }
@@ -230,9 +235,11 @@ public class CachedFileGoConfig implements CachedGoConfig {
         LOGGER.info("About to notify config listeners");
         for (ConfigChangedListener listener : listeners) {
             try {
+                long startTime = System.currentTimeMillis();
                 listener.onConfigChange(newCruiseConfig);
+                LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
             } catch (Exception e) {
-                LOGGER.error("failed to fire config changed event for listener: " + listener, e);
+                LOGGER.error("Failed to fire config changed event for listener: " + listener, e);
             }
         }
         LOGGER.info("Finished notifying all listeners");

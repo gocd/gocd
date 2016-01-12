@@ -68,12 +68,8 @@ public class JobRunner {
         return running;
     }
 
-    public void waitUntilDone(long seconds) {
-        try {
-            doneSignal.await(seconds, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    public void waitUntilDone(long seconds) throws InterruptedException {
+        doneSignal.await(seconds, TimeUnit.SECONDS);
     }
 
     public boolean isJobCancelled() {

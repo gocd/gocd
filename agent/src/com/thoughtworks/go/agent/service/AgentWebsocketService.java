@@ -156,9 +156,7 @@ public class AgentWebsocketService {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " connected.");
-        }
+        LOGGER.info(sessionName() + " connected.");
     }
 
     @OnWebSocketMessage
@@ -170,16 +168,18 @@ public class AgentWebsocketService {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                AgentWebsocketService.this.controller.process(msg);
+                try {
+                    AgentWebsocketService.this.controller.process(msg);
+                } catch (InterruptedException e) {
+                    LOGGER.info("Process message[" + msg + "] is interruptted.", e);
+                }
             }
         });
     }
 
     @OnWebSocketClose
     public void onClose(int closeCode, String closeReason) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " closed.");
-        }
+        LOGGER.info(sessionName() + " closed.");
     }
 
     @OnWebSocketError

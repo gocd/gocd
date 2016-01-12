@@ -250,7 +250,7 @@ public class AgentControllerTest {
     }
 
     @Test
-    public void processSetCookieAction() throws IOException {
+    public void processSetCookieAction() throws IOException, InterruptedException {
         agentController = createAgentController();
         agentController.init();
 
@@ -260,7 +260,7 @@ public class AgentControllerTest {
     }
 
     @Test
-    public void processAssignWorkAction() throws IOException {
+    public void processAssignWorkAction() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         doAnswer(new Answer() {
             @Override
@@ -288,7 +288,11 @@ public class AgentControllerTest {
         Thread buildingThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                agentController.process(new Message(Action.assignWork, sleep1secWork));
+                try {
+                    agentController.process(new Message(Action.assignWork, sleep1secWork));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
         buildingThread.start();
@@ -302,7 +306,7 @@ public class AgentControllerTest {
     }
 
     @Test
-    public void processReregisterAction() throws IOException {
+    public void processReregisterAction() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController = createAgentController();
         agentController.init();
@@ -320,7 +324,11 @@ public class AgentControllerTest {
         Thread work1Thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                agentController.process(new Message(Action.assignWork, work1));
+                try {
+                    agentController.process(new Message(Action.assignWork, work1));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
         work1Thread.start();

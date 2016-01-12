@@ -258,7 +258,7 @@ public class AgentController {
         }
     }
 
-    public void process(Message message) {
+    public void process(Message message) throws InterruptedException {
         switch (message.getAction()) {
             case cancelJob:
                 cancelJobIfThereIsOneRunning();
@@ -297,7 +297,7 @@ public class AgentController {
         }
     }
 
-    private void cancelJobIfThereIsOneRunning() {
+    private void cancelJobIfThereIsOneRunning() throws InterruptedException {
         if (runner == null || !runner.isRunning()) {
             return;
         }

@@ -102,7 +102,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
             // save to cache and fire event
             this.saveValidConfigToCacheAndNotifyConfigChangeListeners(newConfigHolder);
         } catch (Exception e) {
-            LOGGER.error("Failed validation of merged configuration: {}", e);
+            LOGGER.error("Failed validation of merged configuration: {}", e.toString());
             saveConfigError(e);
         }
     }
@@ -236,7 +236,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
             try {
                 listener.onConfigChange(newCruiseConfig);
             } catch (Exception e) {
-                LOGGER.error("failed to fire config changed event for listener: " + listener, e);
+                LOGGER.error("Failed to fire config changed event for listener: " + listener, e);
             }
         }
         LOGGER.info("Finished notifying all listeners");

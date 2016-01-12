@@ -24,7 +24,8 @@ import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +40,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  */
 @Component
 public class CachedFileGoConfig implements CachedGoConfig {
-    private static final Logger LOGGER = Logger.getLogger(CachedFileGoConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CachedFileGoConfig.class);
 
     private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
@@ -162,7 +163,9 @@ public class CachedFileGoConfig implements CachedGoConfig {
         for (ConfigChangedListener listener : listeners) {
             if(listener instanceof PipelineConfigChangedListener){
                 try {
+                    long startTime = System.currentTimeMillis();
                     ((PipelineConfigChangedListener) listener).onPipelineConfigChange(saveResult.getPipelineConfig(), saveResult.getGroup());
+                    LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
                 } catch (Exception e) {
                     LOGGER.error("failed to fire config changed event for listener: " + listener, e);
                 }
@@ -234,7 +237,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
             try {
                 long startTime = System.currentTimeMillis();
                 listener.onConfigChange(newCruiseConfig);
-                LOGGER.debug("Notifying " + listener.getClass() + " took (in ms): " + (System.currentTimeMillis() - startTime));
+                LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
             } catch (Exception e) {
                 LOGGER.error("Failed to fire config changed event for listener: " + listener, e);
             }

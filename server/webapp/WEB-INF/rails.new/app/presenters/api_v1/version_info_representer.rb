@@ -45,7 +45,7 @@ module ApiV1
 
     def update_server_url
       uri = URI(@system_environment.getUpdateServerUrl)
-      ar = URI.decode_www_form(uri.query) << ['current_version', @version_info.getInstalledVersion.toString || 'unknown']
+      ar = URI.decode_www_form(uri.query || "") << ['current_version', @version_info.getInstalledVersion.toString || 'unknown']
       uri.query = URI.encode_www_form(ar)
       uri.to_s
     end

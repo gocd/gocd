@@ -205,7 +205,7 @@ public class MaterialUpdateServiceTest {
         service.notifyMaterialsForUpdate(username, params, result);
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        operationResult.notFound(LocalizedMessage.string("MATERIAL_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
+        operationResult.notFound(LocalizedMessage.string("MATERIAL_SUITABLE_FOR_NOTIFICATION_NOT_FOUND"), HealthStateType.general(HealthStateScope.GLOBAL));
 
         assertThat(result, is(operationResult));
 

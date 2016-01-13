@@ -50,7 +50,6 @@ import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;

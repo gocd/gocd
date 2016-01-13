@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.websocket.Message;
 import com.thoughtworks.go.server.websocket.Report;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
-
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -143,16 +142,14 @@ public class AgentWebsocketService {
         return session != null && session.isOpen();
     }
 
-    public boolean send(Message message) {
+    public void send(Message message) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sessionName() + " send message: " + message);
         }
         try {
             this.session.getRemote().sendString(Message.encode(message));
-            return true;
         } catch (IOException e) {
-            onError(e);
-            return false;
+            throw new RuntimeException(e);
         }
     }
 

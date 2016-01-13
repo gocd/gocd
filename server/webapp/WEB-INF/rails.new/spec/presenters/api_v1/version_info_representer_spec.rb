@@ -54,4 +54,19 @@ describe ApiV1::VersionInfoRepresenter do
                                 installed_version: '1.2.3-1',
                                 latest_version:    nil })
   end
+
+  it 'should handle update server url without query params' do
+    @system_environment.stub(:getUpdateServerUrl).and_return('https://update.example.com/some/path')
+
+    model = VersionInfo.new('go_server', @installed_version, nil, nil)
+
+    presenter   = ApiV1::VersionInfoRepresenter.new(model, @system_environment)
+    actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+    actual_json.delete(:_links)
+
+    expect(actual_json).to eq({ component_name:    'go_server',
+                                update_server_url: 'https://update.example.com/some/path?current_version=1.2.3-1',
+                                installed_version: '1.2.3-1',
+                                latest_version:    nil })
+  end
 end

@@ -31,13 +31,15 @@ import com.thoughtworks.go.server.websocket.Message;
 import com.thoughtworks.go.server.websocket.Report;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
-import org.apache.log4j.Logger;
+
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -93,7 +95,7 @@ public class AgentWebsocketService {
         }
     }
 
-    private static final Logger LOGGER = Logger.getLogger(AgentWebsocketService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentWebsocketService.class);
     private AgentController controller;
     private Session session;
     private URLService urlService;

@@ -21,6 +21,8 @@ import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class AgentRemoteHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentRemoteHandler.class);
+    private Map<Agent, String> sessionIds = new ConcurrentHashMap<>();
     private Map<String, Agent> agentSessions = new ConcurrentHashMap<>();
 
     @Qualifier("buildRepositoryMessageProducer")
@@ -48,7 +52,11 @@ public class AgentRemoteHandler {
         switch (msg.getAction()) {
             case ping:
                 AgentRuntimeInfo info = (AgentRuntimeInfo) msg.getData();
-                this.agentSessions.put(info.getUUId(), agent);
+                if (!this.agentSessions.containsKey(info.getUUId())) {
+                    LOGGER.info(info.getIdentifier() + " is connected with websocket " + agent);
+                    sessionIds.put(agent, info.getUUId());
+                    this.agentSessions.put(info.getUUId(), agent);
+                }
                 if (info.getCookie() == null) {
                     String cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
                     info.setCookie(cookie);
@@ -56,7 +64,7 @@ public class AgentRemoteHandler {
                 }
                 AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
                 if (instruction.isShouldCancelJob()) {
-                    agent.send(new Message(Action.cancelJob, instruction));
+                    agent.send(new Message(Action.cancelJob));
                 }
                 break;
             case reportCurrentStatus:
@@ -77,17 +85,26 @@ public class AgentRemoteHandler {
     }
 
     public void remove(Agent agent) {
-        for(Map.Entry<String, Agent> entry : agentSessions.entrySet()) {
-            if (entry.getValue().equals(agent)) {
-                agentSessions.remove(entry.getKey());
-                AgentInstance instance = agentService.findAgent(entry.getKey());
-                instance.lostContact();
-                return;
-            }
+        String uuid = sessionIds.remove(agent);
+        if (uuid == null) {
+            return;
+        }
+        agentSessions.remove(uuid);
+        AgentInstance instance = agentService.findAgent(uuid);
+        if (instance != null) {
+            instance.lostContact();
+            LOGGER.info(instance.getAgentIdentifier() + " lost contact because websocket connection is closed");
         }
     }
 
     public Map<String, Agent> connectedAgents() {
         return agentSessions;
+    }
+
+    public void sendCancelMessage(String uuid) {
+        Agent agent = agentSessions.get(uuid);
+        if (agent != null) {
+            agent.send(new Message(Action.cancelJob));
+        }
     }
 }

@@ -15,16 +15,17 @@
  */
 package com.thoughtworks.go.server.websocket;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Future;
 
 @WebSocket
 public class AgentRemoteSocket implements Agent {
-    private static final Logger LOGGER = Logger.getLogger(AgentRemoteSocket.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentRemoteSocket.class);
     private AgentRemoteHandler handler;
     private Session session;
 
@@ -79,5 +80,10 @@ public class AgentRemoteSocket implements Agent {
 
     private String sessionName() {
         return session == null ? "[No session initialized]" : "Session[" + session.getRemoteAddress() + "]";
+    }
+
+    @Override
+    public String toString() {
+        return "[AgentRemoteSocket: " + sessionName() + "]";
     }
 }

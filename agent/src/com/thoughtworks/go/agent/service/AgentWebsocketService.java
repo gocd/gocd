@@ -170,7 +170,9 @@ public class AgentWebsocketService {
                 try {
                     AgentWebsocketService.this.controller.process(msg);
                 } catch (InterruptedException e) {
-                    LOGGER.info("Process message[" + msg + "] is interruptted.", e);
+                    LOGGER.error("Process message[" + msg + "] is interruptted.", e);
+                } catch (RuntimeException e) {
+                    LOGGER.error("Unexpected error while processing message[" + msg + "]: " + e.getMessage(), e);
                 }
             }
         });

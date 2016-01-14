@@ -155,7 +155,7 @@ public class AgentWebsocketService {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        LOGGER.info(sessionName() + " connected.");
+        LOGGER.info(session + " connected.");
     }
 
     @OnWebSocketMessage

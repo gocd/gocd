@@ -52,8 +52,8 @@ public class JobRunner {
         handled = true;
     }
 
-    public void run(Work work, final AgentIdentifier agentIdentifier, final BuildRepositoryRemote server, final GoArtifactsManipulator manipulator, final AgentRuntimeInfo agentRuntimeInfo,
-                    final PackageAsRepositoryExtension packageAsRepositoryExtension, final SCMExtension scmExtension, final TaskExtension taskExtension) {
+    public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
+                    PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         running = true;
         this.work = work;
         try {

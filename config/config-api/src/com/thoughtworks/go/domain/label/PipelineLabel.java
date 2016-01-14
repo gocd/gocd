@@ -19,7 +19,6 @@ package com.thoughtworks.go.domain.label;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.IntRange;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -43,10 +42,13 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
-    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{(?<identifier>[a-zA-Z0-9_\\-\\.!~'#:]+)(\\[(?<startIndex>\\-?\\d+)?(?<sliceColon>:)?(?<endIndex>\\-?\\d+)?\\])?\\}");
+    private static final String MATERIAL_SIGIL = "\\$";
+    private static final String IDENTIFIER_PATTERN = "(?<identifier>[a-zA-Z0-9_\\-\\.!~'#:]+)";
+    private static final String SLICE_PATTERN = "(\\[(?<startIndex>\\-?\\d+)?(?<sliceColon>:)?(?<endIndex>\\-?\\d+)?\\])";
+    private static final Pattern MATERIAL_PATTERN = Pattern.compile("(?i)" + MATERIAL_SIGIL + "\\{" + IDENTIFIER_PATTERN + SLICE_PATTERN + "?\\}");
 
     private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
-        final Matcher matcher = PATTERN.matcher(this.label);
+        final Matcher matcher = MATERIAL_PATTERN.matcher(this.label);
         final StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
             final String revision = lookupMaterialRevision(matcher, materialRevisions);

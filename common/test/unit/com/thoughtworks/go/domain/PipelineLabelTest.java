@@ -31,8 +31,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class PipelineLabelTest {
@@ -56,6 +56,29 @@ public class PipelineLabelTest {
         PipelineLabel label = PipelineLabel.create(testingTemplate);
         label.updateLabel(getNamedRevision(2));
         assertThat(label.toString(), is("testing.2.label"));
+    }
+
+    @Test
+    public void setLabelDoesNotHaveSubstitutions() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}");
+        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.setLabel("release-${svnMaterial}");
+        assertThat(label.toString(), is("release-${svnMaterial}"));
+    }
+
+    @Test
+    public void substitutionIsOnlyAppliedOnFirstUpdate() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}");
+        MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        String revisionWhenUpdated = ModificationsMother.currentRevision();
+
+        MaterialRevisions materialRevisions2 = ModificationsMother.oneUserOneFile();
+        label.updateLabel(materialRevisions2.getNamedRevisions());
+
+        assertThat(label.toString(), is("release-" + revisionWhenUpdated));
+        assertThat(revisionWhenUpdated, is(not(ModificationsMother.currentRevision())));
     }
 
     @Test

@@ -34,7 +34,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     private UrlArgument url;
 
     @ConfigAttribute(value = "branch")
-    private String branch;
+    private String branch = DEFAULT_BRANCH;
 
     private String submoduleFolder;
 
@@ -54,13 +54,17 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public GitMaterialConfig(String url, String branch) {
         this(url);
-        this.branch = (branch == null)? DEFAULT_BRANCH : branch;
+        if(branch != null) {
+            this.branch = branch;
+        }
     }
 
     public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name) {
         super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
-        this.branch = (branch == null)? DEFAULT_BRANCH : branch;
+        if(branch != null) {
+            this.branch = branch;
+        }
         this.submoduleFolder = submoduleFolder;
     }
 

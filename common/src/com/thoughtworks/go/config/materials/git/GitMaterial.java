@@ -54,7 +54,7 @@ public class GitMaterial extends ScmMaterial {
     private static final Logger LOG = Logger.getLogger(GitMaterial.class);
 
     private UrlArgument url;
-    private String branch;
+    private String branch = GitMaterialConfig.DEFAULT_BRANCH;
     private String submoduleFolder;
 
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
@@ -76,7 +76,9 @@ public class GitMaterial extends ScmMaterial {
 
     public GitMaterial(String url, String branch) {
         this(url);
-        this.branch = (branch == null)? GitMaterialConfig.DEFAULT_BRANCH : branch;
+        if(branch != null) {
+            this.branch = branch;
+        }
     }
 
     public GitMaterial(String url, String branch, String folder) {

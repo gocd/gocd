@@ -216,11 +216,11 @@ Go::Application.routes.draw do
   end
   match "environments(.:format)" => 'environments#index', defaults: {:format => :html}, via: [:post, :get], as: :environments
 
-  scope :api, as: :apiv1 do
+  scope :api, as: :apiv1, format: false do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
       resources :backups, only: [:create]
 
-      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], :format => false, constraints: { login_name: /(.*?)/ } do
+      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: { login_name: /(.*?)/ } do
         patch :update, on: :member
       end
 
@@ -248,7 +248,7 @@ Go::Application.routes.draw do
     end
   end
 
-  scope :api, as: :apiv2 do
+  scope :api, as: :apiv2, format: false do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
       resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
         patch :update, on: :member

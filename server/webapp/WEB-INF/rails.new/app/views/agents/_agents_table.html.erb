@@ -8,18 +8,38 @@
 
 <script type="text/javascript">
 Util.on_load(function() {
-    jQuery("#select_all_agents").live('click',function() {
+    var $allAgentsSelector = jQuery("#select_all_agents")
+
+    $allAgentsSelector.live('click',function() {
         var val = this.checked;
         jQuery(".agent_select").each(function() {
             this.checked = val;
         });
     });
 
-    jQuery("input.agent_select").live("click", function() {
-        var unchecked_check_boxes = jQuery("input.agent_select:not(:checked)");
-        if(unchecked_check_boxes.length > 0) {
-            jQuery("#select_all_agents").removeAttr("checked");
-        }
+    var lastChecked = null;
+
+    jQuery(document).ready(function() {
+        jQuery('.agent_select').live('click', function(e) {
+            if (!this.checked) {
+                $allAgentsSelector.removeAttr("checked");
+            }
+
+            if (!lastChecked) {
+                lastChecked = this;
+                return;
+            }
+
+            var $checkboxes = jQuery('.agent_select');
+            var start = $checkboxes.index(this);
+            var end = $checkboxes.index(lastChecked);
+
+            if (e.shiftKey) {
+                $checkboxes.slice(Math.min(start, end), Math.max(start, end) + 1).prop('checked', lastChecked.checked);
+            }
+
+            lastChecked = this;
+        });
     });
 })
 

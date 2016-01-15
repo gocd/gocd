@@ -1,6 +1,5 @@
 # gocd
 
-[![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.io)
 [![Join the chat at https://gitter.im/gocd/gocd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/gocd/gocd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
@@ -10,9 +9,7 @@ This is a Java/JRuby on Rails project. Here is the guide to setup your [developm
 
 All information to help you get started with Go can be found on the <a href="http://www.go.cd/">go.cd</a> website.
 
-## Upcoming release
-
-See [#1104](https://github.com/gocd/gocd/issues/1104) for what's planned for the upcoming release
+See our [roadmap](https://www.go.cd/contribute/roadmap.html) for what's planned for upcoming releases.
 
 ## Contributing
 

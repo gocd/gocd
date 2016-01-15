@@ -10,9 +10,7 @@
 Util.on_load(function() {
     jQuery("#select_all_agents").live('click',function() {
         var val = this.checked;
-        jQuery(".agent_select").each(function() {
-            this.checked = val;
-        });
+        jQuery(".agent_select").prop("checked", val);
     });
 
     var lastChecked = null;
@@ -20,7 +18,7 @@ Util.on_load(function() {
     jQuery(document).ready(function() {
         jQuery('.agent_select').live('click', function(e) {
             if (!this.checked) {
-                jQuery("#select_all_agents").removeAttr("checked");
+                jQuery("#select_all_agents").prop("checked", false);
             }
 
             if (!lastChecked) {

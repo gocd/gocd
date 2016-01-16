@@ -21,6 +21,8 @@ import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
 @WebSocket
@@ -42,8 +44,8 @@ public class AgentRemoteSocket implements Agent {
     }
 
     @OnWebSocketMessage
-    public void onMessage(String raw) {
-        Message msg = Message.decode(raw);
+    public void onMessage(InputStream input) {
+        Message msg = Message.decode(input);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sessionName() + " message: " + msg);
         }
@@ -75,7 +77,7 @@ public class AgentRemoteSocket implements Agent {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sessionName() + " send message: " + msg);
         }
-        return this.session.getRemote().sendStringByFuture(Message.encode(msg));
+        return this.session.getRemote().sendBytesByFuture(ByteBuffer.wrap(Message.encode(msg)));
     }
 
     private String sessionName() {

@@ -44,7 +44,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -119,8 +121,7 @@ public class AgentWebsocketService {
             SystemEnvironment environment = new SystemEnvironment();
             client = new WebSocketClient(sslContextFactory);
             client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
-            client.getPolicy().setMaxTextMessageBufferSize(environment.getWebsocketMaxTextMessageSize());
-            client.getPolicy().setMaxTextMessageSize(environment.getWebsocketMaxTextMessageSize());
+            Message.setupPolicy(client.getPolicy(), environment);
             client.start();
         }
         if (session != null) {
@@ -149,7 +150,7 @@ public class AgentWebsocketService {
             LOGGER.debug(sessionName() + " send message: " + message);
         }
         try {
-            this.session.getRemote().sendString(Message.encode(message));
+            this.session.getRemote().sendBytes(ByteBuffer.wrap(Message.encode(message)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -161,7 +162,7 @@ public class AgentWebsocketService {
     }
 
     @OnWebSocketMessage
-    public void onMessage(String raw) {
+    public void onMessage(InputStream raw) {
         final Message msg = Message.decode(raw);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sessionName() + " message: " + msg);

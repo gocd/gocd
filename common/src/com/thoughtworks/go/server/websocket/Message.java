@@ -16,34 +16,46 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 
 import java.io.*;
 
-public class Message implements Serializable {
-    public static String encode(Message msg) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ObjectOutputStream output;
+public class Message {
+
+    public static void setupPolicy(WebSocketPolicy policy, SystemEnvironment environment) {
+        policy.setMaxTextMessageBufferSize(environment.getWebsocketMaxMessageSize());
+        policy.setMaxTextMessageSize(environment.getWebsocketMaxMessageSize());
+        policy.setMaxBinaryMessageSize(environment.getWebsocketMaxMessageSize());
+        policy.setMaxBinaryMessageBufferSize(environment.getWebsocketMaxMessageSize());
+    }
+
+    public static byte[] encode(Message msg) {
+        String encode = JsonMessage.encode(msg);
         try {
-            output = new ObjectOutputStream(out);
-            output.writeObject(msg);
+            return encode.getBytes("UTF8");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        BASE64Encoder encoder = new BASE64Encoder();
-        return encoder.encode(out.toByteArray());
     }
 
-    public static Message decode(String message) {
-        BASE64Decoder decoder = new BASE64Decoder();
+    public static Message decode(InputStream input) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            byte[] data = decoder.decodeBuffer(message);
-            ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(data));
-            return (Message) input.readObject();
+            byte[] buffer = new byte[8192];
+            int len;
+            while((len = input.read(buffer))>0)
+                baos.write(buffer, 0, len);
+            return decode(baos.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        }
+    }
+
+    public static Message decode(byte[] msg) {
+        try {
+            return JsonMessage.decode(new String(msg, "UTF8"));
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -94,4 +106,5 @@ public class Message implements Serializable {
         result = 31 * result + (data != null ? data.hashCode() : 0);
         return result;
     }
+
 }

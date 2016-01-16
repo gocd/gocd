@@ -53,8 +53,6 @@ public class PackageMaterial extends AbstractMaterial {
     @SerializedName("package")
     private PackageDefinition packageDefinition;
 
-    private String fingerprint;
-
     public PackageMaterial() {
         super(TYPE);
     }

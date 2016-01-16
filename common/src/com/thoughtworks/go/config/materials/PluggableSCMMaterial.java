@@ -58,8 +58,6 @@ public class PluggableSCMMaterial extends AbstractMaterial {
 
     private Filter filter;
 
-    private String fingerprint;
-
     public PluggableSCMMaterial() {
         super(TYPE);
     }

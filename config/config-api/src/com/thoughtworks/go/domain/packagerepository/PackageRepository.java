@@ -67,7 +67,7 @@ public class PackageRepository implements Serializable, Validatable {
     private Configuration configuration = new Configuration();
 
     @ConfigSubtag
-    private Packages packages = new Packages();
+    private transient Packages packages = new Packages();
 
     private ConfigErrors errors = new ConfigErrors();
 

@@ -58,6 +58,11 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         return partialConfig;
     }
 
+    @Override
+    public String displayName() {
+        return "GoCD XML";
+    }
+
     public File[] getFiles(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
         String pattern = defaultPatter;
 
@@ -114,15 +119,15 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         }
         catch (JDOMParseException jdomex)
         {
-            throw new RuntimeException("Syntax error in xml file in configuration repository",jdomex);
+            throw new RuntimeException("Syntax error in xml file: " + file.getName(),jdomex);
         }
         catch (IOException ioex)
         {
-            throw new RuntimeException("IO error when trying to parse xml file in configuration repository",ioex);
+            throw new RuntimeException("IO error when trying to parse xml file: " + file.getName(),ioex);
         }
         catch (Exception ex)
         {
-            throw new RuntimeException("Failed to parse xml file in configuration repository",ex);
+            throw new RuntimeException("Failed to parse xml file: " + file.getName(),ex);
         }
         finally {
             if (inputStream != null) {

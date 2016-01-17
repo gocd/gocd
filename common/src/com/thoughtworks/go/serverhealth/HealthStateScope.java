@@ -18,6 +18,7 @@ package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.lang.StringUtils;
@@ -69,6 +70,10 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     }
     public static HealthStateScope forConfigRepo(String operation) {
         return new HealthStateScope(ScopeType.CONFIG_REPO, operation);
+    }
+
+    public static HealthStateScope forPartialConfigRepo(ConfigRepoConfig repoConfig) {
+        return new HealthStateScope(ScopeType.CONFIG_PARTIAL, repoConfig.getMaterialConfig().getFingerprint());
     }
 
     public boolean isSame(String scope) {
@@ -170,6 +175,16 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String materialScope) {
                 for (MaterialConfig materialConfig : cruiseConfig.getAllUniqueMaterials()) {
                     if (HealthStateScope.forMaterialConfigUpdate(materialConfig).getScope().equals(materialScope)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        },
+        CONFIG_PARTIAL {
+            public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String materialScope) {
+                for (ConfigRepoConfig configRepoConfig : cruiseConfig.getConfigRepos()) {
+                    if (HealthStateScope.forPartialConfigRepo(configRepoConfig).getScope().equals(materialScope)) {
                         return false;
                     }
                 }

@@ -36,6 +36,11 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return configConverter.toPartialConfig(crPartialConfig);
     }
 
+    @Override
+    public String displayName() {
+        return "Plugin " + this.pluginId;
+    }
+
     public CRPartialConfig parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {
         CRParseResult crParseResult = this.crExtension.parseDirectory(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
         List<CRError> errors = crParseResult.getErrors();

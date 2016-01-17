@@ -75,7 +75,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
 
         configWatchList = new GoConfigWatchList(cachedFileGoConfig);
 
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService,serverHealthService);
 
         partials = new GoPartialConfig(repoConfigDataSource,configWatchList);
 

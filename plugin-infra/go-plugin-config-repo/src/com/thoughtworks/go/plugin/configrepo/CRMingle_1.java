@@ -3,15 +3,15 @@ package com.thoughtworks.go.plugin.configrepo;
 import com.thoughtworks.go.util.StringUtil;
 
 public class CRMingle_1 extends CRBase {
-    private String baseUrl;
-    private String projectId;
-    private String mql;
+    private String base_url;
+    private String project_identifier;
+    private String mql_grouping_conditions;
 
     public CRMingle_1(){}
 
     public CRMingle_1(String baseUrl,String projectId){
-        this.baseUrl = baseUrl;
-        this.projectId = projectId;
+        this.base_url = baseUrl;
+        this.project_identifier = projectId;
     }
     @Override
     public boolean equals(Object o) {
@@ -24,13 +24,13 @@ public class CRMingle_1 extends CRBase {
 
         CRMingle_1 that = (CRMingle_1) o;
 
-        if (baseUrl != null ? !baseUrl.equals(that.baseUrl) : that.baseUrl != null) {
+        if (base_url != null ? !base_url.equals(that.base_url) : that.base_url != null) {
             return false;
         }
-        if (mql != null ? !mql.equals(that.mql) : that.mql != null) {
+        if (mql_grouping_conditions != null ? !mql_grouping_conditions.equals(that.mql_grouping_conditions) : that.mql_grouping_conditions != null) {
             return false;
         }
-        if (projectId != null ? !projectId.equals(that.projectId) : that.projectId != null) {
+        if (project_identifier != null ? !project_identifier.equals(that.project_identifier) : that.project_identifier != null) {
             return false;
         }
 
@@ -39,9 +39,9 @@ public class CRMingle_1 extends CRBase {
 
     @Override
     public int hashCode() {
-        int result = baseUrl != null ? baseUrl.hashCode() : 0;
-        result = 31 * result + (projectId != null ? projectId.hashCode() : 0);
-        result = 31 * result + (mql != null ? mql.hashCode() : 0);
+        int result = base_url != null ? base_url.hashCode() : 0;
+        result = 31 * result + (project_identifier != null ? project_identifier.hashCode() : 0);
+        result = 31 * result + (mql_grouping_conditions != null ? mql_grouping_conditions.hashCode() : 0);
         return result;
     }
 
@@ -52,38 +52,38 @@ public class CRMingle_1 extends CRBase {
     }
 
     private void validateProjectId(ErrorCollection errors) {
-        if (StringUtil.isBlank(projectId)) {
+        if (StringUtil.isBlank(project_identifier)) {
             errors.add(this, "Mingle has no project id set");
         }
     }
 
     private void validateBaseUrl(ErrorCollection errors) {
-        if (StringUtil.isBlank(baseUrl)) {
+        if (StringUtil.isBlank(base_url)) {
             errors.add(this, "Mingle has no base url set");
         }
     }
 
     public String getBaseUrl() {
-        return baseUrl;
+        return base_url;
     }
 
     public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+        this.base_url = baseUrl;
     }
 
-    public String getProjectId() {
-        return projectId;
+    public String getProjectIdentifier() {
+        return project_identifier;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setProjectIdentifier(String project_identifier) {
+        this.project_identifier = project_identifier;
     }
 
-    public String getMql() {
-        return mql;
+    public String getMqlGroupingConditions() {
+        return mql_grouping_conditions;
     }
 
-    public void setMql(String mql) {
-        this.mql = mql;
+    public void setMqlGroupingConditions(String mql_grouping_conditions) {
+        this.mql_grouping_conditions = mql_grouping_conditions;
     }
 }

@@ -412,7 +412,7 @@ public class Migration_1 {
     private CRMingle migrate(CRMingle_1 mingle) {
         if(mingle == null)
             return null;
-        return  new CRMingle(mingle.getBaseUrl(),mingle.getProjectId(),mingle.getMql());
+        return  new CRMingle(mingle.getBaseUrl(),mingle.getProjectIdentifier(),mingle.getMqlGroupingConditions());
     }
 
     private CRTrackingTool migrate(CRTrackingTool_1 trackingTool) {

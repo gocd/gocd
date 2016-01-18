@@ -27,17 +27,17 @@ public class CRPipeline_1Test extends CRBaseTest<CRPipeline_1> {
         CRGitMaterial_1 veryCustomGit = new CRGitMaterial_1("gitMaterial1", "dir1", false, "gitrepo", "feature12", "externals", "tools");
 
         CRStage_1 buildStage = new CRStage_1("build", buildRake);
-        pipe1 = new CRPipeline_1("pipe1",veryCustomGit,buildStage);
+        pipe1 = new CRPipeline_1("pipe1","group1",veryCustomGit,buildStage);
 
 
-        customPipeline = new CRPipeline_1("pipe2",veryCustomGit,buildStage);
+        customPipeline = new CRPipeline_1("pipe2","group1",veryCustomGit,buildStage);
         customPipeline.addMaterial(new CRDependencyMaterial_1("pipe1","pipe1","build"));
         customPipeline.setLabelTemplate("foo-1.0-${COUNT}");
         customPipeline.setIsLocked(true);
         customPipeline.setMingle( new CRMingle_1("http://mingle.example.com","my_project"));
         customPipeline.setTimer(new CRTimer_1("0 15 10 * * ? *"));
 
-        invalidNoName = new CRPipeline_1(null,veryCustomGit,buildStage);
+        invalidNoName = new CRPipeline_1(null,"group1",veryCustomGit,buildStage);
         invalidNoMaterial = new CRPipeline_1();
         invalidNoMaterial.setName("pipe4");
         invalidNoMaterial.addStage(buildStage);
@@ -46,7 +46,7 @@ public class CRPipeline_1Test extends CRBaseTest<CRPipeline_1> {
         invalidNoStages.setName("pipe4");
         invalidNoStages.addMaterial(veryCustomGit);
 
-        invalidNoNamedMaterials = new CRPipeline_1("pipe2",veryCustomGit,buildStage);
+        invalidNoNamedMaterials = new CRPipeline_1("pipe2","group1",veryCustomGit,buildStage);
         invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial_1("pipe1","build"));
     }
 

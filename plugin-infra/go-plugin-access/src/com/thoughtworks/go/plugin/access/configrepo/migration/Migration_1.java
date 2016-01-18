@@ -26,7 +26,7 @@ public class Migration_1 {
     }
 
     private void addGroups(CRPartialConfig_1 partialConfig1, CRPartialConfig result) {
-        for(CRPipelineGroup_1 group1 : partialConfig1.getGroups())
+        for(CRPipelineGroup_1 group1 : partialConfig1.getPipelines())
         {
             result.addGroup(migrate(group1));
         }

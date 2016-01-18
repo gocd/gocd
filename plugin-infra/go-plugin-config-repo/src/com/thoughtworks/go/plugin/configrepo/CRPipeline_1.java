@@ -1,14 +1,13 @@
 package com.thoughtworks.go.plugin.configrepo;
 
-import com.thoughtworks.go.plugin.configrepo.material.CRDependencyMaterial_1;
 import com.thoughtworks.go.plugin.configrepo.material.CRMaterial_1;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class CRPipeline_1 extends CRBase {
+    private String group;
     private String name;
     private String labelTemplate;
     private boolean isLocked;
@@ -20,9 +19,10 @@ public class CRPipeline_1 extends CRBase {
     private List<CRStage_1> stages = new ArrayList<>();
 
     public CRPipeline_1(){}
-    public CRPipeline_1(String name,CRMaterial_1 material,CRStage_1... stages)
+    public CRPipeline_1(String name,String groupName,CRMaterial_1 material,CRStage_1... stages)
     {
         this.name = name;
+        this.group = groupName;
         this.materials.add(material);
         this.stages = Arrays.asList(stages);
     }
@@ -180,6 +180,9 @@ public class CRPipeline_1 extends CRBase {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
+        if (group != null ? !group.equals(that.group) : that.group != null) {
+            return false;
+        }
         if (timer != null ? !timer.equals(that.timer) : that.timer != null) {
             return false;
         }
@@ -206,6 +209,7 @@ public class CRPipeline_1 extends CRBase {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (group != null ? group.hashCode() : 0);
         result = 31 * result + (labelTemplate != null ? labelTemplate.hashCode() : 0);
         result = 31 * result + (mingle != null ? mingle.hashCode() : 0);
         result = 31 * result + (trackingTool != null ? trackingTool.hashCode() : 0);
@@ -214,5 +218,13 @@ public class CRPipeline_1 extends CRBase {
         result = 31 * result + (environmentVariables != null ? environmentVariables.size() : 0);
         result = 31 * result + (timer != null ? timer.hashCode() : 0);
         return result;
+    }
+
+    public String getGroupName() {
+        return group;
+    }
+
+    public void setGroupName(String groupName) {
+        this.group = groupName;
     }
 }

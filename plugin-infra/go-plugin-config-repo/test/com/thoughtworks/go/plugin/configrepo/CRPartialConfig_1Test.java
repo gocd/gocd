@@ -31,11 +31,10 @@ public class CRPartialConfig_1Test extends CRBaseTest<CRPartialConfig_1> {
         CRJob_1 buildRake = new CRJob_1("build", rakeTask);
         CRGitMaterial_1 veryCustomGit = new CRGitMaterial_1("gitMaterial1", "dir1", false, "gitrepo", "feature12", "externals", "tools");
         CRStage_1 buildStage = new CRStage_1("build", buildRake);
-        CRPipeline_1 pipe1 = new CRPipeline_1("pipe1", veryCustomGit, buildStage);
-        CRPipelineGroup_1 group1 = new CRPipelineGroup_1("group1",pipe1);
+        CRPipeline_1 pipe1 = new CRPipeline_1("pipe1","group1", veryCustomGit, buildStage);
 
         withGroup = new CRPartialConfig_1();
-        withGroup.addGroup(group1);
+        withGroup.addPipeline(pipe1);
     }
 
     @Override

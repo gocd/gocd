@@ -8,28 +8,17 @@ import java.util.HashSet;
 
 public class CRPartialConfig_1 extends CRBase {
     private Collection<CREnvironment_1> environments;
-    private Collection<CRPipelineGroup_1> groups;
+    private Collection<CRPipeline_1> pipelines;
 
     public CRPartialConfig_1(){
         environments = new ArrayList<CREnvironment_1>();
-        groups = new ArrayList<>();
+        pipelines = new ArrayList<>();
     }
 
 
     @Override
     public void getErrors(ErrorCollection errors) {
         this.validateEnvironmentNameUniqueness(errors);
-        this.validateGroupNameUniqueness(errors);
-    }
-
-    private void validateGroupNameUniqueness(ErrorCollection errors) {
-        HashSet<String> keys = new HashSet<>();
-        for(CRPipelineGroup_1 group : groups)
-        {
-            String error = group.validateNameUniqueness(keys);
-            if(error != null)
-                errors.add(this,error);
-        }
     }
 
     private void validateEnvironmentNameUniqueness(ErrorCollection errors) {
@@ -60,10 +49,22 @@ public class CRPartialConfig_1 extends CRBase {
         if (environments != null ? !CollectionUtils.isEqualCollection(this.environments, that.environments) : that.environments != null) {
             return false;
         }
-        if (groups != null ? !CollectionUtils.isEqualCollection(this.groups, that.groups) : that.groups != null) {
+        // for some reason collection utils were not using equals impl of pipeline config.
+        if (pipelines != null ? !arePipelinesEqual(this.pipelines, that.pipelines) : that.pipelines != null) {
             return false;
         }
 
+        return true;
+    }
+
+    private boolean arePipelinesEqual(Collection<CRPipeline_1> pipelines, Collection<CRPipeline_1> pipelines1) {
+        if(pipelines.size() != pipelines1.size())
+            return false;
+        for(CRPipeline_1 p1 : pipelines)
+        {
+            if(!pipelines1.contains(p1))
+                return false;
+        }
         return true;
     }
 
@@ -71,7 +72,7 @@ public class CRPartialConfig_1 extends CRBase {
     public int hashCode() {
         int result = 0;
         result = 31 * result + (environments != null ? environments.hashCode() : 0);
-        result = 31 * result + (groups != null ? groups.hashCode() : 0);
+        result = 31 * result + (pipelines != null ? pipelines.hashCode() : 0);
         return result;
     }
 
@@ -79,11 +80,11 @@ public class CRPartialConfig_1 extends CRBase {
         return environments;
     }
 
-    public void addGroup(CRPipelineGroup_1 group) {
-        this.groups.add(group);
+    public void addPipeline(CRPipeline_1 pipeline) {
+        this.pipelines.add(pipeline);
     }
 
-    public Collection<CRPipelineGroup_1> getGroups() {
-        return groups;
+    public Collection<CRPipeline_1> getPipelines() {
+        return pipelines;
     }
 }

@@ -263,7 +263,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
     }
 
     @Test
-    public void shouldDelegateWritePipelineConfigCallToFileService() {
+    public void shouldDelegateWritePipelineConfigCallToFileService(){
         CachedFileGoConfig fileService = mock(CachedFileGoConfig.class);
         PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
         MergedGoConfig mergedGoConfig = new MergedGoConfig(mock(ServerHealthService.class), fileService, mock(GoPartialConfig.class));

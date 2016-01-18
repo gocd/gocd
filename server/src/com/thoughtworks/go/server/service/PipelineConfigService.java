@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.i18n.LocalizedMessage;

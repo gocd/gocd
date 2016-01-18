@@ -3,6 +3,13 @@ package com.thoughtworks.go.plugin.configrepo;
 public abstract class CRBase {
     private String location;
 
+    public ErrorCollection getErrors()
+    {
+        ErrorCollection errors = new ErrorCollection();
+        this.getErrors(errors);
+        return errors;
+    }
+
     public abstract void getErrors(ErrorCollection errors);
 
     public String getLocation() {

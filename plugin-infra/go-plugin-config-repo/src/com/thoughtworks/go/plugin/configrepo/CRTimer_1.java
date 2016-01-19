@@ -3,29 +3,29 @@ package com.thoughtworks.go.plugin.configrepo;
 import com.thoughtworks.go.util.StringUtil;
 
 public class CRTimer_1 extends CRBase {
-    private String timerSpec;
-    private boolean onlyOnChanges;
+    private String spec;
+    private boolean only_on_changes;
 
     public CRTimer_1() {}
     public CRTimer_1(String timerSpec)
     {
-        this.timerSpec = timerSpec;
+        this.spec = timerSpec;
     }
 
     public String getTimerSpec() {
-        return timerSpec;
+        return spec;
     }
 
     public void setTimerSpec(String timerSpec) {
-        this.timerSpec = timerSpec;
+        this.spec = timerSpec;
     }
 
     public boolean isOnlyOnChanges() {
-        return onlyOnChanges;
+        return only_on_changes;
     }
 
     public void setOnlyOnChanges(boolean onlyOnChanges) {
-        this.onlyOnChanges = onlyOnChanges;
+        this.only_on_changes = onlyOnChanges;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class CRTimer_1 extends CRBase {
     }
 
     private void validateTimerSpec(ErrorCollection errors) {
-        if (StringUtil.isBlank(timerSpec)) {
+        if (StringUtil.isBlank(spec)) {
             errors.add(this, "Timer has no cron expression set");
         }
     }
@@ -50,7 +50,7 @@ public class CRTimer_1 extends CRBase {
 
         CRTimer_1 that = (CRTimer_1) o;
 
-        if (timerSpec != null ? !timerSpec.equals(that.timerSpec) : that.timerSpec != null) {
+        if (spec != null ? !spec.equals(that.spec) : that.spec != null) {
             return false;
         }
 
@@ -59,6 +59,6 @@ public class CRTimer_1 extends CRBase {
 
     @Override
     public int hashCode() {
-        return timerSpec != null ? timerSpec.hashCode() : 0;
+        return spec != null ? spec.hashCode() : 0;
     }
 }

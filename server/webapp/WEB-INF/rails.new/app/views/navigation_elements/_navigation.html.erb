@@ -1,41 +1,57 @@
 <nav class="top-bar navigation" data-topbar role="navigation">
   <ul class="title-area">
     <li class="name">
-      <a href="#" class="logo"></a>
-    </li>
-    <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+      <%= link_to '', main_app.pipeline_dashboard_path, class: "logo" -%>    </li>
     <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
   </ul>
 
   <section class="top-bar-section">
-    <ul class="right">
-        <li class="has-dropdown">
-            <a href="#" class="user">admin</a>
+    <% unless @no_tabs %>
+      <ul class="right current_user">
+        <% unless @user.anonymous? %>
+          <li class="has-dropdown">
+            <a href="#" class="user"><%= @user.display_name %></a>
             <ul class="dropdown">
-                <li><a href="#">Preferences</a></li>
-                <li><a href="#">Sign out</a></li>
+              <li><%= link_to l.string('PREFERENCES_LOWER'), url_for_path('/tab/mycruise/user') %></li>
+              <li><%= link_to l.string('Sign out'), url_for_path('auth/logout'), :id => "nav-logout", :class => "sign_out" %></li>
             </ul>
+          </li>
+        <% end %>
+        <li class="help">
+          <%= link_to(l.string("HELP_SMALL"), "http://www.go.cd/documentation/user/current", :target => "_blank") %>
         </li>
-    </ul>
-    <ul class="left">
-      <li class="active" ><a href="#">Pipeline</a></li>
-      <li><a href="#">Environments</a></li>
-      <li><a href="#">Agents</a></li>
-      <li class="has-dropdown not-click">
-          <a href="#">Admin</a>
-          <ul class="dropdown">
-              <li><a href="#">Pipelines</a></li>
-              <li class="active"><a href="#">Templates</a></li>
-              <li><a href="#">Config XML</a></li>
-              <li><a href="#">Server Configuration</a></li>
-              <li><a href="#">User Summary</a></li>
-              <li><a href="#">OAuth Clients</a></li>
-              <li><a href="#">OAuth Enabled Gadget Providers</a></li>
-              <li><a href="#">Backup</a></li>
-              <li><a href="#">Plugins</a></li>
-              <li><a href="#">Package Repositories</a></li>
-          </ul>
-      </li>
-    </ul>
+      </ul>
+      <ul class="left header-tabs">
+        <li id="pipelines-nav-tab" class="<%= "current" if @current_tab_name == "pipelines" %>">
+          <%= link_to l.string('PIPELINES'), main_app.pipeline_dashboard_path -%>
+        </li>
+        <li id="environments-nav-tab" class="<%= "current" if @current_tab_name == "environments" %>">
+          <%= link_to l.string('ENVIRONMENTS_CAPS'), main_app.environments_path -%>
+        </li>
+        <li id="agents-nav-tab" class="<%= "current" if @current_tab_name == "agents" %>">
+          <%= link_to l.string('AGENTS'), main_app.agents_path -%>
+        </li>
+        <li class="active has-dropdown not-click" id="admin-nav-tab" class="<%= "current" if @current_tab_name == "admin" %>">
+          <%
+             admin_header_link_label = l.string("ADMIN")
+          %>
+
+          <% unless can_view_admin_page? -%>
+            <span><%= admin_header_link_label -%></span>
+          <% else -%>
+            <%= link_to admin_header_link_label, '#', 'data-toggle' => 'dropdown', 'class' => 'dropdown-arrow-icon' -%>
+            <ul class="dropdown" role="menu">
+              <%- if is_user_an_admin? -%>
+                <%= render :partial => 'navigation_elements/dropdown_admin.html' -%>
+              <%- elsif is_user_a_group_admin? -%>
+                <%= render :partial => 'navigation_elements/dropdown_pipeline_group_admin.html' -%>
+              <%- elsif is_user_a_template_admin? -%>
+                <%= render :partial => 'navigation_elements/dropdown_template_admin.html' -%>
+              <%- end -%>
+            </ul>
+          <% end %>
+        </li>
+      </ul>
+    <% end %>
   </section>
 </nav>

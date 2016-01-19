@@ -17,7 +17,11 @@
 package com.thoughtworks.go.server.domain;
 
 import com.thoughtworks.go.domain.AgentConfigStatus;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.util.ListUtil;
+
+import java.util.Collection;
 
 public class ElasticAgentMetadata {
     private final String uuid;
@@ -56,5 +60,25 @@ public class ElasticAgentMetadata {
 
     public String uuid() {
         return uuid;
+    }
+
+    public static Collection<ElasticAgentMetadata> from(Collection<AgentInstance> agents) {
+        return ListUtil.map(agents, new ListUtil.Transformer<AgentInstance, ElasticAgentMetadata>() {
+            @Override
+            public ElasticAgentMetadata transform(AgentInstance obj) {
+                return obj.elasticAgentMetadata();
+            }
+        });
+    }
+
+    @Override
+    public String toString() {
+        return "ElasticAgentMetadata{" +
+                "uuid='" + uuid + '\'' +
+                ", elasticAgentId='" + elasticAgentId + '\'' +
+                ", elasticPluginId='" + elasticPluginId + '\'' +
+                ", status=" + status +
+                ", configStatus=" + configStatus +
+                '}';
     }
 }

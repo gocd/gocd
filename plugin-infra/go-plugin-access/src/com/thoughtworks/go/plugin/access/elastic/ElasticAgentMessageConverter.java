@@ -21,7 +21,7 @@ import java.util.Collection;
 public interface ElasticAgentMessageConverter {
     String canHandlePluginRequestBody(Collection<String> resources, String environment);
 
-    String createAgentRequestBody(Collection<String> resources, String environment);
+    String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment);
 
     Boolean canHandlePluginResponseFromBody(String responseBody);
 

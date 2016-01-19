@@ -37,8 +37,14 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public String createAgentRequestBody(Collection<String> resources, String environment) {
-        return canHandlePluginRequestBody(resources, environment);
+    public String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment) {
+        Gson gson = new Gson();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("auto_register_key", autoRegisterKey);
+        jsonObject.add("resources", gson.toJsonTree(resources));
+        jsonObject.addProperty("environment", environment);
+        return gson.toJson(jsonObject);
+
     }
 
     @Override

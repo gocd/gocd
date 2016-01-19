@@ -63,11 +63,11 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    public void createAgent(String pluginId, final Collection<String> resources, final String environment) {
+    public void createAgent(final String autoRegisterKey, String pluginId, final Collection<String> resources, final String environment) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(resources, environment);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, resources, environment);
             }
         });
     }
@@ -106,7 +106,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public void notifyAgentIdle(String pluginId, final AgentMetadata agent) {
-        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_NOTIFY_AGENT_BUSY, new DefaultPluginInteractionCallback<Void>() {
+        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_NOTIFY_AGENT_IDLE, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).notifyAgentIdleRequestBody(agent);

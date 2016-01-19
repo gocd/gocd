@@ -144,7 +144,7 @@
             <list>
                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
                       p:delay="3000"
-                      p:period="${cruise.elasticplugin.heartbeat.interval}"
+                      p:period="${go.elasticplugin.heartbeat.interval}"
                       p:timerTask-ref="elasticAgentPluginPingTask"/>
             </list>
         </property>

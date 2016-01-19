@@ -21,6 +21,8 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +33,8 @@ import java.util.List;
 
 @Component
 public class ElasticAgentPluginRegistry implements PluginChangeListener {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(ElasticAgentPluginRegistry.class);
 
     private final ElasticAgentExtension elasticAgentExtension;
     private final List<PluginDescriptor> plugins;
@@ -60,27 +64,40 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         return Collections.unmodifiableList(plugins);
     }
 
-    public void createAgent(Collection<String> resources, String environment) {
+    public void createAgent(String autoRegisterKey, Collection<String> resources, String environment) {
         PluginDescriptor plugin = findPluginMatching(resources, environment);
         if (plugin != null) {
-            elasticAgentExtension.createAgent(plugin.id(), resources, environment);
+            LOGGER.debug("Processing create agent for plugin: {} with resources: [{}] and environment: {}", plugin.id(), resources, environment);
+            elasticAgentExtension.createAgent(autoRegisterKey, plugin.id(), resources, environment);
+            LOGGER.debug("Done processing create agent for plugin: {} with resources: [{}] and environment: {}", plugin.id(), resources, environment);
+        } else {
+            LOGGER.warn("Could not find plugin matching resources: [{}] and environment: {}", resources, environment);
         }
     }
 
     public void serverPing(String pluginId, Collection<AgentMetadata> agents) {
+        LOGGER.debug("Processing server ping {} [{}]", pluginId, agents);
         elasticAgentExtension.serverPing(pluginId, agents);
+        LOGGER.debug("Done processing server ping {} [{}]", pluginId, agents);
     }
 
-    public boolean shouldAssignWork(PluginDescriptor descriptor, AgentMetadata agent, Collection<String> resources, String environment) {
-        return elasticAgentExtension.shouldAssignWork(descriptor.id(), agent, resources, environment);
+    public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, Collection<String> resources, String environment) {
+        LOGGER.debug("Processing should assign work for plugin: {} with agent: {} resources: [{}] and environment: {}", plugin.id(), agent, resources, environment);
+        boolean result = elasticAgentExtension.shouldAssignWork(plugin.id(), agent, resources, environment);
+        LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} resources: [{}] and environment: {}", result, plugin.id(), agent, resources, environment);
+        return result;
     }
 
-    public void notifyAgentBusy(PluginDescriptor descriptor, AgentMetadata agent) {
-        elasticAgentExtension.notifyAgentBusy(descriptor.id(), agent);
+    public void notifyAgentBusy(PluginDescriptor plugin, AgentMetadata agent) {
+        LOGGER.debug("Processing notify agent busy for plugin: {} with agent: {}", plugin.id(), agent);
+        elasticAgentExtension.notifyAgentBusy(plugin.id(), agent);
+        LOGGER.debug("Done processing notify agent busy for plugin: {} with agent: {}", plugin.id(), agent);
     }
 
-    public void notifyAgentIdle(PluginDescriptor descriptor, AgentMetadata agent) {
-        elasticAgentExtension.notifyAgentIdle(descriptor.id(), agent);
+    public void notifyAgentIdle(PluginDescriptor plugin, AgentMetadata agent) {
+        LOGGER.debug("Processing notify agent idle for plugin: {} with agent: {}", plugin.id(), agent);
+        elasticAgentExtension.notifyAgentIdle(plugin.id(), agent);
+        LOGGER.debug("Done processing notify agent idle for plugin: {} with agent: {}", plugin.id(), agent);
     }
 
     private PluginDescriptor findPluginMatching(Collection<String> resources, String environment) {

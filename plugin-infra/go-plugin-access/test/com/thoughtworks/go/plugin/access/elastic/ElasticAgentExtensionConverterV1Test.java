@@ -46,8 +46,8 @@ public class ElasticAgentExtensionConverterV1Test {
 
     @Test
     public void shouldJSONizeCreateAgentRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().createAgentRequestBody(Arrays.asList("foo", "bar"), "prod");
-        JSONAssert.assertEquals(json, "{\"resources\":[\"foo\",\"bar\"],\"environment\":\"prod\"}", true);
+        String json = new ElasticAgentExtensionConverterV1().createAgentRequestBody("secret-key", Arrays.asList("foo", "bar"), "prod");
+        JSONAssert.assertEquals(json, "{\"resources\":[\"foo\",\"bar\"],\"environment\":\"prod\",\"auto_register_key\":\"secret-key\"}", true);
     }
 
     @Test

@@ -178,6 +178,10 @@ public class ServerConfigService implements BaseUrlProvider {
         return goConfigService.getCurrentConfig().server();
     }
 
+    public String getAutoregisterKey(){
+        return serverConfig().getAgentAutoRegisterKey();
+    }
+
     public boolean hasAnyUrlConfigured() {
         return serverConfig().hasAnyUrlConfigured();
     }

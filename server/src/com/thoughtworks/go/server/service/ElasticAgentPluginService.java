@@ -16,19 +16,21 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueue;
+import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueue;
+import com.thoughtworks.go.util.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -45,48 +48,50 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
     private final PluginManager pluginManager;
     private final ElasticAgentPluginRegistry elasticAgentPluginRegistry;
-    private final ElasticAgentExtension elasticAgentExtension;
     private final AgentService agentService;
     private final EnvironmentConfigService environmentConfigService;
+    private final CreateAgentQueue createAgentQueue;
+    private final ServerPingQueue serverPingQueue;
+    private final ServerConfigService serverConfigService;
 
     @Autowired
     public ElasticAgentPluginService(
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
-            ElasticAgentExtension elasticAgentExtension, AgentService agentService,
-            EnvironmentConfigService environmentConfigService) {
+            AgentService agentService, EnvironmentConfigService environmentConfigService,
+            CreateAgentQueue createAgentQueue,
+            ServerPingQueue serverPingQueue,
+            ServerConfigService serverConfigService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
-        this.elasticAgentExtension = elasticAgentExtension;
         this.agentService = agentService;
         this.environmentConfigService = environmentConfigService;
+        this.createAgentQueue = createAgentQueue;
+        this.serverPingQueue = serverPingQueue;
+        this.serverConfigService = serverConfigService;
     }
 
     public void heartbeat() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> elasticAgents = agentService.allElasticAgents();
-
+        Collection<AgentMetadata> agents = Collections.emptyList();
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
-            List<ElasticAgentMetadata> elasticAgentMetadatas;
             if (elasticAgents.containsKey(descriptor.id())) {
-                elasticAgentMetadatas = elasticAgents.remove(descriptor.id());
-            } else {
-                elasticAgentMetadatas = new ArrayList<>();
+                List<ElasticAgentMetadata> elasticAgentMetadatas = elasticAgents.remove(descriptor.id());
+                agents = ListUtil.map(elasticAgentMetadatas, new ListUtil.Transformer<ElasticAgentMetadata, AgentMetadata>() {
+                    @Override
+                    public AgentMetadata transform(ElasticAgentMetadata input) {
+                        return toAgentMetadata(input);
+                    }
+                });
             }
-            Collection<AgentMetadata> metadatas = Collections2.transform(elasticAgentMetadatas, new Function<ElasticAgentMetadata, AgentMetadata>() {
-                @Override
-                public AgentMetadata apply(ElasticAgentMetadata input) {
-                    return toAgentMetadata(input);
-                }
-            });
-
-            elasticAgentPluginRegistry.serverPing(descriptor.id(), metadatas);
+            serverPingQueue.post(new ServerPingMessage(descriptor.id(), agents));
         }
 
         if (!elasticAgents.isEmpty()) {
             for (String pluginId : elasticAgents.keySet()) {
 
-                Collection<String> uuids = Collections2.transform(elasticAgents.get(pluginId), new Function<ElasticAgentMetadata, String>() {
+                Collection<String> uuids = ListUtil.map(elasticAgents.get(pluginId), new ListUtil.Transformer<ElasticAgentMetadata, String>() {
                     @Override
-                    public String apply(ElasticAgentMetadata input) {
+                    public String transform(ElasticAgentMetadata input) {
                         return input.uuid();
                     }
                 });
@@ -99,12 +104,11 @@ public class ElasticAgentPluginService implements JobStatusListener {
         return new AgentMetadata(obj.elasticAgentId(), obj.agentState().toString(), obj.buildState().toString(), obj.configStatus().toString());
     }
 
-    //    TODO: ketanpkr - async this?
     public void createAgentsFor(Collection<JobPlan> plans) {
         for (JobPlan plan : plans) {
             List<String> resources = new Resources(plan.getResources()).resourceNames();
             String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-            elasticAgentPluginRegistry.createAgent(resources, environment);
+            createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), resources, environment));
         }
     }
 

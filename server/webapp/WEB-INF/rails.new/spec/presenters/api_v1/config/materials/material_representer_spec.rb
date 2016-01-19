@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 ##########################################################################
 
 require 'spec_helper'
+default_branch = 'master'
 describe ApiV1::Config::Materials::MaterialRepresenter do
   shared_examples_for 'materials' do
 
@@ -76,6 +77,13 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       expect(actual_json).to eq(git_material_basic_hash)
     end
 
+    it "should serialize material with blank branch" do
+      presenter   = ApiV1::Config::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank", ""))
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json).to eq(git_material_basic_hash)
+    end
+
+
     it "should deserialize material without name" do
       presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
       deserialized_object = presenter.from_hash({
@@ -92,6 +100,21 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       expect(deserialized_object.name.to_s).to eq("")
       expect(deserialized_object).to eq(expected)
     end
+
+    it "should deserialize material with blank branch" do
+      presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      deserialized_object = presenter.from_hash({
+                                                  type:       'git',
+                                                  attributes: {
+                                                    url:         "http://user:password@funk.com/blank",
+                                                    branch:      "",
+                                                    auto_update: true,
+                                                    name:        nil
+                                                  }
+                                                })
+      expect(deserialized_object.branch.to_s).to eq(default_branch)
+    end
+
 
 
     def material_hash
@@ -135,7 +158,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           filter:           nil,
           name:             "!nV@l!d",
           auto_update:      true,
-          branch:           "",
+          branch:           "master",
           submodule_folder: ""
         },
         errors:     {

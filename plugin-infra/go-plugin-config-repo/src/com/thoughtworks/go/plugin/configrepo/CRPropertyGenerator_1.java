@@ -4,13 +4,13 @@ import com.thoughtworks.go.util.StringUtil;
 
 public class CRPropertyGenerator_1 extends CRBase {
     private String name;
-    private String src;
+    private String source;
     private String xpath;
 
     public CRPropertyGenerator_1(String name,String src,String xpath)
     {
         this.name = name;
-        this.src = src;
+        this.source = src;
         this.xpath = xpath;
     }
 
@@ -28,7 +28,7 @@ public class CRPropertyGenerator_1 extends CRBase {
     }
 
     private void validateSource(ErrorCollection errors) {
-        if (StringUtil.isBlank(src)) {
+        if (StringUtil.isBlank(source)) {
             errors.add(this, "Property generator source is not set");
         }
     }
@@ -48,11 +48,11 @@ public class CRPropertyGenerator_1 extends CRBase {
     }
 
     public String getSrc() {
-        return src;
+        return source;
     }
 
     public void setSrc(String src) {
-        this.src = src;
+        this.source = src;
     }
 
     public String getXpath() {
@@ -77,7 +77,7 @@ public class CRPropertyGenerator_1 extends CRBase {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (src != null ? !src.equals(that.src) : that.src != null) {
+        if (source != null ? !source.equals(that.source) : that.source != null) {
             return false;
         }
         if (xpath != null ? !xpath.equals(that.xpath) : that.xpath != null) {
@@ -90,7 +90,7 @@ public class CRPropertyGenerator_1 extends CRBase {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (src != null ? src.hashCode() : 0);
+        result = 31 * result + (source != null ? source.hashCode() : 0);
         result = 31 * result + (xpath != null ? xpath.hashCode() : 0);
         return result;
     }

@@ -56,9 +56,15 @@
     &.cctray {
       @include footer-icon($icon: rss);
     }
+    &.api {
+      @include footer-icon($icon: gears);
+    }
+    &.server-details {
+      @include footer-icon($icon: server);
+    }
   }
 
-  .copywrite {
+  .copyright {
     color:     #8f9296;
     font-size: 0.875rem;
     margin:    0 0 1rem 0;

@@ -17,37 +17,40 @@
 
 require 'spec_helper'
 
-describe "/shared/_footer.html" do
+describe "/navigation_elements/_footer.html" do
 
+  partial_page = "navigation_elements/footer"
   it 'should have copyright, license and third-party information in the footer' do
-    render :partial => "shared/footer"
+    render :partial => partial_page
 
-    Capybara.string(response.body).find('ul.copyright').tap do |ul|
-      expect(ul).to have_selector("li", text: 'Copyright © 2016 ThoughtWorks, Inc. Licensed under Apache License, Version 2.0. Go includes third-party software.')
-
-      ul.first('li').tap do |li|
-        expect(li).to have_selector("a[href='http://www.thoughtworks.com/products'][target='_blank']", text: 'ThoughtWorks, Inc.')
-        expect(li).to have_selector("a[href='http://www.apache.org/licenses/LICENSE-2.0'][target='_blank']", text: 'Apache License, Version 2.0')
-        expect(li).to have_selector("a[href='/NOTICE/cruise_notice_file.pdf'][target='_blank']", text: 'third-party software')
-      end
+    Capybara.string(response.body).find('p.copyright').tap do |paragraph|
+      expect(paragraph).to have_text('Copyright © 2016 ThoughtWorks, Inc. Licensed under Apache License, Version 2.0. Go includes third-party software.')
+      expect(paragraph).to have_selector("a[href='http://www.thoughtworks.com/products'][target='_blank']", text: 'ThoughtWorks, Inc.')
+      expect(paragraph).to have_selector("a[href='http://www.apache.org/licenses/LICENSE-2.0'][target='_blank']", text: 'Apache License, Version 2.0')
+      expect(paragraph).to have_selector("a[href='/NOTICE/cruise_notice_file.pdf'][target='_blank']", text: 'third-party software')
     end
   end
 
-  it 'should have miscellaneous footer links with no support link' do
-    render :partial => "shared/footer"
+  it 'should have miscellaneous footer links' do
+    render :partial => partial_page
+
+    assert_links= {
+      'twitter'        => 'http://twitter.com/goforcd',
+      'github'         => 'https://github.com/gocd/gocd',
+      'forums'         => 'https://groups.google.com/d/forum/go-cd',
+      'documentation'  => 'https://go.cd/current/documentation',
+      'plugins'        => 'http://www.go.cd/community/plugins.html',
+      'api'            => 'https://api.go.cd',
+      'server-details' => url_for_path('about'),
+      'cctray'         => url_for_path('cctray.xml')
+    }
 
     expect(response.body).to_not have_selector("a[href='http://www.thoughtworks.com/products/support']", text: 'Support')
 
-    Capybara.string(response.body).all('ul.links li').tap do |links_li|
-      expect(links_li[0]).to have_selector("a[href='/cctray.xml']", text: "(cc) CCTray Feed")
-      expect(links_li[1]).to have_selector("a[href='http://api.go.cd']", text: 'APIs')
-      expect(links_li[2]).to have_selector("a[href='http://www.go.cd/community/plugins.html']", text: 'Plugins')
-      expect(links_li[3]).to have_selector("a[href='http://www.go.cd/community/resources.html']", text: 'Community')
-      expect(links_li[4]).to have_selector("a[href='/about']", text: 'Server Details')
-    end
-
-    Capybara.string(response.body).find('ul.links li.last').tap do |links_li|
-      expect(links_li).to have_selector("a[href='http://www.go.cd/documentation/user/current']", text: 'Help')
+    Capybara.string(response.body).find('span.social').tap do |links|
+      assert_links.each do |key, value|
+        expect(links).to have_selector("a[href='#{value}'][class='#{key}']")
+      end
     end
   end
 end

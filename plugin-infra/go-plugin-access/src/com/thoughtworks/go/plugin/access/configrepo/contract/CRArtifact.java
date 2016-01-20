@@ -64,7 +64,9 @@ public class CRArtifact extends CRBase {
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"type",type);
+        errors.checkMissing(location,"source",source);
     }
 
     @Override

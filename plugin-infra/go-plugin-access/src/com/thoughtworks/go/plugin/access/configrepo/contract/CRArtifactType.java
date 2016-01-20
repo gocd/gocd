@@ -3,8 +3,8 @@ package com.thoughtworks.go.plugin.access.configrepo.contract;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public enum CRArtifactType {
-    unit,
-    file;
+    build,
+    test;
 
     public static CRArtifactType fromName(String artifactType) {
         try {

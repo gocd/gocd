@@ -1,33 +1,39 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class CRParseResult {
-    private final CRPartialConfig partialConfig;
-    private final List<CRError> errors;
+    private Collection<CREnvironment> environments = new ArrayList<>();
+    private Collection<CRPipeline> pipelines = new ArrayList<>();
+    private List<CRError> errors = new ArrayList<>();
 
-    public CRParseResult(CRPartialConfig partialConfig, List<CRError> errors) {
-        this.partialConfig = partialConfig;
-        this.errors = errors;
-    }
-    public CRParseResult(CRPartialConfig partialConfig, String... errors) {
-        this.partialConfig = partialConfig;
-        this.errors = new ArrayList<CRError>();
-        for(String message : errors)
-        {
-            this.errors.add(new CRError(message,null));
-        }
+    public Collection<CREnvironment> getEnvironments() {
+        return environments;
     }
 
-    public CRPartialConfig getPartialConfig() {
-        return partialConfig;
+    public void setEnvironments(Collection<CREnvironment> environments) {
+        this.environments = environments;
+    }
+
+    public Collection<CRPipeline> getPipelines() {
+        return pipelines;
+    }
+
+    public void setPipelines(Collection<CRPipeline> pipelines) {
+        this.pipelines = pipelines;
     }
 
     public List<CRError> getErrors() {
         return errors;
     }
 
+    public void setErrors(List<CRError> errors) {
+        this.errors = errors;
+    }
 }

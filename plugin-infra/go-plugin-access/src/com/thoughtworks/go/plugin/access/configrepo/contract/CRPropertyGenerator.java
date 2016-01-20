@@ -1,13 +1,17 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
-public class CRPropertyGenerator {
-    private final String name;
-    private final String src;
-    private final String xpath;
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+import com.thoughtworks.go.util.StringUtil;
 
-    public CRPropertyGenerator(String name, String src, String xpath) {
+public class CRPropertyGenerator extends CRBase {
+    private String name;
+    private String source;
+    private String xpath;
+
+    public CRPropertyGenerator(String name,String src,String xpath)
+    {
         this.name = name;
-        this.src = src;
+        this.source = src;
         this.xpath = xpath;
     }
 
@@ -15,11 +19,68 @@ public class CRPropertyGenerator {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getSrc() {
-        return src;
+        return source;
+    }
+
+    public void setSrc(String src) {
+        this.source = src;
     }
 
     public String getXpath() {
         return xpath;
+    }
+
+    public void setXpath(String xpath) {
+        this.xpath = xpath;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CRPropertyGenerator that = (CRPropertyGenerator) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (source != null ? !source.equals(that.source) : that.source != null) {
+            return false;
+        }
+        if (xpath != null ? !xpath.equals(that.xpath) : that.xpath != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = 31 * result + (xpath != null ? xpath.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public void getErrors(ErrorCollection errors, String parentLocation) {
+        String location = this.getLocation(parentLocation);
+        errors.checkMissing(location,"name",name);
+        errors.checkMissing(location,"source",source);
+        errors.checkMissing(location,"xpath",xpath);
+    }
+
+    @Override
+    public String getLocation(String parent) {
+        return null;
     }
 }

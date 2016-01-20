@@ -2,8 +2,7 @@ package com.thoughtworks.go.plugin.configrepo;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
-import junit.framework.Assert;
+import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import org.junit.Before;
 import org.junit.Test;
 

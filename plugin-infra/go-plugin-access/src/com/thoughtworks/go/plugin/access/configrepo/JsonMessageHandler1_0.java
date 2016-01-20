@@ -1,25 +1,21 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRError;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
+import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.access.configrepo.contract.*;
+import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryResponseMessage;
 import com.thoughtworks.go.plugin.access.configrepo.migration.Migration_1;
-import com.thoughtworks.go.plugin.configrepo.CRError_1;
-import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
-import com.thoughtworks.go.plugin.configrepo.ErrorCollection;
-import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.plugin.configrepo.messages.ParseDirectoryMessage_1;
-import com.thoughtworks.go.plugin.configrepo.messages.ParseDirectoryResponseMessage_1;
+import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
+import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryMessage;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     private static final Logger LOGGER = Logger.getLogger(JsonMessageHandler1_0.class);
+    private static final int CURRENT_CONTRACT_VERSION = 1;
 
     private final GsonCodec codec;
     private final Migration_1 migration_1;
@@ -31,30 +27,86 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public String requestMessageForParseDirectory(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
-        ParseDirectoryMessage_1 requestMessage = prepareMessage_1(destinationFolder, configurations);
+        ParseDirectoryMessage requestMessage = prepareMessage_1(destinationFolder, configurations);
         return codec.getGson().toJson(requestMessage);
     }
 
-    private ParseDirectoryMessage_1 prepareMessage_1(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
-        ParseDirectoryMessage_1 requestMessage = new ParseDirectoryMessage_1(destinationFolder);
+    private ParseDirectoryMessage prepareMessage_1(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
+        ParseDirectoryMessage requestMessage = new ParseDirectoryMessage(destinationFolder);
         for(CRConfigurationProperty conf : configurations)
         {
             requestMessage.addConfiguration(conf.getKey(),conf.getValue(),conf.getEncryptedValue());
         }
         return requestMessage;
     }
+    private Map parseResponseToMap(String responseBody) {
+        return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+    }
 
     @Override
     public CRParseResult responseMessageForParseDirectory(String responseBody) {
-        ParseDirectoryResponseMessage_1 responseMessage_1 = deserializeResponse(responseBody);
-
-        if(responseMessage_1.hasErrors())
-        {
-            LOGGER.warn("Configuration repository plugin has reported errors");
-            return new CRParseResult(null,migrate(responseMessage_1.getErrors()));
+        Map responseMap;
+        try {
+            responseMap = parseResponseToMap(responseBody);
+        } catch (Exception e) {
+            throw new RuntimeException("Parse directory result should be returned as map");
+        }
+        if (responseMap == null || responseMap.isEmpty()) {
+            throw new RuntimeException("Empty response body");
         }
 
+        if (responseMap.containsKey("target_version") && responseMap.get("target_version") != null) {
+            Object targetVersion = responseMap.get("target_version");
+
+            if (!(targetVersion instanceof Integer)) {
+                throw new RuntimeException("Parse directory result 'target_version' should be an integer");
+            }
+
+            int version = (int) targetVersion;
+
+            while(version < CURRENT_CONTRACT_VERSION)
+            {
+                migrate(responseBody,version);
+                version++;
+            }
+        }
+
+        // after migration, json should match contract
+        ParseDirectoryResponseMessage parseDirectoryResponseMessage = codec.getGson().fromJson(responseBody,ParseDirectoryResponseMessage.class);
+
+        ErrorCollection errors = new ErrorCollection();
+        parseDirectoryResponseMessage.validateResponse(errors);
+        throw  new RuntimeException("not implemented");
+        //ParseDirectoryResponseMessage responseMessage_1 = deserializeResponse(responseBody);
+
+        // here we create detailed message about all errors in configuration repository
+        //StringBuilder errorsBuilder = new StringBuilder();
+
+        /*
+        if(responseMessage_1.hasErrors())
+        {
+            // These errors are defined by configuration plugin.
+            // Plugin developer is fully responsible for those.
+
+            errorsBuilder.append("Configuration repository plugin has reported errors:");
+            for(CRError_1 error : responseMessage_1.getErrors())
+            {
+                errorsBuilder.append('\n');
+                errorsBuilder.append('\t');// new line and ident on each error
+                if(error.getLocation() != null)
+                    errorsBuilder.append("At ").append(error.getLocation()).append(" - ");
+                errorsBuilder.append(error.getMessage());
+            }
+            String fullErrorMessage = errorsBuilder.toString();
+            LOGGER.warn(fullErrorMessage);
+        }*/
+
+        // continue looking for errors
+
+        /*
         CRPartialConfig_1 partialConfig_1 = responseMessage_1.getConfig();
+
+
         ErrorCollection errors = validatePartialConfig(partialConfig_1);
         if(!errors.isEmpty())
         {
@@ -65,19 +117,40 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         CRPartialConfig partialConfig;
         try{
             partialConfig = migrate(partialConfig_1);
-            return new CRParseResult(partialConfig);
+            for(CRPipelineGroup group : partialConfig.getGroups()) {
+                for (CRPipeline crPipeline : group.getPipelines()) {
+                    MissingConfigLinkedNode missingValues = partialConfig.validateRequired(MissingConfigLinkedNode.first());
+
+                    do {
+                        errors.add(crPipeline,String.format("Pipeline %s is missing required config"));
+                    }
+                    while (!missingValues.isFirst());
+
+                }
+            }
         }
-        catch (Exception e) {
-            String errorMessage = String.format("Failed to migrate json response v1.0 to current contract version. Error: %s.", e.getMessage());
+        catch (MissingConfigValue e) {
+            String errorMessage = String.format(
+                    "Plugin response did not contain all required configuration values. Missing value: %s; %s",
+                    e.getPropertyName(), e.getMessage());
             return new CRParseResult(null,errorMessage);
         }
+        catch (Exception e) {
+            String errorMessage = String.format("Failed to migrate plugin json response v1.0 to current contract version. Error: %s.", e.getMessage());
+            return new CRParseResult(null,errorMessage);
+        }*/
     }
 
+    private void migrate(String responseBody, int version) {
+
+    }
+
+    /*
     private List<CRError> migrate(List<CRError_1> errors) {
         return migration_1.migrateErrors(errors);
     }
 
-    private ParseDirectoryResponseMessage_1 deserializeResponse(String responseBody) {
+    private ParseDirectoryResponseMessage deserializeResponse(String responseBody) {
         return codec.parseDirectoryResponseMessage_1FromJson(responseBody);
     }
 
@@ -100,5 +173,5 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     private CRPartialConfig migrate(CRPartialConfig_1 partialConfig_1) {
         return migration_1.migrate(partialConfig_1);
-    }
+    }*/
 }

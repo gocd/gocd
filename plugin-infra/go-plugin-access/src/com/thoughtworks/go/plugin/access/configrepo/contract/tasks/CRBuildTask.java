@@ -1,6 +1,66 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+
 public class CRBuildTask extends CRTask {
+    public static final String RAKE_TYPE_NAME = "rake";
+    public static final String ANT_TYPE_NAME = "ant";
+    public static final String NANT_TYPE_NAME = "nant";
+
+    public static CRBuildTask rake()
+    {
+        return new CRBuildTask(RAKE_TYPE_NAME);
+    }
+    public static CRBuildTask rake(String rakeFile)
+    {
+        return new CRBuildTask(RAKE_TYPE_NAME,rakeFile,null,null);
+    }
+    public static CRBuildTask rake(String rakeFile,String target)
+    {
+        return new CRBuildTask(RAKE_TYPE_NAME,rakeFile,target,null);
+    }
+    public static CRBuildTask rake(String rakeFile,String target,String workingDirectory)
+    {
+        return new CRBuildTask(RAKE_TYPE_NAME,rakeFile,target,workingDirectory);
+    }
+
+    public static CRBuildTask ant()
+    {
+        return new CRBuildTask(ANT_TYPE_NAME,null,null,null);
+    }
+    public static CRBuildTask ant(String antFile)
+    {
+        return new CRBuildTask(ANT_TYPE_NAME,antFile,null,null);
+    }
+    public static CRBuildTask ant(String antFile,String target)
+    {
+        return new CRBuildTask(ANT_TYPE_NAME,antFile,target,null);
+    }
+    public static CRBuildTask ant(String antFile,String target,String workingDirectory)
+    {
+        return new CRBuildTask(ANT_TYPE_NAME,antFile,target,workingDirectory);
+    }
+
+    public static CRNantTask nant()
+    {
+        return new CRNantTask(NANT_TYPE_NAME,null,null,null,null);
+    }
+    public static CRNantTask nant(String nantFile)
+    {
+        return new CRNantTask(NANT_TYPE_NAME,nantFile,null,null,null);
+    }
+    public static CRNantTask nant(String nantFile,String target)
+    {
+        return new CRNantTask(NANT_TYPE_NAME,nantFile,target,null,null);
+    }
+    public static CRNantTask nant(String nantFile,String target,String workingDirectory)
+    {
+        return new CRNantTask(NANT_TYPE_NAME,nantFile,target,workingDirectory,null);
+    }
+    public static CRNantTask nant(String nantFile,String target,String workingDirectory,String nantPath)
+    {
+        return new CRNantTask(NANT_TYPE_NAME,nantFile,target,workingDirectory,nantPath);
+    }
 
     public static CRBuildTask rake(CRRunIf runIf, CRTask onCancel,
                                    String buildFile,String target,String workingDirectory)
@@ -13,10 +73,19 @@ public class CRBuildTask extends CRTask {
         return  new CRBuildTask(runIf,onCancel,buildFile,target,workingDirectory,CRBuildFramework.ant);
     }
 
-    private final String buildFile;
-    private final String target;
-    private final String workingDirectory;
-    private final CRBuildFramework type;
+    private String buildFile;
+    private String target;
+    private String workingDirectory;
+
+    public CRBuildTask(String type,String buildFile,String target,String workingDirectory){
+        super(type);
+        this.buildFile = buildFile;
+        this.target = target;
+        this.workingDirectory = workingDirectory;
+    }
+    public CRBuildTask(String type){
+        super(type);
+    }
 
     public CRBuildTask(CRRunIf runIf, CRTask onCancel,
                        String buildFile,String target,String workingDirectory,CRBuildFramework type) {
@@ -24,7 +93,7 @@ public class CRBuildTask extends CRTask {
         this.buildFile = buildFile;
         this.target= target;
         this.workingDirectory = workingDirectory;
-        this.type = type;
+        super.type = type.toString();
     }
 
     public String getBuildFile() {
@@ -40,6 +109,51 @@ public class CRBuildTask extends CRTask {
     }
 
     public CRBuildFramework getType() {
-        return type;
+        return CRBuildFramework.valueOf(type);
+    }
+
+    @Override
+    public void getErrors(ErrorCollection errors, String parentLocation) {
+
+    }
+
+    @Override
+    public String getLocation(String parent) {
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        CRBuildTask buildTask = (CRBuildTask)o;
+        if(buildTask == null)
+            return  false;
+
+        if(!super.equals(buildTask))
+            return false;
+
+        if (buildFile != null ? !buildFile.equals(buildTask.buildFile) : buildTask.buildFile != null) {
+            return false;
+        }
+        if (target != null ? !target.equals(buildTask.target) : buildTask.target != null) {
+            return false;
+        }
+        if (workingDirectory != null ? !workingDirectory.equals(buildTask.workingDirectory) : buildTask.workingDirectory != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (buildFile != null ? buildFile.hashCode() : 0);
+        result = 31 * result + (target != null ? target.hashCode() : 0);
+        result = 31 * result + (workingDirectory != null ? workingDirectory.hashCode() : 0);
+        return result;
     }
 }

@@ -1,8 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRError;
-import com.thoughtworks.go.plugin.configrepo.CRPartialConfig_1;
-import com.thoughtworks.go.plugin.configrepo.ErrorCollection;
 
 import java.util.List;
 

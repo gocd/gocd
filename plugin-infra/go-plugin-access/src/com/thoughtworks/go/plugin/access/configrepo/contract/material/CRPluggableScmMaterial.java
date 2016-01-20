@@ -1,10 +1,7 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.plugin.access.configrepo.contract.MissingConfigLinkedNode;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,8 +10,8 @@ import java.util.List;
 public class CRPluggableScmMaterial extends CRMaterial {
     public static final String TYPE_NAME = "pluggablescm";
 
-    private String scmId;
-    protected String folder;
+    private String scm_id;
+    protected String destination;
     private List<String> filter;
 
     public CRPluggableScmMaterial(){
@@ -23,8 +20,8 @@ public class CRPluggableScmMaterial extends CRMaterial {
     public CRPluggableScmMaterial(String materialName,String scmId,String folder,String... filters)
     {
         super(TYPE_NAME,materialName);
-        this.scmId = scmId;
-        this.folder = folder;
+        this.scm_id = scmId;
+        this.destination = folder;
         this.filter = Arrays.asList(filters);
     }
 
@@ -41,10 +38,10 @@ public class CRPluggableScmMaterial extends CRMaterial {
         if(!super.equals(that))
             return false;
 
-        if (scmId != null ? !scmId.equals(that.scmId) : that.scmId != null) {
+        if (scm_id != null ? !scm_id.equals(that.scm_id) : that.scm_id != null) {
             return false;
         }
-        if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
+        if (destination != null ? !destination.equals(that.destination) : that.destination != null) {
             return false;
         }
 
@@ -58,8 +55,8 @@ public class CRPluggableScmMaterial extends CRMaterial {
     @Override
     public int hashCode() {
         int result = (this.getName() != null ? this.getName().hashCode() : 0);
-        result = 31 * result + (scmId != null ? scmId.hashCode() : 0);
-        result = 31 * result + (folder != null ? folder.hashCode() : 0);
+        result = 31 * result + (scm_id != null ? scm_id.hashCode() : 0);
+        result = 31 * result + (destination != null ? destination.hashCode() : 0);
         result = 31 * result + (filter != null ? filter.size() : 0);
         return result;
     }
@@ -75,11 +72,11 @@ public class CRPluggableScmMaterial extends CRMaterial {
     }
 
     public String getScmId() {
-        return scmId;
+        return scm_id;
     }
 
     public void setScmId(String scmId) {
-        this.scmId = scmId;
+        this.scm_id = scmId;
     }
 
     public List<String> getFilter() {
@@ -91,16 +88,20 @@ public class CRPluggableScmMaterial extends CRMaterial {
     }
 
     public String getDirectory() {
-        return folder;
+        return destination;
     }
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"scm_id", scm_id);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = getName() == null ? "" : getName();
+        String url = getScmId() != null ? getScmId() : "unknown";
+        return String.format("%s; Pluggable SCM material %s ID: %s",myLocation,name,url);
     }
 }

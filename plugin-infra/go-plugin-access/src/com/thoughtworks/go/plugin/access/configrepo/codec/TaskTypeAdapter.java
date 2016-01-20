@@ -30,7 +30,7 @@ public class TaskTypeAdapter implements JsonDeserializer<CRTask>, JsonSerializer
             return CRPluggableTask.class;
         else
             throw new JsonParseException(
-                    String.format("Invalid or unknown material type '%s'",typeName));
+                    String.format("Invalid or unknown task type '%s'",typeName));
     }
 
     @Override

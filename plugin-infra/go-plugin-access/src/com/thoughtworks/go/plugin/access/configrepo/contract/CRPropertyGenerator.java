@@ -81,6 +81,8 @@ public class CRPropertyGenerator extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = this.getName() == null ? "unknown name" : this.name;
+        return String.format("%s; Property generator (%s)",myLocation,name);
     }
 }

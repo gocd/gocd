@@ -259,6 +259,8 @@ public class CRJob extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String stage = getName() == null ? "unknown name" : getName();
+        return String.format("%s; Job (%s)",myLocation,stage);
     }
 }

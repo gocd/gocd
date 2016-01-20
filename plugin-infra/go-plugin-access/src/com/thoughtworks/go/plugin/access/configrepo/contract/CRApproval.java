@@ -57,6 +57,10 @@ public class CRApproval extends CRBase {
         return result;
     }
 
+    public CRApprovalCondition getType()
+    {
+        return type;
+    }
 
     public Collection<String> getAuthorizedUsers() {
         return users;
@@ -84,13 +88,13 @@ public class CRApproval extends CRBase {
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location =this.getLocation(parentLocation);
+        errors.checkMissing(location,"type",type);
     }
 
     @Override
     public String getLocation(String parent) {
-        return getLocation() == null ?
-                "approval in " + parent :
-                String.format("{0}; approval",getLocation());
+        String myLocation = getLocation() == null ? parent : getLocation();
+        return String.format("%s; Approval",myLocation);
     }
 }

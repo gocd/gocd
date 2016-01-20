@@ -108,11 +108,13 @@ public class CRExecTask extends CRTask  {
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"command",command);
     }
-
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String command = getCommand() != null ? getCommand() : "unknown command";
+        return String.format("%s; exec task (%s)",myLocation,command);
     }
 }

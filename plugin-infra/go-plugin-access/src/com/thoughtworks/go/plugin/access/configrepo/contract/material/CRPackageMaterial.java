@@ -2,14 +2,11 @@ package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.plugin.access.configrepo.contract.MissingConfigLinkedNode;
-import com.thoughtworks.go.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
 
 public class CRPackageMaterial extends CRMaterial {
     public static final String TYPE_NAME = "package";
 
-    private String packageId;
+    private String package_id;
 
     public CRPackageMaterial() {
         type = TYPE_NAME;
@@ -17,12 +14,12 @@ public class CRPackageMaterial extends CRMaterial {
     public CRPackageMaterial(String packageId)
     {
         type = TYPE_NAME;
-        this.packageId = packageId;
+        this.package_id = packageId;
     }
     public CRPackageMaterial(String material,String packageId)
     {
         super(TYPE_NAME,material);
-        this.packageId = packageId;
+        this.package_id = packageId;
     }
 
     @Override
@@ -37,7 +34,7 @@ public class CRPackageMaterial extends CRMaterial {
         if(!super.equals(that))
             return false;
 
-        if (packageId != null ? !packageId.equals(that.packageId) : that.packageId != null) {
+        if (package_id != null ? !package_id.equals(that.package_id) : that.package_id != null) {
             return false;
         }
 
@@ -47,7 +44,7 @@ public class CRPackageMaterial extends CRMaterial {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (packageId != null ? packageId.hashCode() : 0);
+        result = 31 * result + (package_id != null ? package_id.hashCode() : 0);
         return result;
     }
 
@@ -58,20 +55,24 @@ public class CRPackageMaterial extends CRMaterial {
 
 
     public String getPackageId() {
-        return packageId;
+        return package_id;
     }
 
     public void setPackageId(String packageId) {
-        this.packageId = packageId;
+        this.package_id = packageId;
     }
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"package_id",package_id);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = getName() == null ? "" : getName();
+        String url = getPackageId() != null ? getPackageId() : "unknown";
+        return String.format("%s; Package material %s ID: %s",myLocation,name,url);
     }
 }

@@ -1,17 +1,16 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import org.apache.commons.lang.StringUtils;
 
 public class CRFetchArtifactTask extends CRTask  {
 
     public static final String TYPE_NAME = "fetchartifact";
 
-    private String pipelineName;
+    private String pipeline;
     private String stage;
     private String job;
     private String source;
-    private boolean sourceIsDir = true;
+    private boolean is_source_a_file;
     private String destination;
 
     public CRFetchArtifactTask(){
@@ -25,14 +24,12 @@ public class CRFetchArtifactTask extends CRTask  {
         this.source = source;
     }
 
-
-
     public String getPipelineName() {
-        return pipelineName;
+        return pipeline;
     }
 
     public void setPipelineName(String pipelineName) {
-        this.pipelineName = pipelineName;
+        this.pipeline = pipelineName;
     }
 
     public String getStage() {
@@ -68,11 +65,11 @@ public class CRFetchArtifactTask extends CRTask  {
     }
 
     public boolean sourceIsDirectory() {
-        return sourceIsDir;
+        return !is_source_a_file;
     }
 
     public void setSourceIsDirectory(boolean srcIsDirectory) {
-        this.sourceIsDir = srcIsDirectory;
+        this.is_source_a_file = !srcIsDirectory;
     }
 
 
@@ -85,8 +82,6 @@ public class CRFetchArtifactTask extends CRTask  {
             return false;
         }
 
-        //TODO: compare abstract tasks for correct implementation -jj
-
         CRFetchArtifactTask fetchTask = (CRFetchArtifactTask) o;
 
         if(!super.equals(fetchTask))
@@ -98,13 +93,13 @@ public class CRFetchArtifactTask extends CRTask  {
         if (job != null ? !job.equals(fetchTask.job) : fetchTask.job != null) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(fetchTask.pipelineName) : fetchTask.pipelineName != null) {
+        if (pipeline != null ? !pipeline.equals(fetchTask.pipeline) : fetchTask.pipeline != null) {
             return false;
         }
         if (source != null ? !source.equals(fetchTask.source) : fetchTask.source != null) {
             return false;
         }
-        if (sourceIsDir != fetchTask.sourceIsDir) {
+        if (is_source_a_file != fetchTask.is_source_a_file) {
             return false;
         }
         if (stage != null ? !stage.equals(fetchTask.stage) : fetchTask.stage != null) {
@@ -117,7 +112,7 @@ public class CRFetchArtifactTask extends CRTask  {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+        result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
         result = 31 * result + (stage != null ? stage.hashCode() : 0);
         result = 31 * result + (job != null ? job.hashCode() : 0);
         result = 31 * result + (source != null ? source.hashCode() : 0);
@@ -127,11 +122,19 @@ public class CRFetchArtifactTask extends CRTask  {
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"source",source);
+        errors.checkMissing(location,"stage",stage);
+        errors.checkMissing(location,"job",job);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String pipe = getPipelineName() != null ? getPipelineName() : "unknown pipeline";
+        String stage = getStage() != null ? getStage() : "unknown stage";
+        String job = getJob() != null ? getJob() : "unknown job";
+
+        return String.format("%s; fetch artifacts task from %s %s %s",myLocation,pipe,stage,job);
     }
 }

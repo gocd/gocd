@@ -49,7 +49,6 @@ public class CRPluggableScmMaterialTest extends CRBaseTest<CRPluggableScmMateria
         examples.put("invalidNoScmId",invalidNoScmId);
     }
 
-
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials()
     {

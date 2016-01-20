@@ -64,4 +64,8 @@ public abstract class CRTask extends CRBase {
         result = 31 * result + (on_cancel != null ? on_cancel.hashCode() : 0);
         return result;
     }
+
+    public void setRunIf(CRRunIf runIf) {
+        this.run_if = runIf;
+    }
 }

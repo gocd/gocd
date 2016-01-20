@@ -66,11 +66,15 @@ public class CRHgMaterial extends CRScmMaterial {
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"url",url);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = getName() == null ? "" : getName();
+        String url = getUrl() != null ? getUrl() : "unknown";
+        return String.format("%s; Hg material %s URL: %s",myLocation,name,url);
     }
 }

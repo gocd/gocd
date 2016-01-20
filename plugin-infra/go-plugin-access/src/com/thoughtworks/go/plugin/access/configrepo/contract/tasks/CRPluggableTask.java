@@ -12,7 +12,7 @@ import java.util.HashSet;
 public class CRPluggableTask extends CRTask {
     public static final java.lang.String TYPE_NAME = "pluggabletask";
 
-    private CRPluginConfiguration pluginConfiguration ;
+    private CRPluginConfiguration plugin_configuration;
     private Collection<CRConfigurationProperty> configuration ;
 
     public CRPluggableTask()
@@ -23,55 +23,23 @@ public class CRPluggableTask extends CRTask {
                            CRConfigurationProperty... properties)
     {
         super(TYPE_NAME);
-        this.pluginConfiguration = pluginConfiguration;
+        this.plugin_configuration = pluginConfiguration;
         this.configuration = Arrays.asList(properties);
     }
     public CRPluggableTask(String id,String version,
                            CRConfigurationProperty... properties)
     {
         super(TYPE_NAME);
-        this.pluginConfiguration = new CRPluginConfiguration(id,version);
+        this.plugin_configuration = new CRPluginConfiguration(id,version);
         this.configuration = Arrays.asList(properties);
     }
-/*
-    @Override
-    public void getErrors(ErrorCollection errors) {
-        if(this.pluginConfiguration != null)
-            this.pluginConfiguration.getErrors(errors);
-        else
-            errors.add(this,"Pluggable task has no plugin configuration");
-        if(this.configuration != null)
-        {
-            for(CRConfigurationProperty p : configuration)
-            {
-                p.getErrors(errors);
-            }
-        }
-        validateType(errors);
-        validateKeyUniqueness(errors);
-        validateOnCancel(errors);
-    }
-    private void validateKeyUniqueness(ErrorCollection errors) {
-        if(this.configuration == null)
-            return;
-        HashSet<String> keys = new HashSet<>();
-        for(CRConfigurationProperty property1 : this.configuration)
-        {
-            String key = property1.getKey();
-            if(keys.contains(key))
-                errors.add(this,String.format(
-                        "Configuration property %s is defined more than once",property1));
-            else
-                keys.add(key);
-        }
-    }*/
 
     public CRPluginConfiguration getPluginConfiguration() {
-        return pluginConfiguration;
+        return plugin_configuration;
     }
 
     public void setPluginConfiguration(CRPluginConfiguration pluginConfiguration) {
-        this.pluginConfiguration = pluginConfiguration;
+        this.plugin_configuration = pluginConfiguration;
     }
 
     public Collection<CRConfigurationProperty> getConfiguration() {
@@ -104,7 +72,7 @@ public class CRPluggableTask extends CRTask {
         if (configuration != null ? !CollectionUtils.isEqualCollection(configuration,that.configuration) : that.configuration != null) {
             return false;
         }
-        if (pluginConfiguration != null ? !pluginConfiguration.equals(that.pluginConfiguration) : that.pluginConfiguration != null) {
+        if (plugin_configuration != null ? !plugin_configuration.equals(that.plugin_configuration) : that.plugin_configuration != null) {
             return false;
         }
 
@@ -114,18 +82,47 @@ public class CRPluggableTask extends CRTask {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (pluginConfiguration != null ? pluginConfiguration.hashCode() : 0);
+        result = 31 * result + (plugin_configuration != null ? plugin_configuration.hashCode() : 0);
         result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
         return result;
     }
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"plugin_configuration",plugin_configuration);
 
+        if(this.plugin_configuration != null)
+            this.plugin_configuration.getErrors(errors,location);
+
+        if(this.configuration != null)
+        {
+            for(CRConfigurationProperty p : configuration)
+            {
+                p.getErrors(errors,location);
+            }
+        }
+        validateKeyUniqueness(errors,location);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        return String.format("%s; pluggable task",myLocation);
+    }
+
+    private void validateKeyUniqueness(ErrorCollection errors,String location) {
+        if(this.configuration == null)
+            return;
+        HashSet<String> keys = new HashSet<>();
+        for(CRConfigurationProperty property1 : this.configuration)
+        {
+            String key = property1.getKey();
+            if(keys.contains(key))
+                errors.addError(location,String.format(
+                        "Configuration property %s is defined more than once",property1));
+            else
+                keys.add(key);
+        }
     }
 }

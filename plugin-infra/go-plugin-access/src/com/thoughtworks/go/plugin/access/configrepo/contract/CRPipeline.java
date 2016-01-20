@@ -8,7 +8,6 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.*;
 
 public class CRPipeline extends CRBase {
-    private String location;
     private String group;
     private String name;
     private String label_template;
@@ -191,15 +190,11 @@ public class CRPipeline extends CRBase {
         this.group = groupName;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     @Override
     public String getLocation(String parent) {
         return StringUtil.isBlank(location) ?
-                StringUtil.isBlank(name) ? String.format("Pipeline in {0}",parent) :
-                  String.format("Pipeline {0}",name) : String.format("{0}; Pipeline {1}",location,name);
+                StringUtil.isBlank(name) ? String.format("Pipeline in %s",parent) :
+                  String.format("Pipeline %s",name) : String.format("%s; Pipeline %s",location,name);
     }
 
     @Override
@@ -209,13 +204,14 @@ public class CRPipeline extends CRBase {
         errors.checkMissing(location,"group",group);
         errors.checkMissing(location,"materials",materials);
         errors.checkMissing(location,"stages",stages);
-        for(CRMaterial material : this.materials)
-        {
-            material.getErrors(errors,location);
-        }
-        if(materials.size() > 1)
-        {
-            validateMaterialNameUniqueness(errors,location);
+        validateAtLeastOneMaterial(errors,location);
+        if(materials != null) {
+            for (CRMaterial material : this.materials) {
+                material.getErrors(errors, location);
+            }
+            if (materials.size() > 1) {
+                validateMaterialNameUniqueness(errors, location);
+            }
         }
         validateAtLeastOneStage(errors,location);
     }
@@ -233,6 +229,11 @@ public class CRPipeline extends CRBase {
     private void validateAtLeastOneStage(ErrorCollection errors, String location) {
         if(this.stages == null || this.stages.isEmpty())
             errors.addError(location,"Pipeline has no stages");
+    }
+
+    private void validateAtLeastOneMaterial(ErrorCollection errors, String location) {
+        if(this.materials == null || this.materials.isEmpty())
+            errors.addError(location,"Pipeline has no materials");
     }
 
 }

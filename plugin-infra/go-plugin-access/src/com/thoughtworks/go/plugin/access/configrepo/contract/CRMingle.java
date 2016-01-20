@@ -79,6 +79,7 @@ public class CRMingle extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        return String.format("%s; Mingle",myLocation);
     }
 }

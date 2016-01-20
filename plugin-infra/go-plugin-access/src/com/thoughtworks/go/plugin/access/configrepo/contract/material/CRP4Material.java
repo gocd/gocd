@@ -230,10 +230,16 @@ public class CRP4Material extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        errors.checkMissing(location,"port",port);
+        errors.checkMissing(location,"view",view);
+        validatePassword(errors,parentLocation);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = getName() == null ? "" : getName();
+        String url = getServerAndPort() != null ? getServerAndPort() : "unknown";
+        return String.format("%s; Git material %s URL: %s",myLocation,name,url);
     }
 }

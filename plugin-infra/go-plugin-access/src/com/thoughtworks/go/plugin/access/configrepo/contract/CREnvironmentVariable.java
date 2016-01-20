@@ -95,7 +95,9 @@ public class CREnvironmentVariable extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String key = this.name == null ? "unknown name" : this.name;
+        return String.format("%s; Environment variable (%s)",myLocation,key);
     }
 
     private void validateValue(ErrorCollection errors, String location) {

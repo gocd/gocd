@@ -63,10 +63,12 @@ public class CRPluginConfiguration extends CRBase {
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
         errors.checkMissing(location,"id",id);
+        errors.checkMissing(location,"version",version);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        return String.format("%s; Plugin configuration",myLocation);
     }
 }

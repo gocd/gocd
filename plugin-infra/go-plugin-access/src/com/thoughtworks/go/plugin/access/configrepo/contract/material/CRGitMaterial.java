@@ -86,6 +86,9 @@ public class CRGitMaterial extends CRScmMaterial {
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = getName() == null ? "" : getName();
+        String url = getUrl() != null ? getUrl() : "unknown";
+        return String.format("%s; Git material %s URL: %s",myLocation,name,url);
     }
 }

@@ -78,10 +78,15 @@ public class CRDependencyMaterial extends CRMaterial {
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
         errors.checkMissing(location,"pipeline",pipeline);
+        errors.checkMissing(location,"stage",stage);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = getName() == null ? "" : getName();
+        String pipe = getPipelineName() != null ? getPipelineName() : "unknown pipeline";
+        String stage = getStageName() != null ? getStageName() : "unknown stage";
+        return String.format("%s; Dependency material %s on %s/%s",myLocation,name,pipe,stage);
     }
 }

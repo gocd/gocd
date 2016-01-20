@@ -101,7 +101,9 @@ public class CRConfigurationProperty extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String key = this.key == null ? "unknown key" : this.key;
+        return String.format("%s; Configuration property (%s)",myLocation,key);
     }
 
     private void validateValues(ErrorCollection errors, String location) {

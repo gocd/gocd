@@ -1,5 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRDependencyMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRGitMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
@@ -8,6 +9,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -19,14 +21,17 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
     private final CRPipeline invalidNoMaterial;
     private final CRPipeline invalidNoStages;
     private final CRPipeline invalidNoNamedMaterials;
+    private final CRGitMaterial veryCustomGit;
+    private final CRStage buildStage;
+    private final CRPipeline invalidNoGroup;
 
     public CRPipelineTest()
     {
         CRBuildTask rakeTask = CRBuildTask.rake();
         CRJob buildRake = new CRJob("build", rakeTask);
-        CRGitMaterial veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, "gitrepo", "feature12", "externals", "tools");
+        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, "gitrepo", "feature12", "externals", "tools");
 
-        CRStage buildStage = new CRStage("build", buildRake);
+        buildStage = new CRStage("build", buildRake);
         pipe1 = new CRPipeline("pipe1","group1",veryCustomGit,buildStage);
 
 
@@ -40,14 +45,58 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         invalidNoName = new CRPipeline(null,"group1",veryCustomGit,buildStage);
         invalidNoMaterial = new CRPipeline();
         invalidNoMaterial.setName("pipe4");
+        invalidNoMaterial.setGroupName("g1");
         invalidNoMaterial.addStage(buildStage);
+
+        invalidNoGroup = new CRPipeline("name",null,veryCustomGit,buildStage);
 
         invalidNoStages = new CRPipeline();
         invalidNoStages.setName("pipe4");
+        invalidNoStages.setGroupName("g1");
         invalidNoStages.addMaterial(veryCustomGit);
 
         invalidNoNamedMaterials = new CRPipeline("pipe2","group1",veryCustomGit,buildStage);
         invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial("pipe1","build"));
+        invalidNoNamedMaterials.setGroupName("g1");
+    }
+
+    @Test
+    public void shouldAppendPrettyLocationInErrors_WhenPipelineHasExplicitLocationField()
+    {
+        CRPipeline p = new CRPipeline();
+        p.setName("pipe4");
+        p.addMaterial(veryCustomGit);
+        // plugin may voluntarily set this
+        p.setLocation("pipe4.json");
+
+        ErrorCollection errors = new ErrorCollection();
+        p.getErrors(errors,"TEST");
+
+        String fullError = errors.getErrorsAsText();
+
+        assertThat(fullError,contains("pipe4.json; Pipeline pipe4"));
+        assertThat(fullError,contains("Missing field 'group'"));
+        assertThat(fullError,contains("Pipeline has no stages"));
+    }
+
+    @Test
+    public void shouldCheckErrorsInMaterials()
+    {
+        CRPipeline p = new CRPipeline();
+        p.setName("pipe4");
+
+        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false, null, "feature12", "externals", "tools");
+        p.addMaterial(invalidGit);
+        // plugin may voluntarily set this
+        p.setLocation("pipe4.json");
+
+        ErrorCollection errors = new ErrorCollection();
+        p.getErrors(errors,"TEST");
+
+        String fullError = errors.getErrorsAsText();
+
+        assertThat(fullError,contains("Pipeline pipe4; Git material"));
+        assertThat(fullError,contains("Missing field 'url'"));
     }
 
     @Override

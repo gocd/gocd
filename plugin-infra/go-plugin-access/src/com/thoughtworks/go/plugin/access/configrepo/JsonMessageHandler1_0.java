@@ -2,11 +2,9 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 
 import com.google.gson.GsonBuilder;
-import com.thoughtworks.go.plugin.access.configrepo.contract.*;
-import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryResponseMessage;
-import com.thoughtworks.go.plugin.access.configrepo.migration.Migration_1;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryMessage;
+import com.thoughtworks.go.plugin.access.configrepo.contract.*;
+import com.thoughtworks.go.plugin.access.configrepo.messages.*;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -18,11 +16,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     private static final int CURRENT_CONTRACT_VERSION = 1;
 
     private final GsonCodec codec;
-    private final Migration_1 migration_1;
 
     public JsonMessageHandler1_0(){
         codec = new GsonCodec();
-        migration_1 = new Migration_1();
     }
 
     @Override

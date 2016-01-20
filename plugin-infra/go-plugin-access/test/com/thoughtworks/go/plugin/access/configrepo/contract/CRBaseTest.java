@@ -11,10 +11,13 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.util.TestUtils.contains;
 import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.AdditionalMatchers.not;
 
 public abstract class CRBaseTest<T extends CRBase> {
 
@@ -99,6 +102,23 @@ public abstract class CRBaseTest<T extends CRBase> {
                 System.out.print(json);
                 System.out.print("\n");
             }
+        }
+    }
+    @Test
+    public void shouldReturnLocation()
+    {
+        Map<String,T> examples = getExamples();
+        for(Map.Entry<String,T> example : examples.entrySet())
+        {
+            String exampleName = example.getKey();
+            T value = example.getValue();
+            String location = value.getLocation("TEST_PARENT");
+            if(printExamples) {
+                System.out.print("-----\n");
+                System.out.print(String.format("Example '%s' Location:\n", exampleName));
+                System.out.print(location);
+            }
+            assertNotNull(location);
         }
     }
 

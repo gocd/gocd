@@ -109,17 +109,22 @@ public class CRBuildTask extends CRTask {
     }
 
     public CRBuildFramework getType() {
+        if(type == null)
+            return null;
         return CRBuildFramework.valueOf(type);
     }
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = getLocation(parentLocation);
+        errors.checkMissing(location,"type",type);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String type = this.getType() == null ? "unknown" : this.getType().toString();
+        return String.format("%s; %s build task",myLocation,type);
     }
 
     @Override

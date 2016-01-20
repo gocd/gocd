@@ -68,7 +68,7 @@ public class ErrorCollection {
     public void checkMissing(String location, String fieldName, Object value) {
         if(value == null) {
             List<String> list = getOrCreateErrorList(location);
-            list.add(String.format("missing field {0}", fieldName));
+            list.add(String.format("Missing field '%s'", fieldName));
         }
     }
 

@@ -11,10 +11,10 @@ import java.util.List;
 public class CRSvnMaterial extends CRScmMaterial {
 
     /*
-    public static CRSvnMaterial withEncryptedPassword(String name, String folder, boolean autoUpdate, List<String> filter,
+    public static CRSvnMaterial withEncryptedPassword(String name, String destination, boolean autoUpdate, List<String> filter,
                                                       String url, String userName, String encryptedPassword, boolean checkExternals)
     {
-        CRSvnMaterial crSvnMaterial = new CRSvnMaterial(name, folder, autoUpdate, filter,
+        CRSvnMaterial crSvnMaterial = new CRSvnMaterial(name, destination, autoUpdate, filter,
                 url, userName, checkExternals);
         crSvnMaterial.setEncryptedPassword(encryptedPassword);
         return crSvnMaterial;
@@ -156,11 +156,16 @@ public class CRSvnMaterial extends CRScmMaterial {
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-
+        String location = this.getLocation(parentLocation);
+        errors.checkMissing(location,"url",url);
+        validatePassword(errors,location);
     }
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        String name = getName() == null ? "" : getName();
+        String url = getUrl() != null ? getUrl() : "unknown";
+        return String.format("%s; Svn material %s URL: %s",myLocation,name,url);
     }
 }

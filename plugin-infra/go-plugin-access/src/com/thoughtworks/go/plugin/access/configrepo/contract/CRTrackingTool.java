@@ -57,6 +57,7 @@ public class CRTrackingTool extends CRBase {
         this.regex = regex;
     }
 
+
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
@@ -67,6 +68,7 @@ public class CRTrackingTool extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return null;
+        String myLocation = getLocation() == null ? parent : getLocation();
+        return String.format("%s; Tracking tool",myLocation);
     }
 }

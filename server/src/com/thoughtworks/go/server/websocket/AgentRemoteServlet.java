@@ -39,6 +39,7 @@ public class AgentRemoteServlet extends WebSocketServlet {
         SystemEnvironment environment = new SystemEnvironment();
         factory.getPolicy().setIdleTimeout(environment.getWebsocketMaxIdleTime());
         factory.getPolicy().setMaxTextMessageBufferSize(environment.getWebsocketMaxTextMessageSize());
+        factory.getPolicy().setMaxTextMessageSize(environment.getWebsocketMaxTextMessageSize());
         factory.setCreator(wac.getBean(AgentRemoteSocketCreator.class));
     }
 }

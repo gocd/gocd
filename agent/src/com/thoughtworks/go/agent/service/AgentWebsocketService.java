@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.websocket.Report;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.websocket.api.MessageTooLargeException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
@@ -118,7 +119,8 @@ public class AgentWebsocketService {
             SystemEnvironment environment = new SystemEnvironment();
             client = new WebSocketClient(sslContextFactory);
             client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
-            client.setMaxTextMessageBufferSize(environment.getWebsocketMaxTextMessageSize());
+            client.getPolicy().setMaxTextMessageBufferSize(environment.getWebsocketMaxTextMessageSize());
+            client.getPolicy().setMaxTextMessageSize(environment.getWebsocketMaxTextMessageSize());
             client.start();
         }
         if (session != null) {
@@ -186,6 +188,9 @@ public class AgentWebsocketService {
     @OnWebSocketError
     public void onError(Throwable error) {
         LOGGER.error(sessionName() + " error", error);
+        if (error instanceof MessageTooLargeException) {
+            LOGGER.error("You can set Java system property 'go.websocket.max.text.message.size' to increase limit");
+        }
     }
 
     @OnWebSocketFrame

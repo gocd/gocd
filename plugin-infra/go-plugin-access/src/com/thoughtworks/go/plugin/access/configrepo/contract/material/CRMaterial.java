@@ -1,31 +1,30 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRBase;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRValidatable;
 
 import java.util.HashSet;
 
 public abstract class CRMaterial extends CRBase {
-    private String materialName;
+    private String name;
     protected String type;
 
     public CRMaterial() {
     }
 
     public CRMaterial(String name) {
-        this.materialName = name;
+        this.name = name;
     }
     public CRMaterial(String type,String name) {
         this.type = type;
-        this.materialName = name;
+        this.name = name;
     }
 
     public String getName() {
-        return materialName;
+        return name;
     }
 
     public void setName(String name) {
-        this.materialName = name;
+        this.name = name;
     }
 
     @Override
@@ -39,7 +38,7 @@ public abstract class CRMaterial extends CRBase {
 
         CRMaterial that = (CRMaterial) o;
 
-        if (materialName != null ? !materialName.equals(that.materialName) : that.materialName != null) {
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
 
@@ -48,7 +47,7 @@ public abstract class CRMaterial extends CRBase {
 
     @Override
     public int hashCode() {
-        int result = materialName != null ? materialName.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
         return result;
     }
 

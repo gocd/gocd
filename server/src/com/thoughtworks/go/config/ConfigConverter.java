@@ -9,6 +9,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -27,8 +28,7 @@ import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Helper to transform config repo classes to config-api classes
@@ -44,26 +44,39 @@ public class ConfigConverter {
         this.cachedFileGoConfig = cachedFileGoConfig;
     }
 
-    public PartialConfig toPartialConfig(CRPartialConfig crPartialConfig) {
+    public PartialConfig toPartialConfig(CRParseResult crPartialConfig) {
         PartialConfig partialConfig = new PartialConfig();
         for(CREnvironment crEnvironment : crPartialConfig.getEnvironments())
         {
             EnvironmentConfig environment = toEnvironmentConfig(crEnvironment);
             partialConfig.getEnvironments().add(environment);
         }
-        for(CRPipelineGroup crPipelineGroup : crPartialConfig.getGroups())
+        Map<String,List<CRPipeline>> pipesByGroup = groupPipelinesByGroupName(crPartialConfig.getPipelines());
+        for(Map.Entry<String,List<CRPipeline>> crPipelineGroup : pipesByGroup.entrySet())
         {
             BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup);
             partialConfig.getGroups().add(pipelineConfigs);
         }
         return partialConfig;
     }
+    public Map<String,List<CRPipeline>> groupPipelinesByGroupName(Collection<CRPipeline> pipelines)
+    {
+        Map<String, List<CRPipeline>> map = new HashMap<String, List<CRPipeline>>();
+        for (CRPipeline pipe : pipelines) {
+            String key = pipe.getName();
+            if (map.get(key) == null) {
+                map.put(key, new ArrayList<CRPipeline>());
+            }
+            map.get(key).add(pipe);
+        }
+        return map;
+    }
 
-    public BasicPipelineConfigs toBasicPipelineConfigs(CRPipelineGroup crPipelineGroup) {
-        String name = crPipelineGroup.getName();
+    public BasicPipelineConfigs toBasicPipelineConfigs(Map.Entry<String,List<CRPipeline>> crPipelineGroup) {
+        String name = crPipelineGroup.getKey();
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.setGroup(name);
-        for(CRPipeline crPipeline : crPipelineGroup.getPipelines())
+        for(CRPipeline crPipeline : crPipelineGroup.getValue())
         {
             pipelineConfigs.add(toPipelineConfig(crPipeline));
         }
@@ -306,14 +319,14 @@ public class ConfigConverter {
             if(StringUtils.isBlank(gitBranch))
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
             return new GitMaterialConfig(new UrlArgument(git.getUrl()), gitBranch,
-                    null,git.isAutoUpdate(), filter,crScmMaterial.getFolder(),
+                    null,git.isAutoUpdate(), filter,crScmMaterial.getDirectory(),
                     toMaterialName(materialName));
         }
         else if(crScmMaterial instanceof CRHgMaterial)
         {
             CRHgMaterial hg = (CRHgMaterial)crScmMaterial;
             return new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
-            hg.isAutoUpdate(), toFilter(crScmMaterial), hg.getFolder(),
+            hg.isAutoUpdate(), toFilter(crScmMaterial), hg.getDirectory(),
                     toMaterialName(materialName));
         }
         else if(crScmMaterial instanceof CRP4Material)
@@ -338,7 +351,7 @@ public class ConfigConverter {
         {
             CRSvnMaterial crSvnMaterial = (CRSvnMaterial)crScmMaterial;
             SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(
-                    crSvnMaterial.getUrl(), crSvnMaterial.getUsername(), crSvnMaterial.isCheckExternals(), cipher);
+                    crSvnMaterial.getUrl(), crSvnMaterial.getUserName(), crSvnMaterial.isCheckExternals(), cipher);
             if(crSvnMaterial.getEncryptedPassword() != null)
             {
                 svnMaterialConfig.setEncryptedPassword(crSvnMaterial.getEncryptedPassword());
@@ -383,7 +396,7 @@ public class ConfigConverter {
     }
 
     private void setCommonScmMaterialMembers(ScmMaterialConfig scmMaterialConfig, CRScmMaterial crScmMaterial) {
-        scmMaterialConfig.setFolder(crScmMaterial.getFolder());
+        scmMaterialConfig.setFolder(crScmMaterial.getDirectory());
         scmMaterialConfig.setAutoUpdate(crScmMaterial.isAutoUpdate());
         scmMaterialConfig.setFilter(toFilter(crScmMaterial));
     }
@@ -452,7 +465,9 @@ public class ConfigConverter {
 
     private ArtifactPlan toArtifactPlan(CRArtifact crArtifact) {
         // artifact type is not set here. is this OK?
-        return new ArtifactPlan(crArtifact.getSrc(),crArtifact.getDest());
+        ArtifactType artType = crArtifact.getType() == CRArtifactType.build ?
+                ArtifactType.file : ArtifactType.unit;
+        return new ArtifactPlan(artType,crArtifact.getSource(),crArtifact.getDestination());
     }
 
     private Tab toTab(CRTab crTab) {
@@ -545,13 +560,11 @@ public class ConfigConverter {
     }
 
     private MingleConfig toMingleConfig(CRMingle crMingle) {
-        return new MingleConfig(crMingle.getBaseUrl(),crMingle.getProjectId(),crMingle.getMql());
+        return new MingleConfig(crMingle.getBaseUrl(),crMingle.getProjectIdentifier(),crMingle.getMqlGroupingConditions());
     }
 
     private TrackingTool toTrackingTool(CRTrackingTool crTrackingTool) {
         return new TrackingTool(crTrackingTool.getLink(), crTrackingTool.getRegex());
     }
 
-
-    //TODO #1133 convert each config element
 }

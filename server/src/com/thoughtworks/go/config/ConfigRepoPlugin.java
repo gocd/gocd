@@ -11,7 +11,6 @@ import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigExceptio
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRError;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,9 +29,9 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     }
 
     @Override
-    public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) throws Exception {
-        Collection<CRConfiguration> cRconfigurations = getCrConfigurations(context.configuration());
-        CRPartialConfig crPartialConfig = parseDirectory(configRepoCheckoutDirectory, cRconfigurations);
+    public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
+        Collection<CRConfigurationProperty> cRconfigurations = getCrConfigurations(context.configuration());
+        CRParseResult crPartialConfig = parseDirectory(configRepoCheckoutDirectory, cRconfigurations);
         return configConverter.toPartialConfig(crPartialConfig);
     }
 
@@ -41,12 +40,11 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return "Plugin " + this.pluginId;
     }
 
-    public CRPartialConfig parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {
+    public CRParseResult parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {
         CRParseResult crParseResult = this.crExtension.parseDirectory(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
-        List<CRError> errors = crParseResult.getErrors();
-        if(errors != null && !errors.isEmpty())
-            throw new InvalidPartialConfigException(crParseResult,errors);
-        return crParseResult.getPartialConfig();
+        if(crParseResult.hasErrors())
+            throw new InvalidPartialConfigException(crParseResult,crParseResult.getErrors());
+        return crParseResult;
     }
 
     public static List<CRConfigurationProperty> getCrConfigurations(Configuration configuration) {

@@ -12,6 +12,10 @@ public class CRTimer extends CRBase {
     {
         this.spec = timerSpec;
     }
+    public CRTimer(String timerSpec, boolean onlyOnChanges) {
+        this.spec = timerSpec;
+        this.only_on_changes = onlyOnChanges;
+    }
 
     public String getTimerSpec() {
         return spec;

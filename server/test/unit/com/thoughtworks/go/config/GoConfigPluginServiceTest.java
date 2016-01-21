@@ -2,13 +2,15 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPartialConfig;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static junit.framework.TestCase.assertSame;
@@ -23,7 +25,9 @@ public class GoConfigPluginServiceTest {
     private ConfigRepoExtension extension;
     private GoConfigPluginService service;
     private CRParseResult parseResult;
-    private CRPartialConfig partialConfig;
+    private Collection<CREnvironment> environments = new ArrayList<>();
+    private Collection<CRPipeline> pipelines = new ArrayList<>();
+    private String errors = "";
 
     @Before
     public void SetUp()
@@ -31,8 +35,7 @@ public class GoConfigPluginServiceTest {
         extension = mock(ConfigRepoExtension.class);
         service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 mock(MetricsProbeService.class),mock(CachedFileGoConfig.class));
-        partialConfig = new CRPartialConfig();
-        parseResult = new CRParseResult(partialConfig);
+        parseResult = new CRParseResult(environments,pipelines,errors);
 
         when(extension.parseDirectory(any(String.class), any(String.class), any(Collection.class)))
         .thenReturn(parseResult);
@@ -42,7 +45,9 @@ public class GoConfigPluginServiceTest {
     public void shouldAskExtensionForPluginImplementationWhenPluginIdSpecified() throws Exception {
         PartialConfigProvider plugin = service.partialConfigProviderFor("plugin-id");
         assertThat(plugin instanceof ConfigRepoPlugin,is(true));
-        CRPartialConfig loaded = ((ConfigRepoPlugin)plugin).parseDirectory(new File("dir"), mock(Collection.class));
-        assertSame(loaded, parseResult.getPartialConfig());
+        CRParseResult loaded = ((ConfigRepoPlugin) plugin).parseDirectory(new File("dir"), mock(Collection.class));
+        assertSame(environments, parseResult.getEnvironments());
+        assertSame(pipelines, parseResult.getPipelines());
+        assertSame(errors, parseResult.getErrors());
     }
 }

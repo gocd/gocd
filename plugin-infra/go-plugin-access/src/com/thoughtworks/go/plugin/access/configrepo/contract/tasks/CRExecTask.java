@@ -29,6 +29,15 @@ public class CRExecTask extends CRTask  {
         this.timeout = timeout;
         this.args = Arrays.asList(args);
     }
+    public CRExecTask(CRRunIf runIf, CRTask onCancel,
+                      String command,String workingDirectory,Long timeout,List<String> args) {
+        super(runIf, onCancel);
+        this.command = command;
+        this.working_directory = workingDirectory;
+        this.timeout = timeout;
+        this.args = args;
+    }
+
 
     public String getCommand() {
         return command;

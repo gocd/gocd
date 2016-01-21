@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.presentation.models.StageCctrayPresentationModel;
 import com.thoughtworks.go.server.util.CollectionUtil;
+import org.apache.commons.collections.map.HashedMap;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.core.Is;
 import org.jruby.ant.Rake;
@@ -33,10 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -284,14 +282,15 @@ public class ConfigConverterTest {
     }
     @Test
     public void shouldConvertGitMaterialWhenNulls() {
-        CRGitMaterial crGitMaterial = new CRGitMaterial(null, null, false, null, "url", null);
+        CRGitMaterial crGitMaterial = new CRGitMaterial();
+        crGitMaterial.setUrl("url");
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
 
         assertNull(crGitMaterial.getName());
-        assertNull(crGitMaterial.getFolder());
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(false));
+        assertNull(crGitMaterial.getDirectory());
+        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
         assertThat(gitMaterialConfig.filter(), is(new Filter()));
         assertThat(gitMaterialConfig.getUrl(), is("url"));
         assertThat(gitMaterialConfig.getBranch(), is("master"));
@@ -574,7 +573,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertPipeline()
     {
-        CRPipeline crPipeline = new CRPipeline("pipename","label",true,
+        CRPipeline crPipeline = new CRPipeline("pipename","group1","label",true,
                 trackingTool,null,timer,environmentVariables,materials,stages);
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline);
@@ -591,9 +590,11 @@ public class ConfigConverterTest {
     public void shouldConvertPipelineGroup()
     {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename","label",true,
+        pipelines.add(new CRPipeline("pipename","group","label",true,
                 trackingTool,null,timer,environmentVariables,materials,stages));
-        CRPipelineGroup crPipelineGroup = new CRPipelineGroup("group",pipelines);
+        Map<String,List<CRPipeline>> map = new HashedMap();
+        map.put("group",pipelines);
+        Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
         assertThat(pipelineConfigs.getGroup(),is("group"));
         assertThat(pipelineConfigs.getPipelines().size(),is(1));
@@ -602,9 +603,11 @@ public class ConfigConverterTest {
     public void shouldConvertPipelineGroupWhenNoName()
     {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename","label",true,
+        pipelines.add(new CRPipeline("pipename",null,"label",true,
                 trackingTool,null,timer,environmentVariables,materials,stages));
-        CRPipelineGroup crPipelineGroup = new CRPipelineGroup(null,pipelines);
+        Map<String,List<CRPipeline>> map = new HashedMap();
+        map.put(null,pipelines);
+        Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
         assertThat(pipelineConfigs.getGroup(),is(PipelineConfigs.DEFAULT_GROUP));
         assertThat(pipelineConfigs.getPipelines().size(),is(1));
@@ -613,9 +616,11 @@ public class ConfigConverterTest {
     public void shouldConvertPipelineGroupWhenEmptyName()
     {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename","label",true,
+        pipelines.add(new CRPipeline("pipename","","label",true,
                 trackingTool,null,timer,environmentVariables,materials,stages));
-        CRPipelineGroup crPipelineGroup = new CRPipelineGroup("",pipelines);
+        Map<String,List<CRPipeline>> map = new HashedMap();
+        map.put("",pipelines);
+        Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
         assertThat(pipelineConfigs.getGroup(),is(PipelineConfigs.DEFAULT_GROUP));
         assertThat(pipelineConfigs.getPipelines().size(),is(1));
@@ -624,20 +629,18 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertPartialConfigWithGroupsAndEnvironments()
     {
-        List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename","label",true,
-                trackingTool,null,timer,environmentVariables,materials,stages));
-        CRPipelineGroup crPipelineGroup = new CRPipelineGroup("group",pipelines);
-
+        CRPipeline pipeline = new CRPipeline("pipename", "group", "label", true,
+                trackingTool, null, timer, environmentVariables, materials, stages);
         ArrayList<String> agents = new ArrayList<>();
         agents.add("12");
         ArrayList<String> pipelineNames = new ArrayList<>();
         pipelineNames.add("pipename");
         CREnvironment crEnvironment = new CREnvironment("dev", environmentVariables, agents, pipelineNames);
 
-        CRPartialConfig crPartialConfig = new CRPartialConfig();
-        crPartialConfig.addEnvironment(crEnvironment);
-        crPartialConfig.addGroup(crPipelineGroup);
+        CRParseResult crPartialConfig = new CRParseResult();
+        crPartialConfig.getEnvironments().add(crEnvironment);
+
+        crPartialConfig.getPipelines().add(pipeline);
 
         PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig);
         assertThat(partialConfig.getGroups().size(),is(1));

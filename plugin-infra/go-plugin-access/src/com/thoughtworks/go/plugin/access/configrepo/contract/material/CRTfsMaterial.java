@@ -3,11 +3,13 @@ package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.List;
+
 public class CRTfsMaterial extends CRScmMaterial {
-/*
+
     public static CRTfsMaterial withEncryptedPassword(String name, String directory, boolean autoUpdate,
-                                                   List<String> filter,String url, String domain, String username,
-                                                   String encrypted_password, String project) {
+                                                      List<String> filter, String url, String domain, String username,
+                                                      String encrypted_password, String project) {
         return new CRTfsMaterial(name,directory,autoUpdate,filter,
                 url,username,null,encrypted_password,project,domain);
     }
@@ -17,7 +19,7 @@ public class CRTfsMaterial extends CRScmMaterial {
                                                String password, String project) {
         return new CRTfsMaterial(name,directory,autoUpdate,filter,
                 url,username,password,null,project,domain);
-    }*/
+    }
 
     public static final String TYPE_NAME = "tfs";
 
@@ -27,6 +29,20 @@ public class CRTfsMaterial extends CRScmMaterial {
     private String password;
     private String encrypted_password;
     private String project;
+
+    private CRTfsMaterial(
+            String name, String folder, boolean autoUpdate, List<String> filter,
+            String url,String userName,
+            String password,String encryptedPassword,
+            String projectPath,String domain) {
+        super(name, folder, autoUpdate, filter);
+        this.url = url;
+        this.username = userName;
+        this.domain = domain;
+        this.password = password;
+        this.encrypted_password = encryptedPassword;
+        this.project = projectPath;
+    }
 
     public CRTfsMaterial()
     {

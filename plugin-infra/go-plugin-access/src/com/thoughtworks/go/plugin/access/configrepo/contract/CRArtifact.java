@@ -15,6 +15,12 @@ public class CRArtifact extends CRBase {
         this.type = type;
     }
 
+    public CRArtifact(String src, String dest) {
+        this.source = src;
+        this.destination = dest;
+        this.type = CRArtifactType.build;
+    }
+
     public String getSource() {
         return source;
     }

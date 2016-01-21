@@ -24,6 +24,12 @@ public class CRPluggableScmMaterial extends CRMaterial {
         this.destination = folder;
         this.filter = Arrays.asList(filters);
     }
+    public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter) {
+        super(TYPE_NAME,name);
+        this.scm_id = scmId;
+        this.destination = directory;
+        this.filter = filter;
+    }
 
     @Override
     public boolean equals(Object o) {

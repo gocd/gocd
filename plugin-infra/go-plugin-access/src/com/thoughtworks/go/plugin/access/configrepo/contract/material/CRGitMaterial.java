@@ -24,6 +24,12 @@ public class CRGitMaterial extends CRScmMaterial {
         this.url = url;
         this.branch = branch;
     }
+    public CRGitMaterial(String name, String folder, boolean autoUpdate, List<String> filter,String url,String branch) {
+        super(name, folder, autoUpdate, filter);
+        this.url = url;
+        this.branch = branch;
+    }
+
 
     @Override
     public String typeName() {

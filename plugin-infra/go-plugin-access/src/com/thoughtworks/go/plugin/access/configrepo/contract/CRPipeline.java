@@ -28,6 +28,21 @@ public class CRPipeline extends CRBase {
         this.stages = Arrays.asList(stages);
     }
 
+    public CRPipeline(String name,String groupName, String labelTemplate, boolean isLocked, CRTrackingTool trackingTool,
+                      CRMingle mingle, CRTimer timer, Collection<CREnvironmentVariable> environmentVariables,
+                      Collection<CRMaterial> materials, List<CRStage> stages) {
+        this.name = name;
+        this.group = groupName;
+        this.label_template = labelTemplate;
+        this.is_locked = isLocked;
+        this.tracking_tool = trackingTool;
+        this.mingle = mingle;
+        this.timer = timer;
+        this.environment_variables = environmentVariables;
+        this.materials = materials;
+        this.stages = stages;
+    }
+
     public String getName() {
         return name;
     }

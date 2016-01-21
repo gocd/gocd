@@ -2,7 +2,6 @@ package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.CRTask;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
@@ -13,7 +12,7 @@ public class CRJob extends CRBase {
     private Collection<CRTab> tabs = new ArrayList<>();
     private Collection<String> resources = new ArrayList<>();
     private Collection<CRArtifact> artifacts = new ArrayList<>();
-    private Collection<CRPropertyGenerator> artifactPropertiesGenerators = new ArrayList<>();
+    private Collection<CRPropertyGenerator> properties = new ArrayList<>();
 
     private Boolean runOnAllAgents;
     private Integer runInstanceCount;
@@ -28,6 +27,21 @@ public class CRJob extends CRBase {
     {
         this.name = name;
         this.tasks = Arrays.asList(tasks);
+    }
+    public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
+                 Collection<String> resources, Collection<CRArtifact> artifacts,
+                 Collection<CRPropertyGenerator> artifactPropertiesGenerators,
+                 boolean runOnAllAgents, int runInstanceCount, int timeout, List<CRTask> tasks) {
+        this.name = name;
+        this.environment_variables = environmentVariables;
+        this.tabs = tabs;
+        this.resources = resources;
+        this.artifacts = artifacts;
+        this.properties = artifactPropertiesGenerators;
+        this.runOnAllAgents = runOnAllAgents;
+        this.runInstanceCount = runInstanceCount;
+        this.timeout = timeout;
+        this.tasks = tasks;
     }
 
     @Override
@@ -51,8 +65,8 @@ public class CRJob extends CRBase {
     }
 
     private void validateProperties(ErrorCollection errors, String location) {
-        if(artifactPropertiesGenerators != null)
-            for(CRPropertyGenerator gen : artifactPropertiesGenerators)
+        if(properties != null)
+            for(CRPropertyGenerator gen : properties)
             {
                 gen.getErrors(errors,location);
             }
@@ -113,7 +127,7 @@ public class CRJob extends CRBase {
         if (artifacts != null ? !CollectionUtils.isEqualCollection(this.artifacts, that.artifacts) : that.artifacts != null) {
             return false;
         }
-        if (artifactPropertiesGenerators != null ? !CollectionUtils.isEqualCollection(this.artifactPropertiesGenerators, that.artifactPropertiesGenerators) : that.artifactPropertiesGenerators != null) {
+        if (properties != null ? !CollectionUtils.isEqualCollection(this.properties, that.properties) : that.properties != null) {
             return false;
         }
         if (tasks != null ? this.tasks.size() != that.tasks.size() : that.tasks != null) {
@@ -142,7 +156,7 @@ public class CRJob extends CRBase {
         result = 31 * result + (environment_variables != null ? environment_variables.size() : 0);
         result = 31 * result + (resources != null ? resources.size() : 0);
         result = 31 * result + (artifacts != null ? artifacts.size() : 0);
-        result = 31 * result + (artifactPropertiesGenerators != null ? artifactPropertiesGenerators.size() : 0);
+        result = 31 * result + (properties != null ? properties.size() : 0);
         return result;
     }
 
@@ -198,11 +212,11 @@ public class CRJob extends CRBase {
     }
 
     public Collection<CRPropertyGenerator> getArtifactPropertiesGenerators() {
-        return artifactPropertiesGenerators;
+        return properties;
     }
 
     public void setArtifactPropertiesGenerators(Collection<CRPropertyGenerator> artifactPropertiesGenerators) {
-        this.artifactPropertiesGenerators = artifactPropertiesGenerators;
+        this.properties = artifactPropertiesGenerators;
     }
 
     public boolean isRunOnAllAgents() {
@@ -246,7 +260,7 @@ public class CRJob extends CRBase {
     }
 
     public void addProperty(CRPropertyGenerator property) {
-        this.artifactPropertiesGenerators.add(property);
+        this.properties.add(property);
     }
 
     public String validateNameUniqueness(HashSet<String> names) {

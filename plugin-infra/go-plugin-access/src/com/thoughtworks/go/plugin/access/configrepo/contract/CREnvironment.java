@@ -10,7 +10,7 @@ import java.util.HashSet;
 
 public class CREnvironment extends CRBase {
     private String name;
-    private Collection<CREnvironmentVariable> environmentVariables;
+    private Collection<CREnvironmentVariable> environment_variables;
     private Collection<String> agents;
     private Collection<String> pipelines;
 
@@ -21,15 +21,21 @@ public class CREnvironment extends CRBase {
     }
     public CREnvironment()
     {
-        environmentVariables = new ArrayList<>();
+        environment_variables = new ArrayList<>();
         agents = new ArrayList<>();
         pipelines = new ArrayList<>();
+    }
+    public CREnvironment(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<String> agents, Collection<String> pipelines) {
+        this.name = name;
+        this.environment_variables = environmentVariables;
+        this.agents = agents;
+        this.pipelines = pipelines;
     }
 
     public void addEnvironmentVariable(String key,String value){
         CREnvironmentVariable variable = new CREnvironmentVariable(key);
         variable.setValue(value);
-        this.environmentVariables.add(variable);
+        this.environment_variables.add(variable);
     }
 
     public String getName() {
@@ -41,11 +47,11 @@ public class CREnvironment extends CRBase {
     }
 
     public Collection<CREnvironmentVariable> getEnvironmentVariables() {
-        return environmentVariables;
+        return environment_variables;
     }
 
     public void setEnvironmentVariables(Collection<CREnvironmentVariable> environmentVariables) {
-        this.environmentVariables = environmentVariables;
+        this.environment_variables = environmentVariables;
     }
 
     public Collection<String> getAgents() {
@@ -74,7 +80,7 @@ public class CREnvironment extends CRBase {
 
     private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {
         HashSet<String> keys = new HashSet<>();
-        for(CREnvironmentVariable var : environmentVariables)
+        for(CREnvironmentVariable var : environment_variables)
         {
             String error = var.validateNameUniqueness(keys);
             if(error != null)
@@ -128,7 +134,7 @@ public class CREnvironment extends CRBase {
         if (pipelines != null ? !CollectionUtils.isEqualCollection(this.getPipelines(), that.getPipelines()) : that.getPipelines() != null) {
             return false;
         }
-        if (environmentVariables != null ?
+        if (environment_variables != null ?
                 !CollectionUtils.isEqualCollection(this.getEnvironmentVariables(),that.getEnvironmentVariables()) :
                 that.getEnvironmentVariables() != null) {
             return false;
@@ -142,7 +148,7 @@ public class CREnvironment extends CRBase {
         int result = (name != null ? name.hashCode() : 0);
         result = 31 * result + (agents != null ? agents.size() : 0);
         result = 31 * result + (pipelines != null ? pipelines.size() : 0);
-        result = 31 * result + (environmentVariables != null ? environmentVariables.size() : 0);
+        result = 31 * result + (environment_variables != null ? environment_variables.size() : 0);
         return result;
     }
 

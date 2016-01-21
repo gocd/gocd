@@ -6,10 +6,10 @@ import java.util.List;
 
 public class InvalidPartialConfigException extends RuntimeException {
     private Object partialConfig;
-    private List<CRError> errors;
+    private String errors;
 
-    public InvalidPartialConfigException(Object partialConfig, List<CRError> errors) {
-        super(errors.toString());
+    public InvalidPartialConfigException(Object partialConfig, String errors) {
+        super(errors);
         this.partialConfig = partialConfig;
         this.errors = errors;
     }
@@ -18,7 +18,7 @@ public class InvalidPartialConfigException extends RuntimeException {
         return partialConfig;
     }
 
-    public List<CRError> getErrors() {
+    public String getErrors() {
         return errors;
     }
 }

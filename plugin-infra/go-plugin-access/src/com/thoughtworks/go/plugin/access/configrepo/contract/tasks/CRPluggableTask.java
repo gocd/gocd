@@ -33,6 +33,12 @@ public class CRPluggableTask extends CRTask {
         this.plugin_configuration = new CRPluginConfiguration(id,version);
         this.configuration = Arrays.asList(properties);
     }
+    public CRPluggableTask(CRRunIf runIf, CRTask onCancel,
+                           CRPluginConfiguration pluginConfiguration,Collection<CRConfigurationProperty> configuration) {
+        super(runIf, onCancel);
+        this.plugin_configuration = pluginConfiguration;
+        this.configuration = configuration;
+    }
 
     public CRPluginConfiguration getPluginConfiguration() {
         return plugin_configuration;

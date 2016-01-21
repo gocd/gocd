@@ -10,15 +10,15 @@ import java.util.List;
 
 public class CRSvnMaterial extends CRScmMaterial {
 
-    /*
+
     public static CRSvnMaterial withEncryptedPassword(String name, String destination, boolean autoUpdate, List<String> filter,
                                                       String url, String userName, String encryptedPassword, boolean checkExternals)
     {
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial(name, destination, autoUpdate, filter,
-                url, userName, checkExternals);
+                url, userName, null, checkExternals);
         crSvnMaterial.setEncryptedPassword(encryptedPassword);
         return crSvnMaterial;
-    }*/
+    }
 
     public static final String TYPE_NAME = "svn";
 
@@ -43,6 +43,15 @@ public class CRSvnMaterial extends CRScmMaterial {
     public CRSvnMaterial(String materialName, String folder, boolean autoUpdate,String url,String userName,String password,
                          boolean checkExternals,String... filters) {
         super(TYPE_NAME, materialName, folder, autoUpdate, filters);
+        this.url = url;
+        this.userName = userName;
+        this.password = password;
+        this.checkExternals = checkExternals;
+    }
+
+    public CRSvnMaterial(String name, String folder, boolean autoUpdate, List<String> filter,
+                         String url, String userName, String password, boolean checkExternals) {
+        super(TYPE_NAME, name, folder, autoUpdate, filter);
         this.url = url;
         this.userName = userName;
         this.password = password;

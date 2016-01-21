@@ -27,6 +27,12 @@ public abstract class CRScmMaterial extends CRMaterial {
         this.filter = filter;
         this.auto_update = autoUpdate;
     }
+    public CRScmMaterial(String name,String folder,boolean autoUpdate,List<String> filter) {
+        super(name);
+        this.destination = folder;
+        this.filter = filter;
+        this.auto_update = autoUpdate;
+    }
 
     public List<String> getFilter() {
         return filter;

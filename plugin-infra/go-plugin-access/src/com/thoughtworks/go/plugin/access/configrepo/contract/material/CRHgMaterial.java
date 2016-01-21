@@ -23,6 +23,11 @@ public class CRHgMaterial extends CRScmMaterial {
         this.url = url;
     }
 
+    public CRHgMaterial(String name, String folder, boolean autoUpdate, List<String> filter, String url) {
+        super(TYPE_NAME, name, folder, autoUpdate, filter);
+        this.url = url;
+    }
+
 
     @Override
     public boolean equals(Object o) {

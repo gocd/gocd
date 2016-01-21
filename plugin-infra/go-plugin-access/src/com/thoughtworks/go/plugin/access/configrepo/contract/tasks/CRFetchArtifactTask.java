@@ -10,7 +10,7 @@ public class CRFetchArtifactTask extends CRTask  {
     private String stage;
     private String job;
     private String source;
-    private boolean is_source_a_file;
+    private Boolean is_source_a_file;
     private String destination;
 
     public CRFetchArtifactTask(){
@@ -22,6 +22,17 @@ public class CRFetchArtifactTask extends CRTask  {
         this.stage = stage;
         this.job = job;
         this.source = source;
+    }
+    public CRFetchArtifactTask(CRRunIf runIf, CRTask onCancel,
+                               String pipelineName,String stage,String job,
+                               String source, String destination,boolean sourceIsDir) {
+        super(runIf, onCancel);
+        this.pipeline = pipelineName;
+        this.stage = stage;
+        this.job = job;
+        this.source = source;
+        this.is_source_a_file = !sourceIsDir;
+        this.destination = destination;
     }
 
     public String getPipelineName() {

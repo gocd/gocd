@@ -8,6 +8,11 @@ public class CRNantTask extends CRBuildTask {
         this.nantPath = nantPath;
     }
 
+    public CRNantTask(CRRunIf runIf, CRTask onCancel, String buildFile, String target, String workingDirectory,String nantPath) {
+        super(runIf, onCancel, buildFile, target, workingDirectory, CRBuildFramework.nant);
+        this.nantPath = nantPath;
+    }
+
     public String getNantPath() {
         return nantPath;
     }

@@ -8,11 +8,11 @@ import java.util.List;
 
 
 public class CRPluggableScmMaterial extends CRMaterial {
-    public static final String TYPE_NAME = "pluggablescm";
+    public static final String TYPE_NAME = "plugin";
 
     private String scm_id;
     protected String destination;
-    private List<String> filter;
+    private CRFilter filter;
 
     public CRPluggableScmMaterial(){
         type = TYPE_NAME;
@@ -22,13 +22,13 @@ public class CRPluggableScmMaterial extends CRMaterial {
         super(TYPE_NAME,materialName);
         this.scm_id = scmId;
         this.destination = folder;
-        this.filter = Arrays.asList(filters);
+        this.filter = new CRFilter(Arrays.asList(filters));
     }
     public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter) {
         super(TYPE_NAME,name);
         this.scm_id = scmId;
         this.destination = directory;
-        this.filter = filter;
+        this.filter = new CRFilter(filter);
     }
 
     @Override
@@ -50,8 +50,7 @@ public class CRPluggableScmMaterial extends CRMaterial {
         if (destination != null ? !destination.equals(that.destination) : that.destination != null) {
             return false;
         }
-
-        if (filter != null ? !CollectionUtils.isEqualCollection(this.filter, that.filter) : that.filter != null) {
+        if (filter != null ? !filter.equals(that.filter) : that.filter != null) {
             return false;
         }
 
@@ -63,18 +62,13 @@ public class CRPluggableScmMaterial extends CRMaterial {
         int result = (this.getName() != null ? this.getName().hashCode() : 0);
         result = 31 * result + (scm_id != null ? scm_id.hashCode() : 0);
         result = 31 * result + (destination != null ? destination.hashCode() : 0);
-        result = 31 * result + (filter != null ? filter.size() : 0);
+        result = 31 * result + (filter != null ? filter.hashCode() : 0);
         return result;
     }
 
     @Override
     public String typeName() {
         return TYPE_NAME;
-    }
-
-    public void addFilter(String pattern)
-    {
-        this.filter.add(pattern);
     }
 
     public String getScmId() {
@@ -85,12 +79,14 @@ public class CRPluggableScmMaterial extends CRMaterial {
         this.scm_id = scmId;
     }
 
-    public List<String> getFilter() {
-        return filter;
+    public List<String> getFilterIgnores() {
+        if(filter == null)
+            return null;
+        return filter.getIgnore();
     }
 
-    public void setFilter(List<String> filter) {
-        this.filter = filter;
+    public void setFilterIgnore(List<String> filter) {
+        this.filter.setIgnore(filter);
     }
 
     public String getDirectory() {

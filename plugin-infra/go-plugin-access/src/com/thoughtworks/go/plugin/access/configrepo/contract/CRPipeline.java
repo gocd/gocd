@@ -11,7 +11,7 @@ public class CRPipeline extends CRBase {
     private String group;
     private String name;
     private String label_template;
-    private boolean is_locked;
+    private boolean enable_pipeline_locking;
     private CRTrackingTool tracking_tool;
     private CRMingle mingle;
     private CRTimer timer;
@@ -34,7 +34,7 @@ public class CRPipeline extends CRBase {
         this.name = name;
         this.group = groupName;
         this.label_template = labelTemplate;
-        this.is_locked = isLocked;
+        this.enable_pipeline_locking = isLocked;
         this.tracking_tool = trackingTool;
         this.mingle = mingle;
         this.timer = timer;
@@ -60,11 +60,11 @@ public class CRPipeline extends CRBase {
     }
 
     public boolean isLocked() {
-        return is_locked;
+        return enable_pipeline_locking;
     }
 
     public void setIsLocked(boolean isLocked) {
-        this.is_locked = isLocked;
+        this.enable_pipeline_locking = isLocked;
     }
 
     public CRTrackingTool getTrackingTool() {

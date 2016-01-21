@@ -2,7 +2,6 @@ package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
@@ -22,10 +21,10 @@ public class CRSvnMaterial extends CRScmMaterial {
     public static final String TYPE_NAME = "svn";
 
     private String url;
-    private String userName;
+    private String username;
     private String password;
-    private String encryptedPassword;
-    private Boolean checkExternals;
+    private String encrypted_password;
+    private Boolean check_externals;
 
     public CRSvnMaterial()
     {
@@ -36,30 +35,30 @@ public class CRSvnMaterial extends CRScmMaterial {
                          boolean checkExternals,String... filters) {
         super(TYPE_NAME, materialName, folder, autoUpdate, filters);
         this.url = url;
-        this.checkExternals = checkExternals;
+        this.check_externals = checkExternals;
     }
 
     public CRSvnMaterial(String materialName, String folder, boolean autoUpdate,String url,String userName,String password,
                          boolean checkExternals,String... filters) {
         super(TYPE_NAME, materialName, folder, autoUpdate, filters);
         this.url = url;
-        this.userName = userName;
+        this.username = userName;
         this.password = password;
-        this.checkExternals = checkExternals;
+        this.check_externals = checkExternals;
     }
 
     public CRSvnMaterial(String name, String folder, boolean autoUpdate, List<String> filter,
                          String url, String userName, String password, boolean checkExternals) {
         super(TYPE_NAME, name, folder, autoUpdate, filter);
         this.url = url;
-        this.userName = userName;
+        this.username = userName;
         this.password = password;
-        this.checkExternals = checkExternals;
+        this.check_externals = checkExternals;
     }
 
     public boolean hasEncryptedPassword()
     {
-        return StringUtils.isNotBlank(encryptedPassword);
+        return StringUtils.isNotBlank(encrypted_password);
     }
     public boolean hasPlainTextPassword()
     {
@@ -88,11 +87,11 @@ public class CRSvnMaterial extends CRScmMaterial {
     }
 
     public String getUserName() {
-        return userName;
+        return username;
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.username = userName;
     }
 
     public String getPassword() {
@@ -104,19 +103,19 @@ public class CRSvnMaterial extends CRScmMaterial {
     }
 
     public String getEncryptedPassword() {
-        return encryptedPassword;
+        return encrypted_password;
     }
 
     public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
+        this.encrypted_password = encryptedPassword;
     }
 
     public boolean isCheckExternals() {
-        return checkExternals == null ? false : checkExternals;
+        return check_externals == null ? false : check_externals;
     }
 
     public void setCheckExternals(boolean checkExternals) {
-        this.checkExternals = checkExternals;
+        this.check_externals = checkExternals;
     }
 
 
@@ -133,19 +132,19 @@ public class CRSvnMaterial extends CRScmMaterial {
         if(!super.equals(that))
             return false;
 
-        if (this.checkExternals != that.checkExternals) {
+        if (this.check_externals != that.check_externals) {
             return false;
         }
         if (url != null ? !url.equals(that.url) : that.url != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+        if (username != null ? !username.equals(that.username) : that.username != null) {
             return false;
         }
         if (password != null ? !password.equals(that.password) : that.password != null) {
             return false;
         }
-        if (encryptedPassword != null ? !encryptedPassword.equals(that.encryptedPassword) : that.encryptedPassword != null) {
+        if (encrypted_password != null ? !encrypted_password.equals(that.encrypted_password) : that.encrypted_password != null) {
             return false;
         }
 
@@ -156,9 +155,9 @@ public class CRSvnMaterial extends CRScmMaterial {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
+        result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (encryptedPassword != null ? encryptedPassword.hashCode() : 0);
+        result = 31 * result + (encrypted_password != null ? encrypted_password.hashCode() : 0);
         return result;
     }
 

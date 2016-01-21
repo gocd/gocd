@@ -368,15 +368,6 @@ public class CommandLine {
                 errorPrefix);
     }
 
-    public static void setEnvironmentVariables(ProcessBuilder pb, EnvironmentVariableContext environmentVariableContext,
-                                               ConsoleOutputStreamConsumer consumer) {
-        Map<String, String> env = pb.environment();
-        for (String line : environmentVariableContext.report()) {
-            consumer.stdOutput(line);
-        }
-        env.putAll(environmentVariableContext.getProperties());
-    }
-
     public void waitForSuccess(int timeout) {
         ConsoleResult lastResult = ConsoleResult.unknownResult();
         long start = System.currentTimeMillis();

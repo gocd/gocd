@@ -18,10 +18,7 @@ package com.thoughtworks.go.remote.work;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.ConfigCache;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -56,6 +53,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
@@ -113,6 +111,17 @@ public class BuildWorkTest {
             + "  </tasks>\n"
             + "</job>";
 
+    private static final String WITH_ENV_VAR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
+            + "  <environmentvariables>\n"
+            + "    <variable name=\"JOB_ENV\">\n"
+            + "      <value>foobar</value>\n"
+            + "    </variable>\n"
+            + "  </environmentvariables>\n"
+            + "  <tasks>\n"
+            + "    <ant target=\"-help\" />\n"
+            + "  </tasks>\n"
+            + "</job>";
+
     private static final String SOMETHING_NOT_EXIST = "something-not-exist";
 
     private static final String CMD_NOT_EXIST = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
@@ -151,12 +160,6 @@ public class BuildWorkTest {
             + "      <runif status=\"failed\" />\n"
             + "      <runif status=\"passed\" />\n"
             + "    </exec>\n"
-            + "  </tasks>\n"
-            + "</job>";
-
-    private static final String ENV_VAIRABLES = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <ant workingdir='{WORKINGDIR}' />\n"
             + "  </tasks>\n"
             + "</job>";
 
@@ -341,25 +344,6 @@ public class BuildWorkTest {
                 AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(buildRepository.results, containsResult(Passed));
-    }
-
-    @Test
-    public void shouldReadEnvironemntVariables() throws Exception {
-        //URL buildxml = this.getClass().getResource("build.xml");
-
-        String output = ENV_VAIRABLES.replace("workingdir='{WORKINGDIR}'", "");
-
-        buildWork = (BuildWork) getWork(output, PIPELINE_NAME);
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
-        String actual = artifactManipulator.consoleOut();
-
-        assertThat(actual, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
-        assertThat(actual, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
-        assertThat(actual, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
-        assertThat(actual, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
-        assertThat(actual, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
-        assertThat(actual, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
     }
 
     @Test
@@ -629,4 +613,30 @@ public class BuildWorkTest {
         );
         buildWork = new BuildWork(buildAssignment);
     }
+
+    @Test
+    public void shouldReportEnvironmentVariables() throws Exception {
+        buildWork = (BuildWork) getWork(WITH_ENV_VAR, PIPELINE_NAME);
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
+
+        String consoleOut = artifactManipulator.consoleOut();
+
+        assertThat(trimTimeStamp(consoleOut), containsString("[go] setting environment variable 'GO_SERVER_URL' to value 'somewhere-does-not-matter'\n"
+                + "[go] setting environment variable 'GO_TRIGGER_USER' to value ''\n"
+                + "[go] setting environment variable 'GO_PIPELINE_NAME' to value 'pipeline1'\n"
+                + "[go] setting environment variable 'GO_PIPELINE_COUNTER' to value '-2'\n"
+                + "[go] setting environment variable 'GO_PIPELINE_LABEL' to value '100'\n"
+                + "[go] setting environment variable 'GO_STAGE_NAME' to value 'mingle'\n"
+                + "[go] setting environment variable 'GO_STAGE_COUNTER' to value '100'\n"
+                + "[go] setting environment variable 'GO_JOB_NAME' to value 'run-ant'\n"
+                + "[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
+
+    }
+
+    private String trimTimeStamp(String consoleOut) {
+        Pattern pattern = Pattern.compile("^\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s", Pattern.MULTILINE);
+        return pattern.matcher(consoleOut).replaceAll("");
+    }
+
 }

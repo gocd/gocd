@@ -134,8 +134,10 @@ public class BuildWork implements Work {
         goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentTime())));
 
         prepareJob(agentIdentifier, packageAsRepositoryExtension, scmExtension);
+
         setupEnvrionmentContext(environmentVariableContext);
         plan.applyTo(environmentVariableContext);
+        dumpEnviromentVariables(environmentVariableContext);
 
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
@@ -145,6 +147,12 @@ public class BuildWork implements Work {
         JobResult result = buildJob(environmentVariableContext);
         completeJob(result);
         return result;
+    }
+
+    private void dumpEnviromentVariables(EnvironmentVariableContext environmentVariableContext) {
+        for(String line : environmentVariableContext.report()) {
+            goPublisher.consumeLine(line);
+        }
     }
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension) {

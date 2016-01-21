@@ -147,7 +147,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         configuredValues.put("scm-data", materialData);
-        configuredValues.put("flyweight-destination", flyweightFolder);
+        configuredValues.put("flyweight-folder", flyweightFolder);
         return toJsonString(configuredValues);
     }
 
@@ -162,7 +162,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
         configuredValues.put("scm-data", materialData);
-        configuredValues.put("flyweight-destination", flyweightFolder);
+        configuredValues.put("flyweight-folder", flyweightFolder);
         configuredValues.put("previous-revision", scmRevisionToMap(previousRevision));
         return toJsonString(configuredValues);
     }
@@ -178,7 +178,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public String requestMessageForCheckout(SCMPropertyConfiguration scmConfiguration, String destinationFolder, SCMRevision revision) {
         Map configuredValues = new LinkedHashMap();
         configuredValues.put("scm-configuration", jsonResultMessageHandler.configurationToMap(scmConfiguration));
-        configuredValues.put("destination-destination", destinationFolder);
+        configuredValues.put("destination-folder", destinationFolder);
         configuredValues.put("revision", scmRevisionToMap(revision));
         return toJsonString(configuredValues);
     }

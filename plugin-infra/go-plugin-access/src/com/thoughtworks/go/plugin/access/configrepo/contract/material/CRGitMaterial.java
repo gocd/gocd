@@ -1,8 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.plugin.access.configrepo.MissingConfigValue;
-import com.thoughtworks.go.plugin.access.configrepo.contract.MissingConfigLinkedNode;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 

@@ -13,7 +13,7 @@ public class CRExecTask extends CRTask  {
     private String command ;
     private String working_directory;
     private Long timeout ;
-    private List<String> args = new ArrayList<>();
+    private List<String> arguments = new ArrayList<>();
 
     public CRExecTask() {
         super(TYPE_NAME);
@@ -27,7 +27,7 @@ public class CRExecTask extends CRTask  {
         this.command = command;
         this.working_directory = workingDirectory;
         this.timeout = timeout;
-        this.args = Arrays.asList(args);
+        this.arguments = Arrays.asList(args);
     }
     public CRExecTask(CRRunIf runIf, CRTask onCancel,
                       String command,String workingDirectory,Long timeout,List<String> args) {
@@ -35,7 +35,7 @@ public class CRExecTask extends CRTask  {
         this.command = command;
         this.working_directory = workingDirectory;
         this.timeout = timeout;
-        this.args = args;
+        this.arguments = args;
     }
 
 
@@ -56,6 +56,8 @@ public class CRExecTask extends CRTask  {
     }
 
     public Long getTimeout() {
+        if(timeout == null)
+            return 0L;
         return timeout;
     }
 
@@ -64,16 +66,16 @@ public class CRExecTask extends CRTask  {
     }
 
     public List<String> getArgs() {
-        return args;
+        return arguments;
     }
 
     public void setArgs(List<String> args) {
-        this.args = args;
+        this.arguments = args;
     }
 
 
     public void addArgument(String arg) {
-        this.args.add(arg);
+        this.arguments.add(arg);
     }
 
 
@@ -99,7 +101,7 @@ public class CRExecTask extends CRTask  {
         if (timeout != null ? !timeout.equals(that.timeout) : that.timeout != null) {
             return false;
         }
-        if (args != null ? !CollectionUtils.isEqualCollection(this.args, that.args) : that.args != null) {
+        if (arguments != null ? !CollectionUtils.isEqualCollection(this.arguments, that.arguments) : that.arguments != null) {
             return false;
         }
 

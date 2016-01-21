@@ -17,7 +17,6 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.access.configrepo.contract.*;
@@ -185,17 +184,21 @@ public class ConfigConverter {
 
     public ExecTask toExecTask(CRExecTask crTask) {
         ExecTask execTask = new ExecTask(crTask.getCommand(), toArgList(crTask.getArgs()), crTask.getWorkingDirectory());
-        execTask.setTimeout(crTask.getTimeout());
+        if(crTask.getTimeout() != null)
+            execTask.setTimeout(crTask.getTimeout());
+        // else default global-wide time
+
         setCommonTaskMembers(execTask, crTask);
         return execTask;
     }
 
     private Arguments toArgList(List<String> args) {
         Arguments arguments = new Arguments();
-        for(String arg : args)
-        {
-            arguments.add(new Argument(arg));
-        }
+        if(args != null)
+            for(String arg : args)
+            {
+                arguments.add(new Argument(arg));
+            }
         return arguments;
     }
 
@@ -405,7 +408,7 @@ public class ConfigConverter {
     }
 
     private Filter toFilter(CRScmMaterial crScmMaterial) {
-        List<String> filterList = crScmMaterial.getFilter();
+        List<String> filterList = crScmMaterial.getFilterIgnores();
         return toFilter(filterList);
     }
 
@@ -422,42 +425,48 @@ public class ConfigConverter {
 
     public JobConfig toJobConfig(CRJob crJob) {
         JobConfig jobConfig = new JobConfig(crJob.getName());
-        for(CREnvironmentVariable crEnvironmentVariable : crJob.getEnvironmentVariables())
-        {
-            jobConfig.getVariables().add(toEnvironmentVariableConfig(crEnvironmentVariable));
-        }
+        if(crJob.getEnvironmentVariables() != null)
+            for(CREnvironmentVariable crEnvironmentVariable : crJob.getEnvironmentVariables())
+            {
+                jobConfig.getVariables().add(toEnvironmentVariableConfig(crEnvironmentVariable));
+            }
 
         List<CRTask> crTasks = crJob.getTasks();
         Tasks tasks = jobConfig.getTasks();
-        for(CRTask crTask : crTasks)
-        {
-            tasks.add(toAbstractTask(crTask));
-        }
+        if(crTasks != null)
+            for(CRTask crTask : crTasks)
+            {
+                tasks.add(toAbstractTask(crTask));
+            }
 
         Tabs tabs = jobConfig.getTabs();
-        for(CRTab crTab : crJob.getTabs())
-        {
-            tabs.add(toTab(crTab));
-        }
+        if(crJob.getTabs() != null)
+            for(CRTab crTab : crJob.getTabs())
+            {
+                tabs.add(toTab(crTab));
+            }
 
         Resources resources = jobConfig.resources();
-        for(String crResource : crJob.getResources())
-        {
-            resources.add(new Resource(crResource));
-        }
+        if(crJob.getResources() != null)
+            for(String crResource : crJob.getResources())
+            {
+                resources.add(new Resource(crResource));
+            }
 
         ArtifactPlans artifactPlans = jobConfig.artifactPlans();
-        for(CRArtifact crArtifact : crJob.getArtifacts())
-        {
-            artifactPlans.add(toArtifactPlan(crArtifact));
-        }
+        if(crJob.getArtifacts() != null)
+            for(CRArtifact crArtifact : crJob.getArtifacts())
+            {
+                artifactPlans.add(toArtifactPlan(crArtifact));
+            }
 
         ArtifactPropertiesGenerators artifactPropertiesGenerators = jobConfig.getProperties();
-        for(CRPropertyGenerator crPropertyGenerator : crJob.getArtifactPropertiesGenerators())
-        {
-            artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator(
-                    crPropertyGenerator.getName(),crPropertyGenerator.getSrc(),crPropertyGenerator.getXpath()));
-        }
+        if(crJob.getArtifactPropertiesGenerators() != null)
+            for(CRPropertyGenerator crPropertyGenerator : crJob.getArtifactPropertiesGenerators())
+            {
+                artifactPropertiesGenerators.add(new ArtifactPropertiesGenerator(
+                        crPropertyGenerator.getName(),crPropertyGenerator.getSrc(),crPropertyGenerator.getXpath()));
+            }
 
         if(crJob.isRunOnAllAgents())
             jobConfig.setRunOnAllAgents(true);

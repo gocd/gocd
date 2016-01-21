@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class CRScmMaterial extends CRMaterial {
-    protected List<String> filter  = new ArrayList<String>();
+    protected CRFilter filter;
     protected String destination;
     protected Boolean auto_update = true;
 
@@ -17,29 +17,31 @@ public abstract class CRScmMaterial extends CRMaterial {
     {
         super(type,materialName);
         this.destination = folder;
-        this.filter = Arrays.asList(filters);
+        this.filter = new CRFilter(Arrays.asList(filters));
         this.auto_update = autoUpdate;
     }
 
     public CRScmMaterial(String type,String materialName, String folder, boolean autoUpdate, List<String> filter) {
         super(type,materialName);
         this.destination = folder;
-        this.filter = filter;
+        this.filter = new CRFilter(filter);
         this.auto_update = autoUpdate;
     }
     public CRScmMaterial(String name,String folder,boolean autoUpdate,List<String> filter) {
         super(name);
         this.destination = folder;
-        this.filter = filter;
+        this.filter = new CRFilter(filter);
         this.auto_update = autoUpdate;
     }
 
-    public List<String> getFilter() {
-        return filter;
+    public List<String> getFilterIgnores() {
+        if(filter == null)
+            return null;
+        return filter.getIgnore();
     }
 
-    public void setFilter(List<String> filter) {
-        this.filter = filter;
+    public void setFilterIgnore(List<String> filter) {
+        this.filter.setIgnore(filter);
     }
 
     public boolean isAutoUpdate() {
@@ -74,8 +76,7 @@ public abstract class CRScmMaterial extends CRMaterial {
         if (destination != null ? !destination.equals(that.destination) : that.destination != null) {
             return false;
         }
-
-        if (filter != null ? !CollectionUtils.isEqualCollection(this.filter, that.filter) : that.filter != null) {
+        if (filter != null ? !filter.equals(that.filter) : that.filter != null) {
             return false;
         }
 
@@ -86,7 +87,7 @@ public abstract class CRScmMaterial extends CRMaterial {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (destination != null ? destination.hashCode() : 0);
-        result = 31 * result + (filter != null ? filter.size() : 0);
+        result = 31 * result + (filter != null ? filter.hashCode() : 0);
         return result;
     }
 

@@ -45,9 +45,6 @@ public class CRFilter extends CRBase {
         if(that == null)
             return  false;
 
-        if(!super.equals(that))
-            return false;
-
         if (ignore != null ? !CollectionUtils.isEqualCollection(this.ignore, that.ignore) : that.ignore != null) {
             return false;
         }
@@ -57,7 +54,7 @@ public class CRFilter extends CRBase {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 32;
         result = 31 * result + (ignore != null ? ignore.size() : 0);
         return result;
     }

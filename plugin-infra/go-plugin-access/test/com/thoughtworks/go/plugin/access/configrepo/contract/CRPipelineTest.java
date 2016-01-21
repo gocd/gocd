@@ -98,6 +98,28 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         assertThat(fullError,contains("Pipeline pipe4; Git material"));
         assertThat(fullError,contains("Missing field 'url'"));
     }
+    @Test
+    public void shouldCheckErrorsInStages()
+    {
+        CRPipeline p = new CRPipeline();
+        p.setName("pipe4");
+        // plugin may voluntarily set this
+        p.setLocation("pipe4.json");
+
+        CRStage invalidSameEnvironmentVariableTwice = new CRStage("bla");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value1");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value2");
+        p.addStage(invalidSameEnvironmentVariableTwice);
+
+        ErrorCollection errors = new ErrorCollection();
+        p.getErrors(errors,"TEST");
+
+        String fullError = errors.getErrorsAsText();
+
+        assertThat(fullError,contains("Pipeline pipe4; Stage (bla)"));
+        assertThat(fullError,contains("Stage has no jobs"));
+        assertThat(fullError,contains("Environment variable key defined more than once"));
+    }
 
     @Override
     public void addGoodExamples(Map<String, CRPipeline> examples) {
@@ -111,6 +133,7 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         examples.put("invalidNoMaterial",invalidNoMaterial);
         examples.put("invalidNoStages",invalidNoStages);
         examples.put("invalidNoNamedMaterials",invalidNoNamedMaterials);
+        examples.put("invalidNoGroup",invalidNoGroup);
     }
 
 

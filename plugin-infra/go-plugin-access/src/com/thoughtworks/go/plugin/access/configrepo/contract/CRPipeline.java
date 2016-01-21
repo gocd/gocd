@@ -229,6 +229,24 @@ public class CRPipeline extends CRBase {
             }
         }
         validateAtLeastOneStage(errors,location);
+        if(stages != null){
+            for (CRStage stage : this.stages) {
+                stage.getErrors(errors, location);
+            }
+            if (stages.size() > 1) {
+                validateStageNameUniqueness(errors, location);
+            }
+        }
+    }
+
+    private void validateStageNameUniqueness(ErrorCollection errors, String location) {
+        HashSet<String> keys = new HashSet<>();
+        for(CRStage stage : stages)
+        {
+            String error = stage.validateNameUniqueness(keys);
+            if(error != null)
+                errors.addError(location,error);
+        }
     }
 
     private void validateMaterialNameUniqueness(ErrorCollection errors, String location) {

@@ -32,7 +32,10 @@ public class CRStage extends CRBase {
     public CRStage()
     {
     }
-
+    public CRStage(String name)
+    {
+        this.name = name;
+    }
     public CRStage(String name,CRJob... jobs)
     {
         this.name = name;
@@ -184,6 +187,12 @@ public class CRStage extends CRBase {
         validateJobNameUniqueness(errors,location);
         if(approval != null)
             approval.getErrors(errors,location);
+        if(jobs != null)
+        {
+            for(CRJob job : jobs) {
+                job.getErrors(errors,location);
+            }
+        }
     }
 
     @Override
@@ -191,5 +200,17 @@ public class CRStage extends CRBase {
         String myLocation = getLocation() == null ? parent : getLocation();
         String stage = getName() == null ? "unknown name" : getName();
         return String.format("%s; Stage (%s)",myLocation,stage);
+    }
+
+    public String validateNameUniqueness(HashSet<String> keys) {
+        if(keys.contains(this.getName()))
+            return String.format("Stage named %s is defined more than once",this.getName());
+        else
+            keys.add(this.getName());
+        return null;
+    }
+
+    public void addJob(CRJob crJob) {
+        this.jobs.add(crJob);
     }
 }

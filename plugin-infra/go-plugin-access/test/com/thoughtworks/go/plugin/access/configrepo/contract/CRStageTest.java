@@ -1,9 +1,14 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.CRBuildTask;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Map;
+
+import static com.thoughtworks.go.util.TestUtils.contains;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CRStageTest extends CRBaseTest<CRStage> {
 
@@ -63,5 +68,19 @@ public class CRStageTest extends CRBaseTest<CRStage> {
         examples.put("invalidNoJobs",invalidNoJobs);
         examples.put("invalidSameEnvironmentVariableTwice",invalidSameEnvironmentVariableTwice);
         examples.put("invalidSameJobNameTwice",invalidSameJobNameTwice);
+    }
+
+    @Test
+    public void shouldCheckErrorsInJobs()
+    {
+        CRStage withNamelessJob = new CRStage("build",new CRJob());
+
+        ErrorCollection errors = new ErrorCollection();
+        withNamelessJob.getErrors(errors,"TEST");
+
+        String fullError = errors.getErrorsAsText();
+
+        assertThat(fullError,contains("TEST; Stage (build)"));
+        assertThat(fullError,contains("Missing field 'name'"));
     }
 }

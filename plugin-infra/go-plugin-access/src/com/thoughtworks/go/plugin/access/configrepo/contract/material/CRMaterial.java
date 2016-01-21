@@ -56,7 +56,7 @@ public abstract class CRMaterial extends CRBase {
 
     public String validateNameUniqueness(HashSet<String> keys) {
         if(this.getName() == null)
-            return String.format("Material has no name when there is more than one material in pipeline");
+            return String.format("Material has no name when there many pipeline materials");
         else if(keys.contains(this.getName()))
             return String.format("Material named %s is defined more than once",this.getName());
         else

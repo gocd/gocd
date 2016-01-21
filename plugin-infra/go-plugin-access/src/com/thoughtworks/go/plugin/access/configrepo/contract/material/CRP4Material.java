@@ -1,7 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.plugin.access.configrepo.contract.MissingConfigLinkedNode;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -54,33 +53,6 @@ public class CRP4Material extends CRScmMaterial {
         this.use_tickets = useTickets;
         this.view = view;
     }
-
-    public MissingConfigLinkedNode validateRequired(MissingConfigLinkedNode missingValues)
-    {
-        return validatePassword(
-                validateUsername(
-                validateServerPort(missingValues)));
-    }
-
-    private MissingConfigLinkedNode validatePassword(MissingConfigLinkedNode missingValues) {
-        return StringUtil.isBlank(password) && StringUtil.isBlank(encrypted_password) ?
-                missingValues.addMissing("p4 password","p4 password or encrypted password must be specified") :
-                missingValues;
-    }
-
-    private MissingConfigLinkedNode validateUsername(MissingConfigLinkedNode missingValues) {
-        return StringUtil.isBlank(username) ?
-                missingValues.addMissing("p4 username","p4 username must be specified") :
-                missingValues;
-    }
-
-    private MissingConfigLinkedNode validateServerPort(MissingConfigLinkedNode missingValues) {
-        return StringUtil.isBlank(port) ?
-                missingValues.addMissing("p4 server and port","p4 server and port must be specified") :
-                missingValues;
-    }
-
-
 
     private String port;
     private String username;

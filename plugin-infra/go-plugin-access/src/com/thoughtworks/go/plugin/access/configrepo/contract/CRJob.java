@@ -14,8 +14,7 @@ public class CRJob extends CRBase {
     private Collection<CRArtifact> artifacts = new ArrayList<>();
     private Collection<CRPropertyGenerator> properties = new ArrayList<>();
 
-    private Boolean runOnAllAgents;
-    private Integer runInstanceCount;
+    private String run_instance_count;
     private Integer timeout;
 
     private List<CRTask> tasks = new ArrayList<>();
@@ -38,10 +37,11 @@ public class CRJob extends CRBase {
         this.resources = resources;
         this.artifacts = artifacts;
         this.properties = artifactPropertiesGenerators;
-        this.runOnAllAgents = runOnAllAgents;
-        this.runInstanceCount = runInstanceCount;
+        this.run_instance_count = Integer.toString(runInstanceCount);
         this.timeout = timeout;
         this.tasks = tasks;
+        if(runOnAllAgents)
+            this.setRunOnAllAgents(runOnAllAgents);
     }
 
     @Override
@@ -138,10 +138,9 @@ public class CRJob extends CRBase {
             if(!tasks.get(i).equals(that.tasks.get(i)))
                 return false;
         }
-        if(this.runOnAllAgents != that.runOnAllAgents)
+        if (run_instance_count != null ? !run_instance_count.equals(that.run_instance_count) : that.run_instance_count != null) {
             return false;
-        if(this.runInstanceCount != that.runInstanceCount)
-            return false;
+        }
         if(this.timeout != that.timeout)
             return false;
 
@@ -220,22 +219,27 @@ public class CRJob extends CRBase {
     }
 
     public boolean isRunOnAllAgents() {
-        return runOnAllAgents;
+        return run_instance_count != null && run_instance_count.equalsIgnoreCase("all");
     }
 
     public void setRunOnAllAgents(boolean runOnAllAgents) {
-        this.runOnAllAgents = runOnAllAgents;
+        if(runOnAllAgents)
+            this.run_instance_count = "all";
+        else
+            this.run_instance_count = null;
     }
 
     public int getRunInstanceCount() {
-        return runInstanceCount;
+        if(run_instance_count == null)
+            return 1;
+        return Integer.parseInt(run_instance_count);
     }
 
     public void setRunInstanceCount(int runInstanceCount) {
-        this.runInstanceCount = runInstanceCount;
+        this.run_instance_count = Integer.toString(runInstanceCount);
     }
 
-    public int getTimeout() {
+    public Integer getTimeout() {
         return timeout;
     }
 

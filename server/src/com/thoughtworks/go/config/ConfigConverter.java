@@ -63,7 +63,7 @@ public class ConfigConverter {
     {
         Map<String, List<CRPipeline>> map = new HashMap<String, List<CRPipeline>>();
         for (CRPipeline pipe : pipelines) {
-            String key = pipe.getName();
+            String key = pipe.getGroupName();
             if (map.get(key) == null) {
                 map.put(key, new ArrayList<CRPipeline>());
             }
@@ -128,6 +128,9 @@ public class ConfigConverter {
     }
 
     private RunIfConfigs toRunIfConfigs(CRRunIf runIf) {
+        if(runIf == null)
+            return new RunIfConfigs(RunIfConfig.PASSED);
+
         switch (runIf)
         {
             case any:
@@ -456,15 +459,19 @@ public class ConfigConverter {
                     crPropertyGenerator.getName(),crPropertyGenerator.getSrc(),crPropertyGenerator.getXpath()));
         }
 
-        jobConfig.setRunOnAllAgents(crJob.isRunOnAllAgents());
-        jobConfig.setRunInstanceCount(crJob.getRunInstanceCount());
-        jobConfig.setTimeout(Integer.toString(crJob.getTimeout()));
+        if(crJob.isRunOnAllAgents())
+            jobConfig.setRunOnAllAgents(true);
+        else
+            jobConfig.setRunInstanceCount(crJob.getRunInstanceCount());
+
+        if(crJob.getTimeout() != null)
+            jobConfig.setTimeout(Integer.toString(crJob.getTimeout()));
+        //else null - means default server-wide timeout
 
         return jobConfig;
     }
 
     private ArtifactPlan toArtifactPlan(CRArtifact crArtifact) {
-        // artifact type is not set here. is this OK?
         ArtifactType artType = crArtifact.getType() == CRArtifactType.build ?
                 ArtifactType.file : ArtifactType.unit;
         return new ArtifactPlan(artType,crArtifact.getSource(),crArtifact.getDestination());
@@ -487,6 +494,9 @@ public class ConfigConverter {
     }
 
     public Approval toApproval(CRApproval crApproval) {
+        if(crApproval == null)
+            return Approval.automaticApproval();
+
         Approval approval;
         if(crApproval.getType() == CRApprovalCondition.manual)
             approval = Approval.manualApproval();

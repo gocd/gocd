@@ -2,7 +2,6 @@ package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.plugin.access.configrepo.contract.MissingConfigLinkedNode;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -113,7 +112,7 @@ public class CRSvnMaterial extends CRScmMaterial {
     }
 
     public boolean isCheckExternals() {
-        return checkExternals;
+        return checkExternals == null ? false : checkExternals;
     }
 
     public void setCheckExternals(boolean checkExternals) {

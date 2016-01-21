@@ -1,7 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
@@ -11,22 +10,22 @@ import java.util.HashSet;
 
 public class CRStage extends CRBase {
     private String name;
-    private boolean fetchMaterials = true;
-    private boolean artifactCleanupProhibited;
-    private boolean cleanWorkingDir;
+    private boolean fetch_materials = true;
+    private boolean never_cleanup_artifacts;
+    private boolean clean_working_directory;
     private CRApproval approval ;
-    private Collection<CREnvironmentVariable> environmentVariables = new ArrayList<>();
+    private Collection<CREnvironmentVariable> environment_variables = new ArrayList<>();
     private Collection<CRJob> jobs = new ArrayList<>();
 
     public CRStage(String name, boolean fetchMaterials, boolean artifactCleanupProhibited,
                    boolean cleanWorkingDir, CRApproval approval,
                    Collection<CREnvironmentVariable> environmentVariables, Collection<CRJob> jobs) {
         this.name = name;
-        this.fetchMaterials = fetchMaterials;
-        this.artifactCleanupProhibited = artifactCleanupProhibited;
-        this.cleanWorkingDir = cleanWorkingDir;
+        this.fetch_materials = fetchMaterials;
+        this.never_cleanup_artifacts = artifactCleanupProhibited;
+        this.clean_working_directory = cleanWorkingDir;
         this.approval = approval;
-        this.environmentVariables = environmentVariables;
+        this.environment_variables = environmentVariables;
         this.jobs = jobs;
     }
 
@@ -43,7 +42,7 @@ public class CRStage extends CRBase {
     public void addEnvironmentVariable(String key,String value){
         CREnvironmentVariable variable = new CREnvironmentVariable(key);
         variable.setValue(value);
-        this.environmentVariables.add(variable);
+        this.environment_variables.add(variable);
     }
     @Override
     public boolean equals(Object o) {
@@ -56,13 +55,13 @@ public class CRStage extends CRBase {
 
         CRStage that = (CRStage) o;
 
-        if (fetchMaterials != that.fetchMaterials) {
+        if (fetch_materials != that.fetch_materials) {
             return false;
         }
-        if (artifactCleanupProhibited != that.artifactCleanupProhibited) {
+        if (never_cleanup_artifacts != that.never_cleanup_artifacts) {
             return false;
         }
-        if (cleanWorkingDir != that.cleanWorkingDir) {
+        if (clean_working_directory != that.clean_working_directory) {
             return false;
         }
         if (approval != null ? !approval.equals(that.approval) : that.approval != null) {
@@ -71,7 +70,7 @@ public class CRStage extends CRBase {
         if (jobs != null ? !CollectionUtils.isEqualCollection(jobs, that.jobs) : that.jobs != null) {
             return false;
         }
-        if (environmentVariables != null ? !CollectionUtils.isEqualCollection(environmentVariables,that.environmentVariables) : that.environmentVariables != null) {
+        if (environment_variables != null ? !CollectionUtils.isEqualCollection(environment_variables,that.environment_variables) : that.environment_variables != null) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
@@ -84,11 +83,11 @@ public class CRStage extends CRBase {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (fetchMaterials ? 1 : 0);
-        result = 31 * result + (artifactCleanupProhibited ? 1 : 0);
-        result = 31 * result + (cleanWorkingDir ? 1 : 0);
+        result = 31 * result + (fetch_materials ? 1 : 0);
+        result = 31 * result + (never_cleanup_artifacts ? 1 : 0);
+        result = 31 * result + (clean_working_directory ? 1 : 0);
         result = 31 * result + (approval != null ? approval.hashCode() : 0);
-        result = 31 * result + (environmentVariables != null ? environmentVariables.size() : 0);
+        result = 31 * result + (environment_variables != null ? environment_variables.size() : 0);
         result = 31 * result + (jobs != null ? jobs.size() : 0);
         return result;
     }
@@ -107,7 +106,7 @@ public class CRStage extends CRBase {
 
     private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {
         HashSet<String> keys = new HashSet<>();
-        for(CREnvironmentVariable var : environmentVariables)
+        for(CREnvironmentVariable var : environment_variables)
         {
             String error = var.validateNameUniqueness(keys);
             if(error != null)
@@ -129,27 +128,27 @@ public class CRStage extends CRBase {
     }
 
     public boolean isFetchMaterials() {
-        return fetchMaterials;
+        return fetch_materials;
     }
 
     public void setFetchMaterials(boolean fetchMaterials) {
-        this.fetchMaterials = fetchMaterials;
+        this.fetch_materials = fetchMaterials;
     }
 
     public boolean isArtifactCleanupProhibited() {
-        return artifactCleanupProhibited;
+        return never_cleanup_artifacts;
     }
 
     public void setArtifactCleanupProhibited(boolean artifactCleanupProhibited) {
-        this.artifactCleanupProhibited = artifactCleanupProhibited;
+        this.never_cleanup_artifacts = artifactCleanupProhibited;
     }
 
     public boolean isCleanWorkingDir() {
-        return cleanWorkingDir;
+        return clean_working_directory;
     }
 
     public void setCleanWorkingDir(boolean cleanWorkingDir) {
-        this.cleanWorkingDir = cleanWorkingDir;
+        this.clean_working_directory = cleanWorkingDir;
     }
 
     public CRApproval getApproval() {
@@ -161,11 +160,11 @@ public class CRStage extends CRBase {
     }
 
     public Collection<CREnvironmentVariable> getEnvironmentVariables() {
-        return environmentVariables;
+        return environment_variables;
     }
 
     public void setEnvironmentVariables(Collection<CREnvironmentVariable> environmentVariables) {
-        this.environmentVariables = environmentVariables;
+        this.environment_variables = environmentVariables;
     }
 
     public Collection<CRJob> getJobs() {

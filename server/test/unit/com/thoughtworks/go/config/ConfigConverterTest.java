@@ -15,6 +15,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -506,7 +507,7 @@ public class ConfigConverterTest {
     {
         CRJob crJob = new CRJob("name",environmentVariables, tabs,
                  resources, artifacts, artifactPropertiesGenerators,
-                true, 5, 120, tasks);
+                false, 5, 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
@@ -516,7 +517,7 @@ public class ConfigConverterTest {
         assertThat(jobConfig.resources(),hasItem(new Resource("resource1")));
         assertThat(jobConfig.artifactPlans(),hasItem(new ArtifactPlan("src", "dest")));
         assertThat(jobConfig.getProperties(),hasItem(new ArtifactPropertiesGenerator("name","src","path")));
-        assertThat(jobConfig.isRunOnAllAgents(),is(true));
+        assertThat(jobConfig.isRunOnAllAgents(),is(false));
         assertThat(jobConfig.getRunInstanceCount(),is("5"));
         assertThat(jobConfig.getTimeout(),is("120"));
         assertThat(jobConfig.getTasks().size(),is(1));
@@ -584,6 +585,36 @@ public class ConfigConverterTest {
         assertThat(pipelineConfig.trackingTool().getLink(),is("link"));
         assertThat(pipelineConfig.getTimer().getTimerSpec(),is("timer"));
         assertThat(pipelineConfig.getLabelTemplate(),is("label"));
+    }
+    @Test
+    public void shouldConvertMinimalPipeline()
+    {
+        CRPipeline crPipeline = new CRPipeline();
+        crPipeline.setName("p1");
+        List<CRStage> min_stages = new ArrayList<>();
+        CRStage min_stage = new CRStage();
+        min_stage.setName("build");
+        Collection<CRJob> min_jobs = new ArrayList<>();
+        CRJob job = new CRJob();
+        job.setName("buildjob");
+        List<CRTask> min_tasks = new ArrayList<>();
+        min_tasks.add(new CRBuildTask("rake"));
+        job.setTasks(min_tasks);
+        min_jobs.add(job);
+        min_stage.setJobs(min_jobs);
+        min_stages.add(min_stage);
+        crPipeline.setStages(min_stages);
+        Collection<CRMaterial> min_materials = new ArrayList<>();
+        CRSvnMaterial crSvnMaterial = new CRSvnMaterial();
+        crSvnMaterial.setUrl("url");
+        min_materials.add(crSvnMaterial);
+        crPipeline.setMaterials(min_materials);
+
+        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline);
+        assertThat(pipelineConfig.name().toLower(),is("p1"));
+        assertThat(pipelineConfig.materialConfigs().first() instanceof SvnMaterialConfig,is(true));
+        assertThat(pipelineConfig.first().name().toLower(),is("build"));;
+        assertThat(pipelineConfig.getLabelTemplate(),is(PipelineLabel.COUNT_TEMPLATE));
     }
 
     @Test

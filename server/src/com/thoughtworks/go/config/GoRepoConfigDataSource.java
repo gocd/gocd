@@ -131,7 +131,8 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                         material.getDisplayName()));
                 String message = String.format("Failed to obtain configuration plugin '%s' for material: %s",
                         repoConfig.getConfigProviderPluginName(), material.getLongDescription());
-                String errorDescription = ex.getMessage() == null ? "Unknown error" : ex.getMessage();
+                String errorDescription = ex.getMessage() == null ? ex.toString()
+                        : ex.getMessage();
                 serverHealthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
                 notifyFailureListeners(repoConfig, ex);
                 return;
@@ -160,7 +161,8 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                         material.getDisplayName(),plugin.displayName()));
                 String message = String.format("Parsing configuration repository using %s failed for material: %s",
                         plugin.displayName(), material.getLongDescription());
-                String errorDescription = ex.getMessage() == null ? "Unknown error" : ex.getMessage();
+                String errorDescription = ex.getMessage() == null ? ex.toString()
+                        : ex.getMessage();
                 serverHealthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
                 notifyFailureListeners(repoConfig, ex);
             }

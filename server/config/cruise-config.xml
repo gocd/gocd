@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="76">
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="77">
   <server artifactsdir="logs" commandRepositoryLocation="default" serverId="dev-id">
     <security>
       <passwordFile path="../manual-testing/ant_hg/password.properties" />
@@ -22,7 +22,7 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
+        <git url="https://github.com/ThoughtWorksStudios/node-aws-lambda.git" materialName="node-aws-lambda" />
       </materials>
       <stage name="up42_stage">
         <jobs>
@@ -35,5 +35,8 @@
       </stage>
     </pipeline>
   </pipelines>
+  <agents>
+    <agent hostname="PW9950-338.local" ipaddress="192.168.0.108" uuid="ff93e3e8-7c07-45ee-bee3-8b05adb62a52" />
+  </agents>
 </cruise>
 

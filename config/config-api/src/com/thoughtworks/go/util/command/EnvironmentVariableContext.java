@@ -17,10 +17,7 @@
 package com.thoughtworks.go.util.command;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.thoughtworks.go.util.GoConstants;
 
@@ -227,25 +224,21 @@ public class EnvironmentVariableContext implements Serializable {
         return properties != null ? properties.hashCode() : 0;
     }
 
-    public String reportText() {
-        throw new RuntimeException("IMPLEMENT ME");
-    }
-
-    public void setupRuntimeEnvironment(Map<String, String> env, ConsoleOutputStreamConsumer consumer) {
+    public List<String> report() {
+        ArrayList<String> lines = new ArrayList<>(properties.size());
+        HashSet<String> names = new HashSet<>();
         for (EnvironmentVariable property : properties) {
             String name = property.name;
             String value = property.value;
             if (value != null) {
-                String line;
-                if (env.containsKey(name)) {
-                    line = format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
+                if (names.contains(name)) {
+                    lines.add(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
                 } else {
-                    line = format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
+                    lines.add(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
                 }
-
-                consumer.stdOutput(line);
-                env.put(name, value);
+                names.add(name);
             }
         }
+        return lines;
     }
 }

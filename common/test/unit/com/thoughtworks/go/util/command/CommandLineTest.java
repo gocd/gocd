@@ -29,8 +29,6 @@ import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ProcessWrapper;
-import org.apache.commons.io.FileUtils;
-import org.dbunit.util.FileHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,56 +117,6 @@ public class CommandLineTest {
         cl2.withArg(argWithMismatchedDblQuote);
         assertEquals("Did behavior of mismatched quotes change? Previously it would truncate args.",
                 DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " ", cl2.toString());
-    }
-
-    @Test
-    public void testShouldGetEnvironmentVariablesInOrder() throws Exception {
-        ProcessBuilder builder = new ProcessBuilder();
-
-        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-        environmentVariableContext.setProperty("GO_SERVER_URL", "abc", false);
-        environmentVariableContext.setProperty("GO_PIPELINE_NAME", "pipelineName", false);
-        environmentVariableContext.setProperty("GO_PIPELINE_LABEL", "label", false);
-        environmentVariableContext.setProperty("GO_STAGE_NAME", "stageName", false);
-        environmentVariableContext.setProperty("GO_STAGE_COUNTER", "stageCounter", false);
-
-        InMemoryStreamConsumer consumer = new InMemoryStreamConsumer();
-        CommandLine.setEnvironmentVariables(builder, environmentVariableContext, consumer);
-
-        String output = consumer.getAllOutput();
-
-        assertThat(output.indexOf("GO_SERVER_URL"), lessThan(output.indexOf("GO_PIPELINE_NAME")));
-        assertThat(output.indexOf("GO_PIPELINE_NAME"), lessThan(output.indexOf("GO_PIPELINE_LABEL")));
-        assertThat(output.indexOf("GO_PIPELINE_LABEL"), lessThan(output.indexOf("GO_STAGE_NAME")));
-        assertThat(output.indexOf("GO_STAGE_NAME"), lessThan(output.indexOf("GO_STAGE_COUNTER")));
-    }
-
-    @Test
-    public void testShouldGetEnvironmentVariablesFromTheEnvironmentContext() throws Exception {
-        ProcessBuilder builder = new ProcessBuilder();
-
-        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-        environmentVariableContext.setProperty("GO_SERVER_URL", "abc", false);
-        environmentVariableContext.setProperty("GO_PIPELINE_NAME", "pipelineName", false);
-        environmentVariableContext.setProperty("GO_PIPELINE_LABEL", "label", false);
-        environmentVariableContext.setProperty("GO_STAGE_NAME", "stageName", false);
-        environmentVariableContext.setProperty("GO_STAGE_COUNTER", "stageCounter", false);
-        environmentVariableContext.setProperty("GO_JOB_NAME", "jobName", false);
-        environmentVariableContext.setProperty("GO_DEPENDENCY_LABEL_pipelineName_stageName", "dependency", false);
-        environmentVariableContext.setProperty("GO_REVISION", "someRevision", false);
-        environmentVariableContext.setProperty("GO_REVISION_SRC_TEST", "anotherRevision", false);
-
-        CommandLine.setEnvironmentVariables(builder, environmentVariableContext, new InMemoryStreamConsumer());
-        Map<String, String> environment = builder.environment();
-
-        assertThat(environment.get("GO_SERVER_URL"), is("abc"));
-        assertThat(environment.get("GO_PIPELINE_NAME"), is("pipelineName"));
-        assertThat(environment.get("GO_PIPELINE_LABEL"), is("label"));
-        assertThat(environment.get("GO_STAGE_NAME"), is("stageName"));
-        assertThat(environment.get("GO_STAGE_COUNTER"), is("stageCounter"));
-        assertThat(environment.get("GO_JOB_NAME"), is("jobName"));
-        assertThat(environment.get("GO_REVISION"), is("someRevision"));
-        assertThat(environment.get("GO_REVISION_SRC_TEST"), is("anotherRevision"));
     }
 
     @Test

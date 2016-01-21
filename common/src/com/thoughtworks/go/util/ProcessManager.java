@@ -57,9 +57,6 @@ public class ProcessManager {
             processBuilder.directory(workingDir);
         }
 
-        for (String line : environmentVariableContext.report()) {
-            consumer.stdOutput(line);
-        }
         processBuilder.environment().putAll(environmentVariableContext.getProperties());
         processBuilder.environment().putAll(envMap);
 

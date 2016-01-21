@@ -371,8 +371,10 @@ public class CommandLine {
     public static void setEnvironmentVariables(ProcessBuilder pb, EnvironmentVariableContext environmentVariableContext,
                                                ConsoleOutputStreamConsumer consumer) {
         Map<String, String> env = pb.environment();
-
-        environmentVariableContext.setupRuntimeEnvironment(env, consumer);
+        for (String line : environmentVariableContext.report()) {
+            consumer.stdOutput(line);
+        }
+        env.putAll(environmentVariableContext.getProperties());
     }
 
     public void waitForSuccess(int timeout) {

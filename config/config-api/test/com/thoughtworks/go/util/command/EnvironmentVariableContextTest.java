@@ -17,9 +17,7 @@
 package com.thoughtworks.go.util.command;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
@@ -52,13 +50,9 @@ public class EnvironmentVariableContextTest {
     public void shouldReportWhenAVariableIsSet() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(PROPERTY_VALUE));
-        assertThat(consumer.getAllOutput(),
-                containsString("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
+        assertThat(context.report().size(), is(1));
+        assertThat(context.report().get(0),
+                is("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
     }
 
     @Test
@@ -66,13 +60,9 @@ public class EnvironmentVariableContextTest {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
         context.setProperty(PROPERTY_NAME, NEW_VALUE, false);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();        
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(NEW_VALUE));
-        assertThat(consumer.getAllOutput(), containsString("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
-        assertThat(consumer.getAllOutput(), containsString("[go] overriding environment variable 'PROPERTY_NAME' with value 'new value'"));
+        assertThat(context.report().size(), is(2));
+        assertThat(context.report().get(0), is("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
+        assertThat(context.report().get(1), is("[go] overriding environment variable 'PROPERTY_NAME' with value 'new value'"));
     }
 
     @Test
@@ -80,25 +70,17 @@ public class EnvironmentVariableContextTest {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, true);
         context.setProperty(PROPERTY_NAME, NEW_VALUE, true);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(NEW_VALUE));
-        assertThat(consumer.getAllOutput(), containsString(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
-        assertThat(consumer.getAllOutput(), containsString(String.format("[go] overriding environment variable 'PROPERTY_NAME' with value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
+        assertThat(context.report().size(), is(2));
+        assertThat(context.report().get(0), is(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
+        assertThat(context.report().get(1), is(String.format("[go] overriding environment variable 'PROPERTY_NAME' with value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
     }
 
     @Test
     public void shouldReportSecureVariableAsMaskedValue() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, true);
-        InMemoryStreamConsumer consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        Map<String, String> map = new HashMap<String, String>();
-        context.setupRuntimeEnvironment(map, consumer);
-
-        assertThat(map.get(PROPERTY_NAME), is(PROPERTY_VALUE));
-        assertThat(consumer.getAllOutput(), containsString(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
+        assertThat(context.report().size(), is(1));
+        assertThat(context.report().get(0), is(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
     }
 
     @Test

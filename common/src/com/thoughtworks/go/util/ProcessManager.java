@@ -57,7 +57,10 @@ public class ProcessManager {
             processBuilder.directory(workingDir);
         }
 
-        environmentVariableContext.setupRuntimeEnvironment(processBuilder.environment(), consumer);
+        for (String line : environmentVariableContext.report()) {
+            consumer.stdOutput(line);
+        }
+        processBuilder.environment().putAll(environmentVariableContext.getProperties());
         processBuilder.environment().putAll(envMap);
 
         Process process = startProcess(processBuilder, commandLineForDisplay);

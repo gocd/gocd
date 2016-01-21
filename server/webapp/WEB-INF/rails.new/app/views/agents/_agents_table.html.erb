@@ -8,18 +8,34 @@
 
 <script type="text/javascript">
 Util.on_load(function() {
-    jQuery("#select_all_agents").live('click',function() {
-        var val = this.checked;
-        jQuery(".agent_select").each(function() {
-            this.checked = val;
-        });
+    jQuery('#body_content').on('click', '#select_all_agents', function() {
+        jQuery('.agent_select').prop("checked", $(this).checked);
     });
 
-    jQuery("input.agent_select").live("click", function() {
-        var unchecked_check_boxes = jQuery("input.agent_select:not(:checked)");
-        if(unchecked_check_boxes.length > 0) {
-            jQuery("#select_all_agents").removeAttr("checked");
-        }
+    var lastChecked = null;
+
+    jQuery(document).ready(function() {
+        jQuery('#body_content').on('click', '.agent_select', function(e) {
+            $this = $(this);
+            if (!$this.checked) {
+                jQuery("#select_all_agents").prop("checked", false);
+            }
+
+            if (!lastChecked) {
+                lastChecked = $this;
+                return;
+            }
+
+            var $checkboxes = jQuery('.agent_select');
+            var start = $checkboxes.index($this);
+            var end = $checkboxes.index(lastChecked);
+
+            if (e.shiftKey) {
+                $checkboxes.slice(Math.min(start, end), Math.max(start, end) + 1).prop('checked', lastChecked.checked);
+            }
+
+            lastChecked = $this;
+        });
     });
 })
 

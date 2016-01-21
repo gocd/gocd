@@ -1,6 +1,7 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+import com.thoughtworks.go.util.StringUtil;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -11,7 +12,18 @@ import java.util.List;
 public class CRParseResult {
     private Collection<CREnvironment> environments = new ArrayList<>();
     private Collection<CRPipeline> pipelines = new ArrayList<>();
-    private List<CRError> errors = new ArrayList<>();
+    private String errors;
+
+    public CRParseResult(){}
+    public CRParseResult(Collection<CREnvironment> environments,Collection<CRPipeline> pipelines,String errors){
+        this.environments = environments;
+        this.pipelines = pipelines;
+        this.errors = errors;
+    }
+
+    public CRParseResult(String errors) {
+        this.errors = errors;
+    }
 
     public Collection<CREnvironment> getEnvironments() {
         return environments;
@@ -29,11 +41,15 @@ public class CRParseResult {
         this.pipelines = pipelines;
     }
 
-    public List<CRError> getErrors() {
+    public String getErrors() {
         return errors;
     }
 
-    public void setErrors(List<CRError> errors) {
+    public void setErrors(String errors) {
         this.errors = errors;
+    }
+
+    public boolean hasErrors() {
+        return !StringUtil.isBlank(errors);
     }
 }

@@ -35,139 +35,51 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
         return requestMessage;
     }
-    private Map parseResponseToMap(String responseBody) {
-        return (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
+    class ResponseScratch {
+        public Integer target_version;
+    }
+    private ResponseScratch parseResponseForMigration(String responseBody) {
+        return new GsonBuilder().create().fromJson(responseBody, ResponseScratch.class);
     }
 
     @Override
     public CRParseResult responseMessageForParseDirectory(String responseBody) {
-        Map responseMap;
         try {
-            responseMap = parseResponseToMap(responseBody);
-        } catch (Exception e) {
-            throw new RuntimeException("Parse directory result should be returned as map");
-        }
-        if (responseMap == null || responseMap.isEmpty()) {
-            throw new RuntimeException("Empty response body");
-        }
+            ResponseScratch responseMap = parseResponseForMigration(responseBody);
+            ErrorCollection errors = new ErrorCollection();
+            ParseDirectoryResponseMessage parseDirectoryResponseMessage;
 
-        if (responseMap.containsKey("target_version") && responseMap.get("target_version") != null) {
-            Object targetVersion = responseMap.get("target_version");
-
-            if (!(targetVersion instanceof Integer)) {
-                throw new RuntimeException("Parse directory result 'target_version' should be an integer");
-            }
-
-            int version = (int) targetVersion;
-
-            while(version < CURRENT_CONTRACT_VERSION)
+            if(responseMap.target_version == null)
             {
-                migrate(responseBody,version);
-                version++;
+                errors.addError("Plugin response message","missing 'target_version' field");
+                String errorsText = errors.getErrorsAsText();
+                return new CRParseResult(errorsText);
             }
-        }
+            else {
+                int version = responseMap.target_version;
 
-        // after migration, json should match contract
-        ParseDirectoryResponseMessage parseDirectoryResponseMessage = codec.getGson().fromJson(responseBody,ParseDirectoryResponseMessage.class);
-
-        ErrorCollection errors = new ErrorCollection();
-        parseDirectoryResponseMessage.validateResponse(errors);
-        throw  new RuntimeException("not implemented");
-        //ParseDirectoryResponseMessage responseMessage_1 = deserializeResponse(responseBody);
-
-        // here we create detailed message about all errors in configuration repository
-        //StringBuilder errorsBuilder = new StringBuilder();
-
-        /*
-        if(responseMessage_1.hasErrors())
-        {
-            // These errors are defined by configuration plugin.
-            // Plugin developer is fully responsible for those.
-
-            errorsBuilder.append("Configuration repository plugin has reported errors:");
-            for(CRError_1 error : responseMessage_1.getErrors())
-            {
-                errorsBuilder.append('\n');
-                errorsBuilder.append('\t');// new line and ident on each error
-                if(error.getLocation() != null)
-                    errorsBuilder.append("At ").append(error.getLocation()).append(" - ");
-                errorsBuilder.append(error.getMessage());
-            }
-            String fullErrorMessage = errorsBuilder.toString();
-            LOGGER.warn(fullErrorMessage);
-        }*/
-
-        // continue looking for errors
-
-        /*
-        CRPartialConfig_1 partialConfig_1 = responseMessage_1.getConfig();
-
-
-        ErrorCollection errors = validatePartialConfig(partialConfig_1);
-        if(!errors.isEmpty())
-        {
-            LOGGER.warn("Configuration repository plugin has returned invalid configuration");
-            return new CRParseResult(null,migrate(responseMessage_1.getErrors()));
-        }
-
-        CRPartialConfig partialConfig;
-        try{
-            partialConfig = migrate(partialConfig_1);
-            for(CRPipelineGroup group : partialConfig.getGroups()) {
-                for (CRPipeline crPipeline : group.getPipelines()) {
-                    MissingConfigLinkedNode missingValues = partialConfig.validateRequired(MissingConfigLinkedNode.first());
-
-                    do {
-                        errors.add(crPipeline,String.format("Pipeline %s is missing required config"));
-                    }
-                    while (!missingValues.isFirst());
-
+                while (version < CURRENT_CONTRACT_VERSION) {
+                    migrate(responseBody, version);
+                    version++;
                 }
+                // after migration, json should match contract
+                parseDirectoryResponseMessage = codec.getGson().fromJson(responseBody, ParseDirectoryResponseMessage.class);
+                parseDirectoryResponseMessage.validateResponse(errors);
+
+                String errorsText = errors.getErrorsAsText();
+                return new CRParseResult(parseDirectoryResponseMessage.getEnvironments(), parseDirectoryResponseMessage.getPipelines(), errorsText);
             }
         }
-        catch (MissingConfigValue e) {
-            String errorMessage = String.format(
-                    "Plugin response did not contain all required configuration values. Missing value: %s; %s",
-                    e.getPropertyName(), e.getMessage());
-            return new CRParseResult(null,errorMessage);
+        catch (Exception ex)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Unexpected error when handling plugin response").append('\n');
+            builder.append(ex);
+            return new CRParseResult(builder.toString());
         }
-        catch (Exception e) {
-            String errorMessage = String.format("Failed to migrate plugin json response v1.0 to current contract version. Error: %s.", e.getMessage());
-            return new CRParseResult(null,errorMessage);
-        }*/
     }
 
     private void migrate(String responseBody, int version) {
 
     }
-
-    /*
-    private List<CRError> migrate(List<CRError_1> errors) {
-        return migration_1.migrateErrors(errors);
-    }
-
-    private ParseDirectoryResponseMessage deserializeResponse(String responseBody) {
-        return codec.parseDirectoryResponseMessage_1FromJson(responseBody);
-    }
-
-    private ErrorCollection validatePartialConfig(CRPartialConfig_1 partialConfig_1) {
-        ErrorCollection errors = new ErrorCollection();
-        partialConfig_1.getErrors(errors);
-        return errors;
-    }
-
-    private CRPartialConfig_1 deserializePartialConfig_1(String responseBody) {
-        CRPartialConfig_1 partialConfig_1;
-        try {
-            partialConfig_1 = codec.partialConfig_1FromJson(responseBody);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(String.format("Unable to de-serialize json response. Error: %s.", e.getMessage()));
-        }
-        return partialConfig_1;
-    }
-
-    private CRPartialConfig migrate(CRPartialConfig_1 partialConfig_1) {
-        return migration_1.migrate(partialConfig_1);
-    }*/
 }

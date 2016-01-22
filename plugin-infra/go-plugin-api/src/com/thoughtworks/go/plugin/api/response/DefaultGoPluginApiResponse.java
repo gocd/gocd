@@ -31,7 +31,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
 
     private int responseCode;
 
-    private Map<String, String> responseHeaders = new HashMap<String, String>();
+    private Map<String, String> responseHeaders;
 
     private String responseBody;
 
@@ -41,7 +41,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @param responseCode Response code for the response
      */
     public DefaultGoPluginApiResponse(int responseCode) {
-        this(responseCode, null, null);
+        this(responseCode, null, new HashMap<String, String>());
     }
 
     /**
@@ -51,7 +51,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @param responseBody Body of the response
      */
     public DefaultGoPluginApiResponse(int responseCode, String responseBody) {
-        this(responseCode, responseBody, null);
+        this(responseCode, responseBody, new HashMap<String, String>());
     }
 
     /**

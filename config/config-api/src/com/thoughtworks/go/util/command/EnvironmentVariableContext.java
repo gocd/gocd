@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.util.GoConstants;
+
 import java.io.Serializable;
 import java.util.*;
 
-import com.thoughtworks.go.util.GoConstants;
-
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 /**
  * @understands a set of variables to be passed to the Agent for a job
@@ -224,19 +224,19 @@ public class EnvironmentVariableContext implements Serializable {
         return properties != null ? properties.hashCode() : 0;
     }
 
-    public List<String> report() {
+    public List<String> report(Collection<String> predefinedEnvs) {
         ArrayList<String> lines = new ArrayList<>(properties.size());
-        HashSet<String> names = new HashSet<>();
+        Set<String> existing = new HashSet<>(predefinedEnvs);
         for (EnvironmentVariable property : properties) {
             String name = property.name;
             String value = property.value;
             if (value != null) {
-                if (names.contains(name)) {
+                if (existing.contains(name)) {
                     lines.add(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
                 } else {
                     lines.add(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
                 }
-                names.add(name);
+                existing.add(name);
             }
         }
         return lines;

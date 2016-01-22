@@ -116,6 +116,9 @@ public class BuildWorkTest {
             + "    <variable name=\"JOB_ENV\">\n"
             + "      <value>foobar</value>\n"
             + "    </variable>\n"
+            + "    <variable name=\"PATH\">\n"
+            + "      <value>/tmp</value>\n"
+            + "    </variable>\n"
             + "  </environmentvariables>\n"
             + "  <tasks>\n"
             + "    <ant target=\"-help\" />\n"
@@ -630,7 +633,8 @@ public class BuildWorkTest {
                 + "[go] setting environment variable 'GO_STAGE_NAME' to value 'mingle'\n"
                 + "[go] setting environment variable 'GO_STAGE_COUNTER' to value '100'\n"
                 + "[go] setting environment variable 'GO_JOB_NAME' to value 'run-ant'\n"
-                + "[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
+                + "[go] setting environment variable 'JOB_ENV' to value 'foobar'\n"
+                + "[go] overriding environment variable 'PATH' with value '/tmp'\n\n"));
 
     }
 

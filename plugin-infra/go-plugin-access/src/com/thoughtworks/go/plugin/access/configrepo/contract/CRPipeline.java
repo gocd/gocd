@@ -2,6 +2,9 @@ package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPluggableScmMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRScmMaterial;
+import com.thoughtworks.go.plugin.access.configrepo.contract.material.SourceCodeMaterial;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -226,6 +229,7 @@ public class CRPipeline extends CRBase {
             }
             if (materials.size() > 1) {
                 validateMaterialNameUniqueness(errors, location);
+                validateScmMaterials(errors,location);
             }
         }
         validateAtLeastOneStage(errors,location);
@@ -237,6 +241,28 @@ public class CRPipeline extends CRBase {
                 validateStageNameUniqueness(errors, location);
             }
         }
+    }
+    private void validateScmMaterials(ErrorCollection errors, String pipelineLocation) {
+        List<SourceCodeMaterial> allSCMMaterials = filterScmMaterials();
+        if (allSCMMaterials.size() > 1) {
+            for (SourceCodeMaterial material : allSCMMaterials) {
+                String directory = material.getDestination();
+                if (StringUtil.isBlank(directory)) {
+                    String location = material.getLocation(pipelineLocation);
+                    errors.addError(location,"Material must have destination directory when there are many SCM materials");
+                }
+            }
+        }
+    }
+
+    private List<SourceCodeMaterial> filterScmMaterials() {
+        List<SourceCodeMaterial> scmMaterials = new ArrayList<SourceCodeMaterial>();
+        for (CRMaterial material : this.materials) {
+            if (material instanceof SourceCodeMaterial) {
+                scmMaterials.add((SourceCodeMaterial) material);
+            }
+        }
+        return scmMaterials;
     }
 
     private void validateStageNameUniqueness(ErrorCollection errors, String location) {

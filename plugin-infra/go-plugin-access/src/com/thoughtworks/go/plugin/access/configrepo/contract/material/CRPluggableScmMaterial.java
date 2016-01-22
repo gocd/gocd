@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class CRPluggableScmMaterial extends CRMaterial {
+public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMaterial {
     public static final String TYPE_NAME = "plugin";
 
     private String scm_id;
@@ -105,5 +105,10 @@ public class CRPluggableScmMaterial extends CRMaterial {
         String name = getName() == null ? "" : getName();
         String url = getScmId() != null ? getScmId() : "unknown";
         return String.format("%s; Pluggable SCM material %s ID: %s",myLocation,name,url);
+    }
+
+    @Override
+    public String getDestination() {
+        return destination;
     }
 }

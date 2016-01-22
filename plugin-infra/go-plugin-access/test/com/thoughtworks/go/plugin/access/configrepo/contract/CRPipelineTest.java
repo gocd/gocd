@@ -99,6 +99,29 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         assertThat(fullError,contains("Missing field 'url'"));
     }
     @Test
+    public void shouldCheckMissingDestinationDirectoryWhenManySCMs()
+    {
+        CRPipeline p = new CRPipeline();
+        p.setName("pipe4");
+
+        CRGitMaterial simpleGit1 = new CRGitMaterial();
+        simpleGit1.setUrl("url1");
+        CRGitMaterial simpleGit2 = new CRGitMaterial();
+        simpleGit2.setUrl("url2");
+
+        p.addMaterial(simpleGit1);
+        p.addMaterial(simpleGit2);
+
+        ErrorCollection errors = new ErrorCollection();
+        p.getErrors(errors,"TEST");
+
+        String fullError = errors.getErrorsAsText();
+
+        assertThat(fullError,contains("Pipeline pipe4; Git material"));
+        assertThat(fullError,contains("Material must have destination directory when there are many SCM materials"));
+    }
+
+    @Test
     public void shouldCheckErrorsInStages()
     {
         CRPipeline p = new CRPipeline();

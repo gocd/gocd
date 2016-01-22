@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class CRScmMaterial extends CRMaterial {
+public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMaterial {
     protected CRFilter filter;
     protected String destination;
     protected Boolean auto_update = true;
@@ -53,6 +53,11 @@ public abstract class CRScmMaterial extends CRMaterial {
     }
 
     public String getDirectory() {
+        return destination;
+    }
+
+    public String getDestination()
+    {
         return destination;
     }
 

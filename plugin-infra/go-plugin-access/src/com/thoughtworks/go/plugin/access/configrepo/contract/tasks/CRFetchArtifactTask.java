@@ -4,7 +4,7 @@ import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 
 public class CRFetchArtifactTask extends CRTask  {
 
-    public static final String TYPE_NAME = "fetchartifact";
+    public static final String TYPE_NAME = "fetch";
 
     private String pipeline;
     private String stage;

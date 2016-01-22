@@ -73,15 +73,15 @@ public class CRBuildTask extends CRTask {
         return  new CRBuildTask(runIf,onCancel,buildFile,target,workingDirectory,CRBuildFramework.ant);
     }
 
-    private String buildFile;
+    private String build_file;
     private String target;
-    private String workingDirectory;
+    private String working_directory;
 
     public CRBuildTask(String type,String buildFile,String target,String workingDirectory){
         super(type);
-        this.buildFile = buildFile;
+        this.build_file = buildFile;
         this.target = target;
-        this.workingDirectory = workingDirectory;
+        this.working_directory = workingDirectory;
     }
     public CRBuildTask(String type){
         super(type);
@@ -90,14 +90,14 @@ public class CRBuildTask extends CRTask {
     public CRBuildTask(CRRunIf runIf, CRTask onCancel,
                        String buildFile,String target,String workingDirectory,CRBuildFramework type) {
         super(runIf, onCancel);
-        this.buildFile = buildFile;
+        this.build_file = buildFile;
         this.target= target;
-        this.workingDirectory = workingDirectory;
+        this.working_directory = workingDirectory;
         super.type = type.toString();
     }
 
     public String getBuildFile() {
-        return buildFile;
+        return build_file;
     }
 
     public String getTarget() {
@@ -105,7 +105,7 @@ public class CRBuildTask extends CRTask {
     }
 
     public String getWorkingDirectory() {
-        return workingDirectory;
+        return working_directory;
     }
 
     public CRBuildFramework getType() {
@@ -140,13 +140,13 @@ public class CRBuildTask extends CRTask {
         if(!super.equals(buildTask))
             return false;
 
-        if (buildFile != null ? !buildFile.equals(buildTask.buildFile) : buildTask.buildFile != null) {
+        if (build_file != null ? !build_file.equals(buildTask.build_file) : buildTask.build_file != null) {
             return false;
         }
         if (target != null ? !target.equals(buildTask.target) : buildTask.target != null) {
             return false;
         }
-        if (workingDirectory != null ? !workingDirectory.equals(buildTask.workingDirectory) : buildTask.workingDirectory != null) {
+        if (working_directory != null ? !working_directory.equals(buildTask.working_directory) : buildTask.working_directory != null) {
             return false;
         }
 
@@ -156,9 +156,9 @@ public class CRBuildTask extends CRTask {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (buildFile != null ? buildFile.hashCode() : 0);
+        result = 31 * result + (build_file != null ? build_file.hashCode() : 0);
         result = 31 * result + (target != null ? target.hashCode() : 0);
-        result = 31 * result + (workingDirectory != null ? workingDirectory.hashCode() : 0);
+        result = 31 * result + (working_directory != null ? working_directory.hashCode() : 0);
         return result;
     }
 }

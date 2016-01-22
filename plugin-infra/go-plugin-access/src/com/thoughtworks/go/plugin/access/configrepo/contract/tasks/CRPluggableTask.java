@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class CRPluggableTask extends CRTask {
-    public static final java.lang.String TYPE_NAME = "pluggabletask";
+    public static final java.lang.String TYPE_NAME = "plugin";
 
     private CRPluginConfiguration plugin_configuration;
     private Collection<CRConfigurationProperty> configuration ;

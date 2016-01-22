@@ -1,24 +1,24 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 
 public class CRNantTask extends CRBuildTask {
-    private String nantPath;
+    private String nant_path;
 
     public CRNantTask(String type, String buildFile, String target, String workingDirectory, String nantPath) {
         super(type, buildFile, target, workingDirectory);
-        this.nantPath = nantPath;
+        this.nant_path = nantPath;
     }
 
     public CRNantTask(CRRunIf runIf, CRTask onCancel, String buildFile, String target, String workingDirectory,String nantPath) {
         super(runIf, onCancel, buildFile, target, workingDirectory, CRBuildFramework.nant);
-        this.nantPath = nantPath;
+        this.nant_path = nantPath;
     }
 
     public String getNantPath() {
-        return nantPath;
+        return nant_path;
     }
 
     public void setNantPath(String nantPath) {
-        this.nantPath = nantPath;
+        this.nant_path = nantPath;
     }
 
 
@@ -35,7 +35,7 @@ public class CRNantTask extends CRBuildTask {
         if(!super.equals(buildTask))
             return false;
 
-        if (nantPath != null ? !nantPath.equals(buildTask.nantPath) : buildTask.nantPath != null) {
+        if (nant_path != null ? !nant_path.equals(buildTask.nant_path) : buildTask.nant_path != null) {
             return false;
         }
 
@@ -45,7 +45,7 @@ public class CRNantTask extends CRBuildTask {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (nantPath != null ? nantPath.hashCode() : 0);
+        result = 31 * result + (nant_path != null ? nant_path.hashCode() : 0);
         return result;
     }
 }

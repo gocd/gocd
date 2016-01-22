@@ -177,6 +177,62 @@ define(['mithril', 'lodash', 'string-plus', '../models/model_mixins', 'foundatio
       }
     },
 
+    textareaWithLabel: {
+      controller: function (args) {
+        this.onInput = function (model, attrName, callback, e) {
+          var currentTarget = (e || event).currentTarget;
+          var newValue      = currentTarget.value || "";
+          model[attrName](newValue);
+          if (callback) {
+            callback();
+          }
+        };
+      },
+
+      view: function (ctrl, args) {
+        var model     = deleteKeyAndReturnValue(args, 'model'),
+          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+          labelText   = deleteKeyAndReturnValue(args, 'label'),
+          onchange    = deleteKeyAndReturnValue(args, 'onchange'),
+          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+
+        if (!args.size) {
+          args.size = 3;
+        }
+
+        var propertyError;
+        if (model.validate) {
+          var errors = model.validate();
+          if (errors.errors(attrName)) {
+            propertyError = (<small class='error'>{errors.errorsForDisplay(attrName)}</small>);
+          }
+        }
+
+        return (
+          <f.column {...args} class={propertyError ? 'error' : null}>
+            <label class={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
+              {labelText || s.humanize(attrName)}
+            </label>
+
+            <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+
+            <textarea
+              data-prop-name={attrName}
+              data-model-type={modelType}
+              spellcheck="off"
+              placeholder={placeholder}
+              class={propertyError ? 'error' : ''}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}>
+              {model[attrName]()}
+              </textarea>
+            {propertyError}
+          </f.column>
+        );
+      }
+    },
+
     checkBox: {
       view: function (ctrl, args) {
         var model      = deleteKeyAndReturnValue(args, 'model'),

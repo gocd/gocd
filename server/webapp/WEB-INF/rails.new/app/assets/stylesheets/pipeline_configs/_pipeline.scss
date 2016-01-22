@@ -308,13 +308,51 @@
                 margin-top:   -2px;
               }
             }
+            textarea {
+              min-height: 98px
+            }
+            .lookup {
+              background: #f5f5f5;
+              margin: 0 -15px -1px;
+              padding: 10px 20px;
+            }
 
+            .snippet {
+              padding: 10px 20px;
+              margin: 23px 6px 20px 10px;
+              background: #ffffff;
+
+              header {
+                overflow: hidden;
+                border-bottom: 1px solid #B7B7B7;
+                padding-bottom: 4px;
+                margin-bottom: 10px;
+              }
+              .snippet-title {
+                float: left;
+                margin: 0;
+                font-size: 1rem;
+              }
+              p {
+                font-size: 0.875rem;
+                margin-bottom: 0.25rem;
+                a {
+                  padding-left: 5px;
+                }
+              }
+              .author {
+                overflow: hidden;
+                font-size: 0.875rem;
+                float: right;
+                label {
+                  padding-right: 5px;
+                }
+              }
+            }
           }
-
         }
       }
     }
-
   }
 
   .tabs {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], function (m, _, s, Mixins, Argument) {
 
   var Tasks = function (data) {
     Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
@@ -107,15 +107,15 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
   Tasks.Task.Exec = function (data) {
     Tasks.Task.call(this, "exec");
     this.command          = m.prop(s.defaultToIfBlank(data.command, ''));
-    this.args             = m.prop(s.defaultToIfBlank(data.args, ''));
+    this.args             = m.prop(Argument.create(data.args, data.arguments));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    var self = this;
 
     this._attributesToJSON = function () {
-      return {
+      return _.assign({
         command:          this.command,
-        args:             this.args,
-        workingDirectory: this.workingDirectory
-      }
+        workingDirectory: this.workingDirectory,
+      }, this.args().toJSON());
     };
   };
 
@@ -123,6 +123,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
     return new Tasks.Task.Exec({
       command:          data.command,
       args:             data.args,
+      arguments:        data.arguments,
       workingDirectory: data.working_directory
     });
   };

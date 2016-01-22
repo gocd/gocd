@@ -92,5 +92,50 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
       expect(tasks().countTask()).toBe(6);
       expect($root.find('.task-definition').length).toBe(6);
     });
+
+    describe('Exec Task View', function(){
+      var root, $root, task;
+
+      beforeAll(function () {
+        root = document.createElement("div");
+        document.body.appendChild(root);
+        $root = $(root);
+        tasks = m.prop(new Tasks());
+
+        task = new Tasks.Task.Exec({
+          command:          'bash',
+          args:             ['-c', 'ls -al /'],
+          workingDirectory: 'moduleA'
+        });
+
+        tasks().addTask(task);
+        mount(root, tasks);
+      });
+
+      afterAll(function () {
+        root.parentNode.removeChild(root);
+      });
+
+      describe('render', function () {
+        it('should bind the command', function () {
+          expect($root.find("input[data-prop-name='command']").val()).toBe(task.command());
+        });
+
+        it('should bind the working directory', function () {
+          expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+        });
+
+        it('should bind the args', function () {
+          expect($root.find("textarea[data-prop-name='data']").val()).toBe(task.args().data().join('\n'));
+        });
+      });
+    });
   });
+
+  var mount = function(root, tasks) {
+    m.mount(root,
+      m.component(TasksConfigWidget, {tasks: tasks})
+    );
+    m.redraw(true);
+  }
 });

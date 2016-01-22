@@ -1,4 +1,5 @@
-# Copyright 2015 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-JsRoutes.setup do |config|
-  config.prefix     = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
-  config.camel_case = true
-  config.include    = [
-    /^api_internal/,
-    /^apiv1/,
-    /^apiv2/,
-    /^apiv1_admin_command_snippets/,
-  ]
+
+module ApiV1
+  class CommandSnippetsRepresenter < ApiV1::BaseRepresenter
+    link :self do |opts|
+      opts[:url_builder].apiv1_admin_command_snippets_url(:prefix => opts[:prefix])
+    end
+
+    link :doc do
+      'http://api.go.cd/#command_snippets'
+    end
+
+    collection :command_snippets, embedded: true, exec_context: :decorator, decorator: CommandSnippetRepresenter
+
+    def command_snippets
+      represented
+    end
+  end
 end

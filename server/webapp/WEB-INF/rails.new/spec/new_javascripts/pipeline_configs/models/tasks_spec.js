@@ -130,25 +130,42 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     });
 
     describe("Exec", function () {
-      beforeEach(function () {
-        task = new Tasks.Task.Exec({
-          command:          'bash',
-          args:             ['-c', 'ls -al /'],
-          workingDirectory: "moduleA"
+      describe('initialize', function () {
+        var taskJSON, task;
+        beforeEach(function(){
+          taskJSON = {
+            command:          'bash',
+            workingDirectory: 'moduleA'
+          };
+
+          task = new Tasks.Task.Exec(taskJSON);
+        });
+
+        it("should initialize task model with command", function () {
+          expect(task.type()).toBe("exec");
+        });
+
+        it("should initialize task model with workingDirectory", function () {
+          expect(task.workingDirectory()).toBe("moduleA");
+        });
+
+        it("should initialize task model with args as list", function () {
+          taskJSON['arguments'] = ['-c', 'ls -al /'];
+
+          var task = new Tasks.Task.Exec(taskJSON);
+
+          expect(task.args().data()).toEqual(['-c', 'ls -al /']);
+        });
+
+        it("should initialize task model with args as string", function () {
+          taskJSON['args'] = '-a';
+
+          var task = new Tasks.Task.Exec(taskJSON);
+
+          expect(task.args().data()).toEqual('-a');
         });
       });
 
-      it("should initialize task model with command", function () {
-        expect(task.type()).toBe("exec");
-      });
-
-      it("should initialize task model with args", function () {
-        expect(task.args()).toEqual(['-c', 'ls -al /']);
-      });
-
-      it("should initialize task model with workingDirectory", function () {
-        expect(task.workingDirectory()).toBe("moduleA");
-      });
 
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
@@ -158,7 +175,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         it("should de-serialize from JSON", function () {
           expect(task.type()).toBe("exec");
           expect(task.command()).toBe('bash');
-          expect(task.args()).toEqual(['-c', 'ls -al /']);
+          expect(task.args().data()).toEqual(['-c', 'ls -al /']);
         });
 
         it("should serialize to JSON", function () {
@@ -170,7 +187,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
             type:       "exec",
             attributes: {
               command:           'bash',
-              args:              ['-c', 'ls -al /'],
+              arguments:         ['-c', 'ls -al /'],
               working_directory: "moduleA"
             }
           };

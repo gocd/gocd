@@ -18,7 +18,10 @@ package com.thoughtworks.go.remote.work;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCache;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -622,20 +625,21 @@ public class BuildWorkTest {
     public void shouldReportEnvironmentVariables() throws Exception {
         buildWork = (BuildWork) getWork(WITH_ENV_VAR, PIPELINE_NAME);
 
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         String consoleOut = artifactManipulator.consoleOut();
 
-        assertThat(trimTimeStamp(consoleOut), containsString("[go] setting environment variable 'GO_SERVER_URL' to value 'somewhere-does-not-matter'\n"
-                + "[go] setting environment variable 'GO_TRIGGER_USER' to value ''\n"
-                + "[go] setting environment variable 'GO_PIPELINE_NAME' to value 'pipeline1'\n"
-                + "[go] setting environment variable 'GO_PIPELINE_COUNTER' to value '-2'\n"
-                + "[go] setting environment variable 'GO_PIPELINE_LABEL' to value '100'\n"
-                + "[go] setting environment variable 'GO_STAGE_NAME' to value 'mingle'\n"
-                + "[go] setting environment variable 'GO_STAGE_COUNTER' to value '100'\n"
-                + "[go] setting environment variable 'GO_JOB_NAME' to value 'run-ant'\n"
-                + "[go] setting environment variable 'JOB_ENV' to value 'foobar'\n"
-                + "[go] overriding environment variable 'PATH' with value '/tmp'\n\n"));
+
+        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
+        assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
+
+        assertThat(trimTimeStamp(consoleOut), containsString(
+                "[go] setting environment variable 'JOB_ENV' to value 'foobar'\n" +
+                        "[go] overriding environment variable 'PATH' with value '/tmp'\n\n"));
 
     }
 

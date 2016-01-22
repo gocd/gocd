@@ -88,7 +88,7 @@ public class ProcessManager {
     }
 
     public Set<String> environmentVariableNames() {
-        return new ProcessBuilder().environment().keySet();
+        return System.getenv().keySet();
     }
 
     //should be used only for tests

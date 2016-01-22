@@ -28,6 +28,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -45,6 +46,7 @@ import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
@@ -137,7 +139,7 @@ public class BuildWork implements Work {
 
         setupEnvrionmentContext(environmentVariableContext);
         plan.applyTo(environmentVariableContext);
-        dumpEnviromentVariables(environmentVariableContext);
+        dumpEnvironmentVariables(environmentVariableContext);
 
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
@@ -149,9 +151,12 @@ public class BuildWork implements Work {
         return result;
     }
 
-    private void dumpEnviromentVariables(EnvironmentVariableContext environmentVariableContext) {
-        for(String line : environmentVariableContext.report()) {
-            goPublisher.consumeLine(line);
+    private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
+        Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
+        List<String> report = environmentVariableContext.report(processLevelEnvVariables);
+        for (int i = 0; i < report.size(); i++) {
+            String line = report.get(i);
+            goPublisher.consumeLine((i == report.size() - 1) ? line + "\n" : line);
         }
     }
 

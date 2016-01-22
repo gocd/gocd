@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -86,6 +87,10 @@ public class ProcessManager {
         return processMap.values();
     }
 
+    public Set<String> environmentVariableNames() {
+        return new ProcessBuilder().environment().keySet();
+    }
+
     //should be used only for tests
     ConcurrentMap<Process, ProcessWrapper> getProcessMap() {
         return processMap;
@@ -108,4 +113,5 @@ public class ProcessManager {
         }
         return process;
     }
+
 }

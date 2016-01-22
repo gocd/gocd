@@ -55,4 +55,8 @@ public class ParseDirectoryResponseMessage {
     public void setPipelines(Collection<CRPipeline> pipelines) {
         this.pipelines = pipelines;
     }
+
+    public List<CRError> getPluginErrors() {
+        return errors;
+    }
 }

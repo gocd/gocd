@@ -1,6 +1,7 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRBase;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,5 +77,12 @@ public class ErrorCollection {
     {
         List<String> list = getOrCreateErrorList(location);
         list.add(error);
+    }
+
+    public void addErrors(List<CRError> pluginErrors) {
+        for(CRError error : pluginErrors)
+        {
+            this.addError(error.getLocation(),error.getMessage());
+        }
     }
 }

@@ -66,6 +66,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 parseDirectoryResponseMessage = codec.getGson().fromJson(responseBody, ParseDirectoryResponseMessage.class);
                 parseDirectoryResponseMessage.validateResponse(errors);
 
+                errors.addErrors(parseDirectoryResponseMessage.getPluginErrors());
+
                 String errorsText = errors.getErrorsAsText();
                 return new CRParseResult(parseDirectoryResponseMessage.getEnvironments(), parseDirectoryResponseMessage.getPipelines(), errorsText);
             }

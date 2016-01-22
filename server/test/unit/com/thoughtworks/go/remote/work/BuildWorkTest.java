@@ -18,7 +18,10 @@ package com.thoughtworks.go.remote.work;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCache;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -27,6 +30,7 @@ import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -61,7 +65,6 @@ import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
-import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -625,16 +628,17 @@ public class BuildWorkTest {
 
         String consoleOut = artifactManipulator.consoleOut();
 
-        assertThat(trimTimeStamp(consoleOut), containsString("[go] setting environment variable 'GO_SERVER_URL' to value 'somewhere-does-not-matter'\n"
-                + "[go] setting environment variable 'GO_TRIGGER_USER' to value ''\n"
-                + "[go] setting environment variable 'GO_PIPELINE_NAME' to value 'pipeline1'\n"
-                + "[go] setting environment variable 'GO_PIPELINE_COUNTER' to value '-2'\n"
-                + "[go] setting environment variable 'GO_PIPELINE_LABEL' to value '100'\n"
-                + "[go] setting environment variable 'GO_STAGE_NAME' to value 'mingle'\n"
-                + "[go] setting environment variable 'GO_STAGE_COUNTER' to value '100'\n"
-                + "[go] setting environment variable 'GO_JOB_NAME' to value 'run-ant'\n"
-                + "[go] setting environment variable 'JOB_ENV' to value 'foobar'\n"
-                + "[go] overriding environment variable 'PATH' with value '/tmp'\n\n"));
+
+        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
+        assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
+
+        assertThat(trimTimeStamp(consoleOut), containsString(
+                "[go] setting environment variable 'JOB_ENV' to value 'foobar'\n" +
+                        "[go] overriding environment variable 'PATH' with value '/tmp'\n\n"));
 
     }
 

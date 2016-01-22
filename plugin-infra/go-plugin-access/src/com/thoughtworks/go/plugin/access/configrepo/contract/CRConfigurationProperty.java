@@ -6,14 +6,14 @@ import org.apache.commons.lang.StringUtils;
 public class CRConfigurationProperty extends CRBase {
     private String key;
     private String value;
-    private String encryptedValue;
+    private String encrypted_value;
 
     public CRConfigurationProperty() {
     }
     public CRConfigurationProperty(String key, String value, String encryptedValue){
         this.key = key;
         this.value = value;
-        this.encryptedValue = encryptedValue;
+        this.encrypted_value = encryptedValue;
     }
 
     public CRConfigurationProperty(String key, String value) {
@@ -28,7 +28,7 @@ public class CRConfigurationProperty extends CRBase {
 
     public boolean hasEncryptedValue()
     {
-        return StringUtils.isNotBlank(encryptedValue);
+        return StringUtils.isNotBlank(encrypted_value);
     }
     public boolean hasPlainTextValue()
     {
@@ -53,11 +53,11 @@ public class CRConfigurationProperty extends CRBase {
     }
 
     public String getEncryptedValue() {
-        return encryptedValue;
+        return encrypted_value;
     }
 
     public void setEncryptedValue(String encryptedValue) {
-        this.encryptedValue = encryptedValue;
+        this.encrypted_value = encryptedValue;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class CRConfigurationProperty extends CRBase {
         if (value != null ? !value.equals(that.value) : that.value != null) {
             return false;
         }
-        if (encryptedValue != null ? !encryptedValue.equals(that.encryptedValue) : that.encryptedValue != null) {
+        if (encrypted_value != null ? !encrypted_value.equals(that.encrypted_value) : that.encrypted_value != null) {
             return false;
         }
 
@@ -88,7 +88,7 @@ public class CRConfigurationProperty extends CRBase {
     public int hashCode() {
         int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (encryptedValue != null ? encryptedValue.hashCode() : 0);
+        result = 31 * result + (encrypted_value != null ? encrypted_value.hashCode() : 0);
         return result;
     }
 
@@ -108,7 +108,7 @@ public class CRConfigurationProperty extends CRBase {
 
     private void validateValues(ErrorCollection errors, String location) {
         if (this.hasEncryptedValue() && this.hasPlainTextValue()) {
-            errors.addError(location, "Configuration property must have 'value' or 'encryptedValue' set. Please only one");
+            errors.addError(location, "Configuration property must have 'value' or 'encrypted_value' set. Please only one");
         }
     }
 }

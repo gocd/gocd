@@ -1,8 +1,12 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRBaseTest;
+import org.junit.Test;
 
 import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 public class CRFetchArtifactTest extends CRBaseTest<CRFetchArtifactTask> {
 
@@ -40,5 +44,16 @@ public class CRFetchArtifactTest extends CRBaseTest<CRFetchArtifactTask> {
         examples.put("invalidFetchNoSource",invalidFetchNoSource);
         examples.put("invalidFetchNoJob",invalidFetchNoJob);
         examples.put("invalidFetchNoStage",invalidFetchNoStage);
+    }
+
+    @Test
+    public void shouldHandlePolymorphismWhenDeserializingFetchTask()
+    {
+        CRTask value = fetch;
+        String json = gson.toJson(value);
+
+        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
+        assertThat(String.format("Deserialized value should equal to value before serialization"),
+                deserializedValue,is(value));
     }
 }

@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -209,7 +210,7 @@ public class PackageMaterialPollerTest {
         when(packageAsRepositoryExtension.getLatestRevision(eq(packageMaterial.getPluginId()), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class))).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.latestModification(packageMaterial, null, null);
-        assertThat(modifications.get(0).getComment(), is("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}"));
+        assertThat(modifications.get(0).getComment(), jsonEquals("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}"));
     }
 
     @Test
@@ -220,7 +221,7 @@ public class PackageMaterialPollerTest {
         when(packageAsRepositoryExtension.latestModificationSince(eq(packageMaterial.getPluginId()), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class), any(PackageRevision.class))).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.modificationsSince(packageMaterial, null, previousRevision, null);
-        assertThat(modifications.get(0).getComment(), is("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}"));
+        assertThat(modifications.get(0).getComment(), jsonEquals("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}"));
     }
 
     private void assertConfiguration(com.thoughtworks.go.plugin.api.config.Configuration actualPackageConfiguration, String key, String value) {

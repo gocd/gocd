@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.annotation.PostConstruct;
@@ -294,7 +286,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             PipelineGroups groups = new PipelineGroups();
 
             // first add pipeline configs from main part
-            List<PipelineConfigs> allPipelineConfigs = new ArrayList<PipelineConfigs>();
+            List<PipelineConfigs> allPipelineConfigs = new ArrayList<>();
             for(PipelineConfigs partPipesConf : this.main.getGroups())
             {
                 allPipelineConfigs.add(partPipesConf);
@@ -309,7 +301,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             //there may be duplicated names and conflicts in general in the PipelineConfigs
 
             // lets group them by 'pipeline group' name
-            Map<String, List<PipelineConfigs>> map = new HashMap<String, List<PipelineConfigs>>();
+            Map<String, List<PipelineConfigs>> map = new LinkedHashMap<>();
             for (PipelineConfigs pipes : allPipelineConfigs) {
                 String key = pipes.getGroup();
                 if (map.get(key) == null) {

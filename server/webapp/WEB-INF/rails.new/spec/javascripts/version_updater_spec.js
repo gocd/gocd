@@ -25,7 +25,7 @@ describe("VersionUpdater", function () {
       var info = JSON.stringify({last_updated_at: fortyMinutesAgo});
       localStorage.setItem('versionCheckInfo', info);
 
-      var versionInfo = {component_name: 'go_server', update_server_url: 'update_server_url'};
+      var versionInfo = {component_name: 'go_server', update_server_url: 'https://update.example.com/some/path?foo=bar&current_version=5.6.7-1'};
       var versionUpdater = new VersionUpdater("stale_version_info_url", "update_server_version_info_url");
 
       spyOn(versionUpdater, 'fetchLatestVersion').and.callFake(function (params) { });
@@ -78,7 +78,7 @@ describe("VersionUpdater", function () {
 
   describe("fetchLatestVersion", function () {
     it("should fetch the latest version from update server", function () {
-      var versionInfo = {component_name: 'go_server', update_server_url: 'update_server_url'};
+      var versionInfo = {component_name: 'go_server', update_server_url: 'https://update.example.com/some/path?foo=bar', installed_version: '15.1.0-123'};
       var latestVersion = {message: "{latest:123}", signature: "shashdsa"};
       var versionUpdater = new VersionUpdater("stale_version_info_url", "update_server_version_info_url");
 
@@ -87,8 +87,10 @@ describe("VersionUpdater", function () {
         options.success(latestVersion);
       });
 
+
       versionUpdater.fetchLatestVersion(versionInfo);
 
+      expect(jQuery.ajax.calls.mostRecent().args[0]['url']).toBe(versionInfo.update_server_url);
       expect(jQuery.ajax).toHaveBeenCalled();
       expect(versionUpdater.updateLatestVersion).toHaveBeenCalledWith(latestVersion);
     })
@@ -109,6 +111,7 @@ describe("VersionUpdater", function () {
 
       versionUpdater.updateLatestVersion(latestVersion);
 
+      expect(jQuery.ajax.calls.mostRecent().args[0]['url']).toBe("update_server_version_info_url");
       expect(jQuery.ajax).toHaveBeenCalled();
       info = JSON.parse(localStorage.getItem('versionCheckInfo'));
       expect(info.last_updated_at).toBe(now.getTime());

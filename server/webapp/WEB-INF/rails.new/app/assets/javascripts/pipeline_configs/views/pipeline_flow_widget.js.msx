@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,13 +36,15 @@ define([
 
     view: function (ctrl) {
       var appendStage = (
-        <li class='add-stage' onclick={ctrl.appendStage.bind(ctrl)}/>
+        <div class="pipeline-flow-box add-stage">
+          <span class='label' onclick={ctrl.appendStage.bind(ctrl)}>Add Stage</span>
+        </div>
       );
 
-      var className = function (selection, additionalClasses) {
+      var classes = function (selection, additionalClasses) {
         return _(['pipeline-flow-box', additionalClasses, (ctrl.currentSelection() === selection) ? 'active' : null]).flatten().compact().value().join(' ');
       };
-      
+
       var dragDropConfig = function (elem, isInitialized) {
         dragulaConfig(elem, isInitialized, function () {
           var reorderedStages = _.map($(elem).find('.stage:not(.gu-mirror)'), function (eachStageElem) {
@@ -53,43 +55,37 @@ define([
       };
 
       return (
-        <f.accordion accordionTitles={['Stages']}
-                     accordionKeys={['stages']}>
-          <div>
-            <div class='pipeline-flow-boxes'>
-              <div class={className(ctrl.pipeline().materials(), 'materials')}
-                   onclick={ctrl.currentSelection.bind(ctrl, ctrl.pipeline().materials())}>
-                <div className='label'>Materials</div>
-                <div class='bottom-triangle-outer'>
-                  <div class='bottom-triangle-inner'></div>
-                </div>
-              </div>
+        <div>
+          <div class='pipeline-flow-boxes'>
+            <div class={classes(ctrl.pipeline().materials(), 'materials')}
+                 onclick={ctrl.currentSelection.bind(ctrl, ctrl.pipeline().materials())}>
+              <span class='label'>Materials</span>
+            </div>
 
-              <div config={dragDropConfig}>
+            <div class="stage-boxes">
+              <div config={dragDropConfig} class="stages-wrapper">
                 {ctrl.pipeline().stages().mapStages(function (stage, stageIndex) {
                   return (
-                    <div class={className(stage, 'stage')}
+                    <div class={classes(stage, 'stage')}
                          data-stage-index={stageIndex}
                          onclick={ctrl.currentSelection.bind(ctrl, stage)}
                          key={stage.uuid()}>
-                      <div className='label'>{stage.name()}</div>
-                      <div class='bottom-triangle-outer'>
-                        <div class='bottom-triangle-inner'></div>
-                      </div>
+                      <span class="drag-handle"/>
+                      <span class='label'>{stage.name()}</span>
                     </div>
                   );
                 })}
               </div>
-
               {appendStage}
             </div>
 
-            <StagesConfigWidget pipeline={ctrl.pipeline}
-                                currentSelection={ctrl.currentSelection}
-                                vm={ctrl.vmState('stagesConfig')}/>
-
           </div>
-        </f.accordion>
+
+          <StagesConfigWidget pipeline={ctrl.pipeline}
+                              currentSelection={ctrl.currentSelection}
+                              vm={ctrl.vmState('stagesConfig')}/>
+
+        </div>
       );
     }
 

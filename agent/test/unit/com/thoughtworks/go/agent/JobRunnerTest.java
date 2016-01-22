@@ -1,42 +1,37 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.Property;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.helper.BuilderMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
-import com.thoughtworks.go.remote.work.*;
+import com.thoughtworks.go.remote.work.BuildAssignment;
+import com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub;
+import com.thoughtworks.go.remote.work.BuildWork;
+import com.thoughtworks.go.remote.work.GoArtifactsManipulatorStub;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.GoConstants;
@@ -48,6 +43,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -108,7 +107,7 @@ public class JobRunnerTest {
         new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
         resolver = mock(UpstreamPipelineResolver.class);
     }
-    
+
     @After
     public void tearDown() {
         verifyNoMoreInteractions(resolver);
@@ -218,7 +217,6 @@ public class JobRunnerTest {
 
         worker.join();
 
-        System.out.println(consoleOut);
         assertThat(consoleOut.toString(), containsString("should run me before cancellation"));
         assertThat(consoleOut.toString(),
                 containsString("Start to execute cancel task: <exec command=\"echo\" args=\"cancel in progress\" />"));
@@ -266,7 +264,6 @@ public class JobRunnerTest {
         cancel.join();
         worker.join();
 
-        System.out.println(consoleOut);
         String output = consoleOut.toString();
         assertThat(output.indexOf("Task is cancelled") < output.indexOf("Job completed"), is(true));
 

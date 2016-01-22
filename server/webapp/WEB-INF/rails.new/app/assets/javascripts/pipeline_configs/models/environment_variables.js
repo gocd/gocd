@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value'], function (m, _, s, Mixins, EncryptedValue) {
 
   var EnvironmentVariables = function (data) {
     Mixins.HasMany.call(this, {
@@ -23,7 +23,27 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
       collection: data,
       uniqueOn:   'name'
     });
+
+    this.secureVariables = function () {
+      return this.filterVariable(function (variable) {
+        return variable.isSecureValue();
+      });
+    };
+
+    this.plainVariables = function () {
+      return this.filterVariable(function (variable) {
+        return !variable.isSecureValue();
+      });
+    }
   };
+
+  function plainOrCipherValue(data) {
+    if (data.secure) {
+      return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encryptedValue, '')});
+    } else {
+      return new EncryptedValue({clearText: s.defaultToIfBlank(data.value, '')});
+    }
+  }
 
   EnvironmentVariables.Variable = function (data) {
     this.constructor.modelType = 'environmentVariable';
@@ -31,9 +51,33 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
     this.parent = Mixins.GetterSetter();
 
-    this.name   = m.prop(s.defaultToIfBlank(data.name, ''));
-    this.value  = m.prop(s.defaultToIfBlank(data.value, ''));
-    this.secure = m.prop(data.secure);
+    this.name  = m.prop(s.defaultToIfBlank(data.name, ''));
+    var _value = m.prop(plainOrCipherValue(data));
+    Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
+
+    this.toJSON = function () {
+      if (this.isPlainValue()) {
+        return {
+          name:   this.name(),
+          secure: false,
+          value:  this.value()
+        };
+      } else {
+        if (this.isDirtyValue()) {
+          return {
+            name:   this.name(),
+            secure: true,
+            value:  this.value()
+          };
+        } else {
+          return {
+            name:           this.name(),
+            secure:         true,
+            encryptedValue: this.value()
+          };
+        }
+      }
+    };
 
     this.isBlank = function () {
       return s.isBlank(this.name()) && s.isBlank(this.value());
@@ -69,7 +113,12 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
   });
 
   EnvironmentVariables.Variable.fromJSON = function (data) {
-    return new EnvironmentVariables.Variable(_.pick(data, ['name', 'value', 'secure']));
+    return new EnvironmentVariables.Variable({
+      name:           data.name,
+      value:          data.value,
+      secure:         data.secure,
+      encryptedValue: data.encrypted_value
+    });
   };
 
   return EnvironmentVariables;

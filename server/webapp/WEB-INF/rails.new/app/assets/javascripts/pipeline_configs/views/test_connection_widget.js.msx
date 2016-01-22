@@ -1,0 +1,93 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helpers/mithril_component_mixins', 'js-routes'],
+  function (m, _, s, f, ComponentMixins, Routes) {
+  var TestConnectionWidget = {
+    Connection: {
+      State: function () {
+        var self = this;
+        this.status = m.prop('');
+        this.errorMessage = m.prop('');
+
+        this.markSuccess = function () {
+          self.status('Success');
+        };
+
+        this.markFailure = function (message) {
+          self.status('Error');
+          self.errorMessage(message);
+        };
+
+        this.markInProgress = function () {
+          self.status('InProgress');
+        };
+
+        this.hasFailed = function () {
+          return self.status() === 'Error';
+        };
+      }
+    },
+
+    controller: function (args) {
+      this.args            = args;
+      this.material        = args.material;
+      this.pipelineName    = args.pipelineName;
+      this.connectionState = new TestConnectionWidget.Connection.State();
+      ComponentMixins.HasViewModel.call(this);
+      this.vmState('connectionState', this.connectionState);
+
+      this.testConnection = function() {
+        var connectionState = this.vmState('connectionState');
+
+        connectionState.markInProgress();
+        m.redraw();
+
+        this.material.testConnection(this.pipelineName)
+          .then(connectionState.markSuccess, connectionState.markFailure);
+      }
+    },
+
+    view: function (ctrl) {
+      var connectionState      = ctrl.vmState('connectionState');
+      var testConnectionStatus = connectionState.status();
+      var connectionStatusToCSSClass = {
+        InProgress: 'in-progress disabled',
+        Error: 'alert',
+        Success: 'success'
+      };
+
+      var showFailureMessage = function (state) {
+        if (state.hasFailed()) {
+          return (<f.alert>{state.errorMessage()}</f.alert>);
+        }
+      };
+
+      return (
+        <div>
+          <f.button
+            onclick={ctrl.testConnection.bind(ctrl)}
+            class={_.compact(['save-pipeline tiny', connectionStatusToCSSClass[testConnectionStatus]]).join(' ')}>
+            Test Connection
+            <span class={_.compact(['save-state', connectionStatusToCSSClass[testConnectionStatus]]).join(' ')}/>
+          </f.button>
+          {showFailureMessage(connectionState)}
+        </div>
+      );
+    }
+  };
+  return TestConnectionWidget;
+});

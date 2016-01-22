@@ -27,7 +27,7 @@ describe ApiV1::VersionInfosController do
         @model = VersionInfo.new('go_server', installed_version, latest_version, nil)
 
         @version_info_service = double('version_info_service')
-        @system_environment = double('system_environment', :getUpdateServerUrl => 'update_server_url')
+        @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
         @result = double('HttpLocalizedOperationResult')
         @go_latest_version = double('go_latest_version')
 
@@ -37,11 +37,11 @@ describe ApiV1::VersionInfosController do
         HttpLocalizedOperationResult.stub(:new).and_return(@result)
         @result.stub(:isSuccessful).and_return(true);
         @go_latest_version.stub(:valid?).and_return(true)
-        @go_latest_version.stub(:latest_version).and_return("15.3.0-123")
+        @go_latest_version.stub(:latest_version).and_return("16.1.0-123")
       end
 
       it 'should update the latest version for a go server' do
-        message = %Q({\n  "latest-version": "15.3.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n})
+        message = %Q({\n  "latest-version": "16.1.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n})
         message_signature = 'message_signature'
         signing_public_key = "signing_public_key"
         signing_public_key_signature = "signing_public_key_signature"
@@ -52,7 +52,7 @@ describe ApiV1::VersionInfosController do
 
         ApiV1::GoLatestVersion.stub(:new).with(latest_version_hash, @system_environment).and_return(@go_latest_version)
         @go_latest_version.should_receive(:valid?).and_return(true)
-        @version_info_service.should_receive(:updateServerLatestVersion).with('15.3.0-123', @result).and_return(@model)
+        @version_info_service.should_receive(:updateServerLatestVersion).with('16.1.0-123', @result).and_return(@model)
 
         patch_with_api_header :update_server, :message => @message, :message_signature => @message_signature, :signing_public_key => @signing_public_key, :signing_public_key_signature => @signing_public_key_signature
 
@@ -61,7 +61,7 @@ describe ApiV1::VersionInfosController do
 
         expect(response).to be_ok
         expect(actual_json).to eq({'component_name' => 'go_server',
-                                   'update_server_url' => 'update_server_url',
+                                   'update_server_url' => 'https://update.example.com/some/path?foo=bar&current_version=1.2.3-1',
                                    'installed_version' => '1.2.3-1',
                                    'latest_version' => '5.6.7-1'})
       end
@@ -93,7 +93,7 @@ describe ApiV1::VersionInfosController do
         login_as_user
 
         @version_info_service = double('version_info_service')
-        @system_environment = double('system_environment', :getUpdateServerUrl => 'update_server_url')
+        @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
 
         controller.stub(:version_info_service).and_return(@version_info_service)
         controller.stub(:system_environment).and_return(@system_environment)

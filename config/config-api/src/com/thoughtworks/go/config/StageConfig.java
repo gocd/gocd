@@ -256,10 +256,10 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     }
 
     public void validate(ValidationContext validationContext) {
-        isValidateName();
+        isNameValid();
     }
 
-    private boolean isValidateName() {
+    private boolean isNameValid() {
         if (!new NameTypeValidator().isNameValid(name)) {
             this.errors.add(NAME, NameTypeValidator.errorMessage("stage", name));
             return false;
@@ -268,7 +268,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     }
 
     public void validateNameUniqueness(Map<String, StageConfig> stageNameMap) {
-        if (isValidateName()) {
+        if (isNameValid()) {
             String currentName = name.toLower();
             StageConfig stageWithSameName = stageNameMap.get(currentName);
             if (stageWithSameName == null) {

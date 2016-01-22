@@ -59,7 +59,7 @@ describe ApiV1::Config::TrackingTool::TrackingToolRepresenter do
           regex:       ''
         },
         errors:     {
-          link:  [
+          url_pattern:  [
                    'Link should be populated',
                    "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."
                  ],
@@ -86,17 +86,17 @@ describe ApiV1::Config::TrackingTool::TrackingToolRepresenter do
     end
 
     it 'should render validation errors' do
-      mingle_tracking_tool= MingleConfig.new('http://mingle.example.com', 'my_project', "status > 'In Dev'")
+      mingle_tracking_tool= MingleConfig.new('http://mingle.example.com', 'wrong project identifier', "status > 'In Dev'")
       mingle_tracking_tool.validateTree(nil)
       mingle_tracking_tool_with_errors_hash={
         type:       'mingle',
         attributes: {
           base_url:                'http://mingle.example.com',
-          project_identifier:      'my_project',
+          project_identifier:      'wrong project identifier',
           mql_grouping_conditions: "status > 'In Dev'"
         },
         errors:     {
-          base_url: ['Should be a URL starting with https://']
+          base_url: ['Should be a URL starting with https://'], project_identifier: ["Should be a valid mingle identifier."]
         }
       }
       presenter                            = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(mingle_tracking_tool)

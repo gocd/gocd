@@ -130,11 +130,20 @@ public class Approval implements Validatable, ParamsAttributeAware {
             if (!group.hasOperationPermissionDefined()) {
                 return;
             }
-            AdminsConfig adminsConfig = group.getAuthorization().getOperationConfig();
-            RolesConfig roles = validationContext.getServerSecurityConfig().getRoles();
-            for (Admin user : authConfig) {
-                if (!validationContext.getServerSecurityConfig().isAdmin(user) && !adminsConfig.has(user, roles.memberRoles(user))) {
-                    user.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group can not be authorized to approve stage", user.describe(), user));
+
+            AdminsConfig groupOperators = group.getAuthorization().getOperationConfig();
+            SecurityConfig serverSecurityConfig = validationContext.getServerSecurityConfig();
+            RolesConfig roles = serverSecurityConfig.getRoles();
+
+            for (Admin approver : authConfig) {
+                boolean approverIsASuperAdmin = serverSecurityConfig.isAdmin(approver);
+                boolean approverIsAGroupAdmin = group.isUserAnAdmin(approver.getName(), roles.memberRoles(approver));
+
+                boolean approverIsNotAnAdmin = !(approverIsASuperAdmin || approverIsAGroupAdmin);
+                boolean approverIsNotAGroupOperator = !groupOperators.has(approver, roles.memberRoles(approver));
+
+                if (approverIsNotAnAdmin && approverIsNotAGroupOperator) {
+                    approver.addError(String.format("%s \"%s\" who is not authorized to operate pipeline group can not be authorized to approve stage", approver.describe(), approver, group.getGroup()));
                 }
             }
         }

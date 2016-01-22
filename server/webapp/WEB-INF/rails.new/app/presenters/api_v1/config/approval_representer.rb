@@ -19,9 +19,10 @@ module ApiV1
     class ApprovalRepresenter < ApiV1::BaseRepresenter
       alias_method :approval, :represented
 
+      error_representer
+
       property :type
       property :auth_config, as: :authorization, decorator: ApiV1::Config::StageAuthorizationRepresenter, class: AuthConfig
-      property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
     end
   end
 

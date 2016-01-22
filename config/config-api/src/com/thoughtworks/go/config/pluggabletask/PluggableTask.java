@@ -95,17 +95,21 @@ public class PluggableTask extends AbstractTask {
     }
 
     public void setConfiguration(ConfigurationProperty configurationProperty) {
-        TaskConfig taskConfig = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()).getConfig();
-        String configKeyName = configurationProperty.getConfigKeyName();
-        Property property_definition = taskConfig.get(configKeyName);
-        if (configuration.getProperty(configKeyName) == null) {
-            configuration.addNewConfiguration(configKeyName, property_definition.getOption(Property.SECURE));
-        }
-        ConfigurationProperty addedConfigProperty = configuration.getProperty(configKeyName);
+        if (PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()) != null) {
+            TaskConfig taskConfig = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()).getConfig();
+            String configKeyName = configurationProperty.getConfigKeyName();
+            Property property_definition = taskConfig.get(configKeyName);
+            if (configuration.getProperty(configKeyName) == null) {
+                configuration.addNewConfiguration(configKeyName, property_definition.getOption(Property.SECURE));
+            }
+            ConfigurationProperty addedConfigProperty = configuration.getProperty(configKeyName);
 
-        addedConfigProperty.setConfigurationValue(configurationProperty.getConfigurationValue());
-        addedConfigProperty.setEncryptedConfigurationValue(configurationProperty.getEncryptedValue());
-        addedConfigProperty.handleSecureValueConfiguration(property_definition.getOption(Property.SECURE));
+            addedConfigProperty.setConfigurationValue(configurationProperty.getConfigurationValue());
+            addedConfigProperty.setEncryptedConfigurationValue(configurationProperty.getEncryptedValue());
+            addedConfigProperty.handleSecureValueConfiguration(property_definition.getOption(Property.SECURE));
+        } else {
+            addError(TYPE, String.format("Could not find plugin for given pluggable id:[%s].", pluginConfiguration.getId()));
+        }
     }
 
     @Override
@@ -125,12 +129,12 @@ public class PluggableTask extends AbstractTask {
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
-        if(PluggableTaskConfigStore.store().hasPreferenceFor(pluginConfiguration.getId())){
+        if (PluggableTaskConfigStore.store().hasPreferenceFor(pluginConfiguration.getId())) {
             TaskPreference preference = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
             List<? extends Property> propertyDefinitions = preference.getConfig().list();
             for (Property propertyDefinition : propertyDefinitions) {
                 ConfigurationProperty configuredProperty = configuration.getProperty(propertyDefinition.getKey());
-                if(configuredProperty == null) continue;
+                if (configuredProperty == null) continue;
                 taskProperties.add(new TaskProperty(propertyDefinition.getOption(Property.DISPLAY_NAME), configuredProperty.getDisplayValue(), configuredProperty.getConfigKeyName()));
             }
             return taskProperties;

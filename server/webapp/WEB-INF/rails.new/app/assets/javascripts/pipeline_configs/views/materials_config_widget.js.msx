@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,58 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery',
+  'mithril', 'lodash', 'jquery', 'string-plus',
   '../helpers/form_helper', '../helpers/tooltips', '../helpers/mithril_component_mixins',
-  '../models/materials'
-], function (m, _, $,
+  '../models/materials', './test_connection_widget'
+], function (m, _, $, s,
              f, tt, ComponentMixins,
-             Materials) {
+             Materials, TestConnectionWidget) {
+
+  var FORM_FIELD_SIZE = 3;
+
+  var PasswordField = {
+    view: function (ctrl, args, children) {
+      var model               = args.model;
+      var attrName            = args.attrName;
+      var capitalizedAttrName = _.capitalize(attrName);
+
+      if (model['isEditing' + capitalizedAttrName]()) {
+
+        return (
+          <f.inputWithLabel model={model}
+                            attrName={attrName}
+                            label={['Password ', (<f.link onclick={model['resetToOriginal' + capitalizedAttrName].bind(model)}>Reset</f.link>)]}
+                            placeholder="Password"
+                            type={model['isSecure' + capitalizedAttrName]() ? 'password' : 'text'}/>
+        );
+      } else {
+        return (
+          <f.column size={FORM_FIELD_SIZE}>
+            <label>
+              Password{' '}
+              <f.link onclick={model['edit' + capitalizedAttrName].bind(model)}>Edit</f.link>
+            </label>
+            <input type='password'
+                   readonly={true}
+                   value={s.uuid()}/>
+          </f.column>
+        );
+      }
+    }
+  };
 
   var MaterialViews = {
     base: {
       controller: function (args) {
+        this.args     = args;
         this.material = args.material;
         this.onRemove = args.onRemove;
+        this.pipelineName = args.pipelineName;
+        ComponentMixins.HasViewModel.call(this);
       },
 
       view: function (ctrl, args, children) {
         var destinationField, filterField;
-
         if (ctrl.material.destination) {
           destinationField = (
             <f.inputWithLabel attrName='destination'
@@ -49,33 +84,42 @@ define([
           // TODO: make this an 'intelligent' text component that maps to an array.
           filterField = (
             <f.inputWithLabel attrName='ignore'
-                              label="Ignore"
+                              label="Ignore pattern"
                               model={ctrl.material.filter()}/>
           );
         }
 
         return (
-          <div class="material-definition">
-            <f.removeButton onclick={ctrl.onRemove}/>
-            <f.row>
-              <f.inputWithLabel attrName='name'
-                                model={ctrl.material}
-                                tooltip={{
+          <f.accordion class="materials-definition"
+                       accordionTitles={[ctrl.material.name()]}
+                       accordionKeys={[ctrl.material.uuid()]}
+                       selectedIndex={ctrl.vmState('selectedMaterialIndex', m.prop(-1))}>
+
+            <div class="material-definition">
+              <f.removeButton onclick={ctrl.onRemove} class="remove-material"/>
+              <f.row>
+                <f.inputWithLabel attrName='name'
+                                  model={ctrl.material}
+                                  tooltip={{
                                           content: tt.material.name,
                                           direction: 'bottom',
                                           size: 'small'
                                         }}/>
-              {destinationField}
-              <f.checkBox model={ctrl.material}
-                          attrName='autoUpdate'
-                          end={true}/>
-            </f.row>
-            {children}
-
-            <f.row>
-              {filterField}
-            </f.row>
-          </div>
+                {destinationField}
+                <f.checkBox model={ctrl.material}
+                            attrName='autoUpdate'
+                            addPadding={true}
+                            end={true}/>
+                <TestConnectionWidget material={ctrl.material}
+                                      pipelineName={ctrl.pipelineName}
+                                      vm={ctrl.vmState('testConnection')}/>
+              </f.row>
+              {children}
+              <f.row>
+                {filterField}
+              </f.row>
+            </div>
+          </f.accordion>
         );
       }
     },
@@ -83,20 +127,21 @@ define([
     svn: {
       view: function (controller, args) {
         var material = args.material;
+
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}>
+          <MaterialViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
                                 model={material}/>
               <f.inputWithLabel attrName='username'
                                 model={material}/>
-              <f.inputWithLabel attrName='password'
-                                type='password'
-                                model={material}/>
+              <PasswordField model={material}
+                             attrName='passwordValue'/>
               <f.checkBox type="checkbox"
                           model={material}
                           attrName='checkExternals'
+                          addPadding={true}
                           end={true}/>
             </f.row>
           </MaterialViews.base>
@@ -106,8 +151,9 @@ define([
     git: {
       view: function (controller, args) {
         var material = args.material;
+
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}>
+          <MaterialViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
@@ -125,7 +171,7 @@ define([
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}>
+          <MaterialViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
@@ -143,21 +189,21 @@ define([
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}>
+          <MaterialViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='port'
                                 model={material}
                                 onchange={m.withAttr('value', material.port)}/>
               <f.inputWithLabel attrName='username'
                                 model={material}/>
-              <f.inputWithLabel attrName='password'
-                                type='password'
-                                model={material}/>
+              <PasswordField model={material}
+                             attrName='passwordValue'/>
               <f.checkBox name="material[use_tickets]"
                           type="checkbox"
-                          end={true}
                           model={material}
-                          attrName='useTickets'/>
+                          attrName='useTickets'
+                          addPadding={true}
+                          end={true}/>
             </f.row>
 
             <f.row>
@@ -174,7 +220,7 @@ define([
       view: function (controller, args) {
         var material = args.material;
         return (
-          <MaterialViews.base material={material} onRemove={args.onRemove}>
+          <MaterialViews.base {...args}>
             <f.row>
               <f.inputWithLabel attrName='url'
                                 type='url'
@@ -183,10 +229,9 @@ define([
                                 model={material}/>
               <f.inputWithLabel attrName='username'
                                 model={material}/>
-              <f.inputWithLabel attrName='password'
-                                type='password'
-                                model={material}
-                                end={true}/>
+              <PasswordField model={material}
+                             attrName='passwordValue'
+                             end={true}/>
             </f.row>
 
             <f.row>
@@ -209,15 +254,15 @@ define([
 
     view: function (ctrl) {
       return (
-        <f.row className='material-selector'>
+        <f.row class='material-selector'>
           <f.select
             value={ctrl.selected}
             class='inline'
-            label='Add material of type'
+            label='Add a new material of type'
             items={_.transform(Materials.Types, function(result, value, key){
                   result[key] = value.description;
                 })}
-            size={3}/>
+            size={2}/>
           <f.column size={2} end={true} class='add-material'>
             <a href="javascript:void(0)" onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</a>
           </f.column>
@@ -230,40 +275,33 @@ define([
     controller: function (args) {
       this.materials = args.materials;
       this.args      = args;
+      this.pipelineName = args.pipelineName;
       ComponentMixins.HasViewModel.call(this);
 
-      this.vmState('selectedMaterialIndex', m.prop(0));
-
       this.removeMaterial = function (material) {
-        var previousMaterial = this.materials.previousMaterial(material);
         this.materials.removeMaterial(material);
-
-        var firstMaterial = this.materials.firstMaterial();
-        this.vmState('selectedMaterialIndex')(this.materials.indexOfMaterial(previousMaterial || firstMaterial));
       };
 
       this.createMaterial = function (type) {
-        var newMaterial = this.materials.createMaterial({type: type()});
-        this.vmState('selectedMaterialIndex')(this.materials.indexOfMaterial(newMaterial));
+        var newMaterial     = this.materials.createMaterial({type: type()});
+        var indexOfMaterial = this.materials.indexOfMaterial(newMaterial);
+        this.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
       };
     },
 
     view: function (ctrl) {
       return (
         <div>
-          <f.accordion class="materials-definition"
-                       accordionTitles={ctrl.materials.collectMaterialProperty('name')}
-                       accordionKeys={ctrl.materials.collectMaterialProperty('uuid')}
-                       selectedIndex={ctrl.vmState('selectedMaterialIndex')}>
-            {ctrl.materials.mapMaterials(function (material) {
-              var materialView = MaterialViews[material.type()];
-              return (m.component(materialView, {
-                material: material,
-                onRemove: ctrl.removeMaterial.bind(ctrl, material),
-                key:      material.uuid()
-              }));
-            })}
-          </f.accordion>
+          {ctrl.materials.mapMaterials(function (material, index) {
+            var materialView = MaterialViews[material.type()];
+            return (m.component(materialView, {
+              material: material,
+              onRemove: ctrl.removeMaterial.bind(ctrl, material),
+              key:      material.uuid(),
+              pipelineName: ctrl.pipelineName,
+              vm:       ctrl.vmState('material-' + index)
+            }));
+          })}
           <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)}
                                 key='material-type-selector'/>
         </div>

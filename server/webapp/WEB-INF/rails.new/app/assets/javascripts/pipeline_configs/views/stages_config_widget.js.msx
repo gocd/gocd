@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,13 +56,14 @@ define([
 
   var ApprovalWidget = {
     view: function (ctrl, args, children) {
-      if (!args.approval().isManual()) {
-        return (<div/>);
-      }
-
       return (
         <f.row>
           <f.column size={11}>
+            <f.row>
+              <f.column size={12}>
+                <label>Stage operate permissions</label>
+              </f.column>
+            </f.row>
             <f.row>
               <f.inputWithLabel config={autoComplete(Users.list, args.approval().authorization(), 'users')}
                                 attrName='users'
@@ -94,17 +95,15 @@ define([
 
       return (
         <div class='stage-definition' data-stage-name={stage.name()}>
-          <f.removeButton onclick={args.onRemove}/>
+          <f.removeButton onclick={args.onRemove} class="remove-stage"/>
           <f.row>
             <f.column size={4}>
               <f.row>
                 <f.inputWithLabel attrName='name'
+                                  label='Stage name'
                                   model={stage}
                                   size={11}/>
               </f.row>
-            </f.column>
-
-            <f.column size={4}>
               <label>Stage Type
                 <f.tooltip tooltip={{
                             content: tt.stage.stageType,
@@ -133,8 +132,6 @@ define([
                   <label for={radioName + '-manual'}>Manual</label>
                 </f.column>
               </f.row>
-
-              <ApprovalWidget approval={stage.approval}/>
             </f.column>
 
             <f.column size={4}>
@@ -162,6 +159,7 @@ define([
               <f.row>
                 <f.checkBox model={stage}
                             attrName='cleanWorkingDirectory'
+                            label='Delete working directory on every build'
                             size={12}
                             tooltip={{
                                   content: tt.stage.cleanWorkingDirectory,
@@ -171,6 +169,10 @@ define([
                             end={true}/>
               </f.row>
             </f.column>
+            <f.column size={4}>
+              <ApprovalWidget approval={stage.approval}/>
+            </f.column>
+
 
           </f.row>
 
@@ -197,14 +199,17 @@ define([
   var MaterialConfigWrapper = {
     controller: function (args) {
       this.args = args;
+      this.pipelineName= args.pipelineName
       ComponentMixins.HasViewModel.call(this);
     },
 
     view: function (ctrl, args, children) {
       return (
-        <div className='material-definitions'>
+        <div class='material-definitions'>
           <MaterialsConfigWidget materials={args.materials}
-                                 key={args.materials.uuid()}/>
+                                 key={args.materials.uuid()}
+                                 pipelineName={args.pipelineName}
+                                 vm={ctrl.vmState('materialsConfig')}/>
         </div>
       );
     }
@@ -232,6 +237,7 @@ define([
 
       if (args.currentSelection() === args.pipeline().materials()) {
         componentToShow = <MaterialConfigWrapper materials={args.pipeline().materials()}
+                                                 pipelineName={args.pipeline().name}
                                                  vm={ctrl.vmState('materialConfigs')}/>;
       } else {
         componentToShow = <StageConfigDefinitionWidget stage={ctrl.currentSelection()}

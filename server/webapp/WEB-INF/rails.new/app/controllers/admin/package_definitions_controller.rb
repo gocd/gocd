@@ -76,7 +76,7 @@ class Admin::PackageDefinitionsController < AdminController
       end
 
       def update(cruise_config)
-        packageRepository = cruise_config.getPackageRepositories().findPackageRepositoryHaving(params[:package_id])
+        packageRepository = cruise_config.getPackageRepositories().findPackageRepositoryWithPackageIdOrBomb(params[:package_id])
         packageRepository.removePackage(params[:package_id])
       end
     end.new(params, current_user, security_service)

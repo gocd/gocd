@@ -299,6 +299,22 @@ public class PluggableTaskTest {
     }
 
     @Test
+    public void shouldAddErrorWhenTaskPreferenceIsNotPresentInPluggableTaskPreferenceStore() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+
+        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1", false, "value1");
+
+        TaskConfig taskConfig = new TaskConfig();
+        TaskProperty property1 = new TaskProperty("KEY1", "value1");
+        taskConfig.addProperty(property1.getName());
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
+        task.setConfiguration(configurationProperty);
+        assertThat(task.errors().on(task.TYPE), is("Could not find plugin for given pluggable id:[abc.def]."));
+    }
+
+    @Test
     public void shouldAddSecurePropertyGivenConfigurationPropertyIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
         TaskPreference taskPreference = mock(TaskPreference.class);
 

@@ -19,6 +19,13 @@ module ApiV1
     module Tasks
       class ExecTaskRepresenter < ApiV1::Config::Tasks::BaseTaskRepresenter
         alias_method :task, :represented
+        ERROR_KEYS = {
+          "workingDirectory" => "working_directory",
+          "buildFile"        => "build_file",
+          "onCancelConfig"   => "on_cancel",
+          "runIf"            => "run_if",
+          "nantPath"         => "nant_path"
+        }
 
         property :command
         collection :arguments, skip_nil: true, exec_context: :decorator

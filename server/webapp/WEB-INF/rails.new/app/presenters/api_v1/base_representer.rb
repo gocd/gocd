@@ -52,7 +52,8 @@ module ApiV1
 
         if options[:expect_hash]
           options[:skip_parse] = lambda { |fragment, options|
-            if fragment.respond_to?(:has_key?)
+
+            if fragment.respond_to?(:has_key?) || fragment.instance_of?(String)
               false
             elsif fragment.nil?
               true
@@ -68,6 +69,31 @@ module ApiV1
 
         super(name, options)
       end
+
+      def error_representer(error_translation_map={}, &blk)
+        self.property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
+        class_attribute :error_translation_map
+        self.error_translation_map = block_given? ? blk : error_translation_map
+
+        class_eval <<-RUBY, __FILE__, __LINE__ + 1
+          def errors
+            translation_map = if self.error_translation_map.respond_to?(:call)
+              translation_map = self.error_translation_map.call(represented)
+            else
+              self.error_translation_map
+            end
+
+            translation_map ||= {}
+
+            represented.errors.inject({}) do |memo, (key, value)|
+              translated_key = translation_map[key] || key
+              memo[translated_key] = value
+              memo
+            end
+          end
+        RUBY
+      end
+
     end
 
     def to_hash(*options)

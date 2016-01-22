@@ -19,10 +19,16 @@ module ApiV1
     class PluginConfigurationPropertyRepresenter < ApiV1::BaseRepresenter
       alias_method :configuration_property, :represented
 
+      error_representer(
+        {
+          'encryptedValue'     => 'encrypted_value',
+          'configurationValue' => 'configuration_value',
+          'configurationKey'   => 'configuration_key'
+        }
+      )
       property :key, exec_context: :decorator
       property :value, skip_nil: true, exec_context: :decorator
       property :encrypted_value, skip_nil: true, exec_context: :decorator
-      property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
       def value
         configuration_property.getValue unless configuration_property.isSecure

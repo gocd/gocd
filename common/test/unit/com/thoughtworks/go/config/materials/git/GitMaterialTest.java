@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -232,6 +232,19 @@ public class GitMaterialTest {
         assertThat(shouldNotBeRemoved.exists(), is(true));
 
         git = new GitMaterial("file://" + repositoryUrl);
+        git.latestModification(workingDir, new TestSubprocessExecutionContext());
+        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+    }
+
+    /* This is to test the functionality of the private method isRepositoryChanged() */
+    @Test
+    public void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws Exception {
+        git.latestModification(workingDir, new TestSubprocessExecutionContext());
+
+        File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
+        FileUtils.writeStringToFile(shouldNotBeRemoved, "Text file");
+
+        git = new GitMaterial(repositoryUrl, " ");
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
     }

@@ -20,11 +20,19 @@ define([
   '../helpers/tooltips'
 ], function (m,
              f, ComponentMixins, tt) {
+
+  var FORM_FIELD_SIZE = 3;
+
   var ParametersConfigWidget = {
     controller: function (args) {
       this.args = args;
       ComponentMixins.HasViewModel.call(this);
-      ComponentMixins.ManagesCollection.call(this, {as: 'Parameter'});
+      ComponentMixins.ManagesCollection.call(this, {
+        as:           'Parameter',
+        onInitialize: function () {
+          this.changed();
+        }
+      });
     },
 
     view: function (ctrl) {
@@ -43,15 +51,15 @@ define([
                 <f.row class='parameter' data-parameter-name={parameter.name()} key={parameter.uuid()}>
                   <f.input model={parameter}
                            attrName='name'
-                           placeHolder='Name'
+                           placeholder='Name'
                            onchange={ctrl.changed.bind(ctrl)}
-                           size={4}/>
+                           size={FORM_FIELD_SIZE}/>
                   <f.input model={parameter}
                            attrName='value'
-                           placeHolder='Value'
+                           placeholder='Value'
                            onchange={ctrl.changed.bind(ctrl)}
-                           size={4}/>
-                  <f.column size={3} end={true}>
+                           size={FORM_FIELD_SIZE}/>
+                  <f.column size={1} end={true}>
                     {ctrl.removeLink.call(ctrl, parameter)}
                   </f.column>
                 </f.row>

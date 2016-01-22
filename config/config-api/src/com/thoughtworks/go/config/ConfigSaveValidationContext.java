@@ -19,6 +19,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 
 import java.util.HashMap;
 
@@ -165,6 +167,16 @@ public class ConfigSaveValidationContext implements ValidationContext{
     @Override
     public boolean doesTemplateExist(CaseInsensitiveString template) {
         return getCruiseConfig().getTemplates().hasTemplateNamed(template);
+    }
+
+    @Override
+    public SCM findScmById(String scmID) {
+        return getCruiseConfig().getSCMs().find(scmID);
+    }
+
+    @Override
+    public PackageRepository findPackageById(String packageId) {
+        return getCruiseConfig().getPackageRepositories().findPackageRepositoryHaving(packageId);
     }
 
     public String getParentDisplayName() {

@@ -20,7 +20,12 @@ define([
   var TabsConfigWidget = {
     controller: function (args) {
       this.args = args;
-      ComponentMixins.ManagesCollection.call(this, {as: 'Tab'});
+      ComponentMixins.ManagesCollection.call(this, {
+        as:           'Tab',
+        onInitialize: function () {
+          this.changed();
+        }
+      });
     },
 
     view: function (ctrl) {
@@ -31,12 +36,12 @@ define([
               <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
                 <f.input model={tab}
                          attrName='name'
-                         placeHolder='Tab name'
+                         placeholder='Tab name'
                          onchange={ctrl.changed.bind(ctrl)}
                          size={4}/>
                 <f.input model={tab}
                          attrName='path'
-                         placeHolder='Path of artifact'
+                         placeholder='Path of artifact'
                          onchange={ctrl.changed.bind(ctrl)}
                          size={4}/>
                 <f.column size={3} end={true}>

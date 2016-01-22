@@ -26,11 +26,15 @@ define([
     base: {
       view: function (ctrl, args, children) {
         return (
-          <fieldset className={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
-            <legend class='task-type'>{args.task.type()}</legend>
-            <f.removeButton onclick={args.onRemove}/>
-            {children}
-          </fieldset>
+          <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
+            <div>
+              <div class="task-header">
+                <span class='task-type'>{args.task.type()}</span>
+                <f.removeButton onclick={args.onRemove} class="remove-task"/>
+              </div>
+              <div class="task-body">{children}</div>
+            </div>
+          </div>
         );
       }
     },
@@ -264,7 +268,7 @@ define([
       });
 
       return (
-        <f.row className='task-selector'>
+        <f.row class='task-selector'>
           <f.select value={ctrl.selected}
                     class='inline'
                     label='Add task of type'
@@ -291,16 +295,18 @@ define([
       };
 
       return (
-        <div className='task-definitions' key="task-definitions" config={dragDropConfig}>
-          {args.tasks().mapTasks(function (task, taskIndex) {
-            var taskView = TaskViews[task.type()];
-            return (m.component(taskView, {
-              task:      task,
-              onRemove:  args.tasks().removeTask.bind(args.tasks(), task),
-              taskIndex: taskIndex,
-              key:       task.uuid()
-            }));
-          })}
+        <div class='task-definitions' key="task-definitions">
+          <div config={dragDropConfig}>
+            {args.tasks().mapTasks(function (task, taskIndex) {
+              var taskView = TaskViews[task.type()];
+              return (m.component(taskView, {
+                task:      task,
+                onRemove:  args.tasks().removeTask.bind(args.tasks(), task),
+                taskIndex: taskIndex,
+                key:       task.uuid()
+              }));
+            })}
+          </div>
           <TaskTypeSelector tasks={args.tasks} key="task-type-selector"/>
         </div>
       );

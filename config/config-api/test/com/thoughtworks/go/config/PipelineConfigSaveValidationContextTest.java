@@ -2,8 +2,12 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.packagerepository.*;
+import com.thoughtworks.go.domain.scm.SCMMother;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,4 +117,25 @@ public class PipelineConfigSaveValidationContextTest {
         assertThat(context.doesTemplateExist(new CaseInsensitiveString("t1")), is(true));
         assertThat(context.doesTemplateExist(new CaseInsensitiveString("t2")), is(false));
     }
+
+    @Test
+    public void shouldCheckForExistenceOfSCM() throws Exception {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(new SCMs(SCMMother.create("scm-id")));
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        MatcherAssert.assertThat(context.findScmById("scm-id").getId(), is("scm-id"));
+
+    }
+
+    @Test
+    public void shouldCheckForExistenceOfPackage() throws Exception {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setPackageRepositories(new PackageRepositories(PackageRepositoryMother.create("repo-id")));
+        cruiseConfig.getPackageRepositories().find("repo-id").setPackages(new Packages(PackageDefinitionMother.create("package-id")));
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        MatcherAssert.assertThat(context.findPackageById("package-id").getId(), is("repo-id"));
+    }
+
 }

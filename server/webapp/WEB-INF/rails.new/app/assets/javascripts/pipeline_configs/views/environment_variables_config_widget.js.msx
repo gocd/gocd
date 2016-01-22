@@ -15,12 +15,178 @@
  */
 
 define([
-  'mithril', '../helpers/form_helper', '../helpers/mithril_component_mixins', '../helpers/tooltips'
-], function (m, f, ComponentMixins, tt) {
+  'mithril', 'string-plus', '../helpers/form_helper', '../helpers/mithril_component_mixins', '../helpers/tooltips'
+], function (m, s, f, ComponentMixins, tt) {
+
+  var FORM_FIELD_SIZE = 3;
+
+  var EnvironmentVariableWidget = {
+    base: {
+      view: function (ctrl, args, children) {
+        var variable = args.variable;
+
+        return (
+          <f.row class='environment-variable'
+                 data-variable-type={variable.isSecureValue() ? 'secure' : 'plain'}
+                 data-variable-name={variable.name()}>
+            <f.column size={FORM_FIELD_SIZE}>
+              <f.row collapse={true}>
+                <f.input model={variable}
+                         attrName='name'
+                         placeholder='Name'
+                         onchange={args.onChange}
+                         size={12}
+                         end={true}/>
+              </f.row>
+            </f.column>
+
+            {children}
+
+            <f.column size={1} end={true}>
+              {args.removeChildPreContent}
+              {args.removeWidget}
+            </f.column>
+          </f.row>
+        );
+      }
+    },
+
+    plain: {
+      view: function (ctrl, args, children) {
+        return (
+          <EnvironmentVariableWidget.base {...args}>
+            <f.input model={args.variable}
+                     attrName='value'
+                     placeholder='Value'
+                     onchange={args.onChange}
+                     size={FORM_FIELD_SIZE}/>
+
+          </EnvironmentVariableWidget.base>
+        );
+      }
+    },
+
+    secure: {
+      view: function (ctrl, args) {
+        var variable = args.variable,
+            content,
+            removeChildPreContent;
+
+        if (variable.isEditingValue()) {
+          content = [
+            (<f.input model={variable}
+                      attrName='value'
+                      placeholder='Value'
+                      onchange={args.onChange}
+                      type={variable.isSecureValue() ? 'password' : 'text'}
+                      size={FORM_FIELD_SIZE}/>)
+          ];
+
+          if (variable.isDirtyValue()) {
+            removeChildPreContent = (
+              <f.link onclick={variable.resetToOriginalValue.bind(variable)}
+                      class="reset-environment-variable">
+                Reset
+              </f.link>
+            );
+          }
+        } else {
+          content = (
+            <f.column size={FORM_FIELD_SIZE}>
+              <f.link onclick={variable.editValue.bind(variable)} class="edit-secure-variable">Edit</f.link>
+            </f.column>
+          );
+        }
+
+        return (
+          <EnvironmentVariableWidget.base {...args} removeChildPreContent={removeChildPreContent}>
+            {content}
+          </EnvironmentVariableWidget.base>
+        );
+      }
+    }
+  };
+
+  var VariablesWidget = {
+    plain:  {
+      controller: function (args) {
+        this.args = args;
+        ComponentMixins.ManagesCollection.call(this, {
+          as:           'Variable',
+          map:          function (callback) {
+            return _.map(args.toView(), callback);
+          },
+          last:         function () {
+            return _.last(args.toView());
+          },
+          add:          function () {
+            var variable = args.variables().createVariable({cipherText: ''});
+            variable.editValue();
+          },
+          onInitialize: function () {
+            this.changed();
+          }
+        });
+      },
+
+      view: function (ctrl, args) {
+        return (
+          <div>
+            {ctrl.map(function (variable) {
+              return (
+                <EnvironmentVariableWidget.plain variable={variable}
+                                                 removeWidget={ctrl.removeLink.call(ctrl, variable)}
+                                                 onChange={ctrl.changed.bind(ctrl)}
+                                                 key={variable.uuid()}/>
+              );
+            })}
+          </div>
+        );
+      }
+    },
+    secure: {
+      controller: function (args) {
+        this.args = args;
+        ComponentMixins.ManagesCollection.call(this, {
+          as:           'Variable',
+          map:          function (callback) {
+            return _.map(args.toView(), callback);
+          },
+          last:         function () {
+            return _.last(args.toView());
+          },
+          add:          function () {
+            var variable = args.variables().createVariable();
+            variable.becomeSecureValue();
+            variable.editValue();
+          },
+          onInitialize: function () {
+            this.changed();
+          }
+        });
+      },
+
+      view: function (ctrl, args) {
+        return (
+          <div>
+            {ctrl.map(function (variable) {
+              return (
+                <EnvironmentVariableWidget.secure variable={variable}
+                                                  removeWidget={ctrl.removeLink.call(ctrl, variable)}
+                                                  onChange={ctrl.changed.bind(ctrl)}
+                                                  key={variable.uuid()}/>
+              );
+            })}
+          </div>
+        );
+      }
+    }
+  };
+
+
   var EnvironmentVariablesConfigWidget = {
     controller: function (args) {
       this.args = args;
-      ComponentMixins.ManagesCollection.call(this, {as: 'Variable'});
       ComponentMixins.HasViewModel.call(this);
     },
 
@@ -28,42 +194,19 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Environment Variables<f.tooltip tooltip={{content: tt.environmentVariables.main}}/></span>
+                          <span>Environment Variables<f.tooltip tooltip={{content: tt.environmentVariables.main}} model={ctrl.args.variables()}/></span>
                         )
                      ]}
                      accordionKeys={['environment-variables']}
                      selectedIndex={ctrl.vmState('accordionSelectedIndex', m.prop(-1))}
                      class='environment-variables'>
           <div>
-            {ctrl.map(function (variable) {
-              return (
-                <f.row class='environment-variable' data-variable-name={variable.name()} key={variable.uuid()}>
-                  <f.column size={4}>
-                    <f.row collapse={true}>
-                      <f.column size={2} class='prefix-container'>
-                        <span class="prefix"/>
-                      </f.column>
+            <VariablesWidget.plain variables={ctrl.args.variables}
+                                   toView={ctrl.args.variables().plainVariables.bind(ctrl.args.variables())}/>
 
-                      <f.input model={variable}
-                               attrName='name'
-                               placeHolder='Name'
-                               onchange={ctrl.changed.bind(ctrl)}
-                               size={10}
-                               end={true}/>
-                    </f.row>
-                  </f.column>
-                  <f.input model={variable}
-                           attrName='value'
-                           placeHolder='Value'
-                           onchange={ctrl.changed.bind(ctrl)}
-                           type={variable.secure() ? 'password' : 'text'}
-                           size={4}/>
-                  <f.column size={1} end={true}>
-                    {ctrl.removeLink.call(ctrl, variable)}
-                  </f.column>
-                </f.row>
-              );
-            })}
+            <div class="secure-environment-variables-header">Secure Environment Variables</div>
+            <VariablesWidget.secure variables={ctrl.args.variables}
+                                    toView={ctrl.args.variables().secureVariables.bind(ctrl.args.variables())}/>
           </div>
         </f.accordion>
       );

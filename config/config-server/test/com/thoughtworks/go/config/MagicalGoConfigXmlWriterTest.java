@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,8 +47,12 @@ import org.apache.commons.io.IOUtils;
 import org.hamcrest.core.Is;
 import org.jdom.input.JDOMParseException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -65,6 +69,9 @@ public class MagicalGoConfigXmlWriterTest {
     private MagicalGoConfigXmlWriter xmlWriter;
     public SystemEnvironment systemEnvironment;
     private MagicalGoConfigXmlLoader xmlLoader;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setup() {
@@ -336,6 +343,50 @@ public class MagicalGoConfigXmlWriterTest {
                 + "</job>";
         JobConfig jobConfig = xmlLoader.fromXmlPartial(partial, JobConfig.class);
         assertThat(xmlWriter.toXmlPartial(jobConfig), is(partial));
+    }
+
+    @Test
+    public void shouldNotWriteMoreThanOneOnCancelTaskWhenDefined() throws Exception {
+        String xml = "<cruise schemaVersion='76'>\n"
+                + "<server artifactsdir='artifactsDir' >"
+                + "</server>"
+                + "<pipelines>\n"
+                + "<pipeline name='pipeline1' template='abc'>\n"
+                + "    <materials>\n"
+                + "      <svn url ='svnurl' username='foo' password='password'/>"
+                + "    </materials>\n"
+                + "</pipeline>\n"
+                + "</pipelines>\n"
+                + "<templates>\n"
+                + "  <pipeline name='abc'>\n"
+                + "    <stage name='stage1'>"
+                + "      <jobs>"
+                + "        <job name='job1'>"
+                + "         <tasks>"
+                + "             <exec command=\"rake\">\n"
+                + "                 <arg>all_test</arg>\n"
+                + "                 <oncancel>\n"
+                + "                     <ant target='kill' />\n"
+                + "                     <ant target='kill' />\n"
+                + "                 </oncancel>\n"
+                + "             </exec>"
+                + "         </tasks>"
+                + "        </job>"
+                + "      </jobs>"
+                + "    </stage>"
+                + "  </pipeline>\n"
+                + "</templates>\n"
+                + "</cruise>";
+
+        thrown.expectMessage("Invalid content was found starting with element 'ant'. No child element is expected at this point.");
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        xmlWriter.write(cruiseConfig, output, false);
+    }
+
+    @Test
+    public void shouldBeAValidXSD() throws  Exception {
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+        factory.newSchema(new StreamSource(getClass().getResourceAsStream("/cruise-config.xsd")));
     }
 
     @Test

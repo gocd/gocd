@@ -38,7 +38,7 @@ define([
     this.neverCleanupArtifacts = m.prop(data.neverCleanupArtifacts);
     this.environmentVariables  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
     this.jobs                  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.jobs, new Jobs())));
-    this.approval              = m.prop(data.approval);
+    this.approval              = m.prop(s.defaultToIfBlank(data.approval, new Approval({})));
 
     this.validate = function () {
       var errors = new Mixins.Errors();

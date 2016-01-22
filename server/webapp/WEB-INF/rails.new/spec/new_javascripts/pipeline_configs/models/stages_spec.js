@@ -116,7 +116,7 @@ define(['lodash', "pipeline_configs/models/stages", 'pipeline_configs/models/app
           environment_variables:   [
             {
               name:   "MULTIPLE_LINES",
-              value:  "multiplelines",
+              encrypted_value:  "multiplelines",
               secure: true
             },
             {

@@ -1,22 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.access.notification;
 
-import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
@@ -42,26 +42,18 @@ public class NotificationExtension extends AbstractExtension {
 
     public static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
 
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public NotificationExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME));
+        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
         pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_NOTIFICATIONS_INTERESTED_IN, new PluginInteractionCallback<List<String>>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_NOTIFICATIONS_INTERESTED_IN, new DefaultPluginInteractionCallback<List<String>>() {
 
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
 
             @Override
             public List<String> onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -71,15 +63,10 @@ public class NotificationExtension extends AbstractExtension {
     }
 
     public Result notify(String pluginId, final String requestName, final Map requestMap) {
-        return pluginRequestHelper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Result>() {
+        return pluginRequestHelper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForNotify(requestName, requestMap);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override
@@ -89,9 +76,6 @@ public class NotificationExtension extends AbstractExtension {
         });
     }
 
-    public boolean isNotificationPlugin(String pluginId) {
-        return isPluginOfType(pluginId, EXTENSION_NAME);
-    }
 
     Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
         return pluginSettingsMessageHandlerMap;

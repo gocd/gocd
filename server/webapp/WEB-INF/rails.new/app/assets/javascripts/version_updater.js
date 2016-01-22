@@ -28,7 +28,7 @@ var VersionUpdater = function (staleVersionInfoUrl, updateServerVersionInfoUrl) 
     },
 
     fetchStaleVersionInfo: function () {
-      _this = this;
+      var _this = this;
       $.ajax({
         headers: {Accept: "application/vnd.go.cd.v1+json"},
         type: 'GET',
@@ -40,11 +40,11 @@ var VersionUpdater = function (staleVersionInfoUrl, updateServerVersionInfoUrl) 
     },
 
     fetchLatestVersion: function (versionInfo) {
-      _this = this;
+      var _this = this;
       $.ajax({
         headers: {Accept: "application/vnd.update.go.cd.v1+json"},
         type: 'GET',
-        url: versionInfo['update_server_url'],
+        url:     versionInfo['update_server_url'],
         success: function (data) {
           _this.updateLatestVersion(data);
         }
@@ -52,7 +52,7 @@ var VersionUpdater = function (staleVersionInfoUrl, updateServerVersionInfoUrl) 
     },
 
     updateLatestVersion: function (data) {
-      _this = this;
+      var _this = this;
       $.ajax({
         type: 'PATCH',
         headers: {Accept: "application/vnd.go.cd.v1+json"},
@@ -71,7 +71,7 @@ var VersionUpdater = function (staleVersionInfoUrl, updateServerVersionInfoUrl) 
         return true;
       }
       versionCheckInfo = JSON.parse(versionCheckInfo);
-      lastUpdateAt = new Date(versionCheckInfo.last_updated_at);
+      var lastUpdateAt = new Date(versionCheckInfo.last_updated_at);
       var halfHourAgo = new Date(Date.now() - 30 * 60 * 1000);
       return halfHourAgo > lastUpdateAt;
     },

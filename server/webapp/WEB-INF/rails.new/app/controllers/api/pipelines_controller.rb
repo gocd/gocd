@@ -40,7 +40,7 @@ class Api::PipelinesController < Api::ApiController
     result = HttpOperationResult.new
 
     pagination = Pagination.pageStartingAt(offset, pipeline_instance_count, page_size)
-    pipeline_history = pipeline_history_service.loadMinimalData(pipeline_name, pagination, CaseInsensitiveString.str(current_user.getUsername()), result)
+    pipeline_history = pipeline_history_service.loadMinimalData(pipeline_name, pagination, current_user, result)
 
     if result.canContinue()
       pipeline_history_api_model = PipelineHistoryAPIModel.new(pagination, pipeline_history)

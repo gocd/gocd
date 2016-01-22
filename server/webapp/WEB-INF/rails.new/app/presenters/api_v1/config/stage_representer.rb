@@ -19,6 +19,8 @@ module ApiV1
     class StageRepresenter < ApiV1::BaseRepresenter
       alias_method :stage, :represented
 
+      error_representer
+
       property :name, case_insensitive_string: true
       property :fetch_materials
       property :clean_working_dir, as: :clean_working_directory
@@ -36,8 +38,6 @@ module ApiV1
                  decorator:    ApiV1::Config::JobRepresenter,
                  expect_hash:  true,
                  class:        com.thoughtworks.go.config.JobConfig
-      property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
-
 
       delegate :name, :name=, to: :stage
 
@@ -64,11 +64,14 @@ module ApiV1
         stage.setVariables(EnvironmentVariablesConfig.new(array_of_variables))
       end
 
-      def errors
+      def errors_with_jobs_and_environment_variable_errors
         stage.errors.addAll(jobs.errors)
         stage.errors.addAll(environment_variables.errors)
-        stage.errors
+
+        errors_without_jobs_and_environment_variable_errors
       end
+
+      alias_method_chain :errors, :jobs_and_environment_variable_errors
 
     end
   end

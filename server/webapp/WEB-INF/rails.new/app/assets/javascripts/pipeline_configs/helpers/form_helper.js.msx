@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown'], function (m, s, Mixin) {
+define(['mithril', 'lodash', 'string-plus', '../models/model_mixins', 'foundation.dropdown'], function (m, _, s, Mixin) {
 
   var deleteKeyAndReturnValue = function (object, key, defaultValue) {
     var value = object[key];
@@ -22,13 +22,9 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
     return value || defaultValue;
   };
 
-  var coerceToMprop = function (param, defaultValue) {
-    return typeof param === 'function' ? param : m.prop(typeof param === 'undefined' ? defaultValue : param);
-  };
-
   var compactClasses = function (args) {
     var initialClasses = [].slice.call(arguments, 1);
-    return _([initialClasses, args.class, args.className]).flatten().compact().join(' ');
+    return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
   };
 
   var reflowCalls = {};
@@ -44,14 +40,11 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
   var f = {
     row: {
       view: function (ctrl, args, children) {
-        var classes = _.compact(['row', deleteKeyAndReturnValue(args, 'class'), deleteKeyAndReturnValue(args, 'className')]);
-
-        if (deleteKeyAndReturnValue(args, 'collapse')) {
-          classes.push('collapse');
-        }
-
+        var collapse = deleteKeyAndReturnValue(args, 'collapse') ? 'collapse' : null;
         return (
-          <div class={classes.join(' ')} {...args}>
+          <div
+            class={compactClasses(args, 'row', collapse)}
+            {...args}>
             {children}
           </div>
         );
@@ -62,9 +55,9 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
       view: function (ctrl, args, children) {
         var end  = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
             size = deleteKeyAndReturnValue(args, 'size', 6);
-
         return (
-          <div {...args} class={compactClasses(args, 'columns', "small-" + size, end)}>
+          <div class={compactClasses(args, 'columns', "small-" + size, end)}
+            {...args}>
             {children}
           </div>
         );
@@ -87,7 +80,7 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
         var model       = deleteKeyAndReturnValue(args, 'model'),
             attrName    = deleteKeyAndReturnValue(args, 'attrName'),
             type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-            placeHolder = deleteKeyAndReturnValue(args, 'placeHolder', ''),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
             modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
@@ -106,11 +99,16 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
         return (
           <f.column {...args}>
             <input
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="off"
               data-prop-name={attrName}
               data-model-type={modelType}
+              data-model-uuid={model.uuid()}
               value={model[attrName]()}
               type={type}
-              placeholder={placeHolder}
+              placeholder={placeholder}
               class={propertyError ? 'error' : ''}
               oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}/>
             {propertyError}
@@ -135,7 +133,7 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
         var model       = deleteKeyAndReturnValue(args, 'model'),
             attrName    = deleteKeyAndReturnValue(args, 'attrName'),
             type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-            placeHolder = deleteKeyAndReturnValue(args, 'placeHolder', ''),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
             labelText   = deleteKeyAndReturnValue(args, 'label'),
             onchange    = deleteKeyAndReturnValue(args, 'onchange'),
             tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
@@ -155,18 +153,22 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
 
         return (
           <f.column {...args} class={propertyError ? 'error' : null}>
-            <label className={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
+            <label class={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
               {labelText || s.humanize(attrName)}
             </label>
 
             <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
 
             <input
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="off"
               data-prop-name={attrName}
               data-model-type={modelType}
               value={model[attrName]()}
               type={type}
-              placeholder={placeHolder}
+              placeholder={placeholder}
               class={propertyError ? 'error' : ''}
               oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}/>
             {propertyError}
@@ -177,20 +179,28 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
 
     checkBox: {
       view: function (ctrl, args) {
-        var model     = deleteKeyAndReturnValue(args, 'model'),
-            attrName  = deleteKeyAndReturnValue(args, 'attrName'),
-            labelText = deleteKeyAndReturnValue(args, 'label'),
-            disabled  = deleteKeyAndReturnValue(args, 'disabled'),
-            tooltip   = deleteKeyAndReturnValue(args, 'tooltip'),
-            id        = s.uuid(),
-            modelType = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+        var model      = deleteKeyAndReturnValue(args, 'model'),
+            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+            labelText  = deleteKeyAndReturnValue(args, 'label'),
+            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+            id         = s.uuid(),
+            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
           args.size = 3;
         }
 
+        var padding;
+
+        if (addPadding) {
+          padding = (<label style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
+        }
+
         return (
           <f.column {...args}>
+            {padding}
             <input type="checkbox"
                    data-prop-name={attrName}
                    data-model-type={modelType}
@@ -210,7 +220,7 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
 
     tabs: {
       controller: function (args) {
-        this.selectedIndex = coerceToMprop(args.selectedIndex || 0);
+        this.selectedIndex = s.coerceToMprop(args.selectedIndex || 0);
 
         this.classNameForTab = function (tabIndex) {
           return this.selectedIndex() === tabIndex ? 'active' : '';
@@ -301,37 +311,38 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
 
     select: {
       controller: function (args) {
-        this.value = coerceToMprop(args.value, '');
+        this.value = s.coerceToMprop(args.value, '');
       },
 
       view: function (ctrl, args) {
         var items = deleteKeyAndReturnValue(args, 'items', {}),
-            label = deleteKeyAndReturnValue(args, 'label');
+            label = deleteKeyAndReturnValue(args, 'label'),
+            value = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), '');
 
         if (!args.size) {
           args.size = 3;
         }
 
         var selectElem = (
-          <select value={ctrl.value()}
-                  onchange={m.withAttr('value', ctrl.value)}>
-            {_.map(items, function (text, value) {
+          <select value={value()}
+                  onchange={m.withAttr('value', value)}>
+            {_.map(items, function (text, item) {
               return (
-                <option value={value} selected={value === ctrl.value()}>{text}</option>
+                <option value={item} selected={item === value()}>{text}</option>
               );
             })}
           </select>
         );
 
-        if (s.isBlank(args.label)) {
+        if (s.isBlank(label)) {
           return (<f.column {...args}>{selectElem}</f.column>);
         } else {
           return (
             <f.column {...args}>
-              <label class='inline'>
-                {args.label}
-                {selectElem}
+              <label>
+                {label}
               </label>
+              {selectElem}
             </f.column>
           );
         }
@@ -340,7 +351,7 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
 
     accordion: {
       controller: function (args) {
-        this.selectedIndex = Mixin.TogglingGetterSetter(coerceToMprop(args.selectedIndex || 0));
+        this.selectedIndex = Mixin.TogglingGetterSetter(s.coerceToMprop(args.selectedIndex || 0));
 
         this.classNameForAccordion = function (tabIndex) {
           return this.selectedIndex() === tabIndex ? 'active' : '';
@@ -377,17 +388,23 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
 
     removeButton: {
       view: function (ctrl, args, children) {
-        return <f.link {...args} class='remove'/>;
+        return (
+          <f.link {...args} class={compactClasses(args, 'remove')}>{children}</f.link>
+        );
+      }
+    },
+
+    button: {
+      view: function (ctrl, args, children) {
+        return (
+          <f.link role="button" class={compactClasses(args, 'button')} {...args}>{children}</f.link>
+        );
       }
     },
 
     link: {
       view: function (ctrl, args, children) {
-        return (
-          <a href="javascript:void(0)"
-             class={compactClasses(args)}
-             onclick={args.onclick}>{children}</a>
-        );
+        return (<a href="javascript:void(0)" class={compactClasses(args)} {...args}>{children}</a>);
       }
     },
 
@@ -419,6 +436,16 @@ define(['mithril', 'string-plus', '../models/model_mixins', 'foundation.dropdown
               {content}
             </div>
           </span>
+        );
+      }
+    },
+
+    alert: {
+      view: function (ctrl, args, children) {
+        return (
+          <div>
+            <span data-alert class="alert-box secondary">{children}</span>
+          </div>
         );
       }
     }

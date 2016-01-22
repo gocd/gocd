@@ -5,28 +5,28 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 @import 'normalize-3.0.2';
 @import 'foundation_and_overrides';
 // make sure to load after foundation
 @import "bourbon";
-@import './_font-awesome-glyphs';
-@import './_autocomplete';
+@import '_keyframes';
+@import '_font-awesome-glyphs';
+@import '_autocomplete';
+@import '_fonts';
 
 form {
   .accordion-navigation {
     border: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
 
     > a {
-      padding-right: 10px;
       @include icon-before(chevron-right);
     }
 
@@ -36,7 +36,7 @@ form {
   }
 
   .tooltip-question-mark {
-    @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-font-color, $margin: 0, $line-height: $form-label-line-height){
+    @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-font-color, $margin: 0, $line-height: $form-label-line-height) {
       margin-left:  10px;
       margin-right: 10px;
     }
@@ -47,8 +47,9 @@ form {
   }
 
   .tooltip-content {
-    cursor:    auto;
-    font-size: rem-calc(13px);
+    font-family: $body-font-family;
+    cursor:      auto;
+    font-size:   rem-calc(13px);
     * {
       font-size: rem-calc(13px);
     }

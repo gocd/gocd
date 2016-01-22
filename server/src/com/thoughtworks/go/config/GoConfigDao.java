@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,21 +51,18 @@ public class GoConfigDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigDao.class);
     private CachedGoConfig cachedConfigService;
     private MetricsProbeService metricsProbeService;
-    private final Object writeLock;
     private Cloner cloner = new Cloner();
 
     //used in tests
     public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
-        writeLock = new Object();
     }
 
     @Autowired
     public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
         this.cachedConfigService = cachedConfigService;
         this.metricsProbeService = metricsProbeService;
-        writeLock = new Object();
     }
 
     public String fileLocation() {
@@ -179,7 +176,9 @@ public class GoConfigDao {
     }
 
     public void updatePipeline(PipelineConfig pipelineConfig, LocalizedOperationResult result, Username currentUser, PipelineConfigService.SaveCommand saveCommand) {
-        synchronized (writeLock) {
+        LOGGER.info("Config update for pipeline request by {} is in queue - {}", currentUser, saveCommand);
+        synchronized (GoConfigWriteLock.class) {
+            LOGGER.info("Config update for pipeline request by {} is being processed", currentUser);
             if (saveCommand.hasWritePermissions()) {
                 try {
                     cachedConfigService.writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
@@ -194,7 +193,7 @@ public class GoConfigDao {
         Context context = metricsProbeService.begin(ProbeType.UPDATE_CONFIG);
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
         try {
-            synchronized (writeLock) {
+            synchronized (GoConfigWriteLock.class) {
                 try {
                     LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
                     if (command instanceof CheckedUpdateCommand) {

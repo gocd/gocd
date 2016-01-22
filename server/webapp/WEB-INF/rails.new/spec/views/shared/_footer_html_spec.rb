@@ -1,6 +1,6 @@
 # encoding: UTF-8
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 require 'spec_helper'
 
@@ -23,7 +23,7 @@ describe "/shared/_footer.html" do
     render :partial => "shared/footer"
 
     Capybara.string(response.body).find('ul.copyright').tap do |ul|
-      expect(ul).to have_selector("li", text: 'Copyright © 2015 ThoughtWorks, Inc. Licensed under Apache License, Version 2.0. Go includes third-party software.')
+      expect(ul).to have_selector("li", text: 'Copyright © 2016 ThoughtWorks, Inc. Licensed under Apache License, Version 2.0. Go includes third-party software.')
 
       ul.first('li').tap do |li|
         expect(li).to have_selector("a[href='http://www.thoughtworks.com/products'][target='_blank']", text: 'ThoughtWorks, Inc.')

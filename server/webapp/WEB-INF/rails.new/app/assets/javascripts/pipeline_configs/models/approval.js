@@ -20,8 +20,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
     this.constructor.modelType = 'approval';
     Mixins.HasUUID.call(this);
 
-    this.type          = m.prop(data.type);
-    this.authorization = m.prop(data.authorization);
+    this.type          = m.prop(s.defaultToIfBlank(data.type, 'success'));
+    this.authorization = m.prop(s.defaultToIfBlank(data.authorization, new Approval.AuthConfig({})));
 
     this.isManual = function () {
       return this.type() === 'manual';

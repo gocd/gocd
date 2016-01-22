@@ -35,6 +35,8 @@ import static org.junit.Assert.assertThat;
 
 public class ApprovalTest {
 
+    public static final String DEFAULT_GROUP = "defaultGroup";
+
     @Before
     public void setUp() throws Exception {
     }
@@ -68,15 +70,15 @@ public class ApprovalTest {
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
 
-        addUserAndRoleToGroup(cruiseConfig, "user", "role");
-        String group = "defaultGroup";
-        PipelineConfig pipeline = cruiseConfig.find(group, 0);
+        addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "not-present");
         Approval approval = stage.getApproval();
         PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
 
-        approval.validate(PipelineConfigSaveValidationContext.forChain(true, group, cruiseConfig, pipeline, stage));
+        approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
         AdminUser user = approval.getAuthConfig().getUsers().get(0);
         assertThat(user.errors().isEmpty(), is(false));
@@ -86,20 +88,43 @@ public class ApprovalTest {
     @Test
     public void shouldPassValidateWhenNoPermissionAreSetupOnGroupAndUserIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new Role(new CaseInsensitiveString("role"),
+                        new RoleUser(new CaseInsensitiveString("first")),
+                        new RoleUser(new CaseInsensitiveString("second"))),
+                new AdminUser(
                         new CaseInsensitiveString("admin")));
 
-        String group = "defaultGroup";
-        PipelineConfig pipeline = cruiseConfig.find(group, 0);
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "not-present");
         Approval approval = stage.getApproval();
         PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
 
-        approval.validate(PipelineConfigSaveValidationContext.forChain(true, group, cruiseConfig, pipeline, stage));
+        approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
+    }
+
+    @Test
+    public void shouldPassValidateWhenARoleIsAdminOnGroupAndThatRoleIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
+        CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
+                new Role(new CaseInsensitiveString("role"),
+                        new RoleUser(new CaseInsensitiveString("first")),
+                        new RoleUser(new CaseInsensitiveString("second"))),
+                new AdminUser(new CaseInsensitiveString("admin")));
+
+        addUserAsOperatorToDefaultGroup(cruiseConfig, "user");
+        addRoleAsAdminToDefaultGroup(cruiseConfig, "role");
+
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
+        StageConfig stage = pipeline.get(0);
+        StageConfigMother.addApprovalWithRoles(stage, "role");
+        Approval approval = stage.getApproval();
+        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
+
+        approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
+
+        assertNoErrors(approval.getAuthConfig().getRoles().get(0));
     }
 
     @Test
@@ -158,20 +183,14 @@ public class ApprovalTest {
         assertThat(approval.getAuthConfig().isEmpty(), is(true));
     }
 
-    private HashMap nameMap(final String name) {
-        HashMap nameMap = new HashMap();
-        nameMap.put("name", name);
-        return nameMap;
-    }
-
     @Test
     public void validate_shouldNotAllow_UserInApprovalListButNotInOperationList() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = addUserAndRoleToGroup(cruiseConfig, "user", "role");
-        PipelineConfig pipeline = cruiseConfig.find("defaultGroup", 0);
+        PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "not-present");
         Approval approval = stage.getApproval();
@@ -189,8 +208,8 @@ public class ApprovalTest {
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = addUserAndRoleToGroup(cruiseConfig, "user", "role");
-        PipelineConfig pipeline = cruiseConfig.find("defaultGroup", 0);
+        PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithRoles(stage, "not-present");
         Approval approval = stage.getApproval();
@@ -208,16 +227,15 @@ public class ApprovalTest {
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = addUserAndRoleToGroup(cruiseConfig, "user", "role");
-        PipelineConfig pipeline = cruiseConfig.find("defaultGroup", 0);
+        PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "first");
         Approval approval = stage.getApproval();
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -226,16 +244,15 @@ public class ApprovalTest {
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = addUserAndRoleToGroup(cruiseConfig, "user", "role");
-        PipelineConfig pipeline = cruiseConfig.find("defaultGroup", 0);
+        PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "user");
         Approval approval = stage.getApproval();
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -244,16 +261,15 @@ public class ApprovalTest {
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = cruiseConfig.findGroup("defaultGroup");
-        PipelineConfig pipeline = cruiseConfig.find("defaultGroup", 0);
+        PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "user");
         Approval approval = stage.getApproval();
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -262,16 +278,38 @@ public class ApprovalTest {
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = addUserAndRoleToGroup(cruiseConfig, "user", "role");
-        PipelineConfig pipeline = cruiseConfig.find("defaultGroup", 0);
+        PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "admin");
         Approval approval = stage.getApproval();
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
+    }
+
+    @Test
+    public void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() throws Exception {
+        CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
+                new Role(new CaseInsensitiveString("role"),
+                        new RoleUser(new CaseInsensitiveString("first")),
+                        new RoleUser(new CaseInsensitiveString("second"))),
+                new AdminUser(new CaseInsensitiveString("admin")));
+
+        addRoleAsAdminToDefaultGroup(cruiseConfig, "role");
+
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
+        StageConfig stage = pipeline.get(0);
+        StageConfigMother.addApprovalWithUsers(stage, "first", "some-other-user-who-is-not-operate-authorized");
+        Approval approval = stage.getApproval();
+        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
+
+        approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
+
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
+        /* https://github.com/gocd/gocd/pull/1779#issuecomment-170161521 */
+        assertNoErrors(approval.getAuthConfig().getUsers().get(1));
     }
 
     @Test
@@ -280,15 +318,14 @@ public class ApprovalTest {
                 new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = addUserAndRoleToGroup(cruiseConfig, "user", "role");
-        PipelineConfig pipeline = cruiseConfig.find("defaultGroup", 0);
+        PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+        PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "not-present");
         Approval approval = stage.getApproval();
 
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new TemplatesConfig(), stage));
-        AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(true));
+        assertNoErrors(approval.getAuthConfig().getUsers().get(0));
     }
 
     @Test
@@ -314,10 +351,37 @@ public class ApprovalTest {
         return cruiseConfig;
     }
 
-    private PipelineConfigs addUserAndRoleToGroup(CruiseConfig cruiseConfig, final String user, final String role) {
-        PipelineConfigs group = cruiseConfig.findGroup("defaultGroup");
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString(user)));
-        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString(role)));
+    private PipelineConfigs addUserAndRoleToDefaultGroup(CruiseConfig cruiseConfig, final String user, final String role) {
+        PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
+        addUserAsOperatorToDefaultGroup(cruiseConfig, user);
+        addRoleAsOperatorToDefaultGroup(cruiseConfig, role);
         return group;
+    }
+
+    private void addRoleAsOperatorToDefaultGroup(CruiseConfig goConfig, String role) {
+        PipelineConfigs group = goConfig.findGroup(DEFAULT_GROUP);
+        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString(role)));
+    }
+
+    private PipelineConfigs addRoleAsAdminToDefaultGroup(CruiseConfig cruiseConfig, String role) {
+        PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
+        group.getAuthorization().getAdminsConfig().add(new AdminRole(new CaseInsensitiveString(role)));
+        return group;
+    }
+
+    private PipelineConfigs addUserAsOperatorToDefaultGroup(CruiseConfig cruiseConfig, String user) {
+        PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
+        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString(user)));
+        return group;
+    }
+
+    private HashMap nameMap(final String name) {
+        HashMap nameMap = new HashMap();
+        nameMap.put("name", name);
+        return nameMap;
+    }
+
+    private void assertNoErrors(Admin userOrRole) {
+        assertThat(userOrRole.errors().getAll().toString(), userOrRole.errors().isEmpty(), is(true));
     }
 }

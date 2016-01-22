@@ -368,7 +368,7 @@ describe ApiV1::Admin::PipelinesController do
     def expected_data_with_validation_errors
       {
         enable_pipeline_locking: false,
-        errors:                  { labelTemplate: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."] },
+        errors:                  { label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."] },
         label_template:          "${COUNT}",
         materials:               [{ type: "svn", attributes: { url: "http://some/svn/url", destination: "svnDir", filter: nil, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil } }],
         name:                    "pipeline1",
@@ -402,7 +402,7 @@ describe ApiV1::Admin::PipelinesController do
                                    }
                                  ],
         stages:                  [{ name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: {} }, jobs: [] }],
-        errors:                  { labelTemplate: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."] }
+        errors:                  { label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."] }
       }
     end
 

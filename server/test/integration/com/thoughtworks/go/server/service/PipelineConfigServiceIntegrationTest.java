@@ -1,6 +1,24 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -111,6 +129,9 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(savedPipelineConfig, is(pipelineConfig));
         assertThat(configRepository.getCurrentRevCommit().name(), is(not(headCommitBeforeUpdate)));
         assertThat(configRepository.getCurrentRevision().getUsername(), is(user.getDisplayName()));
+        assertThat(configRepository.getCurrentRevision().getMd5(), is(not(goConfigHolderBeforeUpdate.config.getMd5())));
+        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().config.getMd5()));
+        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().configForEdit.getMd5()));
     }
 
     @Test
@@ -248,6 +269,23 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
+        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find plugin for scm-id: [scmid]."));
+        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
+        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+    }
+
+    @Test
+    public void shouldMapErrorsBackToPackageMaterials() throws Exception {
+        GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
+        String packageid = "packageid";
+        saveScmMaterialToConfig(packageid);
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageid);
+        pipelineConfig.materialConfigs().add(packageMaterialConfig);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find repository for given package id:[packageid]"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));

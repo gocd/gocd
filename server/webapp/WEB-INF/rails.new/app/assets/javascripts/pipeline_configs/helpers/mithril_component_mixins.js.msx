@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['string-plus', './form_helper'], function (s, f) {
+define(['string-plus', 'mithril', 'lodash', './form_helper'], function (s, m, _, f) {
   var ComponentMixins = {};
 
   ComponentMixins.HasViewModel = function () {
@@ -28,6 +28,9 @@ define(['string-plus', './form_helper'], function (s, f) {
     vm = vm || {};
 
     this.vmState = function (key, value) {
+      if (!key) {
+        return _.merge({}, vm);
+      }
       return (vm[key] = vm[key] || value || {});
     };
   };
@@ -37,22 +40,22 @@ define(['string-plus', './form_helper'], function (s, f) {
     var associationNamePlural            = s.camelcase(s.defaultToIfBlank(options.plural, options.as + 's'), true);
     var associationNamePluralCapitalized = s.camelcase(s.defaultToIfBlank(options.plural, options.as + 's'));
 
-    this.add = function () {
-      this.args[associationNamePlural]()['create' + associationName]();
-    };
+    this.add = options.add || function () {
+        this.args[associationNamePlural]()['create' + associationName]();
+      };
 
     this.remove = function (thing) {
       this.args[associationNamePlural]()['remove' + associationName](thing);
       this.changed();
     };
 
-    this.last = function () {
-      return this.args[associationNamePlural]()['last' + associationName]();
-    };
+    this.last = options.last || function () {
+        return this.args[associationNamePlural]()['last' + associationName]();
+      };
 
     this.changed = function () {
       var last = this.last();
-      if (!last || !last.isBlank()) {
+      if (!(last && last.isBlank())) {
         this.add();
       }
     };
@@ -63,13 +66,13 @@ define(['string-plus', './form_helper'], function (s, f) {
       }
     };
 
-    this.map = function (callback) {
-      return this.args[associationNamePlural]()['map' + associationNamePluralCapitalized](function (thing, index) {
-        return callback(thing, index);
-      });
-    };
+    this.map = options.map || function (callback) {
+        return this.args[associationNamePlural]()['map' + associationNamePluralCapitalized](function (thing, index) {
+          return callback(thing, index);
+        });
+      };
 
-    this.changed();
+    options.onInitialize && options.onInitialize.call(this);
   };
 
   return ComponentMixins;

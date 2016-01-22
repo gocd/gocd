@@ -1,21 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 
 @Component
-public class TaskExtension implements TaskExtensionContract {
+public class TaskExtension implements TaskExtensionContract, GoPluginExtension {
 
     private final String API_BASED = "API_BASED";
     private final String MESSAGE_BASED = "MESSAGE_BASED";
@@ -40,7 +41,7 @@ public class TaskExtension implements TaskExtensionContract {
     @Autowired
     public TaskExtension(PluginManager pluginManager) {
         this.pluginManager = pluginManager;
-        map = new HashMap<String, TaskExtensionContract>();
+        map = new HashMap<>();
         map.put(API_BASED, new ApiBasedTaskExtension(pluginManager));
         map.put(MESSAGE_BASED, new JsonBasedTaskExtension(pluginManager));
     }
@@ -92,7 +93,9 @@ public class TaskExtension implements TaskExtensionContract {
         return getExtension(pluginId).validate(pluginId, taskConfig);
     }
 
-    public boolean isTaskPlugin(String pluginId) {
+
+    @Override
+    public boolean canHandlePlugin(String pluginId) {
         return pluginManager.hasReferenceFor(Task.class, pluginId) || pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId);
     }
 }

@@ -16,7 +16,7 @@
 
             <div id="footer">
                 <ul class="copyright" onclick="dashboard_periodical_executer.stop();">
-                    <li>Copyright &copy; 2015 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
+                    <li>Copyright &copy; 2016 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
                         Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">$l.localize("APACHE_LICENSE_2_0")</a>.
                         Go includes <a href="$req.getContextPath()/NOTICE/cruise_notice_file.pdf" target="_blank">$l.localize("THIRD_PARTY_SOFTWARE")</a>.</li>
                     <li class="last">$l.localize("GO_VERSION"): #include("admin/admin_version.txt.vm")</li>

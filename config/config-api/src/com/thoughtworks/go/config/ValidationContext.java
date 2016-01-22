@@ -18,6 +18,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 
 public interface ValidationContext {
     ConfigReposConfig getConfigRepos();
@@ -49,5 +51,9 @@ public interface ValidationContext {
     SecurityConfig getServerSecurityConfig();
 
     boolean doesTemplateExist(CaseInsensitiveString template);
+
+    SCM findScmById(String scmID);
+
+    PackageRepository findPackageById(String packageId);
 }
 

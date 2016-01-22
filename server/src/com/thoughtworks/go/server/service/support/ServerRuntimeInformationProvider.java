@@ -152,7 +152,7 @@ public class ServerRuntimeInformationProvider implements ServerInfoProvider {
         builder.append(String.format("Spec Name - %s\n", runtimeMXBean.getSpecName()));
         builder.append(String.format("Spec Vendor - %s\n", runtimeMXBean.getSpecVendor()));
         builder.append(String.format("Spec Version - %s\n", runtimeMXBean.getSpecVersion()));
-        builder.addSubSection("Input Arguments").append(asIndentedMultilineValues(runtimeMXBean.getInputArguments()));
+        builder.addSubSection("Input Arguments").append(asIndentedMultilineValues(runtimeMXBean.getInputArguments(), ""));
         builder.addSubSection("System Properties").append(asIndentedMultilineValues(runtimeMXBean.getSystemProperties()));
         builder.addSubSection("Classpath").append(prettyClassPath(runtimeMXBean.getClassPath()));
         builder.addSubSection("Boot Classpath").append(prettyClassPath(runtimeMXBean.getBootClassPath()));
@@ -160,13 +160,13 @@ public class ServerRuntimeInformationProvider implements ServerInfoProvider {
 
     private String prettyClassPath(String classPath) {
         String[] classpathValues = classPath.split(System.getProperty("path.separator"));
-        return asIndentedMultilineValues(Arrays.asList(classpathValues));
+        return asIndentedMultilineValues(Arrays.asList(classpathValues), "file:");
     }
 
-    private String asIndentedMultilineValues(List<String> values) {
+    private String asIndentedMultilineValues(List<String> values, String prefix) {
         StringBuilder builder = new StringBuilder();
         for (String value : values) {
-            builder.append("  -> ").append(value).append("\n");
+            builder.append("  -> ").append(prefix).append(value).append("\n");
         }
         return builder.toString();
     }

@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
@@ -27,7 +24,11 @@ import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class HgMaterialConfigTest {
@@ -65,5 +66,39 @@ public class HgMaterialConfigTest {
         hgMaterialConfig.setConfigAttributes(null);
 
         assertThat(hgMaterialConfig, is(new HgMaterialConfig("", null)));
+    }
+
+    @Test
+    public void shouldReturnTheUrl() {
+        String url = "git@github.com/my/repo";
+        HgMaterialConfig config = new HgMaterialConfig(url, null);
+
+        assertThat(config.getUrl(), is(url));
+    }
+
+    @Test
+    public void shouldReturnNullIfUrlForMaterialNotSpecified() {
+        HgMaterialConfig config = new HgMaterialConfig();
+
+        assertNull(config.getUrl());
+    }
+
+    @Test
+    public void shouldSetUrlForAMaterial() {
+        String url = "git@github.com/my/repo";
+        HgMaterialConfig config = new HgMaterialConfig();
+
+        config.setUrl(url);
+
+        assertThat(config.getUrl(), is(url));
+    }
+
+    @Test
+    public void shouldHandleNullWhenSettingUrlForAMaterial() {
+        HgMaterialConfig config = new HgMaterialConfig();
+
+        config.setUrl(null);
+
+        assertNull(config.getUrl());
     }
 }

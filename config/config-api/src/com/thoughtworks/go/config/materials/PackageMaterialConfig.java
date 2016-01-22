@@ -26,6 +26,9 @@ import com.thoughtworks.go.config.IgnoreTraversal;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 @ConfigTag(value = "package")
@@ -105,6 +108,18 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
     protected void validateConcreteMaterial(ValidationContext validationContext) {
         if (StringUtils.isBlank(packageId)) {
             addError(PACKAGE_ID, "Please select a repository and package");
+        }
+    }
+
+    @Override
+    protected void validateExtras(ValidationContext validationContext) {
+        if (!StringUtils.isBlank(packageId)) {
+            PackageRepository packageRepository = validationContext.findPackageById(packageId);
+            if (packageRepository == null) {
+                addError(PACKAGE_ID, String.format("Could not find repository for given package id:[%s]", packageId));
+            } else if (!packageRepository.doesPluginExist()) {
+                addError(PACKAGE_ID, String.format("Could not find plugin for given package id:[%s].", packageId));
+            }
         }
     }
 
@@ -198,10 +213,10 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
         PackageMaterialConfig that = (PackageMaterialConfig) o;
 
-        if (packageDefinition == null) {
+        if (packageDefinition != null ? !packageDefinition.equals(that.packageDefinition) : that.packageDefinition != null) {
             return false;
         }
-        return this.getFingerprint().equals(that.getFingerprint());
+        return super.equals(that);
     }
 
     @Override

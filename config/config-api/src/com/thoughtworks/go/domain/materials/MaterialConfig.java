@@ -19,10 +19,7 @@ package com.thoughtworks.go.domain.materials;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigInterface;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 
@@ -54,6 +51,8 @@ public interface MaterialConfig extends Serializable, Validatable {
     boolean isAutoUpdate();
 
     void setAutoUpdate(boolean autoUpdate);
+
+    void validateTree(PipelineConfigSaveValidationContext validationContext);
 
     void validateNameUniqueness(Map<CaseInsensitiveString, AbstractMaterialConfig> map);
 

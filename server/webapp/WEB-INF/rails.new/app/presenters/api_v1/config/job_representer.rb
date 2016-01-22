@@ -19,6 +19,7 @@ module ApiV1
     class JobRepresenter < ApiV1::BaseRepresenter
       alias_method :job, :represented
 
+      error_representer({'runType' => 'run_instance_count'})
       property :name,
                case_insensitive_string: true
 
@@ -55,7 +56,6 @@ module ApiV1
                  }
 
       collection :properties, exec_context: :decorator, decorator: ApiV1::Config::PropertyConfigRepresenter, class: com.thoughtworks.go.config.ArtifactPropertiesGenerator, render_empty: false
-      property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
       def run_instance_count
         if job.getRunInstanceCount.present?

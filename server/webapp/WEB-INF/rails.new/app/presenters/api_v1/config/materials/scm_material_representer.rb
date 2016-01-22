@@ -4,12 +4,7 @@ module ApiV1
       class ScmMaterialRepresenter < ApiV1::BaseRepresenter
         alias_method :material_config, :represented
 
-        property :url, getter: lambda { |options|
-                       self.getUrlArgument().forCommandline() if self.getUrlArgument()
-                     },
-                 setter:       lambda { |value, options|
-                   self.setUrl(value)
-                 }
+        property :url
         property :folder, as: :destination, skip_parse: SkipParseOnBlank
         property :filter,
                  decorator:  ApiV1::Config::Materials::FilterRepresenter,

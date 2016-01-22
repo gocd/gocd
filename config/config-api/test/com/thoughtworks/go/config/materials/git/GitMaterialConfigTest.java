@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,21 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class GitMaterialConfigTest {
@@ -67,4 +70,68 @@ public class GitMaterialConfigTest {
         assertThat(gitMaterialConfig, is(new GitMaterialConfig("")));
     }
 
+    @Test
+    public void shouldReturnTheUrl() {
+        String url = "git@github.com/my/repo";
+        GitMaterialConfig config = new GitMaterialConfig(url);
+
+        assertThat(config.getUrl(), is(url));
+    }
+
+    @Test
+    public void shouldReturnNullIfUrlForMaterialNotSpecified() {
+        GitMaterialConfig config = new GitMaterialConfig();
+
+        assertNull(config.getUrl());
+    }
+
+    @Test
+    public void shouldSetUrlForAMaterial() {
+        String url = "git@github.com/my/repo";
+        GitMaterialConfig config = new GitMaterialConfig();
+
+        config.setUrl(url);
+
+        assertThat(config.getUrl(), is(url));
+    }
+
+    @Test
+    public void shouldHandleNullWhenSettingUrlForAMaterial() {
+        GitMaterialConfig config = new GitMaterialConfig();
+
+        config.setUrl(null);
+
+        assertNull(config.getUrl());
+    }
+
+    @Test
+    public void shouldHandleNullUrlAtTheTimeOfGitMaterialConfigCreation() {
+        GitMaterialConfig config = new GitMaterialConfig(null);
+
+        assertNull(config.getUrl());
+    }
+
+    @Test
+    public void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
+        GitMaterialConfig config1 = new GitMaterialConfig("http://url", null);
+        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), "folder", new CaseInsensitiveString("git"));
+
+        assertThat(config1.getBranch(), is("master"));
+        assertThat(config2.getBranch(), is("master"));
+    }
+
+    @Test
+    public void shouldHandleNullBranchWhileSettingConfigAttributes() {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
+        gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, null));
+        assertThat(gitMaterialConfig.getBranch(), is("master"));
+    }
+
+    @Test
+    public void shouldHandleEmptyBranchWhileSettingConfigAttributes() {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
+        gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "     "));
+        assertThat(gitMaterialConfig.getBranch(), is("master"));
+
+    }
 }

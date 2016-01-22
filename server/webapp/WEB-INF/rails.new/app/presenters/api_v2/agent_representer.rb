@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,21 +50,11 @@ module ApiV2
     end
 
     def agent_state
-      if runtime_status.in?([AgentRuntimeStatus::LostContact, AgentRuntimeStatus::Missing, AgentRuntimeStatus::Idle, AgentRuntimeStatus::Building])
-        runtime_status
-      elsif runtime_status.in?([AgentRuntimeStatus::Cancelled])
-        AgentRuntimeStatus::Building
-      else
-        AgentRuntimeStatus::Unknown
-      end
+      runtime_status.agentState
     end
 
     def build_state
-      if runtime_status.in?([AgentRuntimeStatus::Building, AgentRuntimeStatus::Cancelled, AgentRuntimeStatus::Idle])
-        runtime_status
-      else
-        AgentRuntimeStatus::Unknown
-      end
+      runtime_status.buildState
     end
 
     def resources #because you know - java.util.ArrayList

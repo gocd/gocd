@@ -17,24 +17,37 @@
 [data-controller-name=pipeline_configs][data-action-name=edit] {
   @import './_dragula-3.0.1';
 
-  .box {
-    @include size(6em 4em);
+  $standard-margin: nth($fieldset-margin, 1);
 
-    display:    inline-block;
-    position:   relative;
-    text-align: center;
+  .heading {
+    margin-top: rem-calc(10px);
+  }
 
-    border: {
-      style: $input-border-style;
-      width: $input-border-width;
-      color: $input-border-color;
-    }
+  .save-pipeline {
+    padding-left:  3rem;
+    padding-right: 3rem;
+    font-size:     rem-calc(16px);
 
-    .label {
-      position:   absolute;
-      width:      100%;
-      text-align: center;
-      top:        1em;
+    .save-state {
+      position:  absolute;
+      left:      21px;
+      top:       7px;
+      font-size: rem-calc(20px);
+
+      &.in-progress {
+        @include icon-before($type: spinner, $margin: 0);
+        @include animation(spin 1.0s ease-in);
+      }
+
+      &.alert {
+        @include icon-before($type: exclamation, $margin: 0);
+        @include animation(fadeIn 1.0s ease-in);
+      }
+
+      &.success {
+        @include icon-before($type: check, $margin: 0);
+        @include animation(fadeIn 1.0s ease-in);
+      }
     }
   }
 
@@ -42,105 +55,172 @@
     @include icon-before($type: trash, $color: $primary-color);
   }
 
-  .heading {
-    margin-top: nth($fieldset-margin, 1);
-  }
-
   .pipeline-flow-boxes {
-    $triangle-size: 40px;
-    padding-bottom: 18px;
+    @include clearfix();
+    margin-top: 40px;
 
-    .pipeline-flow-box {
-      @extend .box;
-      cursor: pointer;
+    .pipeline-flow-box, .stage-boxes {
+      float:   left;
+      display: inline-block;
+    }
 
-      &.stage {
-        cursor: move;
+    .stage-boxes {
+      margin-left: $standard-margin;
+      position:    relative;
+      top:         -20px;
+      padding:     20px 0;
+      border:      1px solid #a7a7a7;
+      max-width:   calc(100% - 200px);
+
+      &:after {
+        content:    "Stages";
+        position:   absolute;
+        left:       $standard-margin;
+        top:        -14px;
+        font-size:  16px;
+        background: white;
+        padding:    0 5px;
+        display:    inline-block;
       }
 
-      &.active {
-        background:   $input-focus-bg-color;
-        border-color: $input-focus-border-color;
-
-        .bottom-triangle-outer {
-
-          @include triangle($triangle-size, $input-focus-border-color, up);
-
-          position: absolute;
-          top:      calc(100% + 6px);
-          left:     calc(50% - #{$triangle-size/2});
-
-          .bottom-triangle-inner {
-            @include triangle($triangle-size, white, up);
-
-            position: absolute;
-            top:      calc(100% + 1px);
-            left:     calc(50% - #{$triangle-size/2});
-          }
-        }
+      .stages-wrapper {
+        float:   left;
+        display: inline-block;
+        @include clearfix;
       }
-
-      & ~ .pipeline-flow-box {
-        margin-left: 3em;
-        @include icon-before($type: chevron-right) {
-          position: absolute;
-          top:      17px;
-          left:     -33px;
+      .pipeline-flow-box {
+        &:first-child {
+          margin-left: $standard-margin;
         }
       }
     }
 
-    .add-stage {
-      @extend .box;
-      @include icon-before($type: plus) {
-        position: absolute;
-        top:      17px;
-        left:     34px
+    .pipeline-flow-box {
+      @include size(150px 40px);
+
+      display:    inline-block;
+      position:   relative;
+      float:      left;
+      background: $accordion-navigation-bg-color;
+
+      border: {
+        style: $input-border-style;
+        width: $input-border-width;
+        color: $input-border-color;
       }
 
-      margin-left: 3em;
+      .label {
+        width:         100%;
+        text-align:    center;
+        display:       inline-block;
+        padding:       7px 0;
+        overflow:      hidden;
+        text-overflow: ellipsis;
+      }
+
+      &.materials {
+        cursor: pointer;
+      }
+
+      &.stage {
+        cursor: move;
+        .drag-handle {
+          @include icon-before($type: ellipsis-v, $margin: 0);
+          display:    inline-block;
+          width:      18px;
+          text-align: center;
+
+          padding:    7px 0;
+          overflow:   hidden;
+        }
+
+        .label {
+          width: calc(100% - 18px);
+        }
+      }
+
+      &.active {
+        background:   $accordion-navigation-active-bg-color;
+        border-color: scale-color($fieldset-border-color, $lightness: -5%);
+      }
+
+      &:hover {
+        background: $accordion-navigation-hover-bg-color;
+      }
+
+      & ~ .pipeline-flow-box {
+        margin-left: $standard-margin;
+        @include icon-before($type: angle-right, $size: 2em) {
+          position: absolute;
+          top:      -2px;
+          left:     -20px;
+        }
+      }
+
+      &.add-stage {
+        cursor:  pointer;
+        margin:  0 $standard-margin;
+        padding: 2px;
+
+        .label {
+          border:  1px dashed #8a8a8a;
+          padding: (7px - (1px * 2) - 2px) 0;
+          width:   100%;
+          color:   #444;
+          display: inline-block;
+          @include icon-before($type: plus-circle);
+        }
+      }
     }
   }
 
   .stage-and-material-definitions {
-    > * {
-      border: 1px solid $input-focus-border-color;
-    }
+    border:  1px solid $input-focus-border-color;
+    padding: $standard-margin;
 
     .material-definitions {
-      padding: nth($fieldset-margin, 1);
 
+      .material-definition {
+        position: relative;
+      }
+
+      .edit-secure-password {
+        display:     inline-block;
+        padding-top: rem-calc(28px);
+      }
+
+      .remove-material {
+        position: absolute;
+        left:     calc(100% - 12px);
+        top:      -11px;
+      }
+
+      .material-selector {
+        margin-top: $standard-margin;
+      }
       .add-material {
-        padding-top: rem(28px);
+        padding-top: rem(26px);
         a {
           @include icon-before($type: plus-circle);
         }
-      }
-
-      > .remove {
-        position: absolute;
-        left:     calc(100% - 76px);
       }
     }
 
     .stage-definition {
-      padding: 0 nth($fieldset-margin, 1);
+      position: relative;
 
-      .add-job {
-        margin: $fieldset-margin;
-
-        a {
-          @include icon-before($type: plus-circle);
-        }
+      .remove-stage {
+        position: absolute;
+        left:     calc(100% - 9px);
+        top:      -13px;
       }
 
-      > .remove {
-        position: absolute;
-        left:     calc(100% - 47px);
+      a.add-job {
+        @include icon-before($type: plus-circle);
       }
 
       .job-definitions {
-        padding-top: nth($fieldset-margin, 1);
+        padding-top: $standard-margin;
 
         $active-background-color: $accordion-navigation-active-bg-color;
         $hover-background-color: $accordion-navigation-hover-bg-color;
@@ -172,16 +252,16 @@
 
         .job-definition {
           .add-task {
-            padding-top: rem(1px);
+            padding-top: rem(26px);
             a {
               @include icon-before($type: plus-circle);
             }
           }
 
-          .remove {
+          .remove-job {
             position: absolute;
-            top:      0;
             left:     calc(100% - 25px);
+            top:      3px;
           }
 
           legend {
@@ -190,41 +270,51 @@
 
           > * {
             border:  $fieldset-border-width $fieldset-border-style $fieldset-border-color;
-            padding: nth($fieldset-margin, 1);
+            padding: $standard-margin;
             @media #{$medium-up} {
               width: calc(100% - 20% - 10px);
             }
           }
 
+          .task-definitions {
+            padding-top: $fieldset-padding;
+          }
+
           .task-definition {
-            position: relative;
+            position:      relative;
+            border:        $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+            border-left:   none;
+            margin-bottom: $standard-margin/2;
 
-            .remove {
-              position: absolute;
-              top:      15px;
-              left:     calc(100% - 26px);
+            .task-header, .task-body {
+              border-left: rem-calc(4px) solid $tuatara;
+              padding:     rem-calc(2px) $accordion-content-padding;
             }
+
+            .task-header {
+              padding-right: 0;
+              background:    $accordion-navigation-bg-color;
+              cursor:        move;
+
+              .task-type {
+                @include icon-before($type: bars, $size: inherit, $margin: 0) {
+                  padding-right: rem-calc(3px);
+                }
+              }
+
+              .remove-task {
+                float:        right;
+                margin-right: 3px;
+                margin-top:   -2px;
+              }
+            }
+
           }
 
-          .remove-job {
-            position: absolute;
-            left:     calc(100% - 32px);
-            top:      0;
-            z-index:  10;
-          }
         }
       }
     }
 
-  }
-
-  .environment-variable {
-    .prefix-container {
-      width: 30px;
-      .prefix {
-        @include icon-before($type: unlock-alt, $size: 16px, $margin: 0);
-      }
-    }
   }
 
   .tabs {
@@ -239,6 +329,17 @@
           border-bottom: inherit;
         }
       }
+    }
+  }
+
+  .environment-variables {
+    .secure-environment-variables-header {
+      @include icon-before($type: lock);
+    }
+
+    .edit-secure-variable {
+      display:     inline-block;
+      padding-top: 3px;
     }
   }
 }

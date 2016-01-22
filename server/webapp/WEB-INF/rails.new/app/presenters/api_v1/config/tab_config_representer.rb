@@ -19,10 +19,10 @@ module ApiV1
     class TabConfigRepresenter < ApiV1::BaseRepresenter
       alias_method :tab, :represented
 
+      error_representer
+
       property :name
       property :path
-
-      property :errors, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
     end
   end

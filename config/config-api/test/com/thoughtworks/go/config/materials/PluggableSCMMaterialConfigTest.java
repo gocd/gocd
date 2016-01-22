@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -103,17 +104,50 @@ public class PluggableSCMMaterialConfigTest {
 
     @Test
     public void shouldAddErrorIDestinationIsNotValid() throws Exception {
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), "/usr/home", null);
-        pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
+        ConfigSaveValidationContext configSaveValidationContext = mock(ConfigSaveValidationContext.class);
+        SCM scmConfig = mock(SCM.class);
+        when(configSaveValidationContext.findScmById(anyString())).thenReturn(scmConfig);
+        when(scmConfig.doesPluginExist()).thenReturn(true);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "/usr/home", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder."));
 
-        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), ".crap", null);
-        pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
+        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, ".crap", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Invalid directory name '.crap'. It should be a valid relative path."));
+    }
+
+
+    @Test
+    public void shouldAddErrorWhenMatchingScmConfigDoesNotExist() throws Exception {
+        PipelineConfigSaveValidationContext validationContext = mock(PipelineConfigSaveValidationContext.class);
+        when(validationContext.findScmById(anyString())).thenReturn(null);
+        SCM scmConfig = mock(SCM.class);
+        when(scmConfig.doesPluginExist()).thenReturn(true);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateTree(validationContext);
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find SCM for given scm-id: [scm-id]."));
+    }
+
+    @Test
+    public void shouldAddErrorWhenAssociatedSCMPluginIsMissing() throws Exception {
+        PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
+        when(configSaveValidationContext.findScmById(anyString())).thenReturn(mock(SCM.class));
+        SCM scmConfig = mock(SCM.class);
+        when(scmConfig.doesPluginExist()).thenReturn(false);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
+        pluggableSCMMaterialConfig.setScmId("scm-id");
+        pluggableSCMMaterialConfig.validateTree(configSaveValidationContext);
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find plugin for scm-id: [scm-id]."));
     }
 
     @Test

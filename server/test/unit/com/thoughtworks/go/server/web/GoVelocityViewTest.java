@@ -231,11 +231,11 @@ public class GoVelocityViewTest {
 
         when(versionInfoService.isGOUpdateCheckEnabled()).thenReturn(true);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
-        when(versionInfoService.getGoUpdate()).thenReturn("15.3.0-123");
+        when(versionInfoService.getGoUpdate()).thenReturn("16.1.0-123");
 
         view.exposeHelpers(velocityContext, servletRequest);
 
         assertTrue((Boolean) velocityContext.get(GoVelocityView.GO_UPDATE_CHECK_ENABLED));
-        assertThat((String) velocityContext.get(GoVelocityView.GO_UPDATE), is("15.3.0-123"));
+        assertThat((String) velocityContext.get(GoVelocityView.GO_UPDATE), is("16.1.0-123"));
     }
 }

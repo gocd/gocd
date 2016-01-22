@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
@@ -33,9 +34,8 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class PackageMaterialConfigTest {
     @Test
@@ -45,6 +45,36 @@ public class PackageMaterialConfigTest {
 
         assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
         assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Please select a repository and package"));
+    }
+
+    @Test
+    public void shouldAddErrorIfPackageDoesNotExistsForGivenPackageId() throws Exception {
+        PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
+        when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
+        PackageRepository packageRepository = mock(PackageRepository.class);
+        when(packageRepository.doesPluginExist()).thenReturn(true);
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"), "package-id", PackageDefinitionMother.create("package-id"));
+        packageMaterialConfig.getPackageDefinition().setRepository(packageRepository);
+
+        packageMaterialConfig.validateTree(configSaveValidationContext);
+
+        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));
+    }
+
+    @Test
+    public void shouldAddErrorIfPackagePluginDoesNotExistsForGivenPackageId() throws Exception {
+        PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
+        when(configSaveValidationContext.findPackageById(anyString())).thenReturn(mock(PackageRepository.class));
+        PackageRepository packageRepository = mock(PackageRepository.class);
+        when(packageRepository.doesPluginExist()).thenReturn(false);
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"), "package-id", PackageDefinitionMother.create("package-id"));
+        packageMaterialConfig.getPackageDefinition().setRepository(packageRepository);
+
+        packageMaterialConfig.validateTree(configSaveValidationContext);
+
+        assertThat(packageMaterialConfig.errors().getAll().size(), is(1));
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find plugin for given package id:[package-id]."));
     }
 
     @Test
@@ -142,7 +172,7 @@ public class PackageMaterialConfigTest {
 
         p1 = new PackageMaterialConfig();
         p2 = new PackageMaterialConfig();
-        assertThat(p1.equals(p2), is(false));
+        assertThat(p1.equals(p2), is(true));
 
         p2.setPackageDefinition(packageDefinition);
         assertThat(p1.equals(p2), is(false));

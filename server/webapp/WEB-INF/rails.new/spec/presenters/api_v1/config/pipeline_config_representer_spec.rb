@@ -356,8 +356,7 @@ describe ApiV1::Config::PipelineConfigRepresenter do
       errors:                  {
         materials:     ["A pipeline must have at least one material"],
         pipeline:      ["Pipeline 'wunderbar' does not have any stages configured. A pipeline must have at least one stage."],
-        labelTemplate: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]
-
+        label_template: ["Label cannot be blank. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]
       }
     }
   end
@@ -379,14 +378,14 @@ describe ApiV1::Config::PipelineConfigRepresenter do
                                    }
                                  }
                                ],
-      environment_variables:   [],
+      environment_variables:   [{:secure=>false, :name=>"", :value=>"", :errors=>{:name=>["Environment Variable cannot have an empty name for pipeline 'wunderbar'."]}}],
       materials:               [
                                  {
                                    type: "svn", attributes: { url: "http://some/svn/url", destination: "svnDir", filter: nil, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil }
                                  },
                                  {
                                    type:   "git", attributes: { url: nil, destination: nil, filter: nil, name: nil, auto_update: true, branch: "master", submodule_folder: nil },
-                                   errors: { folder: ["Destination directory is required when specifying multiple scm materials"], url: ["URL cannot be blank"] }
+                                   errors: { destination: ["Destination directory is required when specifying multiple scm materials"], url: ["URL cannot be blank"] }
                                  }
                                ],
       stages:                  [{ name: "stage1", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: { :roles => [], :users => [] } }, environment_variables: [], jobs: [] }],
@@ -395,12 +394,12 @@ describe ApiV1::Config::PipelineConfigRepresenter do
         type:   "generic", attributes: { url_pattern: "", regex: "" },
         errors: {
           regex: ["Regex should be populated"],
-          link:  ["Link should be populated", "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."]
+          url_pattern:  ["Link should be populated", "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."]
 
         }
       },
       errors:                  {
-        labelTemplate: ["You have defined a label template in pipeline wunderbar that refers to a material called svn, but no material with this name is defined."]
+        label_template: ["You have defined a label template in pipeline wunderbar that refers to a material called svn, but no material with this name is defined."]
       }
     }
   end
@@ -413,6 +412,7 @@ describe ApiV1::Config::PipelineConfigRepresenter do
 
     pipeline_config = PipelineConfig.new(CaseInsensitiveString.new("wunderbar"), "foo-1.0.${COUNT}-${svn}", "0 0 22 ? * MON-FRI", true, material_configs, ArrayList.new)
     pipeline_config.addParam(ParamConfig.new(nil, "echo"))
+    pipeline_config.addEnvironmentVariable('','')
     pipeline_config.add(StageConfigMother.stageConfig("stage1"))
     pipeline_config.setTrackingTool(TrackingTool.new())
     pipeline_config

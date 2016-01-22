@@ -79,7 +79,8 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         }
     }
 
-    private void migrate(String responseBody, int version) {
-
+    private void migrate(String responseBody, int targetVersion) {
+        if(targetVersion > 1)
+            throw new RuntimeException(String.format("Migration to %s is not supported",targetVersion));
     }
 }

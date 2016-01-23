@@ -150,6 +150,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         void update(String groupName, String pipelineName, PipelineConfig pipeline);
 
         List<PipelineConfig> getAllLocalPipelineConfigs();
+
+        List<PartialConfig> getRemote();
     }
     private class BasicStrategy implements CruiseStrategy {
 
@@ -237,6 +239,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public List<PipelineConfig> getAllLocalPipelineConfigs() {
             return getAllPipelineConfigs();
+        }
+
+        @Override
+        public List<PartialConfig> getRemote() {
+            return new ArrayList<>();
         }
     }
     private class MergeStrategy implements CruiseStrategy {
@@ -548,6 +555,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         public List<PipelineConfig> getAllLocalPipelineConfigs() {
             return this.main.getAllPipelineConfigs();
         }
+
+        @Override
+        public List<PartialConfig> getRemote() {
+            return parts;
+        }
     }
 
     @Override
@@ -815,6 +827,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public CruiseConfig getLocal() {
         return strategy.getLocal();
+    }
+
+    @Override
+    public List<PartialConfig> getRemote() {
+        return strategy.getRemote();
     }
 
     @Override

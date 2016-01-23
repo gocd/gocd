@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -51,6 +52,10 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
      * Gets only elements of CruiseConfig which are defined locally.
      */
     CruiseConfig getLocal();
+    /**
+     * Gets only elements of CruiseConfig which are defined remotely.
+     */
+    List<PartialConfig> getRemote();
 
     ConfigReposConfig getConfigRepos();
 

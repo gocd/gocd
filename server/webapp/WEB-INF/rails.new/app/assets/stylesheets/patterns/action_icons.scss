@@ -106,17 +106,15 @@
 .delete_icon_disabled {
   background: image_url('g9/icons/icon_delete_disabled_16.png') no-repeat left 50%;
 }
-/**
-TODO use _disabled variants of icons
-*/
+
 .edit_icon_disabled {
-  background: image_url('g9/icons/icon_edit_16.png') no-repeat left 50%;
+  background: image_url('g9/icons/icon_edit_16_disabled.png') no-repeat left 50%;
 }
 .move_icon_disabled {
-  background: image_url('g9/icons/icon_move_16.png') no-repeat left 50%;
+  background: image_url('g9/icons/icon_move_16_disabled.png') no-repeat left 50%;
 }
 .clone_icon_disabled {
-  background: image_url('g9/icons/icon_clone_16.png') no-repeat left 50%;
+  background: image_url('g9/icons/icon_clone_16_disabled.png') no-repeat left 50%;
 }
 
 /**

@@ -118,6 +118,11 @@
             </plugin>
 
             <plugin>
+              <groupId>io.github.zlika</groupId>
+              <artifactId>reproducible-build-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>

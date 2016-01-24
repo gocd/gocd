@@ -28,9 +28,11 @@ def in_classpath_form deps
 end
 
 def onejar jarname
-  package(:jar, :file => _(:target, 'main.jar')).with(:manifest => manifest.merge("Class-Path" => in_classpath_form(compile.dependencies)))
+  package(:jar, :file => _(:target, 'main.jar'))
+      .with(:manifest => manifest.merge("Class-Path" => in_classpath_form(compile.dependencies)))
+      .make_reproducible
 
-  one_jar = package(:onejar, :file => jarname)
+  one_jar = package(:onejar, :file => jarname).make_reproducible
   self.main_jars << one_jar
   one_jar
 end

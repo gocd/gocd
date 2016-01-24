@@ -33,8 +33,7 @@ def tw_go_jar(module_name, jar_name = module_name)
 end
 
 def server_launcher_dependencies
-  jars = Dir.glob($PROJECT_BASE + '/server-launcher/target/libs/*.jar')
-  jars
+  Dir.glob($PROJECT_BASE + '/server-launcher/target/libs/*.jar')
 end
 def jetty_jars
   Dir.glob($PROJECT_BASE + '/jetty9/target/lib/*.jar')
@@ -43,11 +42,9 @@ end
 def maven_dependency(groupid, artifactid, version, maven_repository = File.expand_path('~') + '/.m2/repository')
   groupid.gsub!('.', '/')
   path = maven_repository + '/' + groupid + '/' + artifactid + '/' + version + '/*.jar'
-  jars = Dir.glob(path)
-  jars
+  Dir.glob(path)
 end
 
 def local_maven_dependency(groupid, artifactid, version)
-  jars = maven_dependency(groupid, artifactid, version, $PROJECT_BASE + '/local-maven-repo')
-  jars
+  maven_dependency(groupid, artifactid, version, $PROJECT_BASE + '/local-maven-repo')
 end

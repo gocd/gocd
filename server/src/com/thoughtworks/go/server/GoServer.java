@@ -33,6 +33,10 @@ import java.util.List;
 
 public class GoServer {
 
+    static {
+        System.setProperty("jruby.compile.invokedynamic", "false");
+    }
+
     private static final Logger LOG = Logger.getLogger(GoServer.class);
     public static final String GO_FORCE_LOAD_PAGE_HEADER = "X-GO-FORCE-LOAD-PAGE";
 

@@ -243,11 +243,7 @@ public class AgentController {
                 if (!websocketService.isRunning()) {
                     websocketService.start();
                 }
-                AgentIdentifier agent = agentIdentifier();
-                LOG.trace(agent + " is pinging server [" + server.toString() + "]");
-                agentRuntimeInfo.refreshUsableSpace();
-                websocketService.send(new Message(Action.ping, agentRuntimeInfo));
-                LOG.trace(agent + " pinged server [" + server.toString() + "]");
+                updateServerAgentRuntimeInfo();
             }
         } catch (Exception e) {
             if (isCausedBySecurity(e)) {
@@ -284,6 +280,7 @@ public class AgentController {
                             taskExtension);
                 } finally {
                     agentRuntimeInfo.idle();
+                    updateServerAgentRuntimeInfo();
                 }
                 break;
             case reregister:
@@ -308,4 +305,13 @@ public class AgentController {
             LOG.error("Waited 30 seconds for canceling job finish, but the job is still running. Maybe canceling job does not work as expected, here is running job details: " + runner);
         }
     }
+
+    private void updateServerAgentRuntimeInfo() {
+        AgentIdentifier agent = agentIdentifier();
+        LOG.trace(agent + " is pinging server [" + server.toString() + "]");
+        agentRuntimeInfo.refreshUsableSpace();
+        websocketService.send(new Message(Action.ping, agentRuntimeInfo));
+        LOG.trace(agent + " pinged server [" + server.toString() + "]");
+    }
+
 }

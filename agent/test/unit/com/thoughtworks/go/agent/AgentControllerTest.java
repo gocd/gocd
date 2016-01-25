@@ -276,6 +276,7 @@ public class AgentControllerTest {
 
         verify(work).doWork(eq(agentIdentifier), any(BuildRepositoryRemote.class), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        verify(agentWebsocketService).send(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
     }
 
     @Test

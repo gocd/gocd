@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.websocket.api.MessageTooLargeException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
@@ -63,6 +65,9 @@ public class AgentRemoteSocket implements Agent {
     @OnWebSocketError
     public void onError(Throwable error) {
         LOGGER.error(sessionName() + " error", error);
+        if (error instanceof MessageTooLargeException) {
+            LOGGER.error("You can set Java system property '" + SystemEnvironment.GO_WEBSOCKET_MAX_MESSAGE_SIZE.propertyName() + "' to increase limit");
+        }
     }
 
     @OnWebSocketFrame

@@ -190,7 +190,7 @@ public class AgentWebsocketService {
     public void onError(Throwable error) {
         LOGGER.error(sessionName() + " error", error);
         if (error instanceof MessageTooLargeException) {
-            LOGGER.error("You can set Java system property 'go.websocket.max.text.message.size' to increase limit");
+            LOGGER.error("You can set Java system property '" + SystemEnvironment.GO_WEBSOCKET_MAX_MESSAGE_SIZE.propertyName() + "' to increase limit");
         }
     }
 

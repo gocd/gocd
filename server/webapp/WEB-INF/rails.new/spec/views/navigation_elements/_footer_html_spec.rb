@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-
 require 'spec_helper'
 
-describe "/navigation_elements/_footer.html" do
+describe "/navigation_elements/_footer" do
 
   partial_page = "navigation_elements/footer"
   it 'should have copyright, license and third-party information in the footer' do

@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe "/navigation_elements/navigation.html.erb" do
+describe "/navigation_elements/navigation" do
   include GoUtil
 
   before do
@@ -39,29 +39,27 @@ describe "/navigation_elements/navigation.html.erb" do
     it 'should have the header links' do
       render :partial => partial_page
 
-      assert_header_values = {'pipelines' => 'PIPELINES', 'environments' => 'ENVIRONMENTS', 'agents' => 'AGENTS', 'admin' => 'ADMIN'}
+      assert_header_values = ['Pipelines', 'Environments', 'Agents', 'Admin']
 
-      assert_header_values.each do |key, value|
-        Capybara.string(response.body).find("li##{key}-nav-tab").tap do |ul_tabs_li|
-          expect(ul_tabs_li).to have_selector("a", text: value)
-        end
+      assert_header_values.each do |key|
+        expect(Capybara.string(response.body)).to have_link("#{key}")
       end
     end
   end
 
   describe "user name and logout" do
     it "should display username and logout botton if a user is logged in" do
-      assign(:user, com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("maulik suchak")))
+      assign(:user, com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("go_user")))
       allow(view).to receive(:can_view_admin_page?).and_return(false)
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
       render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
 
-      expect(response.body).to have_selector(".current_user a[href='#']", text: "maulik suchak")
-      expect(response.body).to have_selector(".current_user .help a[href='http://www.go.cd/documentation/user/current']", text: "Help")
-      expect(response.body).to have_selector(".current_user a[href='/tab/mycruise/user']", text: "Preferences")
-      expect(response.body).to have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
+      expect(response.body).to have_selector(".current-user a[href='#']", text: "go_user")
+      expect(response.body).to have_selector(".current-user a[href='http://www.go.cd/documentation/user/current']", text: "Help")
+      expect(response.body).to have_selector(".current-user a[href='/tab/mycruise/user']", text: "Preferences")
+      expect(response.body).to have_selector(".current-user a[href='/auth/logout']", text: "Sign out")
     end
 
     it "should not display username and logout botton if anonymous user is logged in" do
@@ -72,60 +70,10 @@ describe "/navigation_elements/navigation.html.erb" do
       controller.request.path_parameters[:action]     = 'index'
       render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
 
-      expect(response.body).to_not have_selector(".current_user a[href='#']", text: "maulik suchak")
-      expect(response.body).to_not have_selector(".current_user a[href='/tab/mycruise/user']", text: "Preferences")
-      expect(response.body).to_not have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
-      expect(response.body).to have_selector(".current_user .help a[href='http://www.go.cd/documentation/user/current']", text: "Help")
-    end
-  end
-
-  describe "server health messages" do
-
-    it "should render header with pipelines tab selected as current" do
-      assign(:current_tab_name, 'pipelines')
-      allow(view).to receive(:can_view_admin_page?).and_return(false)
-
-      controller.request.path_parameters[:controller] = 'pipelines'
-      controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
-
-      expect(response.body).to have_selector("#pipelines-nav-tab.current")
-    end
-
-    it "should mark admin tab as hilighted when current_tab override used" do
-      assign(:current_tab_name, "admin")
-      assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      allow(view).to receive(:can_view_admin_page?).and_return(true)
-
-      controller.request.path_parameters[:controller] = 'pipelines'
-      controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
-
-      expect(response.body).to have_selector("#admin-nav-tab.current a[href='/admin/templates']")
-    end
-
-    it "should not mark admin tab as hilighted when not overridden" do
-      assign(:current_tab_name, nil)
-      assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      allow(view).to receive(:can_view_admin_page?).and_return(true)
-
-      controller.request.path_parameters[:controller] = 'environments'
-      controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "/foo/admin/pipelines"}}
-
-      expect(response.body).to_not have_selector("#admin-nav-tab.current")
-    end
-
-    it "should render header with pipelines not selected as current when visiting environment page" do
-      assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-      assign(:current_tab_name, 'environments')
-      allow(view).to receive(:can_view_admin_page?).and_return(false)
-
-      controller.request.path_parameters[:controller] = 'environments'
-      controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
-
-      expect(response.body).to_not have_selector("#pipelines-nav-tab.current")
+      expect(response.body).to_not have_selector(".current-user a[href='#']", text: "go_user")
+      expect(response.body).to_not have_selector(".current-user a[href='/tab/mycruise/user']", text: "Preferences")
+      expect(response.body).to_not have_selector(".current-user a[href='/auth/logout']", text: "Sign out")
+      expect(response.body).to have_selector(".current-user a[href='http://www.go.cd/documentation/user/current']", text: "Help")
     end
   end
 
@@ -139,7 +87,7 @@ describe "/navigation_elements/navigation.html.erb" do
     it 'should show dropdown items for admin link on header' do
       render :partial => partial_page
 
-      Capybara.string(response.body).find("li#admin-nav-tab").tap do |ul_tabs_li|
+      Capybara.string(response.body).find("ul.admin-dropdown").tap do |ul_tabs_li|
         @assert_values.each do |key, value|
           ul_tabs_li.find("li:contains('#{key}')").tap do |li|
             expect(li).to have_selector("a[href='#{value}']", text: key)
@@ -155,7 +103,7 @@ describe "/navigation_elements/navigation.html.erb" do
 
       render :partial => partial_page
 
-      Capybara.string(response.body).find("li#admin-nav-tab").tap do |ul_tabs_li|
+      Capybara.string(response.body).find("ul.admin-dropdown").tap do |ul_tabs_li|
         ul_tabs_li.all("li[role='presentation']").tap do |li|
           expect(li.size).to be(1)
           expect(li.first).to have_selector("a[href='#{templates_path}']", text: 'Templates')
@@ -172,7 +120,7 @@ describe "/navigation_elements/navigation.html.erb" do
 
       assert_values_there = {"Pipelines" => pipeline_groups_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
 
-      Capybara.string(response.body).find("li#admin-nav-tab").tap do |ul_tabs_li|
+      Capybara.string(response.body).find("ul.admin-dropdown").tap do |ul_tabs_li|
         expect(ul_tabs_li.all("li").size).to be(assert_values_there.length)
 
         assert_values_there.each do |key, value|
@@ -192,7 +140,7 @@ describe "/navigation_elements/navigation.html.erb" do
 
       assert_values_there = {"Pipelines" => pipeline_groups_path, "Templates" => templates_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
 
-      Capybara.string(response.body).find("li#admin-nav-tab").tap do |ul_tabs_li|
+      Capybara.string(response.body).find("ul.admin-dropdown").tap do |ul_tabs_li|
         expect(ul_tabs_li.all("li").size).to be(assert_values_there.length)
 
         assert_values_there.each do |key, value|
@@ -208,21 +156,7 @@ describe "/navigation_elements/navigation.html.erb" do
 
       render :partial => partial_page
 
-      Capybara.string(response.body).find("li#admin-nav-tab").tap do |ul_tabs_li|
-        expect(ul_tabs_li).to have_selector("span", text: "ADMIN")
-        expect(ul_tabs_li).to_not have_selector("a[data-toggle='dropdown']", "ADMIN")
-        expect(ul_tabs_li).to_not have_selector("ul.dropdown[role='menu']")
-      end
-    end
-
-    it "should add current css class to Admin menu when current tab is admin" do
-      assign(:current_tab_name, "admin")
-
-      controller.request.path_parameters[:controller] = 'pipelines'
-      controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
-
-      expect(response.body).to have_selector("li[id='admin-nav-tab'][class='current']")
+      expect(Capybara.string(response.body).find(".header-tabs li span")).to have_text("Admin")
     end
   end
 end

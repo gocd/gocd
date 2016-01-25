@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,24 @@
     background: image-url('g9/logo_go.png') no-repeat 10px 8px;
     width:      85px;
     height:     35px;
+  }
+
+  .current-user {
+    @extend .right;
+  }
+
+  .header-tabs {
+    @extend .left;
+    a {
+      text-transform: uppercase;
+    }
+  }
+
+  .admin-dropdown {
+    @extend .dropdown;
+    a {
+      text-transform: capitalize;
+    }
   }
 
   .user {

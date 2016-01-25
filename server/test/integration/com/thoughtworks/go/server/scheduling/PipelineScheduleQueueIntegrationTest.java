@@ -21,8 +21,11 @@ import java.util.List;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
@@ -408,5 +411,20 @@ public class PipelineScheduleQueueIntegrationTest {
         queue.schedule(fixture.pipelineName, cause);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
         assertThat(pipeline.getFirstStage().getConfigVersion(), is("md5-test"));
+    }
+
+
+    @Test
+    public void shouldReturnNullWhenPipelineConfigOriginDoesNotMatchBuildCauseRevision() {
+        PipelineConfig pipelineConfig = fixture.pipelineConfig();
+        BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
+        MaterialConfig materialConfig = pipelineConfig.materialConfigs().first();
+        MaterialRevision causeRevision = cause.getMaterialRevisions().findRevisionFor(materialConfig);
+        pipelineConfig.setOrigins(new RepoConfigOrigin(
+                new ConfigRepoConfig(materialConfig,"123"),"plug"));
+        saveRev(cause);
+        queue.schedule(fixture.pipelineName, cause);
+        Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
+        assertThat(pipeline,is(nullValue()));
     }
 }

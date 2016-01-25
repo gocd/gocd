@@ -328,8 +328,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         MaterialConfig configMaterial = repoConfigOrigin.getMaterial();
 
-        for (MaterialConfig material : this.materialConfigs()) {
-            if (material.equals(configMaterial))
+        for(MaterialConfig material : this.materialConfigs())
+        {
+            if(material.getFingerprint().equals(configMaterial.getFingerprint()))
                 return true;
         }
         return false;

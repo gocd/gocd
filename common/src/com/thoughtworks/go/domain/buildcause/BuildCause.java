@@ -23,8 +23,11 @@ import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.ModificationSummaries;
 import com.thoughtworks.go.domain.ModificationVisitorAdapter;
@@ -117,6 +120,26 @@ public class BuildCause implements Serializable {
         }
         return true;
     }
+    public boolean pipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig){
+        if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
+        {
+            return true;
+        }
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
+
+        MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
+        //TODO if revision in any of the pipelines match
+        MaterialRevision revision = this.getMaterialRevisions().findRevisionForFingerPrint(configAndCodeMaterial.getFingerprint());
+
+        String revisionString = revision.getRevision().getRevision();
+        if(pipelineConfig.isConfigOriginFromRevision(revisionString))
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     public void assertMaterialsMatch(MaterialConfigs other) {
         Materials materialsFromBuildCause = materials();
@@ -125,6 +148,40 @@ public class BuildCause implements Serializable {
                 invalid(other);
             }
         }
+    }
+    public void assertPipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig) {
+        if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
+        {
+            return;
+        }
+        // then config and code revision must both match
+        if(this.trigger.isForced())
+        {
+            // we should not check when manual trigger because of re-runs
+            // and possibility to specify revisions to run with
+            return;
+        }
+
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
+
+        MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
+        //TODO if revision in any of the pipelines match
+        MaterialRevision revision = this.getMaterialRevisions().findRevisionForFingerPrint(configAndCodeMaterial.getFingerprint());
+
+        String revisionString = revision.getRevision().getRevision();
+        if(pipelineConfig.isConfigOriginFromRevision(revisionString))
+        {
+            return;
+        }
+
+        invalidRevision(repoConfigOrigin.getRevision(),revisionString);
+    }
+
+    private void invalidRevision(String configRevision,String codeRevision) {
+        throw new BuildCauseOutOfDateException(
+                "Illegal build cause - pipeline configuration is from different revision than scm material. "
+                        + "Pipeline configuration revision: " + configRevision + " "
+                        + "while revision to schedule is : " + codeRevision + "");
     }
 
     private void invalid(MaterialConfigs materialsFromConfig) {
@@ -243,4 +300,6 @@ public class BuildCause implements Serializable {
     public void addOverriddenVariables(EnvironmentVariablesConfig variables) {
         this.variables.addAll(variables);
     }
+
+
 }

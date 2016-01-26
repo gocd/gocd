@@ -18,6 +18,7 @@ package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.lang.StringUtils;
@@ -145,6 +146,49 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
 
     public static HealthStateScope forPlugin(String symbolicName) {
         return new HealthStateScope(ScopeType.PLUGIN, symbolicName);
+    }
+
+    public String getPipelineNames(CruiseConfig config) {
+        switch (type) {
+            case PIPELINE:
+            case FANIN:
+                return scope;
+            case STAGE:
+            case JOB:
+                return scope.split("/")[0];
+            case MATERIAL:
+                StringBuffer buffer = new StringBuffer();
+                for (PipelineConfig pc : config.getAllPipelineConfigs()) {
+                    for (MaterialConfig mc : pc.materialConfigs()) {
+                        String scope = HealthStateScope.forMaterialConfig(mc).getScope();
+                        if (scope.equals(this.scope)) {
+                            if (buffer.length() > 0) {
+                                buffer.append(",");
+                            }
+                            buffer.append(pc.name());
+                            break;
+                        }
+                    }
+                }
+                return buffer.toString();
+            case MATERIAL_UPDATE:
+                StringBuffer materialUpdateBuffer = new StringBuffer();
+                for (PipelineConfig pc : config.getAllPipelineConfigs()) {
+                    for (MaterialConfig mc : pc.materialConfigs()) {
+                        String scope = HealthStateScope.forMaterialConfigUpdate(mc).getScope();
+                        if (scope.equals(this.scope)) {
+                            if (materialUpdateBuffer.length() > 0) {
+                                materialUpdateBuffer.append(",");
+                            }
+                            materialUpdateBuffer.append(pc.name());
+                            break;
+                        }
+                    }
+                }
+                return materialUpdateBuffer.toString();
+            default:
+                return "";
+        }
     }
 
     enum ScopeType {

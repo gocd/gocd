@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.serverhealth;
 
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.utils.Timeout;
@@ -213,5 +214,9 @@ public class ServerHealthState {
 
     public boolean hasExpired() {
         return expiryTime != null && expiryTime.isBefore(clock.currentDateTime());
+    }
+
+    public String getPipelineNames(CruiseConfig config) {
+        return type.getPipelineNames(config);
     }
 }

@@ -128,7 +128,7 @@
                         </li>
                     </ul>
                     <div id="cruise_message_counts" class="cruise_messages"></div>
-                    <div id="cruise_message_body" style="display:none;"></div>
+                    <div id="cruise_message_body" style="display:none;" class="cruise_message_body"></div>
                 </div>
             #end
             </div>

@@ -140,4 +140,8 @@ public class HealthStateType implements Comparable<HealthStateType> {
     public int compareTo(HealthStateType o) {
         return scope.compareTo(o.scope);
     }
+
+    public String getPipelineNames(CruiseConfig cruiseConfig) {
+        return scope.getPipelineNames(cruiseConfig);
+    }
 }

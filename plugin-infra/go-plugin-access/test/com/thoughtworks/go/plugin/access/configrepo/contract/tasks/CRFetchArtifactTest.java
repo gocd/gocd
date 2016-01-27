@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -55,5 +56,27 @@ public class CRFetchArtifactTest extends CRBaseTest<CRFetchArtifactTask> {
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
         assertThat(String.format("Deserialized value should equal to value before serialization"),
                 deserializedValue,is(value));
+    }
+
+    @Test
+    public void shouldDeserializeWhenDestinationIsNull()
+    {
+        String json = "{\n" +
+                "              \"type\" : \"fetch\",\n" +
+                "              \"pipeline\" : \"pip\",\n" +
+                "              \"stage\" : \"build1\",\n" +
+                "              \"job\" : \"build\",\n" +
+                "              \"source\" : \"bin\",\n" +
+                "              \"run_if\" : \"passed\"\n" +
+                "            }";
+        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
+
+        assertThat(deserializedValue.getPipelineName(),is("pip"));
+        assertThat(deserializedValue.getJob(),is("build"));
+        assertThat(deserializedValue.getStage(),is("build1"));
+        assertThat(deserializedValue.getSource(),is("bin"));
+        assertThat(deserializedValue.getRunIf(),is(CRRunIf.passed));
+        assertNull(deserializedValue.getDestination());
+        assertThat(deserializedValue.sourceIsDirectory(),is(true));
     }
 }

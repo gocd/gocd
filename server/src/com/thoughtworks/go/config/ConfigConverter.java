@@ -470,8 +470,12 @@ public class ConfigConverter {
 
         if(crJob.isRunOnAllAgents())
             jobConfig.setRunOnAllAgents(true);
-        else
-            jobConfig.setRunInstanceCount(crJob.getRunInstanceCount());
+        else {
+            Integer count = crJob.getRunInstanceCount();
+            if(count != null)
+                jobConfig.setRunInstanceCount((int)count);
+            // else null - meaning simple job
+        }
 
         if(crJob.getTimeout() != null)
             jobConfig.setTimeout(Integer.toString(crJob.getTimeout()));

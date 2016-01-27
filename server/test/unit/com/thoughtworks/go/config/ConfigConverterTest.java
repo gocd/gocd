@@ -225,6 +225,22 @@ public class ConfigConverterTest {
     }
 
     @Test
+    public void shouldConvertFetchArtifactTaskWhenDestinationIsNotSpecified() {
+        CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.passed, null,
+                "upstream", "stage", "job", "src", null, false);
+
+        FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
+
+        assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
+        assertThat(result.getDest(),is(""));
+        assertThat(result.getJob().toLower(), is("job"));
+        assertThat(result.getPipelineName().toLower(), is("upstream"));
+        assertThat(result.getSrc(), is("src"));
+        assertThat(result.isSourceAFile(), is(true));
+    }
+
+
+    @Test
     public void shouldConvertFetchArtifactTaskWhenSourceIsDirectory() {
         CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.failed, null,
                 "upstream", "stage", "job", "src", "dest", true);
@@ -519,6 +535,34 @@ public class ConfigConverterTest {
         assertThat(jobConfig.getProperties(),hasItem(new ArtifactPropertiesGenerator("name","src","path")));
         assertThat(jobConfig.isRunOnAllAgents(),is(false));
         assertThat(jobConfig.getRunInstanceCount(),is("5"));
+        assertThat(jobConfig.getTimeout(),is("120"));
+        assertThat(jobConfig.getTasks().size(),is(1));
+    }
+    @Test
+    public void shouldConvertJobWhenRunInstanceCountIsNotSpecified()
+    {
+        CRJob crJob = new CRJob("name",environmentVariables, tabs,
+                resources, artifacts, artifactPropertiesGenerators,
+                null, 120, tasks);
+
+        JobConfig jobConfig = configConverter.toJobConfig(crJob);
+
+        assertThat(jobConfig.isRunOnAllAgents(),is(false));
+        assertNull(jobConfig.getRunInstanceCount());
+        assertThat(jobConfig.getTimeout(),is("120"));
+        assertThat(jobConfig.getTasks().size(),is(1));
+    }
+    @Test
+    public void shouldConvertJobWhenRunInstanceCountIsAll()
+    {
+        CRJob crJob = new CRJob("name",environmentVariables, tabs,
+                resources, artifacts, artifactPropertiesGenerators,
+                "all", 120, tasks);
+
+        JobConfig jobConfig = configConverter.toJobConfig(crJob);
+
+        assertNull(jobConfig.getRunInstanceCount());
+        assertThat(jobConfig.isRunOnAllAgents(),is(true));
         assertThat(jobConfig.getTimeout(),is("120"));
         assertThat(jobConfig.getTasks().size(),is(1));
     }

@@ -30,6 +30,20 @@ public class CRJob extends CRBase {
     public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
                  Collection<String> resources, Collection<CRArtifact> artifacts,
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
+                 String runInstanceCount, int timeout, List<CRTask> tasks) {
+        this.name = name;
+        this.environment_variables = environmentVariables;
+        this.tabs = tabs;
+        this.resources = resources;
+        this.artifacts = artifacts;
+        this.properties = artifactPropertiesGenerators;
+        this.run_instance_count = runInstanceCount;
+        this.timeout = timeout;
+        this.tasks = tasks;
+    }
+    public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
+                 Collection<String> resources, Collection<CRArtifact> artifacts,
+                 Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  boolean runOnAllAgents, int runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
         this.environment_variables = environmentVariables;
@@ -229,9 +243,9 @@ public class CRJob extends CRBase {
             this.run_instance_count = null;
     }
 
-    public int getRunInstanceCount() {
+    public Integer getRunInstanceCount() {
         if(run_instance_count == null)
-            return 1;
+            return null;
         return Integer.parseInt(run_instance_count);
     }
 

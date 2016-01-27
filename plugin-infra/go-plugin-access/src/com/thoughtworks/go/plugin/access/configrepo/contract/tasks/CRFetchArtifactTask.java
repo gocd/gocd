@@ -10,7 +10,8 @@ public class CRFetchArtifactTask extends CRTask  {
     private String stage;
     private String job;
     private String source;
-    private Boolean is_source_a_file;
+    // when missing, will be false, which is default - source is directory
+    private boolean is_source_a_file;
     private String destination;
 
     public CRFetchArtifactTask(){

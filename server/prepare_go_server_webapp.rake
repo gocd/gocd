@@ -16,6 +16,7 @@
 
 require 'securerandom'
 require 'rubygems'
+require 'digest/md5'
 
 GO_ROOT = File.expand_path('../../', __FILE__)
 SERVER_MODULE_ROOT = File.join(GO_ROOT, 'server')
@@ -76,12 +77,16 @@ task 'keep-only-prod-gems' do
 end
 
 task :handle_assets_rails4 do
-  rm_rf("target/webapp/WEB-INF/rails.new/tmp")
+  assets_location_in_target = "#{rails_root_in_target}/public/assets"
+
+  rm_rf("#{rails_root_in_target}/tmp")
   task('precompile_assets').invoke
-  assets_location_in_target = "target/webapp/WEB-INF/rails.new/public/assets"
   rm_rf assets_location_in_target if File.exist? assets_location_in_target
-  cp_r "webapp/WEB-INF/rails.new/public/assets", "target/webapp/WEB-INF/rails.new/public/"
-  rm_rf "target/webapp/WEB-INF/rails.new/app/assets"
+  cp_r "webapp/WEB-INF/rails.new/public/assets", "#{rails_root_in_target}/public/"
+  task('make_sprockets_manifest_reproducible').invoke
+
+  rm_rf "#{rails_root_in_target}/app/assets"
+  rm_f Dir.glob("#{rails_root_in_target}/*.log")
 end
 
 task :handle_assets do
@@ -160,6 +165,10 @@ def rails_root(*path)
   File.expand_path(File.join(File.dirname(__FILE__), "webapp", "WEB-INF", "rails.new", *path))
 end
 
+def rails_root_in_target(*path)
+  File.expand_path(File.join(File.dirname(__FILE__), "target", "webapp", "WEB-INF", "rails.new", *path))
+end
+
 def sh_with_environment(cmd, env={})
   original_env = ENV.clone.to_hash
   begin
@@ -175,11 +184,19 @@ def sh_with_environment(cmd, env={})
   end
 end
 
-
 task :precompile_assets do
   cd rails_root do
     sh_with_environment("#{ruby_executable} -S ./bin/rake --trace assets:clobber assets:precompile", {'RAILS_ENV' => 'production', 'CLASSPATH' => classpath})
   end
+end
+
+task :make_sprockets_manifest_reproducible do
+  dir_of_existing_manifest = rails_root_in_target("public", "assets")
+  existing_manifest_path = Dir.glob(File.join(dir_of_existing_manifest, ".sprockets-manifest-*.json")).first
+  digest_of_file = Digest::MD5.file(existing_manifest_path).hexdigest
+  new_manifest_path = File.join(dir_of_existing_manifest, ".sprockets-manifest-#{digest_of_file}.json")
+
+  mv existing_manifest_path, new_manifest_path
 end
 
 task :jasmine_tests do

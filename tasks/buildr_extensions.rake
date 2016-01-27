@@ -478,6 +478,67 @@ module WireupTestJVMArguments
   end
 end
 
+module ReproducibleZip
+  POM_FOR_REPRODUCIBLE_ZIP = '
+<project>
+  <groupId>com.thoughtworks.go</groupId>
+  <artifactId>strip_jar</artifactId>
+  <version>0.1</version>
+  <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.github.zlika</groupId>
+        <artifactId>reproducible-build-maven-plugin</artifactId>
+        <version>0.2</version>
+        <executions>
+          <execution>
+            <id>make-jar-reproducible</id>
+            <phase>package</phase>
+            <goals>
+              <goal>strip-jar</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>.</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>'
+
+  def make_reproducible
+    self.enhance do |task|
+      puts "Making #{name} reproducible."
+
+      task.enhance do |task_after_creation_of_artifact|
+        original_file_absolute_path = File.absolute_path(task_after_creation_of_artifact.name)
+
+        Dir.mktmpdir do |tmp_dir|
+          cp original_file_absolute_path, tmp_dir
+
+          Dir.chdir(tmp_dir) do
+            IO.write("pom.xml", POM_FOR_REPRODUCIBLE_ZIP)
+
+            cmd_to_strip_jar = 'mvn package'
+            trace? ? sh(cmd_to_strip_jar) : `#{cmd_to_strip_jar}`
+
+            cp File.join(tmp_dir, File.basename(original_file_absolute_path)), original_file_absolute_path
+          end
+        end
+      end
+    end
+    self
+  end
+end
+
 class Buildr::Project
   include WireupTestJVMArguments
+end
+
+class ::Buildr::ZipTask
+  include ReproducibleZip
 end

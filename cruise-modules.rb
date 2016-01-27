@@ -37,7 +37,7 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
       agent_dir = "go-agent-#{VERSION_NUMBER}"
       zip.path(agent_dir).include(self.path_to('../../installers/agent/release/*'), bootstrapper, in_root('LICENSE'))
       zip.path(agent_dir + '/config').include(self.path_to('../../agent/properties/log4j.properties'))
-    end
+    end.make_reproducible
 
     task :zip => zip_file
 
@@ -119,6 +119,14 @@ end
 def clone_command_repo(command_repository_default_dir)
   rm_rf command_repository_default_dir
   sh "git clone #{command_repo_url} #{command_repository_default_dir}"
+
+  cd command_repository_default_dir do
+    sh "git reflog expire --expire=now --all"
+    sh "git gc --aggressive --prune=now"
+    sh "git reflog expire --all --expire-unreachable=0"
+    sh "git repack -A -d"
+    sh "git prune"
+  end
 end
 
 define "cruise:server", :layout => server_layout("server") do
@@ -235,25 +243,25 @@ define "cruise:server", :layout => server_layout("server") do
     exclude_fileset_from_target(jar, 'common', "**/validation/*.class")
     exclude_fileset_from_target(jar, 'common', "**/remote/*.class")
     exclude_fileset_from_target(jar, 'common', "**/remote/work/*.class")
-  end
+  end.make_reproducible
 
   h2db_zip = package(:zip, :file => _(:target, "include/defaultFiles/h2db.zip")).clean.enhance do |zip|
     zip.include _('db/h2db/*'), :path => "h2db"
-  end
+  end.make_reproducible
 
   deltas_zip = package(:zip, :file => _(:target, "include/defaultFiles/h2deltas.zip")).clean.enhance do |zip|
     zip.include _('db/migrate/h2deltas/*'), :path => "h2deltas"
-  end
+  end.make_reproducible
 
   command_repository_zip = package(:zip, :file => _(:target, "include/defaultFiles/defaultCommandSnippets.zip")).clean.enhance(['cruise:server:pull_from_central_command_repo']) do |zip|
     command_repo_name = ENV['COMMAND_REPO_NAME'] || 'go-command-repo'
     zip.include _("../#{command_repo_name}/*")
     zip.include _("../#{command_repo_name}/.git")
-  end
+  end.make_reproducible
 
   plugins_zip = package(:zip, :file => _(:target, "include/defaultFiles/plugins.zip")).clean.enhance(['cruise:server:write_server_version_for_plugins']) do |zip|
     zip.include _("../tw-go-plugins/dist/*")
-  end
+  end.make_reproducible
 
   task :write_server_version_for_plugins do
     plugins_dist_dir = 'tw-go-plugins/dist'
@@ -262,7 +270,7 @@ define "cruise:server", :layout => server_layout("server") do
 
   cruise_war = _(:target, 'cruise.war')
 
-  cruise_jar = onejar(_(:target, 'go.jar')).enhance(['cruise:agent-bootstrapper:package']) do |onejar|
+  go_jar = onejar(_(:target, 'go.jar')).enhance(['cruise:agent-bootstrapper:package']) do |onejar|
     onejar.path('defaultFiles/').include(cruise_war, h2db_zip, deltas_zip, command_repository_zip, plugins_zip,
                                          tw_go_jar('agent-bootstrapper'), tw_go_jar('agent-launcher'), tw_go_jar('agent'), _('historical_jars'))
 
@@ -287,9 +295,9 @@ define "cruise:server", :layout => server_layout("server") do
     name_with_version = "go-server-#{VERSION_NUMBER}"
 
     zip_file = zip(_(:zip_package)).clean.enhance(['cruise:server:package']).tap do |zip|
-      zip.path(name_with_version).include(server.path_to('../installers/server/release/*'), cruise_jar, in_root('LICENSE')).
+      zip.path(name_with_version).include(server.path_to('../installers/server/release/*'), go_jar, in_root('LICENSE')).
               exclude(server.path_to('../installers/server/release/cruise-config.xml'))
-    end
+    end.make_reproducible
 
     task :zip => zip_file
 

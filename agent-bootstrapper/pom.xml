@@ -86,6 +86,32 @@
             </plugin>
 
             <plugin>
+                <groupId>io.github.zlika</groupId>
+                <artifactId>reproducible-build-maven-plugin</artifactId>
+                <executions>
+
+                    <!-- First run of strip-jar since agent-bootstrapper-classes.jar needs to be stripped before it is packaged into agent-bootstrapper.jar -->
+                    <execution>
+                        <id>make-jar-reproducible-after-it-is-created</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>strip-jar</goal>
+                        </goals>
+                    </execution>
+
+                    <!-- Second run of strip-jar since agent-bootstrapper.jar will be updated to include some other jars,
+                         after run 1 above (in update-one-jar execution below). -->
+                    <execution>
+                        <id>make-both-launcher-jars-reproducible-after-they-are-created</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>strip-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.dstovall</groupId>
                 <artifactId>onejar-maven-plugin</artifactId>
                 <version>1.4.5</version>

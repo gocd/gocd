@@ -110,6 +110,45 @@ public class GitCommandTest {
         assertThat(output.getStdOut(), Is.is("* master"));
     }
 
+
+    @Test
+    public void fullCloneIsNotShallow() {
+        assertThat(git.isShallow(), is(false));
+        assertThat(git.revisionCount(), is(5));
+    }
+
+    @Test
+    public void shouldOnlyCloneLimitedRevisionsIfDepthSpecified() throws Exception {
+        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        assertThat(git.isShallow(), is(true));
+        assertThat(git.revisionCount(), is(2));
+    }
+
+    @Test
+    public void unshallowALocalRepoWithArbitaryDepth() throws Exception {
+        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        git.unshallow(inMemoryConsumer(), 1);
+        assertThat(git.isShallow(), is(true));
+        assertThat(git.revisionCount(), is(3));
+
+        git.unshallow(inMemoryConsumer(), Integer.MAX_VALUE);
+        assertThat(git.isShallow(), is(false));
+        assertThat(git.revisionCount(), is(5));
+    }
+
+    @Test
+    public void shouldBeAbleToTellWhetherARevisionExists() {
+        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        assertThat(git.hasRevision(GitTestRepo.REVISION_4), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_3), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_2), is(false));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_1), is(false));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(false));
+    }
+
     @Test
     public void shouldCloneFromBranchWhenMaterialPointsToABranch() throws IOException {
         gitLocalRepoDir = createTempWorkingDirectory();

@@ -53,7 +53,16 @@ public class GitCommand extends SCMCommand {
     }
 
     public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
-        CommandLine gitClone = git().withArg("clone").withArg(String.format("--branch=%s", branch)).withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+        return cloneFrom(outputStreamConsumer, url, null);
+    }
+
+    public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
+        CommandLine gitClone = git().withArg("clone").withArg(String.format("--branch=%s", branch));
+        if(depth != null) {
+            gitClone.withArg(String.format("--depth=%s", depth));
+        }
+        gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+
         return run(gitClone, outputStreamConsumer);
     }
 
@@ -277,6 +286,25 @@ public class GitCommand extends SCMCommand {
         }
     }
 
+    public void unshallow(ProcessOutputStreamConsumer outputStreamConsumer, int additionalDepth) {
+        outputStreamConsumer.stdOutput("[GIT] Fetching changes");
+        CommandLine gitFetch = git()
+                .withArgs("fetch", "origin")
+                .withWorkingDir(workingDir);
+
+        if(additionalDepth == Integer.MAX_VALUE) {
+            gitFetch.withArg("--unshallow");
+        } else {
+            gitFetch.withArg(String.format("--depth=%d", revisionCount() + additionalDepth));
+        }
+
+        int result = run(gitFetch, outputStreamConsumer);
+        if (result != 0) {
+            throw new RuntimeException(String.format("unshallow a shallow repo failed for [%s]", this.workingRepositoryUrl()));
+        }
+    }
+
+
     private int gc(ProcessOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Performing git gc");
         CommandLine gitGc = git().withArgs("gc", "--auto").withWorkingDir(workingDir);
@@ -381,4 +409,25 @@ public class GitCommand extends SCMCommand {
         CommandLine foreachCmd = git().withArgs(foreachArgs).withWorkingDir(workingDir);
         runOrBomb(foreachCmd);
     }
+
+    public boolean isShallow() {
+        return new File(workingDir, ".git/shallow").exists();
+    }
+
+    public int revisionCount() {
+        CommandLine cmd = git().withArg("rev-list").withArg("--count").withArg(branch).withWorkingDir(workingDir);
+        ConsoleResult consoleResult = runOrBomb(cmd);
+        return Integer.valueOf(consoleResult.outputAsString());
+    }
+
+    public boolean hasRevision(Revision revision) {
+        CommandLine cmd = git().withArg("cat-file").withArg("-t").withArg(revision.getRevision()).withWorkingDir(workingDir);
+        try {
+            ConsoleResult consoleResult = runOrBomb(cmd);
+            return "commit".equals(consoleResult.outputAsString());
+        } catch (CommandLineException e) {
+            return false;
+        }
+    }
+
 }

@@ -91,6 +91,7 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -570,6 +571,13 @@ public class MagicalGoConfigXmlLoaderTest {
         Filter expectedFilter = new Filter();
         expectedFilter.add(new IgnoredFiles("x"));
         assertThat(parsedFilter, is(expectedFilter));
+    }
+
+    @Test
+    public void shouldLoadShallowFlagFromGitPartial() throws Exception {
+        String gitPartial = "<git url='file:///tmp/testGitRepo/project1' shallow=\"true\" />";
+        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(toInputStream(gitPartial), GitMaterialConfig.class);
+        assertTrue(gitMaterial.isShallowClone());
     }
 
     @Test

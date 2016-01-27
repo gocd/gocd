@@ -101,5 +101,5 @@ public interface Material extends Serializable {
 
     MaterialConfig config();
 
-    public Map<String, Object> getAttributes(boolean addSecureFields);
+    Map<String, Object> getAttributes(boolean addSecureFields);
 }

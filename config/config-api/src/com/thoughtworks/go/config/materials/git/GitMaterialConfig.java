@@ -30,18 +30,25 @@ import com.thoughtworks.go.util.command.UrlArgument;
 
 @ConfigTag("git")
 public class GitMaterialConfig extends ScmMaterialConfig {
+
     @ConfigAttribute(value = "url")
     private UrlArgument url;
 
     @ConfigAttribute(value = "branch")
     private String branch = DEFAULT_BRANCH;
 
+    @ConfigAttribute(value = "shallowClone")
+    private boolean shallowClone;
+
     private String submoduleFolder;
+
+
 
     public static final String TYPE = "GitMaterial";
     public static final String URL = "url";
     public static final String BRANCH = "branch";
     public static final String DEFAULT_BRANCH = "master";
+    public static final String SHALLOW = "shallowClone";
 
     public GitMaterialConfig() {
         super(TYPE);
@@ -59,13 +66,14 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         }
     }
 
-    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name) {
+    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name, boolean shallowClone) {
         super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         if(branch != null) {
             this.branch = branch;
         }
         this.submoduleFolder = submoduleFolder;
+        this.shallowClone = shallowClone;
     }
 
     @Override
@@ -221,5 +229,11 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         if (map.containsKey(URL)) {
             this.url = new UrlArgument((String) map.get(URL));
         }
+
+        this.shallowClone = "true".equals(map.get(SHALLOW));
+    }
+
+    public boolean isShallowClone() {
+        return shallowClone;
     }
 }

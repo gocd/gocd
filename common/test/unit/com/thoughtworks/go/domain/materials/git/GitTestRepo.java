@@ -21,12 +21,15 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
+import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +40,12 @@ public class GitTestRepo extends TestRepo {
     private static final String GIT_3_REVISIONS_BUNDLE = "../common/test-resources/unit/data/git/git-3-revisions.git";
     public static final String GIT_FOO_BRANCH_BUNDLE = "../common/test-resources/unit/data/git/foo-branch.git";
     public static final String GIT_SUBMODULE_REF_BUNDLE = "../common/test-resources/unit/data/git/referenced-submodule.git";
+
+    public static final StringRevision REVISION_0 = new StringRevision("55502a724dd8574f1e4bcf19b605a1f4f182e892");
+    public static final StringRevision REVISION_1 = new StringRevision("b613aee673d96e967100306222246aa9decbc53c");
+    public static final StringRevision REVISION_2 = new StringRevision("4ab7833f55024c975cf5b918af640954c108825e");
+    public static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
+    public static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
     private File gitRepo;
 
     public GitTestRepo(String path) throws IOException {
@@ -67,7 +76,7 @@ public class GitTestRepo extends TestRepo {
     }
 
     public String projectRepositoryUrl() {
-        return gitRepo.getAbsolutePath();
+        return FileUtil.toFileURI(gitRepo);
     }
 
     @Override public List<Modification> checkInOneFile(String fileName, String comment) throws IOException {

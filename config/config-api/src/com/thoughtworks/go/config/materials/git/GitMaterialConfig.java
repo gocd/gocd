@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
@@ -28,20 +26,29 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 
+import java.util.Map;
+
 @ConfigTag("git")
 public class GitMaterialConfig extends ScmMaterialConfig {
+
     @ConfigAttribute(value = "url")
     private UrlArgument url;
 
     @ConfigAttribute(value = "branch")
     private String branch = DEFAULT_BRANCH;
 
+    @ConfigAttribute(value = "shallowClone")
+    private boolean shallowClone;
+
     private String submoduleFolder;
+
+
 
     public static final String TYPE = "GitMaterial";
     public static final String URL = "url";
     public static final String BRANCH = "branch";
     public static final String DEFAULT_BRANCH = "master";
+    public static final String SHALLOW_CLONE = "shallowClone";
 
     public GitMaterialConfig() {
         super(TYPE);
@@ -59,13 +66,20 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         }
     }
 
-    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name) {
+    public GitMaterialConfig(String url, String branch, Boolean shallowClone) {
+        this(url, branch);
+        setShallowClone(shallowClone);
+    }
+
+
+    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         if(branch != null) {
             this.branch = branch;
         }
         this.submoduleFolder = submoduleFolder;
+        this.shallowClone = shallowClone;
     }
 
     @Override
@@ -78,6 +92,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put("url", url);
         parameters.put("branch", branch);
+        parameters.put("shallowClone", shallowClone);
     }
 
     @Override
@@ -204,6 +219,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
                 "url=" + url +
                 ", branch='" + branch + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
+                ", shallowClone=" + shallowClone +
                 '}';
     }
 
@@ -220,6 +236,18 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         }
         if (map.containsKey(URL)) {
             this.url = new UrlArgument((String) map.get(URL));
+        }
+
+        this.shallowClone = "true".equals(map.get(SHALLOW_CLONE));
+    }
+
+    public boolean isShallowClone() {
+        return shallowClone;
+    }
+
+    public void setShallowClone(Boolean shallowClone) {
+        if (shallowClone != null) {
+            this.shallowClone = shallowClone;
         }
     }
 }

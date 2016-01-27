@@ -103,15 +103,16 @@ public class MaterialConfigsMother {
         return new HgMaterialConfig(url, folder);
     }
 
-    public static GitMaterialConfig gitMaterialConfig(String url, String submoduleFolder, String branch) {
+    public static GitMaterialConfig gitMaterialConfig(String url, String submoduleFolder, String branch, boolean shallowClone) {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(url, branch);
+        gitMaterialConfig.setShallowClone(shallowClone);
         gitMaterialConfig.setSubmoduleFolder(submoduleFolder);
         return gitMaterialConfig;
     }
 
     public static GitMaterialConfig gitMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new GitMaterialConfig(new UrlArgument("http://user:password@funk.com/blank"), "branch", "sub_module_folder", false, filter, "destination", new CaseInsensitiveString("AwesomeGitMaterial"));
+        return new GitMaterialConfig(new UrlArgument("http://user:password@funk.com/blank"), "branch", "sub_module_folder", false, filter, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), false);
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url) {

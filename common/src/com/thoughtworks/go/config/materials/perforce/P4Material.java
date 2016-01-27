@@ -109,11 +109,6 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     @Override
-    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
-        this.updateTo(output, revision, baseDir, execCtx);
-    }
-    @Override
     public MaterialConfig config() {
         return new P4MaterialConfig(serverAndPort, userName, getPassword(), useTickets, view == null ? null : view.getValue(), goCipher, name, autoUpdate, filter, folder);
     }
@@ -155,11 +150,12 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return p4;
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ProcessOutputStreamConsumer outputConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         boolean cleaned = cleanDirectoryIfRepoChanged(workingdir(baseDir), outputConsumer);
+        String revision = revisionContext.getLatestRevision().getRevision();
         try {
-            outputConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), serverAndPort));
-            p4(baseDir, outputConsumer).sync(parseLong(revision.getRevision()), cleaned, outputConsumer);
+            outputConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision, serverAndPort));
+            p4(baseDir, outputConsumer).sync(parseLong(revision), cleaned, outputConsumer);
             outputConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);

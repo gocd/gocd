@@ -27,13 +27,16 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
+
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -46,10 +49,6 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.util.*;
 
@@ -82,11 +81,6 @@ public class GitMaterialTest {
     private static final String GIT_VERSION_1_5_4_3 = "git version 1.5.4.3";
     private static final String GIT_VERSION_1_6_0_2_ON_WINDOWS = "git version 1.6.0.2.1172.ga5ed0";
     private static final String GIT_VERSION_NODE_ON_WINDOWS = "git version ga5ed0asdasd.ga5ed0";
-    private static final StringRevision REVISION_0 = new StringRevision("55502a724dd8574f1e4bcf19b605a1f4f182e892");
-    private static final StringRevision REVISION_1 = new StringRevision("b613aee673d96e967100306222246aa9decbc53c");
-    private static final StringRevision REVISION_2 = new StringRevision("4ab7833f55024c975cf5b918af640954c108825e");
-    private static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
-    private static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
     private static final String SUBMODULE = "submodule-1";
     private GitTestRepo gitFooBranchBundle;
 
@@ -169,13 +163,13 @@ public class GitMaterialTest {
         assertThat(outputStreamConsumer.getStdError(), is(""));
 
         InMemoryStreamConsumer output = inMemoryConsumer();
-        git.updateTo(output, REVISION_1, workingDir, new TestSubprocessExecutionContext());
+        git.updateTo(output, workingDir, new RevisionContext(REVISION_1, REVISION_0, 2), new TestSubprocessExecutionContext());
         assertThat(output.getStdOut(),
                 containsString("Start updating files at revision " + REVISION_1.getRevision()));
         assertThat(newFile.exists(), is(false));
 
         output = inMemoryConsumer();
-        git.updateTo(output, REVISION_2, workingDir, new TestSubprocessExecutionContext());
+        git.updateTo(output, workingDir, new RevisionContext(REVISION_2, REVISION_1, 2), new TestSubprocessExecutionContext());
         assertThat(output.getStdOut(),
                 containsString("Start updating files at revision " + REVISION_2.getRevision()));
         assertThat(newFile.exists(), is(true));
@@ -187,13 +181,14 @@ public class GitMaterialTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-        gitMaterial.updateTo(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
+        StringRevision revision = new StringRevision("origin/master");
+        gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
         assertThat(new File(workingDir, "sub1"), exists());
 
         submoduleRepos.removeSubmodule("sub1");
 
         outputStreamConsumer = inMemoryConsumer();
-        gitMaterial.updateTo(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
+        gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
         assertThat(new File(workingDir, "sub1"), not(exists()));
     }
 
@@ -231,7 +226,7 @@ public class GitMaterialTest {
         FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi");
         assertThat(shouldNotBeRemoved.exists(), is(true));
 
-        git = new GitMaterial("file://" + repositoryUrl);
+        git = new GitMaterial(repositoryUrl.replace("file://", ""));
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
     }
@@ -408,7 +403,7 @@ public class GitMaterialTest {
 
     @Test
     public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
-        git.updateTo(outputStreamConsumer, REVISION_1, workingDir, new TestSubprocessExecutionContext());
+        git.updateTo(outputStreamConsumer, workingDir, new RevisionContext(REVISION_1), new TestSubprocessExecutionContext());
         assertThat(outputStreamConsumer.getStdOut(), containsString(
                 format("Start updating %s at revision %s from %s", "files", REVISION_1.getRevision(),
                         git.getUrl())));

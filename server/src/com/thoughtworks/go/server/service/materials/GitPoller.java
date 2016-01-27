@@ -16,29 +16,34 @@
 
 package com.thoughtworks.go.server.service.materials;
 
-import java.io.File;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.util.SystemEnvironment;
+
+import java.io.File;
+import java.util.List;
 
 public class GitPoller implements MaterialPoller<GitMaterial> {
 
     @Override
     public List<Modification> latestModification(GitMaterial material, File baseDir, SubprocessExecutionContext execCtx) {
-        return material.latestModification(baseDir, execCtx);
+        return toggleShallowCloneFeature(material).latestModification(baseDir, execCtx);
     }
 
     @Override
     public List<Modification> modificationsSince(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        return material.modificationsSince(baseDir, revision, execCtx);
+        return toggleShallowCloneFeature(material).modificationsSince(baseDir, revision, execCtx);
     }
 
     @Override
     public void checkout(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        material.checkout(baseDir,revision,execCtx);
+        toggleShallowCloneFeature(material).checkout(baseDir, revision, execCtx);
     }
 
+    private GitMaterial toggleShallowCloneFeature(GitMaterial material) {
+        Boolean serverSideShallowCloneOn = new SystemEnvironment().get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE);
+        return material.withShallowClone(serverSideShallowCloneOn);
+    }
 }

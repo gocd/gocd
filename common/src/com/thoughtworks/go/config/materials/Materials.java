@@ -105,14 +105,6 @@ public class Materials extends BaseCollection<Material> {
         return revisions;
     }
 
-    public void updateTo(Revision revision, File baseFolder, ProcessOutputStreamConsumer outputStreamConsumer, final SubprocessExecutionContext execCtx) {
-        cleanUp(baseFolder, outputStreamConsumer);
-
-        for (Material material : this) {
-            material.updateTo(outputStreamConsumer, revision, baseFolder, execCtx);
-        }
-    }
-
     public void cleanUp(File baseFolder, ConsoleOutputStreamConsumer consumer) {
         if (hasMaterialsWithNoDestinationFolder()) {
             return;

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -73,7 +74,7 @@ public class SvnMaterialMockitoTest {
         when(subversion.getUrl()).thenReturn(new UrlArgument(url));
         SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
         svnMaterial.setUrl(url);
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        svnMaterial.updateTo(outputStreamConsumer, workingCopy, new RevisionContext(revision), new TestSubprocessExecutionContext());
 
         assertThat(workingCopy.exists(), is(true));
         verify(subversion).updateTo(outputStreamConsumer, workingCopy, revision);

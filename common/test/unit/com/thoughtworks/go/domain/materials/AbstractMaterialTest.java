@@ -23,13 +23,12 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import java.util.LinkedHashMap;
+
 import java.util.Map;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
@@ -65,7 +64,7 @@ public class AbstractMaterialTest {
             throw new UnsupportedOperationException();
         }
 
-        public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+        public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
             throw new UnsupportedOperationException();
         }
 

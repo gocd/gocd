@@ -28,7 +28,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.log4j.Logger;
@@ -110,12 +109,6 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return svnLazyLoaded;
     }
 
-    @Override
-    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
-        this.updateTo(output,revision,baseDir,execCtx);
-    }
-
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
         return svn().latestModification();
     }
@@ -142,7 +135,8 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         parameters.put("checkExternals", checkExternals);
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+        Revision revision = revisionContext.getLatestRevision();
         File workingDir = workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Updating to revision: " + revision + " in workingdirectory " + workingDir);

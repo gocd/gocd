@@ -90,7 +90,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     //Unused (legacy) methods
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
 
     }
 

@@ -28,11 +28,7 @@ import java.util.TreeSet;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.NullRevision;
-import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 
@@ -152,7 +148,11 @@ public class MaterialRevision implements Serializable {
     }
 
     public void updateTo(File baseDir, ProcessOutputStreamConsumer consumer, final SubprocessExecutionContext execCtx) {
-        material.updateTo(consumer, getRevision(), baseDir, execCtx);
+        material.updateTo(consumer, baseDir, toRevisionContext(), execCtx);
+    }
+
+    private RevisionContext toRevisionContext() {
+        return new RevisionContext(getRevision(), getOldestRevision(), numberOfModifications());
     }
 
     public Boolean hasChangedSince(MaterialRevision original) {

@@ -105,6 +105,15 @@ public class GitMaterialShallowCloneTest {
         assertThat(gitConfig.get("shallow-clone"), Is.<Object>is(true));
     }
 
+    @Test
+    public void shouldConvertExistingRepoToFullRepoWhenShallowCloneIsOff() {
+        material.latestModification(workingDir, context());
+        assertThat(workingRepo().isShallow(), is(true));
+        material = new GitMaterial(repo.projectRepositoryUrl(), false);
+        material.latestModification(workingDir, context());
+        assertThat(workingRepo().isShallow(), is(false));
+    }
+
 
 
     private TestSubprocessExecutionContext context() {

@@ -274,7 +274,9 @@ public class GitMaterial extends ScmMaterial {
             LOG.trace("Current repository url of [" + workingDirectory + "]: " + currentWorkingUrl);
             LOG.trace("Target repository url: " + url);
         }
-        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline()) || !isBranchEqual(command);
+        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline())
+                || !isBranchEqual(command)
+                || (!shallowClone && command.isShallow());
     }
 
     private boolean isBranchEqual(GitCommand command) {

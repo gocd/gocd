@@ -26,11 +26,11 @@ import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.websocket.Action;
-import com.thoughtworks.go.server.websocket.Message;
-import com.thoughtworks.go.server.websocket.Report;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.websocket.Action;
+import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.Report;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.MessageTooLargeException;
 import org.eclipse.jetty.websocket.api.Session;
@@ -121,7 +121,7 @@ public class AgentWebsocketService {
             SystemEnvironment environment = new SystemEnvironment();
             client = new WebSocketClient(sslContextFactory);
             client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
-            Message.setupPolicy(client.getPolicy(), environment);
+            Message.setupPolicy(client.getPolicy(), environment.getWebsocketMaxMessageSize());
             client.start();
         }
         if (session != null) {

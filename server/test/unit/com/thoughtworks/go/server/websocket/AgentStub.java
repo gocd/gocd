@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.websocket.Message;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.websocket.Message;
 import org.eclipse.jetty.websocket.api.MessageTooLargeException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;

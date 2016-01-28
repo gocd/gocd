@@ -205,6 +205,12 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Response.class")
     # # ---- Jetty 9 end ---
 
+    # ---- Jetty 9 websocket start ---
+    include_fileset_from_target(jar, 'jetty9-websocket', "**/*.class")
+    # ---- Jetty 9 websocket end ---
+
+
+
     include_fileset_from_target(jar, 'common', "**/SubprocessLogger*.class")
     include_fileset_from_target(jar, 'common', "**/validators/*.class")
     include_fileset_from_target(jar, 'common', "**/Environment*.class")
@@ -274,7 +280,7 @@ define "cruise:server", :layout => server_layout("server") do
             _("config/jetty.xml"),
             _("config/go_update_server.pub"))
 
-    onejar.path('lib/').include(server_launcher_dependencies).include(jetty_jars).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
+    onejar.path('lib/').include(server_launcher_dependencies).include(jetty_jars).include(jetty_websocket_jars).include(tw_go_jar('tfs-impl')).include(tw_go_jar('plugin-infra/go-plugin-activator', 'go-plugin-activator'))
     include_fileset_from_target(onejar, 'server', "**/GoMacLauncher*")
     include_fileset_from_target(onejar, 'server', "**/Mac*")
     include_fileset_from_target(onejar, 'common', "log4j.upgrade.*.properties")

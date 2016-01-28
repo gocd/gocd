@@ -43,6 +43,11 @@
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
+            <artifactId>jetty9-websocket</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.go</groupId>
             <artifactId>common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

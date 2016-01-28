@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+
+package com.thoughtworks.go.websocket;
 
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
@@ -80,7 +81,7 @@ public class MessageTest {
         List<Builder> builder = new ArrayList<Builder>();
         builder.add(new CommandBuilder("command", "args", workingDir, new RunIfConfigs(), new NullBuilder(), "desc"));
         builder.add(new BuilderForKillAllChildTask());
-        builder.add(new CommandBuilderWithArgList("command", new String[] {"arg1", "arg2"}, workingDir, new RunIfConfigs(), new NullBuilder(), "desc"));
+        builder.add(new CommandBuilderWithArgList("command", new String[]{"arg1", "arg2"}, workingDir, new RunIfConfigs(), new NullBuilder(), "desc"));
         builder.add(new FetchArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "desc", jobPlan().getIdentifier(), "srcdir", "dest",
                 new FileHandler(workingDir, "src"),
                 new ChecksumFileHandler(workingDir)));

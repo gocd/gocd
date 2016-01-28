@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.websocket;
 
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 public class Message {
 
-    public static void setupPolicy(WebSocketPolicy policy, SystemEnvironment environment) {
-        policy.setMaxTextMessageBufferSize(environment.getWebsocketMaxMessageSize());
-        policy.setMaxTextMessageSize(environment.getWebsocketMaxMessageSize());
-        policy.setMaxBinaryMessageSize(environment.getWebsocketMaxMessageSize());
-        policy.setMaxBinaryMessageBufferSize(environment.getWebsocketMaxMessageSize());
+    public static void setupPolicy(WebSocketPolicy policy, Integer websocketMaxMessageSize) {
+        policy.setMaxTextMessageBufferSize(websocketMaxMessageSize);
+        policy.setMaxTextMessageSize(websocketMaxMessageSize);
+        policy.setMaxBinaryMessageSize(websocketMaxMessageSize);
+        policy.setMaxBinaryMessageBufferSize(websocketMaxMessageSize);
     }
 
     public static byte[] encode(Message msg) {

@@ -76,6 +76,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.thoughtworks.go</groupId>
+            <artifactId>jetty9-websocket</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- apache commons -->
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -595,6 +602,7 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+
 
         <dependency>
             <groupId>org.skyscreamer</groupId>

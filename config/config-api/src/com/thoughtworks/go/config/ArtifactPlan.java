@@ -53,6 +53,15 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
     public ArtifactPlan() {
     }
 
+    public ArtifactPlan(String source,String dest){
+        this(ArtifactType.file,source,dest);
+    }
+
+    protected ArtifactPlan(ArtifactType artifactType, String source) {
+        setSrc(source);
+        this.artifactType = artifactType;
+    }
+
     protected ArtifactPlan(ArtifactType artifactType, String source, String destination) {
         setSrc(source);
         setDest(destination);
@@ -66,10 +75,6 @@ public class ArtifactPlan extends PersistentObject implements Artifact {
     public ArtifactPlan(ArtifactPlan other) {
         this(other.artifactType, other.src, other.dest);
         this.errors = other.errors;
-    }
-
-    public ArtifactPlan(String src, String dest) {
-        this(ArtifactType.file, src, dest);
     }
 
     public File getSource(File rootPath) {

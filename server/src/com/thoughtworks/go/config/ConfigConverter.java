@@ -484,10 +484,13 @@ public class ConfigConverter {
         return jobConfig;
     }
 
-    private ArtifactPlan toArtifactPlan(CRArtifact crArtifact) {
+    public ArtifactPlan toArtifactPlan(CRArtifact crArtifact) {
         ArtifactType artType = crArtifact.getType() == CRArtifactType.build ?
                 ArtifactType.file : ArtifactType.unit;
-        return new ArtifactPlan(artType,crArtifact.getSource(),crArtifact.getDestination());
+        if(crArtifact.getDestination() != null)
+            return new ArtifactPlan(artType,crArtifact.getSource(),crArtifact.getDestination());
+        else
+            return new ArtifactPlan(artType,crArtifact.getSource());
     }
 
     private Tab toTab(CRTab crTab) {

@@ -519,6 +519,19 @@ public class ConfigConverterTest {
     }
 
     @Test
+    public void shouldConvertArtifactPlanWhenDestinationIsNull()
+    {
+        ArtifactPlan artifactPlan = configConverter.toArtifactPlan(new CRArtifact("src",null));
+        assertThat(artifactPlan.getDest(),is(""));
+    }
+    @Test
+    public void shouldConvertArtifactPlanWhenDestinationIsSet()
+    {
+        ArtifactPlan artifactPlan = configConverter.toArtifactPlan(new CRArtifact("src","dest"));
+        assertThat(artifactPlan.getDest(),is("dest"));
+    }
+
+    @Test
     public void shouldConvertJob()
     {
         CRJob crJob = new CRJob("name",environmentVariables, tabs,

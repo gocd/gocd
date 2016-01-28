@@ -236,4 +236,8 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     public boolean isShallowClone() {
         return shallowClone;
     }
+
+    public void setShallowClone(boolean shallowClone) {
+        this.shallowClone = shallowClone;
+    }
 }

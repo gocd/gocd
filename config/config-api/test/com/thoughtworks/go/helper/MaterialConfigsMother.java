@@ -103,8 +103,9 @@ public class MaterialConfigsMother {
         return new HgMaterialConfig(url, folder);
     }
 
-    public static GitMaterialConfig gitMaterialConfig(String url, String submoduleFolder, String branch) {
+    public static GitMaterialConfig gitMaterialConfig(String url, String submoduleFolder, String branch, boolean shallowClone) {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(url, branch);
+        gitMaterialConfig.setShallowClone(shallowClone);
         gitMaterialConfig.setSubmoduleFolder(submoduleFolder);
         return gitMaterialConfig;
     }

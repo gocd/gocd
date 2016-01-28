@@ -101,7 +101,7 @@ public class PipelineConfigDependencyGraphTest {
         HgMaterialConfig common1 = MaterialConfigsMother.hgMaterialConfig("hg-url", "one-folder");
         HgMaterialConfig common2 = MaterialConfigsMother.hgMaterialConfig("hg-url", "another-folder");
         SvnMaterialConfig firstOrderSVNMaterial = MaterialConfigsMother.svnMaterialConfig();
-        GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url", "submodule", "branch");
+        GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url", "submodule", "branch", false);
         P4MaterialConfig firstOrderP4Material = MaterialConfigsMother.p4MaterialConfig();
 
         DependencyMaterialConfig up1DependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first"));
@@ -139,7 +139,7 @@ public class PipelineConfigDependencyGraphTest {
     public void shouldReturnTheSetOfFingerprintsOfAllMaterials() throws Exception {
         HgMaterialConfig common = MaterialConfigsMother.hgMaterialConfig();
         SvnMaterialConfig firstOrderSVNMaterial = MaterialConfigsMother.svnMaterialConfig();
-        GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url", "submodule", "branch");
+        GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url", "submodule", "branch", false);
         P4MaterialConfig firstOrderP4Material = MaterialConfigsMother.p4MaterialConfig();
 
         DependencyMaterialConfig up1DependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first"));

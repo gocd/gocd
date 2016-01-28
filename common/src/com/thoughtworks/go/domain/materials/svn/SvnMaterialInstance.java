@@ -27,7 +27,7 @@ public class SvnMaterialInstance extends MaterialInstance {
     }
 
     public SvnMaterialInstance(String url, String userName, String flyweightName, final Boolean checkExternals) {
-        super(url, userName, null, null, null, null, null, null, flyweightName, checkExternals, null, null, null);
+        super(url, userName, null, null, null, null, null, null, flyweightName, checkExternals, null, null, null, false);
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {

@@ -631,7 +631,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldSaveGitPipelineMaterialRevisions() throws Exception {
-        GitMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("gitUrl", "submoduleFolder", "branch");
+        GitMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("gitUrl", "submoduleFolder", "branch", false);
         assertCanLoadAndSaveMaterialRevisionsFor(gitMaterialConfig);
     }
 
@@ -1145,6 +1145,16 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getConfiguration(), is(material.getScmConfig().getConfiguration()));
         assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getPluginConfiguration().getId(), is(material.getScmConfig().getPluginConfiguration().getId()));
     }
+
+    @Test
+    public void shouldPersistShallowCloneFlagForGitMaterial() throws Exception {
+        GitMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("gitUrl", "submoduleFolder", "branch", true);
+        MaterialInstance materialInstance = new GitMaterial(gitMaterialConfig).createMaterialInstance();
+        repo.saveOrUpdate(materialInstance);
+        MaterialInstance persisted = repo.find(materialInstance.getId());
+        assertThat(((GitMaterial) persisted.toOldMaterial("foo", "folder", "bar")).isShallowClone(), is(true));
+    }
+
 
     private MaterialRevision saveOneDependencyModification(DependencyMaterial dependencyMaterial, String revision) {
         return saveOneDependencyModification(dependencyMaterial, revision, "MOCK_LABEL-12");

@@ -27,7 +27,7 @@ public class DependencyMaterialInstance extends MaterialInstance {
     }
 
     public DependencyMaterialInstance(String pipelineName, String stageName, String flyweightName) {
-        super(null, null, pipelineName, stageName, null, null, null, null, flyweightName, null, null, null, null);
+        super(null, null, pipelineName, stageName, null, null, null, null, flyweightName, null, null, null, null, false);
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {

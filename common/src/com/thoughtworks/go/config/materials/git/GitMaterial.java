@@ -61,8 +61,7 @@ public class GitMaterial extends ScmMaterial {
 
     private UrlArgument url;
     private String branch = GitMaterialConfig.DEFAULT_BRANCH;
-    private boolean shallowClone = false;
-
+    private Boolean shallowClone = false;
     private String submoduleFolder;
 
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
@@ -98,7 +97,7 @@ public class GitMaterial extends ScmMaterial {
         this.folder = folder;
     }
 
-    public GitMaterial(String url, String branch, String folder, boolean shallowClone) {
+    public GitMaterial(String url, String branch, String folder, Boolean shallowClone) {
         this(url, branch, folder);
         this.shallowClone = shallowClone;
     }
@@ -129,7 +128,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new GitMaterialInstance(url.forCommandline(), branch, submoduleFolder, UUID.randomUUID().toString());
+        return new GitMaterialInstance(url.forCommandline(), branch, submoduleFolder, UUID.randomUUID().toString(), shallowClone);
     }
 
     @Override
@@ -365,6 +364,10 @@ public class GitMaterial extends ScmMaterial {
 
     public boolean isCheckExternals() {
         return false;
+    }
+
+    public boolean isShallowClone() {
+        return shallowClone;
     }
 
     @Override

@@ -24,12 +24,12 @@ public class GitMaterialInstance extends MaterialInstance {
     protected GitMaterialInstance() {
     }
 
-    public GitMaterialInstance(String url, String branch, String submoduleFolder, String flyweightName) {
-        super(url, null, null, null, null, null, branch, submoduleFolder, flyweightName, null, null, null, null);
+    public GitMaterialInstance(String url, String branch, String submoduleFolder, String flyweightName, Boolean shallowClone) {
+        super(url, null, null, null, null, null, branch, submoduleFolder, flyweightName, null, null, null, null, shallowClone);
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {
-        GitMaterial git = new GitMaterial(url, branch, folder);
+        GitMaterial git = new GitMaterial(url, branch, folder, shallowClone);
         setName(name, git);
         git.setSubmoduleFolder(submoduleFolder);
         git.setId(id);

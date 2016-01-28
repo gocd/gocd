@@ -40,6 +40,7 @@ public abstract class MaterialInstance extends PersistentObject {
     protected Boolean useTickets;
     protected String branch;
     protected String submoduleFolder;
+    protected Boolean shallowClone;
     protected String flyweightName;
     protected String fingerprint;
     protected Boolean checkExternals;
@@ -54,7 +55,7 @@ public abstract class MaterialInstance extends PersistentObject {
     }
 
     public MaterialInstance(String url, String username, String pipelineName, String stageName, String view, Boolean useTickets, String branch, String submoduleFolder, String flyweightName,
-                            final Boolean checkExternals, String projectPath, String domain, String configuration) {
+                            final Boolean checkExternals, String projectPath, String domain, String configuration, boolean shallowClone) {
         bombIfNull(flyweightName, "Flyweight name cannot be null.");
 
         this.url = url;
@@ -72,6 +73,7 @@ public abstract class MaterialInstance extends PersistentObject {
         this.domain = domain;
         this.configuration = configuration;
         this.fingerprint = toOldMaterial(null, null, null).getFingerprint();
+        this.shallowClone = shallowClone;
     }
 
     protected boolean getUseTickets() {

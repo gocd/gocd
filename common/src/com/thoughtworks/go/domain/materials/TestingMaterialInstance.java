@@ -24,7 +24,7 @@ public class TestingMaterialInstance extends MaterialInstance {
     }
 
     public TestingMaterialInstance(String url, String flyweightName) {
-        super(url, null, null, null, null, false, null, null, flyweightName, false, null, null, null);
+        super(url, null, null, null, null, false, null, null, flyweightName, false, null, null, null, false);
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {

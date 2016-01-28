@@ -114,7 +114,6 @@ public class GitCommandTest {
     @Test
     public void fullCloneIsNotShallow() {
         assertThat(git.isShallow(), is(false));
-        assertThat(git.revisionCount(), is(5));
     }
 
     @Test
@@ -122,31 +121,27 @@ public class GitCommandTest {
         FileUtil.deleteFolder(this.gitLocalRepoDir);
         git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
         assertThat(git.isShallow(), is(true));
-        assertThat(git.revisionCount(), is(2));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_4), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_3), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_2), is(false));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_1), is(false));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(false));
+
     }
 
     @Test
     public void unshallowALocalRepoWithArbitaryDepth() throws Exception {
         FileUtil.deleteFolder(this.gitLocalRepoDir);
         git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
-        git.unshallow(inMemoryConsumer(), 1);
+        git.unshallow(inMemoryConsumer(), 3);
         assertThat(git.isShallow(), is(true));
-        assertThat(git.revisionCount(), is(3));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_2), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_1), is(false));
 
         git.unshallow(inMemoryConsumer(), Integer.MAX_VALUE);
         assertThat(git.isShallow(), is(false));
-        assertThat(git.revisionCount(), is(5));
-    }
 
-    @Test
-    public void shouldBeAbleToTellWhetherARevisionExists() {
-        FileUtil.deleteFolder(this.gitLocalRepoDir);
-        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
-        assertThat(git.hasRevision(GitTestRepo.REVISION_4), is(true));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_3), is(true));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_2), is(false));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_1), is(false));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(false));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(true));
     }
 
     @Test

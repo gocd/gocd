@@ -295,7 +295,7 @@ public class GitCommand extends SCMCommand {
         if(additionalDepth == Integer.MAX_VALUE) {
             gitFetch.withArg("--unshallow");
         } else {
-            gitFetch.withArg(String.format("--depth=%d", revisionCount() + additionalDepth));
+            gitFetch.withArg(String.format("--depth=%d", additionalDepth));
         }
 
         int result = run(gitFetch, outputStreamConsumer);
@@ -412,12 +412,6 @@ public class GitCommand extends SCMCommand {
 
     public boolean isShallow() {
         return new File(workingDir, ".git/shallow").exists();
-    }
-
-    public int revisionCount() {
-        CommandLine cmd = git().withArg("rev-list").withArg("--count").withArg(branch).withWorkingDir(workingDir);
-        ConsoleResult consoleResult = runOrBomb(cmd);
-        return Integer.valueOf(consoleResult.outputAsString());
     }
 
     public boolean hasRevision(Revision revision) {

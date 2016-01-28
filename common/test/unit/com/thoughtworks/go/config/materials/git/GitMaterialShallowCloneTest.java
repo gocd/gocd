@@ -70,7 +70,7 @@ public class GitMaterialShallowCloneTest {
         assertThat(mods.size(), is(1));
         assertThat(mods.get(0).getComment(), Matchers.is("Added 'run-till-file-exists' ant target"));
         assertThat(workingRepo().isShallow(), is(true));
-        assertThat(workingRepo().revisionCount(), is(GitMaterial.SHALLOW_CLONE_DEPTH));
+        assertThat(workingRepo().hasRevision(REVISION_0), is(false));
         assertThat(workingRepo().currentRevision(), is(REVISION_4.getRevision()));
     }
 

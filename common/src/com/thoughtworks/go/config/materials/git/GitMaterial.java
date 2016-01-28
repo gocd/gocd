@@ -56,11 +56,10 @@ import static java.lang.String.format;
  */
 public class GitMaterial extends ScmMaterial {
     private static final Logger LOG = Logger.getLogger(GitMaterial.class);
-    public static final int UNSHALLOW_TRYOUT_STEP = 100;
-
+    private static final int UNSHALLOW_TRYOUT_STEP = 100;
     // shallow clone depth need be bigger than 1, otherwise first latestModification check will generate a
     // a modification includes all files in the repo.
-    public static final int SHALLOW_CLONE_DEPTH = 2;
+    private static final int SHALLOW_CLONE_DEPTH = 2;
 
 
     private UrlArgument url;

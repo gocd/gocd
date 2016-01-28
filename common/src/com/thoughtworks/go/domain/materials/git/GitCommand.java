@@ -53,12 +53,14 @@ public class GitCommand extends SCMCommand {
     }
 
     public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
-        return cloneFrom(outputStreamConsumer, url, null);
+        return cloneFrom(outputStreamConsumer, url, Integer.MAX_VALUE);
     }
 
+    // Clone repository from url with specified depth.
+    // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
     public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
         CommandLine gitClone = git().withArg("clone").withArg(String.format("--branch=%s", branch));
-        if(depth != null) {
+        if(depth < Integer.MAX_VALUE) {
             gitClone.withArg(String.format("--depth=%s", depth));
         }
         gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
@@ -286,21 +288,19 @@ public class GitCommand extends SCMCommand {
         }
     }
 
-    public void unshallow(ProcessOutputStreamConsumer outputStreamConsumer, int additionalDepth) {
+    // Unshallow a shallow cloned repository with "git fetch --depth n".
+    // Special depth 2147483647 (Integer.MAX_VALUE) are treated as infinite -- fully unshallow
+    // https://git-scm.com/docs/git-fetch-pack
+    public void unshallow(ProcessOutputStreamConsumer outputStreamConsumer, Integer depth) {
         outputStreamConsumer.stdOutput("[GIT] Fetching changes");
         CommandLine gitFetch = git()
                 .withArgs("fetch", "origin")
+                .withArg(String.format("--depth=%d", depth))
                 .withWorkingDir(workingDir);
-
-        if(additionalDepth == Integer.MAX_VALUE) {
-            gitFetch.withArg("--unshallow");
-        } else {
-            gitFetch.withArg(String.format("--depth=%d", additionalDepth));
-        }
 
         int result = run(gitFetch, outputStreamConsumer);
         if (result != 0) {
-            throw new RuntimeException(String.format("unshallow a shallow repo failed for [%s]", this.workingRepositoryUrl()));
+            throw new RuntimeException(String.format("Unshallow repository failed for [%s]", this.workingRepositoryUrl()));
         }
     }
 

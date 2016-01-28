@@ -243,7 +243,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     private Integer cloneDepth() {
-        return shallowClone ? SHALLOW_CLONE_DEPTH : null;
+        return shallowClone ? SHALLOW_CLONE_DEPTH : Integer.MAX_VALUE;
     }
 
     // unshallow local repo to include a revision operating on via two step process.

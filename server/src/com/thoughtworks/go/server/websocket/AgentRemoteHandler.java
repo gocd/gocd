@@ -56,7 +56,7 @@ public class AgentRemoteHandler {
             case ping:
                 AgentRuntimeInfo info = (AgentRuntimeInfo) msg.getData();
                 if (!this.agentSessions.containsKey(info.getUUId())) {
-                    LOGGER.info(info.getIdentifier() + " is connected with websocket " + agent);
+                    LOGGER.info("{} is connected with websocket {}", info.getIdentifier(), agent);
                     sessionIds.put(agent, info.getUUId());
                     this.agentSessions.put(info.getUUId(), agent);
                 }
@@ -96,7 +96,7 @@ public class AgentRemoteHandler {
         AgentInstance instance = agentService.findAgent(uuid);
         if (instance != null) {
             instance.lostContact();
-            LOGGER.info(instance.getAgentIdentifier() + " lost contact because websocket connection is closed");
+            LOGGER.info("{} lost contact because websocket connection is closed", instance.getAgentIdentifier());
         }
     }
 

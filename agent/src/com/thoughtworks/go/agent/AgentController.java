@@ -38,8 +38,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
@@ -52,7 +52,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
 @Component
 public class AgentController {
-    private static final Log LOG = LogFactory.getLog(AgentController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentController.class);
 
     private BuildRepositoryRemote server;
     private GoArtifactsManipulator manipulator;
@@ -116,12 +116,12 @@ public class AgentController {
         try {
             if (sslInfrastructureService.isRegistered()) {
                 AgentIdentifier agent = agentIdentifier();
-                LOG.trace(agent + " is pinging server [" + server.toString() + "]");
+                LOG.trace("{} is pinging server [{}]", agent, server);
 
                 agentRuntimeInfo.refreshUsableSpace();
 
                 instruction = server.ping(agentRuntimeInfo);
-                LOG.trace(agent + " pinged server [" + server.toString() + "]");
+                LOG.trace("{} pinged server [{}]", agent, server);
             }
         } catch (Throwable e) {
             LOG.error("Error occurred when agent tried to ping server: ", e);
@@ -142,24 +142,18 @@ public class AgentController {
 
     private void rpcLoop() {
         try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[Agent Loop] Trying to retrieve work.");
-            }
+            LOG.debug("[Agent Loop] Trying to retrieve work.");
             agentUpgradeService.checkForUpgrade();
             sslInfrastructureService.registerIfNecessary();
             retrieveCookieIfNecessary();
             retrieveWork();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[Agent Loop] Successfully retrieved work.");
-            }
+            LOG.debug("[Agent Loop] Successfully retrieved work.");
 
         } catch (Exception e) {
             if (isCausedBySecurity(e)) {
                 handleIfSecurityException(e);
             } else if (e instanceof DataRetrievalFailureException) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("[Agent Loop] Error occurred during loop: ", e);
-                }
+                LOG.debug("[Agent Loop] Error occurred during loop: ", e);
             } else {
                 LOG.error("[Agent Loop] Error occurred during loop: ", e);
             }
@@ -171,7 +165,7 @@ public class AgentController {
             LOG.info("About to get cookie from the server.");
             String cookie = server.getCookie(agentIdentifier(), agentRuntimeInfo.getLocation());
             agentRuntimeInfo.setCookie(cookie);
-            LOG.info(String.format("Got cookie: %s ", cookie));
+            LOG.info("Got cookie: {}", cookie);
         }
     }
 
@@ -189,22 +183,18 @@ public class AgentController {
 
     void retrieveWork() {
         AgentIdentifier agentIdentifier = agentIdentifier();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("[Agent Loop] %s is checking for work from Go", agentIdentifier));
-        }
+        LOG.debug("[Agent Loop] {} is checking for work from Go", agentIdentifier);
         Work work;
         try {
             agentRuntimeInfo.idle();
             work = server.getWork(agentRuntimeInfo);
             if (!(work instanceof NoWork)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("[Agent Loop] Got work from server: [%s]", work.description()));
-                }
+                LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
             }
             runner = new JobRunner();
             runner.run(work, agentIdentifier, server, manipulator, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
         } catch (UnregisteredAgentException e) {
-            LOG.warn(String.format("[Agent Loop] Invalid agent certificate with fingerprint %s. Registering with server on next iteration.", e.getUuid()));
+            LOG.warn("[Agent Loop] Invalid agent certificate with fingerprint {}. Registering with server on next iteration.", e.getUuid());
             sslInfrastructureService.invalidateAgentCertificate();
         } finally {
             agentRuntimeInfo.idle();
@@ -262,14 +252,12 @@ public class AgentController {
             case setCookie:
                 String cookie = (String) message.getData();
                 agentRuntimeInfo.setCookie(cookie);
-                LOG.info(String.format("Got cookie: %s ", cookie));
+                LOG.info("Got cookie: {}", cookie);
                 break;
             case assignWork:
                 cancelJobIfThereIsOneRunning();
                 Work work = (Work) message.getData();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Got work from server: [%s]", work.description()));
-                }
+                LOG.debug("Got work from server: [{}]", work.description());
                 agentRuntimeInfo.idle();
                 runner = new JobRunner();
                 try {
@@ -284,7 +272,7 @@ public class AgentController {
                 }
                 break;
             case reregister:
-                LOG.warn(String.format("Reregister: invalidate current agent certificate fingerprint %s and stop websocket client.", agentRegistry.uuid()));
+                LOG.warn("Reregister: invalidate current agent certificate fingerprint {} and stop websocket client.", agentRegistry.uuid());
                 websocketService.stop();
                 sslInfrastructureService.invalidateAgentCertificate();
                 break;
@@ -308,10 +296,10 @@ public class AgentController {
 
     private void updateServerAgentRuntimeInfo() {
         AgentIdentifier agent = agentIdentifier();
-        LOG.trace(agent + " is pinging server [" + server.toString() + "]");
+        LOG.trace("{} is pinging server [{}]", agent, server);
         agentRuntimeInfo.refreshUsableSpace();
         websocketService.send(new Message(Action.ping, agentRuntimeInfo));
-        LOG.trace(agent + " pinged server [" + server.toString() + "]");
+        LOG.trace("{} pinged server [{}]", agent, server);
     }
 
 }

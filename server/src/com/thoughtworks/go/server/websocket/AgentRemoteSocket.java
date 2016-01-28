@@ -41,25 +41,19 @@ public class AgentRemoteSocket implements Agent {
     @OnWebSocketConnect
     public void onConnect(Session session) {
         this.session = session;
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " connected.");
-        }
+        LOGGER.debug("{} connected.", sessionName());
     }
 
     @OnWebSocketMessage
     public void onMessage(InputStream input) {
         Message msg = Message.decode(input);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " message: " + msg);
-        }
+        LOGGER.debug("{} message: {}", sessionName(), msg);
         handler.process(this, msg);
     }
 
     @OnWebSocketClose
     public void onClose(int closeCode, String closeReason) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " closed. code: " + closeCode + ", reason: " + closeReason);
-        }
+        LOGGER.debug("{} closed. code: {}, reason: {}", sessionName(), closeCode, closeReason);
         handler.remove(this);
     }
 
@@ -73,16 +67,12 @@ public class AgentRemoteSocket implements Agent {
 
     @OnWebSocketFrame
     public void onFrame(Frame frame) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " receive frame: " + frame.getPayloadLength());
-        }
+        LOGGER.debug("{} receive frame: {}", sessionName(), frame.getPayloadLength());
     }
 
     @Override
     public Future<Void> send(Message msg) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " send message: " + msg);
-        }
+        LOGGER.debug("{} send message: {}", sessionName(), msg);
         return this.session.getRemote().sendBytesByFuture(ByteBuffer.wrap(Message.encode(msg)));
     }
 

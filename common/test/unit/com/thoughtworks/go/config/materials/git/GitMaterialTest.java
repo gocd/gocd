@@ -225,7 +225,7 @@ public class GitMaterialTest {
         FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi");
         assertThat(shouldNotBeRemoved.exists(), is(true));
 
-        git = new GitMaterial("file://" + repositoryUrl);
+        git = new GitMaterial(repositoryUrl.replace("file://", ""));
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
     }

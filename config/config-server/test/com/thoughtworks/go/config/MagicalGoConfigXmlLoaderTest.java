@@ -575,7 +575,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadShallowFlagFromGitPartial() throws Exception {
-        String gitPartial = "<git url='file:///tmp/testGitRepo/project1' shallow=\"true\" />";
+        String gitPartial = "<git url='file:///tmp/testGitRepo/project1' shallowClone=\"true\" />";
         GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(toInputStream(gitPartial), GitMaterialConfig.class);
         assertTrue(gitMaterial.isShallowClone());
     }

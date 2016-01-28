@@ -39,6 +39,7 @@
         <db.password></db.password>
         <db.name>cruise</db.name>
         <db.port></db.port>
+        <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>
 
     <dependencies>
@@ -639,6 +640,12 @@
             <artifactId>json-unit</artifactId>
             <version>1.7.0</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
 

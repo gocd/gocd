@@ -32,6 +32,7 @@
     <properties>
         <main.dir>${project.basedir}/..</main.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>
 
     <dependencies>
@@ -58,6 +59,11 @@
             <version>1.47</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-client</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>com.thoughtworks.go</groupId>

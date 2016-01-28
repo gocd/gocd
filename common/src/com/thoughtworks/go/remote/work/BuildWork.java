@@ -55,14 +55,13 @@ public class BuildWork implements Work {
 
     private final BuildAssignment assignment;
 
-    private DefaultGoPublisher goPublisher;
-
-    private TimeProvider timeProvider = new TimeProvider();
-    private JobPlan plan;
-    private File workingDirectory;
-    private MaterialRevisions materialRevisions;
-    private GoControlLog buildLog;
-    private Builders builders;
+    private transient DefaultGoPublisher goPublisher;
+    private transient TimeProvider timeProvider;
+    private transient JobPlan plan;
+    private transient File workingDirectory;
+    private transient MaterialRevisions materialRevisions;
+    private transient GoControlLog buildLog;
+    private transient Builders builders;
 
     public BuildWork(BuildAssignment assignment) {
         this.assignment = assignment;
@@ -70,6 +69,7 @@ public class BuildWork implements Work {
 
     private void initialize(BuildRepositoryRemote remoteBuildRepository,
                             GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
+        timeProvider = new TimeProvider();
         plan = assignment.getPlan();
         agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
                 plan.getIdentifier().buildLocator()));

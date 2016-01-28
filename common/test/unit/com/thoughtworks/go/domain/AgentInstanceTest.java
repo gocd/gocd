@@ -549,6 +549,21 @@ public class AgentInstanceTest {
         assertThat(agentInstance.needsUpgrade(), is(false));
     }
 
+    @Test
+    public void lostContact() {
+        AgentInstance agentInstance = AgentInstanceMother.building();
+        agentInstance.lostContact();
+        assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
+
+        AgentInstance pendingInstance = AgentInstanceMother.pending();
+        pendingInstance.lostContact();
+        assertThat(pendingInstance.getStatus(), is(AgentStatus.Pending));
+
+        AgentInstance disabledInstance = AgentInstanceMother.disabled();
+        disabledInstance.lostContact();
+        assertThat(disabledInstance.getStatus(), is(AgentStatus.Disabled));
+    }
+
     private List<JobPlan> jobPlans(String... resources) {
         ArrayList<JobPlan> plans = new ArrayList<JobPlan>();
         int count = 1;

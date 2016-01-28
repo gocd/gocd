@@ -214,7 +214,7 @@ public class MagicalGoConfigXmlWriter {
             ConfigAttributeValue attributeValue = value.getClass().getAnnotation(ConfigAttributeValue.class);
             if (attributeValue != null) {
                 try {
-                    Field field = value.getClass().getDeclaredField(attributeValue.fieldName());
+                    Field field = getField(value.getClass(), attributeValue);
                     field.setAccessible(true);
                     valueString = field.get(value).toString();
                 } catch (NoSuchFieldException e) {
@@ -228,6 +228,18 @@ public class MagicalGoConfigXmlWriter {
                 valueString = value.toString();
             }
             return valueString;
+        }
+
+        private Field getField(Class clazz, ConfigAttributeValue attributeValue) throws NoSuchFieldException {
+            try {
+                return clazz.getDeclaredField(attributeValue.fieldName());
+            } catch (NoSuchFieldException e) {
+                Class klass = clazz.getSuperclass();
+                if (klass == null) {
+                    throw e;
+                }
+                return getField(klass, attributeValue);
+            }
         }
     }
 

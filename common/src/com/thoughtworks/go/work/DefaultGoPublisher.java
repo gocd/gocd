@@ -44,7 +44,6 @@ public class DefaultGoPublisher implements GoPublisher {
     private final AgentRuntimeInfo agentRuntimeInfo;
     private ConsoleOutputTransmitter consoleOutputTransmitter;
     private static final Log LOG = LogFactory.getLog(DefaultGoPublisher.class);
-    private TimeProvider timeProvider = new TimeProvider();
     private String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
 
     public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,

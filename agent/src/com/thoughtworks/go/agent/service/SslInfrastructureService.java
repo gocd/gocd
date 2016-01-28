@@ -50,7 +50,7 @@ public class SslInfrastructureService {
     public static final File AGENT_CERTIFICATE_FILE = new File("config", "agent.jks");
     public static final File AGENT_TRUST_FILE = new File("config", "trust.jks");
     public static final String CHAIN_ALIAS = "agent";
-    static final String AGENT_STORE_PASSWORD = "agent5s0repa55w0rd";
+    public static final String AGENT_STORE_PASSWORD = "agent5s0repa55w0rd";
     private static final Logger LOGGER = Logger.getLogger(SslInfrastructureService.class);
     private static final int REGISTER_RETRY_INTERVAL = 5000;
     private final RemoteRegistrationRequester remoteRegistrationRequester;

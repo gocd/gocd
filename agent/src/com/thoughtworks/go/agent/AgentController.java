@@ -17,6 +17,7 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
+import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
@@ -32,6 +33,8 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.websocket.Action;
+import com.thoughtworks.go.server.websocket.Message;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -67,15 +70,18 @@ public class AgentController {
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
+    private AgentWebsocketService websocketService;
 
     @Autowired
     public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
                            AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger, SystemEnvironment systemEnvironment,
-                           PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+                           PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension,
+                           AgentWebsocketService websocketService) {
         this.agentUpgradeService = agentUpgradeService;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
+        this.websocketService = websocketService;
         ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         this.server = server;
@@ -88,6 +94,7 @@ public class AgentController {
     }
 
     void init() throws IOException {
+        websocketService.setController(this);
         createPipelinesFolderIfNotExist();
         sslInfrastructureService.createSslInfrastructure();
         AgentIdentifier identifier = agentIdentifier();
@@ -103,12 +110,16 @@ public class AgentController {
     }
 
     public void ping() {
+        if (systemEnvironment.isWebsocketEnabled()) {
+            return;
+        }
         try {
             if (sslInfrastructureService.isRegistered()) {
                 AgentIdentifier agent = agentIdentifier();
                 LOG.trace(agent + " is pinging server [" + server.toString() + "]");
 
                 agentRuntimeInfo.refreshUsableSpace();
+
                 instruction = server.ping(agentRuntimeInfo);
                 LOG.trace(agent + " pinged server [" + server.toString() + "]");
             }
@@ -122,6 +133,14 @@ public class AgentController {
     }
 
     public void loop() {
+        if (systemEnvironment.isWebsocketEnabled()) {
+            websocketPing();
+        } else {
+            rpcLoop();
+        }
+    }
+
+    private void rpcLoop() {
         try {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("[Agent Loop] Trying to retrieve work.");
@@ -193,6 +212,9 @@ public class AgentController {
     }
 
     public void executeAgentInstruction() {
+        if (systemEnvironment.isWebsocketEnabled()) {
+            return;
+        }
         if (runner != null) {
             runner.handleInstruction(instruction, agentRuntimeInfo);
         }
@@ -207,6 +229,89 @@ public class AgentController {
         } else {
             return isCausedBySecurity(e.getCause());
         }
+    }
+
+    public AgentRuntimeInfo getAgentRuntimeInfo() {
+        return agentRuntimeInfo;
+    }
+
+    public void websocketPing() {
+        try {
+            agentUpgradeService.checkForUpgrade();
+            sslInfrastructureService.registerIfNecessary();
+            if (sslInfrastructureService.isRegistered()) {
+                if (!websocketService.isRunning()) {
+                    websocketService.start();
+                }
+                updateServerAgentRuntimeInfo();
+            }
+        } catch (Exception e) {
+            if (isCausedBySecurity(e)) {
+                handleIfSecurityException(e);
+            } else {
+                LOG.error("Error occurred when agent tried to ping server: ", e);
+            }
+        }
+    }
+
+    public void process(Message message) throws InterruptedException {
+        switch (message.getAction()) {
+            case cancelJob:
+                cancelJobIfThereIsOneRunning();
+                break;
+            case setCookie:
+                String cookie = (String) message.getData();
+                agentRuntimeInfo.setCookie(cookie);
+                LOG.info(String.format("Got cookie: %s ", cookie));
+                break;
+            case assignWork:
+                cancelJobIfThereIsOneRunning();
+                Work work = (Work) message.getData();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("Got work from server: [%s]", work.description()));
+                }
+                agentRuntimeInfo.idle();
+                runner = new JobRunner();
+                try {
+                    runner.run(work, agentIdentifier(),
+                            new AgentWebsocketService.BuildRepositoryRemoteAdapter(runner, websocketService),
+                            manipulator, agentRuntimeInfo,
+                            packageAsRepositoryExtension, scmExtension,
+                            taskExtension);
+                } finally {
+                    agentRuntimeInfo.idle();
+                    updateServerAgentRuntimeInfo();
+                }
+                break;
+            case reregister:
+                LOG.warn(String.format("Reregister: invalidate current agent certificate fingerprint %s and stop websocket client.", agentRegistry.uuid()));
+                websocketService.stop();
+                sslInfrastructureService.invalidateAgentCertificate();
+                break;
+            default:
+                throw new RuntimeException("Unknown action: " + message.getAction());
+
+        }
+    }
+
+    private void cancelJobIfThereIsOneRunning() throws InterruptedException {
+        if (runner == null || !runner.isRunning()) {
+            return;
+        }
+        LOG.info("Cancel running job");
+        runner.handleInstruction(new AgentInstruction(true), agentRuntimeInfo);
+        runner.waitUntilDone(30);
+        if (runner.isRunning()) {
+            LOG.error("Waited 30 seconds for canceling job finish, but the job is still running. Maybe canceling job does not work as expected, here is running job details: " + runner);
+        }
+    }
+
+    private void updateServerAgentRuntimeInfo() {
+        AgentIdentifier agent = agentIdentifier();
+        LOG.trace(agent + " is pinging server [" + server.toString() + "]");
+        agentRuntimeInfo.refreshUsableSpace();
+        websocketService.send(new Message(Action.ping, agentRuntimeInfo));
+        LOG.trace(agent + " pinged server [" + server.toString() + "]");
     }
 
 }

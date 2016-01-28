@@ -42,7 +42,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     private Map<String, Object> sqlCriteria;
     private Map<String, Object> attributesForXml;
     private String pipelineUniqueFingerprint;
-    private String fingerprint;
+    protected String fingerprint;
 
     public AbstractMaterial(String typeName) {
         type = typeName;

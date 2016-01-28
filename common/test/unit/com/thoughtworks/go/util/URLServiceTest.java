@@ -90,6 +90,6 @@ public class URLServiceTest {
 
     @Test
     public void agentRemoteWebSocketUrl() {
-        assertThat(urlService.getAgentRemoteWebSocketUrl(), is("wss://localhost:8443/go/aws"));
+        assertThat(urlService.getAgentRemoteWebSocketUrl(), is("wss://localhost:8443/go/agent-websocket"));
     }
 }

@@ -133,9 +133,7 @@ public class AgentWebsocketService {
 
     public synchronized void stop() {
         if (isRunning()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("close " + sessionName());
-            }
+            LOGGER.debug("close {}", sessionName());
             session.close();
             session = null;
         }
@@ -146,9 +144,7 @@ public class AgentWebsocketService {
     }
 
     public void send(Message message) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " send message: " + message);
-        }
+        LOGGER.debug("{} send message: {}", sessionName(), message);
         try {
             this.session.getRemote().sendBytes(ByteBuffer.wrap(Message.encode(message)));
         } catch (IOException e) {
@@ -196,9 +192,7 @@ public class AgentWebsocketService {
 
     @OnWebSocketFrame
     public void onFrame(Frame frame) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(sessionName() + " receive frame: " + frame.getPayloadLength());
-        }
+        LOGGER.debug("{} receive frame: {}", sessionName(), frame.getPayloadLength());
     }
 
     private String sessionName() {

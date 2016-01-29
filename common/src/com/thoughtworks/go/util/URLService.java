@@ -93,7 +93,7 @@ public class URLService implements ServerUrlGenerator{
     }
 
     public String getAgentRemoteWebSocketUrl() {
-        return format("%s/%s", getWebSocketBaseUrl(), "aws");
+        return format("%s/%s", getWebSocketBaseUrl(), "agent-websocket");
     }
     public String getWebSocketBaseUrl() {
         try {

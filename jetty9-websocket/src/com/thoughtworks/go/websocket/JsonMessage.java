@@ -27,6 +27,19 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 public class JsonMessage {
+    private static Gson gson;
+
+    static {
+        GsonBuilder builder = new GsonBuilder()
+                .registerTypeAdapter(Builder.class, new ObjectConverter())
+                .registerTypeAdapter(JobPlan.class, new ObjectConverter())
+                .registerTypeAdapter(Material.class, new ObjectConverter())
+                .registerTypeAdapter(Message.class, new MessageConverter())
+                .registerTypeAdapter(FetchHandler.class, new ObjectConverter())
+                .registerTypeAdapter(MaterialInstance.class, new ObjectConverter())
+                .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC);
+        gson = builder.create();
+    }
 
     private static class MessageConverter implements JsonSerializer<Message>, JsonDeserializer<Message> {
         @Override
@@ -93,14 +106,6 @@ public class JsonMessage {
     }
 
     private static Gson getGson() {
-        GsonBuilder builder = new GsonBuilder()
-                .registerTypeAdapter(Builder.class, new ObjectConverter())
-                .registerTypeAdapter(JobPlan.class, new ObjectConverter())
-                .registerTypeAdapter(Material.class, new ObjectConverter())
-                .registerTypeAdapter(Message.class, new MessageConverter())
-                .registerTypeAdapter(FetchHandler.class, new ObjectConverter())
-                .registerTypeAdapter(MaterialInstance.class, new ObjectConverter())
-                .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC);
-        return builder.create();
+        return gson;
     }
 }

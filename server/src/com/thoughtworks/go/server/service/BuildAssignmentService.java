@@ -158,7 +158,7 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
                 }
                 return;
             }
-            Work work = BuildAssignmentService.this.assignWorkToAgent(agentInstance);
+            Work work = assignWorkToAgent(agentInstance);
             if (work != NO_WORK) {
                 agent.send(new Message(Action.assignWork, work));
             }

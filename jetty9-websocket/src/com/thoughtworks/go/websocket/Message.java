@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.websocket;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class Message {
 
@@ -34,32 +34,19 @@ public class Message {
 
     public static byte[] encode(Message msg) {
         String encode = JsonMessage.encode(msg);
-        try {
-            return encode.getBytes("UTF8");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return encode.getBytes(StandardCharsets.UTF_8);
     }
 
     public static Message decode(InputStream input) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            byte[] buffer = new byte[8192];
-            int len;
-            while((len = input.read(buffer))>0)
-                baos.write(buffer, 0, len);
-            return decode(baos.toByteArray());
+            return decode(IOUtils.toByteArray(input));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static Message decode(byte[] msg) {
-        try {
-            return JsonMessage.decode(new String(msg, "UTF8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return JsonMessage.decode(new String(msg, StandardCharsets.UTF_8));
     }
 
     private final Action action;

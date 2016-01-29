@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -146,6 +147,49 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(savedPipelineConfig, is(downstream));
         assertThat(configRepository.getCurrentRevCommit().name(), is(not(headCommitBeforeUpdate)));
         assertThat(configRepository.getCurrentRevision().getUsername(), is(user.getDisplayName()));
+    }
+
+    @Test
+    public void shouldUpdatePipelineConfigWhenDependencyMaterialHasTemplateDefined() throws Exception {
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template_with_param");
+        saveTemplateWithParamToConfig(templateName);
+
+        pipelineConfig.clear();
+        pipelineConfig.setTemplateName(templateName);
+        pipelineConfig.addParam(new ParamConfig("SOME_PARAM", "SOME_VALUE"));
+
+        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
+        cruiseConfig.update(groupName, pipelineConfig.name().toString(), pipelineConfig);
+        saveConfig(cruiseConfig);
+
+        PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream", new DependencyMaterialConfig(pipelineConfig.name(), new CaseInsensitiveString("stage")));
+        pipelineConfigService.createPipelineConfig(user, downstream, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(true));
+        assertTrue(downstream.materialConfigs().first().errors().isEmpty());
+    }
+
+    @Test
+    public void shouldUpdatePipelineConfigWhenFetchTaskFromUpstreamHasPipelineWithTemplateDefined() throws Exception {
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template_with_param");
+        saveTemplateWithParamToConfig(templateName);
+
+        pipelineConfig.clear();
+        pipelineConfig.setTemplateName(templateName);
+        pipelineConfig.addParam(new ParamConfig("SOME_PARAM", "SOME_VALUE"));
+
+        CaseInsensitiveString stage = new CaseInsensitiveString("stage");
+        CaseInsensitiveString job = new CaseInsensitiveString("job");
+        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
+        cruiseConfig.update(groupName, pipelineConfig.name().toString(), pipelineConfig);
+        saveConfig(cruiseConfig);
+
+        PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream", new DependencyMaterialConfig(pipelineConfig.name(), stage));
+        downstream.getStage(stage).getJobs().first().addTask(new FetchTask(pipelineConfig.name(), stage, job, "src", "dest"));
+        pipelineConfigService.createPipelineConfig(user, downstream, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(true));
+        assertTrue(downstream.materialConfigs().first().errors().isEmpty());
     }
 
     @Test

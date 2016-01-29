@@ -80,7 +80,6 @@
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>jetty9-websocket</artifactId>
             <version>${project.parent.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- apache commons -->

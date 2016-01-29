@@ -205,12 +205,6 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Response.class")
     # # ---- Jetty 9 end ---
 
-    # ---- Jetty 9 websocket start ---
-    include_fileset_from_target(jar, 'jetty9-websocket', "**/*.class")
-    # ---- Jetty 9 websocket end ---
-
-
-
     include_fileset_from_target(jar, 'common', "**/SubprocessLogger*.class")
     include_fileset_from_target(jar, 'common', "**/validators/*.class")
     include_fileset_from_target(jar, 'common', "**/Environment*.class")

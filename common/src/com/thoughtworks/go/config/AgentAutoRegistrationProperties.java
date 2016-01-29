@@ -89,6 +89,7 @@ public class AgentAutoRegistrationProperties {
             PropertiesConfiguration config = new PropertiesConfiguration();
             config.setIOFactory(new FilteringOutputWriterFactory());
             PropertiesConfigurationLayout layout = new PropertiesConfigurationLayout(config);
+            layout.setLineSeparator("\n");
             layout.load(reader());
             try (FileWriter out = new FileWriter(this.configFile)) {
                 layout.save(out);

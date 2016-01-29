@@ -1,4 +1,4 @@
 @ECHO OFF
-mvn --version
+call mvn --version
 %~dp0\tools\bin\jruby.bat -S buildr %*
 

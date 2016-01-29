@@ -102,6 +102,11 @@ public class GitMaterialShallowCloneTest {
     }
 
     @Test
+    public void xmlAttributesShouldIncludesShallowFlag() {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
+        assertThat(material.getAttributesForXml().get("shallowClone"), Is.<Object>is(true));
+    }
+    @Test
     public void attributesShouldIncludeShallowFlag() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         Map gitConfig = (Map) (material.getAttributes(false).get("git-configuration"));

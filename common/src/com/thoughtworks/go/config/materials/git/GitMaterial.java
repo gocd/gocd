@@ -64,7 +64,7 @@ public class GitMaterial extends ScmMaterial {
 
     private UrlArgument url;
     private String branch = GitMaterialConfig.DEFAULT_BRANCH;
-    private Boolean shallowClone = false;
+    private boolean shallowClone = false;
     private String submoduleFolder;
 
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
@@ -144,6 +144,7 @@ public class GitMaterial extends ScmMaterial {
     protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put("url", url);
         parameters.put("branch", branch);
+        parameters.put("shallowClone", shallowClone);
     }
 
     public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {

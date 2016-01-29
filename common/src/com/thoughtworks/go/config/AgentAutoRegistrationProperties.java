@@ -90,7 +90,9 @@ public class AgentAutoRegistrationProperties {
             config.setIOFactory(new FilteringOutputWriterFactory());
             PropertiesConfigurationLayout layout = new PropertiesConfigurationLayout(config);
             layout.load(reader());
-            layout.save(new FileWriter(this.configFile));
+            try (FileWriter out = new FileWriter(this.configFile)) {
+                layout.save(out);
+            }
             loadProperties();
         } catch (ConfigurationException | IOException e) {
             LOG.warn("[Agent Auto Registration] Unable to scrub registration key.", e);

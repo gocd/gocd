@@ -186,12 +186,8 @@ public class AgentServiceTest {
     }
 
     private void writeToFile(final String fileName) throws IOException {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(fileName);
+        try (FileOutputStream fos = new FileOutputStream(fileName)) {
             fos.write(fileName.getBytes());
-        } finally {
-            fos.close();
         }
     }
 }

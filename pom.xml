@@ -115,7 +115,6 @@
         <module>server-launcher</module>
         <module>app-server</module>
         <module>jetty9</module>
-        <module>jetty9-websocket</module>
         <module>development-utility/development-agent</module>
         <module>development-utility/development-server</module>
     </modules>

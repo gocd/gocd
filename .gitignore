@@ -230,4 +230,4 @@ server/webapp/WEB-INF/rails.new/config/cipher
 app-server/target/*
 jetty6/target/*
 jetty9/target/*
-jetty9-websocket/config/cipher
+

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -87,6 +87,7 @@ import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -147,7 +148,7 @@ public class StageServiceIntegrationTest {
         job.setAgentUuid(UUID);
         jobInstanceDao.updateAssignedInfo(job);
         AgentIdentifier agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", UUID);
-        agentService.updateRuntimeInfo(AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
         receivedState = null;
         receivedResult = null;
         receivedStageResult = null;
@@ -691,7 +692,7 @@ public class StageServiceIntegrationTest {
         assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage",14L)),is(true));
         assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage",10L)),is(true));
     }
-    
+
     private void assertStageEntryAuthorAndMingleCards(MingleConfig upstreamMingle, MingleConfig downstreamMingle, FeedEntries feed) {
 
         assertAuthorsAndCardsOnEntry((StageFeedEntry) feed.get(0),

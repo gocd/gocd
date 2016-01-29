@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class MessageTest {
 
     @Test
     public void encodeAndDecodePingMessage() {
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromAgent(new AgentIdentifier("hostName", "ipAddress", "uuid"));
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, null);
         byte[] msg = Message.encode(new Message(Action.ping, info));
         Message decoded = Message.decode(msg);
         assertThat(((AgentRuntimeInfo) decoded.getData()).getIdentifier(), is(info.getIdentifier()));

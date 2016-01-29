@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent;
 
@@ -35,14 +35,15 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.work.SleepWork;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -94,6 +95,8 @@ public class AgentControllerTest {
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
     private AgentController agentController;
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
@@ -127,16 +130,15 @@ public class AgentControllerTest {
 
     @Test
     public void shouldRetriveCookieIfNotPresent() throws Exception {
-        AgentRuntimeInfo infoWithCookie = AgentRuntimeInfo.fromAgent(new AgentIdentifier(SystemUtil.getLocalhostName(), SystemUtil.getFirstLocalNonLoopbackIpAddress(), agentUuid), "cookie",
-                null);
-        when(loopServer.getCookie(any(AgentIdentifier.class), eq(infoWithCookie.getLocation()))).thenReturn("cookie");
-        when(sslInfrastructureService.isRegistered()).thenReturn(true);
-        when(loopServer.getWork(infoWithCookie)).thenReturn(work);
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController = createAgentController();
         agentController.init();
+
+        when(loopServer.getCookie(any(AgentIdentifier.class), eq(agentController.getAgentRuntimeInfo().getLocation()))).thenReturn("cookie");
+        when(sslInfrastructureService.isRegistered()).thenReturn(true);
+        when(loopServer.getWork(agentController.getAgentRuntimeInfo())).thenReturn(work);
+        when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController.loop();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(infoWithCookie), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
+        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
     }
 
     @Test
@@ -210,7 +212,7 @@ public class AgentControllerTest {
         InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
         agentController.loop();
         inOrder.verify(agentUpgradeService).checkForUpgrade();
-        inOrder.verify(sslInfrastructureService).registerIfNecessary();
+        inOrder.verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
     }
 
     @Test
@@ -225,7 +227,7 @@ public class AgentControllerTest {
         agentController.loop();
 
         verify(agentUpgradeService).checkForUpgrade();
-        verify(sslInfrastructureService).registerIfNecessary();
+        verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
         verify(agentWebsocketService).start();
         verify(agentWebsocketService).send(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
     }
@@ -244,7 +246,7 @@ public class AgentControllerTest {
         agentController.loop();
 
         verify(agentUpgradeService).checkForUpgrade();
-        verify(sslInfrastructureService).registerIfNecessary();
+        verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
         verify(sslInfrastructureService).invalidateAgentCertificate();
     }
 

@@ -22,4 +22,5 @@ else
 fi
 export TF_CLC_HOME=$project_root/tfs-tool
 
+mvn --version
 exec $(dirname $0)/tools/bin/jruby -S buildr "$@"

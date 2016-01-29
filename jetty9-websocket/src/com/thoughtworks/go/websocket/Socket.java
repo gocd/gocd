@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.websocket;
+package com.thoughtworks.go.websocket;
 
-import com.thoughtworks.go.websocket.Message;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import java.util.ArrayList;
-import java.util.List;
+public interface Socket {
+    void sendPartialBytes(ByteBuffer byteBuffer, boolean last) throws IOException;
 
-public class AgentStub implements Agent {
-    public List<Message> messages = new ArrayList<>();
-
-    @Override
-    public void send(Message msg) {
-        messages.add(msg);
-    }
+    int getMaxMessageBufferSize();
 }

@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -45,16 +44,12 @@ import static org.junit.Assert.assertThat;
 @RunWith(JunitExtRunner.class)
 
 public class GitMaterialShallowCloneTest {
-
-    private GitMaterial material;
     private GitTestRepo repo;
     private File workingDir;
-
 
     @Before
     public void setup() throws Exception {
         repo = new GitTestRepo();
-        material = new GitMaterial(repo.projectRepositoryUrl(), true);
         workingDir = TestFileUtil.createUniqueTempFolder("working");
     }
 
@@ -66,16 +61,19 @@ public class GitMaterialShallowCloneTest {
 
     @Test
     public void shouldGetLatestModificationWithShallowClone() throws IOException {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         List<Modification> mods = material.latestModification(workingDir, context());
         assertThat(mods.size(), is(1));
         assertThat(mods.get(0).getComment(), Matchers.is("Added 'run-till-file-exists' ant target"));
-        assertThat(workingRepo().isShallow(), is(true));
-        assertThat(workingRepo().hasRevision(REVISION_0), is(false));
-        assertThat(workingRepo().currentRevision(), is(REVISION_4.getRevision()));
+        assertThat(localRepoFor(material).isShallow(), is(true));
+        assertThat(localRepoFor(material).hasRevision(REVISION_0), is(false));
+        assertThat(localRepoFor(material).currentRevision(), is(REVISION_4.getRevision()));
     }
 
     @Test
-    public void shouldGetModificationSinceANotInitialyClonedRevision() {
+    public void shouldGetModificationSinceANotInitiallyClonedRevision() {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
+
         List<Modification> modifications = material.modificationsSince(workingDir, REVISION_0, context());
         assertThat(modifications.size(), is(4));
         assertThat(modifications.get(0).getRevision(), is(REVISION_4.getRevision()));
@@ -88,39 +86,43 @@ public class GitMaterialShallowCloneTest {
         assertThat(modifications.get(3).getComment(), is("Added second line"));
     }
 
+
     @Test
     public void shouldBeAbleToUpdateToRevisionNotFetched() {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
+
         material.updateTo(inMemoryConsumer(), REVISION_2, workingDir, context());
-        assertThat(workingRepo().currentRevision(), is(REVISION_2.getRevision()));
+        assertThat(localRepoFor(material).currentRevision(), is(REVISION_2.getRevision()));
     }
 
     @Test
     public void configShouldIncludesShallowFlag() {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         assertThat(((GitMaterialConfig) material.config()).isShallowClone(), is(true));
     }
 
     @Test
     public void attributesShouldIncludeShallowFlag() {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         Map gitConfig = (Map) (material.getAttributes(false).get("git-configuration"));
         assertThat(gitConfig.get("shallow-clone"), Is.<Object>is(true));
     }
 
     @Test
     public void shouldConvertExistingRepoToFullRepoWhenShallowCloneIsOff() {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         material.latestModification(workingDir, context());
-        assertThat(workingRepo().isShallow(), is(true));
+        assertThat(localRepoFor(material).isShallow(), is(true));
         material = new GitMaterial(repo.projectRepositoryUrl(), false);
         material.latestModification(workingDir, context());
-        assertThat(workingRepo().isShallow(), is(false));
+        assertThat(localRepoFor(material).isShallow(), is(false));
     }
-
-
 
     private TestSubprocessExecutionContext context() {
         return new TestSubprocessExecutionContext();
     }
 
-    private GitCommand workingRepo() {
+    private GitCommand localRepoFor(GitMaterial material) {
         return new GitCommand(material.getFingerprint(), workingDir, GitMaterialConfig.DEFAULT_BRANCH, false);
     }
 

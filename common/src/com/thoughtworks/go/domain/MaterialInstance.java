@@ -55,7 +55,7 @@ public abstract class MaterialInstance extends PersistentObject {
     }
 
     public MaterialInstance(String url, String username, String pipelineName, String stageName, String view, Boolean useTickets, String branch, String submoduleFolder, String flyweightName,
-                            final Boolean checkExternals, String projectPath, String domain, String configuration, boolean shallowClone) {
+                            final Boolean checkExternals, String projectPath, String domain, String configuration, Boolean shallowClone) {
         bombIfNull(flyweightName, "Flyweight name cannot be null.");
 
         this.url = url;

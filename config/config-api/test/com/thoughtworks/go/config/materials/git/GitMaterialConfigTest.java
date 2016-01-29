@@ -41,7 +41,7 @@ public class GitMaterialConfigTest {
         Map<String, String> map = new HashMap<String, String>();
         map.put(GitMaterialConfig.URL, "url");
         map.put(GitMaterialConfig.BRANCH, "some-branch");
-        map.put(GitMaterialConfig.SHALLOW, "true");
+        map.put(GitMaterialConfig.SHALLOW_CLONE, "true");
         map.put(ScmMaterialConfig.FOLDER, "folder");
         map.put(ScmMaterialConfig.AUTO_UPDATE, null);
         map.put(ScmMaterialConfig.FILTER, "/root,/**/*.help");

@@ -38,7 +38,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     private String branch = DEFAULT_BRANCH;
 
     @ConfigAttribute(value = "shallowClone")
-    private boolean shallowClone;
+    private Boolean shallowClone;
 
     private String submoduleFolder;
 
@@ -48,7 +48,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     public static final String URL = "url";
     public static final String BRANCH = "branch";
     public static final String DEFAULT_BRANCH = "master";
-    public static final String SHALLOW = "shallowClone";
+    public static final String SHALLOW_CLONE = "shallowClone";
 
     public GitMaterialConfig() {
         super(TYPE);
@@ -66,7 +66,13 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         }
     }
 
-    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name, boolean shallowClone) {
+    public GitMaterialConfig(String url, String branch, Boolean shallowClone) {
+        this(url, branch);
+        setShallowClone(shallowClone);
+    }
+
+
+    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         if(branch != null) {
@@ -230,14 +236,14 @@ public class GitMaterialConfig extends ScmMaterialConfig {
             this.url = new UrlArgument((String) map.get(URL));
         }
 
-        this.shallowClone = "true".equals(map.get(SHALLOW));
+        this.shallowClone = "true".equals(map.get(SHALLOW_CLONE));
     }
 
-    public boolean isShallowClone() {
+    public Boolean isShallowClone() {
         return shallowClone;
     }
 
-    public void setShallowClone(boolean shallowClone) {
+    public void setShallowClone(Boolean shallowClone) {
         this.shallowClone = shallowClone;
     }
 }

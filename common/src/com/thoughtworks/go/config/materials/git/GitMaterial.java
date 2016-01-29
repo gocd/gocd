@@ -102,7 +102,9 @@ public class GitMaterial extends ScmMaterial {
 
     public GitMaterial(String url, String branch, String folder, Boolean shallowClone) {
         this(url, branch, folder);
-        this.shallowClone = shallowClone;
+        if(shallowClone != null) {
+            this.shallowClone = shallowClone;
+        }
     }
 
     public GitMaterial(GitMaterialConfig config) {

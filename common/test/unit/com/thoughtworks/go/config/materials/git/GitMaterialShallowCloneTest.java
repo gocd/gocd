@@ -59,6 +59,17 @@ public class GitMaterialShallowCloneTest {
         TestRepo.internalTearDown();
     }
 
+    @After
+    public void defaultShallowFlagIsOff() throws Exception {
+        assertThat(new GitMaterial(repo.projectRepositoryUrl()).isShallowClone(), is(false));
+        assertThat(new GitMaterial(repo.projectRepositoryUrl(), null).isShallowClone(), is(false));
+        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).isShallowClone(), is(true));
+        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl())).isShallowClone(), is(false));
+        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone(), is(true));
+        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, null)).isShallowClone(), is(false));
+        TestRepo.internalTearDown();
+    }
+
     @Test
     public void shouldGetLatestModificationWithShallowClone() throws IOException {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
@@ -97,8 +108,10 @@ public class GitMaterialShallowCloneTest {
 
     @Test
     public void configShouldIncludesShallowFlag() {
-        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
-        assertThat(((GitMaterialConfig) material.config()).isShallowClone(), is(true));
+        GitMaterialConfig shallowConfig = (GitMaterialConfig) new GitMaterial(repo.projectRepositoryUrl(), true).config();
+        assertThat(shallowConfig.isShallowClone(), is(true));
+        GitMaterialConfig normalConfig = (GitMaterialConfig) new GitMaterial(repo.projectRepositoryUrl(), null).config();
+        assertThat(normalConfig.isShallowClone(), is(false));
     }
 
     @Test

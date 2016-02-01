@@ -14,7 +14,10 @@
 -- limitations under the License.
 --*************************GO-LICENSE-END***********************************
 
-ALTER TABLE materials ADD COLUMN shallowClone BOOLEAN DEFAULT false NOT NULL;
+ALTER TABLE materials ADD COLUMN shallowClone BOOLEAN;
+UPDATE materials SET
+    shallowClone = false
+    WHERE type = 'GitMaterial';
 
 --//@UNDO
 

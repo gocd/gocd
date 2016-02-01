@@ -393,7 +393,7 @@
         <xsd:attribute name="url" type="xsd:string" use="required"/>
         <xsd:attribute name="dest" type="filePathType" use="optional"/>
         <xsd:attribute name="branch" type="xsd:string" use="optional"/>
-        <xsd:attribute name="shallowClone" type="xsd:boolean" use="optional"/>
+        <xsd:attribute name="shallowClone" type="xsd:boolean" use="optional" default="false"/>
         <xsd:attribute name="materialName" type="nameType" use="optional"/>
         <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
     </xsd:complexType>

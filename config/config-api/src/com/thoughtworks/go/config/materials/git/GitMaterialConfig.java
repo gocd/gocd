@@ -38,7 +38,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     private String branch = DEFAULT_BRANCH;
 
     @ConfigAttribute(value = "shallowClone")
-    private Boolean shallowClone;
+    private boolean shallowClone = false;
 
     private String submoduleFolder;
 
@@ -86,12 +86,14 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.forCommandline());
         parameters.put("branch", branch);
+        parameters.put("shallowClone", shallowClone);
     }
 
     @Override
     protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put("url", url);
         parameters.put("branch", branch);
+        parameters.put("shallowClone", shallowClone);
     }
 
     @Override
@@ -140,6 +142,11 @@ public class GitMaterialConfig extends ScmMaterialConfig {
             return false;
         }
 
+        if (shallowClone != that.shallowClone) {
+            return false;
+        }
+
+
         return super.equals(that);
     }
 
@@ -149,6 +156,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         result = 31 * result + (url != null ? url.hashCode() : 0);
         result = 31 * result + (branch != null ? branch.hashCode() : 0);
         result = 31 * result + (submoduleFolder != null ? submoduleFolder.hashCode() : 0);
+        result = 31 * result + (shallowClone ? 1 : 0);
         return result;
     }
 
@@ -218,6 +226,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
                 "url=" + url +
                 ", branch='" + branch + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
+                ", shallowClone=" + shallowClone +
                 '}';
     }
 
@@ -239,11 +248,13 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         this.shallowClone = "true".equals(map.get(SHALLOW_CLONE));
     }
 
-    public Boolean isShallowClone() {
+    public boolean isShallowClone() {
         return shallowClone;
     }
 
     public void setShallowClone(Boolean shallowClone) {
-        this.shallowClone = shallowClone;
+        if(shallowClone != null) {
+            this.shallowClone = shallowClone;
+        }
     }
 }

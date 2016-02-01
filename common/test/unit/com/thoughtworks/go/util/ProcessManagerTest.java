@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -117,5 +118,10 @@ public class ProcessManagerTest {
 
         Collection<ProcessWrapper> processWrappersForDisplay = processManager.currentProcessListForDisplay();
         assertThat(processWrappersForDisplay, is(processMap.values()));
+    }
+
+    @Test
+    public void canGetProcessLevelEnvironmentVariableNames() {
+        assertTrue(processManager.environmentVariableNames().contains("PATH"));
     }
 }

@@ -56,6 +56,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
@@ -114,6 +115,20 @@ public class BuildWorkTest {
             + "  </tasks>\n"
             + "</job>";
 
+    private static final String WITH_ENV_VAR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
+            + "  <environmentvariables>\n"
+            + "    <variable name=\"JOB_ENV\">\n"
+            + "      <value>foobar</value>\n"
+            + "    </variable>\n"
+            + "    <variable name=\"PATH\">\n"
+            + "      <value>/tmp</value>\n"
+            + "    </variable>\n"
+            + "  </environmentvariables>\n"
+            + "  <tasks>\n"
+            + "    <ant target=\"-help\" />\n"
+            + "  </tasks>\n"
+            + "</job>";
+
     private static final String SOMETHING_NOT_EXIST = "something-not-exist";
 
     private static final String CMD_NOT_EXIST = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
@@ -152,12 +167,6 @@ public class BuildWorkTest {
             + "      <runif status=\"failed\" />\n"
             + "      <runif status=\"passed\" />\n"
             + "    </exec>\n"
-            + "  </tasks>\n"
-            + "</job>";
-
-    private static final String ENV_VAIRABLES = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <ant workingdir='{WORKINGDIR}' />\n"
             + "  </tasks>\n"
             + "</job>";
 
@@ -342,25 +351,6 @@ public class BuildWorkTest {
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
 
         assertThat(buildRepository.results, containsResult(Passed));
-    }
-
-    @Test
-    public void shouldReadEnvironemntVariables() throws Exception {
-        //URL buildxml = this.getClass().getResource("build.xml");
-
-        String output = ENV_VAIRABLES.replace("workingdir='{WORKINGDIR}'", "");
-
-        buildWork = (BuildWork) getWork(output, PIPELINE_NAME);
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
-        String actual = artifactManipulator.consoleOut();
-
-        assertThat(actual, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
-        assertThat(actual, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
-        assertThat(actual, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
-        assertThat(actual, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
-        assertThat(actual, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
-        assertThat(actual, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
     }
 
     @Test
@@ -630,4 +620,32 @@ public class BuildWorkTest {
         );
         buildWork = new BuildWork(buildAssignment);
     }
+
+    @Test
+    public void shouldReportEnvironmentVariables() throws Exception {
+        buildWork = (BuildWork) getWork(WITH_ENV_VAR, PIPELINE_NAME);
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
+
+        String consoleOut = artifactManipulator.consoleOut();
+
+
+        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
+        assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
+
+        assertThat(trimTimeStamp(consoleOut), containsString(
+                "[go] setting environment variable 'JOB_ENV' to value 'foobar'\n" +
+                        "[go] overriding environment variable 'PATH' with value '/tmp'\n\n"));
+
+    }
+
+    private String trimTimeStamp(String consoleOut) {
+        Pattern pattern = Pattern.compile("^\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s", Pattern.MULTILINE);
+        return pattern.matcher(consoleOut).replaceAll("");
+    }
+
 }

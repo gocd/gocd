@@ -491,11 +491,12 @@ public class GitMaterialTest {
     @Test
     public void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {
         Map<String, Object> map = git.getSqlCriteria();
-        assertThat(map.size(), is(3));
+        assertThat(map.size(), is(4));
         Iterator<Map.Entry<String, Object>> iter = map.entrySet().iterator();
         assertThat(iter.next().getKey(), is("type"));
         assertThat(iter.next().getKey(), is("url"));
         assertThat(iter.next().getKey(), is("branch"));
+        assertThat(iter.next().getKey(), is("shallowClone"));
     }
 
     /**

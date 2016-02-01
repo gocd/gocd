@@ -36,7 +36,10 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +47,11 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
-public class MessageTest {
+
+public class MessageTest implements Socket {
+
+    private List<ByteBuffer> messageBuffer = new ArrayList<>();
+    private byte[] message;
 
     @Test
     public void encodeAndDecodeMessageWithoutData() {
@@ -113,6 +120,16 @@ public class MessageTest {
         assertEncodeDecodeMaterialInstance(MaterialsMother.packageMaterial());
     }
 
+    @Test
+    public void sendMessageWithPartialBytesThatMeetsMessageMaxBufferSize() throws IOException {
+        Message.send(this, new Message(Action.ping));
+        assertTrue(messageBuffer.size() > 1);
+        assertEquals(getMaxMessageBufferSize(), messageBuffer.get(0).rewind().remaining());
+        assertNotNull(message);
+        Message decoded = Message.decode(message);
+        assertEquals(Action.ping, decoded.getAction());
+    }
+
     private void assertEncodeDecodeMaterialInstance(Material material) {
         MaterialRevisions materialRevisions = new MaterialRevisions();
 
@@ -135,5 +152,24 @@ public class MessageTest {
     private DefaultJobPlan jobPlan() {
         JobIdentifier jobIdentifier = new JobIdentifier("pipelineName", 1, "1", "defaultStage", "1", "job1", 100L);
         return new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier);
+    }
+
+    @Override
+    public void sendPartialBytes(ByteBuffer byteBuffer, boolean last) throws IOException {
+        messageBuffer.add(byteBuffer);
+        if (last) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            for (ByteBuffer b : messageBuffer) {
+                byte[] bytes = new byte[b.remaining()];
+                b.get(bytes);
+                out.write(bytes);
+            }
+            message = out.toByteArray();
+        }
+    }
+
+    @Override
+    public int getMaxMessageBufferSize() {
+        return 10;
     }
 }

@@ -17,19 +17,23 @@
 package com.thoughtworks.go.websocket;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class Message {
 
-    public static void setupPolicy(WebSocketPolicy policy, Integer websocketMaxMessageSize) {
-        policy.setMaxTextMessageBufferSize(websocketMaxMessageSize);
-        policy.setMaxTextMessageSize(websocketMaxMessageSize);
-        policy.setMaxBinaryMessageSize(websocketMaxMessageSize);
-        policy.setMaxBinaryMessageBufferSize(websocketMaxMessageSize);
+    public static void send(Socket socket, Message msg) throws IOException {
+        int bufferSize = socket.getMaxMessageBufferSize();
+        byte[] bytes = encode(msg);
+        boolean last;
+        for (int offset=0; offset < bytes.length; offset+=bufferSize) {
+            last = bytes.length <= offset + bufferSize;
+            int length = last ? bytes.length - offset : bufferSize;
+            socket.sendPartialBytes(ByteBuffer.wrap(bytes, offset, length), last);
+        }
     }
 
     public static byte[] encode(Message msg) {

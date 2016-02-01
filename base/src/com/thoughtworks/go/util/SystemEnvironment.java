@@ -178,7 +178,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
 
     public static GoSystemProperty<Long> GO_WEBSOCKET_MAX_IDLE_TIME = new GoLongSystemProperty("go.websocket.max.idle.time", 60 * 1000L);
-    public static GoSystemProperty<Integer> GO_WEBSOCKET_MAX_MESSAGE_SIZE = new GoIntSystemProperty("go.websocket.max.message.size", 1024 * 1024);
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
@@ -705,10 +704,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Long getWebsocketMaxIdleTime() {
         return GO_WEBSOCKET_MAX_IDLE_TIME.getValue();
-    }
-
-    public Integer getWebsocketMaxMessageSize() {
-        return GO_WEBSOCKET_MAX_MESSAGE_SIZE.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

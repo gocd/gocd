@@ -15,22 +15,24 @@
  */
 package com.thoughtworks.go.server.websocket;
 
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.websocket.Message;
-import org.eclipse.jetty.websocket.api.MessageTooLargeException;
+import com.thoughtworks.go.websocket.Socket;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @WebSocket
-public class AgentRemoteSocket implements Agent {
+public class AgentRemoteSocket implements Agent, Socket {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentRemoteSocket.class);
+    private Executor executor = Executors.newFixedThreadPool(100);
     private AgentRemoteHandler handler;
     private Session session;
 
@@ -60,9 +62,6 @@ public class AgentRemoteSocket implements Agent {
     @OnWebSocketError
     public void onError(Throwable error) {
         LOGGER.error(sessionName() + " error", error);
-        if (error instanceof MessageTooLargeException) {
-            LOGGER.error("You can set Java system property '" + SystemEnvironment.GO_WEBSOCKET_MAX_MESSAGE_SIZE.propertyName() + "' to increase limit");
-        }
     }
 
     @OnWebSocketFrame
@@ -71,9 +70,18 @@ public class AgentRemoteSocket implements Agent {
     }
 
     @Override
-    public Future<Void> send(Message msg) {
+    public void send(final Message msg) {
         LOGGER.debug("{} send message: {}", sessionName(), msg);
-        return this.session.getRemote().sendBytesByFuture(ByteBuffer.wrap(Message.encode(msg)));
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Message.send(AgentRemoteSocket.this, msg);
+                } catch (IOException e) {
+                    onError(e);
+                }
+            }
+        });
     }
 
     private String sessionName() {
@@ -83,5 +91,15 @@ public class AgentRemoteSocket implements Agent {
     @Override
     public String toString() {
         return "[AgentRemoteSocket: " + sessionName() + "]";
+    }
+
+    @Override
+    public void sendPartialBytes(ByteBuffer byteBuffer, boolean last) throws IOException {
+        session.getRemote().sendPartialBytes(byteBuffer, last);
+    }
+
+    @Override
+    public int getMaxMessageBufferSize() {
+        return session.getPolicy().getMaxBinaryMessageBufferSize();
     }
 }

@@ -76,12 +76,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>jetty9-websocket</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
         <!-- apache commons -->
         <dependency>
             <groupId>commons-beanutils</groupId>

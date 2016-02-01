@@ -31,8 +31,8 @@ import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.Report;
+import com.thoughtworks.go.websocket.Socket;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.websocket.api.MessageTooLargeException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
@@ -52,7 +52,7 @@ import java.util.concurrent.Executors;
 
 @Component
 @WebSocket
-public class AgentWebsocketService {
+public class AgentWebsocketService implements Socket {
     public static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
         private JobRunner runner;
         private AgentWebsocketService service;
@@ -121,7 +121,6 @@ public class AgentWebsocketService {
             SystemEnvironment environment = new SystemEnvironment();
             client = new WebSocketClient(sslContextFactory);
             client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
-            Message.setupPolicy(client.getPolicy(), environment.getWebsocketMaxMessageSize());
             client.start();
         }
         if (session != null) {
@@ -146,7 +145,7 @@ public class AgentWebsocketService {
     public void send(Message message) {
         LOGGER.debug("{} send message: {}", sessionName(), message);
         try {
-            this.session.getRemote().sendBytes(ByteBuffer.wrap(Message.encode(message)));
+            Message.send(this, message);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -185,14 +184,21 @@ public class AgentWebsocketService {
     @OnWebSocketError
     public void onError(Throwable error) {
         LOGGER.error(sessionName() + " error", error);
-        if (error instanceof MessageTooLargeException) {
-            LOGGER.error("You can set Java system property '" + SystemEnvironment.GO_WEBSOCKET_MAX_MESSAGE_SIZE.propertyName() + "' to increase limit");
-        }
     }
 
     @OnWebSocketFrame
     public void onFrame(Frame frame) {
         LOGGER.debug("{} receive frame: {}", sessionName(), frame.getPayloadLength());
+    }
+
+    @Override
+    public void sendPartialBytes(ByteBuffer byteBuffer, boolean last) throws IOException {
+        session.getRemote().sendPartialBytes(byteBuffer, last);
+    }
+
+    @Override
+    public int getMaxMessageBufferSize() {
+        return session.getPolicy().getMaxBinaryMessageBufferSize();
     }
 
     private String sessionName() {

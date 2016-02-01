@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.websocket.Message;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -37,8 +35,6 @@ public class AgentRemoteServlet extends WebSocketServlet {
 
     @Override
     public void configure(WebSocketServletFactory factory) {
-        SystemEnvironment environment = wac.getBean(SystemEnvironment.class);
-        Message.setupPolicy(factory.getPolicy(), environment.getWebsocketMaxMessageSize());
         factory.setCreator(wac.getBean(AgentRemoteSocketCreator.class));
     }
 }

@@ -41,10 +41,6 @@ def jetty_jars
   Dir.glob($PROJECT_BASE + '/jetty9/target/lib/*.jar')
 end
 
-def jetty_websocket_jars
-  Dir.glob($PROJECT_BASE + '/jetty9-websocket/target/lib/*.jar')
-end
-
 def maven_dependency(groupid, artifactid, version, maven_repository = File.expand_path('~') + '/.m2/repository')
   groupid.gsub!('.', '/')
   path = maven_repository + '/' + groupid + '/' + artifactid + '/' + version + '/*.jar'

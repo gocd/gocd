@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static org.hamcrest.collection.IsIn.isIn;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -122,6 +122,6 @@ public class ProcessManagerTest {
 
     @Test
     public void canGetProcessLevelEnvironmentVariableNames() {
-        assertTrue(processManager.environmentVariableNames().contains("PATH"));
+        assertThat("PATH", isIn(processManager.environmentVariableNames()));
     }
 }

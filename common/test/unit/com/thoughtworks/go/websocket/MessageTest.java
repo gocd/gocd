@@ -56,7 +56,7 @@ public class MessageTest implements Socket {
     @Test
     public void encodeAndDecodeMessageWithoutData() {
         byte[] msg = Message.encode(new Message(Action.ping));
-        Message decoded = Message.decode(msg);
+        Message decoded = Message.decode(new ByteArrayInputStream(msg));
         assertThat(decoded.getAction(), is(Action.ping));
         assertNull(decoded.getData());
 
@@ -67,14 +67,14 @@ public class MessageTest implements Socket {
     public void encodeAndDecodePingMessage() {
         AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, null);
         byte[] msg = Message.encode(new Message(Action.ping, info));
-        Message decoded = Message.decode(msg);
+        Message decoded = Message.decode(new ByteArrayInputStream(msg));
         assertThat(((AgentRuntimeInfo) decoded.getData()).getIdentifier(), is(info.getIdentifier()));
     }
 
     @Test
     public void encodeAndDecodeSetCookie() {
         byte[] msg = Message.encode(new Message(Action.setCookie, "cookie"));
-        Message decoded = Message.decode(msg);
+        Message decoded = Message.decode(new ByteArrayInputStream(msg));
         assertThat((String) decoded.getData(), is("cookie"));
     }
 
@@ -96,7 +96,7 @@ public class MessageTest implements Socket {
 
         BuildWork work = new BuildWork(assignment);
         byte[] msg = Message.encode(new Message(Action.assignWork, work));
-        Message decodedMsg = Message.decode(msg);
+        Message decodedMsg = Message.decode(new ByteArrayInputStream(msg));
         assertThat(((BuildWork) decodedMsg.getData()).getAssignment().getPlan().getPipelineName(), is("pipelineName"));
     }
 
@@ -126,7 +126,7 @@ public class MessageTest implements Socket {
         assertTrue(messageBuffer.size() > 1);
         assertEquals(getMaxMessageBufferSize(), messageBuffer.get(0).rewind().remaining());
         assertNotNull(message);
-        Message decoded = Message.decode(message);
+        Message decoded = Message.decode(new ByteArrayInputStream(message));
         assertEquals(Action.ping, decoded.getAction());
     }
 
@@ -145,7 +145,7 @@ public class MessageTest implements Socket {
 
     private void assertEncodeDecode(Object obj) {
         byte[] msg = Message.encode(new Message(Action.assignWork, obj));
-        Message decodedMsg = Message.decode(msg);
+        Message decodedMsg = Message.decode(new ByteArrayInputStream(msg));
         assertEquals(decodedMsg.getData().getClass(), obj.getClass());
     }
 

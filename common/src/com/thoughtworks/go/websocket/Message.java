@@ -17,11 +17,17 @@
 package com.thoughtworks.go.websocket;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class Message {
 
@@ -38,19 +44,24 @@ public class Message {
 
     public static byte[] encode(Message msg) {
         String encode = JsonMessage.encode(msg);
-        return encode.getBytes(StandardCharsets.UTF_8);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try {
+            GZIPOutputStream out = new GZIPOutputStream(bytes);
+            out.write(encode.getBytes(StandardCharsets.UTF_8));
+            out.finish();
+        } catch (IOException e) {
+            throw bomb(e);
+        }
+        return bytes.toByteArray();
     }
 
     public static Message decode(InputStream input) {
         try {
-            return decode(IOUtils.toByteArray(input));
+            GZIPInputStream zipStream = new GZIPInputStream(input);
+            return JsonMessage.decode(new String(IOUtils.toByteArray(zipStream), StandardCharsets.UTF_8));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw bomb(e);
         }
-    }
-
-    public static Message decode(byte[] msg) {
-        return JsonMessage.decode(new String(msg, StandardCharsets.UTF_8));
     }
 
     private final Action action;

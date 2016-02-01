@@ -187,8 +187,8 @@ public class SslInfrastructureService {
             postMethod.addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources());
             postMethod.addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.agentAutoRegisterEnvironments());
             postMethod.addParameter("agentAutoRegisterHostname", agentAutoRegisterProperties.agentAutoRegisterHostname());
-            postMethod.addParameter("elasticAgentId", agentAutoRegisterProperties.getAgentAutoRegisterElasticAgentId());
-            postMethod.addParameter("elasticPluginId", agentAutoRegisterProperties.getAgentAutoRegisterElasticPluginId());
+            postMethod.addParameter("elasticAgentId", agentAutoRegisterProperties.agentAutoRegisterElasticAgentId());
+            postMethod.addParameter("elasticPluginId", agentAutoRegisterProperties.agentAutoRegisterElasticPluginId());
             try {
                 httpClient.executeMethod(postMethod);
                 InputStream is = postMethod.getResponseBodyAsStream();

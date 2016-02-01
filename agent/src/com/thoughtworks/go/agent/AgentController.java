@@ -75,7 +75,7 @@ public class AgentController {
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private AgentWebsocketService websocketService;
-    private final AgentAutoRegistrationProperties agentAutoRegistrationProperties;
+    private final AgentAutoRegistrationPropertiesImpl agentAutoRegistrationProperties;
 
     @Autowired
     public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
@@ -96,7 +96,7 @@ public class AgentController {
         this.subprocessLogger = subprocessLogger;
         this.systemEnvironment = systemEnvironment;
         PluginManagerReference.reference().setPluginManager(pluginManager);
-        this.agentAutoRegistrationProperties = new AgentAutoRegistrationProperties(new File("config", "autoregister.properties"));
+        this.agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
     }
 
     void init() throws IOException {
@@ -105,7 +105,7 @@ public class AgentController {
         sslInfrastructureService.createSslInfrastructure();
         AgentIdentifier identifier = agentIdentifier();
         if (agentAutoRegistrationProperties.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion(), agentAutoRegistrationProperties.getAgentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.getAgentAutoRegisterElasticPluginId());
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
         } else {
             agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion());
         }

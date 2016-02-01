@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.agent.service;
 
-import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
+import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -60,12 +60,12 @@ public class RemoteRegistrationRequesterTest {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
 
-        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationProperties(null, properties));
+        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
         verify(httpClient).executeMethod(argThat(hasAllParams(defaultAgentRegistry.uuid(), "", "")));
     }
 
@@ -76,14 +76,14 @@ public class RemoteRegistrationRequesterTest {
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID, "42");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID, "tw.go.elastic-agent.docker");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID, "42");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID, "tw.go.elastic-agent.docker");
 
-        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationProperties(null, properties));
+        remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
         verify(httpClient).executeMethod(argThat(hasAllParams(defaultAgentRegistry.uuid(), "42", "tw.go.elastic-agent.docker")));
     }
 

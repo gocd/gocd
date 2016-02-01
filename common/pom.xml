@@ -101,12 +101,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>commons-configuration</groupId>
-            <artifactId>commons-configuration</artifactId>
-            <version>1.10</version>
-        </dependency>
-
         <!-- test dependencies -->
         <dependency>
             <groupId>com.thoughtworks.go</groupId>

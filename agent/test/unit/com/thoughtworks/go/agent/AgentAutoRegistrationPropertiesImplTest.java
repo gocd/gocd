@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.agent;
 
+import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +31,7 @@ import java.util.Properties;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class AgentAutoRegistrationPropertiesTest {
+public class AgentAutoRegistrationPropertiesImplTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -45,13 +46,13 @@ public class AgentAutoRegistrationPropertiesTest {
     public void shouldReturnAgentAutoRegisterPropertiesIfPresent() throws Exception {
         Properties properties = new Properties();
 
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_KEY, "foo");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_RESOURCES, "foo, zoo");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_ENVIRONMENTS, "foo, bar");
-        properties.put(AgentAutoRegistrationProperties.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "foo");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "foo, zoo");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "foo, bar");
+        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
         properties.store(new FileOutputStream(configFile), "");
 
-        AgentAutoRegistrationProperties reader = new AgentAutoRegistrationProperties(configFile);
+        AgentAutoRegistrationProperties reader = new AgentAutoRegistrationPropertiesImpl(configFile);
         assertThat(reader.agentAutoRegisterKey(), is("foo"));
         assertThat(reader.agentAutoRegisterResources(), is("foo, zoo"));
         assertThat(reader.agentAutoRegisterEnvironments(), is("foo, bar"));
@@ -60,7 +61,7 @@ public class AgentAutoRegistrationPropertiesTest {
 
     @Test
     public void shouldReturnEmptyStringIfPropertiesNotPresent() {
-        AgentAutoRegistrationProperties reader = new AgentAutoRegistrationProperties(configFile);
+        AgentAutoRegistrationProperties reader = new AgentAutoRegistrationPropertiesImpl(configFile);
         assertThat(reader.agentAutoRegisterKey().isEmpty(), is(true));
         assertThat(reader.agentAutoRegisterResources().isEmpty(), is(true));
         assertThat(reader.agentAutoRegisterEnvironments().isEmpty(), is(true));
@@ -87,7 +88,7 @@ public class AgentAutoRegistrationPropertiesTest {
                 "\n";
         FileUtils.write(configFile, originalContents);
 
-        AgentAutoRegistrationProperties properties = new AgentAutoRegistrationProperties(configFile);
+        AgentAutoRegistrationProperties properties = new AgentAutoRegistrationPropertiesImpl(configFile);
         properties.scrubRegistrationProperties();
 
         String newContents = "" +

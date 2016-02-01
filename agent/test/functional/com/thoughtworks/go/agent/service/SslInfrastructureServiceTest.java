@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.agent.service;
 
-import java.io.File;
-import java.io.IOException;
-
+import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
@@ -40,6 +38,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.IOException;
 
 import static com.thoughtworks.go.util.TestUtils.exists;
 import static org.hamcrest.core.Is.is;
@@ -81,15 +82,15 @@ public class SslInfrastructureServiceTest {
 
         shouldCreateSslInfrastucture();
 
-        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationProperties(configFile));
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
         assertThat(SslInfrastructureService.AGENT_CERTIFICATE_FILE, exists());
         assertRemoteCalled();
 
-        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationProperties(configFile));
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
         assertRemoteNotCalled();
 
         sslInfrastructureService.invalidateAgentCertificate();
-        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationProperties(configFile));
+        sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
         assertRemoteCalled();
     }
 

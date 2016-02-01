@@ -42,12 +42,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>agent-launcher</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.apple</groupId>
             <artifactId>AppleJavaExtensions</artifactId>
             <version>1.4</version>

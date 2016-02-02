@@ -56,7 +56,7 @@ import static org.apache.commons.collections.CollectionUtils.select;
  * @understands how a cruise pipeline is configured by the user
  */
 @ConfigTag("pipeline")
-@ConfigCollection(value = StageConfig.class, asFieldName = "Stages")
+@ConfigCollection(StageConfig.class)
 public class PipelineConfig extends BaseCollection<StageConfig> implements ParamScope, ParamsAttributeAware,
         Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
     private static final Cloner CLONER = new Cloner();
@@ -328,8 +328,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         MaterialConfig configMaterial = repoConfigOrigin.getMaterial();
 
-        for (MaterialConfig material : this.materialConfigs()) {
-            if (material.equals(configMaterial))
+        for(MaterialConfig material : this.materialConfigs())
+        {
+            if(material.getFingerprint().equals(configMaterial.getFingerprint()))
                 return true;
         }
         return false;

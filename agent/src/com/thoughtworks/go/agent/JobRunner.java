@@ -24,12 +24,17 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class JobRunner {
-    private boolean handled = false;
-    private boolean isJobCancelled = false;
+    private volatile boolean handled = false;
+    private volatile boolean isJobCancelled = false;
+    private volatile boolean running = false;
+    private CountDownLatch doneSignal = new CountDownLatch(1);
     private Work work;
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -49,8 +54,22 @@ public class JobRunner {
 
     public void run(Work work, AgentIdentifier agentIdentifier, BuildRepositoryRemote server, GoArtifactsManipulator manipulator, AgentRuntimeInfo agentRuntimeInfo,
                     PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+        running = true;
         this.work = work;
-        work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+        try {
+            work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+        } finally {
+            running = false;
+            doneSignal.countDown();
+        }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void waitUntilDone(long seconds) throws InterruptedException {
+        doneSignal.await(seconds, TimeUnit.SECONDS);
     }
 
     public boolean isJobCancelled() {
@@ -60,5 +79,17 @@ public class JobRunner {
     //Used for tests only
     void setWork(Work work) {
         this.work = work;
+    }
+
+    @Override
+    public String toString() {
+        return "JobRunner{" +
+                "handled=" + handled +
+                ", isJobCancelled=" + isJobCancelled +
+                ", running=" + running +
+                ", doneSignal=" + doneSignal +
+                ", work=" + work +
+                ", environmentVariableContext=" + environmentVariableContext +
+                '}';
     }
 }

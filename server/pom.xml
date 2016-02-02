@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2015 ThoughtWorks, Inc.
+  ~ Copyright 2016 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>16.1.0</version>
+        <version>16.2.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -39,6 +39,7 @@
         <db.password></db.password>
         <db.name>cruise</db.name>
         <db.port></db.port>
+        <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>
 
     <dependencies>
@@ -595,6 +596,7 @@
             <scope>test</scope>
         </dependency>
 
+
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
@@ -639,6 +641,13 @@
             <artifactId>json-unit</artifactId>
             <version>1.7.0</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>${jetty.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

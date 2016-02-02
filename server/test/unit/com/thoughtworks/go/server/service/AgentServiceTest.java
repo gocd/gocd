@@ -1,29 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
@@ -43,19 +39,19 @@ import com.thoughtworks.go.utils.Timeout;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AgentServiceTest {
     private AgentService agentService;
@@ -80,10 +76,10 @@ public class AgentServiceTest {
         agentIdentifier = config.getAgentIdentifier();
         when(agentDao.cookieFor(agentIdentifier)).thenReturn("cookie");
     }
-    
+
     @Test
     public void shouldUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, "pavanIsGreat", null);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat", null);
         when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn("pavanIsGreat");
         agentService.updateRuntimeInfo(runtimeInfo);
         verify(agentInstances).updateAgentRuntimeInfo(runtimeInfo);
@@ -91,7 +87,7 @@ public class AgentServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() throws Exception {
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null);
         try {
             agentService.updateRuntimeInfo(runtimeInfo);
             fail("should throw exception when no cookie is set");
@@ -103,10 +99,10 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {        
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier);
+    public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null);
         runtimeInfo.setCookie("invalid_cookie");
-        AgentInstance original = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromAgent(agentIdentifier), new SystemEnvironment());
+        AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null), new SystemEnvironment());
         try {
             when(agentService.findAgentAndRefreshStatus(runtimeInfo.getUUId())).thenReturn(original);
             agentService.updateRuntimeInfo(runtimeInfo);
@@ -190,12 +186,8 @@ public class AgentServiceTest {
     }
 
     private void writeToFile(final String fileName) throws IOException {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(fileName);
+        try (FileOutputStream fos = new FileOutputStream(fileName)) {
             fos.write(fileName.getBytes());
-        } finally {
-            fos.close();
         }
     }
 }

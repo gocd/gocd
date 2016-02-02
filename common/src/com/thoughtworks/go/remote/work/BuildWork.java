@@ -28,6 +28,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -45,6 +46,7 @@ import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
@@ -55,14 +57,13 @@ public class BuildWork implements Work {
 
     private final BuildAssignment assignment;
 
-    private DefaultGoPublisher goPublisher;
-
-    private TimeProvider timeProvider = new TimeProvider();
-    private JobPlan plan;
-    private File workingDirectory;
-    private MaterialRevisions materialRevisions;
-    private GoControlLog buildLog;
-    private Builders builders;
+    private transient DefaultGoPublisher goPublisher;
+    private transient TimeProvider timeProvider;
+    private transient JobPlan plan;
+    private transient File workingDirectory;
+    private transient MaterialRevisions materialRevisions;
+    private transient GoControlLog buildLog;
+    private transient Builders builders;
 
     public BuildWork(BuildAssignment assignment) {
         this.assignment = assignment;
@@ -70,6 +71,7 @@ public class BuildWork implements Work {
 
     private void initialize(BuildRepositoryRemote remoteBuildRepository,
                             GoArtifactsManipulator goArtifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, TaskExtension taskExtension) {
+        timeProvider = new TimeProvider();
         plan = assignment.getPlan();
         agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
                 plan.getIdentifier().buildLocator()));
@@ -134,8 +136,10 @@ public class BuildWork implements Work {
         goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentTime())));
 
         prepareJob(agentIdentifier, packageAsRepositoryExtension, scmExtension);
+
         setupEnvrionmentContext(environmentVariableContext);
         plan.applyTo(environmentVariableContext);
+        dumpEnvironmentVariables(environmentVariableContext);
 
         if (this.goPublisher.isIgnored()) {
             this.goPublisher.reportAction("Job is cancelled");
@@ -145,6 +149,15 @@ public class BuildWork implements Work {
         JobResult result = buildJob(environmentVariableContext);
         completeJob(result);
         return result;
+    }
+
+    private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
+        Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
+        List<String> report = environmentVariableContext.report(processLevelEnvVariables);
+        for (int i = 0; i < report.size(); i++) {
+            String line = report.get(i);
+            goPublisher.consumeLine((i == report.size() - 1) ? line + "\n" : line);
+        }
     }
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension) {

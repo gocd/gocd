@@ -23,13 +23,11 @@ import java.net.URISyntaxException;
 
 @ConfigAttributeValue(fieldName = "url")
 public class HgUrlArgument extends UrlArgument {
-    private String url;
     public static final String DOUBLE_HASH = "##";
     private final String SINGLE_HASH = "#";
 
     public HgUrlArgument(String url) {
         super(url);
-        this.url = url;
     }
 
     protected String uriToDisplay(URI uri) {

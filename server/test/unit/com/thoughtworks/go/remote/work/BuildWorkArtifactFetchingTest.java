@@ -1,51 +1,44 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.remote.work;
+
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.DirHandler;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-
-import com.thoughtworks.go.domain.DirHandler;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.TestRepo;
-
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsResult;
-
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
-import com.thoughtworks.go.remote.AgentIdentifier;
-
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
-import org.junit.After;
-import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
 import static org.hamcrest.core.StringContains.containsString;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.junit.Assert.assertThat;
 
 public class BuildWorkArtifactFetchingTest {
     public static final String PIPELINE_NAME = "pipeline1";
@@ -102,7 +95,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: passed."));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <fetchartifact pipeline=\"pipeline1\" stage=\"pre-mingle\" job=\"" + JOB_NAME + "\" srcfile=\"lib/hello.jar\" dest=\"lib\" />."));
@@ -116,7 +109,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed."));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <ant target=\"--help\" />."));
@@ -127,7 +120,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubManipulator, environmentVariableContext,
-                AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
 
         assertThat((DirHandler) stubManipulator.artifact().get(0), is(new DirHandler("lib",new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
     }

@@ -94,4 +94,8 @@ public class RepoConfigOrigin implements ConfigOrigin {
     public void setConfigRepo(ConfigRepoConfig configRepo) {
         this.configRepo = configRepo;
     }
+
+    public String getRevision() {
+        return revision;
+    }
 }

@@ -25,7 +25,7 @@
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>16.1.0</version>
+        <version>16.2.0</version>
         <relativePath>../../</relativePath>
     </parent>
 
@@ -67,13 +67,17 @@
             <artifactId>jetty-util</artifactId>
             <version>${jetty.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
 
         <dependency>
 			<groupId>com.thoughtworks.go</groupId>
 			<artifactId>jetty9</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>

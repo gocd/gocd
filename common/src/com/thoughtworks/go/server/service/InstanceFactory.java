@@ -28,6 +28,7 @@ import java.util.List;
 public class InstanceFactory {
     public Pipeline createPipelineInstance(PipelineConfig pipelineConfig, BuildCause buildCause, SchedulingContext context, String md5, Clock clock) {
         buildCause.assertMaterialsMatch(pipelineConfig.materialConfigs());
+        buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
         return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, createStageInstance(pipelineConfig.first(), context, md5, clock));
     }
 

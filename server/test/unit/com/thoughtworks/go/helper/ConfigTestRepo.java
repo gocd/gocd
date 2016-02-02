@@ -20,8 +20,10 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.parts.PartialConfigHelper;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.Modification;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * An scm repository that is a configuration repository. Helper for tests.
@@ -41,17 +43,17 @@ public class ConfigTestRepo {
         partialConfigHelper = new PartialConfigHelper(xmlWriter,baseDir);
     }
 
-    public void addPipelineToRepositoryAndPush(String fileName, PipelineConfig pipelineConfig) throws Exception {
+    public List<Modification> addPipelineToRepositoryAndPush(String fileName, PipelineConfig pipelineConfig) throws Exception {
         File file = new File(baseDir, fileName);
         partialConfigHelper.addFileWithPipeline(fileName, pipelineConfig);
 
-        repo.addCommitPush(material, "added pipeline config", baseDir, file);
+        return repo.addCommitPush(material, "added pipeline config", baseDir, file);
     }
-    public void addCodeToRepositoryAndPush(String fileName,String comment, String content) throws Exception {
+    public List<Modification> addCodeToRepositoryAndPush(String fileName,String comment, String content) throws Exception {
         File file = new File(baseDir, fileName);
         partialConfigHelper.writeFileWithContent(fileName, content);
 
-        repo.addCommitPush(material, comment, baseDir, file);
+        return repo.addCommitPush(material, comment, baseDir, file);
     }
 
     public HgMaterial getMaterial() {

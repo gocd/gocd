@@ -28,7 +28,9 @@ import com.thoughtworks.go.server.messaging.scheduling.WorkAssignments;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BuildRepositoryMessageProducer implements BuildRepositoryRemote {
     private BuildRepositoryRemoteImpl buildRepository;
     private WorkAssignments workAssignments;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,17 +33,23 @@ var WizardPage = new (Class.create({
     };
 
     var messageBox = jQuery('#vcsconnection-message_' + scm);
+
     var requestBody = {
-      type:          scm,
+      type: scm,
       pipeline_name: pipelineName,
-      attributes:    {
+      attributes: {
         username: username,
-        password: password,
-        url:      url,
-        domain:   domain,
-        view:     view
+        url: url,
+        domain: domain,
+        project_path: projectPath,
+        view: view
       }
     };
+    if (isEncrypted) {
+      requestBody.attributes["encrypted_password"] = password;
+    } else {
+      requestBody.attributes["password"] = password;
+    }
 
     jQuery.ajax({
       url:     Routes.apiv1MaterialTestPath(),

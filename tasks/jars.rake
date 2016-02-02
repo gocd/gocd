@@ -36,6 +36,7 @@ def server_launcher_dependencies
   jars = Dir.glob($PROJECT_BASE + '/server-launcher/target/libs/*.jar')
   jars
 end
+
 def jetty_jars
   Dir.glob($PROJECT_BASE + '/jetty9/target/lib/*.jar')
 end

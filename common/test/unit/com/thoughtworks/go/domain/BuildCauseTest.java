@@ -16,13 +16,22 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.buildcause.BuildCauseOutOfDateException;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import com.thoughtworks.go.helper.MaterialsMother;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Test;
 
 public class BuildCauseTest {
@@ -70,6 +79,71 @@ public class BuildCauseTest {
         BuildCause buildCause = BuildCause.createManualForced();
         buildCause.setMaterialRevisions(first);
         assertThat(buildCause.getBuildCauseMessage(), is("Forced by anonymous"));
+    }
+
+    @Test
+    public void shouldNotThrowWhenMaterialAndConfigOriginRevisionDontMatch_WhenManualTrigger() {
+        SvnMaterial material = MaterialsMother.svnMaterial();
+        MaterialConfig materialConfig = material.config();
+
+        MaterialRevisions first = new MaterialRevisions(
+                new MaterialRevision(material, oneModifiedFile("revision1"))
+        );
+        BuildCause buildCause = BuildCause.createManualForced();
+        buildCause.setMaterialRevisions(first);
+
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
+        pipelineConfig.materialConfigs().clear();
+        pipelineConfig.materialConfigs().add(materialConfig);
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig,"plug"),"revision2"));
+
+        buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
+    }
+
+    @Test
+    public void shouldThrowWhenMaterialAndConfigOriginRevisionDontMatch_WhenAutoTrigger() {
+        SvnMaterial material = MaterialsMother.svnMaterial();
+        MaterialConfig materialConfig = material.config();
+
+        MaterialRevisions first = new MaterialRevisions(
+                new MaterialRevision(material, oneModifiedFile("revision1"))
+        );
+        BuildCause buildCause = BuildCause.createWithModifications(first,"");
+        buildCause.setMaterialRevisions(first);
+
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
+        pipelineConfig.materialConfigs().clear();
+        pipelineConfig.materialConfigs().add(materialConfig);
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig,"plug"),"revision2"));
+
+        try {
+            buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
+        }
+        catch (BuildCauseOutOfDateException ex)
+        {
+            //good
+            return;
+        }
+        fail("should have thrown");
+    }
+
+    @Test
+    public void shouldNotThrowWhenMaterialAndConfigOriginRevisionMatch_WhenAutoTrigger() {
+        SvnMaterial material = MaterialsMother.svnMaterial();
+        MaterialConfig materialConfig = material.config();
+
+        MaterialRevisions first = new MaterialRevisions(
+                new MaterialRevision(material, oneModifiedFile("revision1"))
+        );
+        BuildCause buildCause = BuildCause.createWithModifications(first,"");
+        buildCause.setMaterialRevisions(first);
+
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
+        pipelineConfig.materialConfigs().clear();
+        pipelineConfig.materialConfigs().add(materialConfig);
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig,"plug"),"revision1"));
+
+        buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
     }
 
 }

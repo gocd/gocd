@@ -17,19 +17,9 @@
 define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_configs/views/materials_config_widget"], function ($, m, Materials, MaterialsConfigWidget) {
   describe("Material Widget", function () {
     var $root, root;
-    beforeEach(function () {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-    });
-
-    afterEach(function () {
-      root.parentNode.removeChild(root);
-    });
-
     describe('SVN View', function () {
       var material;
-      beforeEach(function () {
+      beforeAll(function () {
         var materials = new Materials();
         material = materials.createMaterial({
           type:           'svn',
@@ -43,48 +33,51 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
           filter:         new Materials.Filter({ignore: ['*.doc']})
         });
 
+        createRootElement();
         mount(materials);
         viewMaterial();
       });
 
-      describe('model binding', function () {
-        it('should bind url', function () {
-          expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
-        });
+      afterAll(function () {
+        removeRootElement();
+      });
 
-        it('should bind password', function () {
-          expect($root.find("input[data-prop-name='passwordValue']").val()).toBe("p@ssw0rd");
-        });
+      it('should bind url', function () {
+        expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
+      });
 
-        it('should bind username', function () {
-          expect($root.find("input[data-prop-name='username']").val()).toBe(material.username());
-        });
+      it('should bind password', function () {
+        expect($root.find("input[data-prop-name='passwordValue']").val()).toBe("p@ssw0rd");
+      });
 
-        it('should bind checkExternals', function () {
-          expect($root.find("input[data-prop-name='checkExternals']").val()).toBe('on');
-        });
+      it('should bind username', function () {
+        expect($root.find("input[data-prop-name='username']").val()).toBe(material.username());
+      });
 
-        it('should bind name', function () {
-          expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
-        });
+      it('should bind checkExternals', function () {
+        expect($root.find("input[data-prop-name='checkExternals']").val()).toBe('on');
+      });
 
-        it('should bind destination', function () {
-          expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
-        });
+      it('should bind name', function () {
+        expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
+      });
 
-        it('should bind the ignore fields', function () {
-          expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
-        });
+      it('should bind destination', function () {
+        expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
+      });
 
-        it('should bind autoUpdate value', function () {
-          expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
-        });
+      it('should bind the ignore fields', function () {
+        expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
+      });
+
+      it('should bind autoUpdate value', function () {
+        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
       });
     });
 
     describe('Git View', function () {
       var material;
-      beforeEach(function () {
+      beforeAll(function () {
         var materials = new Materials();
         material = materials.createMaterial({
           type:        'git',
@@ -96,40 +89,43 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
           filter:      new Materials.Filter({ignore: ['*.doc']})
         });
 
+        createRootElement();
         mount(materials);
         viewMaterial();
       });
 
-      describe('model binding', function () {
-        it('should bind url', function () {
-          expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
-        });
+      afterAll(function () {
+        removeRootElement();
+      });
 
-        it('should bind branch', function () {
-          expect($root.find("input[data-prop-name='branch']").val()).toBe(material.branch());
-        });
+      it('should bind url', function () {
+        expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
+      });
 
-        it('should bind name', function () {
-          expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
-        });
+      it('should bind branch', function () {
+        expect($root.find("input[data-prop-name='branch']").val()).toBe(material.branch());
+      });
 
-        it('should bind destination', function () {
-          expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
-        });
+      it('should bind name', function () {
+        expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
+      });
 
-        it('should bind the ignore fields', function () {
-          expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
-        });
+      it('should bind destination', function () {
+        expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
+      });
 
-        it('should bind autoUpdate value', function () {
-          expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
-        });
+      it('should bind the ignore fields', function () {
+        expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
+      });
+
+      it('should bind autoUpdate value', function () {
+        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
       });
     });
 
     describe('Mercurial View', function () {
       var material;
-      beforeEach(function () {
+      beforeAll(function () {
         var materials = new Materials();
         material = materials.createMaterial({
           type:        'hg',
@@ -141,40 +137,43 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
           filter:      new Materials.Filter({ignore: ['*.doc']})
         });
 
+        createRootElement();
         mount(materials);
         viewMaterial();
       });
 
-      describe('model binding', function () {
-        it('should bind url', function () {
-          expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
-        });
+      afterAll(function () {
+        removeRootElement();
+      });
 
-        it('should bind branch', function () {
-          expect($root.find("input[data-prop-name='branch']").val()).toBe(material.branch());
-        });
+      it('should bind url', function () {
+        expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
+      });
 
-        it('should bind name', function () {
-          expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
-        });
+      it('should bind branch', function () {
+        expect($root.find("input[data-prop-name='branch']").val()).toBe(material.branch());
+      });
 
-        it('should bind destination', function () {
-          expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
-        });
+      it('should bind name', function () {
+        expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
+      });
 
-        it('should bind the ignore fields', function () {
-          expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
-        });
+      it('should bind destination', function () {
+        expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
+      });
 
-        it('should bind autoUpdate value', function () {
-          expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
-        });
+      it('should bind the ignore fields', function () {
+        expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
+      });
+
+      it('should bind autoUpdate value', function () {
+        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
       });
     });
 
     describe('Perforce View', function () {
       var material;
-      beforeEach(function () {
+      beforeAll(function () {
         var materials = new Materials();
         material = materials.createMaterial({
           type:        'p4',
@@ -189,52 +188,55 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
           filter:      new Materials.Filter({ignore: ['*.doc']})
         });
 
+        createRootElement();
         mount(materials);
         viewMaterial();
       });
 
-      describe('model binding', function () {
-        it('should bind port', function () {
-          expect($root.find("input[data-prop-name='port']").val()).toBe(material.port())
-        });
+      afterAll(function () {
+        removeRootElement();
+      });
 
-        it('should bind username', function () {
-          expect($root.find("input[data-prop-name='username']").val()).toBe(material.username());
-        });
+      it('should bind port', function () {
+        expect($root.find("input[data-prop-name='port']").val()).toBe(material.port())
+      });
 
-        it('should bind view', function () {
-          expect($root.find("input[data-prop-name='view']").val()).toBe(material.view());
-        });
+      it('should bind username', function () {
+        expect($root.find("input[data-prop-name='username']").val()).toBe(material.username());
+      });
 
-        it('should bind password value', function () {
-          expect($root.find("input[data-prop-name='passwordValue']").val()).toBe('p@ssw0rd');
-        });
+      it('should bind view', function () {
+        expect($root.find("input[data-prop-name='view']").val()).toBe(material.view());
+      });
 
-        it('should bind useTickets value', function () {
-          expect($root.find("input[data-prop-name='useTickets']").val()).toBe('on');
-        });
+      it('should bind password value', function () {
+        expect($root.find("input[data-prop-name='passwordValue']").val()).toBe('p@ssw0rd');
+      });
 
-        it('should bind name', function () {
-          expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
-        });
+      it('should bind useTickets value', function () {
+        expect($root.find("input[data-prop-name='useTickets']").val()).toBe('on');
+      });
 
-        it('should bind destination', function () {
-          expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
-        });
+      it('should bind name', function () {
+        expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
+      });
 
-        it('should bind the ignore fields', function () {
-          expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
-        });
+      it('should bind destination', function () {
+        expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
+      });
 
-        it('should bind autoUpdate value', function () {
-          expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
-        });
+      it('should bind the ignore fields', function () {
+        expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
+      });
+
+      it('should bind autoUpdate value', function () {
+        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
       });
     });
 
     describe('TFS View', function () {
       var material;
-      beforeEach(function () {
+      beforeAll(function () {
         var materials = new Materials();
         material = materials.createMaterial({
           type:        'tfs',
@@ -249,59 +251,72 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
           filter:      new Materials.Filter({ignore: ['*.doc']})
         });
 
+        createRootElement();
         mount(materials);
         viewMaterial();
       });
 
-      describe('model binding', function () {
-        it('should bind url', function () {
-          expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
-        });
+      afterAll(function () {
+        removeRootElement();
+      });
 
-        it('should bind username', function () {
-          expect($root.find("input[data-prop-name='username']").val()).toBe(material.username());
-        });
+      it('should bind url', function () {
+        expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
+      });
 
-        it('should bind domain', function () {
-          expect($root.find("input[data-prop-name='domain']").val()).toBe(material.domain());
-        });
+      it('should bind username', function () {
+        expect($root.find("input[data-prop-name='username']").val()).toBe(material.username());
+      });
 
-        it('should bind password value', function () {
-          expect($root.find("input[data-prop-name='passwordValue']").val()).toBe('p@ssw0rd');
-        });
+      it('should bind domain', function () {
+        expect($root.find("input[data-prop-name='domain']").val()).toBe(material.domain());
+      });
 
-        it('should bind projectPath', function () {
-          expect($root.find("input[data-prop-name='projectPath']").val()).toBe(material.projectPath());
-        });
+      it('should bind password value', function () {
+        expect($root.find("input[data-prop-name='passwordValue']").val()).toBe('p@ssw0rd');
+      });
 
-        it('should bind name', function () {
-          expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
-        });
+      it('should bind projectPath', function () {
+        expect($root.find("input[data-prop-name='projectPath']").val()).toBe(material.projectPath());
+      });
 
-        it('should bind destination', function () {
-          expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
-        });
+      it('should bind name', function () {
+        expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
+      });
 
-        it('should bind the ignore fields', function () {
-          expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
-        });
+      it('should bind destination', function () {
+        expect($root.find("input[data-prop-name='destination']").val()).toBe(material.destination());
+      });
 
-        it('should bind autoUpdate value', function () {
-          expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
-        });
+      it('should bind the ignore fields', function () {
+        expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
+      });
+
+      it('should bind autoUpdate value', function () {
+        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
       });
     });
+
+    function createRootElement() {
+      root = document.createElement("div");
+      document.body.appendChild(root);
+      $root = $(root);
+    }
+
+    function removeRootElement() {
+      root.parentNode.removeChild(root);
+    }
 
     function mount(materials) {
       m.mount(root,
         m.component(MaterialsConfigWidget, {materials: materials, pipelineName: 'testPipeLine'})
       );
       m.redraw(true);
-    };
+    }
 
     function viewMaterial() {
       $root.find('.accordion-navigation > a')[0].click();
       m.redraw(true);
-    };
+    }
   });
 });

@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -36,7 +37,6 @@ import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.*;
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.*;
 
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNot.not;
@@ -339,7 +340,7 @@ public class AgentServiceIntegrationTest {
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
         AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        agentService.updateRuntimeInfo(AgentRuntimeInfo.fromAgent(agentIdentifier, cookie, null));
+        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, null));
         agents = agentService.findRegisteredAgents();
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Idle));
     }
@@ -354,7 +355,7 @@ public class AgentServiceIntegrationTest {
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
         AgentIdentifier identifier = instance.agentConfig().getAgentIdentifier();
         agentDao.associateCookie(identifier, "new_cookie");
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromAgent(identifier, "old_cookie", null);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie", null);
         try {
             agentService.updateRuntimeInfo(runtimeInfo);
             fail("agent with bad cookie should not be able to update runtime info");
@@ -364,7 +365,7 @@ public class AgentServiceIntegrationTest {
         agents = agentService.findRegisteredAgents();
         assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        agentService.updateRuntimeInfo(AgentRuntimeInfo.fromAgent(agentIdentifier, cookie, null));
+        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, null));
     }
 
     @Test
@@ -547,7 +548,7 @@ public class AgentServiceIntegrationTest {
         addAgent(agentConfig);
         AgentIdentifier agentIdentifier = agentConfig.getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, cookie, null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, null);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
 
         agentService.updateRuntimeInfo(agentRuntimeInfo);
@@ -606,7 +607,7 @@ public class AgentServiceIntegrationTest {
         String agentName = "agentName";
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "50.40.30.9");
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentConfig.getAgentIdentifier(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.requestRegistration(agentRuntimeInfo);
         HttpOperationResult operationResult = new HttpOperationResult();
@@ -620,7 +621,7 @@ public class AgentServiceIntegrationTest {
         String agentName = "agentName";
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "50.40.30.9");
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentConfig.getAgentIdentifier(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.requestRegistration(agentRuntimeInfo);
         HttpOperationResult operationResult = new HttpOperationResult();
@@ -1159,7 +1160,7 @@ public class AgentServiceIntegrationTest {
     private void disable(AgentConfig agentConfig) {
         AgentIdentifier agentIdentifier = agentConfig.getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, cookie, null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, null);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.updateRuntimeInfo(agentRuntimeInfo);
         agentService.disableAgents(USERNAME, new HttpOperationResult(), Arrays.asList(agentConfig.getUuid()));
@@ -1195,7 +1196,7 @@ public class AgentServiceIntegrationTest {
 
         AgentIdentifier agentIdentifier = agentConfig.getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, cookie, null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, null);
         agentRuntimeInfo.idle();
         agentService.updateRuntimeInfo(agentRuntimeInfo);
         assertTrue(agentService.findAgentAndRefreshStatus(uuid).isIdle());

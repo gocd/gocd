@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.api.response;
 
@@ -31,7 +31,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
 
     private int responseCode;
 
-    private Map<String, String> responseHeaders = new HashMap<String, String>();
+    private Map<String, String> responseHeaders;
 
     private String responseBody;
 
@@ -41,7 +41,30 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @param responseCode Response code for the response
      */
     public DefaultGoPluginApiResponse(int responseCode) {
+        this(responseCode, null, new HashMap<String, String>());
+    }
+
+    /**
+     * Constructs DefaultGoPluginApiResponse
+     *
+     * @param responseCode Response code for the response
+     * @param responseBody Body of the response
+     */
+    public DefaultGoPluginApiResponse(int responseCode, String responseBody) {
+        this(responseCode, responseBody, new HashMap<String, String>());
+    }
+
+    /**
+     * Constructs DefaultGoPluginApiResponse
+     *
+     * @param responseCode    Response code for the response
+     * @param responseBody    Body of the response
+     * @param responseHeaders The headers of the response
+     */
+    public DefaultGoPluginApiResponse(int responseCode, String responseBody, Map<String, String> responseHeaders) {
         this.responseCode = responseCode;
+        this.responseBody = responseBody;
+        this.responseHeaders = responseHeaders;
     }
 
     /**
@@ -51,9 +74,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @return an instance of DefaultGoPluginApiResponse
      */
     public static DefaultGoPluginApiResponse incompleteRequest(String responseBody) {
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(VALIDATION_FAILED);
-        defaultGoPluginApiResponse.setResponseBody(responseBody);
-        return defaultGoPluginApiResponse;
+        return new DefaultGoPluginApiResponse(VALIDATION_FAILED, responseBody);
     }
 
     /**
@@ -63,9 +84,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @return an instance of DefaultGoPluginApiResponse
      */
     public static DefaultGoPluginApiResponse badRequest(String responseBody) {
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(BAD_REQUEST);
-        defaultGoPluginApiResponse.setResponseBody(responseBody);
-        return defaultGoPluginApiResponse;
+        return new DefaultGoPluginApiResponse(BAD_REQUEST, responseBody);
     }
 
     /**
@@ -75,9 +94,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @return an instance of DefaultGoPluginApiResponse
      */
     public static DefaultGoPluginApiResponse error(String responseBody) {
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(INTERNAL_ERROR);
-        defaultGoPluginApiResponse.setResponseBody(responseBody);
-        return defaultGoPluginApiResponse;
+        return new DefaultGoPluginApiResponse(INTERNAL_ERROR, responseBody);
     }
 
     /**
@@ -87,9 +104,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @return an instance of DefaultGoPluginApiResponse
      */
     public static DefaultGoPluginApiResponse success(String responseBody) {
-        DefaultGoPluginApiResponse defaultGoPluginApiResponse = new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE);
-        defaultGoPluginApiResponse.setResponseBody(responseBody);
-        return defaultGoPluginApiResponse;
+        return new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody);
     }
 
 

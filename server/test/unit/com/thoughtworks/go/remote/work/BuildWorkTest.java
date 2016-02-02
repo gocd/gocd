@@ -66,6 +66,7 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static com.thoughtworks.go.util.SystemUtil.isWindows;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -120,7 +121,7 @@ public class BuildWorkTest {
             + "    <variable name=\"JOB_ENV\">\n"
             + "      <value>foobar</value>\n"
             + "    </variable>\n"
-            + "    <variable name=\"PATH\">\n"
+            + "    <variable name=\"" + (isWindows() ? "Path": "PATH") +"\">\n"
             + "      <value>/tmp</value>\n"
             + "    </variable>\n"
             + "  </environmentvariables>\n"
@@ -637,10 +638,12 @@ public class BuildWorkTest {
         assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
         assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
 
-        assertThat(trimTimeStamp(consoleOut), containsString(
-                "[go] setting environment variable 'JOB_ENV' to value 'foobar'\n" +
-                        "[go] overriding environment variable 'PATH' with value '/tmp'\n\n"));
-
+        assertThat(trimTimeStamp(consoleOut), containsString("[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
+        if (isWindows()) {
+            assertThat(trimTimeStamp(consoleOut), containsString("[go] overriding environment variable 'Path' with value '/tmp'"));
+        } else {
+            assertThat(trimTimeStamp(consoleOut), containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
+        }
     }
 
     private String trimTimeStamp(String consoleOut) {

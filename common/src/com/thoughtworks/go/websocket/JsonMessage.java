@@ -22,6 +22,8 @@ import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -37,6 +39,7 @@ public class JsonMessage {
                 .registerTypeAdapter(Message.class, new MessageConverter())
                 .registerTypeAdapter(FetchHandler.class, new ObjectConverter())
                 .registerTypeAdapter(MaterialInstance.class, new ObjectConverter())
+                .registerTypeAdapter(Modifications.class, new ModificationsConverter())
                 .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC);
         gson = builder.create();
     }
@@ -57,6 +60,20 @@ public class JsonMessage {
             obj.addProperty("action", src.getAction().toString());
             obj.add("data", JsonMessage.serialize(src.getData()));
             return obj;
+        }
+    }
+
+    private static class ModificationsConverter implements JsonSerializer<Modifications>, JsonDeserializer<Modifications> {
+        @Override
+        public Modifications deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            Modifications obj = new Modifications();
+            obj.add((Modification) JsonMessage.deserialize(json));
+            return obj;
+        }
+
+        @Override
+        public JsonElement serialize(Modifications src, Type typeOfSrc, JsonSerializationContext context) {
+            return JsonMessage.serialize(src.get(0));
         }
     }
 

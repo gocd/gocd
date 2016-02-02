@@ -192,16 +192,42 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplaceEchoFunctionWithNoArgWithEmptyString() throws Exception {
-        PipelineLabel label = PipelineLabel.create("release-£{echo()}");
-        assertThat(label.toString(), is("release-"));
+    public void shouldReturnEmptyStringForNegativeIndexOutsideOfString() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[-100]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-"));
     }
 
     @Test
-    public void shouldReplaceEchoFunctionWithArgWithArg() throws Exception {
-        PipelineLabel label = PipelineLabel.create("release-£{echo(foo)}");
-        assertThat(label.toString(), is("release-foo"));
+    public void shouldReturnEmptyStringForPositiveIndexOutsideOfString() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[100]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-"));
     }
+
+    @Test
+    public void shouldTruncateNegativeSliceRangeToWithinStringBounds() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[-100:-1]}");
+        MaterialRevisions materialRevisions = createMaterialRevisionsForSlicing("8c8a273e12a45e57fed5ce978d830eb482f6f666");
+        label.updateLabel(materialRevisions.getNamedRevisions());
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a273e12a45e57fed5ce978d830eb482f6f66"));
+    }
+
+//    These tests are for functions, ignoring for now
+//
+//    @Test
+//    public void shouldReplaceEchoFunctionWithNoArgWithEmptyString() throws Exception {
+//        PipelineLabel label = PipelineLabel.create("release-£{echo()}");
+//        assertThat(label.toString(), is("release-"));
+//    }
+//
+//    @Test
+//    public void shouldReplaceEchoFunctionWithArgWithArg() throws Exception {
+//        PipelineLabel label = PipelineLabel.create("release-£{echo(foo)}");
+//        assertThat(label.toString(), is("release-foo"));
+//    }
 
     private MaterialRevisions createMaterialRevisionsForSlicing(String revision) {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();

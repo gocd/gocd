@@ -73,13 +73,13 @@ public class PipelineLabel implements Serializable {
         } else if (start >= input.length()) {
             return "";
         } else {
-            start = (start + input.length()) % input.length();
+            start = Math.max((start + input.length()) % input.length(), 0);
         }
 
         if (end == null || end >= input.length()) {
             end = input.length();
         } else {
-            end = (end + input.length()) % input.length();
+            end = Math.max((end + input.length()) % input.length(), 0);
         }
 
         return input.substring(start, end);

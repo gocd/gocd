@@ -31,8 +31,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -154,10 +153,19 @@ public class BuildWork implements Work {
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
         Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
         List<String> report = environmentVariableContext.report(processLevelEnvVariables);
+        SafeOutputStreamConsumer safeOutput = safeOutputStreamConsumer(environmentVariableContext);
         for (int i = 0; i < report.size(); i++) {
             String line = report.get(i);
-            goPublisher.consumeLine((i == report.size() - 1) ? line + "\n" : line);
+            safeOutput.stdOutput((i == report.size() - 1) ? line + "\n" : line);
         }
+    }
+
+    private SafeOutputStreamConsumer safeOutputStreamConsumer(EnvironmentVariableContext environmentVariableContext) {
+        SafeOutputStreamConsumer consumer = new SafeOutputStreamConsumer(processOutputStreamConsumer());
+        for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : environmentVariableContext.getSecureEnvironmentVariables()) {
+            consumer.addSecret(new PasswordArgument(secureEnvironmentVariable.value()));
+        }
+        return consumer;
     }
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension) {
@@ -170,7 +178,7 @@ public class BuildWork implements Work {
             return;
         }
 
-        ProcessOutputStreamConsumer<GoPublisher, GoPublisher> consumer = new ProcessOutputStreamConsumer<GoPublisher, GoPublisher>(goPublisher, goPublisher);
+        ProcessOutputStreamConsumer<GoPublisher, GoPublisher> consumer = processOutputStreamConsumer();
         MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageAsRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
@@ -180,6 +188,10 @@ public class BuildWork implements Work {
         for (MaterialRevision revision : materialRevisions.getRevisions()) {
             materialAgentFactory.createAgent(revision).prepare();
         }
+    }
+
+    private ProcessOutputStreamConsumer<GoPublisher, GoPublisher> processOutputStreamConsumer() {
+        return new ProcessOutputStreamConsumer<GoPublisher, GoPublisher>(goPublisher, goPublisher);
     }
 
     private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {

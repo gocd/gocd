@@ -130,6 +130,20 @@ public class BuildWorkTest {
             + "  </tasks>\n"
             + "</job>";
 
+    private static final String WITH_SECRET_ENV_VAR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
+            + "  <environmentvariables>\n"
+            + "    <variable name=\"foo\">\n"
+            + "      <value>foo(i am a secret)</value>\n"
+            + "    </variable>\n"
+            + "    <variable name=\"bar\" secure=\"true\">\n"
+            + "      <value>i am a secret</value>\n"
+            + "    </variable>\n"
+            + "  </environmentvariables>\n"
+            + "  <tasks>\n"
+            + "    <ant target=\"-help\" />\n"
+            + "  </tasks>\n"
+            + "</job>";
+
     private static final String SOMETHING_NOT_EXIST = "something-not-exist";
 
     private static final String CMD_NOT_EXIST = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
@@ -638,17 +652,24 @@ public class BuildWorkTest {
         assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
         assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
 
-        assertThat(trimTimeStamp(consoleOut), containsString("[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
+        assertThat(consoleOut, containsString("[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
         if (isWindows()) {
-            assertThat(trimTimeStamp(consoleOut), containsString("[go] overriding environment variable 'Path' with value '/tmp'"));
+            assertThat(consoleOut, containsString("[go] overriding environment variable 'Path' with value '/tmp'"));
         } else {
-            assertThat(trimTimeStamp(consoleOut), containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
+            assertThat(consoleOut, containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
         }
     }
 
-    private String trimTimeStamp(String consoleOut) {
-        Pattern pattern = Pattern.compile("^\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s", Pattern.MULTILINE);
-        return pattern.matcher(consoleOut).replaceAll("");
+    @Test
+    public void shouldMaskSecretInEnvironmentVarialbeReport() throws Exception {
+        buildWork = (BuildWork) getWork(WITH_SECRET_ENV_VAR, PIPELINE_NAME);
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), packageAsRepositoryExtension, scmExtension, taskExtension);
+
+        String consoleOut = artifactManipulator.consoleOut();
+        assertThat(consoleOut, containsString("[go] setting environment variable 'foo' to value 'foo(******)'"));
+        assertThat(consoleOut, containsString("[go] setting environment variable 'bar' to value '********'"));
+        assertThat(consoleOut, not(containsString("i am a secret")));
     }
 
 }

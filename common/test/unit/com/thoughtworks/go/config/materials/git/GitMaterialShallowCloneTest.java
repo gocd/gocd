@@ -37,9 +37,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
-import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.*;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JunitExtRunner.class)
@@ -67,7 +66,7 @@ public class GitMaterialShallowCloneTest {
         assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).isShallowClone(), is(true));
         assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl())).isShallowClone(), is(false));
         assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone(), is(true));
-        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, false)).isShallowClone(), is(false));
+        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, null)).isShallowClone(), is(false));
         TestRepo.internalTearDown();
     }
 
@@ -135,36 +134,6 @@ public class GitMaterialShallowCloneTest {
         material = new GitMaterial(repo.projectRepositoryUrl(), false);
         material.latestModification(workingDir, context());
         assertThat(localRepoFor(material).isShallow(), is(false));
-    }
-
-    @Test
-    public void materialWithDifferentShallowConfigShouldNotBeEqual() {
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true),
-                is(new GitMaterial(repo.projectRepositoryUrl(), true)));
-
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true),
-                is(not(new GitMaterial(repo.projectRepositoryUrl()))));
-
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).hashCode(),
-                is(not(new GitMaterial(repo.projectRepositoryUrl()).hashCode())));
-    }
-
-    @Test
-    public void materialWithDifferentShallowConfigShouldHaveDifferentFingerPrint() {
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), false).getFingerprint(),
-                is(not(new GitMaterial(repo.projectRepositoryUrl(), true).getFingerprint())));
-
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).getFingerprint(),
-                is(new GitMaterial(repo.projectRepositoryUrl(), true).getFingerprint()));
-    }
-
-    @Test
-    public void materialInstanceWithDifferentShallowConfigShouldHaveDifferentFingerPrint() {
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), false).createMaterialInstance().getFingerprint(),
-                is(not(new GitMaterial(repo.projectRepositoryUrl(), true).createMaterialInstance().getFingerprint())));
-
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).createMaterialInstance().getFingerprint(),
-                is(new GitMaterial(repo.projectRepositoryUrl(), true).createMaterialInstance().getFingerprint()));
     }
 
     private TestSubprocessExecutionContext context() {

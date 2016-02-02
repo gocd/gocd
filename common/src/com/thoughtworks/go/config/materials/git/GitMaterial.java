@@ -140,7 +140,6 @@ public class GitMaterial extends ScmMaterial {
     protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.forCommandline());
         parameters.put("branch", branch);
-        parameters.put("shallowClone", shallowClone);
     }
 
     @Override
@@ -327,10 +326,6 @@ public class GitMaterial extends ScmMaterial {
             return false;
         }
 
-        if (shallowClone != that.shallowClone) {
-            return false;
-        }
-
         return true;
     }
 
@@ -340,7 +335,6 @@ public class GitMaterial extends ScmMaterial {
         result = 31 * result + (url != null ? url.hashCode() : 0);
         result = 31 * result + (branch != null ? branch.hashCode() : 0);
         result = 31 * result + (submoduleFolder != null ? submoduleFolder.hashCode() : 0);
-        result = 31 * result + (shallowClone ? 1 : 0);
         return result;
     }
 
@@ -417,7 +411,6 @@ public class GitMaterial extends ScmMaterial {
                 "url=" + url +
                 ", branch='" + branch + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
-                ", shallowClone=" + shallowClone +
                 '}';
     }
 

@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -135,34 +134,5 @@ public class GitMaterialConfigTest {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "     "));
         assertThat(gitMaterialConfig.getBranch(), is("master"));
-    }
-
-    @Test
-    public void byDefaultShallowCloneShouldBeOff() {
-        assertThat(new GitMaterialConfig("http://url", "foo").isShallowClone(), is(false));
-        assertThat(new GitMaterialConfig("http://url", "foo", false).isShallowClone(), is(false));
-        assertThat(new GitMaterialConfig("http://url", "foo", null).isShallowClone(), is(false));
-        assertThat(new GitMaterialConfig("http://url", "foo", true).isShallowClone(), is(true));
-    }
-
-    @Test
-    public void twoConfigShouldNotBeEqualIfShallowCloneFlagIsDifferent() {
-        assertThat(new GitMaterialConfig("http://url", "foo", true)
-                .equals(new GitMaterialConfig("http://url", "foo", true)), is(true));
-        assertThat(new GitMaterialConfig("http://url", "foo", true)
-                .equals(new GitMaterialConfig("http://url", "foo", false)), is(not(true)));
-
-        assertThat(new GitMaterialConfig("http://url", "foo", true).hashCode(),
-                is(new GitMaterialConfig("http://url", "foo", true).hashCode()));
-        assertThat(new GitMaterialConfig("http://url", "foo", true).hashCode(),
-                is(not(new GitMaterialConfig("http://url", "foo", false).hashCode())));
-    }
-
-    @Test
-    public void twoConfigShouldHaveSameFingerPrintIfShallowCloneFlagIsDifferent() {
-        assertThat(new GitMaterialConfig("http://url", "foo", true).getFingerprint(),
-                is(new GitMaterialConfig("http://url", "foo", true).getFingerprint()));
-        assertThat(new GitMaterialConfig("http://url", "foo", true).getFingerprint(),
-                is(not(new GitMaterialConfig("http://url", "foo", false).getFingerprint())));
     }
 }

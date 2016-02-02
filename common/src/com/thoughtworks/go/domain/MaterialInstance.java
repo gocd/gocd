@@ -72,8 +72,8 @@ public abstract class MaterialInstance extends PersistentObject {
         this.projectPath = projectPath;
         this.domain = domain;
         this.configuration = configuration;
-        this.shallowClone = shallowClone;
         this.fingerprint = toOldMaterial(null, null, null).getFingerprint();
+        this.shallowClone = shallowClone;
     }
 
     protected boolean getUseTickets() {
@@ -136,9 +136,6 @@ public abstract class MaterialInstance extends PersistentObject {
             return false;
         }
 
-        if (shallowClone != null ? !shallowClone.equals(that.shallowClone) : that.shallowClone != null) {
-            return false;
-        }
         return true;
     }
 

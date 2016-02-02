@@ -23,15 +23,11 @@ import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
  * @understands configuratin for a job
@@ -55,6 +51,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     private ArtifactPlans artifactPlans = new ArtifactPlans();
     @ConfigSubtag
     private ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators();
+    @ConfigSubtag
+    private JobAgentConfig jobAgentConfig;
 
     @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
     @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
@@ -329,11 +327,12 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public void validate(ValidationContext validationContext) {
-        if (StringUtil.isBlank(CaseInsensitiveString.str(name()))) {
+
+        if (StringUtil.isBlank(CaseInsensitiveString.str(jobName))) {
             errors.add(NAME, "Name is a required field");
         } else {
-            if ((CaseInsensitiveString.str(name()).length() > 255 || XmlUtils.doesNotMatchUsingXsdRegex(JOB_NAME_PATTERN_REGEX, CaseInsensitiveString.str(name())))) {
-                String message = String.format("Invalid job name '%s'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is %d characters.", name(),
+            if ((CaseInsensitiveString.str(jobName).length() > 255 || XmlUtils.doesNotMatchUsingXsdRegex(JOB_NAME_PATTERN_REGEX, CaseInsensitiveString.str(jobName)))) {
+                String message = String.format("Invalid job name '%s'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is %d characters.", jobName,
                         NameTypeValidator.MAX_LENGTH);
                 errors.add(NAME, message);
             }
@@ -371,7 +370,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             if (StringUtils.isEmpty(resource.getName())) {
                 CaseInsensitiveString pipelineName = validationContext.getPipeline().name();
                 CaseInsensitiveString stageName = validationContext.getStage().name();
-                CaseInsensitiveString jobName = name();
                 String message = String.format("Empty resource name in job \"%s\" of stage \"%s\" of pipeline \"%s\". If a template is used, please ensure that the resource parameters are defined for this pipeline.", jobName, stageName, pipelineName);
                 errors.add(RESOURCES, message);
             }
@@ -493,5 +491,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public void injectTasksForTest(Tasks tasks) {
         this.tasks = tasks;
+    }
+
+    public JobAgentConfig getJobAgentConfig() {
+        return jobAgentConfig;
     }
 }

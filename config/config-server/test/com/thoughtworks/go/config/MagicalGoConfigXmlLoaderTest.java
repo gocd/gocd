@@ -3505,6 +3505,76 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(new ArrayList<String>(values), is(Arrays.asList("http://fake-go-server", "godev", "password")));
     }
 
+    @Test
+    public void shouldSerializeJobAgentConfig() throws Exception {
+        String configWithJobAgentConfig =
+                "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+                        + "<pipelines group=\"first\">\n"
+                        + "<pipeline name=\"pipeline\">\n"
+                        + "  <materials>\n"
+                        + "    <hg url=\"/hgrepo\"/>\n"
+                        + "  </materials>\n"
+                        + "  <stage name=\"mingle\">\n"
+                        + "    <jobs>\n"
+                        + "      <job name=\"functional\">\n"
+                        + "        <agentConfig pluginId=\"cd.go-contrib.elastic-agent.docker\">\n"
+                        + "          <property>\n"
+                        + "           <key>USERNAME</key>\n"
+                        + "           <value>bob</value>\n"
+                        + "          </property>\n"
+                        + "        </agentConfig>\n"
+                        + "      </job>\n"
+                        + "    </jobs>\n"
+                        + "  </stage>\n"
+                        + "</pipeline>\n"
+                        + "</pipelines>\n"
+                        + "</cruise>\n";
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobAgentConfig).configForEdit;
+
+        JobAgentConfig jobAgentConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).getStage("mingle").jobConfigByConfigName("functional").getJobAgentConfig();
+
+        assertThat(jobAgentConfig.getPluginId(), is("cd.go-contrib.elastic-agent.docker"));
+        assertThat(jobAgentConfig.getProperty("USERNAME").getValue(), is("bob"));
+    }
+
+    @Test
+    public void shouldNotAllowJobAgentConfigAndResourcesTogether() throws Exception {
+        String configWithJobAgentConfig =
+                "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+                        + "<pipelines group=\"first\">\n"
+                        + "<pipeline name=\"pipeline\">\n"
+                        + "  <materials>\n"
+                        + "    <hg url=\"/hgrepo\"/>\n"
+                        + "  </materials>\n"
+                        + "  <stage name=\"mingle\">\n"
+                        + "    <jobs>\n"
+                        + "      <job name=\"functional\">\n"
+                        + "        <agentConfig pluginId=\"cd.go-contrib.elastic-agent.docker\">\n"
+                        + "          <property>\n"
+                        + "           <key>USERNAME</key>\n"
+                        + "           <value>bob</value>\n"
+                        + "          </property>\n"
+                        + "        </agentConfig>\n"
+                        + "        <resources>\n"
+                        + "          <resource>foo</resource>\n"
+                        + "        </resources>\n"
+                        + "      </job>\n"
+                        + "    </jobs>\n"
+                        + "  </stage>\n"
+                        + "</pipeline>\n"
+                        + "</pipelines>\n"
+                        + "</cruise>\n";
+        try {
+            CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobAgentConfig).configForEdit;
+            fail("expected exception!");
+        }catch (Exception e){
+            assertThat(e.getCause().getCause(), instanceOf(XsdValidationException.class));
+            assertThat(e.getCause().getCause().getMessage(), is("Invalid content was found starting with element 'resources'. One of '{environmentvariables, tasks, artifacts, tabs, properties}' is expected."));
+        }
+
+    }
+
     private StageConfig stageWithJobResource(String resourceName) {
         StageConfig stage = StageConfigMother.custom("stage", "job");
         JobConfigs configs = stage.allBuildPlans();

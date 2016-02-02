@@ -21,14 +21,25 @@ import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PipelineLabel implements Serializable {
+    private Map<CaseInsensitiveString, String> materials = new HashMap<>();
     protected String label;
+
     public static final String COUNT = "COUNT";
     public static final String COUNT_TEMPLATE = StringUtil.wrapConfigVariable(COUNT);
+
+    private static final String MATERIAL_SIGIL = "\\$";
+    private static final String FUNCTION_SIGIL = "\\£";
+    private static final String IDENTIFIER_PATTERN = "(?<identifier>[a-zA-Z0-9_\\-\\.!~'#:]+)";
+    private static final String ARGUMENT_PATTERN = "\\((?<argument>([^)]|\\\\\\))*)\\)";
+    private static final String SLICE_PATTERN = "(\\[(?<startIndex>\\-?\\d+)?(?<sliceColon>:)?(?<endIndex>\\-?\\d+)?\\])";
+    private static final Pattern MATERIAL_PATTERN = Pattern.compile("(?i)" + MATERIAL_SIGIL + "\\{" + IDENTIFIER_PATTERN + SLICE_PATTERN + "?\\}");
+    private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?i)" + FUNCTION_SIGIL + "\\{" + IDENTIFIER_PATTERN + ARGUMENT_PATTERN + SLICE_PATTERN + "?\\}");
 
     public PipelineLabel(String labelTemplate) {
         this.label = labelTemplate;
@@ -36,18 +47,16 @@ public class PipelineLabel implements Serializable {
 
     public void setLabel(String label) {
         this.label = label;
+        this.materials = new HashMap<>();
     }
 
     public String toString() {
-        return label;
+        String replacedLabel = replaceMaterialsInLabel(materials);
+        replacedLabel = StringUtils.substring(replacedLabel, 0, 255);
+        return replacedLabel;
     }
 
-    private static final String MATERIAL_SIGIL = "\\$";
-    private static final String IDENTIFIER_PATTERN = "(?<identifier>[a-zA-Z0-9_\\-\\.!~'#:]+)";
-    private static final String SLICE_PATTERN = "(\\[(?<startIndex>\\-?\\d+)?(?<sliceColon>:)?(?<endIndex>\\-?\\d+)?\\])";
-    private static final Pattern MATERIAL_PATTERN = Pattern.compile("(?i)" + MATERIAL_SIGIL + "\\{" + IDENTIFIER_PATTERN + SLICE_PATTERN + "?\\}");
-
-    private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
+    private String replaceMaterialsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
         final Matcher matcher = MATERIAL_PATTERN.matcher(this.label);
         final StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
@@ -106,8 +115,11 @@ public class PipelineLabel implements Serializable {
     }
 
     public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions) {
-        this.label = replaceRevisionsInLabel(namedRevisions);
-        this.label = StringUtils.substring(label, 0, 255);
+        for (Map.Entry<CaseInsensitiveString, String> entry : namedRevisions.entrySet()) {
+            if (!materials.containsKey(entry.getKey())) {
+                materials.put(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     public boolean equals(Object o) {

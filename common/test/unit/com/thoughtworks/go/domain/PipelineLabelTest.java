@@ -191,6 +191,18 @@ public class PipelineLabelTest {
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-2"));
     }
 
+    @Test
+    public void shouldReplaceEchoFunctionWithNoArgWithEmptyString() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-£{echo()}");
+        assertThat(label.toString(), is("release-"));
+    }
+
+    @Test
+    public void shouldReplaceEchoFunctionWithArgWithArg() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-£{echo(foo)}");
+        assertThat(label.toString(), is("release-foo"));
+    }
+
     private MaterialRevisions createMaterialRevisionsForSlicing(String revision) {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");

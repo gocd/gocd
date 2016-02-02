@@ -19,7 +19,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     var root, $root;
     var pipeline;
 
-    beforeEach(function (done) {
+    beforeAll(function (done) {
       root = document.createElement("div");
       document.body.appendChild(root);
       $root = $(root);
@@ -45,11 +45,8 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
       reallyDone();
     });
 
-    afterEach(function () {
+    afterAll(function () {
       root.parentNode.removeChild(root);
-    });
-
-    afterEach(function () {
       jasmine.Ajax.uninstall();
     });
 
@@ -61,7 +58,6 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     it("should render the pipeline name", function () {
       expect($root.find('.pipeline .heading h3')).toHaveText('Pipeline configuation for pipeline yourproject');
     });
-
 
     it("should render enablePipelineLocking checkbox", function () {
       expect(inputFieldFor('enablePipelineLocking')).toBeChecked();

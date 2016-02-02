@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
@@ -27,6 +25,8 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
+
+import java.util.Map;
 
 @ConfigTag("git")
 public class GitMaterialConfig extends ScmMaterialConfig {
@@ -38,7 +38,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     private String branch = DEFAULT_BRANCH;
 
     @ConfigAttribute(value = "shallowClone")
-    private Boolean shallowClone;
+    private boolean shallowClone;
 
     private String submoduleFolder;
 
@@ -241,11 +241,13 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         this.shallowClone = "true".equals(map.get(SHALLOW_CLONE));
     }
 
-    public Boolean isShallowClone() {
+    public boolean isShallowClone() {
         return shallowClone;
     }
 
     public void setShallowClone(Boolean shallowClone) {
-        this.shallowClone = shallowClone;
+        if (shallowClone != null) {
+            this.shallowClone = shallowClone;
+        }
     }
 }

@@ -59,14 +59,14 @@ public class GitMaterialShallowCloneTest {
         TestRepo.internalTearDown();
     }
 
-    @After
+    @Test
     public void defaultShallowFlagIsOff() throws Exception {
         assertThat(new GitMaterial(repo.projectRepositoryUrl()).isShallowClone(), is(false));
         assertThat(new GitMaterial(repo.projectRepositoryUrl(), null).isShallowClone(), is(false));
         assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).isShallowClone(), is(true));
         assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl())).isShallowClone(), is(false));
         assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone(), is(true));
-        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, null)).isShallowClone(), is(false));
+        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, false)).isShallowClone(), is(false));
         TestRepo.internalTearDown();
     }
 

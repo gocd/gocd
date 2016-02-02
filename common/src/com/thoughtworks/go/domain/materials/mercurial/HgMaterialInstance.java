@@ -25,7 +25,7 @@ public class HgMaterialInstance extends MaterialInstance {
     }
 
     public HgMaterialInstance(String url, String flyweightName) {
-        super(url, null, null, null, null, null, null, null, flyweightName, null, null, null, null, null);
+        super(url, null, null, null, null, null, null, null, flyweightName, null, null, null, null);
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {

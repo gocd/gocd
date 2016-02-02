@@ -19,6 +19,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -93,6 +95,11 @@ public class ScheduledPipelineLoader {
                 PasswordAwareMaterial configuredMaterial = (PasswordAwareMaterial) materialConfig;
                 ((PasswordAwareMaterial) usedMaterial).setPassword(configuredMaterial.getPassword());
             }
+
+            if (materialConfig instanceof GitMaterialConfig) {
+                GitMaterialConfig configuredMaterial = (GitMaterialConfig) materialConfig;
+                ((GitMaterial) usedMaterial).setShallowClone(configuredMaterial.isShallowClone());
+            }
         }
         return pipeline;
     }
@@ -119,6 +126,7 @@ public class ScheduledPipelineLoader {
         for (MaterialConfig configuredMaterial : configuredMaterials) {
             materialExpansionService.expandForScheduling(configuredMaterial, knownMaterials);
         }
+
         return knownMaterials;
     }
 

@@ -496,7 +496,6 @@ public class GitMaterialTest {
         assertThat(iter.next().getKey(), is("type"));
         assertThat(iter.next().getKey(), is("url"));
         assertThat(iter.next().getKey(), is("branch"));
-        assertThat(iter.next().getKey(), is("shallowClone"));
     }
 
     /**

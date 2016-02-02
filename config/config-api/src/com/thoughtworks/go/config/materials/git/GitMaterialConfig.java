@@ -92,6 +92,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put("url", url);
         parameters.put("branch", branch);
+        parameters.put("shallowClone", shallowClone);
     }
 
     @Override
@@ -218,6 +219,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
                 "url=" + url +
                 ", branch='" + branch + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
+                ", shallowClone=" + shallowClone +
                 '}';
     }
 

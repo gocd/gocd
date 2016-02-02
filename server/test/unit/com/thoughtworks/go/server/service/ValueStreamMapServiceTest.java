@@ -239,7 +239,7 @@ public class ValueStreamMapServiceTest {
 
 		GitMaterial gitMaterial = new GitMaterial("git");
 		MaterialConfig gitConfig = gitMaterial.config();
-		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", "master", "submodule", "flyweight", false);
+		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", "master", "submodule", "flyweight");
 		BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<GitMaterial>());
 		BuildCause p2buildCause = createBuildCause(new ArrayList<String>(), asList(gitMaterial));
 		Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
@@ -701,7 +701,7 @@ public class ValueStreamMapServiceTest {
 		String userName = "looser";
 		GitMaterial gitMaterial = new GitMaterial("git");
 		MaterialConfig gitConfig = gitMaterial.config();
-		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight", false);
+		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		PipelineConfigs groups = new BasicPipelineConfigs(groupName, new Authorization(), PipelineConfigMother.pipelineConfig(pipelineName, new MaterialConfigs(gitConfig)));
 		CruiseConfig cruiseConfig = new BasicCruiseConfig(groups);
 		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);

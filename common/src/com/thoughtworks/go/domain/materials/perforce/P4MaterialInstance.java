@@ -27,7 +27,7 @@ public class P4MaterialInstance extends MaterialInstance {
     }
 
     public P4MaterialInstance(String serverAndPort, String userName, String view, Boolean useTickets, String flyweightName) {
-        super(serverAndPort, userName, null, null, view, useTickets, null, null, flyweightName, null, null, null, null, null);
+        super(serverAndPort, userName, null, null, view, useTickets, null, null, flyweightName, null, null, null, null);
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {

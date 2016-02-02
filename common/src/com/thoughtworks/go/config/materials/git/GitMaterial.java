@@ -133,7 +133,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new GitMaterialInstance(url.forCommandline(), branch, submoduleFolder, UUID.randomUUID().toString(), shallowClone);
+        return new GitMaterialInstance(url.forCommandline(), branch, submoduleFolder, UUID.randomUUID().toString());
     }
 
     @Override
@@ -411,7 +411,11 @@ public class GitMaterial extends ScmMaterial {
                 "url=" + url +
                 ", branch='" + branch + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
+                ", shallowClone=" + shallowClone +
                 '}';
     }
 
+    public void setShallowClone(Boolean shallowClone) {
+        this.shallowClone = shallowClone;
+    }
 }

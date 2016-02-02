@@ -28,7 +28,7 @@ public class PluggableSCMMaterialInstance extends MaterialInstance {
     }
 
     public PluggableSCMMaterialInstance(String configuration, String flyweight) {
-        super(null, null, null, null, null, null, null, null, flyweight, null, null, null, configuration, null);
+        super(null, null, null, null, null, null, null, null, flyweight, null, null, null, configuration);
     }
 
     @Override

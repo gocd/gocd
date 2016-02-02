@@ -28,7 +28,7 @@ public class TfsMaterialInstance extends MaterialInstance {
     }
 
     public TfsMaterialInstance(String url, String userName, String domain, String projectPath, final String flyweightName) {
-        super(url, userName, null, null, null, null, null, null, flyweightName, null, projectPath, domain, null, null);
+        super(url, userName, null, null, null, null, null, null, flyweightName, null, projectPath, domain, null);
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {

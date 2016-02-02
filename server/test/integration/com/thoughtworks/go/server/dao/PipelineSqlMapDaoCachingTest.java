@@ -777,7 +777,7 @@ public class PipelineSqlMapDaoCachingTest {
 
 	@Test
 	public void shouldCachePipelineInstancesTriggeredOutOfMaterialRevision() throws Exception {
-		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight", false);
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
 		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(results);
@@ -794,7 +794,7 @@ public class PipelineSqlMapDaoCachingTest {
 
 	@Test
 	public void shouldCacheEmptyPipelineInstancesTriggeredOutOfMaterialRevision() throws Exception {
-		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight", false);
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
 		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(new ArrayList());
 
@@ -806,7 +806,7 @@ public class PipelineSqlMapDaoCachingTest {
 
 	@Test
 	public void shouldInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision() throws Exception {
-		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight", false);
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
 		List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
 		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(result);
@@ -824,7 +824,7 @@ public class PipelineSqlMapDaoCachingTest {
 
 	@Test
 	public void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision_WhenAPipelineInstanceIsCreatedWithDifferentMaterial() throws Exception {
-		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight", false);
+		GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
 		String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
 		List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
 		when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString())).thenReturn(result);

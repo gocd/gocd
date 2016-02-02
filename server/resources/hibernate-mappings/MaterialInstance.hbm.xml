@@ -44,7 +44,6 @@
             <property name="url"/>
             <property name="branch"/>
             <property name="submoduleFolder"/>
-            <property name="shallowClone" />
         </subclass>
 
         <subclass name="com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance" discriminator-value="P4Material">

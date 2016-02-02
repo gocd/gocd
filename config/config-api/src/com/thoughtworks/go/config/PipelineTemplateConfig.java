@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
 import com.thoughtworks.go.config.preprocessor.ParamReferenceCollectorFactory;
@@ -28,11 +25,14 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @understands abstracting a pipeline definition
  */
 @ConfigTag("pipeline")
-@ConfigCollection(value = StageConfig.class, asFieldName = "Stages")
+@ConfigCollection(value = StageConfig.class)
 public class PipelineTemplateConfig extends BaseCollection<StageConfig> implements Validatable, ParamsAttributeAware {
     private static final ClassAttributeCache.FieldCache FIELD_CACHE = new ClassAttributeCache.FieldCache();
     private static final Cloner CLONER = new Cloner();

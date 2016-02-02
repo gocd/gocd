@@ -33,5 +33,4 @@ public @interface ConfigCollection {
      */
     Class<?> value();
     int minimum() default 0;
-    String asFieldName() default "";
 }

@@ -225,6 +225,10 @@
             <version>1.11</version>
             <exclusions>
                 <exclusion>
+                    <groupId>nekohtml</groupId>
+                    <artifactId>nekohtml</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>xom</groupId>
                     <artifactId>xom</artifactId>
                 </exclusion>

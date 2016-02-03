@@ -23,22 +23,29 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.jruby.RubyProcess;
 
 public class GitPoller implements MaterialPoller<GitMaterial> {
 
     @Override
     public List<Modification> latestModification(GitMaterial material, File baseDir, SubprocessExecutionContext execCtx) {
-        return material.withShallowClone().latestModification(baseDir, execCtx);
+        material = material.withShallowClone(isServerSideShallowCloneOn());
+        return material.latestModification(baseDir, execCtx);
     }
-
     @Override
     public List<Modification> modificationsSince(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        return material.withShallowClone().modificationsSince(baseDir, revision, execCtx);
+        material = material.withShallowClone(isServerSideShallowCloneOn());
+        return material.withShallowClone(true).modificationsSince(baseDir, revision, execCtx);
     }
 
     @Override
     public void checkout(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        material.withShallowClone().checkout(baseDir,revision,execCtx);
+        material = material.withShallowClone(isServerSideShallowCloneOn());
+        material.checkout(baseDir,revision,execCtx);
     }
 
+    private Boolean isServerSideShallowCloneOn() {
+        return new SystemEnvironment().get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE);
+    }
 }

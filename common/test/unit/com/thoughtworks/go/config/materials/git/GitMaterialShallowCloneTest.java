@@ -137,11 +137,12 @@ public class GitMaterialShallowCloneTest {
     }
 
     @Test
-    public void withShallowCloneShouldGenerateANewMaterial() {
+    public void withShallowCloneShouldGenerateANewMaterialWithOverriddenShallowConfig() {
         GitMaterial original = new GitMaterial(repo.projectRepositoryUrl(), false);
-        GitMaterial shallow = original.withShallowClone();
+        assertThat(original.withShallowClone(true).isShallowClone(), is(true));
+        assertThat(original.withShallowClone(false).isShallowClone(), is(false));
         assertThat(original.isShallowClone(), is(false));
-        assertThat(shallow.isShallowClone(), is(true));
+
     }
 
 

@@ -151,7 +151,7 @@ public class MaterialServiceTest {
         }
 
         @Override
-        public GitMaterial withShallowClone() {
+        public GitMaterial withShallowClone(boolean value) {
             return this;
         }
 

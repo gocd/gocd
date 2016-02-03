@@ -218,7 +218,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldLoadShallowCloneFlagForGitMaterialsBasePerPipelineConfig() throws IOException {
+    public void shouldLoadShallowCloneFlagForGitMaterialsBaseOnTheirOwnPipelineConfig() throws IOException {
         GitTestRepo testRepo = new GitTestRepo();
 
         PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));

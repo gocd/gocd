@@ -421,9 +421,9 @@ public class GitMaterial extends ScmMaterial {
         this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
     }
 
-    public GitMaterial withShallowClone() {
+    public GitMaterial withShallowClone(boolean value) {
         GitMaterialConfig config = (GitMaterialConfig) config();
-        config.setShallowClone(true);
+        config.setShallowClone(value);
         return new GitMaterial(config);
     }
 }

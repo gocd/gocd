@@ -172,18 +172,6 @@
         <!-- jmock end -->
 
         <dependency>
-            <groupId>net.sourceforge.jwebunit</groupId>
-            <artifactId>jwebunit-htmlunit-plugin</artifactId>
-            <version>1.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>1.8</version>
@@ -217,54 +205,6 @@
             <groupId>com.bea</groupId>
             <artifactId>stax.impl</artifactId>
             <version>1.2.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>htmlunit</groupId>
-            <artifactId>htmlunit</artifactId>
-            <version>1.11</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xom</groupId>
-                    <artifactId>xom</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>rhino</groupId>
-                    <artifactId>js</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xercesImpl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jdom</groupId>
-                    <artifactId>jdom</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>commons-codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-collections</groupId>
-                    <artifactId>commons-collections</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-httpclient</groupId>
-                    <artifactId>commons-httpclient</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-io</groupId>
-                    <artifactId>commons-io</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
 		<dependency>

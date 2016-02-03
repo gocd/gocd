@@ -38,7 +38,7 @@ public class GitPoller implements MaterialPoller<GitMaterial> {
 
     @Override
     public void checkout(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        material.checkout(baseDir,revision,execCtx);
+        material.withShallowClone().checkout(baseDir,revision,execCtx);
     }
 
 }

@@ -28,12 +28,12 @@ public class GitPoller implements MaterialPoller<GitMaterial> {
 
     @Override
     public List<Modification> latestModification(GitMaterial material, File baseDir, SubprocessExecutionContext execCtx) {
-        return material.latestModification(baseDir, execCtx);
+        return material.withShallowClone().latestModification(baseDir, execCtx);
     }
 
     @Override
     public List<Modification> modificationsSince(GitMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        return material.modificationsSince(baseDir, revision, execCtx);
+        return material.withShallowClone().modificationsSince(baseDir, revision, execCtx);
     }
 
     @Override

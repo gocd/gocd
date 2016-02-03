@@ -20,11 +20,14 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -41,7 +44,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.thoughtworks.go.util.ExceptionUtils.*;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
 import static com.thoughtworks.go.util.FileUtil.deleteDirectoryNoisily;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -52,9 +56,15 @@ import static java.lang.String.format;
  */
 public class GitMaterial extends ScmMaterial {
     private static final Logger LOG = Logger.getLogger(GitMaterial.class);
+    private static final int UNSHALLOW_TRYOUT_STEP = 100;
+    // shallow clone depth need be bigger than 1, otherwise first latestModification check will generate a
+    // a modification includes all files in the repo.
+    private static final int SHALLOW_CLONE_DEPTH = 2;
+
 
     private UrlArgument url;
     private String branch = GitMaterialConfig.DEFAULT_BRANCH;
+    private boolean shallowClone = false;
     private String submoduleFolder;
 
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
@@ -68,15 +78,19 @@ public class GitMaterial extends ScmMaterial {
         this.url = new UrlArgument(url);
     }
 
+    public GitMaterial(String url, boolean shallowClone) {
+        this(url, null, null, shallowClone);
+    }
+
     @Override
     public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
         InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
-        this.updateTo(output,revision,baseDir,execCtx);
+        this.updateTo(output, revision, baseDir, execCtx);
     }
 
     public GitMaterial(String url, String branch) {
         this(url);
-        if(branch != null) {
+        if (branch != null) {
             this.branch = branch;
         }
     }
@@ -86,8 +100,15 @@ public class GitMaterial extends ScmMaterial {
         this.folder = folder;
     }
 
+    public GitMaterial(String url, String branch, String folder, Boolean shallowClone) {
+        this(url, branch, folder);
+        if(shallowClone != null) {
+            this.shallowClone = shallowClone;
+        }
+    }
+
     public GitMaterial(GitMaterialConfig config) {
-        this(config.getUrl(), config.getBranch(), config.getFolder());
+        this(config.getUrl(), config.getBranch(), config.getFolder(), config.isShallowClone());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.name = config.getName();
@@ -96,7 +117,7 @@ public class GitMaterial extends ScmMaterial {
 
     @Override
     public MaterialConfig config() {
-        return new GitMaterialConfig(url, branch, submoduleFolder, autoUpdate, filter, folder, name);
+        return new GitMaterialConfig(url, branch, submoduleFolder, autoUpdate, filter, folder, name, shallowClone);
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
@@ -106,6 +127,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
+        unshallowIfNeeded(ProcessOutputStreamConsumer.inMemoryConsumer(), revision, baseDir);
         GitCommand gitCommand = getGit(baseDir);
         return gitCommand.modificationsSince(revision);
     }
@@ -124,10 +146,12 @@ public class GitMaterial extends ScmMaterial {
     protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put("url", url);
         parameters.put("branch", branch);
+        parameters.put("shallowClone", shallowClone);
     }
 
     public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
         try {
+            unshallowIfNeeded(outputStreamConsumer, revision, baseDir);
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
             GitCommand git = git(outputStreamConsumer, workingdir(baseDir));
             git.fetchAndReset(outputStreamConsumer, revision);
@@ -207,17 +231,36 @@ public class GitMaterial extends ScmMaterial {
             TransactionSynchronizationManager txManager = new TransactionSynchronizationManager();
             if (txManager.isActualTransactionActive()) {
                 txManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCompletion(int status) {
+                    @Override
+                    public void afterCompletion(int status) {
                         if (status != TransactionSynchronization.STATUS_COMMITTED) {
                             FileUtils.deleteQuietly(workingFolder);
                         }
                     }
                 });
             }
-            int returnValue = gitCommand.cloneFrom(outputStreamConsumer, url.forCommandline());
+            int returnValue = gitCommand.cloneFrom(outputStreamConsumer, url.forCommandline(), cloneDepth());
             bombIfFailedToRunCommandLine(returnValue, "Failed to run git clone command");
         }
         return gitCommand;
+    }
+
+    private Integer cloneDepth() {
+        return shallowClone ? SHALLOW_CLONE_DEPTH : Integer.MAX_VALUE;
+    }
+
+    // unshallow local repo to include a revision operating on via two step process.
+    // First try to fetch forward 100 revisions with "git fetch -depth n+100". If revision still missing,
+    // unshallow the whole repo with "git fetch --unshallow".
+    private void unshallowIfNeeded(ProcessOutputStreamConsumer streamConsumer, Revision revision, File workingDir) {
+        GitCommand gitCommand = getGit(workingDir);
+        if (gitCommand.isShallow() && !gitCommand.hasRevision(revision)) {
+            gitCommand.unshallow(streamConsumer, UNSHALLOW_TRYOUT_STEP);
+
+            if (gitCommand.isShallow() && !gitCommand.hasRevision(revision)) {
+                gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
+            }
+        }
     }
 
     private boolean isSubmoduleFolder() {
@@ -234,11 +277,13 @@ public class GitMaterial extends ScmMaterial {
             LOG.trace("Current repository url of [" + workingDirectory + "]: " + currentWorkingUrl);
             LOG.trace("Target repository url: " + url);
         }
-        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline()) || !isBranchEqual(command);
+        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline())
+                || !isBranchEqual(command)
+                || (!shallowClone && command.isShallow());
     }
 
     private boolean isBranchEqual(GitCommand command) {
-        String branchName =  StringUtil.isBlank(this.branch)? GitMaterialConfig.DEFAULT_BRANCH: this.branch;
+        String branchName = StringUtil.isBlank(this.branch) ? GitMaterialConfig.DEFAULT_BRANCH : this.branch;
         return branchName.equals(command.getCurrentBranch());
     }
 
@@ -253,7 +298,7 @@ public class GitMaterial extends ScmMaterial {
         return url;
     }
 
-    public String getLongDescription(){
+    public String getLongDescription() {
         return String.format("URL: %s, Branch: %s", url.forDisplay(), branch);
     }
 
@@ -329,10 +374,15 @@ public class GitMaterial extends ScmMaterial {
         return false;
     }
 
-    @Override public String getShortRevision(String revision) {
+    public boolean isShallowClone() {
+        return shallowClone;
+    }
+
+    @Override
+    public String getShortRevision(String revision) {
         if (revision == null) return null;
-        if (revision.length()<7) return revision;
-        return revision.substring(0,7);
+        if (revision.length() < 7) return revision;
+        return revision.substring(0, 7);
     }
 
     @Override
@@ -346,6 +396,7 @@ public class GitMaterial extends ScmMaterial {
             configurationMap.put("url", url.forDisplay());
         }
         configurationMap.put("branch", branch);
+        configurationMap.put("shallow-clone", shallowClone);
         materialMap.put("git-configuration", configurationMap);
         return materialMap;
     }
@@ -354,12 +405,25 @@ public class GitMaterial extends ScmMaterial {
         return GitMaterialInstance.class;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "GitMaterial{" +
                 "url=" + url +
                 ", branch='" + branch + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
+                ", shallowClone=" + shallowClone +
                 '}';
     }
 
+    @Override
+    public void updateFromConfig(MaterialConfig materialConfig) {
+        super.updateFromConfig(materialConfig);
+        this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
+    }
+
+    public GitMaterial withShallowClone() {
+        GitMaterialConfig config = (GitMaterialConfig) config();
+        config.setShallowClone(true);
+        return new GitMaterial(config);
+    }
 }

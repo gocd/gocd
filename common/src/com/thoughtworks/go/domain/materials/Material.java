@@ -101,5 +101,11 @@ public interface Material extends Serializable {
 
     MaterialConfig config();
 
-    public Map<String, Object> getAttributes(boolean addSecureFields);
+    Map<String, Object> getAttributes(boolean addSecureFields);
+
+    // updateFromConfig is called during BuildWork creation upon a Material loaded from database. Material implementations
+    // should use this method fill in configure attributes that are not persisted in database, such as SVN password.
+    // Material implementations can safely assume correct MaterialConfig subtype is passed in. E.g For a SVNMaterial
+    // materialConfig will be SVNMaterialConfig
+    void updateFromConfig(MaterialConfig materialConfig);
 }

@@ -110,6 +110,43 @@ public class GitCommandTest {
         assertThat(output.getStdOut(), Is.is("* master"));
     }
 
+
+    @Test
+    public void fullCloneIsNotShallow() {
+        assertThat(git.isShallow(), is(false));
+    }
+
+    @Test
+    public void shouldOnlyCloneLimitedRevisionsIfDepthSpecified() throws Exception {
+        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        assertThat(git.isShallow(), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_4), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_3), is(true));
+        // can not assert on revision_2, because on old version of git (1.7)
+        // depth '2' actually clone 3 revisions
+        assertThat(git.hasRevision(GitTestRepo.REVISION_1), is(false));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(false));
+
+    }
+
+    @Test
+    public void unshallowALocalRepoWithArbitraryDepth() throws Exception {
+        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        git.unshallow(inMemoryConsumer(), 3);
+        assertThat(git.isShallow(), is(true));
+        assertThat(git.hasRevision(GitTestRepo.REVISION_2), is(true));
+        // can not assert on revision_1, because on old version of git (1.7)
+        // depth '3' actually clone 4 revisions
+        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(false));
+
+        git.unshallow(inMemoryConsumer(), Integer.MAX_VALUE);
+        assertThat(git.isShallow(), is(false));
+
+        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(true));
+    }
+
     @Test
     public void shouldCloneFromBranchWhenMaterialPointsToABranch() throws IOException {
         gitLocalRepoDir = createTempWorkingDirectory();

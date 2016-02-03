@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -69,7 +69,7 @@ public class ScheduledPipelineLoader {
     public Pipeline pipelineWithPasswordAwareBuildCauseByBuildId(final long buildId) {
         Pipeline pipeline = pipelineDao.pipelineWithMaterialsAndModsByBuildId(buildId);
         MaterialRevisions scheduledRevs = pipeline.getBuildCause().getMaterialRevisions();
-        MaterialConfigs knownMaterials = knownMaterials(scheduledRevs);
+        MaterialConfigs knownMaterials = knownMaterials(pipeline, scheduledRevs);
         for (MaterialRevision materialRevision : scheduledRevs) {
             MaterialConfig materialConfig = materialFrom(knownMaterials, materialRevision);
             Material usedMaterial = materialRevision.getMaterial();
@@ -89,10 +89,8 @@ public class ScheduledPipelineLoader {
                 });
                 throw new StaleMaterialsOnBuildCause(message);
             }
-            if (materialConfig instanceof PasswordAwareMaterial) {
-                PasswordAwareMaterial configuredMaterial = (PasswordAwareMaterial) materialConfig;
-                ((PasswordAwareMaterial) usedMaterial).setPassword(configuredMaterial.getPassword());
-            }
+
+            usedMaterial.updateFromConfig(materialConfig);
         }
         return pipeline;
     }
@@ -106,19 +104,29 @@ public class ScheduledPipelineLoader {
         return null;
     }
 
-    private MaterialConfigs knownMaterials(MaterialRevisions scheduledRevs) {
+    private MaterialConfigs knownMaterials(Pipeline pipeline, MaterialRevisions scheduledRevs) {
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         MaterialConfigs configuredMaterials = new MaterialConfigs();
         for (MaterialRevision revision : scheduledRevs) {
-            MaterialConfig configuredMaterial = currentConfig.materialConfigFor(revision.getMaterial().getFingerprint());
+            String fingerprint = revision.getMaterial().getFingerprint();
+            // first try to find material config from current pipeline config
+            MaterialConfig configuredMaterial = currentConfig.materialConfigFor(new CaseInsensitiveString(pipeline.getName()), fingerprint);
             if (configuredMaterial != null) {
                 configuredMaterials.add(configuredMaterial);
+                continue;
+            }
+
+            // fallback to global lookup if material is not in current pipeline config
+            configuredMaterial = currentConfig.materialConfigFor(fingerprint);
+            if (configuredMaterial != null) {
+                configuredMaterials.add((configuredMaterial));
             }
         }
         MaterialConfigs knownMaterials = new MaterialConfigs();
         for (MaterialConfig configuredMaterial : configuredMaterials) {
             materialExpansionService.expandForScheduling(configuredMaterial, knownMaterials);
         }
+
         return knownMaterials;
     }
 

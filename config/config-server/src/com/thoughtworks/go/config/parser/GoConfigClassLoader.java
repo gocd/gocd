@@ -68,8 +68,8 @@ public class GoConfigClassLoader<T> {
     }
 
     public T parse() {
-        bombUnless(atElement(),
-                "Unable to parse element <" + e.getName() + "> for class " + aClass.getSimpleName());
+//        bombUnless(atElement(),
+//                "Unable to parse element <" + e.getName() + "> for class " + aClass.getSimpleName());
         T o = createInstance();
         if (isAnnotationPresent(aClass, ConfigReferenceCollection.class)) {
             ConfigReferenceCollection referenceCollection = aClass.getAnnotation(ConfigReferenceCollection.class);

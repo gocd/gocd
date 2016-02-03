@@ -1155,7 +1155,7 @@ public class GoConfigService implements Initializer {
         protected org.dom4j.Document documentRoot() throws Exception {
             CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out, true);
+            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out);
             org.dom4j.Document document = reader.read(new StringReader(out.toString()));
             Map<String, String> map = new HashMap<String, String>();
             map.put("go", MagicalGoConfigXmlWriter.XML_NS);
@@ -1336,7 +1336,7 @@ public class GoConfigService implements Initializer {
     private String configAsXml(CruiseConfig cruiseConfig) {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         try {
-            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, outStream, true);
+            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, outStream);
             return outStream.toString();
         } catch (Exception e) {
             throw bomb(e);

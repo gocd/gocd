@@ -72,7 +72,8 @@ public class CachedDigestUtils {
         return objectPools.computeDigest(algorithm, new DigestObjectPools.DigestOperation() {
 
             public String perform(MessageDigest digest) {
-                digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8(string));
+                String stripped = StringUtil.stripSpacesAndNewLines(string);
+                digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8(stripped));
                 return Hex.encodeHexString(digest.digest());
             }
         });

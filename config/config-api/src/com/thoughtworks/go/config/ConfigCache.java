@@ -16,16 +16,17 @@
 
 package com.thoughtworks.go.config;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-
 import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
 import org.springframework.stereotype.Component;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 @Component
 public class ConfigCache {
 
     private ClassAttributeCache.FieldCache fieldCache = new ClassAttributeCache.FieldCache();
+    private ConfigCacheStore store;
 
     public static boolean isAnnotationPresent(AnnotatedElement element, Class<? extends Annotation> annotationClass) {
         return element.isAnnotationPresent(annotationClass);
@@ -35,8 +36,22 @@ public class ConfigCache {
          return klass.getAnnotation(annotationClass);
     }
 
+    public void put(String md5, GoConfigHolder holder) {
+        this.store.put(md5, holder);
+    }
+
+    public GoConfigHolder get(String md5) {
+        if (md5 == null) {
+            return null;
+        }
+        return (GoConfigHolder) this.store.get(md5);
+    }
+
     public ClassAttributeCache.FieldCache getFieldCache() {
         return fieldCache;
     }
 
+    public void setConfigCacheStore(ConfigCacheStore store) {
+        this.store = store;
+    }
 }

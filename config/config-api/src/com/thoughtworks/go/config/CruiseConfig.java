@@ -28,6 +28,7 @@ import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.Pair;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;

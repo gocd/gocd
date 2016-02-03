@@ -136,6 +136,15 @@ public class GitMaterialShallowCloneTest {
         assertThat(localRepoFor(material).isShallow(), is(false));
     }
 
+    @Test
+    public void withShallowCloneShouldGenerateANewMaterial() {
+        GitMaterial original = new GitMaterial(repo.projectRepositoryUrl(), false);
+        GitMaterial shallow = original.withShallowClone();
+        assertThat(original.isShallowClone(), is(false));
+        assertThat(shallow.isShallowClone(), is(true));
+    }
+
+
     private TestSubprocessExecutionContext context() {
         return new TestSubprocessExecutionContext();
     }

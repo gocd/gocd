@@ -420,4 +420,10 @@ public class GitMaterial extends ScmMaterial {
         super.updateFromConfig(materialConfig);
         this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
     }
+
+    public GitMaterial withShallowClone() {
+        GitMaterialConfig config = (GitMaterialConfig) config();
+        config.setShallowClone(true);
+        return new GitMaterial(config);
+    }
 }

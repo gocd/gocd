@@ -1,59 +1,48 @@
-<nav class="top-bar navigation" data-topbar role="navigation">
-  <ul class="title-area">
-    <li class="name">
-      <%= link_to '', pipeline_dashboard_path, class: "logo" -%>
-      <!-- Do not remove the class "menu-icon". This is used in mobile screen -->
-    <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
-    </li>
-  </ul>
+<div class="navigation">
+  <div class="title-bar" data-responsive-toggle="main-menu" data-hide-for="medium">
+    <button class="menu-icon" type="button" data-toggle></button>
+    <div class="title-bar-title">Menu</div>
+  </div>
 
-  <section class="top-bar-section">
-    <ul class="current-user">
-      <% unless @user.anonymous? %>
-        <li class="has-dropdown">
-          <a href="#" class="user"><%= @user.display_name %></a>
-          <ul class="dropdown">
-            <li><%= link_to 'Preferences', url_for_path('/tab/mycruise/user') %></li>
-            <li><%= link_to 'Sign out', url_for_path('auth/logout') %></li>
-          </ul>
-        </li>
-      <% end %>
-      <li>
-        <%= link_to(l.string("HELP_SMALL"), "https://go.cd/help", :target => "_blank") %>
-      </li>
-    </ul>
-    <ul class="header-tabs">
-      <li>
-        <%= link_to 'Pipelines', pipeline_dashboard_path -%>
-      </li>
-      <li>
-        <%= link_to 'Environments', environments_path -%>
-      </li>
-      <li>
-        <%= link_to 'Agents', agents_path -%>
-      </li>
-      <li class="active has-dropdown">
-        <%
-           admin_header_link_label = "Admin"
-        %>
-
-        <% unless can_view_admin_page? -%>
-          <span><%= admin_header_link_label -%></span>
-        <% else -%>
-          <%= link_to admin_header_link_label, '#' -%>
-          <ul class="admin-dropdown">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <ul class="dropdown menu" data-dropdown-menu>
+        <li><%= link_to '', pipeline_dashboard_path, class: 'logo' -%></li>
+        <li><%= link_to 'Pipelines', pipeline_dashboard_path -%></li>
+        <li><%= link_to 'Environments', environments_path -%></li>
+        <li><%= link_to 'Agents', agents_path -%></li>
+        <li>
+          <a href="#">Admin</a>
+          <ul class="menu vertical">
             <%- if is_user_an_admin? -%>
-              <%= render :partial => 'navigation_elements/dropdown_admin' -%>
+              <%= render partial: 'navigation_elements/dropdown_admin' -%>
             <%- elsif is_user_a_group_admin? -%>
-              <%= render :partial => 'navigation_elements/dropdown_pipeline_group_admin' -%>
+              <%= render partial: 'navigation_elements/dropdown_pipeline_group_admin' -%>
             <%- elsif is_user_a_template_admin? -%>
               <li role="presentation">
-                <%= link_to "Templates", templates_path -%>
+                <%= link_to 'Templates', templates_path -%>
               </li>
             <%- end -%>
           </ul>
+        </li>
+      </ul>
+
+    </div>
+    <div class="top-bar-right">
+      <ul class="dropdown menu" data-dropdown-menu>
+        <% unless @user.anonymous? %>
+          <li>
+            <a href="#"><i class="user"></i><%= @user.display_name %></a>
+            <ul class="menu vertical">
+              <li><%= link_to 'Preferences', url_for_path('/tab/mycruise/user') %></li>
+              <li><%= link_to 'Sign out', url_for_path('auth/logout') %></li>
+            </ul>
+          </li>
         <% end %>
-      </li>
-    </ul>
-  </section>
-</nav>
+        <li><%= link_to(l.string('HELP_SMALL'), 'https://go.cd/help', :target => '_blank') %></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+

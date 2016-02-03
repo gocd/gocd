@@ -62,7 +62,7 @@ define(["mithril", "lodash", "pipeline_configs/views/lookup_command_widget", "pi
       });
 
       it("should render a text box with textcomplete enabled", function () {
-        expect($root.find("[input[name=lookup]").size()).toBe(1);
+        expect($root.find("input[name=lookup]").size()).toBe(1);
         expect(enableTextComplete).toHaveBeenCalled();
       });
 

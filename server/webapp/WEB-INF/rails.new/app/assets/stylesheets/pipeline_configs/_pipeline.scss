@@ -101,19 +101,14 @@
       display:    inline-block;
       position:   relative;
       float:      left;
-      background: $accordion-navigation-bg-color;
-
-      border: {
-        style: $input-border-style;
-        width: $input-border-width;
-        color: $input-border-color;
-      }
+      background: $accordion-item-background-hover;
+      border:     $input-border;
 
       .label {
         width:         100%;
         text-align:    center;
         display:       inline-block;
-        padding:       7px 0;
+        padding:       9px 0;
         overflow:      hidden;
         text-overflow: ellipsis;
       }
@@ -140,12 +135,12 @@
       }
 
       &.active {
-        background:   $accordion-navigation-active-bg-color;
-        border-color: scale-color($fieldset-border-color, $lightness: -5%);
+        background:   $accordion-item-background-hover;
+        border-color: scale-color(nth($fieldset-border, 3), $lightness: -5%);
       }
 
       &:hover {
-        background: $accordion-navigation-hover-bg-color;
+        background: $accordion-item-background-hover;
       }
 
       & ~ .pipeline-flow-box {
@@ -164,7 +159,7 @@
 
         .label {
           border:  1px dashed #8a8a8a;
-          padding: (7px - (1px * 2) - 2px) 0;
+          padding: (7px - (1px * 2)) 0;
           width:   100%;
           color:   #444;
           display: inline-block;
@@ -174,37 +169,37 @@
     }
   }
 
-  .stage-and-material-definitions {
-    border:  1px solid $input-focus-border-color;
-    padding: $standard-margin;
+  .material-definitions {
 
-    .material-definitions {
+    .material-definition {
+      position: relative;
+    }
 
-      .material-definition {
-        position: relative;
-      }
+    .edit-secure-password {
+      display:     inline-block;
+      padding-top: rem-calc(28px);
+    }
 
-      .edit-secure-password {
-        display:     inline-block;
-        padding-top: rem-calc(28px);
-      }
+    .remove-material {
+      position: absolute;
+      left:     calc(100% - 12px);
+      top:      -11px;
+    }
 
-      .remove-material {
-        position: absolute;
-        left:     calc(100% - 12px);
-        top:      -11px;
-      }
-
-      .material-selector {
-        margin-top: $standard-margin;
-      }
-      .add-material {
-        padding-top: rem(26px);
-        a {
-          @include icon-before($type: plus-circle);
-        }
+    .material-selector {
+      margin-top: $standard-margin;
+    }
+    .add-material {
+      padding-top: rem(26px);
+      a {
+        @include icon-before($type: plus-circle);
       }
     }
+  }
+
+  .stage-definitions {
+    border:  1px solid nth($input-border-focus, 3);
+    padding: $standard-margin;
 
     .stage-definition {
       position: relative;
@@ -222,11 +217,15 @@
       .job-definitions {
         padding-top: $standard-margin;
 
-        $active-background-color: $accordion-navigation-active-bg-color;
-        $hover-background-color: $accordion-navigation-hover-bg-color;
-        $inactive-background-color: $accordion-navigation-bg-color;
+        $active-background-color: $accordion-item-background-hover;
+        $hover-background-color: darken($accordion-item-background-hover, 3%);
+        $inactive-background-color: $accordion-item-background-hover;
 
-        .job-definitions-tab-title {
+        .job-definitions-tabs-content-container {
+          border-left: 1px solid #e6e6e6;
+        }
+
+        .job-definitions-tabs-title {
           a {
             background-color: $inactive-background-color;
             &:hover {
@@ -234,11 +233,9 @@
             }
           }
 
-          &.active {
-            border-left:   $fieldset-border-width $fieldset-border-style $fieldset-border-color;
-            border-bottom: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
-            border-top:    $fieldset-border-width $fieldset-border-style $fieldset-border-color;
-            border-right:  inherit;
+          &.is-active {
+            border:       $fieldset-border;
+            border-right: inherit;
 
             a {
               background-color: $active-background-color;
@@ -246,7 +243,7 @@
           }
         }
 
-        .job-definitions-tab-content.content.active {
+        .job-definitions-tabs-panel.tabs-panel.active {
           padding-top: 0;
         }
 
@@ -260,21 +257,17 @@
 
           .remove-job {
             position: absolute;
-            left:     calc(100% - 25px);
-            top:      3px;
+            left:     calc(100% - 40px);
+            //top:      3px;
           }
 
           legend {
             background-color: inherit;
           }
 
-          > * {
-            border:  $fieldset-border-width $fieldset-border-style $fieldset-border-color;
-            padding: $standard-margin;
-            @media #{$medium-up} {
-              width: calc(100% - 20% - 10px);
-            }
-          }
+          //> * {
+          //  padding: $standard-margin;
+          //}
 
           .task-definitions {
             padding-top: $fieldset-padding;
@@ -282,18 +275,18 @@
 
           .task-definition {
             position:      relative;
-            border:        $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+            border:        $fieldset-border;
             border-left:   none;
             margin-bottom: $standard-margin/2;
 
             .task-header, .task-body {
-              border-left: rem-calc(4px) solid $tuatara;
+              border-left: rem-calc(4px) solid $dark-gray;
               padding:     rem-calc(2px) $accordion-content-padding;
             }
 
             .task-header {
               padding-right: 0;
-              background:    $accordion-navigation-bg-color;
+              background:    $accordion-item-background-hover;
               cursor:        move;
 
               .task-type {
@@ -313,7 +306,7 @@
             }
             .lookup {
               background: #f5f5f5;
-              margin: 0 -15px -1px;
+              margin: 0px -10px 0px -12px;
               padding: 10px 20px;
             }
 
@@ -357,13 +350,13 @@
 
   .tabs {
     &:not(.vertical) {
-      .tab-title {
-        border-bottom: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+      .tabs-title {
+        border-bottom: $fieldset-border;
 
         &.active {
-          border-left:   $fieldset-border-width $fieldset-border-style $fieldset-border-color;
-          border-right:  $fieldset-border-width $fieldset-border-style $fieldset-border-color;
-          border-top:    $fieldset-border-width $fieldset-border-style $fieldset-border-color;
+          border-left:   $fieldset-border;
+          border-right:  $fieldset-border;
+          border-top:    $fieldset-border;
           border-bottom: inherit;
         }
       }

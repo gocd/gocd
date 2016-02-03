@@ -315,7 +315,9 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
     }
 
     function viewMaterial() {
-      $root.find('.accordion-navigation > a')[0].click();
+      $root.find(".materials>.accordion-item>a")[0].click();
+      m.redraw(true);
+      $root.find('.material-definitions>.accordion-item>a')[0].click();
       m.redraw(true);
     }
   });

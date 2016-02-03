@@ -23,20 +23,28 @@
 @import '_fonts';
 
 form {
-  .accordion-navigation {
-    border: $fieldset-border-width $fieldset-border-style $fieldset-border-color;
 
-    > a {
-      @include icon-before(chevron-right);
+  .accordion {
+    .show {
+      display: inherit !important;
     }
 
-    &.active > a {
-      @include icon-before(chevron-down);
+    .accordion-item {
+      .accordion-title {
+        font-size: rem-calc(14);
+        &:before {
+          @include icon-only(chevron-right);
+        }
+
+        .is-active > &::before {
+          @include icon-only(chevron-down);
+        }
+      }
     }
   }
 
   .tooltip-question-mark {
-    @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-font-color, $margin: 0, $line-height: $form-label-line-height) {
+    @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
       margin-left:  10px;
       margin-right: 10px;
     }
@@ -57,14 +65,26 @@ form {
 
   .f-dropdown {
     > *:only-child {
-      > *:first-child { margin-top: 0; }
-      > *:last-child  { margin-bottom: 0; }
+      > *:first-child {
+        margin-top: 0;
+      }
+      > *:last-child {
+        margin-bottom: 0;
+      }
     }
 
-    &.tiny    { width: 200px; }
-    &.small   { width: 300px; }
-    &.medium  { width: 500px; }
-    &.large   { width: 800px; }
+    &.tiny {
+      width: 200px;
+    }
+    &.small {
+      width: 300px;
+    }
+    &.medium {
+      width: 500px;
+    }
+    &.large {
+      width: 800px;
+    }
   }
 }
 

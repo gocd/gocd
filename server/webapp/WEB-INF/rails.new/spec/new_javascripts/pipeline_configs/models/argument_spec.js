@@ -62,7 +62,7 @@ define(['lodash', 'pipeline_configs/models/argument'], function (_, Argument) {
     it('should be empty in absence of data', function() {
       var argument = Argument.create(undefined, undefined);
 
-      expect(argument.toJSON()).toBeEmpty();
+      expect(argument.toJSON()).toEqual({});
     });
   });
 

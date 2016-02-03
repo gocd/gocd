@@ -1,0 +1,28 @@
+/// Creates a fade transition by adjusting the opacity of the element.
+/// @param {Keyword} $state [in] - State to transition to.
+/// @param {Number} $from [0] - Opacity to start at. Must be a number between 0 and 1.
+/// @param {Number} $to [1] - Opacity to end on.
+/// @param {Keyword} $duration [null] - Length (speed) of the transition.
+/// @param {Keyword|Function} $timing [null] - Easing of the transition.
+/// @param {Duration} $delay [null] - Delay in seconds or milliseconds before the transition starts.
+@mixin mui-fade(
+  $state: in,
+  $from: 0,
+  $to: 1,
+  $duration: null,
+  $timing: null,
+  $delay: null
+) {
+  $fade: fade($from, $to);
+
+  @include transition-start($state) {
+    @include transition-basics($duration, $timing, $delay);
+    @include -mui-keyframe-get($fade, 0);
+
+    transition-property: opacity;
+  }
+
+  @include transition-end($state) {
+    @include -mui-keyframe-get($fade, 100);
+  }
+}

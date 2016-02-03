@@ -1,0 +1,102 @@
+// scss-lint:disable ImportantRule, SpaceAfterComma, SingleLinePerProperty
+
+%mui-defaults {
+  transition-duration: map-get($motion-ui-speeds, default);
+  transition-timing-function: map-get($motion-ui-easings, default);
+}
+
+// Transitions
+// - - - - - - - - - - - - - - -
+@mixin motion-ui-transitions {
+  // Slide
+  .slide-in-down    { @include mui-slide(in,  down); }
+  .slide-in-left    { @include mui-slide(in,  right); }
+  .slide-in-up      { @include mui-slide(in,  bottom); }
+  .slide-in-right   { @include mui-slide(in,  left); }
+  .slide-out-down   { @include mui-slide(out, down); }
+  .slide-out-right  { @include mui-slide(out, right); }
+  .slide-out-up     { @include mui-slide(out, top); }
+  .slide-out-left   { @include mui-slide(out, left); }
+
+  // Fade
+  .fade-in  { @include mui-fade(in,  0, 1); }
+  .fade-out { @include mui-fade(out, 1, 0); }
+
+  // Hinge
+  .hinge-in-from-top      { @include mui-hinge(in,  top); }
+  .hinge-in-from-right    { @include mui-hinge(in,  right); }
+  .hinge-in-from-bottom   { @include mui-hinge(in,  bottom); }
+  .hinge-in-from-left     { @include mui-hinge(in,  left); }
+  .hinge-in-from-middle-x  { @include mui-hinge(in,  top,   center); }
+  .hinge-in-from-middle-y  { @include mui-hinge(in,  right, center); }
+  .hinge-out-from-top     { @include mui-hinge(out, top); }
+  .hinge-out-from-right   { @include mui-hinge(out, right); }
+  .hinge-out-from-bottom  { @include mui-hinge(out, bottom); }
+  .hinge-out-from-left    { @include mui-hinge(out, left); }
+  .hinge-out-from-middle-x { @include mui-hinge(out, top,   center); }
+  .hinge-out-from-middle-y { @include mui-hinge(out, right, center); }
+
+  // Scale
+  .scale-in-up    { @include mui-zoom(in,  0.5, 1); }
+  .scale-in-down  { @include mui-zoom(in,  1.5, 1); }
+  .scale-out-up   { @include mui-zoom(out, 1, 1.5); }
+  .scale-out-down { @include mui-zoom(out, 1, 0.5); }
+
+  // Spin
+  .spin-in     { @include mui-spin(in,  cw); }
+  .spin-out    { @include mui-spin(out, cw); }
+  .spin-in-ccw  { @include mui-spin(in,  ccw); }
+  .spin-out-ccw { @include mui-spin(out, ccw); }
+
+  // Transition Modifiers
+  // - - - - - - - - - - - - - - -
+
+  @each $name, $value in $motion-ui-speeds {
+    @if $name != default {
+      .#{$name} { transition-duration: $value !important; }
+    }
+  }
+
+  @each $name, $value in $motion-ui-easings {
+    @if $name != default {
+      .#{$name} { transition-timing-function: $value !important; }
+    }
+  }
+
+  @each $name, $value in $motion-ui-delays {
+    @if $name != default {
+      .#{$name}-delay { transition-delay: $value !important; }
+    }
+  }
+}
+
+// Animations
+// - - - - - - - - - - - - - - -
+@mixin motion-ui-animations {
+  .shake    { @include mui-animation(shake); }
+  .spin-cw  { @include mui-animation(spin); }
+  .spin-ccw { @include mui-animation(spin(ccw)); }
+  .wiggle   { @include mui-animation(wiggle); }
+
+  // Animation Modifiers
+  // - - - - - - - - - - - - - - -
+  .infinite { animation-iteration-count: infinite; }
+
+  @each $name, $value in $motion-ui-speeds {
+    @if $name != default {
+      .#{$name} { animation-duration: $value !important; }
+    }
+  }
+
+  @each $name, $value in $motion-ui-easings {
+    @if $name != default {
+      .#{$name} { animation-timing-function: $value !important; }
+    }
+  }
+
+  @each $name, $value in $motion-ui-delays {
+    @if $name != default {
+      .#{$name}-delay { animation-delay: $value !important; }
+    }
+  }
+}

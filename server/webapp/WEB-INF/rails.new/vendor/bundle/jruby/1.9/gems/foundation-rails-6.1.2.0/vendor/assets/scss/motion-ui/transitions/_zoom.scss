@@ -1,0 +1,39 @@
+/// Creates a scaling transition. A scale of `1` means the element is the same size. Larger numbers make the element bigger, while numbers less than 1 make the element smaller.
+/// @param {Keyword} $state [in] - State to transition to.
+/// @param {Number} $from [1.5] - Size to start at.
+/// @param {Number} $from [1] - Size to end at.
+/// @param {Boolean} $fade [true] - Set to `true` to fade the element in or out simultaneously.
+/// @param {Duration} $duration [null] - Length (speed) of the transition.
+/// @param {Keyword|Function} $timing [null] - Easing of the transition.
+/// @param {Duration} $delay [null] - Delay in seconds or milliseconds before the transition starts.
+@mixin mui-zoom(
+  $state: in,
+  $from: 1.5,
+  $to: 1,
+  $fade: map-get($motion-ui-settings, scale-and-fade),
+  $duration: null,
+  $timing: null,
+  $delay: null
+) {
+  $scale: zoom($from, $to);
+
+  @include transition-start($state) {
+    @include transition-basics($duration, $timing, $delay);
+    @include -mui-keyframe-get($scale, 0);
+
+    @if $fade {
+      transition-property: transform, opacity;
+      opacity: if($state == in, 0, 1);
+    } @else {
+      transition-property: transform, opacity;
+    }
+  }
+
+  @include transition-end($state) {
+    @include -mui-keyframe-get($scale, 100);
+
+    @if $fade {
+      opacity: if($state == in, 1, 0);
+    }
+  }
+}

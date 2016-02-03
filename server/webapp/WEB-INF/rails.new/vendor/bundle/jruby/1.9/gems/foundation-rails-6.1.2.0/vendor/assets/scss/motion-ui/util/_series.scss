@@ -1,0 +1,54 @@
+$-mui-queue: ();
+
+/// Pauses the animation on an element by default, and then plays it when an active class is added to a parent. Also sets the fill mode of the animation to `both`. This pauses the element at the first frame of the animation, and holds it in place at the end.
+/// @access private
+%animated-element {
+  animation-play-state: paused;
+  animation-fill-mode: both;
+
+  .#{map-get($motion-ui-settings, activate-queue-class)} & {
+    animation-play-state: running;
+  }
+}
+
+/// Creates a new animation queue.
+/// @param {Duration} $delay [0s] - Delay in seconds or milliseconds to place at the front of the animation queue.
+@mixin mui-series($delay: 0s) {
+  $-mui-queue: () !global;
+
+  @if $delay > 0 {
+    $item: ($delay, 0s);
+    $-mui-queue: append($-mui-queue, $item) !global;
+  }
+
+  @content;
+}
+
+/// Adds an animation to an animation queue. Only use this mixin inside of `mui-series()`.
+/// @param {Duration} $duration [1s] - Length of the animation.
+/// @param {Duration} $gap [0s] - Amount of time to pause before playing the animation after this one. Use a negative value to make the next effect overlap with the current one.
+/// @param {Function} $keyframes... - One or more effect functions to build the keyframe with.
+@mixin mui-queue(
+  $duration: 1s,
+  $gap: 0s,
+  $keyframes...
+) {
+  // Build the animation
+  $kf: -mui-process-args($keyframes...);
+
+  // Calculate the delay for this animation based on how long the previous ones take
+  $actual-delay: 0s;
+  @each $anim in $-mui-queue {
+    $actual-delay: $actual-delay + nth($anim, 1) + nth($anim, 2);
+  }
+
+  // Append this animation's length and gap to the end of the queue
+  $item: ($duration, $gap);
+  $-mui-queue: append($-mui-queue, $item) !global;
+
+  // CSS output
+  @extend %animated-element;
+  @include mui-animation($kf);
+  animation-duration: $duration;
+  animation-delay: $actual-delay;
+}

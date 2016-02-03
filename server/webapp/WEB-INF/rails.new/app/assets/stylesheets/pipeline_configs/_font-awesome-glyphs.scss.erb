@@ -45,13 +45,17 @@ $fa-font-icons: (
   }
 }
 
-@mixin icon($type, $size: auto, $margin: auto, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
+@mixin icon-only($type, $font: 'font-awesome'){
   @if $font == 'font-awesome' {
     font-family: 'FontAwesome';
     @include icon-glyph("fa-var-#{$type}");
   } @else {
     @error "Could not find font family #{$font}";
   }
+}
+
+@mixin icon($type, $size: auto, $margin: auto, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
+  @include icon-only($type: $type, $font: $font);
 
   font-weight:            normal;
   font-style:             normal;

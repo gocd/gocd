@@ -32,7 +32,7 @@ define(["jquery", "mithril", "pipeline_configs/models/parameters", "pipeline_con
       );
       m.redraw(true);
 
-      var accordion = $root.find('.parameters .accordion-navigation > a').get(0);
+      var accordion = $root.find('.parameters .accordion-item > a').get(0);
       var evObj     = document.createEvent('MouseEvents');
       evObj.initEvent('click', true, false);
       accordion.onclick(evObj);

@@ -17,14 +17,13 @@
 requirejs([
   'jquery', 'mithril',
   'pipeline_configs/models/pluggable_tasks', 'pipeline_configs/models/resources', 'pipeline_configs/models/users', 'pipeline_configs/models/roles',
-  'pipeline_configs/views/pipeline_config_widget', 'foundation.topbar'
+  'pipeline_configs/views/pipeline_config_widget', 'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle',
+  'foundation.dropdown'
 ], function ($, m,
              PluggableTasks, Resources, Users, Roles,
              PipelineConfigWidget) {
 
   $(function () {
-    $(document).foundation();
-
     var pipelineConfigElem            = $('#pipeline-config');
     var url                           = pipelineConfigElem.attr('data-pipeline-api-url');
     var taskPluginTemplateDescriptors = JSON.parse(pipelineConfigElem.attr('data-task-template-plugins'));
@@ -38,5 +37,6 @@ requirejs([
     Roles.initializeWith(allRoleNames);
 
     m.mount(pipelineConfigElem.get(0), PipelineConfigWidget(url));
+    $(document).foundation();
   });
 });

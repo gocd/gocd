@@ -90,7 +90,7 @@ define([
         }
 
         return (
-          <f.accordion class="materials-definition"
+          <f.accordion class="material-definitions"
                        accordionTitles={[ctrl.material.name()]}
                        accordionKeys={[ctrl.material.uuid()]}
                        selectedIndex={ctrl.vmState('selectedMaterialIndex', m.prop(-1))}>
@@ -291,20 +291,29 @@ define([
 
     view: function (ctrl) {
       return (
-        <div>
-          {ctrl.materials.mapMaterials(function (material, index) {
-            var materialView = MaterialViews[material.type()];
-            return (m.component(materialView, {
-              material: material,
-              onRemove: ctrl.removeMaterial.bind(ctrl, material),
-              key:      material.uuid(),
-              pipelineName: ctrl.pipelineName,
-              vm:       ctrl.vmState('material-' + index)
-            }));
-          })}
-          <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)}
-                                key='material-type-selector'/>
-        </div>
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Materials</span>
+                        )
+                     ]}
+                     accordionKeys={['materials']}
+                     class='materials'
+                     selectedIndex={ctrl.vmState('materialsSelected', m.prop(-1))}>
+          <div>
+            {ctrl.materials.mapMaterials(function (material, index) {
+              var materialView = MaterialViews[material.type()];
+              return (m.component(materialView, {
+                material: material,
+                onRemove: ctrl.removeMaterial.bind(ctrl, material),
+                key: material.uuid(),
+                pipelineName: ctrl.pipelineName,
+                vm: ctrl.vmState('material-' + index)
+              }));
+            })}
+            <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)}
+                                  key='material-type-selector'/>
+          </div>
+        </f.accordion>
       );
     }
   };

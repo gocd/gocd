@@ -1,0 +1,7 @@
+/// Creates a keyframe from one or more effect functions and assigns it to the element by adding the `animation-name` property.
+/// @param {Function} $effects... - One or more effect functions to build the keyframe with.
+@mixin mui-animation($args...) {
+  $name: map-get(-mui-process-args($args...), name);
+  @include mui-keyframes($name, $args...);
+  animation-name: unquote($name);
+}

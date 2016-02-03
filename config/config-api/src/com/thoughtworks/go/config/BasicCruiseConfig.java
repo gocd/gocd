@@ -1293,6 +1293,18 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public MaterialConfig materialConfigFor(CaseInsensitiveString pipelineName, String fingerprint) {
+        PipelineConfig pipelineConfig = pipelineConfigByName(pipelineName);
+        MaterialConfigs materialConfigs = pipelineConfig.materialConfigs();
+        for (MaterialConfig materialConfig : materialConfigs) {
+            if(materialConfig.getFingerprint().equals(fingerprint)) {
+                return materialConfig;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public String sanitizedGroupName(String name) {
         return BasicPipelineConfigs.sanitizedGroupName(name);
     }

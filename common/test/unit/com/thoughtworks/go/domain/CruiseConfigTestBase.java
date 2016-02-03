@@ -92,6 +92,27 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
+    public void canFindMaterialConfigForUnderGivenPipelineWithMaterialFingerprint() {
+        MaterialConfig fullClone = new GitMaterialConfig("url", "master", false);
+        PipelineConfig one = PipelineConfigMother.pipelineConfig("one", fullClone, new JobConfigs(new JobConfig("job")));
+        cruiseConfig.addPipeline("group-1", one);
+
+        MaterialConfig shallowClone = new GitMaterialConfig("url", "master", true);
+        PipelineConfig two = PipelineConfigMother.pipelineConfig("two", shallowClone, new JobConfigs(new JobConfig("job")));
+        cruiseConfig.addPipeline("group-2", two);
+
+        MaterialConfig others = new GitMaterialConfig("bar", "master", true);
+        PipelineConfig three = PipelineConfigMother.pipelineConfig("three", others, new JobConfigs(new JobConfig("job")));
+        cruiseConfig.addPipeline("group-3", three);
+
+        String fingerprint = new GitMaterialConfig("url", "master").getFingerprint();
+
+        assertThat(((GitMaterialConfig) cruiseConfig.materialConfigFor(one.name(), fingerprint)).isShallowClone(), is(false));
+        assertThat(((GitMaterialConfig) cruiseConfig.materialConfigFor(two.name(), fingerprint)).isShallowClone(), is(true));
+        assertThat(cruiseConfig.materialConfigFor(three.name(), fingerprint), is(nullValue()));
+    }
+
+    @Test
     public void shouldFindAllAgentResources() {
         cruiseConfig.agents().add(new AgentConfig("uuid", "host1", "127.0.0.1", new Resources("from-agent")));
         assertThat(cruiseConfig.getAllResources(), hasItem(new Resource("from-agent")));

@@ -232,6 +232,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     MaterialConfig materialConfigFor(String fingerprint);
 
+    MaterialConfig materialConfigFor(CaseInsensitiveString pipelineName, String fingerprint);
+
     String sanitizedGroupName(String name);
 
     void removePackageRepository(String id);
@@ -251,4 +253,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     boolean canDeletePackageRepository(PackageRepository repository);
 
     boolean canDeletePluggableSCMMaterial(SCM scmConfig);
+
+
 }

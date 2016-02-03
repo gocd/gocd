@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -34,6 +36,7 @@ import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
@@ -206,21 +209,47 @@ public class ScheduledPipelineLoaderIntegrationTest {
         pipelineConfig.addMaterialConfig(materialConfig);
         configHelper.addPipeline(pipelineConfig);
 
-        MaterialConfigs allConfigsWithExpandedExternals = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
-        MaterialRevisions materialRevisions = ModificationsMother.modifyOneFile(MaterialsMother.createMaterialsFromMaterialConfigs(allConfigsWithExpandedExternals));
-        Pipeline building = PipelineMother.buildingWithRevisions(pipelineConfig, materialRevisions);
-        Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
-
-        final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        Pipeline loadedPipeline = createAndLoadModifyOneFilePipeline(pipelineConfig);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         assertThat(revisions.getRevisions().size(), is(2));
         assertThat(((SvnMaterial) revisions.getRevisions().get(0).getMaterial()).getPassword(), is("boozer"));
         assertThat(((SvnMaterial) revisions.getRevisions().get(1).getMaterial()).getPassword(), is("boozer"));
+    }
+
+    @Test
+    public void shouldLoadShallowCloneFlagForGitMaterialsBasePerPipelineConfig() throws IOException {
+        GitTestRepo testRepo = new GitTestRepo();
+
+        PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
+        shallowPipeline.materialConfigs().clear();
+        shallowPipeline.addMaterialConfig(new GitMaterialConfig(testRepo.projectRepositoryUrl(), null, true));
+        configHelper.addPipeline(shallowPipeline);
+
+        PipelineConfig fullPipeline = PipelineConfigMother.pipelineConfig("fullPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
+        fullPipeline.materialConfigs().clear();
+        fullPipeline.addMaterialConfig(new GitMaterialConfig(testRepo.projectRepositoryUrl(), null, false));
+        configHelper.addPipeline(fullPipeline);
+
+        Pipeline shallowPipelineInstance = createAndLoadModifyOneFilePipeline(shallowPipeline);
+        MaterialRevisions shallowRevisions = shallowPipelineInstance.getBuildCause().getMaterialRevisions();
+        assertThat(((GitMaterial) shallowRevisions.getRevisions().get(0).getMaterial()).isShallowClone(), is(true));
+
+        Pipeline fullPipelineInstance = createAndLoadModifyOneFilePipeline(fullPipeline);
+        MaterialRevisions fullRevisions = fullPipelineInstance.getBuildCause().getMaterialRevisions();
+        assertThat(((GitMaterial) fullRevisions.getRevisions().get(0).getMaterial()).isShallowClone(), is(false));
+    }
+
+    private Pipeline createAndLoadModifyOneFilePipeline(PipelineConfig pipelineConfig) {
+        MaterialConfigs expandedConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
+        MaterialRevisions materialRevisions = ModificationsMother.modifyOneFile(MaterialsMother.createMaterialsFromMaterialConfigs(expandedConfigs));
+        Pipeline building = PipelineMother.buildingWithRevisions(pipelineConfig, materialRevisions);
+        Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
+        final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
+        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
+            public Object doInTransaction(TransactionStatus status) {
+                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
+            }
+        });
     }
 }

@@ -249,9 +249,9 @@ public class GitMaterial extends ScmMaterial {
         return shallowClone ? SHALLOW_CLONE_DEPTH : Integer.MAX_VALUE;
     }
 
-    // unshallow local repo to include a revision operating on via two step process.
-    // First try to fetch forward 100 revisions with "git fetch -depth n+100". If revision still missing,
-    // unshallow the whole repo with "git fetch --unshallow".
+    // Unshallow local repo to include a revision operating on via two step process:
+    // First try to fetch forward 100 level with "git fetch -depth 100". If revision still missing,
+    // unshallow the whole repo with "git fetch --2147483647".
     private void unshallowIfNeeded(ProcessOutputStreamConsumer streamConsumer, Revision revision, File workingDir) {
         GitCommand gitCommand = getGit(workingDir);
         if (gitCommand.isShallow() && !gitCommand.hasRevision(revision)) {

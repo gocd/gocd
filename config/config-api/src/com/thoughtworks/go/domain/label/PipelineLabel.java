@@ -34,12 +34,9 @@ public class PipelineLabel implements Serializable {
     public static final String COUNT_TEMPLATE = StringUtil.wrapConfigVariable(COUNT);
 
     private static final String MATERIAL_SIGIL = "\\$";
-    private static final String FUNCTION_SIGIL = "\\£";
     private static final String IDENTIFIER_PATTERN = "(?<identifier>[a-zA-Z0-9_\\-\\.!~'#:]+)";
-    private static final String ARGUMENT_PATTERN = "\\((?<argument>([^)]|\\\\\\))*)\\)";
     private static final String SLICE_PATTERN = "(\\[(?<startIndex>\\-?\\d+)?(?<sliceColon>:)?(?<endIndex>\\-?\\d+)?\\])";
     private static final Pattern MATERIAL_PATTERN = Pattern.compile("(?i)" + MATERIAL_SIGIL + "\\{" + IDENTIFIER_PATTERN + SLICE_PATTERN + "?\\}");
-    private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?i)" + FUNCTION_SIGIL + "\\{" + IDENTIFIER_PATTERN + ARGUMENT_PATTERN + SLICE_PATTERN + "?\\}");
 
     public PipelineLabel(String labelTemplate) {
         this.label = labelTemplate;

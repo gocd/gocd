@@ -192,4 +192,12 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public boolean supportsDestinationFolder() {
         return false;
     }
+
+    @Override
+    public void updateFromConfig(MaterialConfig materialConfig) {
+        if(materialConfig instanceof PasswordAwareMaterial) {
+            PasswordAwareMaterial passwordConfig = (PasswordAwareMaterial) materialConfig;
+            ((PasswordAwareMaterial) this).setPassword(passwordConfig.getPassword());
+        }
+    }
 }

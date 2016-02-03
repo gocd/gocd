@@ -91,15 +91,8 @@ public class ScheduledPipelineLoader {
                 });
                 throw new StaleMaterialsOnBuildCause(message);
             }
-            if (materialConfig instanceof PasswordAwareMaterial) {
-                PasswordAwareMaterial configuredMaterial = (PasswordAwareMaterial) materialConfig;
-                ((PasswordAwareMaterial) usedMaterial).setPassword(configuredMaterial.getPassword());
-            }
 
-            if (materialConfig instanceof GitMaterialConfig) {
-                GitMaterialConfig configuredMaterial = (GitMaterialConfig) materialConfig;
-                ((GitMaterial) usedMaterial).setShallowClone(configuredMaterial.isShallowClone());
-            }
+            usedMaterial.updateFromConfig(materialConfig);
         }
         return pipeline;
     }

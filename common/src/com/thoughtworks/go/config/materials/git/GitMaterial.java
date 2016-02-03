@@ -415,7 +415,9 @@ public class GitMaterial extends ScmMaterial {
                 '}';
     }
 
-    public void setShallowClone(Boolean shallowClone) {
-        this.shallowClone = shallowClone;
+    @Override
+    public void updateFromConfig(MaterialConfig materialConfig) {
+        super.updateFromConfig(materialConfig);
+        this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
     }
 }

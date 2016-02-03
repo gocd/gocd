@@ -151,6 +151,11 @@ public class MaterialServiceTest {
         }
 
         @Override
+        public GitMaterial withShallowClone() {
+            return this;
+        }
+
+        @Override
         public List<Modification> modificationsSince(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
         }

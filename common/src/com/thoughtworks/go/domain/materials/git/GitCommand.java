@@ -292,7 +292,7 @@ public class GitCommand extends SCMCommand {
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as infinite -- fully unshallow
     // https://git-scm.com/docs/git-fetch-pack
     public void unshallow(ProcessOutputStreamConsumer outputStreamConsumer, Integer depth) {
-        outputStreamConsumer.stdOutput("[GIT] Unshallowing");
+        outputStreamConsumer.stdOutput(String.format("[GIT] Unshallowing repository with depth %d", depth));
         CommandLine gitFetch = git()
                 .withArgs("fetch", "origin")
                 .withArg(String.format("--depth=%d", depth))

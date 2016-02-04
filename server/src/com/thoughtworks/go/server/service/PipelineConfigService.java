@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -184,7 +184,7 @@ public class PipelineConfigService implements PipelineConfigChangedListener, Ini
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.getConfigForEditing());
+        PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
         if (goCache.get(GO_PIPELINE_CONFIGS_ETAGS_CACHE) != null) {
             goCache.remove(GO_PIPELINE_CONFIGS_ETAGS_CACHE);
         }

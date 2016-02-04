@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.util.pool.DigestObjectPools;
+import org.apache.commons.codec.binary.Hex;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.thoughtworks.go.util.pool.DigestObjectPools;
-import org.apache.commons.codec.binary.Hex;
 
 /**
  * A replacement for org.apache.commons.codec.digest.DigestUtils , with the MessageDigest Instance cached.
@@ -72,8 +72,7 @@ public class CachedDigestUtils {
         return objectPools.computeDigest(algorithm, new DigestObjectPools.DigestOperation() {
 
             public String perform(MessageDigest digest) {
-                String stripped = StringUtil.stripSpacesAndNewLines(string);
-                digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8(stripped));
+                digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8(string));
                 return Hex.encodeHexString(digest.digest());
             }
         });

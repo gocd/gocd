@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public GoConfigHolder loadConfigHolder(final String content) throws Exception {
-        String md5 = CachedDigestUtils.md5Hex(content);
+        String md5 = CachedDigestUtils.md5Hex(StringUtils.trimWhitespace(content));
         GoConfigHolder cached = this.configCache.get(md5);
         if (cached != null) {
             return cached;

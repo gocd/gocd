@@ -48,11 +48,6 @@
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
-            <artifactId>licensing</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
             <artifactId>config-server</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

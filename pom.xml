@@ -86,6 +86,7 @@
 
         <module>db</module>
         <module>addon-api/database</module>
+        <module>addon-api/licensing</module>
 
         <module>metrics</module>
 

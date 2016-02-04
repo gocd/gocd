@@ -31,12 +31,10 @@ import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.Report;
-import com.thoughtworks.go.websocket.Socket;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
-import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +48,11 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
 @Component
 @WebSocket
-public class AgentWebsocketService implements Socket {
+public class AgentWebsocketService {
     public static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
         private JobRunner runner;
         private AgentWebsocketService service;
@@ -127,7 +127,7 @@ public class AgentWebsocketService implements Socket {
             session.close();
         }
         LOGGER.info("Connecting to websocket endpoint: " + urlService.getAgentRemoteWebSocketUrl());
-        session = client.connect(this, new URI(urlService.getAgentRemoteWebSocketUrl()), new ClientUpgradeRequest()).get();
+        session = client.connect(this, new URI(urlService.getAgentRemoteWebSocketUrl())).get();
     }
 
     public synchronized void stop() {
@@ -145,9 +145,9 @@ public class AgentWebsocketService implements Socket {
     public void send(Message message) {
         LOGGER.debug("{} send message: {}", sessionName(), message);
         try {
-            Message.send(this, message);
+            session.getRemote().sendBytes(ByteBuffer.wrap(Message.encode(message)));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            bomb(e);
         }
     }
 
@@ -189,16 +189,6 @@ public class AgentWebsocketService implements Socket {
     @OnWebSocketFrame
     public void onFrame(Frame frame) {
         LOGGER.debug("{} receive frame: {}", sessionName(), frame.getPayloadLength());
-    }
-
-    @Override
-    public void sendPartialBytes(ByteBuffer byteBuffer, boolean last) throws IOException {
-        session.getRemote().sendPartialBytes(byteBuffer, last);
-    }
-
-    @Override
-    public int getMaxMessageBufferSize() {
-        return session.getPolicy().getMaxBinaryMessageBufferSize();
     }
 
     private String sessionName() {

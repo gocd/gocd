@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import org.eclipse.jetty.websocket.api.extensions.ExtensionConfig;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -35,6 +36,8 @@ public class AgentRemoteServlet extends WebSocketServlet {
 
     @Override
     public void configure(WebSocketServletFactory factory) {
-        factory.setCreator(wac.getBean(AgentRemoteSocketCreator.class));
+        AgentRemoteSocketCreator bean = wac.getBean(AgentRemoteSocketCreator.class);
+        bean.addExtensionConfig(ExtensionConfig.parse("fragment;maxLength=" + factory.getPolicy().getMaxBinaryMessageBufferSize()));
+        factory.setCreator(bean);
     }
 }

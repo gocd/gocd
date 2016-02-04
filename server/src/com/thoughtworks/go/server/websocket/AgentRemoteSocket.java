@@ -16,23 +16,18 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.Socket;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 @WebSocket
-public class AgentRemoteSocket implements Agent, Socket {
+public class AgentRemoteSocket implements Agent {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentRemoteSocket.class);
-    private Executor executor = Executors.newFixedThreadPool(100);
     private AgentRemoteHandler handler;
     private Session session;
 
@@ -72,16 +67,7 @@ public class AgentRemoteSocket implements Agent, Socket {
     @Override
     public void send(final Message msg) {
         LOGGER.debug("{} send message: {}", sessionName(), msg);
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Message.send(AgentRemoteSocket.this, msg);
-                } catch (IOException e) {
-                    onError(e);
-                }
-            }
-        });
+        session.getRemote().sendBytesByFuture(ByteBuffer.wrap(Message.encode(msg)));
     }
 
     private String sessionName() {
@@ -91,15 +77,5 @@ public class AgentRemoteSocket implements Agent, Socket {
     @Override
     public String toString() {
         return "[AgentRemoteSocket: " + sessionName() + "]";
-    }
-
-    @Override
-    public void sendPartialBytes(ByteBuffer byteBuffer, boolean last) throws IOException {
-        session.getRemote().sendPartialBytes(byteBuffer, last);
-    }
-
-    @Override
-    public int getMaxMessageBufferSize() {
-        return session.getPolicy().getMaxBinaryMessageBufferSize();
     }
 }

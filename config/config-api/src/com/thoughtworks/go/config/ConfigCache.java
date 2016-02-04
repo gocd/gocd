@@ -26,7 +26,7 @@ import java.lang.reflect.AnnotatedElement;
 public class ConfigCache {
 
     private ClassAttributeCache.FieldCache fieldCache = new ClassAttributeCache.FieldCache();
-    private ConfigCacheStore store;
+    private ConfigCacheStore store = ConfigCacheStore.NULL;
 
     public static boolean isAnnotationPresent(AnnotatedElement element, Class<? extends Annotation> annotationClass) {
         return element.isAnnotationPresent(annotationClass);

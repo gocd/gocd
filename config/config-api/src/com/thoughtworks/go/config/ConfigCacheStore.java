@@ -17,6 +17,17 @@
 package com.thoughtworks.go.config;
 
 public interface ConfigCacheStore {
+    ConfigCacheStore NULL = new ConfigCacheStore() {
+        @Override
+        public Object get(String key) {
+            return null;
+        }
+
+        @Override
+        public void put(String key, Object obj) {
+        }
+    };
+
     Object get(String key);
     void put(String key, Object obj);
 }

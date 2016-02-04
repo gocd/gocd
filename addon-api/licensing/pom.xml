@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>config-api</artifactId>
+    <artifactId>licensing</artifactId>
 
     <parent>
         <groupId>com.thoughtworks.go</groupId>
@@ -37,41 +37,8 @@
     <dependencies>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>base</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>licensing</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>go-plugin-access</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>db</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>1.6.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.com.robust-it</groupId>
-            <artifactId>cloning</artifactId>
-            <version>1.7.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>1.0</version>
         </dependency>
 
         <dependency>
@@ -88,24 +55,12 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-            <version>1.1.6</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
-        <testResources>
-            <testResource>
-                <directory>test-resources</directory>
-            </testResource>
-        </testResources>
-        <finalName>config-api</finalName>
+        <finalName>go-licensing</finalName>
 
         <plugins>
             <plugin>
@@ -124,14 +79,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>jar</goal>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

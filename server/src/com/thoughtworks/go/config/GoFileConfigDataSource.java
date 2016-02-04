@@ -132,7 +132,7 @@ public class GoFileConfigDataSource {
         String currentContent = FileUtils.readFileToString(configFile);
         GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(currentContent);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        magicalGoConfigXmlWriter.write(configHolder.configForEdit, stream, true);
+        magicalGoConfigXmlWriter.write(configHolder.configForEdit, stream);
         String postEncryptContent = new String(stream.toByteArray());
         if (!currentContent.equals(postEncryptContent)) {
             LOGGER.debug("[Encrypt] Writing config to file");
@@ -168,7 +168,7 @@ public class GoFileConfigDataSource {
                 configFileContent = upgrader.upgradeIfNecessary(configFileContent);
             }
             GoConfigHolder configHolder = internalLoad(configFileContent, new ConfigModifyingUser());
-            String toWrite = configAsXml(configHolder.configForEdit, false);
+            String toWrite = configAsXml(configHolder.configForEdit);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Writing config file: " + configFile.getAbsolutePath());
             }
@@ -220,7 +220,8 @@ public class GoFileConfigDataSource {
         if (saveCommand.isValid(preprocessedConfig, preprocessedPipelineConfig)) {
             try {
                 LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
-                String configAsXml = configAsXml(modifiedConfig, true);
+                magicalGoConfigXmlLoader.preprocessAndValidate(modifiedConfig);
+                String configAsXml = configAsXml(modifiedConfig);
                 String md5 = CachedDigestUtils.md5Hex(configAsXml);
                 MagicalGoConfigXmlLoader.setMd5(modifiedConfig, md5);
                 MagicalGoConfigXmlLoader.setMd5(preprocessedConfig, md5);
@@ -276,7 +277,7 @@ public class GoFileConfigDataSource {
         }
         CruiseConfig config = updatingCommand.update(cloner.deepClone(configHolder.configForEdit));
         LOGGER.debug("[Config Save] ==-- Done getting modified config");
-        return configAsXml(config, false);
+        return configAsXml(config);
     }
 
     private boolean shouldMergeConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
@@ -318,7 +319,7 @@ public class GoFileConfigDataSource {
 
     private String convertMutatedConfigToXml(CruiseConfig modifiedConfig, String latestMd5) throws Exception {
         try {
-            return configAsXml(modifiedConfig, false);
+            return configAsXml(modifiedConfig);
         } catch (Exception e) {
             LOGGER.info(format("[CONFIG_MERGE] Pre merge validation failed, latest-md5: %s", latestMd5));
             throw new ConfigMergePreValidationException(e.getMessage(), e);
@@ -342,10 +343,10 @@ public class GoFileConfigDataSource {
         return configHolder;
     }
 
-    public String configAsXml(CruiseConfig config, boolean skipPreprocessingAndValidation) throws Exception {
+    public String configAsXml(CruiseConfig config) throws Exception {
         LOGGER.debug("[Config Save] === Converting config to XML");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        magicalGoConfigXmlWriter.write(config, outputStream, skipPreprocessingAndValidation);
+        magicalGoConfigXmlWriter.write(config, outputStream);
         LOGGER.debug("[Config Save] === Done converting config to XML");
         return outputStream.toString();
     }

@@ -78,21 +78,18 @@ public class MagicalGoConfigXmlWriter {
         return new Document(root);
     }
 
-    public void write(CruiseConfig configForEdit, OutputStream output, boolean skipPreprocessingAndValidation) throws Exception {
-        LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
+    @Deprecated
+    // CruiseConfig should be validated outside
+    public void write(CruiseConfig configForEdit, OutputStream output, boolean skipValidation) throws Exception {
+        write(configForEdit, output);
+    }
+
+    public void write(CruiseConfig configForEdit, OutputStream output) throws Exception {
         Context context = metricsProbeService.begin(ProbeType.WRITE_CONFIG_TO_FILE_SYSTEM);
         try {
             MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry, metricsProbeService);
             if(!configForEdit.getOrigin().isLocal()) {
-                if (!skipPreprocessingAndValidation) {
-                    // lets validate merged config first, it will show more sensible errors
-                    loader.preprocessAndValidate(configForEdit);
-                }
                 configForEdit = configForEdit.getLocal();
-            }
-            if (!skipPreprocessingAndValidation) {
-                loader.preprocessAndValidate(configForEdit);
-                LOGGER.debug("[Serializing Config] Done with cruise config validators.");
             }
             Document document = createEmptyCruiseConfigDocument();
             write(configForEdit, document.getRootElement(), configCache, registry);

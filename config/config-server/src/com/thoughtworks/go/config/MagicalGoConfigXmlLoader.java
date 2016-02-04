@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
@@ -30,7 +23,6 @@ import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.validation.*;
-import com.thoughtworks.go.config.validation.GoConfigValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.metrics.domain.context.Context;
 import com.thoughtworks.go.metrics.domain.probes.ProbeType;
@@ -44,6 +36,14 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.springframework.util.StringUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
 import static org.apache.commons.io.IOUtils.toInputStream;
@@ -79,12 +79,22 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public GoConfigHolder loadConfigHolder(final String content) throws Exception {
+        String md5 = CachedDigestUtils.md5Hex(StringUtils.trimWhitespace(content));
+        GoConfigHolder cached = this.configCache.get(md5);
+        if (cached != null) {
+            return cached;
+        }
+        GoConfigHolder holder = getGoConfigHolderWithoutCache(content, md5);
+        configCache.put(md5, holder);
+        return holder;
+    }
+
+    private GoConfigHolder getGoConfigHolderWithoutCache(String content, String md5) throws Exception {
         CruiseConfig configForEdit;
         CruiseConfig config;
         Context context = metricsProbeService.begin(ProbeType.CONVERTING_CONFIG_XML_TO_OBJECT);
         try {
             LOGGER.debug("[Config Save] Loading config holder");
-            String md5 = CachedDigestUtils.md5Hex(content);
             Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
             LOGGER.debug("[Config Save] Updating config cache with new XML");
 
@@ -107,6 +117,11 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public CruiseConfig preprocessAndValidate(CruiseConfig config) throws Exception {
+        String md5 = config.getMd5();
+        GoConfigHolder cachedHolder = configCache.get(md5);
+        if (cachedHolder != null) {
+            return cachedHolder.config;
+        }
         LOGGER.debug("[Config Save] In preprocessAndValidate: Cloning.");
         Context context = metricsProbeService.begin(ProbeType.PREPROCESS_AND_VALIDATE);
         CruiseConfig cloned;

@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.config;
 
-public class GoConfigHolder {
+import java.io.Serializable;
+
+public class GoConfigHolder implements Serializable {
     public final CruiseConfig config;
     public final CruiseConfig configForEdit;
 

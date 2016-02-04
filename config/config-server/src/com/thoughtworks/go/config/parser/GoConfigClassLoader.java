@@ -68,8 +68,10 @@ public class GoConfigClassLoader<T> {
     }
 
     public T parse() {
-        bombUnless(atElement(),
-                "Unable to parse element <" + e.getName() + "> for class " + aClass.getSimpleName());
+        if (!atElement()) {
+            // direct calling aClass.getSimpleName have performance issue with large config
+            throw bomb("Unable to parse element <" + e.getName() + "> for class " + aClass.getSimpleName());
+        }
         T o = createInstance();
         if (isAnnotationPresent(aClass, ConfigReferenceCollection.class)) {
             ConfigReferenceCollection referenceCollection = aClass.getAnnotation(ConfigReferenceCollection.class);
@@ -153,7 +155,7 @@ public class GoConfigClassLoader<T> {
         }
         Class<T> type = (Class<T>) findConcreteType(e, aClass);
         if (type == null) {
-            bombIfNull(type, String.format("Unable to determine type to generate. Type: %s Element: %s", type.getName(), configUtil.elementOutput(e)));
+            bombIfNull(type, String.format("Unable to determine type to generate. Type is null Element: %s", configUtil.elementOutput(e)));
         }
         return type;
     }

@@ -230,7 +230,8 @@ task 'parallel-spec' => RAILS_DEPENDENCIES do
   files = []
 
   cd RAILS_WORKING_DIR do
-    files = find_all_tests(['./spec'], :test_suffix => /_spec\.rb$/)
+    files = find_all_tests(['spec'], :test_suffix => /_spec\.rb$/)
+    files = partition(files: files, total_workers: ENV['GO_JOB_RUN_COUNT'].to_i, current_worker_index: ENV['GO_JOB_RUN_INDEX'].to_i)
   end
 
 

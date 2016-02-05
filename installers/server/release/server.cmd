@@ -19,6 +19,7 @@ if not defined SERVER_DIR set SERVER_DIR=%cd%
 if not defined SERVER_MEM set SERVER_MEM=512m
 if not defined SERVER_MAX_MEM set SERVER_MAX_MEM=1024m
 if not defined SERVER_MAX_PERM_GEN set SERVER_MAX_PERM_GEN=256m
+if not defined SERVER_MAX_METASPACE set SERVER_MAX_METASPACE=256m
 if not defined SERVER_MIN_PERM_GEN set SERVER_MIN_PERM_GEN=128m
 if not defined GO_SERVER_PORT set GO_SERVER_PORT=8153
 if not defined GO_SERVER_SSL_PORT set GO_SERVER_SSL_PORT=8154
@@ -66,4 +67,4 @@ set OPTION=-client
 
 :done
 
-"%JAVA_CMD%" %OPTION% %YOURKIT% -Xms%SERVER_MEM% -Xmx%SERVER_MAX_MEM% -XX:PermSize=%SERVER_MIN_PERM_GEN% -XX:MaxPermSize=%SERVER_MAX_PERM_GEN% %JVM_DEBUG% %GC_LOG% %GO_SERVER_SYSTEM_PROPERTIES% -Duser.language=en -DJAVA_SYS_MON_TEMP_DIR="%SERVER_DIR%\tmp" -Dorg.eclipse.jetty.server.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000 -Duser.country=US -Dcruise.config.dir="%SERVER_DIR%\config" -Dcruise.config.file="%SERVER_DIR%\config\cruise-config.xml" -Dcruise.server.port=%GO_SERVER_PORT% -Dcruise.server.ssl.port=%GO_SERVER_SSL_PORT% -jar "%SERVER_DIR%\go.jar"
+"%JAVA_CMD%" %OPTION% %YOURKIT% -XX:+IgnoreUnrecognizedVMOptions -Xms%SERVER_MEM% -Xmx%SERVER_MAX_MEM% -XX:PermSize=%SERVER_MIN_PERM_GEN% -XX:MaxPermSize=%SERVER_MAX_PERM_GEN% -XX:MaxPermSize=%SERVER_MAX_PERM_GEN% -XX:MaxMetaspaceSize=%SERVER_MAX_METASPACE% %JVM_DEBUG% %GC_LOG% %GO_SERVER_SYSTEM_PROPERTIES% -Duser.language=en -DJAVA_SYS_MON_TEMP_DIR="%SERVER_DIR%\tmp" -Dorg.eclipse.jetty.server.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000 -Djruby.compile.invokedynamic=false -Duser.country=US -Dcruise.config.dir="%SERVER_DIR%\config" -Dcruise.config.file="%SERVER_DIR%\config\cruise-config.xml" -Dcruise.server.port=%GO_SERVER_PORT% -Dcruise.server.ssl.port=%GO_SERVER_SSL_PORT% -jar "%SERVER_DIR%\go.jar"

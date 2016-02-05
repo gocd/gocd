@@ -58,7 +58,7 @@ describe "_form.html.erb" do
 
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO", :edit_mode => true}}
 
-    expect(response.body).to have_selector(".popup_form input[disabled='disabled'][type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='passwd']")
+    expect(response.body).to have_selector(".popup_form input[disabled='disabled'][type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='']")
     expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD_CHANGED}]']")
   end
 

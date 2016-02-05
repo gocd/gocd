@@ -1,0 +1,17 @@
+<li role="presentation">
+  <%= link_to "Pipelines", pipeline_groups_path -%>
+</li>
+<%- if is_user_a_template_admin? -%>
+  <li role="presentation">
+    <%= link_to "Templates", templates_path -%>
+  </li>
+<%- end -%>
+<li role="presentation">
+  <%= link_to "Config XML", pipelines_snippet_path -%>
+</li>
+<li role="presentation">
+  <%= link_to "Plugins", plugins_listing_path -%>
+</li>
+<li role="presentation">
+  <%= link_to "Package Repositories", package_repositories_new_path -%>
+</li>

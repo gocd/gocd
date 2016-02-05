@@ -1,13 +1,7 @@
 <div class="application_nav">
   <%= hidden_field_tag("server_time", Time.now.to_i, :id => "server_timestamp") -%>
-    <% if @user.anonymous? %>
         <ul class="user">
-            <li class="help">
-                <%= link_to(l.string("HELP_SMALL"), "http://www.go.cd/documentation/user/current", :target => "_blank") %>
-            </li>
-        </ul>
-    <% else %>
-        <ul class="user">
+          <% unless @user.anonymous? %>
             <li class="current_user icon">
                 <a href="#" class="current_user_name dropdown-arrow-icon"><%= @user.display_name %></a>
                 <ul class='enhanced_dropdown hidden'>
@@ -19,11 +13,11 @@
                     </li>
                 </ul>
             </li>
+            <% end %>
             <li class="help">
                 <%= link_to(l.string("HELP_SMALL"), "http://www.go.cd/documentation/user/current", :target => "_blank") %>
             </li>
         </ul>
-    <% end %>
 
     <% if check_go_updates? and go_update %>
         <div class="notifications">

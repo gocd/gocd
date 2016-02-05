@@ -50,11 +50,6 @@
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
-            <artifactId>licensing</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
             <artifactId>config-server</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -217,6 +212,10 @@
                 <exclusion>
                     <groupId>org.osgi</groupId>
                     <artifactId>org.osgi.core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

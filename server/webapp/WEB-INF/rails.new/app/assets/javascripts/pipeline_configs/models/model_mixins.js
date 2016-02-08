@@ -60,7 +60,7 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
   Mixins.HasEncryptedAttribute = function (options) {
     var _value          = options.attribute,
         name            = options.name,
-        capitalizedName = _.capitalize(name);
+        capitalizedName = _.upperFirst(name);
 
     this[name] = function () {
       return _value().value.apply(_value(), arguments);

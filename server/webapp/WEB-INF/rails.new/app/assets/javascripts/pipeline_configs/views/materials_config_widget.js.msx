@@ -28,7 +28,7 @@ define([
     view: function (ctrl, args, children) {
       var model               = args.model;
       var attrName            = args.attrName;
-      var capitalizedAttrName = _.capitalize(attrName);
+      var capitalizedAttrName = _.upperFirst(attrName);
 
       if (model['isEditing' + capitalizedAttrName]()) {
 

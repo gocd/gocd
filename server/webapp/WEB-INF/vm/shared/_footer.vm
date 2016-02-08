@@ -27,7 +27,7 @@
                     <li><a target="_blank" href="http://www.go.cd/community/plugins.html">$l.localize("PLUGINS")</a></li>
                     <li><a target="_blank" href="http://www.go.cd/community/resources.html">$l.localize("COMMUNITY")</a></li>
                     <li><a href="$req.getContextPath()/about">$l.localize("SERVER_DETAILS")</a></li>
-                    <li class="last"><a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a></li>
+                    <li class="last"><a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a></li>
                 </ul>
 
                 <ul id="footer-links">

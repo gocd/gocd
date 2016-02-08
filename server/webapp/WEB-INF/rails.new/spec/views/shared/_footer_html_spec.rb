@@ -47,7 +47,7 @@ describe "/shared/_footer.html" do
     end
 
     Capybara.string(response.body).find('ul.links li.last').tap do |links_li|
-      expect(links_li).to have_selector("a[href='http://www.go.cd/documentation/user/current']", text: 'Help')
+      expect(links_li).to have_selector("a[href='https://go.cd/help']", text: 'Help')
     end
   end
 end

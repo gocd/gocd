@@ -42,7 +42,7 @@ shared_examples :layout do
     expect(response.body).to have_selector(".current_user a[href='/tab/mycruise/user']", "Preferences")
     expect(response.body).to have_selector(".current_user .logout a[href='/auth/logout']", "Sign out")
 
-    expect(response.body).to have_selector(".user .help a[href='http://www.go.cd/documentation/user/current']", "Help")
+    expect(response.body).to have_selector(".user .help a[href='https://go.cd/help']", "Help")
   end
 
   it "should not display username and logout botton if anonymous user is logged in" do
@@ -50,7 +50,7 @@ shared_examples :layout do
 
     render :inline => '<div>content</div>', :layout => @layout_name
 
-    expect(response.body).to have_selector(".user .help a[href='http://www.go.cd/documentation/user/current']", "Help")
+    expect(response.body).to have_selector(".user .help a[href='https://go.cd/help']", "Help")
 
     expect(response.body).to_not have_selector(".current_user a[href='#']", "maulik suchak")
     expect(response.body).to_not have_selector(".current_user a[href='/tab/mycruise/user']", "Preferences")
@@ -63,7 +63,7 @@ shared_examples :layout do
     expect(response.body).to have_selector("a[href='/pipelines']", 'PIPELINES')
     expect(response.body).to have_selector("a[href='/path/to/agents']", 'AGENTS')
     expect(response.body).to have_selector("a[href='/path/to/environments']", 'ENVIRONMENTS')
-    expect(response.body).to have_selector("a[href='http://www.go.cd/documentation/user/current']", 'Help')
+    expect(response.body).to have_selector("a[href='https://go.cd/help']", 'Help')
     expect(response.body).to have_selector("a[data-toggle='dropdown']", 'ADMIN')
   end
 

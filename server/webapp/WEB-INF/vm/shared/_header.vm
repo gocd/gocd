@@ -84,13 +84,13 @@
                         </li>
 
                         <li class="help">
-                          <a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a>
+                          <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
                         </li>
                     </ul>
                     #else
                     <ul class="user">
                         <li class="help">
-                          <a href="http://www.go.cd/documentation/user/current" target="_blank">$l.localize("HELP_SMALL")</a>
+                          <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
                         </li>
                     </ul>
                     #end

@@ -60,7 +60,7 @@ describe "/shared/_application_nav.html.erb" do
       render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
 
       expect(response.body).to have_selector(".current_user a[href='#']", text: "maulik suchak")
-      expect(response.body).to have_selector(".user .help a[href='http://www.go.cd/documentation/user/current']", text: "Help")
+      expect(response.body).to have_selector(".user .help a[href='https://go.cd/help']", text: "Help")
       expect(response.body).to have_selector(".current_user a[href='/tab/mycruise/user']", text: "Preferences")
       expect(response.body).to have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
     end
@@ -76,7 +76,7 @@ describe "/shared/_application_nav.html.erb" do
       expect(response.body).to_not have_selector(".current_user a[href='#']", text: "maulik suchak")
       expect(response.body).to_not have_selector(".current_user a[href='/tab/mycruise/user']", text: "Preferences")
       expect(response.body).to_not have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
-      expect(response.body).to have_selector(".user .help a[href='http://www.go.cd/documentation/user/current']", text: "Help")
+      expect(response.body).to have_selector(".user .help a[href='https://go.cd/help']", text: "Help")
     end
   end
 

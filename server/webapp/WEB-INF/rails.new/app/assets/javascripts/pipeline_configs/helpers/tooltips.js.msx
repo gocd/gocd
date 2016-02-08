@@ -479,6 +479,13 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
     </div>
   );
 
+  var lookupCommand = (
+    <div>
+      Lookup sample command snippets from your local
+      <a class="" href="http://www.go.cd/documentation/user/current/advanced_usage/command_repository.html" target="_blank"> command repository</a>.
+    </div>
+  )
+
   return {
     pipeline: {
       labelTemplate:         pipelineLabelTemplate,
@@ -531,6 +538,10 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
         all:  jobRunOnAllAgents,
         many: jobRunOnManyAgents
       }
+    },
+
+    task: {
+      lookup: lookupCommand
     }
   };
 });

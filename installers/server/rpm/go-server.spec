@@ -14,6 +14,7 @@ Summary: Go Server Component
 License: Apache License Version 2.0
 Group: Development/Build Tools
 BuildRoot: @ROOT@
+Requires: which
 Obsoletes: go-server
 Url: http://www.go.cd
 %description

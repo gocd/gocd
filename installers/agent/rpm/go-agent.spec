@@ -14,6 +14,7 @@ Summary: Go Agent Component
 License: Apache License Version 2.0
 Group: Development/Build Tools
 BuildRoot: @ROOT@
+Requires: which
 Obsoletes: go-agent
 Url: http://www.go.cd
 %description

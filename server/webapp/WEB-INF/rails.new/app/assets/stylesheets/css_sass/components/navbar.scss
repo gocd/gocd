@@ -33,6 +33,11 @@
     a,.user li{
         color: #999;
     }
+    .user .help a {
+        color: #fff;
+        font-size: 12px;
+    }
+
     .current {
         a{
             color: #AAAAAA;
@@ -118,7 +123,6 @@
             }
             &.current_user {
                     position:relative;
-                    border-radius:8px;
                     background-position: -25px -12px;
                     padding-left:30px;
                     padding-right: 0;

@@ -1,6 +1,9 @@
 <div class="application_nav">
   <%= hidden_field_tag("server_time", Time.now.to_i, :id => "server_timestamp") -%>
         <ul class="user">
+          <li class="help">
+            <%= link_to(l.string("HELP_SMALL"), "https://go.cd/help", :target => "_blank") %>
+          </li>
           <% unless @user.anonymous? %>
             <li class="current_user icon">
                 <a href="#" class="current_user_name dropdown-arrow-icon"><%= @user.display_name %></a>
@@ -14,9 +17,6 @@
                 </ul>
             </li>
             <% end %>
-            <li class="help">
-                <%= link_to(l.string("HELP_SMALL"), "https://go.cd/help", :target => "_blank") %>
-            </li>
         </ul>
 
     <% if check_go_updates? and go_update %>

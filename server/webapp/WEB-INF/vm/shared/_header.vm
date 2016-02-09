@@ -71,6 +71,9 @@
 
                     #if ($principal)
                     <ul class="user">
+                        <li class="help">
+                            <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
+                        </li>
                         <li class="current_user icon">
                             <a href="#" class="current_user_name dropdown-arrow-icon icon">$principal</a>
                                 <ul class="enhanced_dropdown hidden">
@@ -81,10 +84,6 @@
                                         <a id="nav-logout" class="sign_out" href="/go/auth/logout">$l.localize("SIGN_OUT")</a>
                                     </li>
                               </ul>
-                        </li>
-
-                        <li class="help">
-                          <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
                         </li>
                     </ul>
                     #else

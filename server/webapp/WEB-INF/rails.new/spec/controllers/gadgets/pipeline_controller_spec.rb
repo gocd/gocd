@@ -16,6 +16,7 @@
 
 require 'spec_helper'
 
+if Gadgets.enabled?
 describe Gadgets::PipelineController do
   before :each do
     controller.stub(:populate_health_messages)
@@ -134,4 +135,5 @@ describe Gadgets::PipelineController do
       assert_template layout: false
     end
   end
+end
 end

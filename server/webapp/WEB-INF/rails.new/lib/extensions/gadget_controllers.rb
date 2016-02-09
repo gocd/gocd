@@ -14,17 +14,18 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-GadgetsOauthClientsController.class_eval do
-  layout 'admin'
+if Gadgets.enabled?
+  GadgetsOauthClientsController.class_eval do
+    layout 'admin'
 
-  prepend_before_filter :set_tab_name, :set_view_title
+    prepend_before_filter :set_tab_name, :set_view_title
 
-  def set_tab_name
-    @tab_name = "gadget-providers"
-  end
+    def set_tab_name
+      @tab_name = "gadget-providers"
+    end
 
-  def set_view_title
-    @view_title = "Administration"
+    def set_view_title
+      @view_title = "Administration"
+    end
   end
 end
-

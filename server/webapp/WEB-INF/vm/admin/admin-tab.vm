@@ -98,11 +98,12 @@
                                 <a class="tab_button_body_match_text">oauth-clients</a>
                                 <a>OAuth Clients</a>
                             </li>
-
+                            #if($gadgetRenderingServerEnabled)
                             <li id="gadget-providers-tab-button" class="$server_configuration_css_class external_pointing" onclick="location.href = '/go/admin/gadgets/oauth_clients';">
                               <a class="tab_button_body_match_text">gadgets-providers</a>
                               <a>OAuth Enabled Gadget Providers</a>
                             </li>
+                            #end
                             <li id="backup-tab-button" class="$server_configuration_css_class external_pointing" onclick="location.href = '/go/admin/backup';">
                                 <a class="tab_button_body_match_text">backup</a>
                                 <a>Backup</a>

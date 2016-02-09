@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>com.jezhumble</groupId>
 			<artifactId>javasysmon</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4</version>
 		</dependency>
     </dependencies>
 

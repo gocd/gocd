@@ -177,6 +177,7 @@ public class PipelineConfigService implements PipelineConfigChangedListener, Ini
     @Override
     public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
         PipelineConfigurationCache.getInstance().onPipelineConfigChange(pipelineConfig);
+        PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
         if (goCache.get(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower()) != null) {
             goCache.remove(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower());
         }

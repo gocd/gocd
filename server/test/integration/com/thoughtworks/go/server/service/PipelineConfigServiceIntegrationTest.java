@@ -18,6 +18,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -163,6 +164,26 @@ public class PipelineConfigServiceIntegrationTest {
         saveConfig(cruiseConfig);
 
         PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream", new DependencyMaterialConfig(pipelineConfig.name(), new CaseInsensitiveString("stage")));
+        pipelineConfigService.createPipelineConfig(user, downstream, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(true));
+        assertTrue(downstream.materialConfigs().first().errors().isEmpty());
+    }
+
+    @Test
+    public void shouldUpdatePipelineConfigWithDependencyMaterialWhenUpstreamPipelineHasTemplateDefinedANDUpstreamPipelineIsCreatedUsingCreatePipelineFlow() throws Exception {
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template_with_param");
+        saveTemplateWithParamToConfig(templateName);
+
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        materialConfigs.add(new DependencyMaterialConfig(pipelineConfig.name(), new CaseInsensitiveString("stage")));
+        PipelineConfig upstream = new PipelineConfig(new CaseInsensitiveString("upstream"),materialConfigs);
+        upstream.setTemplateName(templateName);
+        upstream.addParam(new ParamConfig("SOME_PARAM", "SOME_VALUE"));
+        pipelineConfigService.createPipelineConfig(user, upstream, result, groupName);
+
+        PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream", new DependencyMaterialConfig(upstream.name(), new CaseInsensitiveString("stage")));
+
         pipelineConfigService.createPipelineConfig(user, downstream, result, groupName);
 
         assertThat(result.toString(), result.isSuccessful(), is(true));

@@ -35,12 +35,12 @@ public class GoConfigPluginService {
 
     @Autowired public GoConfigPluginService(ConfigRepoExtension configRepoExtension,
             ConfigCache configCache,ConfigElementImplementationRegistry configElementImplementationRegistry,
-            CachedFileGoConfig cachedFileGoConfig)
+            CachedGoConfig cachedGoConfig)
     {
         this.crExtension = configRepoExtension;
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry);
         embeddedXmlPlugin = new XmlPartialConfigProvider(loader);
-        configConverter = new ConfigConverter(new GoCipher(),cachedFileGoConfig);
+        configConverter = new ConfigConverter(new GoCipher(),cachedGoConfig);
     }
 
     public PartialConfigProvider partialConfigProviderFor(ConfigRepoConfig repoConfig)

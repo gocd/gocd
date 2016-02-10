@@ -24,8 +24,10 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -47,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
@@ -90,7 +93,7 @@ public class GoConfigFileHelper {
              sysEnv = new SystemEnvironment();
              sysEnv.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
              initializeConfigFile();
-        } catch (IOException e) {
+         } catch (IOException e) {
             throw bomb("Error creating config file", e);
         }
     }
@@ -117,15 +120,11 @@ public class GoConfigFileHelper {
             configRepository.initialize();
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
+            CachedGoPartials cachedGoPartials = new CachedGoPartials();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService);
+                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials);
             dataSource.upgradeIfNecessary();
-            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
-            GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
-            GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
-                    new GoConfigPluginService(mock(ConfigRepoExtension.class),configCache,configElementImplementationRegistry,fileService),serverHealthService);
-            GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
-            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -142,10 +141,9 @@ public class GoConfigFileHelper {
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService);
+                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService, new CachedGoPartials());
             dataSource.upgradeIfNecessary();
-            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
-            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -528,7 +526,7 @@ public class GoConfigFileHelper {
     public CruiseConfig load() {
         try {
             goConfigDao.forceReload();
-            return new Cloner().deepClone(goConfigDao.load());
+            return new Cloner().deepClone(goConfigDao.loadForEditing());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -550,6 +548,12 @@ public class GoConfigFileHelper {
     public void addConfigRepo(ConfigRepoConfig configRepoConfig) {
         CruiseConfig cruiseConfig = loadForEdit();
         cruiseConfig.getConfigRepos().add(configRepoConfig);
+        writeConfigFile(cruiseConfig);
+    }
+
+    public void setConfigRepos(ConfigReposConfig configRepos) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        cruiseConfig.setConfigRepos(configRepos);
         writeConfigFile(cruiseConfig);
     }
 

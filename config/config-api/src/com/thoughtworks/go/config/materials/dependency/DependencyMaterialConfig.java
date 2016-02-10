@@ -191,11 +191,12 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         CaseInsensitiveString upstreamStageName = this.getStageName();
 
         PipelineConfig upstreamPipeline = validationContext.getPipelineConfigByName(upstreamPipelineName);
+        PipelineConfig pipeline = validationContext.getPipeline();
         if (upstreamPipeline==null) {
-            errors.add(DependencyMaterialConfig.PIPELINE_STAGE_NAME, String.format("Pipeline with name '%s' does not exist", upstreamPipelineName));
+            errors.add(DependencyMaterialConfig.PIPELINE_STAGE_NAME, String.format("Pipeline with name '%s' does not exist, it is defined as a dependency for pipeline '%s' (%s)", upstreamPipelineName, pipeline.name(), pipeline.getOrigin().displayName()));
         }
         else if (upstreamPipeline.findBy(upstreamStageName) == null) {
-            errors.add(DependencyMaterialConfig.PIPELINE_STAGE_NAME, String.format("Stage with name '%s' does not exist on pipeline '%s'", upstreamStageName, upstreamPipelineName));
+            errors.add(DependencyMaterialConfig.PIPELINE_STAGE_NAME, String.format("Stage with name '%s' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstreamStageName, upstreamPipelineName, pipeline.name(), pipeline.getOrigin().displayName()));
         }
     }
 

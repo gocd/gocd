@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.ConfigAwareUpdate;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.NoOverwriteUpdateConfigCommand;
-import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
@@ -27,13 +24,15 @@ public class UiBasedConfigUpdateCommand implements NoOverwriteUpdateConfigComman
     private final String md5;
     private final UpdateConfigFromUI command;
     private final LocalizedOperationResult result;
+    private final CachedGoPartials cachedGoPartials;
     private CruiseConfig configAfter;
     private CruiseConfig cruiseConfig;
 
-    public UiBasedConfigUpdateCommand(String md5, UpdateConfigFromUI command, LocalizedOperationResult result) {
+    public UiBasedConfigUpdateCommand(String md5, UpdateConfigFromUI command, LocalizedOperationResult result, CachedGoPartials cachedGoPartials) {
         this.md5 = md5;
         this.command = command;
         this.result = result;
+        this.cachedGoPartials = cachedGoPartials;
     }
 
     public String unmodifiedMd5() {

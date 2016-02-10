@@ -17,13 +17,18 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
@@ -62,11 +67,15 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
-    private CachedFileGoConfig cachedFileGoConfig;
+    private CachedGoConfig cachedGoConfig;
     @Autowired
     private PipelineConfigService pipelineConfigService;
     @Autowired
     private ServerStatusService serverStatusService;
+    @Autowired
+    private GoPartialConfig goPartialConfig;
+    @Autowired
+    private CachedGoPartials cachedGoPartials;
     @Autowired
     private Localizer localizer;
     private GoConfigFileHelper configHelper;
@@ -104,21 +113,43 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
     @Test
     public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() throws Exception {
-        final ArrayList<Thread> configSaveThreads = new ArrayList<>();
-        final int pipelineCreatedThroughApiCount = 100;
-        final int pipelineCreatedThroughUICount = 100;
+        final ArrayList<Thread> group1 = new ArrayList<>();
+        final ArrayList<Thread> group2 = new ArrayList<>();
+        final ArrayList<Thread> group3 = new ArrayList<>();
+        final ArrayList<Thread> group4 = new ArrayList<>();
+        int count = 100;
+        final int pipelineCreatedThroughApiCount = count;
+        final int pipelineCreatedThroughUICount = count;
+        final int configRepoAdditionThreadCount = count;
+        final int configRepoDeletionThreadCount = count;
 
         for (int i = 0; i < pipelineCreatedThroughUICount; i++) {
             Thread thread = configSaveThread(i);
-            configSaveThreads.add(thread);
+            group1.add(thread);
         }
 
         for (int i = 0; i < pipelineCreatedThroughApiCount; i++) {
             Thread thread = pipelineSaveThread(i);
-            configSaveThreads.add(thread);
+            group2.add(thread);
         }
 
-        for (Thread configSaveThread : configSaveThreads) {
+        ConfigReposConfig configRepos = new ConfigReposConfig();
+        for (int i = 0; i < configRepoAdditionThreadCount; i++) {
+            ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("url" + i), "plugin");
+            configRepos.add(configRepoConfig);
+            Thread thread = configRepoSaveThread(configRepoConfig, i);
+            group3.add(thread);
+        }
+
+        for (int i = 0; i < configRepoDeletionThreadCount; i++) {
+            ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("to-be-deleted-url" + i), "plugin");
+            cachedGoPartials.addOrUpdate(configRepoConfig.getMaterialConfig().getFingerprint(), PartialConfigMother.withPipeline("to-be-deleted"+i, new RepoConfigOrigin(configRepoConfig, "plugin")));
+            configRepos.add(configRepoConfig);
+            Thread thread = configRepoDeleteThread(configRepoConfig, i);
+            group4.add(thread);
+        }
+        configHelper.setConfigRepos(configRepos);
+        for (int i = 0; i < count  ; i++) {
             Thread timerThread = null;
             try {
                 timerThread = createThread(new Runnable() {
@@ -130,7 +161,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                             e.printStackTrace();
                             fail("Failed with error: " + e.getMessage());
                         }
-                        cachedFileGoConfig.forceReload();
+                        cachedGoConfig.forceReload();
                     }
                 }, "timer-thread");
             } catch (InterruptedException e) {
@@ -138,15 +169,24 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             }
 
             try {
-                configSaveThread.start();
+                group1.get(i).start();
+                group2.get(i).start();
+                group3.get(i).start();
+                group4.get(i).start();
                 timerThread.start();
-                configSaveThread.join();
+                group1.get(i).join();
+                group2.get(i).join();
+                group3.get(i).join();
+                group4.get(i).join();
                 timerThread.join();
             } catch (InterruptedException e) {
                 fail(e.getMessage());
             }
+
         }
-        assertThat(goConfigService.getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount));
+
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount + configRepoAdditionThreadCount));
+        assertThat(goConfigService.getConfigForEditing().getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount));
     }
 
     private void writeConfigToFile(File configFile) throws IOException {
@@ -177,6 +217,37 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         String currentConfig = FileUtil.readContentFromFile(configFile);
         String updatedConfig = currentConfig.replaceFirst("artifactsdir=\".*\"", "artifactsdir=\"" + UUID.randomUUID().toString() + "\"");
         FileUtil.writeContentToFile(updatedConfig, configFile);
+    }
+
+    private Thread configRepoSaveThread(final ConfigRepoConfig configRepoConfig, final int counter) throws InterruptedException {
+        return createThread(new Runnable() {
+            @Override
+            public void run() {
+                goPartialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("remote-pipeline" + counter, new RepoConfigOrigin(configRepoConfig, "1")));
+            }
+        }, "config-repo-save-thread" + counter);
+    }
+
+    private Thread configRepoDeleteThread(final ConfigRepoConfig configRepoToBeDeleted, final int counter) throws InterruptedException {
+        return createThread(new Runnable() {
+            @Override
+            public void run() {
+                goConfigService.updateConfig(new UpdateConfigCommand() {
+                    @Override
+                    public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                        ConfigRepoConfig repoConfig = ListUtil.find(cruiseConfig.getConfigRepos(), new ListUtil.Condition() {
+                            @Override
+                            public <T> boolean isMet(T item) {
+                                ConfigRepoConfig configRepoConfig = (ConfigRepoConfig) item;
+                                return configRepoToBeDeleted.getMaterialConfig().equals(configRepoConfig.getMaterialConfig());
+                            }
+                        });
+                        cruiseConfig.getConfigRepos().remove(repoConfig);
+                        return cruiseConfig;
+                    }
+                });
+            }
+        }, "config-repo-delete-thread" + counter);
     }
 
     private Thread pipelineSaveThread(int counter) throws InterruptedException {

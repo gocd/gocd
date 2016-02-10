@@ -223,7 +223,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        return false;
+        return false; //TODO: jyoti - is this correct?
     }
 
     @Override

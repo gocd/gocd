@@ -477,6 +477,25 @@ public abstract class GoConfigDaoTestBase {
         EntityConfigUpdateCommand saveCommand = mock(EntityConfigUpdateCommand.class);
         when(saveCommand.isValid(cruiseConfig)).thenReturn(true);
         when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
+        goConfigDao = new GoConfigDao(cachedConfigService);
+        Username currentUser = new Username(new CaseInsensitiveString("user"));
+        goConfigDao.updateConfig(saveCommand, currentUser);
+
+        verify(cachedConfigService).writeEntityWithLock(saveCommand, currentUser);
+    }
+
+    @Test
+    public void shouldUpdateResultWithErrorCodeWhenPipelineConfigValidationFails(){
+        CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
+        Username username = new Username(new CaseInsensitiveString("user"));
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        EntityConfigUpdateCommand saveCommand = mock(EntityConfigUpdateCommand.class);
+        when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
+
+        CachedGoConfig cachedGoConfig = mock(CachedGoConfig.class);
+        doThrow(new ConfigUpdateCheckFailedException()).when(cachedGoConfig).writeEntityWithLock(saveCommand, username);
+        goConfigDao = new GoConfigDao(cachedGoConfig);
+        goConfigDao.updateConfig(saveCommand, username);
 
         goConfigDao = new GoConfigDao(cachedConfigService);
         Username currentUser = new Username(new CaseInsensitiveString("user"));

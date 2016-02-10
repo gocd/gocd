@@ -26,7 +26,9 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -69,7 +71,6 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -81,6 +82,7 @@ import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -102,12 +104,13 @@ public class MagicalGoConfigXmlLoaderTest {
     @Before
     public void setup() throws Exception {
         RepositoryMetadataStoreHelper.clear();
-
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        findConfigRepoPartialPreprocessor().init(null);
     }
 
     @After
     public void tearDown() throws Exception {
+        findConfigRepoPartialPreprocessor().init(null);
         RepositoryMetadataStoreHelper.clear();
     }
 
@@ -249,10 +252,28 @@ public class MagicalGoConfigXmlLoaderTest {
         )).config;
     }
 
+    private ConfigRepoPartialPreprocessor findConfigRepoPartialPreprocessor() {
+        List<GoConfigPreprocessor> preprocessors = MagicalGoConfigXmlLoader.PREPROCESSORS;
+        for (GoConfigPreprocessor preprocessor : preprocessors) {
+            if (preprocessor instanceof ConfigRepoPartialPreprocessor)
+                return (ConfigRepoPartialPreprocessor) preprocessor;
+        }
+        return null;
+    }
+
     @Test
     public void shouldSetConfigOriginInCruiseConfig_AfterLoadingConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG).config;
-        assertThat(cruiseConfig.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        ConfigRepoPartialPreprocessor preprocessor = findConfigRepoPartialPreprocessor();
+        assert preprocessor != null;
+        preprocessor.init(new PartialsProvider() {
+            @Override
+            public List<PartialConfig> lastPartials() {
+                return asList(new PartialConfig());
+            }
+        });
+        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG);
+        assertThat(goConfigHolder.config.getOrigin(), Is.<ConfigOrigin>is(new MergeConfigOrigin()));
+        assertThat(goConfigHolder.configForEdit.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
 
     @Test
@@ -670,33 +691,34 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipelines>\n"
                         + "</cruise>\n";
         PartialConfig partialConfig = xmlLoader.fromXmlPartial(toInputStream(partialConfigWithPipeline), PartialConfig.class);
-        assertThat(partialConfig.getGroups().size(),is(1));
+        assertThat(partialConfig.getGroups().size(), is(1));
         PipelineConfig pipeline = partialConfig.getGroups().get(0).getPipelines().get(0);
         assertThat(pipeline.name(), is(new CaseInsensitiveString("pipeline")));
         assertThat(pipeline.size(), is(1));
         assertThat(pipeline.findBy(new CaseInsensitiveString("mingle")).jobConfigByInstanceName("functional", true), is(notNullValue()));
     }
+
     @Test
     public void shouldLoadPartialConfigWithEnvironment() throws Exception {
         String partialConfigWithPipeline =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<environments>"
-                + "  <environment name='uat'>"
-                + "    <agents>"
-                + "      <physical uuid='1'/>"
-                + "      <physical uuid='2'/>"
-                + "    </agents>"
-                + "  </environment>"
-                + "  <environment name='prod'>"
-                + "    <agents>"
-                + "      <physical uuid='2'/>"
-                + "    </agents>"
-                + "  </environment>"
-                + "</environments>"
+                        + "<environments>"
+                        + "  <environment name='uat'>"
+                        + "    <agents>"
+                        + "      <physical uuid='1'/>"
+                        + "      <physical uuid='2'/>"
+                        + "    </agents>"
+                        + "  </environment>"
+                        + "  <environment name='prod'>"
+                        + "    <agents>"
+                        + "      <physical uuid='2'/>"
+                        + "    </agents>"
+                        + "  </environment>"
+                        + "</environments>"
                         + "</cruise>\n";
         PartialConfig partialConfig = xmlLoader.fromXmlPartial(toInputStream(partialConfigWithPipeline), PartialConfig.class);
         EnvironmentsConfig environmentsConfig = partialConfig.getEnvironments();
-        assertThat(environmentsConfig.size(),is(2));
+        assertThat(environmentsConfig.size(), is(2));
         EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
         assertThat(matchers.size(), is(2));
         ArrayList<String> uat_uuids = new ArrayList<String>() {{
@@ -1532,7 +1554,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "</cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.schemaVersion(), is(CONFIG_SCHEMA_VERSION));
-        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), Arrays.asList(new Role(new CaseInsensitiveString("bar")))), is(true));
+        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), asList(new Role(new CaseInsensitiveString("bar")))), is(true));
     }
 
     @Test
@@ -3496,7 +3518,7 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(task.getTypeForDisplay(), is("Pluggable Task"));
         final Configuration configuration = task.getConfiguration();
         assertThat(configuration.listOfConfigKeys().size(), is(3));
-        assertThat(configuration.listOfConfigKeys(), is(Arrays.asList("url", "username", "password")));
+        assertThat(configuration.listOfConfigKeys(), is(asList("url", "username", "password")));
         Collection values = CollectionUtils.collect(configuration.listOfConfigKeys(), new Transformer() {
             @Override
             public Object transform(Object o) {
@@ -3504,7 +3526,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 return property.getConfigurationValue().getValue();
             }
         });
-        assertThat(new ArrayList<String>(values), is(Arrays.asList("http://fake-go-server", "godev", "password")));
+        assertThat(new ArrayList<String>(values), is(asList("http://fake-go-server", "godev", "password")));
     }
 
     @Test
@@ -3570,7 +3592,7 @@ public class MagicalGoConfigXmlLoaderTest {
         try {
             CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobAgentConfig).configForEdit;
             fail("expected exception!");
-        }catch (Exception e){
+        } catch (Exception e) {
             assertThat(e.getCause().getCause(), instanceOf(XsdValidationException.class));
             assertThat(e.getCause().getCause().getMessage(), is("Invalid content was found starting with element 'resources'. One of '{environmentvariables, tasks, artifacts, tabs, properties}' is expected."));
         }

@@ -419,6 +419,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       dependency_config = DependencyMaterialConfig.new(CaseInsensitiveString.new(''), CaseInsensitiveString.new(''))
       material_configs  = MaterialConfigs.new(dependency_config);
       pipeline = PipelineConfig.new(CaseInsensitiveString.new("p"), material_configs)
+      pipeline.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipeline))
       material_configs.first()
     end
@@ -446,7 +447,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
                   auto_update: true
                 },
         errors: {
-          pipeline: ["Pipeline with name '' does not exist"]
+          pipeline: ["Pipeline with name '' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"]
         }
       }
     end

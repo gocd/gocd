@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -57,58 +58,70 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     private volatile CruiseConfig currentConfigForEdit;
     private volatile GoConfigHolder configHolder;
     private volatile Exception lastException;
+    private final GoFileConfigDataSource dataSource;
 
     @Autowired public MergedGoConfig(ServerHealthService serverHealthService,
-                                     CachedFileGoConfig fileService, GoPartialConfig partialConfig) {
+                                     CachedFileGoConfig fileService, GoFileConfigDataSource dataSource) {
         this.serverHealthService = serverHealthService;
         this.fileService = fileService;
-        this.partialConfig = partialConfig;
+//        this.partialConfig = partialConfig;
+        this.dataSource = dataSource;
 
-        this.fileService.registerListener(this);
-        this.partialConfig.registerListener(this);
+//        this.partialConfig.registerListener(this);
     }
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(), this.partialConfig.lastPartials());
+        throw  new RuntimeException("should not get called");
+//        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(), this.partialConfig.lastPartials());
     }
     @Override
     public void onPartialConfigChanged(List<PartialConfig> partials) {
-        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(), partials);
+        //TODO: jyoti, implement this
+//        this.tryAssembleMergedConfig(this.loadConfigHolder(), partials);
     }
 
     /**
      * attempts to create a new merged cruise config
-    */
-    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfigHolder,List<PartialConfig> partials) {
-        try {
-            GoConfigHolder newConfigHolder;
-
-            if (partials.size() == 0) {
-                // no partial configurations
-                // then just use basic configuration from xml
-                newConfigHolder = cruiseConfigHolder;
-            } else {
-                // create merge (uses merge strategy internally)
-                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfigHolder.config, partials);
-                // validate
-                List<ConfigErrors> allErrors = validate(merge);
-                if (!allErrors.isEmpty()) {
-                    throw new GoConfigInvalidException(merge, allErrors);
-                }
-                CruiseConfig basicForEdit = this.fileService.loadForEditing();
-                CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, partials);
-                //TODO change strategy into merge-edit? - done in UI branch
-                newConfigHolder = new GoConfigHolder(merge, forEdit);
-            }
-            // save to cache and fire event
-            this.saveValidConfigToCacheAndNotifyConfigChangeListeners(newConfigHolder);
-        } catch (Exception e) {
-            LOGGER.error("Failed validation of merged configuration: {}", e.toString());
-            saveConfigError(e);
-        }
+     */
+    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfigHolder, List<PartialConfig> partials) {
+//        try {
+//            if(partials.size() == 0)
+//                return;
+//
+//            synchronized (GoConfigWriteLock.class){
+//                CruiseConfig config = new MagicalGoConfigXmlLoader(null, null, null).preprocessAndValidate(cruiseConfigHolder.configForEdit);
+//
+//            }
+//
+//            GoConfigHolder newConfigHolder;
+//
+//            if (partials.size() == 0) {
+//                // no partial configurations
+//                // then just use basic configuration from xml
+//                newConfigHolder = cruiseConfigHolder;
+//            } else {
+//                // create merge (uses merge strategy internally)
+//                BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfigHolder.config, partials);
+//                // validate
+//                List<ConfigErrors> allErrors = validate(merge);
+//                if (!allErrors.isEmpty()) {
+//                    throw new GoConfigInvalidException(merge, allErrors);
+//                }
+//                CruiseConfig basicForEdit = currentConfigForEdit;
+//                CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, partials);
+//                //TODO change strategy into merge-edit? - done in UI branch
+//                newConfigHolder = new GoConfigHolder(merge, forEdit);
+//            }
+//            // save to cache and fire event
+//            this.saveValidConfigToCacheAndNotifyConfigChangeListeners(newConfigHolder);
+//        } catch (Exception e) {
+//            LOGGER.error("Failed validation of merged configuration: {}", e.toString());
+//            saveConfigError(e);
+//        }
     }
-    private synchronized void saveConfigError(Exception e) {
+
+    public synchronized void saveConfigError(Exception e) {
         this.lastException = e;
         ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), invalidConfigType());
         serverHealthService.update(state);
@@ -127,9 +140,21 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
         }
     }
 
-    // used in tests
+    //NOTE: This method is called on a thread from Spring
+    public void onTimer() {
+        this.forceReload();
+    }
+
     public void forceReload() {
-        this.fileService.onTimer();
+        LOGGER.debug("Config file (on disk) update check is in queue");
+        synchronized (GoConfigWriteLock.class) {
+            LOGGER.debug("Config file (on disk) update check is in progress");
+            GoConfigHolder configHolder = this.fileService.loadFromDisk();
+            if (configHolder != null) {
+                saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+            }
+        }
+
     }
 
     public CruiseConfig loadForEditing() {
@@ -146,18 +171,25 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
 
     public void loadConfigIfNull() {
-        this.fileService.loadConfigIfNull();
+        if (currentConfig == null || currentConfigForEdit == null || configHolder == null) {
+            GoConfigHolder configHolder = this.fileService.loadFromDisk();
+            if (configHolder != null) {
+                saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+            }
+        }
     }
 
     // no actions on timer now. We only react to events in CachedFileGoConfig and in GoPartialConfig
 
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
-        return this.fileService.writeWithLock(updateConfigCommand,new GoConfigHolder(this.currentConfig,this.currentConfigForEdit));
+        GoFileConfigDataSource.GoConfigSaveResult saveResult = this.fileService.writeWithLockNew(updateConfigCommand, this.configHolder);
+        saveValidConfigToCacheAndNotifyConfigChangeListeners(saveResult.getConfigHolder());
+        return saveResult.getConfigSaveState();
     }
 
     @Override
     public synchronized void writePipelineWithLock(PipelineConfig pipelineConfig, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
-        CachedFileGoConfig.PipelineConfigSaveResult saveResult = fileService.writePipelineWithLock(pipelineConfig, this.configHolder, saveCommand, currentUser);
+        CachedFileGoConfig.PipelineConfigSaveResult saveResult = fileService.writePipelineWithLockNew(pipelineConfig, this.configHolder, saveCommand, currentUser);
         saveValidConfigToCacheAndNotifyPipelineConfigChangeListeners(saveResult);
     }
 
@@ -190,29 +222,12 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
             serverHealthService.update(ServerHealthState.success(invalidConfigType()));
         }
     }
+
     private synchronized void saveValidConfigToCacheAndNotifyConfigChangeListeners(GoConfigHolder configHolder) {
         saveValidConfigToCache(configHolder);
         if(configHolder!=null) {
             notifyListeners(currentConfig);
         }
-    }
-
-
-    private synchronized void saveValidConfigToCacheTomas(GoConfigHolder configHolder) {
-        //this operation still exists, it only works differently
-        // we validate entire merged cruise config
-        // then we keep new merged cruise config in memory
-        // then we take out main part of it and keep it for edits
-        LOGGER.debug("[Config Save] Saving (merged) config to the cache");
-        this.configHolder = configHolder;
-        // this is merged or basic config.
-        this.currentConfig = this.configHolder.config;
-        this.currentConfigForEdit = this.configHolder.configForEdit;
-        serverHealthService.update(ServerHealthState.success(invalidConfigType()));
-        LOGGER.info("About to notify (merged) config listeners");
-        // but we do notify with merged config
-        notifyListeners(currentConfig);
-        LOGGER.info("Finished notifying all listeners");
     }
 
     private static HealthStateType invalidConfigType() {
@@ -224,8 +239,8 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     }
 
     public void save(String configFileContent, boolean shouldMigrate) throws Exception {
-        // this will save new xml, and notify me (as listener) so that I will attempt to update my merged config as well.
-        this.fileService.save(configFileContent,shouldMigrate);
+        GoConfigHolder newConfigHolder = this.fileService.saveNew(configFileContent, shouldMigrate);
+        saveValidConfigToCacheAndNotifyConfigChangeListeners(newConfigHolder);
     }
 
     public GoConfigValidity checkConfigFileValid() {

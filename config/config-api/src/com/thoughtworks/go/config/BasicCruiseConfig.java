@@ -87,6 +87,14 @@ public class BasicCruiseConfig implements CruiseConfig {
         createMergedConfig(main, parts);
     }
 
+    @Override
+    public void merge(List<PartialConfig> partList) {
+        MergeStrategy mergeStrategy = new MergeStrategy(this, partList);
+        this.strategy = mergeStrategy;
+        groups = mergeStrategy.mergePipelineConfigs();
+        environments = mergeStrategy.mergeEnvironmentConfigs();
+    }
+
     private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList) {
         this.serverConfig = main.serverConfig;
         this.packageRepositories = main.packageRepositories;
@@ -236,7 +244,8 @@ public class BasicCruiseConfig implements CruiseConfig {
          Main configuration is still validated within its own scope, explicitly, at the right moment,
          But that is done higher in services.
          */
-        @IgnoreTraversal private BasicCruiseConfig main;
+        @IgnoreTraversal
+        private BasicCruiseConfig main;
         private List<PartialConfig> parts = new ArrayList<PartialConfig>();
 
         public MergeStrategy(BasicCruiseConfig main,List<PartialConfig> parts) {
@@ -358,12 +367,14 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public ConfigOrigin getOrigin() {
-            MergeConfigOrigin origins = new MergeConfigOrigin(this.main.getOrigin());
-            for(PartialConfig part : this.parts)
-            {
-                origins.add(part.getOrigin());
-            }
-            return origins;
+            return new FileConfigOrigin();
+            //TODO: jyoti, For now, fix this
+//            MergeConfigOrigin origins = new MergeConfigOrigin(this.main.getOrigin());
+//            for(PartialConfig part : this.parts)
+//            {
+//                origins.add(part.getOrigin());
+//            }
+//            return origins;
         }
 
         @Override
@@ -373,7 +384,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public String getMd5() {
-            return this.main.getMd5();
+            return md5;
         }
 
         @Override

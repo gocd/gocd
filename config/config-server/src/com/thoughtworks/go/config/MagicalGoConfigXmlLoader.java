@@ -20,8 +20,10 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
+import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
@@ -48,7 +50,8 @@ public class MagicalGoConfigXmlLoader {
 
     public static final List<GoConfigPreprocessor> PREPROCESSORS = Arrays.asList(
             new TemplateExpansionPreprocessor(),
-            new ConfigParamPreprocessor());
+            new ConfigParamPreprocessor(),
+            new ConfigRepoPartialPreprocessor());
 
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
             new ArtifactDirValidator(),
@@ -84,7 +87,6 @@ public class MagicalGoConfigXmlLoader {
 
         return new GoConfigHolder(config, configForEdit);
     }
-
 
     public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {
         Field field = BasicCruiseConfig.class.getDeclaredField("md5");

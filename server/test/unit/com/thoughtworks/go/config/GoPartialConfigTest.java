@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,7 +61,7 @@ public class GoPartialConfigTest {
 
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService);
 
-        partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
+        partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList, mock(MergedGoConfig.class), mock(GoConfigService.class));
     }
 
     @Test

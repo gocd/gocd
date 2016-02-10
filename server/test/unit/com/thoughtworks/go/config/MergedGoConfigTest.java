@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.*;
@@ -77,9 +78,9 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
 
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService);
 
-        partials = new GoPartialConfig(repoConfigDataSource,configWatchList);
+        partials = new GoPartialConfig(repoConfigDataSource,configWatchList, mock(MergedGoConfig.class), mock(GoConfigService.class));
 
-        cachedGoConfig = new MergedGoConfig(serverHealthService,cachedFileGoConfig, partials);
+        cachedGoConfig = new MergedGoConfig(serverHealthService,cachedFileGoConfig, dataSource);
         configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig));
     }
 
@@ -266,7 +267,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
     public void shouldDelegateWritePipelineConfigCallToFileService(){
         CachedFileGoConfig fileService = mock(CachedFileGoConfig.class);
         PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
-        MergedGoConfig mergedGoConfig = new MergedGoConfig(mock(ServerHealthService.class), fileService, mock(GoPartialConfig.class));
+        MergedGoConfig mergedGoConfig = new MergedGoConfig(mock(ServerHealthService.class), fileService, dataSource);
         PipelineConfig pipelineConfig = new PipelineConfig();
         CachedFileGoConfig.PipelineConfigSaveResult saveResult = mock(CachedFileGoConfig.PipelineConfigSaveResult.class);
         GoConfigHolder savedConfig = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,16 +34,16 @@ import java.util.List;
 public class GoConfigWatchList implements ConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(GoConfigWatchList.class);
 
-    private CachedFileGoConfig fileGoConfig;
-
     private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<ChangedRepoConfigWatchListListener>();
     private ConfigReposConfig reposConfig;
 
-    @Autowired public GoConfigWatchList(CachedFileGoConfig fileGoConfig) {
+    @Autowired public GoConfigWatchList(MergedGoConfig mergedGoConfig) {
+        this.reposConfig  = mergedGoConfig.currentConfig().getConfigRepos();
+        mergedGoConfig.registerListener(this);
+    }
 
-        this.fileGoConfig = fileGoConfig;
-        this.reposConfig  = fileGoConfig.currentConfig().getConfigRepos();
-        this.fileGoConfig.registerListener(this);
+    public GoConfigWatchList(CachedFileGoConfig cachedFileGoConfig) {
+//        this.reposConfig  = cachedFileGoConfig.currentConfig().getConfigRepos();
     }
 
     public ConfigReposConfig getCurrentConfigRepos()
@@ -50,6 +51,7 @@ public class GoConfigWatchList implements ConfigChangedListener {
         return reposConfig;
     }
 
+    //TODO: jyoti, not sure what to do here, speak to Tomas
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         ConfigReposConfig partSources = newCruiseConfig.getConfigRepos();
@@ -77,6 +79,7 @@ public class GoConfigWatchList implements ConfigChangedListener {
 
     public void registerListener(ChangedRepoConfigWatchListListener listener) {
         listeners.add(listener);
+        listener.onChangedRepoConfigWatchList(this.reposConfig);
     }
 
     public boolean hasListener(ChangedRepoConfigWatchListListener listener) {

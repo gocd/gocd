@@ -24,8 +24,11 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfigura
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.ui.PluginViewModel;
+import com.thoughtworks.go.server.ui.PluginViewModelFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,13 +37,29 @@ import java.util.Map;
 
 @Service
 public class PluginService {
+
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;
+    private final PluginViewModelFactory pluginViewModelFactory;
+
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, DefaultPluginManager defaultPluginManager) {
         this.extensions = extensions;
         this.pluginDao = pluginDao;
+        this.pluginViewModelFactory = new PluginViewModelFactory(defaultPluginManager);
+    }
+
+    public List<PluginViewModel> populatePluginViewModelsOfType(String type) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+        return pluginViewModelFactory.getPluginViewModelsOfType(type);
+    }
+
+    public PluginViewModel populatePluginViewModel(String type, String pluginId) throws IllegalAccessException, ClassNotFoundException, InstantiationException {
+        return pluginViewModelFactory.getPluginViewModel(type, pluginId);
+    }
+
+    public List<PluginViewModel> populatePluginViewModels() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
+        return pluginViewModelFactory.getAllPluginViewModels();
     }
 
     public PluginSettings getPluginSettingsFor(String pluginId) {

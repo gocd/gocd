@@ -158,4 +158,22 @@ public class AgentRemoteHandlerTest {
         assertEquals(0, handler.connectedAgents().size());
         assertEquals(AgentStatus.LostContact, instance.getStatus());
     }
+
+    @Test
+    public void sendCancelMessage() {
+        AgentInstance instance = AgentInstanceMother.idle();
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
+        when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        handler.process(agent, new Message(Action.ping, info));
+
+        agent.messages.clear();
+        handler.sendCancelMessage(instance.getAgentIdentifier().getUuid());
+        assertEquals(1, agent.messages.size());
+    }
+
+    @Test
+    public void sendCancelMessageShouldNotErrorOutWhenGivenUUIDIsUnknown() {
+        handler.sendCancelMessage(null);
+        handler.sendCancelMessage("hello");
+    }
 }

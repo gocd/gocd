@@ -105,6 +105,9 @@ public class AgentRemoteHandler {
     }
 
     public void sendCancelMessage(String uuid) {
+        if (uuid == null) {
+            return;
+        }
         Agent agent = agentSessions.get(uuid);
         if (agent != null) {
             agent.send(new Message(Action.cancelJob));

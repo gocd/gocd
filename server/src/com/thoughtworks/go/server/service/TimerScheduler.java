@@ -47,8 +47,10 @@ public class TimerScheduler implements PipelineConfigChangedListener {
     private BuildCauseProducerService buildCauseProducerService;
     private SchedulerFactory quartzSchedulerFactory;
     private ServerHealthService serverHealthService;
-    protected static final String QUARTZ_GROUP = "CruiseTimers";
     private Scheduler quartzScheduler;
+    protected static final String QUARTZ_GROUP = "CruiseTimers";
+    protected static final String BUILD_CAUSE_PRODUCER_SERVICE = "BuildCauseProducerService";
+    protected static final String PIPELINE_CONFIG = "PipelineConfig";
 
     @Autowired
     public TimerScheduler(SchedulerFactory quartzSchedulerFactory, GoConfigService goConfigService,
@@ -116,8 +118,8 @@ public class TimerScheduler implements PipelineConfigChangedListener {
 
     private JobDataMap jobDataMapFor(PipelineConfig pipelineConfig) {
         JobDataMap map = new JobDataMap();
-        map.put("BuildCauseProducerService", buildCauseProducerService);
-        map.put("PipelineConfig", pipelineConfig);
+        map.put(BUILD_CAUSE_PRODUCER_SERVICE, buildCauseProducerService);
+        map.put(PIPELINE_CONFIG, pipelineConfig);
         return map;
     }
 
@@ -157,8 +159,8 @@ public class TimerScheduler implements PipelineConfigChangedListener {
     public static class SchedulePipelineQuartzJob implements Job {
         public void execute(JobExecutionContext context) throws JobExecutionException {
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-            BuildCauseProducerService buildCauseProducerService = (BuildCauseProducerService) jobDataMap.get("BuildCauseProducerService");
-            PipelineConfig pipelineConfig = (PipelineConfig) jobDataMap.get("PipelineConfig");
+            BuildCauseProducerService buildCauseProducerService = (BuildCauseProducerService) jobDataMap.get(BUILD_CAUSE_PRODUCER_SERVICE);
+            PipelineConfig pipelineConfig = (PipelineConfig) jobDataMap.get(PIPELINE_CONFIG);
             buildCauseProducerService.timerSchedulePipeline(pipelineConfig, new ServerHealthStateOperationResult());
         }
     }

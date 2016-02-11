@@ -228,7 +228,7 @@ public class GoFileConfigDataSource {
                 configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser.getUsername().toString(), serverVersion.version(), timeProvider));
                 LOGGER.debug("[Config Save] Done writing with lock");
                 reloadStrategy.latestState(preprocessedConfig);
-                return new CachedFileGoConfig.PipelineConfigSaveResult(pipelineConfig, saveCommand.getPipelineGroup(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
+                return new CachedFileGoConfig.PipelineConfigSaveResult(preprocessedPipelineConfig, saveCommand.getPipelineGroup(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
             } catch (Exception e) {
                 throw new RuntimeException("failed to save : " + e.getMessage());
             }

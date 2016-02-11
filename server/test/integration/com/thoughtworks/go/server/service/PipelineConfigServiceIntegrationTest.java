@@ -27,12 +27,16 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.listener.PipelineConfigChangedListener;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -355,6 +359,45 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
     }
+
+    @Test
+    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulSave(){
+        final String pipelineName = UUID.randomUUID().toString();
+        final String templateName = UUID.randomUUID().toString();
+        final boolean[] listenerInvoked = {false};
+        setupPipelineWithTemplate(pipelineName, templateName);
+
+        PipelineConfigChangedListener pipelineConfigChangedListener = new PipelineConfigChangedListener() {
+            @Override
+            public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
+                listenerInvoked[0] = true;
+                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
+            }
+
+            @Override
+            public void onConfigChange(CruiseConfig newCruiseConfig) {
+            }
+        };
+        goConfigService.register(pipelineConfigChangedListener);
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
+        pipeline.setVariables(new EnvironmentVariablesConfig());
+        pipelineConfigService.updatePipelineConfig(user, pipeline, new DefaultLocalizedOperationResult());
+        assertThat(listenerInvoked[0], is(true));
+    }
+
+    private void setupPipelineWithTemplate(final String pipelineName, final String templateName) {
+        goConfigService.updateConfig(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName);
+                PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, template.name().toString());
+                cruiseConfig.addTemplate(template);
+                cruiseConfig.addPipeline("group", pipeline);
+                return cruiseConfig;
+            }
+        });
+    }
+
 
     private void saveTemplateWithParamToConfig(CaseInsensitiveString templateName) throws Exception {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));

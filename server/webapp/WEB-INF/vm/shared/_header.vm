@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *************************GO-LICENSE-END***********************************#
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!--[if lt IE 7]> <html lang="en" class="no-js ie6 oldie"> <![endif]-->
-<!--[if IE 7]> <html lang="en" class="no-js ie7 oldie"> <![endif]-->
-<!--[if IE 8]> <html lang="en" class="no-js ie8 oldie"> <![endif]-->
-<!--[if gt IE 8]><!-->
-<html lang='en'>
-<!--<![endif]-->
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" lang='en'>
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
@@ -41,7 +34,6 @@
         <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
 
     <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
-    <!--[if IE 6]><script type="text/javascript">window.cruise_is_running_in_ie6 = true;</script><![endif]-->
     <title>
         #if($title)
         $title
@@ -143,4 +135,4 @@
         </div>
 
         <div id="bd">
-                   
+

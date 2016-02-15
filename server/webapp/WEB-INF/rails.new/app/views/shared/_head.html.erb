@@ -9,9 +9,6 @@
 <% if params[:controller] == "prototype" %>
     <%= stylesheet_link_tag "prototype_#{params[:action]}" %>
 <% end %>
-<% if params[:css_file] %>
-    <%= stylesheet_link_tag "#{params[:css_file]}" %>
-<% end %>
 
 <!-- END: prototype hooks for css injection -->
 

@@ -28,10 +28,7 @@
     /*@include box-shadow(0,1px,1px,rgba(33, 33, 33, 0.1));*/
     @include gradient(#f7f7f7, #eeeeee);
     @include box-shadow(0,0,2px,#ccc);
-    .ie9 &{-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(opacity=99)';}
     border-bottom:1px solid #ccc;
-    .ie8 & {border-bottom: 1px solid #ddd;}
-    .ie7 & {border-bottom: 1px solid #ddd;}
     position: fixed;
     height:25px;
     top: 45px;
@@ -44,8 +41,6 @@
 .shadow{
     @include box-shadow(0,3px,3px,rgba(33, 33, 33, 0.2));
     border-bottom:0 none;
-    .ie8 & {border-bottom: 1px solid #bbb;}
-    .ie7 & {border-bottom: 1px solid #bbb;}
 }
 
 

@@ -47,7 +47,7 @@
 		text-decoration: none
 		background: saturate($color, 10%)
 		@include gradient(saturate($color, 5%), darken($color, 5%))
-	&:active {
+	&:active
 		position: relative
 		top: 1px
 		color: saturate($color, 15%)
@@ -62,10 +62,3 @@
 	background: -webkit-gradient(linear, left top, left bottom, from($from), to($to))
 	background: -moz-linear-gradient(top, $from, $to)
 	/*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$from}', endColorstr='#{$to}')*/
-
-@mixin ie8
-	html.ie8 @content
-
-@mixin ie7
-	html.ie7 @content
-

@@ -55,7 +55,7 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
     public void shouldReturnSelfForGetLocalWhenOriginIsNull()
     {
         PipelineConfigs pipelineConfigs = createEmpty();
-        assertThat(pipelineConfigs.getLocal().size(), is(1));
+        assertThat(pipelineConfigs.getLocal().size(), is(0));
         assertSame(pipelineConfigs,pipelineConfigs.getLocal());
     }
     @Test
@@ -63,7 +63,7 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
     {
         PipelineConfigs pipelineConfigs = createEmpty();
         pipelineConfigs.setOrigins(new FileConfigOrigin());
-        assertThat(pipelineConfigs.getLocal().size(), is(1));
+        assertThat(pipelineConfigs.getLocal().size(), is(0));
         assertSame(pipelineConfigs, pipelineConfigs.getLocal());
     }
     @Test

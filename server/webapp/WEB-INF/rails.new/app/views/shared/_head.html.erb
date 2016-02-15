@@ -5,16 +5,6 @@
 <%= stylesheet_link_tag "application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 <%= stylesheet_link_tag "patterns/application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 
-<!-- START: prototype hooks for css injection -->
-<% if params[:controller] == "prototype" %>
-    <%= stylesheet_link_tag "prototype_#{params[:action]}" %>
-<% end %>
-<% if params[:css_file] %>
-    <%= stylesheet_link_tag "#{params[:css_file]}" %>
-<% end %>
-
-<!-- END: prototype hooks for css injection -->
-
 <%= javascript_include_tag "application", debug: Rails.env.development? && params[:debug_assets] %>
 <![if !IE]>
     <%= javascript_include_tag 'lib/d3-3.1.5.min' %>

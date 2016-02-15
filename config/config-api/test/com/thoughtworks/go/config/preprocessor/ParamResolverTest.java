@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialViewConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Before;
@@ -172,6 +173,34 @@ public class ParamResolverTest {
         pipelineConfig.addMaterialConfig(materialConfig);
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
+
+        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
+        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay(), is("http://pavan.com/jj"));
+    }
+
+    @Test
+    public void shouldResolveInBasicPipelineConfigs() throws NoSuchFieldException {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
+        pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig("http://#{foo}.com/#{bar}");
+        pipelineConfig.addMaterialConfig(materialConfig);
+        BasicPipelineConfigs pipelines = new BasicPipelineConfigs(pipelineConfig);
+
+        new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelines);
+
+        assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
+        assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay(), is("http://pavan.com/jj"));
+    }
+
+    @Test
+    public void shouldResolveInMergePipelineConfigs() throws NoSuchFieldException {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
+        pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig("http://#{foo}.com/#{bar}");
+        pipelineConfig.addMaterialConfig(materialConfig);
+        MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs(pipelineConfig));
+
+        new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(merge);
 
         assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-pavan-bar-jj"));
         assertThat(pipelineConfig.materialConfigs().get(1).getUriForDisplay(), is("http://pavan.com/jj"));

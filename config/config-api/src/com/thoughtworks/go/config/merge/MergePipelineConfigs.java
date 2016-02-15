@@ -31,8 +31,10 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  *
  * Composite of many pipeline configuration parts.
  */
+@ConfigTag("pipelines")
 public class MergePipelineConfigs implements PipelineConfigs {
 
+    @ConfigSubtag
     private PipelineConfigsPartials parts = new PipelineConfigsPartials();
 
     private final ConfigErrors configErrors = new ConfigErrors();

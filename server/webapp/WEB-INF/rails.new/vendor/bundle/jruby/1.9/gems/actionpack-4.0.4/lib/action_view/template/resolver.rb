@@ -175,7 +175,7 @@ module ActionView
       @pattern = pattern || DEFAULT_PATTERN
       super()
     end
-
+    cattr_accessor :instance_reader => false, :instance_writer => false
     private
 
     def find_templates(name, prefix, partial, details, outside_app_allowed = false)

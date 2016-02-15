@@ -1,4 +1,4 @@
 <% @view_title = "Add Environment" -%>
 <% @page_header = '<h1 id="page-title" class="entity_title">Add Environment</h1>' -%>
 
-<%= render :partial => "form.html", :locals => {:scope => {:environment => @environment, :available_pipelines => @available_pipelines,  :unavailable_pipelines => @unavailable_pipelines, :agents => @agents, :form_action => environment_create_path, :form_method => "post"}} %>
+<%= render :partial => "form.html", :locals => {:scope => {:environment => @environment, :available_pipelines => @available_pipelines,  :unavailable_pipelines => @unavailable_pipelines, :remote_pipelines => @remote_pipelines, :agents => @agents, :form_action => environment_create_path, :form_method => "post"}} %>

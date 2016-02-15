@@ -63,7 +63,7 @@ class EnvironmentsController < ApplicationController
   end
 
   def show
-    @agent_details = agent_service.filter(@environment.getAgents().map(&:uuid))
+    @agent_details = agent_service.filter(@environment.getLocalAgents().map(&:uuid))
   end
 
   def edit_pipelines
@@ -104,10 +104,11 @@ class EnvironmentsController < ApplicationController
   end
 
   def load_pipelines_and_agents
-    pipelines = environment_config_service.getAllPipelinesForUser(current_user)
+    pipelines = environment_config_service.getAllLocalPipelinesForUser(current_user)
 
     @unavailable_pipelines = []
     @available_pipelines = []
+    @remote_pipelines = environment_config_service.getAllRemotePipelinesForUserInEnvironment(current_user,@environment)
 
     pipelines.each do |pipeline|
       collection = pipeline.isAssociatedWithEnvironmentOtherThan(@environment && @environment.name().to_s) ? @unavailable_pipelines : @available_pipelines

@@ -232,4 +232,15 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         }
         return true;
     }
+
+    public PipelineGroups getLocal() {
+        PipelineGroups locals = new PipelineGroups();
+        for(PipelineConfigs pipelineConfigs : this)
+        {
+            PipelineConfigs local = pipelineConfigs.getLocal();
+            if(local != null)
+                locals.add(local);
+        }
+        return locals;
+    }
 }

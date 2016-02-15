@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.metrics.domain.context.Context;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.metrics.domain.probes.ProbeType;
@@ -86,7 +88,10 @@ public class MagicalGoConfigXmlWriter {
             if(!configForEdit.getOrigin().isLocal()) {
                 if (!skipPreprocessingAndValidation) {
                     // lets validate merged config first, it will show more sensible errors
-                    loader.preprocessAndValidate(configForEdit);
+                    List<ConfigErrors> errorsAtMergedScope = configForEdit.validateAfterPreprocess();
+                    if (!errorsAtMergedScope.isEmpty()) {
+                        throw new GoConfigInvalidException(configForEdit, errorsAtMergedScope);
+                    }
                 }
                 configForEdit = configForEdit.getLocal();
             }

@@ -70,21 +70,21 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(), this.partialConfig.lastPartials());
+        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(), this.partialConfig.lastPartials(),true);
     }
     @Override
     public void onPartialConfigChanged(List<PartialConfig> partials) {
-        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(), partials);
+        this.tryAssembleMergedConfig(this.fileService.loadConfigHolder(), partials,false);
     }
 
     /**
      * attempts to create a new merged cruise config
     */
-    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfigHolder,List<PartialConfig> partials) {
+    public void tryAssembleMergedConfig(GoConfigHolder cruiseConfigHolder,List<PartialConfig> partials,boolean fallbackToOldPartials) {
         try {
             GoConfigHolder newConfigHolder;
 
-            if (partials.size() == 0) {
+            if (partials == null || partials.size() == 0) {
                 // no partial configurations
                 // then just use basic configuration from xml
                 newConfigHolder = cruiseConfigHolder;
@@ -94,11 +94,24 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
                 // validate
                 List<ConfigErrors> allErrors = validate(merge);
                 if (!allErrors.isEmpty()) {
-                    throw new GoConfigInvalidException(merge, allErrors);
+                    if(!fallbackToOldPartials)
+                        throw new GoConfigInvalidException(merge, allErrors);
+                    else
+                    {
+                        LOGGER.warn("Current merged configuration is invalid; falling back to using old partial configurations");
+                        // get last known valid (merged or not) configuration
+                        GoConfigHolder oldValidConfig = this.configHolder;
+                        // these are either last known valid remotes that DID work with old main config
+                        // or this is empty collection (which also works with any main config)
+                        List<PartialConfig> oldPartials = oldValidConfig.config.getRemote();
+                        // so we can just attempt to merge the new main configuration with old remotes
+                        // so try again, without further fallback this time.
+                        this.tryAssembleMergedConfig(cruiseConfigHolder,oldPartials,false);
+                        return;
+                    }
                 }
                 CruiseConfig basicForEdit = this.fileService.loadForEditing();
-                CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, partials);
-                //TODO change strategy into merge-edit? - done in UI branch
+                CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, true, partials);
                 newConfigHolder = new GoConfigHolder(merge, forEdit);
             }
             // save to cache and fire event

@@ -19,7 +19,7 @@ module Admin
     include JavaImports
 
     def pipeline_stages_json(cruise_config, current_user, security_service, params)
-      pipelines = cruise_config.getAllPipelineConfigs()
+      pipelines = cruise_config.getAllLocalPipelineConfigs()
       pipeline_stages_array = Array.new
       pipelines.each do |pipeline|
         unless pipeline.name() == CaseInsensitiveString.new(params[:pipeline_name])

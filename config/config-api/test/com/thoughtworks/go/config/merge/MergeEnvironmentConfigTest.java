@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.merge;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.remote.UIConfigOrigin;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.collections.map.SingletonMap;
 import org.hamcrest.Matchers;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,19 +39,22 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     public MergeEnvironmentConfig singleEnvironmentConfig;
     public MergeEnvironmentConfig pairEnvironmentConfig;
     private static final String AGENT_UUID = "uuid";
+    private EnvironmentConfig localUatEnv1;
+    private EnvironmentConfig uatLocalPart2;
+    private BasicEnvironmentConfig uatRemotePart;
 
     @Before
     public void setUp() throws Exception {
-        BasicEnvironmentConfig localUatEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-        localUatEnv.setOrigins(new FileConfigOrigin());
+        localUatEnv1 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        localUatEnv1.setOrigins(new FileConfigOrigin());
 
-        singleEnvironmentConfig = new MergeEnvironmentConfig(localUatEnv);
-        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-        uatLocalPart.setOrigins(new FileConfigOrigin());
-        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        singleEnvironmentConfig = new MergeEnvironmentConfig(localUatEnv1);
+        uatLocalPart2 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart2.setOrigins(new FileConfigOrigin());
+        uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatRemotePart.setOrigins(new RepoConfigOrigin());
         pairEnvironmentConfig = new MergeEnvironmentConfig(
-                uatLocalPart,
+                uatLocalPart2,
                 uatRemotePart);
 
         super.environmentConfig = pairEnvironmentConfig;
@@ -62,6 +67,42 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
                 new BasicEnvironmentConfig(new CaseInsensitiveString("Two")));
     }
 
+    @Test
+    public void getRemotePipelines_shouldReturnEmptyWhenOnlyLocalPartHasPipelines()
+    {
+        uatLocalPart2.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(pairEnvironmentConfig.getRemotePipelines().isEmpty(), is(true));
+    }
+
+    @Test
+    public void getRemotePipelines_shouldReturnPipelinesFromRemotePartWhenRemoteHasPipesAssigned()
+    {
+        uatRemotePart.addPipeline(new CaseInsensitiveString("pipe"));
+        assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseThatLocal()
+    {
+        assertThat(environmentConfig.isLocal(),is(false));
+    }
+    @Test
+    public void shouldGetLocalPartWhenOriginFile()
+    {
+        assertThat(environmentConfig.getLocal(),is(uatLocalPart2));
+    }
+    @Test
+    public void shouldGetLocalPartWhenOriginIsUI()
+    {
+        uatLocalPart2.setOrigins(new UIConfigOrigin());
+        assertThat(environmentConfig.getLocal(), is(uatLocalPart2));
+    }
+    @Test
+    public void shouldReturnNullLocalPartWhenOriginsAreRemote()
+    {
+        uatLocalPart2.setOrigins(new RepoConfigOrigin());
+        assertNull(environmentConfig.getLocal());
+    }
 
     @Test
     public void shouldFailUpdateName() {

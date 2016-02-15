@@ -184,9 +184,29 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         }
     }
 
-    public List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user) {
+    public List<EnvironmentPipelineModel> getAllLocalPipelinesForUser(Username user) {
+        List<PipelineConfig> pipelineConfigs = goConfigService.getAllLocalPipelineConfigs();
+        return getAllPipelinesForUser(user, pipelineConfigs);
+    }
+    public List<EnvironmentPipelineModel> getAllRemotePipelinesForUserInEnvironment(Username user,EnvironmentConfig environment) {
         List<EnvironmentPipelineModel> pipelines = new ArrayList<EnvironmentPipelineModel>();
-        for (PipelineConfig pipelineConfig : goConfigService.getAllPipelineConfigs()) {
+        for (EnvironmentPipelineConfig pipelineConfig : environment.getRemotePipelines()) {
+            String pipelineName = CaseInsensitiveString.str(pipelineConfig.getName());
+            if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
+                if (environment != null) {
+                    pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(environment.name())));
+                } else {
+                    pipelines.add(new EnvironmentPipelineModel(pipelineName));
+                }
+            }
+        }
+        Collections.sort(pipelines);
+        return pipelines;
+    }
+
+    private List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user, List<PipelineConfig> pipelineConfigs) {
+        List<EnvironmentPipelineModel> pipelines = new ArrayList<EnvironmentPipelineModel>();
+        for (PipelineConfig pipelineConfig : pipelineConfigs) {
             String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
                 EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));

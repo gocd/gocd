@@ -22,8 +22,6 @@ define([
              f, tt, ComponentMixins,
              Materials, TestConnectionWidget) {
 
-  var FORM_FIELD_SIZE = 3;
-
   var PasswordField = {
     view: function (ctrl, args, children) {
       var model               = args.model;
@@ -31,17 +29,19 @@ define([
       var capitalizedAttrName = _.upperFirst(attrName);
 
       if (model['isEditing' + capitalizedAttrName]()) {
-
         return (
-          <f.inputWithLabel model={model}
-                            attrName={attrName}
-                            label={['Password ', (<f.link onclick={model['resetToOriginal' + capitalizedAttrName].bind(model)}>Reset</f.link>)]}
-                            placeholder="Password"
-                            type={model['isSecure' + capitalizedAttrName]() ? 'password' : 'text'}/>
+          <div>
+            <f.inputWithLabel model={model}
+                              attrName={attrName}
+                              label={['Password ']}
+                              placeholder="Password"
+                              type={model['isSecure' + capitalizedAttrName]() ? 'password' : 'text'}
+                              withReset={true}/>
+          </div>
         );
       } else {
         return (
-          <f.column size={FORM_FIELD_SIZE}>
+          <f.column>
             <label>
               Password{' '}
               <f.link onclick={model['edit' + capitalizedAttrName].bind(model)}>Edit</f.link>
@@ -52,6 +52,99 @@ define([
           </f.column>
         );
       }
+    }
+  };
+
+  var UrlField = {
+    view: function(ctrl, args) {
+      return (
+        <f.inputWithLabel attrName='url'
+                          type='url'
+                          model={args.material}/>
+      )
+    }
+  };
+
+  var UsernameField = {
+    view: function (ctrl, args) {
+      return (
+        <f.inputWithLabel attrName='username'
+                          model={args.material}/>
+      );
+    }
+  };
+
+  var DestinationField = {
+    view: function (ctrl, args) {
+      return (
+        <f.inputWithLabel attrName='destination'
+                          label="Destination"
+                          model={args.material}
+                          tooltip={{
+                                    content: tt.material.destination,
+                                    direction: 'bottom',
+                                    size: 'small'
+                                   }}/>
+      );
+    }
+  };
+
+  var NameField = {
+    view: function (ctrl, args) {
+      return (
+        <f.inputWithLabel attrName='name'
+                          model={args.material}
+                          tooltip={{
+                                    content: tt.material.name,
+                                    direction: 'bottom',
+                                    size: 'small'
+                                   }}/>
+      );
+    }
+  };
+
+  var BranchField = {
+    view: function (ctrl, args) {
+      return (
+        <f.inputWithLabel attrName='branch'
+                          model={args.material}/>
+      );
+    }
+  };
+
+  var IgnorepatternField = {
+    view: function (ctrl, args) {
+      return (
+        <f.inputWithLabel attrName='ignore'
+                          label="Ignore pattern"
+                          model={args.material.filter()}/>
+      );
+    }
+  };
+
+  var AutoUpdateField = {
+    view: function (ctrl, args) {
+      return (
+        <f.checkBox model={args.material}
+                    attrName='autoUpdate'
+                    addPadding={true}
+                    end={true}/>
+      );
+    }
+  };
+
+  var DestinationField = {
+    view: function (ctrl, args) {
+      return (
+        <f.inputWithLabel attrName='destination'
+                          label="Destination"
+                          model={args.material}
+                          tooltip={{
+                                    content: tt.material.destination,
+                                    direction: 'bottom',
+                                    size: 'small'
+                                   }}/>
+      )
     }
   };
 
@@ -66,58 +159,44 @@ define([
       },
 
       view: function (ctrl, args, children) {
-        var destinationField, filterField;
-        if (ctrl.material.destination) {
-          destinationField = (
-            <f.inputWithLabel attrName='destination'
-                              label="Destination"
-                              model={ctrl.material}
-                              tooltip={{
-                                          content: tt.material.destination,
-                                          direction: 'bottom',
-                                          size: 'small'
-                                        }}/>
-          );
-        }
+        var filterField;
+        var title = [ctrl.material.type(), '-', ctrl.material.name()].join(' ');
 
         if (ctrl.material.filter) {
           // TODO: make this an 'intelligent' text component that maps to an array.
           filterField = (
             <f.inputWithLabel attrName='ignore'
                               label="Ignore pattern"
-                              model={ctrl.material.filter()}/>
+                              model={ctrl.material.filter()}
+                              size={12}
+                              largeSize={12}/>
           );
         }
 
         return (
-          <f.accordion class="material-definitions"
-                       accordionTitles={[ctrl.material.name()]}
+          <f.accordion class="material-definitions accordion-inner"
+                       accordionTitles={[title]}
                        accordionKeys={[ctrl.material.uuid()]}
                        selectedIndex={ctrl.vmState('selectedMaterialIndex', m.prop(-1))}>
 
             <div class="material-definition">
               <f.removeButton onclick={ctrl.onRemove} class="remove-material"/>
-              <f.row>
-                <f.inputWithLabel attrName='name'
-                                  model={ctrl.material}
-                                  tooltip={{
-                                          content: tt.material.name,
-                                          direction: 'bottom',
-                                          size: 'small'
-                                        }}/>
-                {destinationField}
-                <f.checkBox model={ctrl.material}
-                            attrName='autoUpdate'
-                            addPadding={true}
-                            end={true}/>
-                <TestConnectionWidget material={ctrl.material}
-                                      pipelineName={ctrl.pipelineName}
-                                      vm={ctrl.vmState('testConnection')}/>
-              </f.row>
               {children}
               <f.row>
-                {filterField}
+                <DestinationField material={ctrl.material}/>
               </f.row>
+              <f.row>
+                <f.column size={12} largeSize={12}>
+                  <TestConnectionWidget material={ctrl.material}
+                                        pipelineName={ctrl.pipelineName}
+                                        vm={ctrl.vmState('testConnection')}/>
+                </f.column>
+              </f.row>
+              <div class='ignore-pattern'>
+                <f.row>
+                  {filterField}
+                </f.row>
+              </div>
             </div>
           </f.accordion>
         );
@@ -131,11 +210,12 @@ define([
         return (
           <MaterialViews.base {...args}>
             <f.row>
-              <f.inputWithLabel attrName='url'
-                                type='url'
-                                model={material}/>
-              <f.inputWithLabel attrName='username'
-                                model={material}/>
+              <NameField material={material}/>
+              <UrlField material={material}/>
+              <AutoUpdateField material={material}/>
+            </f.row>
+            <f.row>
+              <UsernameField material={material}/>
               <PasswordField model={material}
                              attrName='passwordValue'/>
               <f.checkBox type="checkbox"
@@ -155,12 +235,12 @@ define([
         return (
           <MaterialViews.base {...args}>
             <f.row>
-              <f.inputWithLabel attrName='url'
-                                type='url'
-                                model={material}/>
-              <f.inputWithLabel attrName='branch'
-                                model={material}
-                                end={true}/>
+              <NameField material={material}/>
+              <UrlField material={material}/>
+              <AutoUpdateField material={material}/>
+            </f.row>
+            <f.row>
+              <BranchField material={material}/>
             </f.row>
           </MaterialViews.base>
         );
@@ -173,12 +253,9 @@ define([
         return (
           <MaterialViews.base {...args}>
             <f.row>
-              <f.inputWithLabel attrName='url'
-                                type='url'
-                                model={material}/>
-              <f.inputWithLabel attrName='branch'
-                                model={material}
-                                end={true}/>
+              <NameField material={material}/>
+              <UrlField material={material}/>
+              <AutoUpdateField material={material}/>
             </f.row>
           </MaterialViews.base>
         );
@@ -191,25 +268,26 @@ define([
         return (
           <MaterialViews.base {...args}>
             <f.row>
+              <NameField material={material}/>
               <f.inputWithLabel attrName='port'
                                 model={material}
                                 onchange={m.withAttr('value', material.port)}/>
-              <f.inputWithLabel attrName='username'
-                                model={material}/>
+              <AutoUpdateField material={material}/>
+            </f.row>
+            <f.row>
+              <UsernameField material={material}/>
               <PasswordField model={material}
                              attrName='passwordValue'/>
+            </f.row>
+            <f.row>
+              <f.inputWithLabel attrName='view'
+                                model={material}/>
               <f.checkBox name="material[use_tickets]"
                           type="checkbox"
                           model={material}
                           attrName='useTickets'
                           addPadding={true}
                           end={true}/>
-            </f.row>
-
-            <f.row>
-              <f.inputWithLabel attrName='view'
-                                model={material}
-                                end={true}/>
             </f.row>
           </MaterialViews.base>
         );
@@ -222,22 +300,22 @@ define([
         return (
           <MaterialViews.base {...args}>
             <f.row>
-              <f.inputWithLabel attrName='url'
-                                type='url'
-                                model={material}/>
+              <NameField material={material}/>
+              <UrlField material={material}/>
+              <AutoUpdateField material={material}/>
+            </f.row>
+            <f.row>
               <f.inputWithLabel attrName='domain'
                                 model={material}/>
-              <f.inputWithLabel attrName='username'
-                                model={material}/>
-              <PasswordField model={material}
-                             attrName='passwordValue'
-                             end={true}/>
-            </f.row>
-
-            <f.row>
               <f.inputWithLabel attrName='projectPath'
                                 model={material}
                                 end={true}/>
+            </f.row>
+            <f.row>
+              <UsernameField material={material}/>
+              <PasswordField model={material}
+                             attrName='passwordValue'
+                             end={true}/>
             </f.row>
           </MaterialViews.base>
         );
@@ -263,8 +341,8 @@ define([
                   result[key] = value.description;
                 })}
             size={2}/>
-          <f.column size={2} end={true} class='add-material'>
-            <a href="javascript:void(0)" onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</a>
+          <f.column size={2} end={true}>
+            <a class='add-material button' href="javascript:void(0)" onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</a>
           </f.column>
         </f.row>
       );

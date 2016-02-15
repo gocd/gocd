@@ -15,7 +15,9 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper',
-  '../helpers/mithril_component_mixins', 'js-routes', '../models/argument', '../helpers/tooltips'],
+    '../helpers/mithril_component_mixins', 'js-routes', '../models/argument', '../helpers/tooltips',
+    'jquery.textcomplete'
+  ],
   function (m, _, s, f, ComponentMixins, Routes, Argument, tt) {
     var LookupCommandWidget = {
       Command: {

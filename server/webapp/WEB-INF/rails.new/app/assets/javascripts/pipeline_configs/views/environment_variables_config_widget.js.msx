@@ -18,8 +18,6 @@ define([
   'mithril', 'string-plus', '../helpers/form_helper', '../helpers/mithril_component_mixins', '../helpers/tooltips'
 ], function (m, s, f, ComponentMixins, tt) {
 
-  var FORM_FIELD_SIZE = 3;
-
   var EnvironmentVariableWidget = {
     base: {
       view: function (ctrl, args, children) {
@@ -29,22 +27,19 @@ define([
           <f.row class='environment-variable'
                  data-variable-type={variable.isSecureValue() ? 'secure' : 'plain'}
                  data-variable-name={variable.name()}>
-            <f.column size={FORM_FIELD_SIZE}>
-              <f.row collapse={true}>
-                <f.input model={variable}
-                         attrName='name'
-                         placeholder='Name'
-                         onchange={args.onChange}
-                         size={12}
-                         end={true}/>
-              </f.row>
-            </f.column>
-
+              <f.input model={variable}
+                       attrName='name'
+                       placeholder='Name'
+                       onchange={args.onChange}
+                       end={true}
+                       size={5}
+                       largeSize={4}/>
             {children}
-
             <f.column size={1} end={true}>
-              {args.removeChildPreContent}
-              {args.removeWidget}
+              <div class='actions'>
+                {args.removeChildPreContent}
+                {args.removeWidget}
+              </div>
             </f.column>
           </f.row>
         );
@@ -59,8 +54,8 @@ define([
                      attrName='value'
                      placeholder='Value'
                      onchange={args.onChange}
-                     size={FORM_FIELD_SIZE}/>
-
+                     size={5}
+                     largeSize={4}/>
           </EnvironmentVariableWidget.base>
         );
       }
@@ -78,21 +73,18 @@ define([
                       attrName='value'
                       placeholder='Value'
                       onchange={args.onChange}
-                      type={variable.isSecureValue() ? 'password' : 'text'}
-                      size={FORM_FIELD_SIZE}/>)
+                      type={variable.isSecureValue() ? 'password' : 'text'}/>
+            )
           ];
 
           if (variable.isDirtyValue()) {
             removeChildPreContent = (
-              <f.link onclick={variable.resetToOriginalValue.bind(variable)}
-                      class="reset-environment-variable">
-                Reset
-              </f.link>
+              <f.resetButton onclick={variable.resetToOriginalValue.bind(variable)}/>
             );
           }
         } else {
           content = (
-            <f.column size={FORM_FIELD_SIZE}>
+            <f.column>
               <f.link onclick={variable.editValue.bind(variable)} class="edit-secure-variable">Edit</f.link>
             </f.column>
           );
@@ -194,17 +186,17 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Environment Variables<f.tooltip tooltip={{content: tt.environmentVariables.main}} model={ctrl.args.variables()}/></span>
+                          <span>{ctrl.args.title}<f.tooltip tooltip={{content: tt.environmentVariables.main}} model={ctrl.args.variables()}/></span>
                         )
                      ]}
                      accordionKeys={['environment-variables']}
-                     selectedIndex={ctrl.vmState('accordionSelectedIndex', m.prop(-1))}
-                     class='environment-variables'>
+                     selectedIndex={ctrl.vmState('environmentVariablesSelected', m.prop(-1))}
+                     class='environment-variables accordion-inner'>
           <div>
             <VariablesWidget.plain variables={ctrl.args.variables}
                                    toView={ctrl.args.variables().plainVariables.bind(ctrl.args.variables())}/>
 
-            <div class="secure-environment-variables-header">Secure Environment Variables</div>
+            <h5 class="secure-environment-variables-header sub-header">Secure Environment Variables</h5>
             <VariablesWidget.secure variables={ctrl.args.variables}
                                     toView={ctrl.args.variables().secureVariables.bind(ctrl.args.variables())}/>
           </div>

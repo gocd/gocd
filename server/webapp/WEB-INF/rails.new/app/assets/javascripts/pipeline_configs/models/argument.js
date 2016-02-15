@@ -23,6 +23,10 @@ define(['mithril', 'lodash'], function (m, _) {
       return _.isArray(this.data());
     };
 
+    this.toString = function () {
+      return this.isList() ? this.data().join(' ') : this.data();
+    };
+
     this.toJSON = function () {
       if(_.isEmpty(this.data())) {
         return {};

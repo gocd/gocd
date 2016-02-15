@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import '_variables';
 @import 'normalize-3.0.2';
 @import 'foundation_and_overrides';
 // make sure to load after foundation
 @import "bourbon";
 @import '_keyframes';
 @import '_font-awesome-glyphs';
+@import '_global';
 @import '_autocomplete';
 @import '_fonts';
+@import './_pipeline';
+@import './_footer';
+@import './_navigation';
+@import './_accordion';
+@import './_stages';
+@import './_materials';
+
 
 form {
-
-  .accordion {
-    .show {
-      display: inherit !important;
-    }
-
-    .accordion-item {
-      .accordion-title {
-        font-size: rem-calc(14);
-        &:before {
-          @include icon-only(chevron-right);
-        }
-
-        .is-active > &::before {
-          @include icon-only(chevron-down);
-        }
-      }
-    }
-  }
 
   .tooltip-question-mark {
     @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
@@ -58,6 +48,7 @@ form {
     font-family: $body-font-family;
     cursor:      auto;
     font-size:   rem-calc(13px);
+    text-transform: none;
     * {
       font-size: rem-calc(13px);
     }
@@ -87,8 +78,3 @@ form {
     }
   }
 }
-
-@import './_pipeline';
-@import './_footer';
-@import './_navigation';
-

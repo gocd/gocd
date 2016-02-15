@@ -127,8 +127,8 @@ define([
                         )
                      ]}
                      accordionKeys={['tracking-tool']}
-                     selectedIndex={ctrl.vmState('accordionSelectedIndex', m.prop(-1))}
-                     class="tracking-tool">
+                     selectedIndex={ctrl.vmState('trackingToolSelected', m.prop(-1))}
+                     class="tracking-tool accordion-inner">
           <div>
             <f.row>
               <f.column size={4} end={true}>

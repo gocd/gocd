@@ -112,17 +112,11 @@ module ActionView
     # Normalizes the arguments and passes it on to find_templates.
     def find_all(name, prefix=nil, partial=false, details={}, key=nil, locals=[])
       cached(key, [name, prefix, partial], details, locals) do
-        find_templates(name, prefix, partial, details, false)
+        find_templates(name, prefix, partial, details)
       end
     end
 
-    def find_all_anywhere(name, prefix, partial=false, details={}, key=nil, locals=[])
-      cached(key, [name, prefix, partial], details, locals) do
-        find_templates(name, prefix, partial, details, true)
-      end
-    end
-
-    private
+  private
 
     delegate :caching?, to: :class
 
@@ -175,15 +169,15 @@ module ActionView
       @pattern = pattern || DEFAULT_PATTERN
       super()
     end
-    cattr_accessor :instance_reader => false, :instance_writer => false
+
     private
 
-    def find_templates(name, prefix, partial, details, outside_app_allowed = false)
+    def find_templates(name, prefix, partial, details)
       path = Path.build(name, prefix, partial)
-      query(path, details, details[:formats], outside_app_allowed)
+      query(path, details, details[:formats])
     end
 
-    def query(path, details, formats, outside_app_allowed)
+    def query(path, details, formats)
       query = build_query(path, details)
 
       # deals with case-insensitive file systems.
@@ -191,9 +185,8 @@ module ActionView
 
       template_paths = Dir[query].reject { |filename|
         File.directory?(filename) ||
-            !sanitizer[File.dirname(filename)].include?(filename)
+          !sanitizer[File.dirname(filename)].include?(filename)
       }
-      template_paths = reject_files_external_to_app(template_paths) unless outside_app_allowed
 
       template_paths.map { |template|
         handler, format = extract_handler_and_format(template, formats)
@@ -204,16 +197,6 @@ module ActionView
           :format       => format,
           :updated_at   => mtime(template))
       }
-    end
-
-    def reject_files_external_to_app(files)
-      files.reject { |filename| !inside_path?(@path, filename) }
-    end
-
-    def inside_path?(path, filename)
-      filename = File.expand_path(filename)
-      path = File.join(path, '')
-      filename.start_with?(path)
     end
 
     # Helper for building query glob string based on resolver's pattern.

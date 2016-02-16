@@ -3229,3 +3229,66 @@ ul.variables:after,
     visibility: hidden;
 }
 
+
+
+//<!--[if IE 7]>
+//
+//             *+html ul.variables,
+//             *+html .environments .stages,
+//             *+html .change_materials .materials,
+//             *+html .change_materials,
+//             *+html .environment .pipeline .deploy,
+//             *+html .page_title_bar .other_runs li,
+//             *+html .overview_widget,
+//             *+html .overview_widget .job_grouping,
+//             *+html .stage_history .stage,
+//             *+html .pipeline_bundle,
+//             *+html .pipeline_bundle .pipeline .title,
+//             *+html .pipeline_bundle .pipeline .pipeline_instance_details,
+//             *+html .pipeline_bundle .pipeline .previously,
+//             *+html #pipeline_visualization,
+//             *+html #pipelines .pipelines_selector,
+//             *+html #ajax_agents_header
+//             *+html .pipeline,
+//             *+html .pipeline_bundle .pipeline_operations,
+//             *+html #user_summary h1,
+//             *+html #oauth_page .certificate_details dl
+//             {
+//               display: inline-block;
+//               zoom: 1;
+//             }
+//<![endif]-->
+//
+//<!--[if IE 8]>
+//
+//<style type="text/css">
+//                      ul.variables,
+//                      .environments .stages,
+//                      .change_materials .materials,
+//                      .change_materials,
+//                      .environment .pipeline .deploy,
+//                      .page_title_bar .other_runs li,
+//                      .overview_widget,
+//                      .overview_widget .job_grouping,
+//                      .stage_history .stage,
+//                      .pipeline_bundle,
+//                      .pipeline_bundle .pipeline .title,
+//                      .pipeline_bundle .pipeline .pipeline_instance_details,
+//                      .pipeline_bundle .pipeline .previously,
+//                      #pipeline_visualization,
+//                      #pipelines .pipelines_selector,
+//                      #ajax_agents_header,
+//                      .pipeline,
+//                      .pipeline_bundle .pipeline_operations,
+//                      #user_summary h1,
+//                      #oauth_page .certificate_details dl {
+//                        zoom: 1; /* triggers hasLayout */
+//                        display: block; /* resets display for IE/Win */
+//                        height: 1%;
+//                      }
+//
+///* Only IE can see inside the conditional comment
+//and read this CSS rule. Don't ever use a normal HTML
+//comment inside the CC or it will close prematurely. */
+//</style>
+//<![endif]-->

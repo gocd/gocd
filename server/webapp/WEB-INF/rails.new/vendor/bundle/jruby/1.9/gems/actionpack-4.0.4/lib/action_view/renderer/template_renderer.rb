@@ -23,10 +23,8 @@ module ActionView
 
       if options.key?(:text)
         Template::Text.new(options[:text], formats.first)
-      elsif options.key?(:app_template_file)
-        find_template(options[:app_template_file], nil, false, keys, @details)
       elsif options.key?(:file)
-        with_fallbacks { find_file(options[:file], nil, false, keys, @details) }
+        with_fallbacks { find_template(options[:file], nil, false, keys, @details) }
       elsif options.key?(:inline)
         handler = Template.handler_for_extension(options[:type] || "erb")
         Template.new(options[:inline], "inline template", handler, :locals => keys)

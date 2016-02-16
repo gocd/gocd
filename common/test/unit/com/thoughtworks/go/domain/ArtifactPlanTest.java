@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,14 +24,19 @@ import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.ArtifactPlan.DEST;
+import static com.thoughtworks.go.config.ArtifactPlan.SRC;
+import static com.thoughtworks.go.config.ConfigSaveValidationContext.forChain;
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -39,7 +44,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ArtifactPlanTest {
-    private final Mockery context = new ClassMockery();
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery();
     private File testFolder;
     private File srcFolder;
 
@@ -55,7 +61,8 @@ public class ArtifactPlanTest {
         deleteFolder(testFolder);
     }
 
-    @Test public void shouldPublishArtifacts() throws Exception {
+    @Test
+    public void shouldPublishArtifacts() throws Exception {
         final DefaultGoPublisher publisher = context.mock(DefaultGoPublisher.class);
         final ArtifactPlan artifactPlan = new ArtifactPlan("src", "dest");
         context.checking(new Expectations() {
@@ -131,15 +138,15 @@ public class ArtifactPlanTest {
     @Test
     public void validate_shouldFailIfSourceIsEmpty() {
         ArtifactPlan artifactPlan = new ArtifactPlan(null, "bar");
-        artifactPlan.validate(ConfigSaveValidationContext.forChain(new JobConfig("jobname")));
-        assertThat(artifactPlan.errors().on(ArtifactPlan.SRC), is("Job 'jobname' has an artifact with an empty source"));
+        artifactPlan.validate(forChain(new JobConfig("jobname")));
+        assertThat(artifactPlan.errors().on(SRC), is("Job 'jobname' has an artifact with an empty source"));
     }
 
     @Test
-   public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
+    public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
         ArtifactPlan artifactPlan = new ArtifactPlan("foo/bar", "..");
         artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Invalid destination path. Destination path should match the pattern ([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
+        assertThat(artifactPlan.errors().on(DEST), is("Invalid destination path. Destination path should match the pattern ([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
     }
 
     @Test
@@ -160,11 +167,11 @@ public class ArtifactPlanTest {
         artifactPlan.validateUniqueness(plans);
 
         assertThat(artifactPlan.errors().isEmpty(), is(false));
-        assertThat(artifactPlan.errors().on(ArtifactPlan.SRC), is("Duplicate artifacts defined."));
-        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Duplicate artifacts defined."));
+        assertThat(artifactPlan.errors().on(SRC), is("Duplicate artifacts defined."));
+        assertThat(artifactPlan.errors().on(DEST), is("Duplicate artifacts defined."));
         assertThat(existingPlan.errors().isEmpty(), is(false));
-        assertThat(existingPlan.errors().on(ArtifactPlan.SRC), is("Duplicate artifacts defined."));
-        assertThat(existingPlan.errors().on(ArtifactPlan.DEST), is("Duplicate artifacts defined."));
+        assertThat(existingPlan.errors().on(SRC), is("Duplicate artifacts defined."));
+        assertThat(existingPlan.errors().on(DEST), is("Duplicate artifacts defined."));
     }
 
     @Test

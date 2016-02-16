@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -28,17 +28,23 @@ import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.util.ClassMockery;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.HashMap;
 
+import static com.thoughtworks.go.domain.JobResult.Failed;
+import static com.thoughtworks.go.helper.JobInstanceMother.completed;
+import static com.thoughtworks.go.helpers.DataUtils.getFailedBuildLbuildAsFile;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class JobDetailServiceTest {
-    private Mockery context = new ClassMockery();
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery();
     private JobDetailService jobDetailService;
     private ArtifactsService artifactsService;
     private GoConfigService configService;
@@ -55,7 +61,7 @@ public class JobDetailServiceTest {
 
         final String jobName = "jobConfig1";
         final int id = 1;
-        job = JobInstanceMother.completed(jobName, JobResult.Failed);
+        job = completed(jobName, Failed);
         job.setId(id);
         job.setIdentifier(new JobIdentifier("pipeline", "Label:1", "stage", "1", jobName));
 
@@ -76,7 +82,7 @@ public class JobDetailServiceTest {
     public void shouldCreateBuildInstanceDetailFromLogFileForCompletedBuild() throws Exception {
         final String jobConfigName = "jobConfig1";
         final int id = 1;
-        final JobInstance completed = JobInstanceMother.completed(jobConfigName, JobResult.Failed);
+        final JobInstance completed = completed(jobConfigName, Failed);
         completed.setId(id);
         completed.setIdentifier(new JobIdentifier("pipeline", "1", "stage", "1", jobConfigName));
         final HashMap properties = new HashMap();
@@ -84,7 +90,7 @@ public class JobDetailServiceTest {
         context.checking(new Expectations() {
             {
                 one(artifactsService).getInstanceLogFile(completed.getIdentifier());
-                LogFile buildLogFile = new LogFile(DataUtils.getFailedBuildLbuildAsFile().getFile());
+                LogFile buildLogFile = new LogFile(getFailedBuildLbuildAsFile().getFile());
                 will(returnValue(buildLogFile));
                 one(artifactsService).parseLogFile(buildLogFile, completed.isPassed());
                 will(returnValue(properties));

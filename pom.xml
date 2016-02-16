@@ -83,6 +83,7 @@
         <commons-codec.version>1.10</commons-codec.version>
         <mailapi.version>1.5.5</mailapi.version>
         <ant.version>1.9.6</ant.version>
+        <slf4j.version>1.7.16</slf4j.version>
     </properties>
     <modules>
         <module>base</module>

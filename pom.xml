@@ -81,6 +81,7 @@
         <junit.version>4.12</junit.version>
         <log4j.version>1.2.17</log4j.version>
         <commons-codec.version>1.10</commons-codec.version>
+        <mailapi.version>1.5.5</mailapi.version>
     </properties>
     <modules>
         <module>base</module>

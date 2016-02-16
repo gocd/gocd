@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>mailapi</artifactId>
-            <version>1.4.4</version>
+            <version>${mailapi.version}</version>
         </dependency>
 
         <dependency>

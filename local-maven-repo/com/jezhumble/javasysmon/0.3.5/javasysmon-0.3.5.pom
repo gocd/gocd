@@ -4,6 +4,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.jezhumble</groupId>
   <artifactId>javasysmon</artifactId>
-  <version>0.3.4</version>
+  <version>0.3.5</version>
   <description>POM was created from install:install-file</description>
 </project>

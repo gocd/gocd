@@ -148,7 +148,15 @@
                             {/if}
                         {/if}
                         {if stage.scheduled == 'true'}
-                            <div id="stage-detail-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="${% pipelineHistoryPage.getState(stage.stageStatus) %}-stage">
+                            {if window.cruise_is_running_in_ie6}
+                                <!-- for IE6 -->
+                                <div id="stage-detail-${% pipeline.counterOrLabel %}-${% stage.stageName %}"
+                                   class="${% pipelineHistoryPage.getState(stage.stageStatus) %}-stage"
+                                   onmouseover="_IE6_onMouseComeInStage(this)" onmouseout="_IE6_onMouseComeOutStage()">
+                            {else}
+                                <!-- for none IE6 browser -->
+                                <div id="stage-detail-${% pipeline.counterOrLabel %}-${% stage.stageName %}" class="${% pipelineHistoryPage.getState(stage.stageStatus) %}-stage">
+                            {/if}
                              {if stage.stageStatus == 'Cancelled'}
                                 <img alt="" src="$req.getContextPath()/$concatenatedStageBarCancelledIconFilePath">
                              {/if}

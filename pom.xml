@@ -87,6 +87,7 @@
         <commons-validator.version>1.5.0</commons-validator.version>
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
         <jaxen.version>1.1.4</jaxen.version>
+        <unboundid-ldapsdk.version>3.1.0</unboundid-ldapsdk.version>
     </properties>
     <modules>
         <module>base</module>

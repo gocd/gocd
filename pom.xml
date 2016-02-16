@@ -93,6 +93,7 @@
         <commons-httpclient.version>3.1</commons-httpclient.version>
         <ehcache.version>2.10.1</ehcache.version>
         <mockito.version>1.10.19</mockito.version>
+        <cglib.version>3.2.0</cglib.version>
     </properties>
     <modules>
         <module>base</module>

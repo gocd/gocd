@@ -82,6 +82,7 @@
         <log4j.version>1.2.17</log4j.version>
         <commons-codec.version>1.10</commons-codec.version>
         <mailapi.version>1.5.5</mailapi.version>
+        <ant.version>1.9.6</ant.version>
     </properties>
     <modules>
         <module>base</module>

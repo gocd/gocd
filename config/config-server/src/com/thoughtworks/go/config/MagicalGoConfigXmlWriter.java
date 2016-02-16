@@ -1,20 +1,29 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
+
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.XmlUtils;
+import com.thoughtworks.go.util.XsdErrorTranslator;
+import org.apache.log4j.Logger;
+import org.jdom.*;
+import org.jdom.input.SAXBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,20 +33,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.metrics.domain.context.Context;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.metrics.domain.probes.ProbeType;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.XmlUtils;
-import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.CDATA;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
 
 import static com.thoughtworks.go.config.ConfigCache.annotationFor;
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
@@ -53,11 +48,9 @@ public class MagicalGoConfigXmlWriter {
     public static final String XML_NS = "http://www.w3.org/2001/XMLSchema-instance";
     private ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
-    private final MetricsProbeService metricsProbeService;
 
-    public MagicalGoConfigXmlWriter(ConfigCache configCache, ConfigElementImplementationRegistry registry, MetricsProbeService metricsProbeService) {
+    public MagicalGoConfigXmlWriter(ConfigCache configCache, ConfigElementImplementationRegistry registry) {
         this.configCache = configCache;
-        this.metricsProbeService = metricsProbeService;
         this.registry = registry;
     }
 
@@ -77,32 +70,27 @@ public class MagicalGoConfigXmlWriter {
 
     public void write(CruiseConfig configForEdit, OutputStream output, boolean skipPreprocessingAndValidation) throws Exception {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
-        Context context = metricsProbeService.begin(ProbeType.WRITE_CONFIG_TO_FILE_SYSTEM);
-        try {
-            MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry, metricsProbeService);
-            if(!configForEdit.getOrigin().isLocal()) {
-                if (!skipPreprocessingAndValidation) {
-                    // lets validate merged config first, it will show more sensible errors
-                    loader.preprocessAndValidate(configForEdit);
-                }
-                configForEdit = configForEdit.getLocal();
-            }
+        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
+        if (!configForEdit.getOrigin().isLocal()) {
             if (!skipPreprocessingAndValidation) {
+                // lets validate merged config first, it will show more sensible errors
                 loader.preprocessAndValidate(configForEdit);
-                LOGGER.debug("[Serializing Config] Done with cruise config validators.");
             }
-            Document document = createEmptyCruiseConfigDocument();
-            write(configForEdit, document.getRootElement(), configCache, registry);
-
-            LOGGER.debug("[Serializing Config] XSD and DOM validation.");
-            verifyXsdValid(document);
-            MagicalGoConfigXmlLoader.validateDom(document.getRootElement(), registry);
-            LOGGER.info("[Serializing Config] Generating config partial.");
-            XmlUtils.writeXml(document, output);
-            LOGGER.debug("[Serializing Config] Finished writing config partial.");
-        } finally {
-            metricsProbeService.end(ProbeType.WRITE_CONFIG_TO_FILE_SYSTEM, context);
+            configForEdit = configForEdit.getLocal();
         }
+        if (!skipPreprocessingAndValidation) {
+            loader.preprocessAndValidate(configForEdit);
+            LOGGER.debug("[Serializing Config] Done with cruise config validators.");
+        }
+        Document document = createEmptyCruiseConfigDocument();
+        write(configForEdit, document.getRootElement(), configCache, registry);
+
+        LOGGER.debug("[Serializing Config] XSD and DOM validation.");
+        verifyXsdValid(document);
+        MagicalGoConfigXmlLoader.validateDom(document.getRootElement(), registry);
+        LOGGER.info("[Serializing Config] Generating config partial.");
+        XmlUtils.writeXml(document, output);
+        LOGGER.debug("[Serializing Config] Finished writing config partial.");
     }
 
     private void verifyXsdValid(Document document) throws Exception {

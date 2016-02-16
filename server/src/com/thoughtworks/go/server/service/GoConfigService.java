@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,13 +30,9 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.metrics.domain.context.Context;
-import com.thoughtworks.go.metrics.domain.probes.ProbeType;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
@@ -89,13 +85,12 @@ public class GoConfigService implements Initializer {
 
     public static final String INVALID_CRUISE_CONFIG_XML = "Invalid Configuration";
     private final ConfigElementImplementationRegistry registry;
-    private MetricsProbeService metricsProbeService;
     private InstanceFactory instanceFactory;
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigCache configCache, ConfigElementImplementationRegistry registry,
-                           MetricsProbeService metricsProbeService, InstanceFactory instanceFactory) {
+                           InstanceFactory instanceFactory) {
         this.goConfigDao = goConfigDao;
         this.pipelineRepository = pipelineRepository;
         this.goCache = goCache;
@@ -103,15 +98,14 @@ public class GoConfigService implements Initializer {
         this.configCache = configCache;
         this.registry = registry;
         this.upgrader = upgrader;
-        this.metricsProbeService = metricsProbeService;
         this.instanceFactory = instanceFactory;
     }
 
     //for testing
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, Clock clock, GoConfigMigration upgrader, GoCache goCache,
-                           ConfigRepository configRepository, UserDao userDao, ConfigElementImplementationRegistry registry,
-                           MetricsProbeService metricsProbeService, InstanceFactory instanceFactory) {
-        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, metricsProbeService, instanceFactory);
+                           ConfigRepository configRepository, ConfigElementImplementationRegistry registry,
+                           InstanceFactory instanceFactory) {
+        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory);
         this.clock = clock;
     }
 
@@ -295,7 +289,6 @@ public class GoConfigService implements Initializer {
     }
 
     public ConfigUpdateResponse updateConfigFromUI(final UpdateConfigFromUI command, final String md5, Username username, final LocalizedOperationResult result) {
-        Context context = metricsProbeService.begin(ProbeType.SAVE_CONFIG_XML_THROUGH_CLICKY_ADMIN);
         UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result);
         UpdatedNodeSubjectResolver updatedConfigResolver = new UpdatedNodeSubjectResolver();
         try {
@@ -326,8 +319,6 @@ public class GoConfigService implements Initializer {
             } else {
                 result.badRequest(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
             }
-        } finally {
-            metricsProbeService.end(ProbeType.SAVE_CONFIG_XML_THROUGH_CLICKY_ADMIN, context);
         }
 
         CruiseConfig newConfigSinceNoOtherConfigExists = clonedConfigForEdit();
@@ -1134,7 +1125,7 @@ public class GoConfigService implements Initializer {
 
         protected ConfigSaveState saveConfig(String xmlString, final String md5) throws Exception {
             LOGGER.debug("[Config Save] Started saving XML");
-            MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry, metricsProbeService);
+            MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
             final CruiseConfig config = configXmlLoader.loadConfigHolder(xmlString).configForEdit;
 
             LOGGER.debug("[Config Save] Updating config");
@@ -1155,7 +1146,7 @@ public class GoConfigService implements Initializer {
         protected org.dom4j.Document documentRoot() throws Exception {
             CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, out, true);
+            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, out, true);
             org.dom4j.Document document = reader.read(new StringReader(out.toString()));
             Map<String, String> map = new HashMap<String, String>();
             map.put("go", MagicalGoConfigXmlWriter.XML_NS);
@@ -1168,7 +1159,7 @@ public class GoConfigService implements Initializer {
         protected abstract T valid();
 
         public String asXml() {
-            return new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).toXmlPartial(valid());
+            return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(valid());
         }
 
         public GoConfigValidity saveXml(String xmlPartial, String expectedMd5) {
@@ -1336,7 +1327,7 @@ public class GoConfigService implements Initializer {
     private String configAsXml(CruiseConfig cruiseConfig) {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         try {
-            new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, outStream, true);
+            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, outStream, true);
             return outStream.toString();
         } catch (Exception e) {
             throw bomb(e);

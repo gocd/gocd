@@ -193,7 +193,6 @@ test-agent/target/
 config/config-api/target/
 config/config-server/target/
 db/target/
-metrics/target/
 test-utils/target/
 util/target/
 tfs-impl/target/

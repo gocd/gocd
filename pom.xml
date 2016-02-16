@@ -87,8 +87,6 @@
         <module>db</module>
         <module>addon-api/database</module>
 
-        <module>metrics</module>
-
         <module>plugin-infra/go-plugin-api-internal</module>
         <module>plugin-infra/go-plugin-api</module>
         <module>plugin-infra/go-plugin-activator</module>

@@ -1,46 +1,38 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.upgrades;
 
-import java.io.ByteArrayOutputStream;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.ConfigMigrator;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
-import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 // test for 14.xsl
 public class AuthorizationMigrationTest {
 
-    private MetricsProbeService metricsProbeService;
-
     @Before
     public void setUp() throws Exception {
-        metricsProbeService = mock(MetricsProbeService.class);
     }
 
     private static final String OLD_AUTH = "          <auth>\n"
@@ -97,7 +89,7 @@ public class AuthorizationMigrationTest {
 
     @Test
     public void shouldBeAbleToParseNewAuthorization() throws Exception {
-        AuthConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).fromXmlPartial(NEW_AUTHORIZATION, AuthConfig.class);
+        AuthConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(NEW_AUTHORIZATION, AuthConfig.class);
         assertThat(config.size(), is(3));
     }
 
@@ -111,7 +103,7 @@ public class AuthorizationMigrationTest {
     public void shouldBeAbleToWriteNewConfig() throws Exception {
         CruiseConfig newConfig = ConfigMigrator.loadWithMigration(CONFIG_WITH_AUTH).config;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(newConfig, buffer, false);
+        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(newConfig, buffer, false);
 
         assertThat(new String(buffer.toByteArray()).replace("\r\n", "\n"), containsString(NEW_AUTHORIZATION));
     }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,28 +16,31 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.ObjectUtil;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
@@ -45,18 +48,13 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public abstract class CachedGoConfigTestBase {
     protected CachedGoConfig cachedGoConfig;
     protected GoConfigFileHelper configHelper;
     protected GoFileConfigDataSource dataSource;
     protected ServerHealthService serverHealthService;
-    protected MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
 
     @Test public void shouldUpdateCachedConfigOnSave() throws Exception {
         assertThat(cachedGoConfig.currentConfig().agents().size(), is(1));
@@ -352,7 +350,7 @@ public abstract class CachedGoConfigTestBase {
         addPipelineWithParams(cruiseConfig);
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(cruiseConfig, buffer, false);
+        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(cruiseConfig, buffer, false);
 
         cachedGoConfig.save(new String(buffer.toByteArray()), true);
 
@@ -363,7 +361,7 @@ public abstract class CachedGoConfigTestBase {
         reloadedPipelineConfig = cachedGoConfig.loadForEditing().pipelineConfigByName(new CaseInsensitiveString("mingle"));
         hgMaterialConfig = (HgMaterialConfig)  byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl(), is("http://#{foo}/#{bar}"));
-        
+
         GoConfigHolder configHolder = cachedGoConfig.loadConfigHolder();
         reloadedPipelineConfig = configHolder.config.pipelineConfigByName(new CaseInsensitiveString("mingle"));
         hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
@@ -398,7 +396,7 @@ public abstract class CachedGoConfigTestBase {
     @Test public void shouldNotifyConfigListenersWhenConfigChanges() throws Exception {
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         cachedGoConfig.forceReload();
-        
+
         cachedGoConfig.registerListener(listener);
         cachedGoConfig.writeWithLock(updateFirstAgentResources("osx"));
 

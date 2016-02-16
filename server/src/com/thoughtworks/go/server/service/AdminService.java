@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.metrics.domain.context.Context;
-import com.thoughtworks.go.metrics.domain.probes.ProbeType;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,12 +29,10 @@ import java.util.Map;
 @Service
 public class AdminService {
     private final GoConfigService goConfigService;
-    private final MetricsProbeService metricsProbeService;
 
     @Autowired
-    public AdminService(GoConfigService goConfigService, MetricsProbeService metricsProbeService) {
+    public AdminService(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-        this.metricsProbeService = metricsProbeService;
     }
 
     public Map populateModel(Map model) {
@@ -62,18 +57,13 @@ public class AdminService {
     }
 
     public GoConfigValidity updateConfig(Map attributes, HttpLocalizedOperationResult result) {
-        Context context = metricsProbeService.begin(ProbeType.SAVE_CONFIG_XML_THROUGH_XML_TAB);
         GoConfigValidity validity;
-        try {
-            String configXml = (String) attributes.get("content");
-            String configMd5 = (String) attributes.get("md5");
-            GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(false);
-            validity = fileSaver.saveXml(configXml, configMd5);
-            if(!validity.isValid()){
-                result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
-            }
-        } finally {
-            metricsProbeService.end(ProbeType.SAVE_CONFIG_XML_THROUGH_XML_TAB, context);
+        String configXml = (String) attributes.get("content");
+        String configMd5 = (String) attributes.get("md5");
+        GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(false);
+        validity = fileSaver.saveXml(configXml, configMd5);
+        if (!validity.isValid()) {
+            result.badRequest(LocalizedMessage.string("SAVE_FAILED"));
         }
         return validity;
     }

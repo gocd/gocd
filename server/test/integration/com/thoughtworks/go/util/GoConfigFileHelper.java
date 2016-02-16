@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,7 +35,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -50,7 +49,6 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.mockito.Mockito.mock;
 
 /**
  * @understands how to edit the cruise config file for testing
@@ -66,7 +64,6 @@ public class GoConfigFileHelper {
     private CachedGoConfig cachedGoConfig;
     private SystemEnvironment sysEnv;
     private String originalConfigDir;
-    private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
 
     public GoConfigFileHelper() {
         this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
@@ -112,23 +109,22 @@ public class GoConfigFileHelper {
     public static GoConfigDao createTestingDao() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
-            NoOpMetricsProbeService probeService = new NoOpMetricsProbeService();
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, new ServerVersion(), configElementImplementationRegistry, probeService, serverHealthService);
+                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService);
             dataSource.upgradeIfNecessary();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
             GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
-                    new GoConfigPluginService(configCache,configElementImplementationRegistry,probeService));
+                    new GoConfigPluginService(configCache,configElementImplementationRegistry));
             GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
-            return new GoConfigDao(cachedConfigService, probeService);
+            return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -139,17 +135,16 @@ public class GoConfigFileHelper {
     public static GoConfigDao createTestingDao(GoPartialConfig partialConfig) {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
-            NoOpMetricsProbeService probeService = new NoOpMetricsProbeService();
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), probeService, serverHealthService);
+                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService);
             dataSource.upgradeIfNecessary();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
             cachedConfigService.loadConfigIfNull();
-            return new GoConfigDao(cachedConfigService, probeService);
+            return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -697,7 +692,7 @@ public class GoConfigFileHelper {
     }
 
     public void getXml(CruiseConfig cruiseConfig, ByteArrayOutputStream buffer) throws Exception {
-        new MagicalGoConfigXmlWriter(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(cruiseConfig, buffer, false);
+        new MagicalGoConfigXmlWriter(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins()).write(cruiseConfig, buffer, false);
     }
 
     public void configureStageAsAutoApproval(String pipelineName, String stage) {

@@ -1,41 +1,34 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.helper.NoOpMetricsProbeService;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TimeProvider;
 
+import java.io.*;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.mockito.Mockito.mock;
 
 public class ConfigMigrator {
-    private static MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     public static GoConfigMigration migrate(final File configFile) {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
@@ -48,8 +41,8 @@ public class ConfigMigrator {
                 }
                 throw bomb(e.getMessage() + ": content=\n" + content + "\n" + (e.getCause() == null ? "" : e.getCause().getMessage()), e);
             }
-        }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry,
-                metricsProbeService);
+        }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry
+        );
         //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
         upgrader.upgradeIfNecessary(configFile, "N/A");
         return upgrader;
@@ -83,7 +76,7 @@ public class ConfigMigrator {
     }
 
     public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws Exception {
-        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry, metricsProbeService);
+        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
         File tempFile = TestFileUtil.createTempFile("cruise-config.xml");
         FileUtil.writeContentToFile(FileUtil.readToEnd(input), tempFile);
         migrate(tempFile);
@@ -95,7 +88,7 @@ public class ConfigMigrator {
         try {
             ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-            return new MagicalGoConfigXmlLoader(new ConfigCache(), registry, metricsProbeService).loadConfigHolder(migrate(content)).config;
+            return new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(migrate(content)).config;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

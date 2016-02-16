@@ -37,7 +37,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-@RunWith(JMock.class)
 public class WorkFinderTest {
     private Mockery context;
     private BuildAssignmentService workAssigner;

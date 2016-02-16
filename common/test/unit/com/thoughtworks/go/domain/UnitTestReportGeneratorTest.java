@@ -1,67 +1,63 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
-import java.io.*;
-import java.util.UUID;
-
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
-import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.FAILED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.IGNORED_TEST_COUNT;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TEST_TIME;
-import static com.thoughtworks.go.domain.UnitTestReportGenerator.TOTAL_TEST_COUNT;
-import static com.thoughtworks.go.util.TestUtils.copyAndClose;
-import static com.thoughtworks.go.util.TestUtils.restoreConsoleOutput;
-import static com.thoughtworks.go.util.TestUtils.suppressConsoleOutput;
+import java.io.*;
+
+import static com.thoughtworks.go.domain.UnitTestReportGenerator.*;
+import static com.thoughtworks.go.util.FileUtil.deleteFolder;
+import static com.thoughtworks.go.util.FileUtil.fileseparator;
+import static com.thoughtworks.go.util.TestFileUtil.createTempFolder;
+import static com.thoughtworks.go.util.TestUtils.*;
+import static java.util.UUID.randomUUID;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 
-@RunWith(JMock.class)
 public class UnitTestReportGeneratorTest {
-    private final Mockery context = new ClassMockery();
-
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery(){{
+        setImposteriser(ClassImposteriser.INSTANCE);
+    }};
     private File testFolder;
     private UnitTestReportGenerator generator;
     private DefaultGoPublisher publisher;
 
     @Before
     public void setUp() {
-        testFolder = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
+        testFolder = createTempFolder(randomUUID().toString());
         publisher = context.mock(DefaultGoPublisher.class);
         generator = new UnitTestReportGenerator(publisher, testFolder);
     }
 
     @After
     public void tearDown() {
-        FileUtil.deleteFolder(testFolder);
+        deleteFolder(testFolder);
     }
 
     @Test
@@ -238,7 +234,7 @@ public class UnitTestReportGeneratorTest {
 
     @Test
     public void shouldGenerateReportForXmlFilesRecursivelyInAFolder() throws ArtifactPublishingException, IOException {
-         context.checking(new Expectations() {
+        context.checking(new Expectations() {
             {
                 one(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
                 one(publisher).upload(with(any(File.class)), with(any(String.class)));
@@ -262,12 +258,10 @@ public class UnitTestReportGeneratorTest {
     }
 
     private OutputStream target(String targetFile) throws FileNotFoundException {
-        return new FileOutputStream(testFolder.getAbsolutePath() + FileUtil.fileseparator() + targetFile);
+        return new FileOutputStream(testFolder.getAbsolutePath() + fileseparator() + targetFile);
     }
 
     private InputStream source(String filename) throws IOException {
-        return new ClassPathResource(FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + filename).getInputStream();
+        return new ClassPathResource(fileseparator() + "data" + fileseparator() + filename).getInputStream();
     }
-
-
 }

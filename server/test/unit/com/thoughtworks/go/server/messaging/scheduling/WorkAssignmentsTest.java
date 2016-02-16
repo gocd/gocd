@@ -34,7 +34,6 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(JMock.class)
 public class WorkAssignmentsTest {
     private static final Work NO_WORK = new NoWork();
     private static final Work REAL_WORK = new FakeWork();

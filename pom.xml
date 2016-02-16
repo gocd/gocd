@@ -93,6 +93,7 @@
         <bcprov.version>1.47</bcprov.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
         <ehcache.version>2.10.1</ehcache.version>
+        <cglib.version>3.2.0</cglib.version>
     </properties>
     <modules>
         <module>base</module>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -92,21 +91,18 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 @RunWith(JunitExtRunner.class)
 public class MagicalGoConfigXmlLoaderTest {
     private MagicalGoConfigXmlLoader xmlLoader;
     static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested";
     private ConfigCache configCache = new ConfigCache();
-    private MetricsProbeService metricsProbeService;
 
     @Before
     public void setup() throws Exception {
         RepositoryMetadataStoreHelper.clear();
 
-        metricsProbeService = mock(MetricsProbeService.class);
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
+        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @After
@@ -2451,8 +2447,8 @@ public class MagicalGoConfigXmlLoaderTest {
         PipelineConfigs group = new BasicPipelineConfigs("defaultGroup", new Authorization());
         CruiseConfig config = new BasicCruiseConfig(group);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(config, stream, true);
-        GoConfigHolder configHolder = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService)
+        new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, stream, true);
+        GoConfigHolder configHolder = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins())
                 .loadConfigHolder(stream.toString());
         assertThat(configHolder.config.findGroup("defaultGroup"), is(group));
     }

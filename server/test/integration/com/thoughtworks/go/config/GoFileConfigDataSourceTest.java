@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,10 +23,8 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -71,7 +69,6 @@ public class GoFileConfigDataSourceTest {
     private ConfigRepository configRepository;
     private TimeProvider timeProvider;
     private ConfigCache configCache = new ConfigCache();
-    private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     private GoConfigDao goConfigDao;
 
     @Before
@@ -89,12 +86,12 @@ public class GoFileConfigDataSourceTest {
             public void handle(Exception e) {
                 throw new RuntimeException(e);
             }
-        }, configRepository, new TimeProvider(), configCache, registry, metricsProbeService),
-                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, metricsProbeService, mock(ServerHealthService.class));
+        }, configRepository, new TimeProvider(), configCache, registry),
+                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class));
         dataSource.upgradeIfNecessary();
         CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource, new ServerHealthService());
         fileService.loadConfigIfNull();
-        goConfigDao = new GoConfigDao(fileService, metricsProbeService);
+        goConfigDao = new GoConfigDao(fileService);
         configHelper.load();
         configHelper.usingCruiseConfigDao(goConfigDao);
     }
@@ -206,7 +203,7 @@ public class GoFileConfigDataSourceTest {
         CruiseConfig forEdit = configHolder.configForEdit;
         forEdit.addPipeline("my-awesome-group", PipelineConfigMother.createPipelineConfig("pipeline-foo", "stage-bar", "job-baz"));
         FileOutputStream fos = new FileOutputStream(dataSource.fileLocation());
-        new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(forEdit, fos, false);
+        new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()).write(forEdit, fos, false);
 
         configHolder = dataSource.load();
         String xmlText = FileUtils.readFileToString(dataSource.fileLocation());

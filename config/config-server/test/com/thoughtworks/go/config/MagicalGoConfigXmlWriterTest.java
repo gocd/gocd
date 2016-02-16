@@ -31,13 +31,15 @@ import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
-import com.thoughtworks.go.domain.config.*;
-import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.security.CipherProviderHelper;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
@@ -62,7 +64,6 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class MagicalGoConfigXmlWriterTest {
     private ByteArrayOutputStream output;
@@ -75,11 +76,10 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Before
     public void setup() {
-        MetricsProbeService metricsProbeService = mock(MetricsProbeService.class);
         output = new ByteArrayOutputStream();
         ConfigCache configCache = new ConfigCache();
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
+        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @Test

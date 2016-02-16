@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,22 +17,16 @@
 package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.domain.config.Admin;
-import com.thoughtworks.go.helper.NoOpMetricsProbeService;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class BasicPipelineConfigsTest {
-    private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     private static final String PIPELINES_WITH_PERMISSION = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
@@ -85,8 +79,8 @@ public class BasicPipelineConfigsTest {
         Authorization authorization = new Authorization(operationConfig);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(authorization, pipelineConfig);
-        MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                metricsProbeService);
+        MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
+        );
         String xml = xmlWriter.toXmlPartial(pipelineConfigs);
         assertThat(xml, is("<pipelines>\n"
                 + "  <authorization>\n"

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
-import com.thoughtworks.go.helper.NoOpMetricsProbeService;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -47,7 +45,6 @@ import static org.mockito.Mockito.mock;
  * @understands How to set up log files for testing
  */
 public final class LogFileHelper {
-    private static MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     private ArtifactsService artifactsService;
     private List<File> createdFiles = new ArrayList<File>();
     private LogFileHelper(File artifactsDir) throws IOException {
@@ -220,14 +217,14 @@ public final class LogFileHelper {
         public FakeGoConfigService(File artifactsDir) throws IOException {
             super(new GoConfigDao(new MergedGoConfig(new ServerHealthService(),
                           new CachedFileGoConfig(new GoFileConfigDataSource(new DoNotUpgrade(), mock(ConfigRepository.class), new SystemEnvironment(), new TimeProvider(),
-                                  new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService, new ServerHealthService()),
-                                  new ServerHealthService()),mock(GoPartialConfig.class)),
-                    metricsProbeService) {
+                                  new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(), new ServerHealthService()),
+                                  new ServerHealthService()),mock(GoPartialConfig.class))
+                  ) {
                 public CruiseConfig load() {
                     return null;
                 }
-            }, null, new SystemTimeClock(), new GoConfigMigration(mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                    metricsProbeService), null, null, null, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService,
+            }, null, new SystemTimeClock(), new GoConfigMigration(mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
+                    ), null, null, ConfigElementImplementationRegistryMother.withNoPlugins(),
                     new InstanceFactory());
             this.artifactsDir = artifactsDir;
         }

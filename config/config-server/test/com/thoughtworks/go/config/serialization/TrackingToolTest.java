@@ -1,39 +1,33 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
-import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_TRACKINGTOOL;
-import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_PIPELINE;
-import static com.thoughtworks.go.helper.ConfigFileFixture.PIPELINE_WITH_TRACKINGTOOL;
+import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class TrackingToolTest {
     private MagicalGoConfigXmlLoader loader;
@@ -42,9 +36,8 @@ public class TrackingToolTest {
 
     @Before
     public void setUp() throws Exception {
-        MetricsProbeService metricsProbeService = mock(MetricsProbeService.class);
-        loader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
-        writer = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
+        loader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        writer = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @Test

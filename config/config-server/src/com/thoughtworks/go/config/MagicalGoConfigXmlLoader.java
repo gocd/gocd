@@ -39,7 +39,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -156,7 +155,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     private Element parseInputStream(InputStream inputStream) throws Exception {
-        Element element = XmlUtils.validate(inputStream, GoConfigSchema.getCurrentSchema(), new XsdErrorTranslator(), builder, registry.xsds());
+        Element element = XmlUtils.validate(inputStream, GoConfigSchema.getCurrentSchema(), registry.xsds());
         validateDom(element, registry);
         return element;
     }

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,17 @@ import java.util.regex.Pattern;
 
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.Comment;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 public class CommandSnippetXmlParser {
     private static final Logger LOGGER = Logger.getLogger(CommandSnippetXmlParser.class);
 
     public CommandSnippet parse(String xmlContent, String fileName, String relativeFilePath) {
         try {
-            XmlUtils.validate(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"), new XsdErrorTranslator(), new SAXBuilder());
+            XmlUtils.validate(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"));
             Document document = XmlUtils.buildXmlDocument(xmlContent);
             CommandSnippetComment comment = getComment(document);
 

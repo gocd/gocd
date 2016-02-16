@@ -39,7 +39,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -224,7 +223,7 @@ public class GoConfigMigration {
     private void validate(String content) {
         int currentVersion = getCurrentSchemaVersion(content);
         try {
-            XmlUtils.validate(new ByteArrayInputStream(content.getBytes()), GoConfigSchema.getResource(currentVersion), new XsdErrorTranslator(), new SAXBuilder(), registry.xsds());
+            XmlUtils.validate(new ByteArrayInputStream(content.getBytes()), GoConfigSchema.getResource(currentVersion), registry.xsds());
         } catch (Exception e) {
             throw bomb("Cruise config file with version " + currentVersion + " is invalid. Unable to upgrade.", e);
         }

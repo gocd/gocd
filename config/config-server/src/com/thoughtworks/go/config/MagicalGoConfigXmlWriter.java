@@ -32,7 +32,6 @@ import com.thoughtworks.go.metrics.domain.probes.ProbeType;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.CDATA;
@@ -112,7 +111,7 @@ public class MagicalGoConfigXmlWriter {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         XmlUtils.writeXml(document, buffer);
         InputStream content = toInputStream(buffer.toString());
-        XmlUtils.validate(content, GoConfigSchema.getCurrentSchema(), new XsdErrorTranslator(), builder, registry.xsds());
+        XmlUtils.validate(content, GoConfigSchema.getCurrentSchema(), registry.xsds());
     }
 
     public String toXmlPartial(Object domainObject) {

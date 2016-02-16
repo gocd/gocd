@@ -23,7 +23,19 @@ Function CustomOnInit
     File /oname=$PLUGINSDIR\JavaHome.ini JavaHome.ini
 FunctionEnd
 
+Var ARGS
+
+Function SilentCustomUseInput
+    ${GetParameters} $ARGS
+    ${GetOptions} $ARGS /GO_SERVER_JAVA_HOME= $GO_SERVER_JAVA_HOME
+    Call CustomInstallBits
+FunctionEnd
+
 Function CustomInstallBits
+    ; Set the default java home
+    StrCmp $GO_SERVER_JAVA_HOME "" 0 +2
+        StrCpy $GO_SERVER_JAVA_HOME "$INSTDIR\jre"
+
     ; Write the Environment Variables for Wrapper to use
     WriteRegStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "CRUISE_SERVER_DIR" "$INSTDIR"
     WriteRegStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_SERVER_JAVA_HOME" "$GO_SERVER_JAVA_HOME"
@@ -49,6 +61,18 @@ Function CustomInstallBits
     SimpleFC::AddPort 8154 "Go Server HTTPS" 6 0 2 "" 1
 FunctionEnd
 
+; Silent Installer Service Creation Section
+Section "SilentCreateService"
+	IfSilent SilentLabel NonSilentLabel
+	SilentLabel:
+		Call SilentCustomUseInput
+		Goto Done
+	NonSilentLabel:
+		Goto Done
+	Done:
+SectionEnd
+
+
 ; Uninstaller
 Section "Uninstall"
     ; Stop and remove
@@ -71,7 +95,6 @@ Section "Uninstall"
     Delete $INSTDIR\uninstall.exe
 
     ; Remove directories used
-    RMDir /r $INSTDIR\apache-ant-1.7.0
     RMDir /r $INSTDIR\jre
     RMDir /r $INSTDIR\lib
     Delete $INSTDIR\*.*

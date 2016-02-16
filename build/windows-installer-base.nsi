@@ -118,7 +118,7 @@ Function .onInit
                 Goto upgrade
             IsNewerNonSilentLabel:
                 MessageBox MB_YESNO "This will upgrade Go $%NAME% from $2 to $%VERSION%.$\r$\nMake sure you have backups before doing this!$\r$\nDo you want to continue?" IDYES upgrade IDNO dontupgrade
-	        
+
         isolder:
             IfSilent IsOlderSilentLabel IsOlderNonSilentLabel
             IsOlderSilentLabel:
@@ -129,7 +129,7 @@ Function .onInit
 		        Goto IsOlderDone
 	        IsOlderDone:
                 Goto dontupgrade
-                
+
         dontupgrade:
             Quit
 
@@ -148,7 +148,7 @@ Function .onInit
         ReadRegStr $1 HKLM "Software\ThoughtWorks Studios\Cruise $%NAME%" "Ver"
         ReadRegStr $2 HKLM "Software\ThoughtWorks Studios\Cruise $%NAME%" "Version"
         IntCmp $1 $%REGVER% isCruise
-        
+
         isCruise:
             IfSilent IsCruiseSilentLabel IsCruiseNonSilentLabel
             IsCruiseSilentLabel:
@@ -159,7 +159,7 @@ Function .onInit
 
         dontupgradeToGo:
             Quit
-            
+
         upgradeToGo:
             StrCpy $IsUpgrading $UPGRADING
             ExecWait 'net stop "Cruise $%NAME%"'
@@ -210,7 +210,6 @@ Function skipDirectoryOnUpgrade
             Delete $INSTDIR\uninstall.exe
 
             ; Remove directories used
-            RMDir /r $INSTDIR\apache-ant-1.7.0
             RMDir /r $INSTDIR\jre
             RMDir /r $INSTDIR\lib
             Delete $INSTDIR\*.*
@@ -285,10 +284,10 @@ Section "Install"
 
     install:
         SetOverWrite on
-        
+
         ; Set output path to the installation directory.
         SetOutPath $INSTDIR
-        
+
         ; Put file there
         ; This is where all your data files come from
         File /r $%BINARY_SOURCE_DIR%\*.*

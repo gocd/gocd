@@ -74,8 +74,8 @@
         <!-- apache commons -->
         <dependency>
             <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils-core</artifactId>
-            <version>1.7.0</version>
+            <artifactId>commons-beanutils</artifactId>
+            <version>${commons-beanutils.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>

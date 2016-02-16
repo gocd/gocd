@@ -77,6 +77,7 @@
         <jmock.version>2.4.0</jmock.version>
         <pax-exam.version>3.0.0.M4</pax-exam.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gson.version>2.6.1</gson.version>
     </properties>
     <modules>
         <module>base</module>

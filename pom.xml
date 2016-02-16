@@ -86,6 +86,7 @@
         <slf4j.version>1.7.16</slf4j.version>
         <commons-validator.version>1.5.0</commons-validator.version>
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
+        <jaxen.version>1.1.4</jaxen.version>
     </properties>
     <modules>
         <module>base</module>

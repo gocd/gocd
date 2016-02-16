@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class HgModificationSplitter {
 
     public List<Modification> modifications() {
         try {
-            SAXBuilder builder = new SAXBuilder(false);
+            SAXBuilder builder = new SAXBuilder();
             Document document = builder.build(new StringReader(output));
             return parseDOMTree(document);
         } catch (Exception e) {

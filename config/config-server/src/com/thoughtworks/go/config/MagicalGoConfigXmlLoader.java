@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,14 +66,12 @@ public class MagicalGoConfigXmlLoader {
 
     private static final Cloner CLONER = new Cloner();
     private ConfigCache configCache;
-    private SAXBuilder builder;
     private final ConfigElementImplementationRegistry registry;
     private final MetricsProbeService metricsProbeService;
 
     public MagicalGoConfigXmlLoader(ConfigCache configCache, ConfigElementImplementationRegistry registry, MetricsProbeService metricsProbeService) {
         this.configCache = configCache;
         this.metricsProbeService = metricsProbeService;
-        builder = new SAXBuilder();
         this.registry = registry;
     }
 

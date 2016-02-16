@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,6 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.listener.PipelineConfigChangedListener;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -89,8 +88,6 @@ public class PipelineConfigServiceIntegrationTest {
     private ConfigCache configCache;
     @Autowired
     private ConfigElementImplementationRegistry registry;
-    @Autowired
-    private MetricsProbeService metricsProbeService;
 
     private GoConfigFileHelper configHelper;
     private PipelineConfig pipelineConfig;
@@ -421,6 +418,6 @@ public class PipelineConfigServiceIntegrationTest {
 
     private void saveConfig(CruiseConfig cruiseConfig) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).write(cruiseConfig, buffer, false);
+        new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, buffer, false);
     }
 }

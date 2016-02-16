@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.responses.GoConfigOperationalResponse;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -40,18 +39,15 @@ public class PipelineConfigsService {
     private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
     private final SecurityService securityService;
-    private final MetricsProbeService metricsProbeService;
     private MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
 
     @Autowired
-    public PipelineConfigsService(ConfigCache configCache, ConfigElementImplementationRegistry registry, GoConfigService goConfigService, SecurityService securityService,
-                                  MetricsProbeService metricsProbeService) {
+    public PipelineConfigsService(ConfigCache configCache, ConfigElementImplementationRegistry registry, GoConfigService goConfigService, SecurityService securityService) {
         this.goConfigService = goConfigService;
         this.configCache = configCache;
         this.registry = registry;
         this.securityService = securityService;
-        this.metricsProbeService = metricsProbeService;
-        this.magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry, metricsProbeService);
+        this.magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
     public GoConfigOperationalResponse<PipelineConfigs> updateXml(String groupName, String xmlPartial, final String md5, Username username, HttpLocalizedOperationResult result) throws Exception {
@@ -74,7 +70,7 @@ public class PipelineConfigsService {
         if (!userHasPermissions(username, groupName, result)) {
             return null;
         }
-        return new MagicalGoConfigXmlWriter(configCache, registry, metricsProbeService).toXmlPartial(getConfig(groupName));
+        return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(getConfig(groupName));
     }
 
     private void handleError(String groupName, GoConfigValidity goConfigValidity, HttpLocalizedOperationResult result) {

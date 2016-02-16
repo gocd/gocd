@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,7 +64,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
         configRepository.initialize();
         dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, env, new TimeProvider(),
                 new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                metricsProbeService, serverHealthService);
+                serverHealthService);
         serverHealthService = new ServerHealthService();
         cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService);
         cachedFileGoConfig.loadConfigIfNull();
@@ -80,7 +80,7 @@ public class MergedGoConfigTest extends CachedGoConfigTestBase {
         partials = new GoPartialConfig(repoConfigDataSource,configWatchList);
 
         cachedGoConfig = new MergedGoConfig(serverHealthService,cachedFileGoConfig, partials);
-        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig, metricsProbeService));
+        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig));
     }
 
     @Test

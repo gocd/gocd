@@ -42,11 +42,6 @@
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
-            <artifactId>metrics</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
             <artifactId>common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -91,13 +86,6 @@
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>config-api</artifactId>
-            <version>${project.parent.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
-            <artifactId>metrics</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

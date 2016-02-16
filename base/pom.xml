@@ -52,7 +52,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.4</version>
+            <version>${commons-codec.version}</version>
         </dependency>
 
         <dependency>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,22 +38,37 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.thoughtworks.go.config.materials.svn.SvnMaterial.createSvnMaterialWithMock;
+import static com.thoughtworks.go.config.materials.svn.SvnMaterialConfig.CHECK_EXTERNALS;
+import static com.thoughtworks.go.config.materials.svn.SvnMaterialConfig.USERNAME;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialsMother.defaultSvnMaterialsWithUrl;
+import static com.thoughtworks.go.helper.MaterialsMother.hgMaterials;
 import static com.thoughtworks.go.util.JsonUtils.from;
+import static com.thoughtworks.go.util.ReflectionUtil.setField;
+import static com.thoughtworks.go.util.TestFileUtil.createTempFolder;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
+import static java.util.Collections.singletonMap;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -63,11 +78,10 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JMock.class)
 public class SvnMaterialTest {
-    private Mockery context = new ClassMockery();
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery();
     private Subversion subversion;
-
     private SvnMaterial svnMaterial;
     private static final String URL = "svn://something";
     SubversionRevision revision = new SubversionRevision("1");
@@ -89,7 +103,7 @@ public class SvnMaterialTest {
                 will(returnValue(false));
             }
         });
-        svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
+        svnMaterial = createSvnMaterialWithMock(subversion);
         svnMaterial.setUrl(URL);
     }
 
@@ -101,7 +115,7 @@ public class SvnMaterialTest {
     }
 
     private File createSvnWorkingCopy(boolean withDotSvnFolder) {
-        File folder = TestFileUtil.createTempFolder("testSvnWorkingCopy");
+        File folder = createTempFolder("testSvnWorkingCopy");
         if (withDotSvnFolder) {
             File dotSvnFolder = new File(folder, ".svn");
             dotSvnFolder.mkdir();
@@ -143,7 +157,7 @@ public class SvnMaterialTest {
         svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
         String stdout = outputStreamConsumer.getStdOut();
         assertThat(stdout, containsString(
-                String.format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
+                format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
                         svnMaterial.getUrl())));
     }
 
@@ -189,23 +203,23 @@ public class SvnMaterialTest {
 
     @Test
     public void shouldBeEqualWhenUrlSameForSvnMaterial() throws Exception {
-        final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
-        final Material material = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
+        final Material material1 = defaultSvnMaterialsWithUrl("url1").get(0);
+        final Material material = defaultSvnMaterialsWithUrl("url1").get(0);
         assertComplementaryEquals(material1, material, true);
 
     }
 
     @Test
     public void shouldNotBeEqualWhenUrlDifferent() throws Exception {
-        final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
-        final Material material2 = MaterialsMother.defaultSvnMaterialsWithUrl("url2").get(0);
+        final Material material1 = defaultSvnMaterialsWithUrl("url1").get(0);
+        final Material material2 = defaultSvnMaterialsWithUrl("url2").get(0);
         assertComplementaryEquals(material1, material2, false);
     }
 
     @Test
     public void shouldNotBeEqualWhenTypeDifferent() throws Exception {
-        final Material hgMaterial = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
-        final Material nonHgMaterial = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
+        final Material hgMaterial = hgMaterials("url1", "hgdir").get(0);
+        final Material nonHgMaterial = defaultSvnMaterialsWithUrl("url1").get(0);
         assertComplementaryEquals(hgMaterial, nonHgMaterial, false);
     }
 
@@ -279,18 +293,18 @@ public class SvnMaterialTest {
     /* TODO: *SBD* Move this test into SvnMaterialConfig test after mothers are moved. */
     @Test
     public void shouldReturnEqualsWhenEverythingIsSameForSvnMaterialConfigs() throws Exception {
-        SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.USERNAME, "userName"));
+        SvnMaterialConfig svnMaterialConfig = svnMaterialConfig();
+        svnMaterialConfig.setConfigAttributes(singletonMap(CHECK_EXTERNALS, valueOf(true)));
+        svnMaterialConfig.setConfigAttributes(singletonMap(USERNAME, "userName"));
         svnMaterialConfig.setPassword("password");
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.URL, "URL"));
+        svnMaterialConfig.setConfigAttributes(singletonMap(SvnMaterialConfig.URL, "URL"));
 
 
-        SvnMaterialConfig other = MaterialConfigsMother.svnMaterialConfig();
-        other.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
-        other.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.USERNAME, "userName"));
+        SvnMaterialConfig other = svnMaterialConfig();
+        other.setConfigAttributes(singletonMap(CHECK_EXTERNALS, valueOf(true)));
+        other.setConfigAttributes(singletonMap(USERNAME, "userName"));
         other.setPassword("password");
-        other.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.URL, "URL"));
+        other.setConfigAttributes(singletonMap(SvnMaterialConfig.URL, "URL"));
 
         assertThat(other, is(svnMaterialConfig));
     }
@@ -338,16 +352,16 @@ public class SvnMaterialTest {
     public void shouldGenerateFingerprintBasedOnSqlCriteria() throws Exception {
         SvnMaterial one = new SvnMaterial("url", "username", "password", true);
         SvnMaterial two = new SvnMaterial("url", "username", "password", false);
-        assertThat(one.getFingerprint(), is(Matchers.not(two.getFingerprint())));
-        assertThat(one.getFingerprint(), is(DigestUtils.sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true")));
+        assertThat(one.getFingerprint(), is(not(two.getFingerprint())));
+        assertThat(one.getFingerprint(), is(sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true")));
     }
 
     @Test
     public void shouldGeneratePipelineUniqueFingerprintBasedOnFingerprintAndDest() throws Exception {
         SvnMaterial one = new SvnMaterial("url", "username", "password", true, "folder1");
         SvnMaterial two = new SvnMaterial("url", "username", "password", true, "folder2");
-        assertThat(one.getPipelineUniqueFingerprint(), is(Matchers.not(two.getFingerprint())));
-        assertThat(one.getPipelineUniqueFingerprint(), is(DigestUtils.sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true<|>dest=folder1")));
+        assertThat(one.getPipelineUniqueFingerprint(), is(not(two.getFingerprint())));
+        assertThat(one.getPipelineUniqueFingerprint(), is(sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true<|>dest=folder1")));
     }
 
     @Test
@@ -368,7 +382,7 @@ public class SvnMaterialTest {
 
         assertThat(material.getPassword(), is(nullValue()));
         assertThat(material.getEncryptedPassword(), is("encrypted"));
-     }
+    }
 
     @Test
     public void shouldDecryptSvnPassword() throws Exception {
@@ -376,7 +390,7 @@ public class SvnMaterialTest {
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
 
         SvnMaterial material = new SvnMaterial("/foo", "username", null, false, mockGoCipher);
-        ReflectionUtil.setField(material, "encryptedPassword", "encrypted");
+        setField(material, "encryptedPassword", "encrypted");
 
         material.ensureEncrypted();
         assertThat(material.getPassword(), is("password"));
@@ -403,12 +417,11 @@ public class SvnMaterialTest {
         String fakeCipherText = "fake cipher text";
         when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new InvalidCipherTextException("exception"));
         SvnMaterial material = new SvnMaterial("/foo", "username", null, false, mockGoCipher);
-        ReflectionUtil.setField(material, "encryptedPassword", fakeCipherText);
+        setField(material, "encryptedPassword", fakeCipherText);
         try {
             material.getPassword();
             fail("Should have thrown up");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             assertThat(e.getMessage(), is("Could not decrypt the password to get the real password"));
         }
     }
@@ -420,14 +433,13 @@ public class SvnMaterialTest {
         try {
             new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
             fail("Should have thrown up");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             assertThat(e.getMessage(), is("Password encryption failed. Please verify your cipher key."));
         }
     }
 
     @Test
-    public void shouldGetLongDescriptionForMaterial(){
+    public void shouldGetLongDescriptionForMaterial() {
         SvnMaterial material = new SvnMaterial("http://url/", "user", "password", true, "folder");
         assertThat(material.getLongDescription(), is("URL: http://url/, Username: user, CheckExternals: true"));
     }

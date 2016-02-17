@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -22,18 +22,28 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullJobInstance;
 import com.thoughtworks.go.util.ClassMockery;
+
+import static com.thoughtworks.go.domain.JobInstance.NULL;
+import static com.thoughtworks.go.domain.JobResult.Passed;
+import static com.thoughtworks.go.domain.JobResult.Unknown;
+import static com.thoughtworks.go.domain.JobState.Assigned;
 import static org.hamcrest.core.Is.is;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
+
 import static org.junit.Assert.assertThat;
+
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(JMock.class)
 public class BuildRepositoryServiceTest {
-    private Mockery context = new ClassMockery();
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery();
     private BuildRepositoryService buildRepositoryService;
     private JobInstanceService jobInstanceService;
     private String agentUuid = "uuid";
@@ -50,14 +60,14 @@ public class BuildRepositoryServiceTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldNotUpdateStatusFromWrongAgent() throws Exception {
-        final JobState state = JobState.Assigned;
+        final JobState state = Assigned;
         final JobInstance instance = context.mock(JobInstance.class);
         context.checking(new Expectations() {
             {
                 one(instance).isNull();
                 will(returnValue(false));
                 one(instance).getResult();
-                will(returnValue(JobResult.Unknown));
+                will(returnValue(Unknown));
                 one(jobInstanceService).buildByIdWithTransitions(jobIdendifier.getBuildId());
                 will(returnValue(instance));
                 one(instance).getState();
@@ -76,7 +86,7 @@ public class BuildRepositoryServiceTest {
     }
 
     private void checkUpdateResult(final String uuid) {
-        final JobResult result = JobResult.Passed;
+        final JobResult result = Passed;
         context.checking(new Expectations() {
             {
                 one(scheduleService).jobCompleting(jobIdendifier, result, uuid);
@@ -90,7 +100,7 @@ public class BuildRepositoryServiceTest {
         context.checking(new Expectations() {
             {
                 one(jobInstanceService).buildByIdWithTransitions((long) with(any(Integer.class)));
-                will(returnValue(NullJobInstance.NULL));
+                will(returnValue(NULL));
             }
         });
         assertThat(buildRepositoryService.isCancelledOrRescheduled(123L), is(false));

@@ -1,40 +1,35 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.helper.NoOpMetricsProbeService;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * @understands
  */
 public class CruiseConfigTest {
-    private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
 
     @Test public void shouldFindAllResourcesOnAllJobs() throws Exception {
         String jobXml = "<job name=\"dev1\">\n"
@@ -51,7 +46,7 @@ public class CruiseConfigTest {
                 + "</job>";
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry, metricsProbeService).loadConfigHolder(ConfigFileFixture.withJob(jobXml + jobXml2)).config;
+        CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(ConfigFileFixture.withJob(jobXml + jobXml2)).config;
         assertThat(config.getAllResources(), hasItem(new Resource("one")));
         assertThat(config.getAllResources(), hasItem(new Resource("two")));
         assertThat(config.getAllResources(), hasItem(new Resource("three")));

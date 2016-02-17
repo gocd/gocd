@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -30,15 +30,21 @@ import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
+import static com.thoughtworks.go.domain.AgentInstance.create;
+import static com.thoughtworks.go.helper.JobInstanceMother.assigned;
+import static java.util.Arrays.asList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ScheduleServiceRescheduleHungJobsTest {
-    private Mockery context = new ClassMockery();
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery();
     private JobInstanceService jobInstanceService;
     private AgentService agentService;
     private ScheduleService scheduleService;
@@ -56,27 +62,27 @@ public class ScheduleServiceRescheduleHungJobsTest {
 
     @Test
     public void shouldRescheduleHungBuildForDeadAgent() {
-        final JobInstance jobInstance = JobInstanceMother.assigned("dev");
+        final JobInstance jobInstance = assigned("dev");
         when(agentService.findRegisteredAgents()).thenReturn(activities());
-        when(jobInstanceService.findHungJobs(Arrays.asList("uuid1", "uuid2"))).thenReturn(new JobInstances(jobInstance));
+        when(jobInstanceService.findHungJobs(asList("uuid1", "uuid2"))).thenReturn(new JobInstances(jobInstance));
         scheduleService.rescheduleHungJobs();
         verify(agentService).findRegisteredAgents();
-        verify(jobInstanceService).findHungJobs(Arrays.asList("uuid1", "uuid2"));
+        verify(jobInstanceService).findHungJobs(asList("uuid1", "uuid2"));
     }
 
     @Test
     public void shouldNotRescheduleHungBuildsWhenNone() {
         when(agentService.findRegisteredAgents()).thenReturn(activities());
-        when(jobInstanceService.findHungJobs(Arrays.asList("uuid1", "uuid2"))).thenReturn(new JobInstances());
+        when(jobInstanceService.findHungJobs(asList("uuid1", "uuid2"))).thenReturn(new JobInstances());
         scheduleService.rescheduleHungJobs();
         verify(agentService).findRegisteredAgents();
-        verify(jobInstanceService).findHungJobs(Arrays.asList("uuid1", "uuid2"));
+        verify(jobInstanceService).findHungJobs(asList("uuid1", "uuid2"));
     }
 
     @Test
     public void shouldNotifyConsoleActivityMonitorToCancelUnresponsiveJobs() {
         when(agentService.findRegisteredAgents()).thenReturn(activities());
-        when(jobInstanceService.findHungJobs(Arrays.asList("uuid1", "uuid2"))).thenReturn(new JobInstances());
+        when(jobInstanceService.findHungJobs(asList("uuid1", "uuid2"))).thenReturn(new JobInstances());
         scheduleService.rescheduleHungJobs();
     }
 
@@ -84,9 +90,8 @@ public class ScheduleServiceRescheduleHungJobsTest {
         final AgentInstances activities = new AgentInstances(null);
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         HashSet<EnvironmentPipelineMatcher> noEnvironments = new HashSet<EnvironmentPipelineMatcher>();
-        activities.add(AgentInstance.create(new AgentConfig("uuid1"), false, systemEnvironment));
-        activities.add(AgentInstance.create(new AgentConfig("uuid2"), false, systemEnvironment));
+        activities.add(create(new AgentConfig("uuid1"), false, systemEnvironment));
+        activities.add(create(new AgentConfig("uuid2"), false, systemEnvironment));
         return activities;
     }
-
 }

@@ -23,9 +23,6 @@ describe Admin::Materials::DependencyController do
     controller.stub(:populate_health_messages)
     controller.stub(:go_config_service).and_return(@go_config_service = Object.new)
     @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-
-    import com.thoughtworks.go.helper.NoOpMetricsProbeService unless defined? NoOpMetricsProbeService
-    @metrics_probe_service = NoOpMetricsProbeService.new
   end
 
   describe "new,edit,create and destroy actions" do
@@ -111,7 +108,7 @@ describe Admin::Materials::DependencyController do
       @cruise_config_mother.addPipeline(@cruise_config, "Ab", "stage-1", ["job-1"].to_java(java.lang.String))
 
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
-      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil,@metrics_probe_service).preprocessAndValidate(@cruise_config))
+      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       get :new, :pipeline_name => "pipeline-name"
@@ -128,7 +125,7 @@ describe Admin::Materials::DependencyController do
       @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@user, "a").and_return(true)
       @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@user, "pipeline3").and_return(true)
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
-      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
+      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       get :new, :pipeline_name => "pipeline-name"
@@ -140,7 +137,7 @@ describe Admin::Materials::DependencyController do
       @cruise_config_mother.addPipelineWithTemplate(@cruise_config, "pipeline2", "template-1", "stage-2", ["job-2"].to_java(java.lang.String))
 
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
-      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
+      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       get :new, :pipeline_name => "pipeline-name"
@@ -153,7 +150,7 @@ describe Admin::Materials::DependencyController do
       @cruise_config_mother.addPipelineWithTemplate(@cruise_config, "pipeline2", "template-1", "stage-2", ["job-2"].to_java(java.lang.String))
 
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
-      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
+      @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       valid_fingerprint = pipeline.materialConfigs().first.getPipelineUniqueFingerprint()
@@ -165,7 +162,7 @@ describe Admin::Materials::DependencyController do
 
     it "should not try and render twice on failure to find material, while trying to load for edit" do
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
-      pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil, @metrics_probe_service).preprocessAndValidate(@cruise_config))
+      pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
 
       @go_config_service.should_receive(:loadForEdit).and_return(pipeline_config_for_edit)
 

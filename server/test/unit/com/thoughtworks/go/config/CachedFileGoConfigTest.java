@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -27,7 +26,6 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG;
-import static org.mockito.Mockito.mock;
 
 public class CachedFileGoConfigTest extends CachedGoConfigTestBase {
     @Before
@@ -38,11 +36,11 @@ public class CachedFileGoConfigTest extends CachedGoConfigTestBase {
         configRepository.initialize();
         dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, env, new TimeProvider(),
                 new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                metricsProbeService, serverHealthService);
+                serverHealthService);
         serverHealthService = new ServerHealthService();
         CachedFileGoConfig cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService);
         cachedGoConfig = cachedFileGoConfig;
         cachedGoConfig.loadConfigIfNull();
-        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig, mock(MetricsProbeService.class)));
+        configHelper.usingCruiseConfigDao(new GoConfigDao(cachedFileGoConfig));
     }
 }

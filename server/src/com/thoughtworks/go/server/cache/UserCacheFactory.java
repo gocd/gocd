@@ -16,20 +16,20 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 @Component
 public class UserCacheFactory {
+    public static final String CACHE_NAME = "userCache";
     private EhCacheFactoryBean factoryBean;
 
     public UserCacheFactory() {
@@ -38,7 +38,7 @@ public class UserCacheFactory {
 
     public Cache createCache() throws IOException {
         factoryBean.setCacheManager(createCacheManager());
-        factoryBean.setCacheName("userCache");
+        factoryBean.setCacheName(CACHE_NAME);
         factoryBean.setDiskPersistent(false);
         factoryBean.setOverflowToDisk(false);
         factoryBean.setMaxElementsInMemory(1000);
@@ -51,6 +51,7 @@ public class UserCacheFactory {
 
     private CacheManager createCacheManager() throws UnsupportedEncodingException {
         Configuration configuration = new Configuration();
+        configuration.setName(CACHE_NAME);
         configuration.setDefaultCacheConfiguration(new CacheConfiguration("cache", 10000));
         return new CacheManager(configuration);
     }

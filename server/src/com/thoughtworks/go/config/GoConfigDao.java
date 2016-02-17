@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,9 +22,6 @@ import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.metrics.domain.context.Context;
-import com.thoughtworks.go.metrics.domain.probes.ProbeType;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.PipelineConfigService;
@@ -50,19 +47,16 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 public class GoConfigDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigDao.class);
     private CachedGoConfig cachedConfigService;
-    private MetricsProbeService metricsProbeService;
     private Cloner cloner = new Cloner();
 
     //used in tests
-    public GoConfigDao(CachedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
+    public GoConfigDao(CachedGoConfig cachedConfigService) {
         this.cachedConfigService = cachedConfigService;
-        this.metricsProbeService = metricsProbeService;
     }
 
     @Autowired
-    public GoConfigDao(MergedGoConfig cachedConfigService, MetricsProbeService metricsProbeService) {
+    public GoConfigDao(MergedGoConfig cachedConfigService) {
         this.cachedConfigService = cachedConfigService;
-        this.metricsProbeService = metricsProbeService;
     }
 
     public String fileLocation() {
@@ -190,29 +184,24 @@ public class GoConfigDao {
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
-        Context context = metricsProbeService.begin(ProbeType.UPDATE_CONFIG);
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
-        try {
-            synchronized (GoConfigWriteLock.class) {
-                try {
-                    LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
-                    if (command instanceof CheckedUpdateCommand) {
-                        CheckedUpdateCommand checkedCommand = (CheckedUpdateCommand) command;
-                        if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {
-                            throw new ConfigUpdateCheckFailedException();
-                        }
+        synchronized (GoConfigWriteLock.class) {
+            try {
+                LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
+                if (command instanceof CheckedUpdateCommand) {
+                    CheckedUpdateCommand checkedCommand = (CheckedUpdateCommand) command;
+                    if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {
+                        throw new ConfigUpdateCheckFailedException();
                     }
-
-                    return cachedConfigService.writeWithLock(command);
-                } finally {
-                    if (command instanceof ConfigAwareUpdate) {
-                        ((ConfigAwareUpdate) command).afterUpdate(clonedConfig());
-                    }
-                    LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
                 }
+
+                return cachedConfigService.writeWithLock(command);
+            } finally {
+                if (command instanceof ConfigAwareUpdate) {
+                    ((ConfigAwareUpdate) command).afterUpdate(clonedConfig());
+                }
+                LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
             }
-        } finally {
-            metricsProbeService.end(ProbeType.UPDATE_CONFIG, context);
         }
     }
 

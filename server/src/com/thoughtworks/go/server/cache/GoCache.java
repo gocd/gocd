@@ -16,21 +16,21 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.log4j.Logger;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -218,8 +218,8 @@ public class GoCache {
         }
     }
 
-    public LiveCacheStatistics statistics() {
-        return ehCache.getLiveCacheStatistics();
+    public StatisticsGateway statistics() {
+        return ehCache.getStatistics();
     }
 
     public CacheConfiguration configuration() {

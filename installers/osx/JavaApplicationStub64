@@ -1,0 +1,259 @@
+#!/bin/bash
+
+#  *************************GO-LICENSE-START******************************
+#  * Copyright 2015 ThoughtWorks, Inc.
+#  *
+#  * Licensed under the Apache License, Version 2.0 (the "License");
+#  * you may not use this file except in compliance with the License.
+#  * You may obtain a copy of the License at
+#  *
+#  *    http://www.apache.org/licenses/LICENSE-2.0
+#  *
+#  * Unless required by applicable law or agreed to in writing, software
+#  * distributed under the License is distributed on an "AS IS" BASIS,
+#  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  * See the License for the specific language governing permissions and
+#  * limitations under the License.
+#  *************************GO-LICENSE-END*******************************
+
+# This is a shell-script-based JavaApplicationStub heavily influenced by the one at
+# https://github.com/tofi86/universalJavaApplicationStub/blob/4dcbca4992a9ef56befb880f21c4607f7bb36a21/src/universalJavaApplicationStub
+# written by Tobias Fisher. The original license is reproduced below:
+
+##################################################################################
+#                                                                                #
+#                                                                                #
+# The MIT License (MIT)                                                          #
+#                                                                                #
+# Copyright (c) 2015 Tobias Fischer                                              #
+#                                                                                #
+# Permission is hereby granted, free of charge, to any person obtaining a copy   #
+# of this software and associated documentation files (the "Software"), to deal  #
+# in the Software without restriction, including without limitation the rights   #
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      #
+# copies of the Software, and to permit persons to whom the Software is          #
+# furnished to do so, subject to the following conditions:                       #
+#                                                                                #
+# The above copyright notice and this permission notice shall be included in all #
+# copies or substantial portions of the Software.                                #
+#                                                                                #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     #
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       #
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    #
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  #
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  #
+# SOFTWARE.                                                                      #
+#                                                                                #
+##################################################################################
+
+# Resolves all symlinks (does readlink -f in a system independent way)
+# Arguments:
+#   1. Currently executing script (usually "$0")
+function find_root_directory_resolving_symlinks() {
+  local PRG="$1"
+  local COUNT=0
+
+  while [ -h "$PRG" -a "$COUNT" -lt 100 ]; do
+    local LINK="$(/usr/bin/stat -f '%Y' "$PRG")"
+    if expr "$LINK" : '^/' >/dev/null; then
+      PRG="$LINK"
+    else
+      PRG="`dirname "$PRG"`/$LINK"
+    fi
+    COUNT=$((COUNT + 1))
+  done
+
+  echo $(cd "$(dirname "$PRG")/../.."; pwd)
+}
+# ------------------------------------------------------------------------------
+
+# Finds some JVM newer than 1.7. Prints the path to such a "java" executable or empty.
+# Expects: Nothing.
+# Arguments: None.
+function find_best_available_java() {
+  # first check GO_JAVA_HOME
+  if [ -n "$GO_JAVA_HOME" ]; then
+    JAVACMD="$GO_JAVA_HOME/bin/java"
+
+  # otherwise check "/usr/libexec/java_home" symlinks
+  elif [ -x /usr/libexec/java_home ] && [ "$(/usr/libexec/java_home -v "1.7+" >/dev/null 2>&1; echo $?)" = "0" ] \
+    && [ -d "$(/usr/libexec/java_home -v "1.7+" 2>/dev/null)" ]; then
+    JAVACMD="$(/usr/libexec/java_home -v "1.7+")/bin/java"
+  fi
+
+  echo "$JAVACMD"
+}
+# ------------------------------------------------------------------------------
+
+# Prints the command ($COMMAND array) and execs it.
+# Expects: A bash array named "COMMAND".
+# Arguments: None (cannot pass array in bash, easily).
+function print_args_and_run() {
+  log "Running:"
+  for arg in "${COMMAND[@]}"; do
+    log "  $arg"
+  done
+
+  log ""
+  exec "${COMMAND[@]}"
+}
+# ------------------------------------------------------------------------------
+
+# Shows a message to the user (a dialog box), and exits the program after "Ok" is pressed.
+# Expects: CF_BUNDLE_ICON (optional): If it exists, that icon will be used.
+# Arguments:
+#   1. Exit status to use.
+#   2. Title of the dialog box.
+#   Rest of the arguments: Each of the arguments will be shown on a different line, in the dialog box.
+function show_message_and_exit() {
+  local EXIT_STATUS="$1"
+  local TITLE="$2"
+  shift; shift
+
+  MESSAGE="$1"; shift
+  for each in "$@"; do MESSAGE="${MESSAGE}\n${each}"; done
+
+  local SUFFIX_ICON=" with icon path to resource \"${CF_BUNDLE_ICON}\" in bundle (path to me)"
+  if [ ! -f "${ROOT}/Contents/Resources/${CF_BUNDLE_ICON}" ]; then SUFFIX_ICON=""; fi
+
+	osascript -e "tell application \"System Events\" to display dialog \"$MESSAGE\" with title \"${TITLE}\" buttons {\" OK \"} default button 1${SUFFIX_ICON}" >&2
+  exit "$EXIT_STATUS"
+}
+# ------------------------------------------------------------------------------
+
+# Adds an argument to the COMMAND array, after replacing variable references in it.
+# Expects: A bash array named "COMMAND".
+# Arguments:
+#   1. The argument that needs to be added to the COMMAND array. Variable references will be substituted.
+function add_arg() {
+  local ARG_TO_ADD="$1"
+  if [ -n "$ARG_TO_ADD" ]; then
+    COMMAND+=("$(eval echo "$ARG_TO_ADD")")
+  fi
+}
+# ------------------------------------------------------------------------------
+
+# Adds an argument to the COMMAND array, without replacing environment variables in it.
+# Expects: A bash array named "COMMAND".
+# Arguments:
+#   1. The argument that needs to be added to the COMMAND array. Variable references will not be substituted.
+function add_arg_raw() {
+  local ARG_TO_ADD="$1"
+  if [ -n "$ARG_TO_ADD" ]; then
+    COMMAND+=("$ARG_TO_ADD")
+  fi
+}
+# ------------------------------------------------------------------------------
+
+# Adds all environment variables specified to the COMMAND array, after replacing variable references in them.
+# Expects: A bash array named "COMMAND".
+# Arguments:
+#   1. Multi-line string. One argument to be added to COMMAND array, per line. Variable references will be substituted.
+function add_all_args() {
+  local KEY_VALUE_PAIRS_SEPARATED_BY_NEWLINE="$1"
+  while read line; do
+    local key="$(echo "$line" | sed -ne 's/^\([^=]*\)=.*/\1/p')"
+    local value="$(echo "$line" | sed -ne 's/^[^=]*=\(.*\)$/\1/p')"
+    local key_value_with_env_vars_substituted="${key}=$(eval echo "$value")"
+
+    COMMAND+=("$key_value_with_env_vars_substituted")
+  done <<< "$KEY_VALUE_PAIRS_SEPARATED_BY_NEWLINE"
+}
+# ------------------------------------------------------------------------------
+
+# Creates directory if it does not exist.
+# Expects: APPLICATION_NAME (optional): If it exists, the name might be used in a message.
+# Arguments:
+#   1. The directory
+function create_directory_if_needed() {
+  local DIR="$1"
+
+  log "Got directory: $DIR $(test -d "$DIR" && echo " [It exists]")"
+  if [ ! -d "$DIR" ]; then mkdir "$DIR" || show_message_and_exit 3 "${APPLICATION_NAME:-Go Application}" "Cannot create: $DIR"; fi
+  echo "$DIR"
+}
+# ------------------------------------------------------------------------------
+
+# Create a log file in the specified directory, and set up this script to log into it.
+# Expects: Environment variable "DEBUGGING" can be set (optional).
+# Arguments:
+#   1. Directory to create the log file in.
+function start_logging_in() {
+  local LOGGING_DIR="$1"
+  local LOG_FILE="$LOGGING_DIR/osx-app.log"
+
+  if [ "$DEBUGGING" = "true" ]; then echo "Not logging to $LOG_FILE since in debug mode."; return; fi
+
+  exec >"$LOG_FILE" 2>&1
+}
+# ------------------------------------------------------------------------------
+
+# Handle unexpected exits, by setting a trap for exits.
+# Expects: Will use APPLICATION_NAME if set. Will use WORKING_DIRECTORY if set.
+# Arguments: None
+function start_waiting_for_unexpected_exit() {
+  trap 'show_message_and_exit 4 "Something went wrong" "${APPLICATION_NAME:-Go Application} exited unexpectedly." "" \
+    "Look at this directory for any logs: ${WORKING_DIRECTORY:-working directory}"' QUIT EXIT INT TERM
+}
+# ------------------------------------------------------------------------------
+
+# Log a message to STDERR, with a timestamp. This will log into the log file, set in "start_logging_in".
+# If no message is provided, log an empty line, with no timestamp.
+function log() {
+  local MESSAGE="$1"
+  (test -n "$MESSAGE" && echo -e "$(date): ${MESSAGE}" >&2) || echo ""
+}
+# ------------------------------------------------------------------------------
+
+
+# ====================================== START HERE ============================
+
+set -e
+test -f /tmp/GO_OSX_APP_DEBUG && DEBUGGING=true && set -x && exec >/tmp/GO_OSX_APP_DEBUG.log 2>&1 && /bin/rm -f /tmp/GO_OSX_APP_DEBUG
+start_waiting_for_unexpected_exit
+
+ROOT=$(find_root_directory_resolving_symlinks "$0")
+INFO_PLIST="${ROOT}/Contents/Info.plist"
+test ! -f "${INFO_PLIST}" && show_message_and_exit 1 "GoCD" "Error launching GoCD Application" "" "Could not find Info.plist in ${INFO_PLIST}, starting at ${0}."
+
+APPLICATION_NAME="${GO_APPLICATION_NAME:-$(/usr/libexec/PlistBuddy -c "print :CFBundleName" "${INFO_PLIST}")}"
+WORKING_DIRECTORY="$(create_directory_if_needed "${WORKING_DIRECTORY:-$HOME/Library/Application Support/${APPLICATION_NAME}}")"
+start_logging_in "$WORKING_DIRECTORY"
+
+JAVACMD=$(find_best_available_java)
+JVM_CLASSPATH="$(/usr/libexec/PlistBuddy -c "print :JavaX:ClassPath" "${INFO_PLIST}" || echo "No ClassPath found" >&2)"
+JVM_MAINCLASS="$(/usr/libexec/PlistBuddy -c "print :JavaX:MainClass" "${INFO_PLIST}" || echo "No MainClass found" >&2)"
+CF_BUNDLE_ICON="$(/usr/libexec/PlistBuddy -c "print :CFBundleIconFile" "${INFO_PLIST}" || echo "No CFBundleIconFile found" >&2)"
+JVM_ARGUMENTS="$(/usr/libexec/PlistBuddy -c "print :JavaX:Arguments" "${INFO_PLIST}" || echo "No Arguments found" >&2)"
+RESOURCES_DIR="${ROOT}/Contents/Resources"
+APP_PACKAGE="${RESOURCES_DIR}"
+
+PROPERTIES="$(/usr/libexec/PlistBuddy -c 'print :JavaX:Properties' "${INFO_PLIST}" | grep ' = ' | sed -ne 's/^[ \t]*\([^ ]*\) = \(.*\)/-D\1=\2/p')"
+ENV_VARS="$(/usr/libexec/PlistBuddy -c 'print :LSEnvironment' "${INFO_PLIST}" | grep ' = ' | sed -ne 's/^[ \t]*\([^ ]*\) = \(.*\)/\1="\2"/p')"
+
+log "Setting working directory: $WORKING_DIRECTORY\n"; cd "$WORKING_DIRECTORY"
+test -n "$ENV_VARS" && log "Setting environment variables:\n$ENV_VARS\n"; eval "$ENV_VARS"
+test -f "overrides.env" && log "Sourcing overrides.env\n" && source "overrides.env"
+log "Final environment variables $(test -f "overrides.env" && echo "after sourcing overrides.env ")are:\n$(env | sort)\n"
+
+test -z "${JAVACMD}" -o ! -x "${JAVACMD}" && show_message_and_exit 2 "${APPLICATION_NAME}" "Error launching ${APPLICATION_NAME}" "" \
+      "You need to have Java 1.7 or newer installed to run the ${APPLICATION_NAME} application." "" \
+      "Java found was: \\\"${JAVACMD}\\\"" "" \
+      "If you do have Java 1.7 or newer installed, please see: \
+http://www.go.cd/documentation/user/current/installation/troubleshoot_installer.html#mac_java"
+
+COMMAND=()
+add_arg "$JAVACMD"
+add_arg "-cp"
+add_arg "$JVM_CLASSPATH"
+add_arg "-Xdock:icon=${RESOURCES_DIR}/${CF_BUNDLE_ICON}"
+add_arg "-Xdock:name=${APPLICATION_NAME}"
+add_arg "-Dgo.application.name=${APPLICATION_NAME}"
+add_arg "-Dgo.java.to.use=${JAVACMD}"
+add_all_args "$PROPERTIES"
+add_arg "$JVM_MAINCLASS"
+add_arg "${JVM_ARGUMENTS}"
+add_arg_raw "${EXTRA_JVM_ARGUMENTS}"
+
+print_args_and_run

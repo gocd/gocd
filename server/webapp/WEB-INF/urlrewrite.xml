@@ -301,32 +301,6 @@
     </rule>
 
     <rule>
-        <name>Cruise Configuration Administration RESTful url - Builds</name>
-        <from>^/admin/configuration/([^/]+)/([^/]+)/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
-        <to type="forward">/admin/restful/configuration/build/%{attribute:_method}/%{attribute:_type}?pipelineName=$2&amp;stageName=$3&amp;buildIndex=$4</to>
-    </rule>
-
-    <rule>
-        <name>Cruise Configuration Administration RESTful url - Templates</name>
-        <from>^/admin/configuration/Pipeline%20Templates/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
-        <to type="forward">/admin/restful/configuration/template/stage/%{attribute:_method}/%{attribute:_type}?templateName=$1&amp;stageIndex=$2</to>
-    </rule>
-
-    <rule>
-        <name>Cruise Configuration Administration RESTful url - Stages</name>
-        <from>^/admin/configuration/([^/]+)/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
-        <to type="forward">/admin/restful/configuration/stage/%{attribute:_method}/%{attribute:_type}?pipelineName=$2&amp;stageIndex=$3</to>
-    </rule>
-
-    <rule>
-        <name>Cruise Configuration Administration RESTful url - Pipelines</name>
-        <from>^/admin/configuration/([^/]+)/([\d]+)\.xml(\?.*)?$</from>
-        <to type="forward">
-            /admin/restful/configuration/pipeline/%{attribute:_method}/%{attribute:_type}?pipelineGroup=$1&amp;pipelineIndex=$2
-        </to>
-    </rule>
-
-    <rule>
         <name>Cruise Configuration Administration RESTful url - File</name>
         <from>^/api/admin/config.xml$</from>
         <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
@@ -342,14 +316,6 @@
         <name>Cruise Configuration Administration RESTful url - File</name>
         <from>^/admin/configuration/file\.xml(\?.*)?$</from>
         <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
-    </rule>
-
-    <rule>
-        <name>Cruise Configuration Administration RESTful url - Pipeline Groups</name>
-        <from>^/admin/configuration/([^/]+)\.xml(\?.*)?$</from>
-        <to type="forward">
-            /admin/restful/configuration/group/%{attribute:_method}/%{attribute:_type}?pipelineGroup=$1
-        </to>
     </rule>
 
     <rule>

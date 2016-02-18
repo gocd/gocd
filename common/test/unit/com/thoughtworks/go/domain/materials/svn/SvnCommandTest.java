@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -293,7 +293,7 @@ public class SvnCommandTest {
                 + "</entry>\n"
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder(false));
+        svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getPath(), is("/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables"));
         assertThat(svnInfo.getUrl(),
                 is("http://svn.somewhere.com/someotherline/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables"));
@@ -320,7 +320,7 @@ public class SvnCommandTest {
                 + "</entry>\n"
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder(false));
+        svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getPath(), is("/someotherline"));
         assertThat(svnInfo.getUrl(),
                 is("http://svn.somewhere.com/svn/someotherline"));
@@ -348,7 +348,7 @@ public class SvnCommandTest {
                 + "</entry>\n"
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder(false));
+        svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getPath(), is("/司徒空在此"));
         assertThat(svnInfo.getUrl(),
                 is("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4"));
@@ -375,7 +375,7 @@ public class SvnCommandTest {
                 + "</entry>\n"
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder(false));
+        svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getUrl(), is("https://217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk"));
         assertThat(svnInfo.getPath(), is("/Entropy System/Envoy Enterprise/trunk"));
     }
@@ -401,7 +401,7 @@ public class SvnCommandTest {
                 + "</entry>\n"
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder(false));
+        svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getUrl(), is("file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end/unit-reports"));
         assertThat(svnInfo.getPath(), is("/unit-reports"));
     }
@@ -427,7 +427,7 @@ public class SvnCommandTest {
                 + "</entry>\n"
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
-        svnInfo.parse(output, new SAXBuilder(false));
+        svnInfo.parse(output, new SAXBuilder());
         assertThat(svnInfo.getUrl(), is("svn+ssh://hostname/foo%20bar%20baz/end2end"));
         assertThat(svnInfo.getPath(), is("/end2end"));
     }

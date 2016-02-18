@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.*;
-import org.jdom.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -586,11 +585,11 @@ public class GoConfigAdministrationControllerIntegrationTest {
         String md5 = setUpPipelineGroupsWithAdminPermissions();
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        XmlUtils.validate(new FileInputStream(configHelper.getConfigFile()), GoConfigSchema.getCurrentSchema(), new XsdErrorTranslator(), new SAXBuilder(), registry.xsds());
+        XmlUtils.validate(new FileInputStream(configHelper.getConfigFile()), GoConfigSchema.getCurrentSchema(), registry.xsds());
         controller.postGroupAsXmlPartial(TemplatesConfig.PIPELINE_TEMPLATES_FAKE_GROUP_NAME, NEW_TEMPLATES, md5, response);
 
         assertThat(response.getStatus(), is(SC_UNAUTHORIZED));
-        XmlUtils.validate(new FileInputStream(configHelper.getConfigFile()), GoConfigSchema.getCurrentSchema(), new XsdErrorTranslator(), new SAXBuilder(), registry.xsds());
+        XmlUtils.validate(new FileInputStream(configHelper.getConfigFile()), GoConfigSchema.getCurrentSchema(), registry.xsds());
 
         setCurrentUser("admin");
         controller.postGroupAsXmlPartial(TemplatesConfig.PIPELINE_TEMPLATES_FAKE_GROUP_NAME, NEW_TEMPLATES, md5, response);

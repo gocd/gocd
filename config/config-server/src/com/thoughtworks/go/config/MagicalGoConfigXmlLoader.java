@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -67,14 +66,12 @@ public class MagicalGoConfigXmlLoader {
 
     private static final Cloner CLONER = new Cloner();
     private ConfigCache configCache;
-    private SAXBuilder builder;
     private final ConfigElementImplementationRegistry registry;
     private final MetricsProbeService metricsProbeService;
 
     public MagicalGoConfigXmlLoader(ConfigCache configCache, ConfigElementImplementationRegistry registry, MetricsProbeService metricsProbeService) {
         this.configCache = configCache;
         this.metricsProbeService = metricsProbeService;
-        builder = new SAXBuilder();
         this.registry = registry;
     }
 
@@ -156,7 +153,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     private Element parseInputStream(InputStream inputStream) throws Exception {
-        Element element = XmlUtils.validate(inputStream, GoConfigSchema.getCurrentSchema(), new XsdErrorTranslator(), builder, registry.xsds());
+        Element element = XmlUtils.validate(inputStream, GoConfigSchema.getCurrentSchema(), registry.xsds());
         validateDom(element, registry);
         return element;
     }

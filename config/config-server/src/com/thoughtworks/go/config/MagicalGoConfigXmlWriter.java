@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,12 @@ import com.thoughtworks.go.metrics.domain.probes.ProbeType;
 import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
 
 import static com.thoughtworks.go.config.ConfigCache.annotationFor;
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
@@ -53,14 +51,12 @@ public class MagicalGoConfigXmlWriter {
     private static final Logger LOGGER = Logger.getLogger(MagicalGoConfigXmlWriter.class);
     public static final String XML_NS = "http://www.w3.org/2001/XMLSchema-instance";
     private ConfigCache configCache;
-    private SAXBuilder builder;
     private final ConfigElementImplementationRegistry registry;
     private final MetricsProbeService metricsProbeService;
 
     public MagicalGoConfigXmlWriter(ConfigCache configCache, ConfigElementImplementationRegistry registry, MetricsProbeService metricsProbeService) {
         this.configCache = configCache;
         this.metricsProbeService = metricsProbeService;
-        builder = new SAXBuilder();
         this.registry = registry;
     }
 
@@ -112,7 +108,7 @@ public class MagicalGoConfigXmlWriter {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         XmlUtils.writeXml(document, buffer);
         InputStream content = toInputStream(buffer.toString());
-        XmlUtils.validate(content, GoConfigSchema.getCurrentSchema(), new XsdErrorTranslator(), builder, registry.xsds());
+        XmlUtils.validate(content, GoConfigSchema.getCurrentSchema(), registry.xsds());
     }
 
     public String toXmlPartial(Object domainObject) {

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE cruise [
+        <!ENTITY stolen SYSTEM "file:///etc/go/cipher">
+        <!ELEMENT cruise ANY>
+        <!ATTLIST cruise schemaVersion CDATA #REQUIRED>
+        <!ELEMENT server ANY>
+        <!ATTLIST server serverId CDATA #REQUIRED>
+        <!ELEMENT pipelines ANY>
+        <!ATTLIST pipelines group CDATA #REQUIRED>
+        <!ELEMENT pipeline ANY>
+        <!ATTLIST pipeline name CDATA #REQUIRED>
+        <!ELEMENT environmentvariables ANY>
+        <!ELEMENT variable ANY>
+        <!ATTLIST variable name CDATA #REQUIRED>
+        <!ELEMENT value ANY>
+        <!ELEMENT materials ANY>
+        <!ELEMENT git ANY>
+        <!ATTLIST git url CDATA #REQUIRED>
+        <!ELEMENT stage ANY>
+        <!ATTLIST stage name CDATA #REQUIRED>
+        <!ELEMENT jobs ANY>
+        <!ELEMENT job ANY>
+        <!ATTLIST job name CDATA #REQUIRED>
+        ]>
+<cruise schemaVersion="77">
+    <server serverId="something"/>
+    <pipelines group="everything">
+        <pipeline name="dummy">
+            <environmentvariables>
+                <variable name="STOLEN">
+                    <value>&stolen;</value>
+                </variable>
+            </environmentvariables>
+            <materials>
+                <git url="http://example.com" />
+            </materials>
+            <stage name="empty">
+                <jobs>
+                    <job name="empty">
+                    </job>
+                </jobs>
+            </stage>
+        </pipeline>
+    </pipelines>
+</cruise>

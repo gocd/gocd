@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class SvnCommandRemoteTest {
     }
 
     @Test public void shouldSupportSvnInfo() throws Exception {
-        SvnCommand.SvnInfo info = command.remoteInfo(new SAXBuilder(false));
+        SvnCommand.SvnInfo info = command.remoteInfo(new SAXBuilder());
         assertThat(info.getUrl(), is(repository.getUrl()));
     }
 
@@ -250,21 +250,21 @@ public class SvnCommandRemoteTest {
     @Test
     public void shouldMaskPassword_remoteInfo() {
         try {
-            badUserNameCommand().remoteInfo(new SAXBuilder(false));
+            badUserNameCommand().remoteInfo(new SAXBuilder());
             fail("should have failed");
         } catch (Exception e) {
             assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
         }
 
         try {
-            badPasswordCommand().remoteInfo(new SAXBuilder(false));
+            badPasswordCommand().remoteInfo(new SAXBuilder());
             fail("should have failed");
         } catch (Exception e) {
             assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
         }
 
         try {
-            badUrlCommand().remoteInfo(new SAXBuilder(false));
+            badUrlCommand().remoteInfo(new SAXBuilder());
             fail("should have failed");
         } catch (Exception e) {
             assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));

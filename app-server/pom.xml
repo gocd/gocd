@@ -166,13 +166,6 @@
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.go</groupId>
-            <artifactId>metrics</artifactId>
-            <version>${project.parent.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.go</groupId>
             <artifactId>test-utils</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>

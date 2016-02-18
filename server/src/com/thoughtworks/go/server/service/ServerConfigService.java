@@ -1,34 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import com.thoughtworks.go.config.ConfigSaveState;
-import com.thoughtworks.go.config.GoMailSender;
-import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.metrics.domain.context.Context;
-import com.thoughtworks.go.metrics.domain.probes.ProbeType;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.controller.beans.GoMailSenderProvider;
 import com.thoughtworks.go.server.security.LdapContextSourceConfigurator;
@@ -45,56 +36,52 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.stereotype.Service;
 
-import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
 
 @Service
 public class ServerConfigService implements BaseUrlProvider {
     private GoConfigService goConfigService;
     private UserService userService;
-    private MetricsProbeService metricsProbeService;
 
     private GoMailSenderProvider provider = GoMailSenderProvider.DEFAULT_PROVIDER;
     static final String ANY_USER = "GO_TEST_USER";
 
 
     @Autowired
-    public ServerConfigService(GoConfigService goConfigService, UserService userService, MetricsProbeService metricsProbeService) {
+    public ServerConfigService(GoConfigService goConfigService, UserService userService) {
         this.goConfigService = goConfigService;
         this.userService = userService;
-        this.metricsProbeService = metricsProbeService;
     }
 
     public void updateServerConfig(MailHost mailHost, LdapConfig ldapConfig, PasswordFileConfig passwordFileConfig, String artifactsDir,
                                    Double purgeStart, Double purgeUpto, String jobTimeout, boolean shouldAllowAutoLogin, String siteUrl, String secureSiteUrl,
                                    String taskRepositoryLocation, final HttpLocalizedOperationResult result, final String md5) {
-        Context context = metricsProbeService.begin(ProbeType.SAVE_CONFIG_XML_THROUGH_SERVER_CONFIGURATION_TAB);
-        try {
-            if (!mailHost.equals(new MailHost(new GoCipher()))) {
-                validate(mailHost, result);
-            }
+        if (!mailHost.equals(new MailHost(new GoCipher()))) {
+            validate(mailHost, result);
+        }
 
-            if (shouldAllowAutoLogin == false && !userService.canUserTurnOffAutoLogin()) {
-                result.notAcceptable(LocalizedMessage.string("CANNOT_TURN_OFF_AUTO_LOGIN"));
-                return;
-            }
+        if (shouldAllowAutoLogin == false && !userService.canUserTurnOffAutoLogin()) {
+            result.notAcceptable(LocalizedMessage.string("CANNOT_TURN_OFF_AUTO_LOGIN"));
+            return;
+        }
 
-            if (result.isSuccessful()) {
-                try {
-                    ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
-                            purgeUpto, jobTimeout, siteUrl,
-                            secureSiteUrl, taskRepositoryLocation);
-                    if (ConfigSaveState.MERGED.equals(configSaveState)) {
-                        result.setMessage(LocalizedMessage.composite(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")));
-                    } else if (ConfigSaveState.UPDATED.equals(configSaveState)) {
-                        result.setMessage(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"));
-                    }
-                } catch (RuntimeException exception) {
-                    updateFailed(exception.getMessage(), result);
+        if (result.isSuccessful()) {
+            try {
+                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, ldapConfig, passwordFileConfig, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
+                        purgeUpto, jobTimeout, siteUrl,
+                        secureSiteUrl, taskRepositoryLocation);
+                if (ConfigSaveState.MERGED.equals(configSaveState)) {
+                    result.setMessage(LocalizedMessage.composite(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"), LocalizedMessage.string("CONFIG_MERGED")));
+                } else if (ConfigSaveState.UPDATED.equals(configSaveState)) {
+                    result.setMessage(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY"));
                 }
+            } catch (RuntimeException exception) {
+                updateFailed(exception.getMessage(), result);
             }
-        } finally {
-            metricsProbeService.end(ProbeType.SAVE_CONFIG_XML_THROUGH_SERVER_CONFIGURATION_TAB, context);
         }
     }
 

@@ -1,44 +1,39 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GoConfigMigrationTest {
     private GoConfigMigration goConfigMigration;
@@ -76,8 +71,8 @@ public class GoConfigMigrationTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-        goConfigMigration = new GoConfigMigration(configRepo, timeProvider, new ConfigCache(), registry,
-                mock(MetricsProbeService.class));
+        goConfigMigration = new GoConfigMigration(configRepo, timeProvider, new ConfigCache(), registry
+        );
     }
 
     @After

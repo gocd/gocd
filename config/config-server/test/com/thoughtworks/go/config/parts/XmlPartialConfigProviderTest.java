@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 package com.thoughtworks.go.config.parts;
 
 import com.thoughtworks.go.config.*;
@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -34,16 +33,13 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class XmlPartialConfigProviderTest {
 
     private ConfigCache configCache = new ConfigCache();
-    private MetricsProbeService metricsProbeService;
     private MagicalGoConfigXmlLoader xmlLoader;
     private XmlPartialConfigProvider xmlPartialProvider;
     private MagicalGoConfigXmlWriter xmlWriter;
@@ -56,11 +52,10 @@ public class XmlPartialConfigProviderTest {
     {
         baseFolder = TestFileUtil.createTempFolder("test");
 
-        metricsProbeService = mock(MetricsProbeService.class);
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
+        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         xmlPartialProvider = new XmlPartialConfigProvider(xmlLoader);
 
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService);
+        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
 
         tmpFolder = TestFileUtil.createTestFolder(baseFolder, "partialTestDir");
         helper = new PartialConfigHelper(xmlWriter, tmpFolder);

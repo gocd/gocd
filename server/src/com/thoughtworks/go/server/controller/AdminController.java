@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.metrics.domain.context.Context;
-import com.thoughtworks.go.metrics.domain.probes.ProbeType;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.AdminService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.GoConstants;
@@ -47,20 +44,16 @@ import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound
 public class AdminController {
 
     private final AdminService adminService;
-    private final MetricsProbeService metricsProbeService;
     private final Localizer localizer;
     private final GoConfigService goConfigService;
-    static final String UPDATE_SUCCESS_MESSAGE = "Configuration file has been updated successfully. You can see your"
-            + " updates when the pipeline is scheduled to build.";
     private static final Logger LOGGER = Logger.getLogger(AdminController.class);
 
 
     @Autowired
-    public AdminController(GoConfigService goConfigService, AdminService adminService, Localizer localizer, MetricsProbeService metricsProbeService) {
+    public AdminController(GoConfigService goConfigService, AdminService adminService, Localizer localizer) {
         this.goConfigService = goConfigService;
         this.adminService = adminService;
         this.localizer = localizer;
-        this.metricsProbeService = metricsProbeService;
     }
 
     @RequestMapping(value = "/tab/admin", method = RequestMethod.GET)
@@ -83,25 +76,20 @@ public class AdminController {
                                                 @RequestParam(value = "shouldMigrate", required = false) Boolean shouldMigrate,
                                                 HttpServletRequest request) throws IOException {
         LOGGER.debug("[Config Save] Configuration being saved");
-        Context context = metricsProbeService.begin(ProbeType.SAVE_CONFIG_XML_THROUGH_API);
         Map<String, String> data;
-        try {
-            GoConfigValidity configValidity = saveConfigFile(configFileContent, expectedMd5, shouldMigrate);
-            data = new HashMap<String, String>();
-            if (configValidity.isValid()) {
-                Localizable savedSuccessMessage = LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY");
-                Localizable localizableMessage = configValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage,LocalizedMessage.string("CONFIG_MERGED")) : savedSuccessMessage;
-                data.put(GoConstants.SUCCESS_MESSAGE, localizableMessage.localize(localizer));
-            } else {
-                data.put(GoConstants.ERROR_FOR_PAGE, configValidity.errorMessage());
-                data.put("editing_md5", expectedMd5);
-                data.put("editing_content", configFileContent);
-            }
-            data.putAll(adminModel(request));
-            LOGGER.debug("[Config Save] Done saving configuration");
-        } finally {
-            metricsProbeService.end(ProbeType.SAVE_CONFIG_XML_THROUGH_API, context);
+        GoConfigValidity configValidity = saveConfigFile(configFileContent, expectedMd5, shouldMigrate);
+        data = new HashMap<>();
+        if (configValidity.isValid()) {
+            Localizable savedSuccessMessage = LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY");
+            Localizable localizableMessage = configValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, LocalizedMessage.string("CONFIG_MERGED")) : savedSuccessMessage;
+            data.put(GoConstants.SUCCESS_MESSAGE, localizableMessage.localize(localizer));
+        } else {
+            data.put(GoConstants.ERROR_FOR_PAGE, configValidity.errorMessage());
+            data.put("editing_md5", expectedMd5);
+            data.put("editing_content", configFileContent);
         }
+        data.putAll(adminModel(request));
+        LOGGER.debug("[Config Save] Done saving configuration");
         return new ModelAndView("", data);
     }
 

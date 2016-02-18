@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UserHelper;
@@ -69,7 +68,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoFileConfigDataSource dataSource;
     @Autowired private ConfigElementImplementationRegistry registry;
-    @Autowired private MetricsProbeService metricsProbeService;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private MockHttpServletResponse response;
 
@@ -171,7 +169,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
         controller.getCurrentConfigXml(null, response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), registry, metricsProbeService).write(goConfigDao.loadForEditing(), os, true);
+        new MagicalGoConfigXmlWriter(new ConfigCache(), registry).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(SC_OK, "text/xml", os.toString());
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
     }
@@ -181,7 +179,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
         controller.getCurrentConfigXml("crapy_md5", response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService).write(goConfigDao.loadForEditing(), os, true);
+        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(SC_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
     }

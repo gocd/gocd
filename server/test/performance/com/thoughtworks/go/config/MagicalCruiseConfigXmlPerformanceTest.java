@@ -41,7 +41,6 @@ public class MagicalCruiseConfigXmlPerformanceTest {
     private static final File CONFIG_FILE = new File("../common/test-resources/unit/data/big-uat-cruise-config.xml");
     private CruiseConfig cruiseConfig;
     private static ConfigCache configCache;
-    private MetricsProbeService metricsProbeService = new NoOpMetricsProbeService();
     @BeforeClass
     public void beforeAll() {
         configCache = new ConfigCache();

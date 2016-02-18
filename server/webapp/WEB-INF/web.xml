@@ -188,17 +188,6 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
-    <servlet>
-        <servlet-name>codahale-admin-servlet</servlet-name>
-        <servlet-class>com.yammer.metrics.reporting.AdminServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>codahale-admin-servlet</servlet-name>
-        <url-pattern>/metrics/*</url-pattern>
-    </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>echo-attr-servlet</servlet-name>
         <url-pattern>/echo-attribute/*</url-pattern>

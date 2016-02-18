@@ -1,30 +1,26 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.controller;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AdminService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -34,12 +30,13 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AdminControllerTest {
 
@@ -51,16 +48,15 @@ public class AdminControllerTest {
     private GoConfigService mockGoConfigService;
     private Map<String, String> model = new HashMap<String, String>();
     private String userName;
-    private MetricsProbeService metricsProbeService;
 
     @Before
     public void setUp() throws Exception {
         request = new MockHttpServletRequest();
         mockGoConfigService = mock(GoConfigService.class);
         mockAdminService = mock(AdminService.class);
-        metricsProbeService = mock(MetricsProbeService.class);
+
         localizer = mock(Localizer.class);
-        controller = new AdminController(mockGoConfigService, mockAdminService, localizer, metricsProbeService);
+        controller = new AdminController(mockGoConfigService, mockAdminService, localizer);
         userName = CaseInsensitiveString.str(Username.ANONYMOUS.getUsername());
         model.put("active", "");
         model.put("current_tab", "");

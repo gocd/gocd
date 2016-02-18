@@ -39,7 +39,6 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -100,7 +99,6 @@ public class GoConfigServiceTest {
     private ConfigRepository configRepo;
     private UserDao userDao;
     public PipelinePauseService pipelinePauseService;
-    private MetricsProbeService metricsProbeService;
     private InstanceFactory instanceFactory;
 
     @Before
@@ -111,7 +109,7 @@ public class GoConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class);
         pipelineRepository = mock(PipelineRepository.class);
         pipelinePauseService = mock(PipelinePauseService.class);
-        metricsProbeService = mock(MetricsProbeService.class);
+
         cruiseConfig = unchangedConfig();
         expectLoad(cruiseConfig);
         this.clock = mock(Clock.class);
@@ -121,7 +119,7 @@ public class GoConfigServiceTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
-                registry, metricsProbeService), goCache, configRepo, userDao, registry, metricsProbeService,
+                registry), goCache, configRepo, registry,
                 instanceFactory);
     }
 
@@ -320,8 +318,8 @@ public class GoConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
         when(goConfigDao.loadForEditing()).thenThrow(new RuntimeException("Invalid config file", new JDOMParseException("JDom exception", new RuntimeException())));
 
-        GoConfigService service = new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null, userDao,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService, instanceFactory);
+        GoConfigService service = new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
+                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory);
 
         try {
             service.buildSaver("pipeline", "stage", 1).asXml();
@@ -1494,8 +1492,8 @@ public class GoConfigServiceTest {
     private GoConfigService goConfigServiceWithInvalidStatus() throws Exception {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
-        return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null, userDao,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), metricsProbeService, instanceFactory);
+        return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
+                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory);
     }
 
     private CruiseConfig mockConfig() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,13 +34,12 @@ public class AdminServiceTest {
     private GoConfigService goConfigService;
     private AdminService adminService;
     private String fileLocation = "file location";
-    private MetricsProbeService metricsProbeService;
 
     @Before
     public void setup() throws Exception {
         goConfigService = mock(GoConfigService.class);
-        metricsProbeService = mock(MetricsProbeService.class);
-        adminService = new AdminService(goConfigService, metricsProbeService);
+
+        adminService = new AdminService(goConfigService);
     }
 
     @Test

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -876,7 +877,7 @@ public class GoConfigMigrationIntegrationTest {
                         + "</cruise>";
 
         String migratedContent = migrateXmlString(configString, 66);
-        Document document = new SAXBuilder().build(migratedContent);
+        Document document = new SAXBuilder().build(new StringReader(migratedContent));
 
         assertThat(document.getDescendants(new ElementFilter("luau")).hasNext(), is(false));
         assertThat(document.getDescendants(new ElementFilter("groups")).hasNext(), is(false));

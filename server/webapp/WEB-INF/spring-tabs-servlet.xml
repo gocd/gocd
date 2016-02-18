@@ -60,7 +60,6 @@
     <bean id="tabInterceptor" class="com.thoughtworks.go.server.web.TabInterceptor" autowire="autodetect"/>
     <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
 
-    <import resource="tabs/pipelines-tab.xml"/>
     <import resource="tabs/admin-tab.xml"/>
     <import resource="tabs/mycruise-tab.xml"/>
 

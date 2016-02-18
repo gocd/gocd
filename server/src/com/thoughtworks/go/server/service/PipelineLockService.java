@@ -19,16 +19,13 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.listener.PipelineConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
-import com.thoughtworks.go.util.ListUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * @understands how/whether to lock/unlock a pipeline instance

@@ -1,0 +1,73 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+rootProject.name = 'gocd'
+include ':base'
+include ':util'
+include ':test-utils'
+include ':db'
+include ':database'
+include ':go-plugin-api-internal'
+include ':go-plugin-api'
+include ':go-plugin-activator'
+include ':go-plugin-infra'
+include ':go-plugin-access'
+include ':config-api'
+include ':config-server'
+include ':common'
+include ':agent-common'
+include ':test-agent'
+include ':tfs-impl'
+include ':agent'
+include ':agent-process-launcher'
+include ':agent-launcher'
+include ':agent-bootstrapper'
+include ':rack_hack'
+include ':server'
+include ':server-launcher'
+include ':app-server'
+include ':jetty9'
+include ':development-agent'
+include ':development-server'
+include ':installers'
+
+project(':base').projectDir = "$rootDir/base" as File
+project(':util').projectDir = "$rootDir/util" as File
+project(':test-utils').projectDir = "$rootDir/test-utils" as File
+project(':db').projectDir = "$rootDir/db" as File
+project(':database').projectDir = "$rootDir/addon-api/database" as File
+project(':go-plugin-api-internal').projectDir = "$rootDir/plugin-infra/go-plugin-api-internal" as File
+project(':go-plugin-api').projectDir = "$rootDir/plugin-infra/go-plugin-api" as File
+project(':go-plugin-activator').projectDir = "$rootDir/plugin-infra/go-plugin-activator" as File
+project(':go-plugin-infra').projectDir = "$rootDir/plugin-infra/go-plugin-infra" as File
+project(':go-plugin-access').projectDir = "$rootDir/plugin-infra/go-plugin-access" as File
+project(':config-api').projectDir = "$rootDir/config/config-api" as File
+project(':config-server').projectDir = "$rootDir/config/config-server" as File
+project(':common').projectDir = "$rootDir/common" as File
+project(':agent-common').projectDir = "$rootDir/agent-common" as File
+project(':test-agent').projectDir = "$rootDir/test-agent" as File
+project(':tfs-impl').projectDir = "$rootDir/tfs-impl" as File
+project(':agent').projectDir = "$rootDir/agent" as File
+project(':agent-launcher').projectDir = "$rootDir/agent-launcher" as File
+project(':agent-bootstrapper').projectDir = "$rootDir/agent-bootstrapper" as File
+project(':rack_hack').projectDir = "$rootDir/rack_hack" as File
+project(':server').projectDir = "$rootDir/server" as File
+project(':server-launcher').projectDir = "$rootDir/server-launcher" as File
+project(':app-server').projectDir = "$rootDir/app-server" as File
+project(':jetty9').projectDir = "$rootDir/jetty9" as File
+project(':development-agent').projectDir = "$rootDir/development-utility/development-agent" as File
+project(':development-server').projectDir = "$rootDir/development-utility/development-server" as File
+project(':installers').projectDir = "$rootDir/installers" as File

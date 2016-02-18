@@ -16,46 +16,48 @@
 
 OneJarConfig = Struct.new(:main, :include_libs, :go_agent_bootstrap_class, :ignore_libs)
 
-ONE_JAR_MAINS = {
-        'agent-bootstrapper.jar' => OneJarConfig.new('com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper', true),
-        'agent.jar' => OneJarConfig.new('com.thoughtworks.go.agent.AgentMain', true, "com.thoughtworks.go.agent.AgentProcessParentImpl", ['agent-launcher.jar', 'tfs-impl-classes.jar']),
-        'go.jar' => OneJarConfig.new('com.thoughtworks.go.server.util.GoLauncher', false),
-        'test-agent.jar' => OneJarConfig.new('com.thoughtworks.go.ArgPrintingMain', true, "com.thoughtworks.go.HelloWorldStreamWriter", ['agent-launcher.jar'])
-}
-
-def in_classpath_form deps
-  deps.map { |f| File.join(".", "lib", File.basename(f.to_s)) }.join(" ")
+def one_jar_mains
+  {
+    "agent-bootstrapper-#{VERSION_NUMBER}.jar" => OneJarConfig.new('com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper', true),
+    'agent.jar'                                => OneJarConfig.new('com.thoughtworks.go.agent.AgentMain', true, 'com.thoughtworks.go.agent.AgentProcessParentImpl', ['agent-launcher.jar', 'tfs-impl-classes.jar']),
+    'go.jar'                                   => OneJarConfig.new('com.thoughtworks.go.server.util.GoLauncher', false),
+    'test-agent.jar'                           => OneJarConfig.new('com.thoughtworks.go.ArgPrintingMain', true, 'com.thoughtworks.go.HelloWorldStreamWriter', ['agent-launcher.jar'])
+  }
 end
 
-def onejar jarname
-  package(:jar, :file => _(:target, 'main.jar')).with(:manifest => manifest.merge("Class-Path" => in_classpath_form(compile.dependencies)))
+def in_classpath_form(deps)
+  deps.map { |f| File.join('.', 'lib', File.basename(f.to_s)) }.join(' ')
+end
+
+def onejar(jarname)
+  package(:jar, :file => _(:target, 'main.jar')).with(:manifest => manifest.merge('Class-Path' => in_classpath_form(compile.dependencies)))
 
   one_jar = package(:onejar, :file => jarname)
   self.main_jars << one_jar
   one_jar
 end
 
-def package_as_onejar file_name
+def package_as_onejar(file_name)
   Buildr::ZipTask.define_task(file_name).clean.enhance do |zip|
     tmp_file_name = file_name + '.tmp'
 
-    config = ONE_JAR_MAINS[File.basename(file_name)]
+    config = one_jar_mains[File.basename(file_name)]
 
     File.open(_(:target, 'MANIFEST.MF'), 'w') do |f|
       f << Buildr::Packaging::Java::Manifest.new(manifest).to_s
-      f << "One-Jar-Main-Class: " + config.main
-      if (config.go_agent_bootstrap_class)
+      f << 'One-Jar-Main-Class: ' + config.main
+      if config.go_agent_bootstrap_class
         f << "\nGo-Agent-Bootstrap-Class: " + config.go_agent_bootstrap_class
       end
     end
 
     ant('onejar') do |proj|
-      proj.taskdef :name => 'one_jar',
+      proj.taskdef :name      => 'one_jar',
                    :classname => 'com.simontuffs.onejar.ant.OneJarTask',
                    :classpath => jars_at('one-jar-ant-task').join(File::PATH_SEPARATOR)
 
       proj.one_jar(:destfile => tmp_file_name, :manifest => _(:target, 'MANIFEST.MF')) do
-        proj.main :jar => _(:target, "main.jar")
+        proj.main :jar => _(:target, 'main.jar')
         if config.go_agent_bootstrap_class
           proj.boot do
             proj.zipfileset(:file => _(:target, 'bootstrap_classes.jar'))
@@ -91,9 +93,9 @@ end
 
 
 def do_with_fileset_under(action, jar, pattern, search_under)
-  base_for_search = File.join($PROJECT_BASE, search_under)
+  base_for_search  = File.join($PROJECT_BASE, search_under)
   pattern_to_match = File.join(base_for_search, pattern)
-  available_files = Dir.glob(pattern_to_match)
+  available_files  = Dir.glob(pattern_to_match)
   raise "Did not find even one file with pattern: #{pattern_to_match}" if available_files.length <= 0
 
   available_files.each do |abs_path|

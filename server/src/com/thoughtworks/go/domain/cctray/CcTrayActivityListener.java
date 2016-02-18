@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.PipelineConfigChangedListener;
@@ -29,7 +28,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;

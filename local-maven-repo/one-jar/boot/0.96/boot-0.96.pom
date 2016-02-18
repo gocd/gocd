@@ -15,11 +15,11 @@
   ~ limitations under the License.
   -->
 
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openrdf</groupId>
-  <artifactId>sesame-onejar</artifactId>
-  <version>2.3.1</version>
+  <groupId>one-jar</groupId>
+  <artifactId>boot</artifactId>
+  <version>0.96</version>
+  <description>POM was created from install:install-file</description>
 </project>

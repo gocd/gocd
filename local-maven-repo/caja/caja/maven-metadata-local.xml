@@ -15,11 +15,14 @@
   ~ limitations under the License.
   -->
 
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openrdf</groupId>
-  <artifactId>sesame-onejar</artifactId>
-  <version>2.3.1</version>
-</project>
+<metadata>
+  <groupId>caja</groupId>
+  <artifactId>caja</artifactId>
+  <versioning>
+    <release>3828</release>
+    <versions>
+      <version>3828</version>
+    </versions>
+    <lastUpdated>20160219153231</lastUpdated>
+  </versioning>
+</metadata>

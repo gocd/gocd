@@ -33,6 +33,8 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
       // needed because the widget needs to fetch data via ajax, and complete rendering
       var reallyDone = _.after(2, function () {
         m.redraw(true);
+        $root.find('.pipeline-settings>.accordion-item>a')[0].click();
+        m.redraw(true);
         done();
       });
 
@@ -85,7 +87,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     it("should render the params (when clicked)", function () {
       expect($root.find('.parameters .parameter').length).toBe(0);
 
-      var accordion = $root.find('.parameters.accordion .accordion-navigation > a').get(0);
+      var accordion = $root.find('.parameters.accordion .accordion-item > a').get(0);
 
       var evObj = document.createEvent('MouseEvents');
       evObj.initEvent('click', true, false);
@@ -103,7 +105,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     it("should render the environment variables", function () {
       expect($root.find('.environment-variables .environment-variable').length).toBe(0);
 
-      var accordion = $root.find('.environment-variables.accordion .accordion-navigation > a').get(0);
+      var accordion = $root.find('.environment-variables.accordion .accordion-item > a').get(0);
 
       var evObj = document.createEvent('MouseEvents');
       evObj.initEvent('click', true, false);

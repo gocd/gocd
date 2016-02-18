@@ -42,7 +42,7 @@ define(["jquery", "mithril", 'lodash', "pipeline_configs/models/tracking_tool", 
       );
 
       m.redraw(true);
-      var accordion = $root.find('.tracking-tool .accordion-navigation > a').get(0);
+      var accordion = $root.find('.tracking-tool .accordion-item > a').get(0);
       var evObj     = document.createEvent('MouseEvents');
       evObj.initEvent('click', true, false);
       accordion.onclick(evObj);

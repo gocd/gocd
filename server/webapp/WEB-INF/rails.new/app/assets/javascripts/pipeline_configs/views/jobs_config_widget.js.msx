@@ -198,6 +198,11 @@ define([
       this.args = args;
       ComponentMixins.HasViewModel.call(this);
       ComponentMixins.ManagesCollection.call(this, {as: 'Job'});
+      this.removeJob = function (job) {
+        var previousJobIndex =  args.jobs().indexOfJob(job) - 1;
+        this.vmState('selectedJobIndex')(previousJobIndex !== -1 ? previousJobIndex : 0);
+        this.remove(job);
+      }
     },
 
     view: function (ctrl) {
@@ -216,84 +221,82 @@ define([
       var tabUUIDs = _(allJobUUIDs).concat('add-job');
 
       return (
-        <div>
-          <f.tabs class="job-definitions"
-                  tabTitles={tabTitles}
-                  tabKeys={tabUUIDs}
-                  isVertical={true}
-                  selectedIndex={ctrl.vmState('selectedJobIndex', m.prop(0))}>
-            {ctrl.map(function (job) {
-              return (
-                <f.row class='job-definition' key={job.uuid()}>
-                  <f.column size={9}>
-                    <f.removeButton onclick={ctrl.remove.bind(ctrl, job)} class='remove-job'/>
-                    <f.row>
-                      <f.column size={12}>
-                        <f.row>
-                          <f.inputWithLabel
-                            attrName='name'
-                            model={job}
-                            size={4}/>
-                          <f.column size={8}>
-                            <JobTimeout job={job}/>
-                          </f.column>
-                        </f.row>
-                        <f.row>
-                          <f.inputWithLabel
-                            config={autoComplete(Resources.list, job, 'resources')}
-                            attrName='resources'
-                            model={job}
-                            tooltip={{
+        <f.tabs class="job-definitions"
+                tabTitles={tabTitles}
+                tabKeys={tabUUIDs}
+                isVertical={true}
+                selectedIndex={ctrl.vmState('selectedJobIndex', m.prop(0))}>
+          {ctrl.map(function (job) {
+            return (
+              <f.row class='job-definition' key={job.uuid()}>
+                <f.column size={12}>
+                  <f.removeButton onclick={ctrl.removeJob.bind(ctrl, job)} class='remove-job'/>
+                  <f.row>
+                    <f.column size={12}>
+                      <f.row>
+                        <f.inputWithLabel
+                          attrName='name'
+                          model={job}
+                          size={4}/>
+                        <f.column size={8}>
+                          <JobTimeout job={job}/>
+                        </f.column>
+                      </f.row>
+                      <f.row>
+                        <f.inputWithLabel
+                          config={autoComplete(Resources.list, job, 'resources')}
+                          attrName='resources'
+                          model={job}
+                          tooltip={{
                               content: tt.job.resources,
                               direction: 'bottom',
                               size: 'small'
                             }}
-                            size={4}
-                            end={true}/>
+                          size={4}
+                          end={true}/>
 
-                          <f.column size={8}>
-                            <RunOnAgent job={job}/>
-                          </f.column>
+                        <f.column size={8}>
+                          <RunOnAgent job={job}/>
+                        </f.column>
 
-                        </f.row>
-                      </f.column>
-                    </f.row>
+                      </f.row>
+                    </f.column>
+                  </f.row>
 
-                    <f.row>
-                      <f.column size={12} end={true}>
-                        <EnvironmentVariablesConfigWidget variables={job.environmentVariables}
-                                                          key={job.environmentVariables().uuid()}
-                                                          vm={ctrl.vmState('environmentVariables')}/>
-                      </f.column>
-                    </f.row>
+                  <f.row>
+                    <f.column size={12} end={true}>
+                      <EnvironmentVariablesConfigWidget variables={job.environmentVariables}
+                                                        key={job.environmentVariables().uuid()}
+                                                        vm={ctrl.vmState('environmentVariables')}/>
+                    </f.column>
+                  </f.row>
 
-                    <f.row>
-                      <f.column size={12} end={true}>
-                        <TasksConfigWidget tasks={job.tasks}/>
-                      </f.column>
-                    </f.row>
+                  <f.row>
+                    <f.column size={12} end={true}>
+                      <TasksConfigWidget tasks={job.tasks}/>
+                    </f.column>
+                  </f.row>
 
-                    <f.row>
-                      <f.column size={12}>
-                        <f.tabs tabTitles={['Artifacts', 'Tabs', 'Properties']}
-                                tabKeys={['artifacts', 'tabs', 'properties']}
-                                selectedIndex={ctrl.vmState('tabSelectedIndex', m.prop(0))}>
-                          <ArtifactsConfigWidget artifacts={job.artifacts}
-                                                 keys={job.artifacts().uuid()}/>
-                          <TabsConfigWidget tabs={job.tabs}
-                                            keys={job.tabs().uuid()}/>
-                          <PropertiesConfigWidget properties={job.properties}
-                                                  keys={job.properties().uuid()}/>
-                        </f.tabs>
-                      </f.column>
-                    </f.row>
+                  <f.row>
+                    <f.column size={12}>
+                      <f.tabs tabTitles={['Artifacts', 'Tabs', 'Properties']}
+                              tabKeys={['artifacts', 'tabs', 'properties']}
+                              selectedIndex={ctrl.vmState('tabSelectedIndex', m.prop(0))}>
+                        <ArtifactsConfigWidget artifacts={job.artifacts}
+                                               keys={job.artifacts().uuid()}/>
+                        <TabsConfigWidget tabs={job.tabs}
+                                          keys={job.tabs().uuid()}/>
+                        <PropertiesConfigWidget properties={job.properties}
+                                                keys={job.properties().uuid()}/>
+                      </f.tabs>
+                    </f.column>
+                  </f.row>
 
-                  </f.column>
-                </f.row>
-              );
-            })}
-          </f.tabs>
-        </div>
+                </f.column>
+              </f.row>
+            );
+          })}
+        </f.tabs>
       );
     }
   };

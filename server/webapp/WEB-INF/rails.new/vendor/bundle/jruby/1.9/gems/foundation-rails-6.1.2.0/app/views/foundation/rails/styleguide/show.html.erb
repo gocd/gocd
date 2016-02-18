@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Foundation | Styleguide</title>
+
+    <%= stylesheet_link_tag    "foundation" %>
+    <%= csrf_meta_tags %>
+  </head>
+
+  <body>
+
+    <nav class="top-bar" data-topbar>
+      <ul class="title-area">
+        <li class="name">
+          <h1><a href="http://foundation.zurb.com">Foundation</a></h1>
+        </li>
+      </ul>
+
+      <section class="top-bar-section">
+        <!-- Right Nav Section -->
+        <ul class="right">
+          <li class="active"><a href="https://github.com/zurb/foundation-rails">GitHub</a></li>
+          <li class="has-dropdown">
+            <a href="http://foundation.zurb.com/docs/">Foundation Docs</a>
+            <ul class="dropdown">
+              <li><a href="http://foundation.zurb.com/support/support.html">Support</a></li>
+            </ul>
+          </li>
+          <li class="has-form">
+            <a href="" class="button" data-reveal-id="signupModal">Sign Up</a>
+          </li>
+        </ul>
+      </section>
+    </nav>
+
+
+
+    <ul data-orbit="">
+      <li><img src="http://placehold.it/1800x350/0079a1/ffffff&text=foundation-rails"></li>
+      <li><img src="http://placehold.it/1800x350/0079a1/ffffff&text=foundation-rails"></li>
+      <li><img src="http://placehold.it/1800x350/0079a1/ffffff&text=foundation-rails"></li>
+    </ul>
+
+
+    <div class="row">
+      <div class="large-4 columns">
+        <ul class="pricing-table">
+          <li class="title">Freelancer</li>
+          <li class="price">$99.99</li>
+          <li class="description">An awesome description</li>
+          <li class="bullet-item">1 Database</li>
+          <li class="bullet-item">5GB Storage</li>
+          <li class="bullet-item">20 Users</li>
+          <li class="cta-button"><a class="button" href="#">Buy Now</a></li>
+        </ul>
+      </div>
+      <div class="large-4 columns">
+        <ul class="pricing-table">
+          <li class="title">Startup</li>
+          <li class="price">$199.99</li>
+          <li class="description">An awesome description</li>
+          <li class="bullet-item">1 Database</li>
+          <li class="bullet-item">5GB Storage</li>
+          <li class="bullet-item">20 Users</li>
+          <li class="cta-button"><a class="button" href="#">Buy Now</a></li>
+        </ul>
+      </div>
+      <div class="large-4 columns">
+        <ul class="pricing-table">
+          <li class="title">Enterprise</li>
+          <li class="price">$999.99</li>
+          <li class="description">An awesome description</li>
+          <li class="bullet-item">1 Database</li>
+          <li class="bullet-item">5GB Storage</li>
+          <li class="bullet-item">20 Users</li>
+          <li class="cta-button"><a class="button" href="#">Buy Now</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <h3 class="subheader">Find out more!</h3>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <dl class="tabs" data-tab>
+          <dd class="active"><a href="#panel2-1">Overview</a></dd>
+          <dd><a href="#panel2-2">Features</a></dd>
+          <dd><a href="#panel2-3">Testimonials</a></dd>
+          <dd><a href="#panel2-4">History</a></dd>
+        </dl>
+        <div class="tabs-content">
+          <div class="content active" id="panel2-1">
+            <p>This is the first panel of the basic tab example. This is the first panel of the basic tab example.</p>
+          </div>
+          <div class="content" id="panel2-2">
+            <p>This is the second panel of the basic tab example. This is the second panel of the basic tab example.</p>
+          </div>
+          <div class="content" id="panel2-3">
+            <p>This is the third panel of the basic tab example. This is the third panel of the basic tab example.</p>
+          </div>
+          <div class="content" id="panel2-4">
+            <p>This is the fourth panel of the basic tab example. This is the fourth panel of the basic tab example.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="signupModal" data-reveal-modal class="reveal-modal">
+      <h2>Awesome. I have it.</h2>
+      <p class="lead">Your couch.  It is mine.</p>
+      <p>Im a cool paragraph that lives inside of an even cooler modal. Wins</p>
+      <a class="close-reveal-modal">&#215;</a>
+    </div>
+
+    <%= javascript_include_tag "jquery" %>
+    <%= javascript_include_tag "foundation" %>
+    <script>
+    $(document).foundation();
+    </script>
+  </body>
+</html>

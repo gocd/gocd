@@ -55,37 +55,38 @@ define([
       };
 
       return (
-        <div>
-          <div class='pipeline-flow-boxes'>
-            <div class={classes(ctrl.pipeline().materials(), 'materials')}
-                 onclick={ctrl.currentSelection.bind(ctrl, ctrl.pipeline().materials())}>
-              <span class='label'>Materials</span>
-            </div>
-
-            <div class="stage-boxes">
-              <div config={dragDropConfig} class="stages-wrapper">
-                {ctrl.pipeline().stages().mapStages(function (stage, stageIndex) {
-                  return (
-                    <div class={classes(stage, 'stage')}
-                         data-stage-index={stageIndex}
-                         onclick={ctrl.currentSelection.bind(ctrl, stage)}
-                         key={stage.uuid()}>
-                      <span class="drag-handle"/>
-                      <span class='label'>{stage.name()}</span>
-                    </div>
-                  );
-                })}
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Stages</span>
+                        )
+                     ]}
+                     selectedIndex={ctrl.vmState('pipelineFlowSelected', m.prop(0))}
+                     accordionKeys={['stages']}
+                     class='stages'>
+          <div>
+            <div class='pipeline-flow-boxes'>
+              <div class="stage-boxes">
+                <div config={dragDropConfig} class="stages-wrapper">
+                  {ctrl.pipeline().stages().mapStages(function (stage, stageIndex) {
+                    return (
+                      <div class={classes(stage, 'stage')}
+                           data-stage-index={stageIndex}
+                           onclick={ctrl.currentSelection.bind(ctrl, stage)}
+                           key={stage.uuid()}>
+                        <span class="drag-handle"/>
+                        <span class='label'>{stage.name()}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {appendStage}
               </div>
-              {appendStage}
             </div>
-
+            <StagesConfigWidget pipeline={ctrl.pipeline}
+                                currentSelection={ctrl.currentSelection}
+                                vm={ctrl.vmState('stagesConfig')}/>
           </div>
-
-          <StagesConfigWidget pipeline={ctrl.pipeline}
-                              currentSelection={ctrl.currentSelection}
-                              vm={ctrl.vmState('stagesConfig')}/>
-
-        </div>
+        </f.accordion>
       );
     }
 

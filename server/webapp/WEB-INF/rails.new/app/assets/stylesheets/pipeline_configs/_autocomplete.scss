@@ -2,9 +2,9 @@
   @include dropdown-container();
 
   li {
-    @include dropdown-style;
+    //@include dropdown-style;
     &.active {
-     background-color: $f-dropdown-list-hover-bg;
+     //background-color: $f-dropdown-list-hover-bg;
     }
   }
 }

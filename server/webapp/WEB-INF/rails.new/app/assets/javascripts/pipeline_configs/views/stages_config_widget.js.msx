@@ -55,47 +55,53 @@ define([
   };
 
   var ApprovalWidget = {
-    view: function (ctrl, args, children) {
+    controller: function (args) {
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
+    },
+
+    view: function (ctrl, args) {
       return (
-        <f.row>
-          <f.column size={11}>
+        <f.accordion accordionTitles={[(<span>Stage Operate Permissions</span>)]}
+                     accordionKeys={['stagePermissions']}
+                     selectedIndex={ctrl.vmState('stagePermissionSelected', m.prop(-1))}>
+          <div>
             <f.row>
-              <f.column size={12}>
-                <label>Stage operate permissions</label>
-              </f.column>
+            <label>Permissions will be inherited from the pipeline group if not specified.</label>
             </f.row>
             <f.row>
               <f.inputWithLabel config={autoComplete(Users.list, args.approval().authorization(), 'users')}
                                 attrName='users'
                                 model={args.approval().authorization()}
-                                size={12}/>
+                                size={3}/>
 
             </f.row>
             <f.row>
               <f.inputWithLabel config={autoComplete(Roles.list, args.approval().authorization(), 'roles')}
                                 attrName='roles'
                                 model={args.approval().authorization()}
-                                size={12}/>
+                                size={3}/>
             </f.row>
-          </f.column>
-        </f.row>
+          </div>
+        </f.accordion>
       );
     }
   };
 
-  var StageConfigDefinitionWidget = {
+  var SettingsWidget = {
     controller: function (args) {
       this.args = args;
       ComponentMixins.HasViewModel.call(this);
     },
 
-    view: function (ctrl, args, children) {
+    view: function(ctrl, args) {
       var stage     = args.stage;
       var radioName = 'radio-' + stage.uuid() + '-approval-type';
 
       return (
-        <div class='stage-definition' data-stage-name={stage.name()}>
-          <f.removeButton onclick={args.onRemove} class="remove-stage"/>
+        <f.accordion accordionTitles={[(<span>Stage Settings</span>)]}
+                     accordionKeys={['stageSettings']}
+                     selectedIndex={ctrl.vmState('stageSettingsSelected', m.prop(0))}>
           <f.row>
             <f.column size={4}>
               <f.row>
@@ -169,20 +175,30 @@ define([
                             end={true}/>
               </f.row>
             </f.column>
-            <f.column size={4}>
-              <ApprovalWidget approval={stage.approval}/>
-            </f.column>
-
-
           </f.row>
+        </f.accordion>
+      )
+    }
+  };
 
-          <f.row>
-            <f.column size={12} end={true}>
-              <EnvironmentVariablesConfigWidget variables={stage.environmentVariables}
-                                                key={stage.environmentVariables().uuid()}
-                                                vm={ctrl.vmState('environmentVariables')}/>
-            </f.column>
-          </f.row>
+  var StageConfigDefinitionWidget = {
+    controller: function (args) {
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
+    },
+
+    view: function (ctrl, args) {
+      var stage     = args.stage;
+
+      return (
+        <div class='stage-definition' data-stage-name={stage.name()}>
+          <f.removeButton onclick={args.onRemove} class="remove-stage"/>
+
+          <SettingsWidget stage={stage}/>
+          <ApprovalWidget approval={stage.approval}/>
+          <EnvironmentVariablesConfigWidget variables={stage.environmentVariables}
+                                            key={stage.environmentVariables().uuid()}
+                                            vm={ctrl.vmState('environmentVariables')}/>
 
           <f.row>
             <f.column size={12} end={true}>
@@ -191,25 +207,6 @@ define([
                                 vm={ctrl.vmState('jobsWidget')}/>
             </f.column>
           </f.row>
-        </div>
-      );
-    }
-  };
-
-  var MaterialConfigWrapper = {
-    controller: function (args) {
-      this.args = args;
-      this.pipelineName= args.pipelineName
-      ComponentMixins.HasViewModel.call(this);
-    },
-
-    view: function (ctrl, args, children) {
-      return (
-        <div class='material-definitions'>
-          <MaterialsConfigWidget materials={args.materials}
-                                 key={args.materials.uuid()}
-                                 pipelineName={args.pipelineName}
-                                 vm={ctrl.vmState('materialsConfig')}/>
         </div>
       );
     }
@@ -233,20 +230,11 @@ define([
     },
 
     view: function (ctrl, args) {
-      var componentToShow;
-
-      if (args.currentSelection() === args.pipeline().materials()) {
-        componentToShow = <MaterialConfigWrapper materials={args.pipeline().materials()}
-                                                 pipelineName={args.pipeline().name}
-                                                 vm={ctrl.vmState('materialConfigs')}/>;
-      } else {
-        componentToShow = <StageConfigDefinitionWidget stage={ctrl.currentSelection()}
-                                                       onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}
-                                                       vm={ctrl.vmState('stageConfigs')}/>;
-      }
       return (
-        <div class='stage-and-material-definitions'>
-          {componentToShow}
+        <div class='stage-definitions'>
+          <StageConfigDefinitionWidget stage={ctrl.currentSelection()}
+                                       onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}
+                                       vm={ctrl.vmState('stageConfigs')}/>;
         </div>
       );
     }

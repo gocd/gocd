@@ -15,6 +15,71 @@
  */
 
 .navigation {
+
+  $menu-background: #333;
+  $menu-hover-background: #222;
+
+  .title-bar {
+    background: $menu-background;
+    padding:    0.9rem;
+  }
+
+  .top-bar {
+    background: $menu-background;
+
+    ul {
+      background: $menu-background;
+
+      li {
+        background: $menu-background;
+
+        &:hover {
+          background-color: $menu-hover-background;
+        }
+
+        a {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .menu-text {
+    color: #fff;
+
+    @media only screen and (max-width: 40em) {
+      display: none !important;
+    }
+  }
+
+  @media only screen and (min-width: 40em) {
+    .menu:last-child {
+      border-left: 1px solid #4e4e4e;
+    }
+
+    .menu:first-child {
+      border-left: none;
+    }
+  }
+
+  .dropdown.menu {
+    .submenu {
+      border: none;
+    }
+
+    .is-dropdown-submenu-parent.is-right-arrow > a::after {
+      border-color: #fff transparent transparent;
+    }
+  }
+
+  .is-drilldown-submenu-parent > a::after {
+    border-color: transparent transparent transparent #fff;
+  }
+
+  .js-drilldown-back::before {
+    border-color: transparent #fff transparent transparent;
+  }
+
   .logo {
     display:    inline-block;
     background: image-url('g9/logo_go.png') no-repeat 10px 8px;
@@ -22,25 +87,33 @@
     height:     35px;
   }
 
-  .current-user {
-    @extend .right;
+  .top-bar-left > ul > li > a {
+    text-transform: uppercase;
   }
 
-  .header-tabs {
-    @extend .left;
-    a {
-      text-transform: uppercase;
-    }
+  .is-dropdown-submenu {
+    border: none;
   }
-
-  .admin-dropdown {
-    @extend .dropdown;
-    a {
-      text-transform: capitalize;
-    }
-  }
-
+  //
+  //.current-user {
+  //  //@extend .right;
+  //}
+  //
+  //.header-tabs {
+  //  //@extend .left;
+  //  a {
+  //    text-transform: uppercase;
+  //  }
+  //}
+  //
+  //.admin-dropdown {
+  //  @extend .dropdown;
+  //  a {
+  //    text-transform: capitalize;
+  //  }
+  //}
+  //
   .user {
-    @include icon-before($type: user);
+    @include icon-before($type: user, $margin: auto);
   }
 }

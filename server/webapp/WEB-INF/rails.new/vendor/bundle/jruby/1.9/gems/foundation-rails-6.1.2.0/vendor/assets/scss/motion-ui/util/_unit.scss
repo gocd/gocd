@@ -1,0 +1,7 @@
+/// Removes the unit (e.g. px, em, rem) from a value, returning the number only.
+/// @param {Number} $num - Number to strip unit from.
+/// @return {Number} The same number, sans unit.
+/// @access private
+@function strip-unit($num) {
+  @return $num / ($num * 0 + 1);
+}

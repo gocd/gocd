@@ -45,6 +45,7 @@
 
 <% if request.path =~ /jasmine-specs-new/ %>
 
+  <!--If you make any edits here, make the same edits in `run.html.erb' -->
   <script>
     require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax', 'foundation.util.mediaQuery'], function () {
       require(<%= raw Dir[Rails.root.join("spec/new_javascripts/**/*_spec.js")].collect {|f| f.gsub(Rails.root.join("spec/new_javascripts/").to_s, "assets/") } %>, function () {

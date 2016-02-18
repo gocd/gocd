@@ -1,0 +1,269 @@
+import java.security.SecureRandom
+
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def script = this
+
+def gitRevision = { ->
+  def hashStdOut = new ByteArrayOutputStream()
+  exec {
+    commandLine "git", "log", "-n", "1", "--format=%H"
+    standardOutput = hashStdOut
+    workingDir = script.buildscript.sourceFile.parent
+  }
+
+  return hashStdOut.toString().trim()
+}
+
+def releaseRevision = { ->
+  def hashStdOut = new ByteArrayOutputStream()
+  exec {
+    commandLine "git", "log", "--pretty=format:"
+    standardOutput = hashStdOut
+    workingDir = script.buildscript.sourceFile.parent
+  }
+
+  return hashStdOut.size().toString()
+}
+
+ext.partitionFiles = { Collection originalFiles ->
+  // no partitioning needed!
+  if (!(System.getenv().containsKey('GO_JOB_RUN_COUNT') && System.getenv().containsKey('GO_JOB_RUN_INDEX'))) {
+    project.logger.log(LogLevel.WARN, "You're attempting to partition files without specifying both GO_JOB_RUN_COUNT and GO_JOB_RUN_INDEX.")
+    return originalFiles
+  }
+
+  Integer totalWorkers = System.getenv('GO_JOB_RUN_COUNT').toInteger()
+  Integer currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX').toInteger()
+  def files = new LinkedHashSet(originalFiles).sort()
+
+  Integer testsPerBucket = Math.ceil((double) files.size() / totalWorkers)
+
+  rootProject.logger.quiet("Partitioning ${files.size()} files into ${totalWorkers} buckets with approx ${testsPerBucket} files per bucket.")
+
+  // random shuffle, every agent uses the same seed, so shuffling is predictable
+  Collections.shuffle(files, new Random(System.getenv('GO_PIPELINE_COUNTER').toInteger()))
+
+  def allPartitions = files.collate(testsPerBucket)
+  allPartitions[currentWorkerIndex - 1]
+}
+
+def GO_VERSION = '16.7.0'
+def DIST_VERSION = releaseRevision()
+def GIT_REVISION = gitRevision()
+
+if (System.getenv().containsKey("GO_SERVER_URL")) {
+  println "========================================================="
+  println "Gradle version:  ${gradle.gradleVersion}"
+  println "JVM:             ${System.getProperty('java.version')} (${System.getProperty('java.vm.vendor')} ${System.getProperty('java.vm.version')})"
+  println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
+  println "========================================================="
+}
+
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'idea'
+
+  rootProject.ext.goVersion   = GO_VERSION
+  rootProject.ext.distVersion = DIST_VERSION
+  rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
+  rootProject.ext.gitRevision = GIT_REVISION
+
+  rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
+
+  group = 'com.thoughtworks.go'
+  version = project.fullVersion
+  buildDir = "${projectDir}/target"
+
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  repositories {
+    mavenLocal()
+    jcenter()
+
+    if (System.getenv().containsKey("GO_SERVER_URL")) {
+      maven { url "file://${rootProject.rootDir}/maven-output-dir" }
+    }
+    maven { url "${script.buildscript.sourceFile.parent}/local-maven-repo" }
+    maven { url "https://dl.bintray.com/gocd-google-code-mirror/generic/oauth" }
+    maven { url "https://dl.bintray.com/gocd-google-code-mirror/generic/google-caja" }
+  }
+
+  configurations {
+    packagingOnly { transitive false }
+    extractedAtTopLevel { transitive false }
+    fatJarConfig
+
+    testOutput
+  }
+
+  sourceSets {
+    main {
+      java {
+        srcDirs = ['src']
+        compileClasspath += configurations.compileOnly
+      }
+      resources {
+        srcDirs = ['resources']
+      }
+    }
+    test {
+      java {
+        srcDirs = ['test']
+        compileClasspath += configurations.compileOnly
+        runtimeClasspath += configurations.compileOnly
+      }
+      resources {
+        srcDirs = ['test-resources']
+      }
+    }
+  }
+
+  tasks.withType(Jar) { jarTask ->
+    manifest {
+      attributes(
+          'Go-Version': project.version,
+          'ImplementationVersion': project.version,
+          'Go-Revision': project.gitRevision,
+          'Implementation-Title': project.name,
+          'Implementation-Version': project.version,
+          'Source-Compatibility': project.sourceCompatibility,
+          'Target-Compatibility': project.targetCompatibility
+      )
+    }
+
+    includeEmptyDirs false
+    duplicatesStrategy 'exclude'
+
+    if (jarTask.name == 'testJar') {
+      project.artifacts.add 'testOutput', jarTask
+    } else {
+      project.artifacts.add 'archives', jarTask
+    }
+  }
+
+  tasks.withType(Zip) {
+    includeEmptyDirs false
+    duplicatesStrategy 'exclude'
+  }
+
+  tasks.withType(Exec) {
+    if (logger.isInfoEnabled()) {
+      standardOutput = System.out
+      errorOutput = System.err
+    } else {
+      standardOutput = new ByteArrayOutputStream()
+      errorOutput = new ByteArrayOutputStream()
+    }
+  }
+
+  tasks.withType(JavaCompile) { compileTask ->
+    options.encoding = "UTF-8"
+  }
+
+  task testJar(type: Jar, dependsOn: 'jar', description: "Assembles a jar archive containing the test classes.") {
+    classifier = 'tests'
+    from sourceSets.test.output
+  }
+
+  test {
+    dependsOn 'jar'
+    // run tests even when inputs have not changed
+    outputs.upToDateWhen { false }
+
+    // fixup a tempdir that is predictable and we can clean it up later
+    def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
+    systemProperty 'java.io.tmpdir', tmpDir
+    defaultCharacterEncoding = "UTF-8"
+
+    filter {
+      failOnNoMatchingTests = true
+    }
+
+    doFirst {
+      project.logger.info("Setting tmpdir ${tmpDir}")
+      project.delete(tmpDir)
+      tmpDir.mkdirs()
+
+      def files = []
+      project.sourceSets.test.output.classesDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+        def relPath = new File(project.sourceSets.test.output.classesDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+        files << relPath
+      }
+
+      List myPartition = project.partitionFiles(files)
+
+      myPartition.each { f ->
+        include f
+      }
+    }
+
+    doLast {
+      project.logger.info("Deleting tmpdir ${tmpDir}")
+      project.delete(tmpDir)
+    }
+
+    testLogging {
+      showStandardStreams = true
+
+      exceptionFormat 'full'
+
+      beforeSuite { suite ->
+        if (suite.parent) {
+          logger.quiet("Running ${suite.name}")
+        }
+      }
+
+      afterSuite { suite, result ->
+        if (suite.parent) {
+          logger.quiet("Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
+          if (result.resultType == TestResult.ResultType.FAILURE) {
+            logger.quiet("Test ${suite.name} FAILED")
+          }
+        } else {
+          logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
+        }
+      }
+    }
+  }
+}
+
+subprojects {
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  apply plugin: 'maven'
+
+  buildDir = "${projectDir}/target"
+
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        repository(url: "file://${rootProject.rootDir}/maven-output-dir")
+      }
+    }
+  }
+}
+
+task all(dependsOn: [':server-launcher:fatJar', ':server:prepareDb'])
+
+task allDependencies {
+  dependsOn allprojects.collect { "$it.path:dependencies" }
+
+  description = "Print dependency tree of all projects"
+}

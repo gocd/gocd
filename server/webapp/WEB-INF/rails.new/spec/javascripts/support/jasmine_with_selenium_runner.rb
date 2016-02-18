@@ -39,8 +39,11 @@ class JasmineWithSeleniumRunner
       end
     end
 
+    sleep 5 if ENV['GO_SERVER_URL']
     web_driver.navigate.to jasmine_server_url
+    sleep 5 if ENV['GO_SERVER_URL']
     wait_for_jasmine_to_start
+    sleep 5 if ENV['GO_SERVER_URL']
     wait_for_suites_to_finish_running
     formatter.format(get_results)
     formatter.done

@@ -45,11 +45,13 @@ public class AgentBootstrapperFunctionalTest {
     public void setUp() throws IOException {
         new File(".agent-bootstrapper.running").delete();
         FileUtils.copyFile(new File("testdata", Downloader.AGENT_LAUNCHER), new File(Downloader.AGENT_LAUNCHER));
+        System.setProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS, "0");
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         FileUtils.deleteQuietly(new File(Downloader.AGENT_LAUNCHER));
+        System.clearProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     }
 
     @Test

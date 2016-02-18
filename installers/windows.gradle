@@ -1,0 +1,92 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import com.thoughtworks.go.build.WindowsPackagingTask
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+task agentWindowsExe(type: WindowsPackagingTask, dependsOn: [':agent-bootstrapper:fatJar']) {
+  packageName 'go-agent'
+  version rootProject.goVersion
+  distVersion rootProject.distVersion
+  beforePackage {
+    project.copy {
+      from project.rootProject.file('LICENSE')
+      into(versionedDir())
+    }
+
+    project.copy {
+      from project.rootProject.file('LICENSE')
+      into(versionedDir())
+      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
+      rename "LICENSE", "LICENSE.DOS"
+    }
+
+    project.copy { from('windows-shared/JavaHome.ini') into(buildRoot()) }
+    project.copy { from('go-agent/win/ServerURL.ini') into(buildRoot()) }
+
+    project.copy {
+      from(configurations.agentBootstrapperJar.singleFile.path) into(versionedDir()) rename ".*", "agent-bootstrapper.jar"
+    }
+    project.copy { from('agent/release/agent.cmd') into(versionedDir()) }
+    project.copy { from('agent/release/start-agent.bat') into(versionedDir()) }
+    project.copy { from('agent/release/stop-agent.bat') into(versionedDir()) }
+    project.copy { from('agent/release/README.md') into(versionedDir()) }
+    project.copy { from('agent/win/cruisewrapper.exe') into(versionedDir()) }
+
+    project.copy {
+      from(project(':agent').file('properties/log4j.properties')) into("${versionedDir()}/config/log4j.properties")
+    }
+
+    project.copy { from('go-agent/win/config') into("${versionedDir()}/config") }
+    project.copy { from('go-agent/win/lib') into("${versionedDir()}/lib") }
+  }
+}
+
+task serverWindowsExe(type: WindowsPackagingTask, dependsOn: [':server-launcher:fatJar']) {
+  packageName 'go-server'
+  version rootProject.goVersion
+  distVersion rootProject.distVersion
+
+  beforePackage {
+    project.copy {
+      from project.rootProject.file('LICENSE')
+      into(versionedDir())
+    }
+
+    project.copy {
+      from project.rootProject.file('LICENSE')
+      into(versionedDir())
+      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
+      rename "LICENSE", "LICENSE.DOS"
+    }
+
+    project.copy { from('windows-shared/JavaHome.ini') into(buildRoot()) }
+
+    project.copy { from(configurations.serverJar.singleFile.path) into(versionedDir()) rename ".*", "go.jar" }
+
+    project.copy { from('go-server/release/server.cmd') into(versionedDir()) }
+    project.copy { from('go-server/release/start-server.bat') into(versionedDir()) }
+    project.copy { from('go-server/release/stop-server.bat') into(versionedDir()) }
+    project.copy { from('go-server/release/config.properties') into(versionedDir()) }
+    project.copy { from('go-server/win/cruisewrapper.exe') into(versionedDir()) }
+
+    project.copy { from('go-server/win/config') into("${versionedDir()}/config") }
+    project.copy { from('go-server/win/lib') into("${versionedDir()}/lib") }
+  }
+}
+
+assemble.dependsOn(":installers:agentWindowsExe", ":installers:serverWindowsExe")

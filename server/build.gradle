@@ -1,0 +1,574 @@
+import com.thoughtworks.go.build.VerifyJarTask
+import groovy.json.JsonOutput
+
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'GoCD Server'
+
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+  }
+}
+
+configurations {
+  warConfig
+  jarConfig
+  additionalClasspath
+
+  compile.exclude(group: 'org.springframework', module: 'spring-support')
+  runtime.exclude(group: 'org.springframework', module: 'spring-support')
+}
+
+project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
+
+def props = [
+    'go.enforce.serverId.immutability': 'N',
+    'rails.use.compressed.js'         : 'false',
+    'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
+    'db.host'                         : 'localhost',
+    'db.user'                         : 'sa',
+    'db.password'                     : '',
+    'db.name'                         : 'cruise',
+    'db.port'                         : ''
+]
+props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
+project.ext.testSystemProperties = props
+
+apply from: 'rails.gradle'
+apply from: 'jasmine.gradle'
+
+sourceSets {
+  main {
+    resources {
+      srcDirs = ['resources', 'properties/src', "${project.railsRoot}/vendor/engines/gadgets/config"]
+      exclude 'routes.rb'
+    }
+  }
+  test {
+    java {
+      srcDirs = ['test/unit', 'test/integration', 'test/common', 'test/agent']
+    }
+
+    resources {
+      srcDirs += ['properties/test', 'webapp', 'test/data']
+    }
+  }
+}
+
+dependencies {
+  compile project(':database')
+  compile project(':config-server')
+  compile project(':common')
+  compile project(':rack_hack')
+  compile(group: 'commons-beanutils', name: 'commons-beanutils-core', version: '1.7.0') {
+    exclude(module: 'commons-logging')
+    exclude(module: 'commons-collections')
+  }
+  compile(group: 'commons-validator', name: 'commons-validator', version: '1.3.1') {
+    exclude(module: 'commons-digester')
+    exclude(module: 'commons-logging')
+    exclude(module: 'junit')
+  }
+
+  compile group: 'oro', name: 'oro', version: '2.0.8'
+  compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+  compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
+  compile group: 'com.h2database', name: 'h2', version: '1.3.168'
+  compile group: 'net.sf', name: 'dbdeploy', version: '2.11.1'
+  compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: '3.3.2.GA') {
+    exclude(module: 'ehcache')
+    exclude(module: 'commons-collections')
+  }
+  compile(group: 'org.hibernate', name: 'hibernate-annotations', version: '3.4.0.GA') {
+    exclude(module: 'slf4j-api')
+  }
+  compile group: 'javassist', name: 'javassist', version: '3.9.0.GA'
+  compile group: 'org.apache.ibatis', name: 'ibatis-sqlmap', version: '2.3.4.726'
+  compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.0.0'
+  compile(group: 'opensymphony', name: 'oscache', version: '2.4.1') {
+    exclude(module: 'commons-logging')
+    exclude(module: 'jms')
+    exclude(module: 'servlet-api')
+    exclude(module: 'hibernate')
+  }
+  compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.5.0') {
+    exclude(module: 'spring-context')
+    exclude(module: 'org.osgi.core')
+    exclude(module: 'commons-logging')
+  }
+  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+  compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
+  compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
+  compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
+  compile group: 'org.springframework', name: 'web.servlet', version: '3.1.3.RELEASE'
+  compile(group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.2.1') {
+    exclude(module: 'servlet-api')
+    exclude(module: 'commons-logging')
+  }
+  compile(group: 'org.springframework.security', name: 'spring-security-acl', version: '2.0.3') {
+    exclude(module: 'spring-support')
+    exclude(module: 'spring-jdbc')
+    exclude(module: 'spring-core')
+    exclude(module: 'spring-beans')
+    exclude(module: 'spring-context')
+    exclude(module: 'spring-aop')
+    exclude(module: 'commons-codec')
+    exclude(module: 'commons-logging')
+    exclude(module: 'commons-collections')
+  }
+  compile(group: 'org.springframework.security', name: 'spring-security-cas-client', version: '2.0.3') {
+    exclude(module: 'spring-support')
+    exclude(module: 'spring-dao')
+    exclude(module: 'cas-client-core')
+  }
+  compile group: 'org.springframework.security', name: 'spring-security-core-tiger', version: '2.0.3'
+  compile(group: 'org.springframework.ldap', name: 'spring-ldap', version: '1.2.1') {
+    exclude(module: 'spring-support')
+    exclude(module: 'spring-core')
+    exclude(module: 'spring-beans')
+    exclude(module: 'commons-lang')
+    exclude(module: 'commons-logging')
+  }
+  compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
+  compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
+  compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
+  compile group: 'org.tuckey', name: 'urlrewritefilter', version: '3.2.0'
+  compile(group: 'org.apache.velocity', name: 'velocity', version: '1.7') {
+    exclude(module: 'commons-lang')
+    exclude(module: 'commons-collections')
+  }
+  compile group: 'velocity-tools', name: 'velocity-tools-view', version: '1.2'
+  compile group: 'org.apache.shindig', name: 'shindig-features', version: '1.1-BETA5-incubating'
+  compile(group: 'org.apache.shindig', name: 'shindig-gadgets', version: '1.1-BETA5-incubating') {
+    exclude(module: 'caja')
+    exclude(module: 'guice')
+    exclude(module: 'commons-betwixt')
+    exclude(module: 'commons-codec')
+    exclude(module: 'commons-io')
+    exclude(module: 'commons-lang')
+    exclude(module: 'ehcache')
+    exclude(module: 'icu4j')
+  }
+  compile group: 'caja', name: 'caja', version: '3828'
+  compile group: 'com.google.inject', name: 'guice', version: '2.0'
+  compile group: 'com.thoughtworks.studios', name: 'gadgets', version: '1.1'
+  compile group: 'com.sun.mail', name: 'dsn', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'mailapi', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'imap', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'pop3', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'smtp', version: '1.4.4'
+  compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
+  compile(group: 'jaxen', name: 'jaxen', version: '1.1') {
+    exclude(module: 'xom')
+    exclude(module: 'xercesImpl')
+    exclude(module: 'jdom')
+  }
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.12'
+  compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.12'
+  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.1.0.201509280440-r'
+  testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
+  testCompile project(path: ':common', configuration: 'testOutput')
+  testCompile project(path: ':config-server', configuration: 'testOutput')
+  testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile project(path: ':test-utils')
+  testCompile project(':jetty9')
+  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
+  testCompile group: 'org.jsoup', name: 'jsoup', version: '1.8.1'
+  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: '1.7.0'
+  testCompile group: 'org.xmlunit', name: 'xmlunit-core', version: '2.0.0-alpha-03'
+  testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.0.0-alpha-03'
+  compileOnly project(':app-server')
+  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: '9.2.17.v20160517'
+}
+
+
+task createVersionJsonFile {
+  def versionFile = file("${project.buildDir}/server_version.json")
+  inputs.property('goVersion', rootProject.goVersion)
+  inputs.property('distVersion', rootProject.distVersion)
+  inputs.property('gitRevision', rootProject.gitRevision)
+
+  outputs.file versionFile
+
+  doLast {
+    versionFile.getParentFile().mkdirs()
+    versionFile.withWriter { out ->
+      out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
+          version     : rootProject.goVersion,
+          build_number: rootProject.distVersion,
+          git_sha     : rootProject.gitRevision,
+      ])))
+    }
+  }
+
+}
+
+task createVersionFile {
+  def versionFile = file("${project.buildDir}/admin_version.txt.vm")
+  inputs.property('version', rootProject.version)
+  inputs.property('distVersion', rootProject.distVersion)
+  inputs.property('gitRevision', rootProject.gitRevision)
+
+  outputs.file versionFile
+
+  doLast {
+    versionFile.getParentFile().mkdirs()
+    versionFile.withWriter { out ->
+      out.write("${rootProject.goVersion} (${rootProject.distVersion}-${rootProject.gitRevision})")
+    }
+  }
+}
+
+jar {
+  classifier = 'classes'
+  exclude '**/*/log4j.properties'
+  exclude 'log4j.properties'
+}
+
+def findGemsToNotPack = {
+  if (project.hasProperty('noAssets')) {
+    return []
+  }
+
+  def gems = []
+  org.jruby.Ruby ruby
+  try {
+    ruby = org.jruby.Ruby.newInstance()
+    gems = ruby.evalScriptlet(
+        """
+          Dir.chdir('${project.railsRoot}') do
+            \$LOAD_PATH.unshift("vendor/bundle/jruby/1.9/gems/bundler-1.9.9/lib")
+            require 'bundler'
+            require 'json'
+            definition = ::Bundler.definition
+            all = definition.specs.to_a
+            #puts "*** All gems - #{all.collect(&:full_name)}"
+
+            requested = definition.specs_for(definition.groups.collect(&:to_sym) - [:development, :test, :assets]).to_a
+            #puts "*** Gems that should be packaged - #{requested.collect(&:full_name)}"
+
+            ignored_gems = all - requested
+            #puts "*** Ignored gems - #{ignored_gems.collect(&:full_name)}"
+            ignored_gems.collect(&:full_name)
+          end
+          """
+    )
+  } finally {
+    if (ruby != null) {
+      ruby.tearDown()
+    }
+  }
+
+  if (gems.isEmpty()) {
+    throw new UnknownError("There seems to have been a problem with detecting which gems should not be packaged!")
+  }
+  return gems
+}
+
+task cleanDb(type: Delete) {
+  outputs.upToDateWhen { false }
+  doFirst {
+    delete "db/h2db"
+    delete "db/h2deltas"
+    delete "db/shine"
+    delete "db/config.git"
+  }
+}
+
+task prepareDb(dependsOn: [':server:cleanDb']) {
+  outputs.upToDateWhen { false }
+
+  doFirst {
+    copy {
+      from 'db/dbtemplate/h2db'
+      into 'db/h2db'
+    }
+    copy {
+      from 'db/migrate/h2deltas'
+      into 'db/h2deltas'
+    }
+  }
+}
+
+task prepare(dependsOn: [cleanDb, prepareDb, ':agent-launcher:fatJar', ':test-agent:jar']) {
+  doFirst {
+    project.copy {
+      from { project(':test-agent').jar.archivePath }
+      into "testdata"
+      rename "(.*)-${project.version}.jar", '$1.jar'
+    }
+  }
+}
+
+test {
+  dependsOn prepare
+
+  minHeapSize '1024m'
+  maxHeapSize '2048m'
+
+  systemProperties += project.testSystemProperties
+  forkEvery 1
+
+  classpath += project.files(project.configurations.additionalClasspath.files)
+}
+
+clean.doFirst {
+  delete 'artifactsDir'
+  delete 'data'
+  delete 'felix-cache'
+  delete 'logs'
+  delete 'pipelines'
+  delete 'plugins'
+  delete 'go-shine.log'
+  delete 'go-server.log'
+  delete 'cce_server.log'
+  cleanDb.execute()
+  cleanRails.execute()
+}
+
+task war(type: Jar) {
+  dependsOn ':server:jar', ':server:createVersionFile', ':server:createVersionJsonFile', ':server:compileAssets'
+  baseName = 'cruise'
+  extension 'war'
+  exclude '**/*/log4j.properties'
+  exclude 'log4j.properties'
+
+  from(createVersionFile) { into 'WEB-INF/vm/admin' }
+  from(createVersionJsonFile) { into 'WEB-INF' }
+
+  // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
+  def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)
+
+  from(classpath) {
+    into 'WEB-INF/lib'
+  }
+
+  with(copySpec {
+    from { zipTree(jar.archivePath) }
+    into('WEB-INF/classes')
+  })
+
+  from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
+    into '/'
+  }
+
+  from(project(':config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
+  from("messages/message.properties") { into('/') }
+
+  from(compileAssets) {
+    into '/WEB-INF/rails.new/public/assets'
+  }
+
+  from("webapp/WEB-INF/web.xml") {
+    filter {
+      it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
+    }
+    into "/WEB-INF"
+  }
+
+  // do this lazily because finding gems is expensive during the configure cycle causing gradle to boot really slow
+  doFirst { Jar warFile ->
+    warFile.from('webapp') { theSpec ->
+      into '/'
+      exclude('WEB-INF/web.xml')
+      exclude("**/rails.new/*.log")
+      exclude("**/rails.new/log/*")
+      exclude("**/rails.new/spec/*")
+      exclude("**/rails.new/tmp/**/*.*")
+      exclude("**/rails.new/**/jruby/*/cache/*.gem")
+      exclude("**/rails.new/app/assets/**/*.*")
+      findGemsToNotPack().each { gem ->
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/build_info/${gem}.info")
+      }
+    }
+  }
+
+  doLast {
+    verifyWar.execute()
+  }
+}
+
+task verifyWar(type: VerifyJarTask) {
+  jarTask = war
+  expectedJars = [
+      "WEB-INF/lib": [
+          "activation-1.1.jar",
+          "activeio-core-3.1.2.jar",
+          "activemq-core-5.5.0.jar",
+          "activemq-protobuf-1.1.jar",
+          "antlr-2.7.6.jar",
+          "aopalliance-1.0.jar",
+          "AppleJavaExtensions-1.4.jar",
+          "asm-1.5.3.jar",
+          "aspectjrt-1.5.4.jar",
+          "aspectjweaver-1.5.4.jar",
+          "base-${project.version}.jar",
+          "caja-3828.jar",
+          "cas-client-core-3.2.1.jar",
+          "cglib-2.1_3.jar",
+          "cglib-nodep-2.2.jar",
+          "cloning-1.7.3.jar",
+          "common-${project.version}.jar",
+          "commons-beanutils-1.7.0.jar",
+          "commons-beanutils-core-1.7.0.jar",
+          "commons-codec-1.9.jar",
+          "commons-collections-3.2.2.jar",
+          "commons-dbcp-1.4.jar",
+          "commons-digester-1.8.jar",
+          "commons-fileupload-1.2.jar",
+          "commons-httpclient-3.1.jar",
+          "fluent-hc-4.5.2.jar",
+          "httpclient-4.5.2.jar",
+          "httpcore-4.4.4.jar",
+          "httpmime-4.5.2.jar",
+          "commons-io-2.4.jar",
+          "commons-lang-2.6.jar",
+          "commons-logging-1.2.jar",
+          "commons-net-2.0.jar",
+          "commons-pool-1.5.6.jar",
+          "commons-validator-1.3.1.jar",
+          "config-api-${project.version}.jar",
+          "config-server-${project.version}.jar",
+          "database-${project.version}.jar",
+          "db-${project.version}.jar",
+          "dbdeploy-2.11.1.jar",
+          "dom4j-1.6.1.jar",
+          "dsn-1.4.4.jar",
+          "ehcache-core-2.0.0.jar",
+          "ejb3-persistence-1.0.2.GA.jar",
+          "freemarker-2.3.18.jar",
+          "gadgets-1.1.jar",
+          "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
+          "geronimo-jms_1.1_spec-1.1.1.jar",
+          "go-plugin-access-${project.version}.jar",
+          "go-plugin-activator-${project.version}.jar",
+          "go-plugin-api-${project.version}.jar",
+          "go-plugin-api-internal-${project.version}.jar",
+          "go-plugin-infra-${project.version}.jar",
+          "google-collections-1.0-rc2.jar",
+          "gson-2.3.1.jar",
+          "guice-2.0.jar",
+          "h2-1.3.168.jar",
+          "hibernate-annotations-3.4.0.GA.jar",
+          "hibernate-commons-annotations-3.1.0.GA.jar",
+          "hibernate-core-3.3.2.GA.jar",
+          "hibernate-ehcache-3.3.2.GA.jar",
+          "htmlparser-1.0.7.jar",
+          "ibatis-sqlmap-2.3.4.726.jar",
+          "imap-1.4.4.jar",
+          "jackson-annotations-2.5.0.jar",
+          "jackson-core-2.5.0.jar",
+          "jackson-databind-2.5.0.jar",
+          "jasypt-1.7.jar",
+          "JavaEWAH-0.7.9.jar",
+          "javassist-3.9.0.GA.jar",
+          "javasysmon-0.3.5.jar",
+          "javax.inject-1.jar",
+          "javax.mail-1.4.4.jar",
+          "javax.servlet-api-3.1.0.jar",
+          "jaxen-1.1.jar",
+          "jdom-1.0.jar",
+          "jettison-1.2.jar",
+          "joda-time-2.3.jar",
+          "jolt-core-0.0.20.jar",
+          "jruby-complete-1.7.11.jar",
+          "jruby-rack-1.1.14.jar",
+          "jsch-0.1.53.jar",
+          "json-20070829.jar",
+          "json-simple-1.1.jar",
+          "json-utils-0.0.20.jar",
+          "jta-1.1.jar",
+          "juel-api-2.1.2.jar",
+          "juel-impl-2.1.2.jar",
+          "jul-to-slf4j-1.7.12.jar",
+          "kahadb-5.5.0.jar",
+          "kxml2-2.3.0.jar",
+          "kxml2-min-2.3.0.jar",
+          "log4j-1.2.17.jar",
+          "mailapi-1.4.4.jar",
+          "nekohtml-1.9.13.jar",
+          "oauth-20090531.jar",
+          "oauth-consumer-20090531.jar",
+          "oauth-httpclient3-20090531.jar",
+          "objenesis-1.2.jar",
+          "org.apache.felix.framework-4.2.1.jar",
+          "org.eclipse.jdt.annotation-1.1.0.jar",
+          "org.eclipse.jgit-4.1.0.201509280440-r.jar",
+          "org.eclipse.jgit.http.server-4.1.0.201509280440-r.jar",
+          "oro-2.0.8.jar",
+          "oscache-2.4.1.jar",
+          "pop3-1.4.4.jar",
+          "quartz-1.6.5.jar",
+          "rack_hack-${project.version}.jar",
+          "rome-1.0.jar",
+          "sanselan-0.97-incubator.jar",
+          "sesame-onejar-2.3.1.jar",
+          "shindig-common-1.1-BETA5-incubating.jar",
+          "shindig-features-1.1-BETA5-incubating.jar",
+          "shindig-gadgets-1.1-BETA5-incubating.jar",
+          "slf4j-api-1.7.12.jar",
+          "slf4j-log4j12-1.7.12.jar",
+          "smtp-1.4.4.jar",
+          "spring-aop-3.1.3.RELEASE.jar",
+          "spring-asm-3.1.3.RELEASE.jar",
+          "spring-beans-3.1.3.RELEASE.jar",
+          "spring-context-3.1.3.RELEASE.jar",
+          "spring-context-support-3.1.3.RELEASE.jar",
+          "spring-core-3.1.3.RELEASE.jar",
+          "spring-expression-3.1.3.RELEASE.jar",
+          "spring-jdbc-3.1.3.RELEASE.jar",
+          "spring-ldap-1.2.1.jar",
+          "spring-orm-3.1.3.RELEASE.jar",
+          "spring-security-acl-2.0.3.jar",
+          "spring-security-cas-client-2.0.3.jar",
+          "spring-security-core-2.0.3.jar",
+          "spring-security-core-tiger-2.0.3.jar",
+          "spring-tx-3.1.3.RELEASE.jar",
+          "spring-web-3.1.3.RELEASE.jar",
+          "spring-webmvc-3.1.3.RELEASE.jar",
+          "stax-api-1.0.1.jar",
+          "urlrewritefilter-3.2.0.jar",
+          "util-${project.version}.jar",
+          "velocity-1.7.jar",
+          "velocity-tools-view-1.2.jar",
+          "web.servlet-3.1.3.RELEASE.jar",
+          "xercesImpl-2.9.1.jar",
+          "xml-apis-1.3.04.jar",
+          "xmlParserAPIs-2.6.2.jar",
+          "xpp3_min-1.1.4c.jar",
+          "xstream-1.3.1.jar",
+      ]
+  ]
+}
+
+task verifyJar {
+  dependsOn verifyWar
+}
+
+artifacts {
+  warConfig war
+  jarConfig jar
+}

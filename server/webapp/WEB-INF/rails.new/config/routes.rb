@@ -44,7 +44,6 @@ Go::Application.routes.draw do
 
   get 'admin/backup' => 'admin/backup#index', as: :backup_server
   post 'admin/backup' => 'admin/backup#perform_backup', as: :perform_backup
-  delete 'admin/backup/delete_all' => 'admin/backup#delete_all', as: :delete_backup_history #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
 
   get "admin/plugins" => "admin/plugins/plugins#index", as: :plugins_listing
   post 'admin/plugins' => 'admin/plugins/plugins#upload', as: :upload_plugin
@@ -384,7 +383,6 @@ Go::Application.routes.draw do
       post 'create' =>   'users#create', as: :users_create
       post 'search' => 'users#search', as: :users_search
       post 'roles' => 'users#roles', as: :user_roles
-      delete 'delete_all' => 'users#delete_all', as: :users_delete  #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
     end
     post 'operate'  => 'users#operate', as: :user_operate
     get ''=>'users#users', as: :user_listing

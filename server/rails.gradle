@@ -1,0 +1,153 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import com.thoughtworks.go.build.PrepareRailsCommandHelper
+
+task pathingJar(type: Jar) {
+  classifier 'pathing'
+  dependsOn ':server:jar'
+  dependsOn ':server:testJar'
+
+  doFirst {
+    manifest {
+      attributes 'Class-Path': new PrepareRailsCommandHelper(project).classpath().files.collect { it.toURI() }.join(' ')
+    }
+  }
+}
+
+task dependencyClassPath {
+  outputs.upToDateWhen { false }
+  dependsOn ':server:prepare'
+  dependsOn ':server:cleanRails'
+  dependsOn ':server:jar'
+  dependsOn ':server:testJar'
+
+  def systemPropertiesFile = file("${buildDir}/go-system-properties")
+
+  outputs.file(systemPropertiesFile)
+
+  doLast {
+    PrepareRailsCommandHelper helper = new PrepareRailsCommandHelper(project)
+    helper.prepare()
+
+    systemPropertiesFile.withWriter { out ->
+      out.println("JRUBY_OPTS=\"${helper.jrubyOpts.join(' \\\n')}\"")
+      out.println("GO_DEPENDENCY_CLASSPATH='${helper.classpath().join(File.pathSeparator)}'")
+    }
+  }
+}
+
+task cleanRails {
+  outputs.upToDateWhen { false }
+  doLast {
+    delete "${buildDir}/railsTests"
+    delete "${project.railsRoot}/db/h2db"
+    delete "${project.railsRoot}/db/config.git"
+    delete "${project.railsRoot}/db/shine"
+    delete "${project.railsRoot}/logs"
+    delete "${project.railsRoot}/go-server.log"
+    delete "${project.railsRoot}/go-shine.log"
+    delete "${project.railsRoot}/config/cipher"
+    delete "${project.railsRoot}/tmp"
+    delete "${project.railsRoot}/historical_jars"
+  }
+}
+
+task compileAssets(type: ExecuteUnderRailsTask) {
+  onlyIf { !project.hasProperty('fastBuild') }
+
+  def outputAssetsDir = file("${project.buildDir}/assets")
+  def publicAssetsDir = file("${project.railsRoot}/public/assets")
+
+  inputs.dir(file("${project.railsRoot}/app/assets"))
+  inputs.dir(file("${project.railsRoot}/vendor/assets"))
+
+  outputs.dir(outputAssetsDir)
+
+  environment(
+      'RAILS_ENV': 'production'
+  )
+
+  railsCommand = './bin/rake --trace assets:clobber assets:precompile'
+
+  doFirst {
+    delete "${project.railsRoot}/tmp"
+    delete outputAssetsDir
+  }
+
+  doLast {
+    delete "${project.railsRoot}/tmp"
+
+    outputAssetsDir.parentFile.mkdirs()
+    copy {
+      from publicAssetsDir
+      into outputAssetsDir
+    }
+
+    delete publicAssetsDir
+  }
+}
+
+task rspec(type: ExecuteUnderRailsTask) {
+  dependsOn ':server:testJar'
+  outputs.upToDateWhen { false }
+
+  description = "Run specs (pass '-Ppots=...' to pass options)"
+
+  def rspecCommand = [rootProject.file('tools/rails/bin/rspec')]
+  if (project.hasProperty('opts')) {
+    rspecCommand += [project.property('opts')]
+  }
+
+  environment += [
+      'REPORTS_DIR': "${project.buildDir}/rspec-results"
+  ]
+  railsCommand = rspecCommand.join(' ')
+}
+
+task parallelRspec(type: ExecuteUnderRailsTask) {
+  dependsOn ':server:testJar'
+  outputs.upToDateWhen { false }
+
+  description = "Run specs in parallel (pass '-Ppots=...' to pass options)"
+
+  def rspecCommand = [rootProject.file('tools/rails/bin/rspec')]
+
+  FileTree tree = fileTree(dir: "${project.railsRoot}/spec").include('**/*_spec.rb')
+
+  def files = project.partitionFiles(tree.files)
+
+  // relativize paths, because windows does not support very long command lines :(
+  rspecCommand += files.collect { project.railsRoot.toURI().relativize(it.toURI()).getPath() }
+
+  if (project.hasProperty('opts')) {
+    rspecCommand += [project.property('opts')]
+  }
+
+  environment += [
+      'REPORTS_DIR': "${project.buildDir}/rspec-results"
+  ]
+  railsCommand = rspecCommand.join(' ')
+}
+
+task railsExec(type: ExecuteUnderRailsTask) {
+  outputs.upToDateWhen { false }
+
+  description = "rails exec (pass '-Pcmd=...' to pass options)"
+
+  railsCommand = project.properties.get('cmd')
+}

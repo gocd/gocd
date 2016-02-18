@@ -1,0 +1,108 @@
+import com.thoughtworks.go.build.DebPackagingTask
+import com.thoughtworks.go.build.RpmPackagingTask
+
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def agent = [
+    dirs       : [
+        '/etc/default'           : [ownedByPackage: false],
+        '/etc/init.d'            : [ownedByPackage: false],
+        '/usr/share/doc/go-agent': [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
+        '/usr/share/go-agent'    : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
+        '/var/lib/go-agent'      : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
+        '/var/log/go-agent'      : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true],
+        '/var/run/go-agent'      : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true]
+    ],
+    files      : [
+        '/etc/default/go-agent'                     : [mode: 0640, owner: 'root', group: 'go', source: file('go-agent/release/go-agent.default').path, confFile: true],
+        '/etc/init.d/go-agent'                      : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/go-agent.init').path],
+        '/usr/share/doc/go-agent/LICENSE'           : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
+        '/usr/share/go-agent/agent-bootstrapper.jar': [mode: 0644, owner: 'root', group: 'root', source: configurations.agentBootstrapperJar.singleFile.path],
+        '/usr/share/go-agent/agent.sh'              : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/agent.sh').path],
+        '/usr/share/go-agent/stop-agent.sh'         : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/stop-agent.sh').path],
+        '/var/lib/go-agent/log4j.properties'        : [mode: 0644, owner: 'root', group: 'root', source: project(':agent').file('properties/log4j.properties').path, confFile: true],
+    ],
+    description: '''
+      Go Agent Component
+      Next generation continuous integration and release management server from ThoughtWorks.
+      '''.stripIndent().trim()
+]
+
+def server = [
+    dirs       : [
+        '/etc/default'            : [ownedByPackage: false],
+        '/etc/go'                 : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true],
+        '/etc/init.d'             : [ownedByPackage: false],
+        '/usr/share/doc/go-server': [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
+        '/usr/share/go-server'    : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
+        '/var/lib/go-server'      : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
+        '/var/log/go-server'      : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true],
+        '/var/run/go-server'      : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true]
+    ],
+    files      :
+        [
+            '/etc/default/go-server'             : [mode: 0640, owner: 'root', group: 'go', source: file('go-server/release/go-server.default').path, confFile: true],
+            '/etc/go/log4j.properties'           : [mode: 0640, owner: 'root', group: 'go', source: project(':server').file('properties/src/log4j.properties').path, confFile: true],
+            '/etc/init.d/go-server'              : [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/go-server.init').path],
+            '/usr/share/doc/go-server/LICENSE'   : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
+            '/usr/share/go-server/go.jar'        : [mode: 0644, owner: 'root', group: 'root', source: configurations.serverJar.singleFile.path],
+            '/usr/share/go-server/server.sh'     : [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/server.sh').path],
+            '/usr/share/go-server/stop-server.sh': [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/stop-server.sh').path]
+        ],
+    description: '''
+      Go Server Component
+      Next generation continuous integration and release management server from ThoughtWorks.
+      '''.stripIndent().trim()
+]
+
+task agentPackageDeb(dependsOn: [':agent-bootstrapper:fatJar'], type: DebPackagingTask) {
+  packageName 'go-agent'
+  version rootProject.goVersion
+  distVersion rootProject.distVersion
+  packageDescription agent.description
+  files agent.files
+  directories agent.dirs
+}
+
+task agentPackageRpm(dependsOn: [':agent-bootstrapper:fatJar'], type: RpmPackagingTask) {
+  packageName 'go-agent'
+  version rootProject.goVersion
+  distVersion rootProject.distVersion
+  packageDescription agent.description
+  files agent.files
+  directories agent.dirs
+}
+
+task serverPackageDeb(dependsOn: [':server-launcher:fatJar'], type: DebPackagingTask) {
+  packageName 'go-server'
+  version rootProject.goVersion
+  distVersion rootProject.distVersion
+  packageDescription server.description
+  files server.files
+  directories server.dirs
+}
+
+task serverPackageRpm(dependsOn: [':server-launcher:fatJar'], type: RpmPackagingTask) {
+  packageName 'go-server'
+  version rootProject.goVersion
+  distVersion rootProject.distVersion
+  packageDescription server.description
+  files server.files
+  directories server.dirs
+}
+
+assemble.dependsOn(":installers:agentPackageRpm", ":installers:serverPackageRpm", ":installers:agentPackageDeb", ":installers:serverPackageDeb")

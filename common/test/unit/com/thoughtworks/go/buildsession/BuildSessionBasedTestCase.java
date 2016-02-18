@@ -94,7 +94,7 @@ public class BuildSessionBasedTestCase {
         if (SystemUtil.isWindows()) {
             return exec("ping 1.1.1.1 -n 1 -w " + seconds * 1000 + " >NUL");
         } else {
-            return exec("sleep", String.valueOf(seconds));
+            return exec("/bin/sleep", String.valueOf(seconds));
         }
     }
 

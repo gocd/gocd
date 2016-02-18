@@ -156,7 +156,7 @@ describe "/navigation_elements/navigation" do
 
       render :partial => partial_page
 
-      expect(Capybara.string(response.body).find(".header-tabs li span")).to have_text("Admin")
+      expect(Capybara.string(response.body).find(".top-bar-left li span")).to have_text("Admin")
     end
   end
 end

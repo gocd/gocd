@@ -117,18 +117,6 @@ public class GoConfigAdministrationController {
         getXmlPartial(groupName, md5, goConfigService.groupSaver(groupName)).respond(response);
     }
 
-    @RequestMapping("/admin/restful/configuration/group/POST/xml")
-    public ModelAndView postGroupAsXmlPartial(@RequestParam("pipelineGroup")String pipelineGroupName,
-                                              @RequestParam("xmlPartial")String xmlPartial,
-                                              @RequestParam("md5")String md5,
-                                              HttpServletResponse response) throws Exception {
-        if (isTemplate(pipelineGroupName)) {
-            return postXmlPartial(pipelineGroupName, goConfigService.templatesSaver(), xmlPartial, "Template changed successfully.", md5).respond(response);
-        }
-        return postXmlPartial(pipelineGroupName, goConfigService.groupSaver(pipelineGroupName), xmlPartial, "Group changed successfully.", md5).respond(response);
-    }
-
-
     @RequestMapping("/admin/restful/configuration/build/POST/xml")
     @Deprecated
     public ModelAndView postBuildAsXmlPartial(@RequestParam("pipelineName")String pipelineName,

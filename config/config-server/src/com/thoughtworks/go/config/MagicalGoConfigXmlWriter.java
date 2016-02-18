@@ -44,6 +44,7 @@ import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.ObjectUtil.nullSafeEquals;
+import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static java.text.MessageFormat.format;
 import static org.apache.commons.io.IOUtils.toInputStream;
 
@@ -108,7 +109,7 @@ public class MagicalGoConfigXmlWriter {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         XmlUtils.writeXml(document, buffer);
         InputStream content = toInputStream(buffer.toString());
-        XmlUtils.validate(content, GoConfigSchema.getCurrentSchema(), registry.xsds());
+        buildXmlDocument(content, GoConfigSchema.getCurrentSchema(), registry.xsds());
     }
 
     public String toXmlPartial(Object domainObject) {

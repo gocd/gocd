@@ -42,15 +42,15 @@ public class XmlUtils {
         xmlOutputer().output(element, outputStream);
     }
 
-    public static Element validate(InputStream inputStream, URL resource, String xsds) throws Exception {
-        return validate(inputStream, new ValidatingSaxBuilder(resource, xsds));
+    public static Document buildXmlDocument(InputStream inputStream, URL resource, String xsds) throws Exception {
+        return buildXmlDocument(inputStream, new ValidatingSaxBuilder(resource, xsds));
     }
 
-    public static Element validate(String xmlContent, URL resource) throws Exception {
-        return validate(new ByteArrayInputStream(xmlContent.getBytes()), new ValidatingSaxBuilder(resource));
+    public static Document buildXmlDocument(String xmlContent, URL resource) throws Exception {
+        return buildXmlDocument(new ByteArrayInputStream(xmlContent.getBytes()), new ValidatingSaxBuilder(resource));
     }
 
-    private static Element validate(InputStream inputStream, SAXBuilder builder) throws JDOMException, IOException {
+    private static Document buildXmlDocument(InputStream inputStream, SAXBuilder builder) throws JDOMException, IOException {
         XsdErrorTranslator errorHandler = new XsdErrorTranslator();
         builder.setErrorHandler(errorHandler);
 
@@ -58,13 +58,7 @@ public class XmlUtils {
         if (errorHandler.hasValidationError()) {
             throw new XsdValidationException(errorHandler.translate());
         }
-        return cruiseRoot.getRootElement();
-    }
-
-
-    public static Document buildXmlDocument(String content) throws JDOMException, IOException {
-        SAXBuilder saxBuilder = new ValidatingSaxBuilder();
-        return saxBuilder.build(new StringReader(content));
+        return cruiseRoot;
     }
 
     public static boolean doesNotMatchUsingXsdRegex(Pattern pattern, String textToMatch) {

@@ -112,18 +112,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
     private static final String NEW_BUILD =
             "        <job name=\"new_job\" />\n";
 
-    private static final String NEW_TEMPLATES =
-            "<templates>\n"
-                    + "  <pipeline name=\"pipeline\">\n"
-                    + "    <stage name=\"dev\">\n"
-                    + "      <jobs>\n"
-                    + "        <job name=\"linux\" />\n"
-                    + "        <job name=\"windows\" />\n"
-                    + "      </jobs>\n"
-                    + "    </stage>\n"
-                    + "  </pipeline>\n"
-                    + "</templates>";
-
     private static final String NEW_PIPELINE_TEMPLATE =
             "<pipeline name=\"cruise\">\n"
                     + "  <stage name=\"dev\">\n"
@@ -133,21 +121,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
                     + "    </jobs>\n"
                     + "  </stage>\n"
                     + "</pipeline>";
-
-    private static final String RENAMED_GROUP =
-            "<pipelines group=\"changed\">\n"
-                    + "  <pipeline name=\"pipeline\">\n"
-                    + "    <materials>\n"
-                    + "      <svn url=\"file:///tmp/foo\" />\n"
-                    + "    </materials>\n"
-                    + "    <stage name=\"dev\">\n"
-                    + "      <jobs>\n"
-                    + "        <job name=\"linux\" />\n"
-                    + "        <job name=\"windows\" />\n"
-                    + "      </jobs>\n"
-                    + "    </stage>\n"
-                    + "  </pipeline>\n"
-                    + "</pipelines>";
 
     private String groupName;
     private SecurityContext originalSecurityContext;
@@ -342,46 +315,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
         );
     }
 
-    @Test public void shouldGetGroupWithTemplatesAsXml() throws Exception {
-        configHelper.addTemplate("template-1", "dev");
-        configHelper.addPipelineWithGroup("group", "pipeline", "dev", "linux");
-        PipelineConfig pipelineWithTemplate = configHelper.addPipelineWithTemplate("group", "pipeline-with-template", "template-1");
-        assertThat(pipelineWithTemplate.size(), is(0)); //should not expect mutation of pipeline config passed in
-        assertThat(configHelper.currentConfig().pipelineConfigByName(new CaseInsensitiveString("pipeline-with-template")).size(), is(1));
-
-        CruiseConfig config = goConfigService.currentCruiseConfig();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-with-template"));
-        assertThat("Should not modify the original template", pipelineConfig.size(), is(1));
-
-        controller.getGroupAsXmlPartial("group", null, response);
-        String content = "<pipelines group=\"group\">\n"
-                + "  <pipeline name=\"pipeline\">\n"
-                + "    <materials>\n"
-                + "      <svn url=\"svn:///user:pass@tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "    <stage name=\"dev\">\n"
-                + "      <jobs>\n"
-                + "        <job name=\"linux\" />\n"
-                + "      </jobs>\n"
-                + "    </stage>\n"
-                + "  </pipeline>\n"
-                + "  <pipeline name=\"pipeline-with-template\" template=\"template-1\">\n"
-                + "    <materials>\n"
-                + "      <svn url=\"svn:///user:pass@tmp/foo\" />\n"
-                + "    </materials>\n"
-                + "  </pipeline>\n"
-                + "</pipelines>";
-        assertValidContentAndStatus(SC_OK, "text/xml", content);
-
-        MockHttpServletResponse postResponse = new MockHttpServletResponse();
-        controller.postGroupAsXmlPartial("group", content, null, postResponse);
-
-        config = goConfigService.currentCruiseConfig();
-        pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-with-template"));
-        assertThat("Should not modify the original template", pipelineConfig.size(), is(1));
-
-    }
-
     @Test public void shouldGetErrorMessageWhenStageDoesNotExist() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1");
         controller.getStageAsXmlPartial("pipeline", 1, null, response);
@@ -406,74 +339,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
                 "{ 'result' : 'Stage changed successfully.' }"
         );
     }
-
-    @Test public void shouldPostGroupAsPartialXml() throws Exception {
-        configHelper.addPipelineWithGroup("group", "pipeline", "dev", "linux", "windows");
-        String newXml = NEW_GROUP;
-        String md5 = goConfigDao.md5OfConfigFile();
-        ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
-        assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
-        assertResponseMessage(mav, "Group changed successfully.");
-    }
-
-    @Test public void shouldPostGroupWithTemplateAsPartialXml() throws Exception {
-        configHelper.addTemplate("template-1", "dev");
-        configHelper.addPipelineWithGroup("group", "pipeline", "dev", "linux", "windows");
-        configHelper.addPipelineWithTemplate("group", "pipeline-with-template", "template-1");
-
-        String newXml = NEW_GROUP;
-        String md5 = goConfigDao.md5OfConfigFile();
-        ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
-        assertResponseMessage(mav, "Group changed successfully.");
-        assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
-    }
-
-    @Test
-    public void shouldIntroduceTemplatesTagIfANewTemplateIsIntroduced() throws Exception {
-        configHelper.addPipelineWithGroup("some-group", "some-pipeline", "some-dev", "some-linux", "some-windows");
-        configHelper.addAgent("some-home", "UUID");
-        String newXml = NEW_TEMPLATES;
-        String md5 = goConfigDao.md5OfConfigFile();
-        ModelAndView mav = controller.postGroupAsXmlPartial("Pipeline Templates", newXml, md5, response);
-        assertResponseMessage(mav, "Template changed successfully.");
-        assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
-        assertThat(configHelper.currentConfig().getTemplates().size(), is(1));
-    }
-
-    @Test
-    public void shouldModifyExistingPipelineTemplateWhenPostedAsPartial() throws Exception {
-        configHelper.addPipelineWithGroup("some-group", "some-pipeline", "some-dev", "some-linux", "some-windows");
-        configHelper.addAgent("some-home", "UUID");
-        String newXml = NEW_TEMPLATES;
-        String md5 = goConfigDao.md5OfConfigFile();
-        ModelAndView mav = controller.postGroupAsXmlPartial("Pipeline Templates", newXml, md5, response);
-        assertResponseMessage(mav, "Template changed successfully.");
-        assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
-        assertThat(configHelper.currentConfig().getTemplates().size(), is(1));
-    }
-
-    private void assertResponseMessage(ModelAndView mav, String message) {
-        Map json = (Map) mav.getModel().get("json");
-        new JsonTester(json).shouldContain(
-                "{ 'result' : '" + message + "' }"
-        );
-    }
-
-    @Test public void shouldPostGroupWithChangedNameAsPartialXml() throws Exception {
-        configHelper.addPipelineWithGroup("group", "pipeline", "dev", "linux", "windows");
-        String newXml = RENAMED_GROUP;
-        String md5 = goConfigDao.md5OfConfigFile();
-        ModelAndView mav = controller.postGroupAsXmlPartial("group", newXml, md5, response);
-        assertThat(response.getStatus(), is(SC_OK));
-        assertThat(response.getContentType(), is(RESPONSE_CHARSET_JSON));
-        assertResponseMessage(mav, "Group changed successfully.");
-
-    }
-
 
     @Test public void shouldReturnXmlAndErrorMessageWhenInvalidPostOfStageAsPartialXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
@@ -567,33 +432,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
         new JsonTester(json).shouldContain(
                 "{ 'result' : 'Pipeline changed successfully.' }"
         );
-    }
-
-    @Test
-    public void postGroupAsXmlPartial_shouldEnforcePipelineGroupAdminPermissions() throws Exception {
-        String md5 = setUpPipelineGroupsWithAdminPermissions();
-
-        controller.postGroupAsXmlPartial("studios", NEW_GROUP, md5, response);
-        assertThat(response.getStatus(), is(SC_UNAUTHORIZED));
-
-        controller.postGroupAsXmlPartial("consulting", NEW_GROUP, md5, response);
-        assertThat(response.getStatus(), is(SC_OK));
-    }
-
-    @Test
-    public void postGroupAsXmlPartial_shouldEnforcePipelineGroupAdminPermissionsForPipelineTemplates() throws Exception {
-        String md5 = setUpPipelineGroupsWithAdminPermissions();
-
-        ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        XmlUtils.validate(new FileInputStream(configHelper.getConfigFile()), GoConfigSchema.getCurrentSchema(), registry.xsds());
-        controller.postGroupAsXmlPartial(TemplatesConfig.PIPELINE_TEMPLATES_FAKE_GROUP_NAME, NEW_TEMPLATES, md5, response);
-
-        assertThat(response.getStatus(), is(SC_UNAUTHORIZED));
-        XmlUtils.validate(new FileInputStream(configHelper.getConfigFile()), GoConfigSchema.getCurrentSchema(), registry.xsds());
-
-        setCurrentUser("admin");
-        controller.postGroupAsXmlPartial(TemplatesConfig.PIPELINE_TEMPLATES_FAKE_GROUP_NAME, NEW_TEMPLATES, md5, response);
-        assertThat(response.getStatus(), is(SC_OK));
     }
 
     @Test

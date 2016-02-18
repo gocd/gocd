@@ -38,13 +38,13 @@ import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.XmlUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
+import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlLoader {
@@ -153,9 +153,9 @@ public class MagicalGoConfigXmlLoader {
     }
 
     private Element parseInputStream(InputStream inputStream) throws Exception {
-        Element element = XmlUtils.validate(inputStream, GoConfigSchema.getCurrentSchema(), registry.xsds());
-        validateDom(element, registry);
-        return element;
+        Element rootElement = buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema(), registry.xsds()).getRootElement();
+        validateDom(rootElement, registry);
+        return rootElement;
     }
 
     public static void validateDom(Element element, final ConfigElementImplementationRegistry registry) throws Exception {

@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
@@ -53,7 +54,7 @@ public class XmlUtilsTest {
         String xmlContent = "<foo name='invalid'/>";
         InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
         try {
-            XmlUtils.validate(inputStream, GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds());
+            buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds());
             fail("Should throw a XsdValidationException");
         } catch (Exception e) {
             assertThat(e, is(instanceOf(XsdValidationException.class)));
@@ -66,32 +67,19 @@ public class XmlUtilsTest {
         expectedException.expectMessage(containsString("Error on line 1: XML document structures must start and end within the same entity"));
 
         String xmlContent = "<foo name='invalid'";
-        XmlUtils.validate(xmlContent, GoConfigSchema.getCurrentSchema());
-    }
-
-    @Test
-    public void shouldBuildXmlDocumentOutOfString() throws Exception {
-        Document document = XmlUtils.buildXmlDocument("<parent><child>one</child><child>one</child></parent>");
-        assertThat(document.getRootElement().getName(), is("parent"));
-        assertThat(document.getRootElement().getChildren().size(), is(2));
-    }
-
-    @Test
-    public void shouldDisableDocTypeDeclarationsWhenBuildingXmlDocuments() throws Exception {
-        expectDOCTYPEDisallowedException();
-        XmlUtils.buildXmlDocument(xxeFileContent());
+        buildXmlDocument(xmlContent, GoConfigSchema.getCurrentSchema());
     }
 
     @Test
     public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocuments() throws Exception {
         expectDOCTYPEDisallowedException();
-        XmlUtils.validate(xxeFileContent(), GoConfigSchema.getCurrentSchema());
+        buildXmlDocument(xxeFileContent(), GoConfigSchema.getCurrentSchema());
     }
 
     @Test
     public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocumentsWithExternalXsds() throws Exception {
         expectDOCTYPEDisallowedException();
-        XmlUtils.validate(new ByteArrayInputStream(xxeFileContent().getBytes()), GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds());
+        buildXmlDocument(new ByteArrayInputStream(xxeFileContent().getBytes()), GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds());
     }
 
     private void expectDOCTYPEDisallowedException() {

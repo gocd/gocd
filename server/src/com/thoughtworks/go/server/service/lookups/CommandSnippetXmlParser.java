@@ -25,24 +25,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.XmlUtils;
 import org.apache.log4j.Logger;
 import org.jdom.Comment;
 import org.jdom.Document;
 import org.jdom.Element;
+
+import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 
 public class CommandSnippetXmlParser {
     private static final Logger LOGGER = Logger.getLogger(CommandSnippetXmlParser.class);
 
     public CommandSnippet parse(String xmlContent, String fileName, String relativeFilePath) {
         try {
-            XmlUtils.validate(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"));
-            Document document = XmlUtils.buildXmlDocument(xmlContent);
+            Document document = buildXmlDocument(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"));;
             CommandSnippetComment comment = getComment(document);
 
             Element execTag = document.getRootElement();
             String commandName = execTag.getAttributeValue("command");
-            List<String> arguments = new ArrayList<String>();
+            List<String> arguments = new ArrayList<>();
             for (Object child : execTag.getChildren()) {
                 Element element = (Element) child;
                 arguments.add(element.getValue());

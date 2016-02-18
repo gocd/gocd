@@ -56,6 +56,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.filter.ElementFilter;
+import org.jdom.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -877,7 +878,7 @@ public class GoConfigMigrationIntegrationTest {
                         + "</cruise>";
 
         String migratedContent = migrateXmlString(configString, 66);
-        Document document = XmlUtils.buildXmlDocument(migratedContent);
+        Document document = new SAXBuilder().build(migratedContent);
 
         assertThat(document.getDescendants(new ElementFilter("luau")).hasNext(), is(false));
         assertThat(document.getDescendants(new ElementFilter("groups")).hasNext(), is(false));

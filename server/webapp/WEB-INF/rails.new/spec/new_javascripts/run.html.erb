@@ -54,7 +54,7 @@
   require.config(<%= JSON.pretty_generate(require_config) %>);
 </script>
 <script>
-  require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax'], function () {
+  require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax', 'foundation.util.mediaQuery'], function () {
     if (window.callPhantom) {
 
       function PhantomReporter() {

@@ -20,6 +20,7 @@ define([
   var TabsConfigWidget = {
     controller: function (args) {
       this.args = args;
+      ComponentMixins.HasViewModel.call(this);
       ComponentMixins.ManagesCollection.call(this, {
         as:           'Tab',
         onInitialize: function () {
@@ -30,27 +31,36 @@ define([
 
     view: function (ctrl) {
       return (
-        <div class='job-tabs'>
-          {ctrl.map(function (tab) {
-            return (
-              <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
-                <f.input model={tab}
-                         attrName='name'
-                         placeholder='Tab name'
-                         onchange={ctrl.changed.bind(ctrl)}
-                         size={4}/>
-                <f.input model={tab}
-                         attrName='path'
-                         placeholder='Path of artifact'
-                         onchange={ctrl.changed.bind(ctrl)}
-                         size={4}/>
-                <f.column size={3} end={true}>
-                  {ctrl.removeLink.call(ctrl, tab)}
-                </f.column>
-              </f.row>
-            );
-          })}
-        </div>
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Tabs</span>
+                        )
+                     ]}
+                     accordionKeys={['job-tabs']}
+                     selectedIndex={ctrl.vmState('tabsSelected', m.prop(-1))}
+                     class="accordion-inner">
+          <div class='job-tabs'>
+            {ctrl.map(function (tab) {
+              return (
+                <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
+                  <f.input model={tab}
+                           attrName='name'
+                           placeholder='Tab name'
+                           onchange={ctrl.changed.bind(ctrl)}
+                           size={4}/>
+                  <f.input model={tab}
+                           attrName='path'
+                           placeholder='Path of artifact'
+                           onchange={ctrl.changed.bind(ctrl)}
+                           size={4}/>
+                  <f.column size={3} end={true}>
+                    {ctrl.removeLink.call(ctrl, tab)}
+                  </f.column>
+                </f.row>
+              );
+            })}
+          </div>
+        </f.accordion>
       );
     }
   };

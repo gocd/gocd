@@ -25,6 +25,7 @@ define([
 
   var PipelineSettingsWidget = {
     controller: function(args) {
+      this.args      = args;
       ComponentMixins.HasViewModel.call(this);
     },
 
@@ -37,64 +38,62 @@ define([
                      class='pipeline-settings'>
           <div>
             <f.row>
-              <f.column>
-                <f.row>
-                  <f.inputWithLabel model={pipeline}
-                                    attrName='labelTemplate'
-                                    tooltip={{
+              <f.inputWithLabel model={pipeline}
+                                attrName='labelTemplate'
+                                tooltip={{
                                           content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
                                           direction: 'bottom',
                                           size: 'large'
-                                        }}
-                                    size={6}/>
-                  <f.checkBox model={pipeline}
-                              attrName='enablePipelineLocking'
-                              class="push-1"
-                              addPadding={true}
-                              tooltip={{
-                                          content: tt.pipeline.enablePipelineLocking,
-                                          direction: 'bottom'
-                                        }}
-                              size={6}/>
+                                        }}/>
+              <f.checkBox model={pipeline}
+                          attrName='enablePipelineLocking'
+                          class="large-4 end"
+                          addPadding={true}
+                          tooltip={{
+                                    content: tt.pipeline.enablePipelineLocking,
+                                    direction: 'bottom',
+                                    class: 'tooltip-spacing'
+                                  }}/>
 
-                </f.row>
-                <f.row>
-                  <f.inputWithLabel model={pipeline.timer()}
-                                    attrName='spec'
-                                    label='Cron timer specification'
-                                    tooltip={{
+            </f.row>
+            <f.row>
+              <f.inputWithLabel model={pipeline.timer()}
+                                attrName='spec'
+                                label='Cron timer specification'
+                                tooltip={{
                                           content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
                                           direction: 'bottom',
                                           size: 'large'
-                                        }}
-                                    size={6}/>
+                                        }}/>
 
-                  <f.checkBox model={pipeline.timer()}
-                              class="push-1"
-                              addPadding={true}
-                              attrName='onlyOnChanges'
-                              label='Run only on new material'
-                              disabled={s.isBlank(pipeline.timer().spec())}
-                              tooltip={{
-                                          content: tt.pipeline.timer.onlyOnChanges,
-                                          direction: 'bottom'
-                                        }}
-                              size={6}/>
+              <f.checkBox model={pipeline.timer()}
+                          class="end"
+                          addPadding={true}
+                          attrName='onlyOnChanges'
+                          label='Run only on new material'
+                          disabled={s.isBlank(pipeline.timer().spec())}
+                          tooltip={{
+                                    content: tt.pipeline.timer.onlyOnChanges,
+                                    direction: 'bottom',
+                                    class: 'tooltip-spacing'
+                                   }}/>
 
-                </f.row>
-              </f.column>
             </f.row>
+           <f.row>
             <TrackingToolWidget trackingTool={pipeline.trackingTool}
-                                vm={ctrl.vmState('trackingTool')}
+                                vm={ctrl.vmState('trackingToolConfig')}
                                 key={_.result(pipeline.trackingTool(), 'uuid', 'tracking-tool-none')}/>
             <ParametersConfigWidget parameters={pipeline.parameters}
                                     key={pipeline.parameters().uuid()}
-                                    vm={ctrl.vmState('params')}/>
-            <EnvironmentVariablesConfigWidget variables={pipeline.environmentVariables}
+                                    vm={ctrl.vmState('parametersConfig')}/>
+            <EnvironmentVariablesConfigWidget title='Pipeline Environment Variables'
+                                              variables={pipeline.environmentVariables}
                                               key={pipeline.environmentVariables().uuid()}
-                                              vm={ctrl.vmState('environmentVariables')}/>
+                                              vm={ctrl.vmState('environmentVariablesConfig')}/>
+             </f.row>
           </div>
-        </f.accordion>)
+        </f.accordion>
+      )
     }
   };
   return PipelineSettingsWidget;

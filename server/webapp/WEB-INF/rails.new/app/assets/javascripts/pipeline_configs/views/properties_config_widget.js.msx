@@ -20,6 +20,7 @@ define([
   var PropertiesConfigWidget = {
     controller: function (args) {
       this.args = args;
+      ComponentMixins.HasViewModel.call(this);
       ComponentMixins.ManagesCollection.call(this, {
         as:           'Property',
         plural:       'Properties',
@@ -31,32 +32,41 @@ define([
 
     view: function (ctrl) {
       return (
-        <div class='job-properties'>
-          {ctrl.map(function (property) {
-            return (
-              <f.row class='property' data-property-source={property.source()} key={property.uuid()}>
-                <f.input model={property}
-                         attrName='name'
-                         placeholder='Property Name'
-                         onchange={ctrl.changed.bind(ctrl)}
-                         size={3}/>
-                <f.input model={property}
-                         attrName='source'
-                         placeholder='The XML file source'
-                         onchange={ctrl.changed.bind(ctrl)}
-                         size={3}/>
-                <f.input model={property}
-                         attrName='xpath'
-                         placeholder='XPath'
-                         onchange={ctrl.changed.bind(ctrl)}
-                         size={3}/>
-                <f.column size={1} end={true}>
-                  {ctrl.removeLink.call(ctrl, property)}
-                </f.column>
-              </f.row>
-            );
-          })}
-        </div>
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Properties</span>
+                        )
+                     ]}
+                     accordionKeys={['properties-tabs']}
+                     selectedIndex={ctrl.vmState('propertiesSelected', m.prop(-1))}
+                     class="accordion-inner">
+          <div class='job-properties'>
+            {ctrl.map(function (property) {
+              return (
+                <f.row class='property' data-property-source={property.source()} key={property.uuid()}>
+                  <f.input model={property}
+                           attrName='name'
+                           placeholder='Property Name'
+                           onchange={ctrl.changed.bind(ctrl)}
+                           size={3}/>
+                  <f.input model={property}
+                           attrName='source'
+                           placeholder='The XML file source'
+                           onchange={ctrl.changed.bind(ctrl)}
+                           size={3}/>
+                  <f.input model={property}
+                           attrName='xpath'
+                           placeholder='XPath'
+                           onchange={ctrl.changed.bind(ctrl)}
+                           size={3}/>
+                  <f.column size={1} end={true}>
+                    {ctrl.removeLink.call(ctrl, property)}
+                  </f.column>
+                </f.row>
+              );
+            })}
+          </div>
+        </f.accordion>
       );
     }
   };

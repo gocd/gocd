@@ -18,6 +18,7 @@ define(['mithril', '../helpers/form_helper', '../helpers/mithril_component_mixin
   var ArtifactsConfigWidget = {
     controller: function (args) {
       this.args = args;
+      ComponentMixins.HasViewModel.call(this);
       ComponentMixins.ManagesCollection.call(this, {
         as:           'Artifact',
         onInitialize: function () {
@@ -28,34 +29,43 @@ define(['mithril', '../helpers/form_helper', '../helpers/mithril_component_mixin
 
     view: function (ctrl) {
       return (
-        <div class='job-artifacts'>
-          {ctrl.map(function (artifact) {
-            return (
-              <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
-                <f.input model={artifact}
-                         attrName='source'
-                         placeholder='Source'
-                         onchange={ctrl.changed.bind(ctrl)}
-                         size={3}/>
-                <f.input model={artifact}
-                         attrName='destination'
-                         placeholder='Destination'
-                         onchange={ctrl.changed.bind(ctrl)}
-                         size={3}/>
-                <f.select value={artifact.type}
-                          class='inline'
-                          items={{
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Artifacts</span>
+                        )
+                     ]}
+                     accordionKeys={['job-artifacts']}
+                     selectedIndex={ctrl.vmState('artifactsSelected', m.prop(-1))}
+                     class="accordion-inner">
+          <div class='job-artifacts'>
+            {ctrl.map(function (artifact) {
+              return (
+                <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
+                  <f.input model={artifact}
+                           attrName='source'
+                           placeholder='Source'
+                           onchange={ctrl.changed.bind(ctrl)}
+                           size={3}/>
+                  <f.input model={artifact}
+                           attrName='destination'
+                           placeholder='Destination'
+                           onchange={ctrl.changed.bind(ctrl)}
+                           size={3}/>
+                  <f.select value={artifact.type}
+                            class='inline'
+                            items={{
                             build: 'build',
                             test: 'test'
                           }}
-                          size={2}/>
-                <f.column size={1} end={true}>
-                  {ctrl.removeLink.call(ctrl, artifact)}
-                </f.column>
-              </f.row>
-            );
-          })}
-        </div>
+                            size={2}/>
+                  <f.column size={1} end={true}>
+                    {ctrl.removeLink.call(ctrl, artifact)}
+                  </f.column>
+                </f.row>
+              );
+            })}
+          </div>
+        </f.accordion>
       );
     }
   };

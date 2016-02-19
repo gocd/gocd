@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,17 @@
   $standard-margin: nth($fieldset-margin, 1);
 
   .heading {
-    margin-top: rem-calc(10px);
+    margin-bottom: 20px;
+    background-color: #ffffff; // Old browsers
+    @include linear-gradient(#ffffff, #cccccc);
+    h1{
+      font-size: rem-calc(20px);
+      margin:10px 0;
+    }
   }
 
   .save-pipeline {
-    padding-left:  3rem;
-    padding-right: 3rem;
-    font-size:     rem-calc(16px);
+    margin: 4px 0 0 0;
 
     .save-state {
       position:  absolute;
@@ -52,298 +56,39 @@
   }
 
   .remove {
-    @include icon-before($type: trash, $color: $primary-color);
-  }
-
-  .pipeline-flow-boxes {
-    @include clearfix();
-    margin-top: 40px;
-
-    .pipeline-flow-box, .stage-boxes {
-      float:   left;
-      display: inline-block;
-    }
-
-    .stage-boxes {
-      margin-left: $standard-margin;
-      position:    relative;
-      top:         -20px;
-      padding:     20px 0;
-      border:      1px solid #a7a7a7;
-      max-width:   calc(100% - 200px);
-
-      &:after {
-        content:    "Stages";
-        position:   absolute;
-        left:       $standard-margin;
-        top:        -14px;
-        font-size:  16px;
-        background: white;
-        padding:    0 5px;
-        display:    inline-block;
-      }
-
-      .stages-wrapper {
-        float:   left;
-        display: inline-block;
-        @include clearfix;
-      }
-      .pipeline-flow-box {
-        &:first-child {
-          margin-left: $standard-margin;
-        }
-      }
-    }
-
-    .pipeline-flow-box {
-      @include size(150px 40px);
-
-      display:    inline-block;
-      position:   relative;
-      float:      left;
-      background: $accordion-item-background-hover;
-      border:     $input-border;
-
-      .label {
-        width:         100%;
-        text-align:    center;
-        display:       inline-block;
-        padding:       9px 0;
-        overflow:      hidden;
-        text-overflow: ellipsis;
-      }
-
-      &.materials {
-        cursor: pointer;
-      }
-
-      &.stage {
-        cursor: move;
-        .drag-handle {
-          @include icon-before($type: ellipsis-v, $margin: 0);
-          display:    inline-block;
-          width:      18px;
-          text-align: center;
-
-          padding:    7px 0;
-          overflow:   hidden;
-        }
-
-        .label {
-          width: calc(100% - 18px);
-        }
-      }
-
-      &.active {
-        background:   $accordion-item-background-hover;
-        border-color: scale-color(nth($fieldset-border, 3), $lightness: -5%);
-      }
-
-      &:hover {
-        background: $accordion-item-background-hover;
-      }
-
-      & ~ .pipeline-flow-box {
-        margin-left: $standard-margin;
-        @include icon-before($type: angle-right, $size: 2em) {
-          position: absolute;
-          top:      -2px;
-          left:     -20px;
-        }
-      }
-
-      &.add-stage {
-        cursor:  pointer;
-        margin:  0 $standard-margin;
-        padding: 2px;
-
-        .label {
-          border:  1px dashed #8a8a8a;
-          padding: (7px - (1px * 2)) 0;
-          width:   100%;
-          color:   #444;
-          display: inline-block;
-          @include icon-before($type: plus-circle);
-        }
+    @include icon-before($type: trash, $color: $dark-gray);
+    &:hover {
+      &:before {
+        color: $black;
       }
     }
   }
 
-  .material-definitions {
-
-    .material-definition {
-      position: relative;
-    }
-
-    .edit-secure-password {
-      display:     inline-block;
-      padding-top: rem-calc(28px);
-    }
-
-    .remove-material {
-      position: absolute;
-      left:     calc(100% - 12px);
-      top:      -11px;
-    }
-
-    .material-selector {
-      margin-top: $standard-margin;
-    }
-    .add-material {
-      padding-top: rem(26px);
-      a {
-        @include icon-before($type: plus-circle);
+  .reset {
+    @include icon-before($type: undo, $color: $dark-gray);
+    &:hover {
+      &:before {
+        color: $black;
       }
     }
   }
 
-  .stage-definitions {
-    border:  1px solid nth($input-border-focus, 3);
-    padding: $standard-margin;
-
-    .stage-definition {
-      position: relative;
-
-      .remove-stage {
-        position: absolute;
-        left:     calc(100% - 9px);
-        top:      -13px;
+  .edit {
+    @include icon-before($type: pencil-square-o, $color: $dark-gray);
+    float: right;
+    &:hover {
+      &:before {
+        color: $black;
       }
+    }
+  }
 
-      a.add-job {
-        @include icon-before($type: plus-circle);
-      }
-
-      .job-definitions {
-        padding-top: $standard-margin;
-
-        $active-background-color: $accordion-item-background-hover;
-        $hover-background-color: darken($accordion-item-background-hover, 3%);
-        $inactive-background-color: $accordion-item-background-hover;
-
-        .job-definitions-tabs-content-container {
-          border-left: 1px solid #e6e6e6;
-        }
-
-        .job-definitions-tabs-title {
-          a {
-            background-color: $inactive-background-color;
-            &:hover {
-              background-color: $hover-background-color;
-            }
-          }
-
-          &.is-active {
-            border:       $fieldset-border;
-            border-right: inherit;
-
-            a {
-              background-color: $active-background-color;
-            }
-          }
-        }
-
-        .job-definitions-tabs-panel.tabs-panel.active {
-          padding-top: 0;
-        }
-
-        .job-definition {
-          .add-task {
-            padding-top: rem(26px);
-            a {
-              @include icon-before($type: plus-circle);
-            }
-          }
-
-          .remove-job {
-            position: absolute;
-            left:     calc(100% - 40px);
-            //top:      3px;
-          }
-
-          legend {
-            background-color: inherit;
-          }
-
-          //> * {
-          //  padding: $standard-margin;
-          //}
-
-          .task-definitions {
-            padding-top: $fieldset-padding;
-          }
-
-          .task-definition {
-            position:      relative;
-            border:        $fieldset-border;
-            border-left:   none;
-            margin-bottom: $standard-margin/2;
-
-            .task-header, .task-body {
-              border-left: rem-calc(4px) solid $dark-gray;
-              padding:     rem-calc(2px) $accordion-content-padding;
-            }
-
-            .task-header {
-              padding-right: 0;
-              background:    $accordion-item-background-hover;
-              cursor:        move;
-
-              .task-type {
-                @include icon-before($type: bars, $size: inherit, $margin: 0) {
-                  padding-right: rem-calc(3px);
-                }
-              }
-
-              .remove-task {
-                float:        right;
-                margin-right: 3px;
-                margin-top:   -2px;
-              }
-            }
-            textarea {
-              min-height: 98px
-            }
-            .lookup {
-              background: #f5f5f5;
-              margin: 0px -10px 0px -12px;
-              padding: 10px 20px;
-            }
-
-            .snippet {
-              padding: 10px 20px;
-              margin: 23px 6px 20px 10px;
-              background: #ffffff;
-
-              header {
-                overflow: hidden;
-                border-bottom: 1px solid #B7B7B7;
-                padding-bottom: 4px;
-                margin-bottom: 10px;
-              }
-              .snippet-title {
-                float: left;
-                margin: 0;
-                font-size: 1rem;
-              }
-              p {
-                font-size: 0.875rem;
-                margin-bottom: 0.25rem;
-                a {
-                  padding-left: 5px;
-                }
-              }
-              .author {
-                overflow: hidden;
-                font-size: 0.875rem;
-                float: right;
-                label {
-                  padding-right: 5px;
-                }
-              }
-            }
-          }
-        }
+  .done {
+    @include icon-before($type: check-square, $color: $dark-gray);
+    float: right;
+    &:hover {
+      &:before {
+        color: $black;
       }
     }
   }
@@ -372,5 +117,12 @@
       display:     inline-block;
       padding-top: 3px;
     }
+    .actions {
+      margin: 7px 0 0 -24px;
+    }
   }
+}
+
+.tooltip-spacing {
+  margin-left: -15px;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,14 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
         buildFile:        this.buildFile
       }
     };
+
+    this.toString = function() {
+      return _.join([this.type(), this.target(), this.buildFile()], ' ');
+    };
+
+    this.isEmpty = function() {
+      return _.isEmpty(_.compact([this.target(), this.buildFile()]));
+    };
   };
 
   Tasks.Task.Ant.fromJSON = function (data) {
@@ -84,6 +92,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
     this.workingDirectory  = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.buildFile         = m.prop(s.defaultToIfBlank(data.buildFile, ''));
     this.nantPath          = m.prop(s.defaultToIfBlank(data.nantPath, ''));
+
     this._attributesToJSON = function () {
       return {
         target:           this.target,
@@ -91,8 +100,15 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
         buildFile:        this.buildFile,
         nantPath:         this.nantPath
       }
-    }
+    };
 
+    this.toString = function() {
+      return _.join([this.type(), this.target(), this.buildFile()], ' ');
+    };
+
+    this.isEmpty = function() {
+      return _.isEmpty(_.compact([this.target(), this.buildFile()]));
+    };
   };
 
   Tasks.Task.NAnt.fromJSON = function (data) {
@@ -117,6 +133,14 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
         workingDirectory: this.workingDirectory,
       }, this.args().toJSON());
     };
+
+    this.toString = function () {
+      return _.join([this.type(), this.command(), this.args().toString()], ' ');
+    };
+
+    this.isEmpty = function() {
+      return _.isEmpty(_.compact([this.command(), this.args().toString()]));
+    };
   };
 
   Tasks.Task.Exec.fromJSON = function (data) {
@@ -140,7 +164,15 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
         workingDirectory: this.workingDirectory,
         buildFile:        this.buildFile
       }
-    }
+    };
+
+    this.toString = function() {
+      return _.join([this.type(), this.target(), this.buildFile()], ' ');
+    };
+
+    this.isEmpty = function() {
+      return _.isEmpty(_.compact([this.target(), this.buildFile()]));
+    };
   };
 
   Tasks.Task.Rake.fromJSON = function (data) {
@@ -165,7 +197,15 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
         job:      this.job,
         source:   this.source
       }
-    }
+    };
+
+    this.toString = function() {
+      return _.join([this.type(), this.pipeline(), this.stage(), this.job()], ' ');
+    };
+
+    this.isEmpty = function() {
+      return _.isEmpty(_.compact([this.pipeline(), this.stage(), this.job()]));
+    };
   };
 
   Tasks.Task.FetchArtifact.Source = function (data) {

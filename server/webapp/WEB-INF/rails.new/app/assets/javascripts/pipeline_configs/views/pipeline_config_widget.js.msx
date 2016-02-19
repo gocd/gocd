@@ -110,16 +110,16 @@ define([
         var header = function () {
           return (
             <f.row class="heading">
-              <f.column size={6}>
-                <h3>
-                  <small>Pipeline configuation for pipeline</small>
+              <f.column size={11}>
+                <h1>
+                  Pipeline configuation for pipeline
                   {' '}
                   {pipeline.name()}
-                </h3>
+                </h1>
               </f.column>
-              <f.column>
+              <f.column size={1}>
                 <f.button onclick={ctrl.savePipeline.bind(ctrl)}
-                          class={'save-pipeline tiny right ' + ctrl.saveState()}>
+                          class={'save-pipeline' + ctrl.saveState()}>
                   <span class={'save-state ' + ctrl.saveState()}/>
                   Save
                 </f.button>
@@ -134,14 +134,14 @@ define([
             <f.row>
               <f.column end={true} size={12}>
                 <PipelineSettingsWidget pipeline={ctrl.pipeline}
-                                        vm={ctrl.vmState('pipelineSettings')}/>
+                                        vm={ctrl.vmState('pipelineSettingsConfig')}/>
                 <MaterialsConfigWidget materials={pipeline.materials()}
                                        key={pipeline.materials().uuid}
                                        pipelineName={pipeline.name}
                                        vm={ctrl.vmState('materialsConfig')}/>
                 <PipelineFlowWidget pipeline={ctrl.pipeline}
                                     currentSelection={ctrl.currentSelection}
-                                    vm={ctrl.vmState('pipelineFlow')}/>
+                                    vm={ctrl.vmState('pipelineFlowConfig')}/>
               </f.column>
             </f.row>
           </form>

@@ -64,23 +64,20 @@ define([
       return (
         <f.accordion accordionTitles={[(<span>Stage Operate Permissions</span>)]}
                      accordionKeys={['stagePermissions']}
-                     selectedIndex={ctrl.vmState('stagePermissionSelected', m.prop(-1))}>
+                     selectedIndex={ctrl.vmState('stagePermissionsSelected', m.prop(-1))}
+                     class='accordion-inner'>
           <div>
             <f.row>
-            <label>Permissions will be inherited from the pipeline group if not specified.</label>
+            <f.warning>Permissions will be inherited from the pipeline group if not specified.</f.warning>
             </f.row>
             <f.row>
               <f.inputWithLabel config={autoComplete(Users.list, args.approval().authorization(), 'users')}
                                 attrName='users'
-                                model={args.approval().authorization()}
-                                size={3}/>
-
-            </f.row>
-            <f.row>
+                                model={args.approval().authorization()}/>
               <f.inputWithLabel config={autoComplete(Roles.list, args.approval().authorization(), 'roles')}
                                 attrName='roles'
-                                model={args.approval().authorization()}
-                                size={3}/>
+                                model={args.approval().authorization()} end/>
+
             </f.row>
           </div>
         </f.accordion>
@@ -101,14 +98,16 @@ define([
       return (
         <f.accordion accordionTitles={[(<span>Stage Settings</span>)]}
                      accordionKeys={['stageSettings']}
-                     selectedIndex={ctrl.vmState('stageSettingsSelected', m.prop(0))}>
+                     selectedIndex={ctrl.vmState('stageSettingsSelected', m.prop(-1))}
+                     class='accordion-inner'>
           <f.row>
             <f.column size={4}>
-              <f.row>
+              <f.row collapse>
                 <f.inputWithLabel attrName='name'
                                   label='Stage name'
                                   model={stage}
-                                  size={11}/>
+                                  size={12}
+                                  largeSize={12}/>
               </f.row>
               <label>Stage Type
                 <f.tooltip tooltip={{
@@ -118,7 +117,7 @@ define([
                            }}/>
               </label>
               <f.row>
-                <f.column size={12}>
+                <f.column size={4}>
                   <input type='radio'
                          name={radioName}
                          id={radioName + '-success'}
@@ -126,10 +125,7 @@ define([
                          onchange={stage.approval().makeOnSuccess.bind(stage.approval())}/>
                   <label for={radioName + '-success'}>On Success</label>
                 </f.column>
-              </f.row>
-
-              <f.row>
-                <f.column size={12}>
+                <f.column size={4} end>
                   <input type='radio'
                          name={radioName}
                          id={radioName + '-manual'}
@@ -140,7 +136,7 @@ define([
               </f.row>
             </f.column>
 
-            <f.column size={4}>
+            <f.column size={4} end>
               <label></label>
               <f.row>
                 <f.checkBox model={stage}
@@ -194,17 +190,20 @@ define([
         <div class='stage-definition' data-stage-name={stage.name()}>
           <f.removeButton onclick={args.onRemove} class="remove-stage"/>
 
-          <SettingsWidget stage={stage}/>
-          <ApprovalWidget approval={stage.approval}/>
-          <EnvironmentVariablesConfigWidget variables={stage.environmentVariables}
+          <SettingsWidget stage={stage}
+                          vm={ctrl.vmState('settingsWidgetConfig-' + stage.name())}/>
+          <ApprovalWidget approval={stage.approval}
+                          vm={ctrl.vmState('approvalWidgetConfig-' + stage.name())}/>
+          <EnvironmentVariablesConfigWidget title='Stages Environment Variables'
+                                            variables={stage.environmentVariables}
                                             key={stage.environmentVariables().uuid()}
-                                            vm={ctrl.vmState('environmentVariables')}/>
+                                            vm={ctrl.vmState('environmentVariablesConfig-' + stage.name())}/>
 
           <f.row>
             <f.column size={12} end={true}>
               <JobsConfigWidget jobs={stage.jobs}
                                 key={stage.jobs().uuid()}
-                                vm={ctrl.vmState('jobsWidget')}/>
+                                vm={ctrl.vmState('jobsWidgetConfig-'+ stage.name())}/>
             </f.column>
           </f.row>
         </div>
@@ -231,10 +230,10 @@ define([
 
     view: function (ctrl, args) {
       return (
-        <div class='stage-definitions'>
+        <div class='stage-definition-container'>
           <StageConfigDefinitionWidget stage={ctrl.currentSelection()}
                                        onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}
-                                       vm={ctrl.vmState('stageConfigs')}/>;
+                                       vm={ctrl.vmState('stageDefinitionConfigs')}/>
         </div>
       );
     }

@@ -18,22 +18,47 @@ define([
   'mithril', 'lodash', 'jquery', 'angular',
   '../helpers/form_helper', '../helpers/dragula_config',
   '../models/tasks', '../models/pluggable_tasks', 'js-routes',
-  './lookup_command_widget', '../models/argument'
+  './lookup_command_widget', '../models/argument',
+  '../helpers/mithril_component_mixins'
 ], function (m, _, $, angular,
              f, dragulaConfig,
-             Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument) {
+             Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument, ComponentMixins) {
 
   var TaskViews = {
     base: {
+      controller: function (args) {
+        var self = this;
+        self.args = args;
+        self.task = args.task;
+        var vmStateKey = 'taskEdit' + self.task.uuid();
+
+        ComponentMixins.HasViewModel.call(this);
+        self.vmState(vmStateKey, m.prop(self.task.isEmpty() ? true : false));
+
+        this.isEditing = function () {
+          return self.vmState(vmStateKey)();
+        };
+
+        this.toggleIsEditing = function () {
+          var isEditing = self.vmState(vmStateKey)();
+          self.vmState('taskEdit' + self.task.uuid())(!isEditing);
+        };
+      },
+
       view: function (ctrl, args, children) {
+        var classNameForTaskBody = function () {
+          return ctrl.isEditing() ? 'show' : 'hide';
+        };
+
         return (
           <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
             <div>
               <div class="task-header">
-                <span class='task-type'>{args.task.type()}</span>
+                <span class='task-type'>{args.task.toString()}</span>
                 <f.removeButton onclick={args.onRemove} class="remove-task"/>
+                <f.editButton class={ctrl.isEditing() ? 'done' : null} onclick={ctrl.toggleIsEditing.bind(ctrl)}/>
               </div>
-              <div class="task-body">{children}</div>
+              <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>{children}</div>
             </div>
           </div>
         );
@@ -103,7 +128,8 @@ define([
               <f.inputWithLabel attrName='data'
                                 model={vm}
                                 label="Args"
-                                size={12}/>
+                                size={12}
+                                largeSize={12}/>
             </f.column>)
         };
 
@@ -111,13 +137,17 @@ define([
           <TaskViews.base {...args}>
             <f.row>
               <f.column size={4}>
-                <f.inputWithLabel attrName='command'
-                                  model={task}
-                                  size={12}/>
-                <f.inputWithLabel attrName='workingDirectory'
-                                  model={task}
-                                  end={true}
-                                  size={12}/>
+                <f.row>
+                  <f.inputWithLabel attrName='command'
+                                    model={task}
+                                    size={12}
+                                    largeSize={12}/>
+                  <f.inputWithLabel attrName='workingDirectory'
+                                    model={task}
+                                    end={true}
+                                    size={12}
+                                    largeSize={12}/>
+                </f.row>
               </f.column>
               {arguments()}
             </f.row>
@@ -308,6 +338,11 @@ define([
   };
 
   var TasksConfigWidget = {
+    controller: function (args) {
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
+    },
+
     view: function (ctrl, args) {
 
       var dragDropConfig = function (elem, isInitialized) {
@@ -320,20 +355,29 @@ define([
       };
 
       return (
-        <div class='task-definitions' key="task-definitions">
-          <div config={dragDropConfig}>
-            {args.tasks().mapTasks(function (task, taskIndex) {
-              var taskView = TaskViews[task.type()];
-              return (m.component(taskView, {
-                task:      task,
-                onRemove:  args.tasks().removeTask.bind(args.tasks(), task),
-                taskIndex: taskIndex,
-                key:       task.uuid()
-              }));
-            })}
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Tasks</span>
+                        )
+                     ]}
+                     accordionKeys={['job-tasks']}
+                     selectedIndex={ctrl.vmState('tasksSelected', m.prop(0))}
+                     class="accordion-inner">
+          <div class='task-definitions' key="task-definitions">
+            <div config={dragDropConfig}>
+              {args.tasks().mapTasks(function (task, taskIndex) {
+                var taskView = TaskViews[task.type()];
+                return (m.component(taskView, {
+                  task: task,
+                  onRemove: args.tasks().removeTask.bind(args.tasks(), task),
+                  taskIndex: taskIndex,
+                  key: task.uuid()
+                }));
+              })}
+            </div>
+            <TaskTypeSelector tasks={args.tasks} key="task-type-selector"/>
           </div>
-          <TaskTypeSelector tasks={args.tasks} key="task-type-selector"/>
-        </div>
+        </f.accordion>
       );
     }
   };

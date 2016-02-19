@@ -130,7 +130,6 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
         material = materials.createMaterial({
           type:        'hg',
           url:         "http://hg.example.com/hg/myProject",
-          branch:      "release-1.2",
           destination: "projectA",
           name:        "hg-repo",
           autoUpdate:  true,
@@ -148,10 +147,6 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
 
       it('should bind url', function () {
         expect($root.find("input[data-prop-name='url']").val()).toBe(material.url());
-      });
-
-      it('should bind branch', function () {
-        expect($root.find("input[data-prop-name='branch']").val()).toBe(material.branch());
       });
 
       it('should bind name', function () {

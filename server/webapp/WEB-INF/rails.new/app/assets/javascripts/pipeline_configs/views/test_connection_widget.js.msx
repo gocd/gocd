@@ -80,7 +80,7 @@ define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helper
         <div>
           <f.button
             onclick={ctrl.testConnection.bind(ctrl)}
-            class={_.compact(['save-pipeline tiny', connectionStatusToCSSClass[testConnectionStatus]]).join(' ')}>
+            class={_.compact(['test-connection', connectionStatusToCSSClass[testConnectionStatus]]).join(' ')}>
             Test Connection
             <span class={_.compact(['save-state', connectionStatusToCSSClass[testConnectionStatus]]).join(' ')}/>
           </f.button>

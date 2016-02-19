@@ -58,7 +58,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "pipeline_configs/models/p
     }
 
     it("should render the pipeline name", function () {
-      expect($root.find('.pipeline .heading h3')).toHaveText('Pipeline configuation for pipeline yourproject');
+      expect($root.find('.pipeline .heading h1')).toHaveText('Pipeline configuation for pipeline yourproject');
     });
 
     it("should render enablePipelineLocking checkbox", function () {

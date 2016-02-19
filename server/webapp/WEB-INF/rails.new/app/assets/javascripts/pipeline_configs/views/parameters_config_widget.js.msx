@@ -21,8 +21,6 @@ define([
 ], function (m,
              f, ComponentMixins, tt) {
 
-  var FORM_FIELD_SIZE = 3;
-
   var ParametersConfigWidget = {
     controller: function (args) {
       this.args = args;
@@ -43,8 +41,8 @@ define([
                         )
                      ]}
                      accordionKeys={['parameters']}
-                     selectedIndex={ctrl.vmState('accordionSelectedIndex', m.prop(-1))}
-                     class='parameters'>
+                     selectedIndex={ctrl.vmState('parametersSelected', m.prop(-1))}
+                     class='parameters accordion-inner'>
           <div>
             {ctrl.map(function (parameter) {
               return (
@@ -52,13 +50,11 @@ define([
                   <f.input model={parameter}
                            attrName='name'
                            placeholder='Name'
-                           onchange={ctrl.changed.bind(ctrl)}
-                           size={FORM_FIELD_SIZE}/>
+                           onchange={ctrl.changed.bind(ctrl)}/>
                   <f.input model={parameter}
                            attrName='value'
                            placeholder='Value'
-                           onchange={ctrl.changed.bind(ctrl)}
-                           size={FORM_FIELD_SIZE}/>
+                           onchange={ctrl.changed.bind(ctrl)}/>
                   <f.column size={1} end={true}>
                     {ctrl.removeLink.call(ctrl, parameter)}
                   </f.column>

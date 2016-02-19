@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,10 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
 
       it("should initialize task model with buildFile", function () {
         expect(task.buildFile()).toBe("build-moduleA.xml");
+      });
+
+      it('should have a string representation', function () {
+        expect(task.toString()).toBe('ant clean build-moduleA.xml');
       });
 
       describe("Serialization from/to JSON", function () {
@@ -97,6 +101,10 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
       });
       it("should initialize task model with nantPath", function () {
         expect(task.nantPath()).toBe("C:\\NAnt");
+      });
+
+      it('should have a string representation', function () {
+        expect(task.toString()).toBe('nant clean build-moduleA.xml');
       });
 
       describe("Serialize from/to JSON", function () {
@@ -164,6 +172,13 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
 
           expect(task.args().data()).toEqual('-a');
         });
+
+        it('should have a string representation', function () {
+          taskJSON['args'] = '-a';
+          var task = new Tasks.Task.Exec(taskJSON);
+
+          expect(task.toString()).toBe("exec bash -a");
+        });
       });
 
 
@@ -220,6 +235,10 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.buildFile()).toBe("foo.rake");
       });
 
+      it('should have a string representation', function () {
+        expect(task.toString()).toBe('rake clean foo.rake');
+      });
+
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
           task = Tasks.Task.fromJSON(sampleTaskJSON());
@@ -273,6 +292,10 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
       it("should initialize task model with source", function () {
         expect(task.source().type()).toBe("dir");
         expect(task.source().location()).toBe("pkg");
+      });
+
+      it('should have a string representation', function () {
+        expect(task.toString()).toBe('fetchartifact Build Dist RPM');
       });
 
       describe("Serialize from/to JSON", function () {

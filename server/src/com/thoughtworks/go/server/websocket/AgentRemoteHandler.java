@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AgentRemoteHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentRemoteHandler.class);
     private Map<Agent, String> sessionIds = new ConcurrentHashMap<>();
+    private Map<Agent, String> agentCookie = new ConcurrentHashMap<>();
     private Map<String, Agent> agentSessions = new ConcurrentHashMap<>();
 
     @Qualifier("buildRepositoryMessageProducer")
@@ -55,19 +56,32 @@ public class AgentRemoteHandler {
         switch (msg.getAction()) {
             case ping:
                 AgentRuntimeInfo info = (AgentRuntimeInfo) msg.getData();
-                if (!this.agentSessions.containsKey(info.getUUId())) {
-                    LOGGER.info("{} is connected with websocket {}", info.getIdentifier(), agent);
-                    sessionIds.put(agent, info.getUUId());
-                    this.agentSessions.put(info.getUUId(), agent);
-                }
-                if (info.getCookie() == null) {
-                    String cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
-                    info.setCookie(cookie);
-                    agent.send(new Message(Action.setCookie, cookie));
-                }
-                AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
-                if (instruction.isShouldCancelJob()) {
-                    agent.send(new Message(Action.cancelJob));
+                // It is possible that server receives multiple same agent ping messages due to network issues or agent ping bug, no matter what we do at agent side.
+                // For identifying an agent that uses duplicated uuid, we have cookie system in place. Here we need synchronize to
+                // make sure we assign only one cookie to an agent.
+                // buildRepositoryRemote#getCookie is confusing, it actually generate new cookie every time you call it.
+                // In websocket case, we don't need cookie, because websocket itself can be used to identify 2 same UUID agents.
+                // But before we remove old server agent communication code, we need maintain it.
+                // We can clean up cookie stuff after we switched over to websocket.
+                synchronized (agent) {
+                    if (!sessionIds.containsKey(agent)) {
+                        LOGGER.info("{} is connected with websocket {}", info.getIdentifier(), agent);
+                        sessionIds.put(agent, info.getUUId());
+                        this.agentSessions.put(info.getUUId(), agent);
+                    }
+                    if (info.getCookie() == null) {
+                        String cookie = agentCookie.get(agent);
+                        if (cookie == null) {
+                            cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
+                            agentCookie.put(agent, cookie);
+                        }
+                        info.setCookie(cookie);
+                        agent.send(new Message(Action.setCookie, cookie));
+                    }
+                    AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
+                    if (instruction.isShouldCancelJob()) {
+                        agent.send(new Message(Action.cancelJob));
+                    }
                 }
                 break;
             case reportCurrentStatus:
@@ -88,6 +102,10 @@ public class AgentRemoteHandler {
     }
 
     public void remove(Agent agent) {
+        if (agent == null) {
+            return;
+        }
+        agentCookie.remove(agent);
         String uuid = sessionIds.remove(agent);
         if (uuid == null) {
             return;

@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -150,6 +151,7 @@ public class AgentRemoteHandlerTest {
         AgentInstance instance = AgentInstanceMother.idle();
         AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
 
         handler.process(agent, new Message(Action.ping, info));
@@ -164,6 +166,7 @@ public class AgentRemoteHandlerTest {
         AgentInstance instance = AgentInstanceMother.idle();
         AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
         handler.process(agent, new Message(Action.ping, info));
 
         agent.messages.clear();
@@ -175,5 +178,27 @@ public class AgentRemoteHandlerTest {
     public void sendCancelMessageShouldNotErrorOutWhenGivenUUIDIsUnknown() {
         handler.sendCancelMessage(null);
         handler.sendCancelMessage("hello");
+    }
+
+    @Test
+    public void shouldNotSetDupCookieForSameAgent() {
+        AgentInstance instance = AgentInstanceMother.idle();
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
+        when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("cookie");
+        when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
+
+        handler.process(agent, new Message(Action.ping, info));
+        String cookie = info.getCookie();
+        info.setCookie(null);
+        when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
+        handler.process(agent, new Message(Action.ping, info));
+        assertEquals(cookie, info.getCookie());
+
+        info.setCookie(null);
+        handler.remove(agent);
+        handler.process(agent, new Message(Action.ping, info));
+        assertNotEquals(cookie, info.getCookie());
+        assertEquals("new cookie", info.getCookie());
     }
 }

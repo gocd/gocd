@@ -36,7 +36,7 @@ define(["mithril", "lodash", "pipeline_configs/models/materials", "pipeline_conf
       it("should render test connection button", function () {
         mount(material);
 
-        expect($($root.find("a.button")[0]).text()).toBe('Test Connection');
+        expect($($root.find("button")[0]).text()).toBe('Test Connection');
       });
 
       it("should render with test connection failure message", function () {

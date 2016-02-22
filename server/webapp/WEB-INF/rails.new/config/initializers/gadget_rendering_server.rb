@@ -15,13 +15,15 @@
 ##########################GO-LICENSE-END##################################
 
 # applications can change these to suit your needs
-Gadgets.init do |config|
-  config.application_name = 'Go'
-  config.application_base_url = proc { Thread.current[:base_url].gsub(/\/+$/, '') + "/go" }
-  config.ssl_base_url = proc { Thread.current[:ssl_base_url].gsub(/\/+$/, '') + "/go" }
-  if Rails.env == 'test'
-    config.truststore_path = File.join(Rails.root, 'tmp', "gadget_truststore.jks")
-  else
-    config.truststore_path = File.join(com.thoughtworks.go.util.SystemEnvironment.new.configDir().getAbsolutePath(), "gadget_truststore.jks")
+if Gadgets.enabled?
+  Gadgets.init do |config|
+    config.application_name = 'Go'
+    config.application_base_url = proc { Thread.current[:base_url].gsub(/\/+$/, '') + "/go" }
+    config.ssl_base_url = proc { Thread.current[:ssl_base_url].gsub(/\/+$/, '') + "/go" }
+    if Rails.env == 'test'
+      config.truststore_path = File.join(Rails.root, 'tmp', "gadget_truststore.jks")
+    else
+      config.truststore_path = File.join(com.thoughtworks.go.util.SystemEnvironment.new.configDir().getAbsolutePath(), "gadget_truststore.jks")
+    end
   end
 end

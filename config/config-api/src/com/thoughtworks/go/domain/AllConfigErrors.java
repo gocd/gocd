@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,16 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.ListUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AllConfigErrors extends ArrayList<ConfigErrors> {
+    public AllConfigErrors(List<ConfigErrors> errors) {
+        addAll(errors);
+    }
+
+    public AllConfigErrors() {
+    }
+
     public String asString() {
         return ListUtil.join(ListUtil.map(this, new ListUtil.Transformer<ConfigErrors, String>() {
             @Override

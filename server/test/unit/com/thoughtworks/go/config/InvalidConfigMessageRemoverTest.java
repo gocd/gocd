@@ -45,8 +45,8 @@ public class InvalidConfigMessageRemoverTest {
         invalidConfigMessageRemover.onConfigChange(null);
         List<ConfigChangedListener> listeners = configChangedListenerArgumentCaptor.getAllValues();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
-
+        EntityConfigChangedListener listener = (EntityConfigChangedListener) listeners.get(1);
+        assertThat(listener.shouldCareAbout(mock(PipelineConfig.class)), is(true));
 
         invalidConfigMessageRemover.pipelineConfigChangedListener().onEntityConfigChange(mock(PipelineConfig.class));
 

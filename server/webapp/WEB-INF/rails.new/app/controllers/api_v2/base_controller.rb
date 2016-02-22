@@ -66,11 +66,10 @@ module ApiV2
     end
 
     def render_http_operation_result(result, data = {})
-      status = result.httpCode()
       if result.instance_of?(HttpOperationResult)
-        render_message(result.detailedMessage(), status, data)
+        render json_hal_v2: { message: result.detailedMessage().strip }.merge(data), status: result.httpCode()
       else
-        render_message(result.message(Spring.bean('localizer')), status, data)
+        render json_hal_v2: { message: result.message(Spring.bean('localizer')).strip }.merge(data), status: result.httpCode()
       end
     end
 

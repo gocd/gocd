@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.ui;
 
 import java.util.*;
 
+import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
@@ -231,5 +232,14 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
 
     public boolean needsUpgrade() {
         return agentInstance.needsUpgrade();
+    }
+
+    public ConfigErrors errors() {
+        ConfigErrors configErrors = new ConfigErrors();
+        configErrors.addAll(agentInstance.agentConfig().errors());
+        for (Resource resource : agentInstance.getResources()) {
+            configErrors.addAll(resource.errors());
+        }
+        return configErrors;
     }
 }

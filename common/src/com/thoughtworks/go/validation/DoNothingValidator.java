@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.listener;
+package com.thoughtworks.go.validation;
 
-import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.server.service.AgentService;
 
-public class AgentChangeListener extends EntityConfigChangedListener<Agents> {
-    private final AgentService agentService;
-
-    public AgentChangeListener(AgentService agentService) {
-        this.agentService = agentService;
-    }
-
+public class DoNothingValidator implements ConfigUpdateValidator {
     @Override
-    public void onEntityConfigChange(Agents agents) {
-        agentService.sync(agents);
-    }
-
-    @Override
-    public void onConfigChange(CruiseConfig newCruiseConfig) {
-        onEntityConfigChange(newCruiseConfig.agents());
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        return true;
     }
 }

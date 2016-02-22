@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -58,6 +58,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Autowired private SecurityService securityService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
+    @Autowired private AgentConfigService agentConfigService;
     @Autowired private EnvironmentConfigService service;
     @Autowired private Localizer localizer;
     @Autowired private AgentService agentService;
@@ -108,8 +109,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         BasicEnvironmentConfig uat = environmentConfig("uat");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
-        goConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"));
-        goConfigService.addAgent(new AgentConfig("uuid-2", "host-2", "192.168.1.3"));
+        agentConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), Username.ANONYMOUS);
+        agentConfigService.addAgent(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), Username.ANONYMOUS);
         uat.addPipeline(new CaseInsensitiveString("foo"));
         uat.addAgent("uuid-2");
         uat.addEnvironmentVariable("env-one", "ONE");

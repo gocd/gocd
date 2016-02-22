@@ -39,10 +39,8 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
@@ -70,7 +68,6 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
-import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.apache.commons.httpclient.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.commons.httpclient.HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -563,49 +560,6 @@ public class GoConfigServiceTest {
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 
         assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), "missing"), is(nullValue()));
-    }
-
-    @Test
-    public void shouldEnableAgentWhenPending() {
-        String agentId = DatabaseAccessHelper.AGENT_UUID;
-        AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
-        AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
-        goConfigService.disableAgents(false, instance);
-        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(GoConfigDao.createAddAgentCommand(agentConfig)));
-    }
-
-    private void shouldPerformCommand(UpdateConfigCommand command) {
-        verify(goConfigDao).updateConfig(command);
-    }
-
-    @Test
-    public void shouldEnableMultipleAgents() {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
-        AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
-
-        AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");
-        agentConfig.disable();
-        AgentInstance fromConfigFile = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
-        goConfigService.currentCruiseConfig().agents().add(agentConfig);
-
-        goConfigService.disableAgents(false, pending, fromConfigFile);
-
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand(
-                GoConfigDao.createAddAgentCommand(pending.agentConfig()),
-                GoConfigDao.updateApprovalStatus("UUID2", false));
-        verify(goConfigDao).updateConfig(command);
-    }
-
-    @Test
-    public void shouldEnableAgentWhenAlreadyInTheConfig() {
-        String agentId = DatabaseAccessHelper.AGENT_UUID;
-        AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
-        agentConfig.disable();
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
-        goConfigService.currentCruiseConfig().agents().add(agentConfig);
-        goConfigService.disableAgents(false, instance);
-        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(GoConfigDao.updateApprovalStatus(agentId, false)));
     }
 
     @Test

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
+
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
@@ -134,10 +135,12 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     @Override
-    public void validateContainsOnlyUuids(Set<String> uuids) {
+    public boolean validateContainsOnlyUuids(Set<String> uuids) {
+        boolean isValid = true;
         for (EnvironmentAgentConfig agent : this.getAgents()) {
-            agent.validateUuidPresent(this.name(), uuids);
+            isValid = agent.validateUuidPresent(this.name(), uuids) && isValid;
         }
+        return isValid;
     }
 
     @Override

@@ -294,6 +294,30 @@ describe ApiV2::AgentsController do
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
 
+      it 'should return agent json with errors when validation failed' do
+        agent = AgentInstanceMother.agentWithConfigErrors()
+        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,staging', TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.unprocessibleEntity("Updating agent failed:", "error", HealthStateType::general(HealthStateScope::GLOBAL));
+        end.and_return(AgentInstanceMother::agentWithConfigErrors)
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: ['pre-prod', 'staging']
+        expect(response).to have_api_message_response(422, 'Updating agent failed: { error }')
+        expect(JSON.parse(response.body).deep_symbolize_keys[:data]).to eq(expected_response(AgentViewModel.new(agent), ApiV2::AgentRepresenter))
+      end
+
+      it 'should render error when server throws an internal server error' do
+        agent = AgentInstanceMother.idle()
+        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,staging', TriState.UNSET) do |user, result, uuid, new_hostname|
+          result.internalServerError("Updating agent failed: error", HealthStateType::general(HealthStateScope::GLOBAL));
+        end.and_return(nil)
+
+        patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', environments: ['pre-prod', 'staging']
+        expect(response).to have_api_message_response(500, 'Updating agent failed: error')
+        expect(JSON.parse(response.body).deep_symbolize_keys[:data]).to eq(nil)
+      end
+
       it 'should raise error when submitting a junk (non-blank) value for enabled boolean' do
         agent = AgentInstanceMother.idle()
         @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)

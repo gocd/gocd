@@ -49,6 +49,7 @@ public class InvalidConfigMessageRemover implements ConfigChangedListener {
 
     public void initialize() {
         registering = true;
+        goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
     }
 

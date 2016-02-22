@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
@@ -231,5 +229,14 @@ public class AgentInstanceMother {
 
     public static AgentInstance idle(String hostname) {
         return updateHostname(idle(new Date(), "CCeDev01"), hostname);
+    }
+
+    public static AgentInstance agentWithConfigErrors() {
+        Resource resource1 = new Resource("foo%");
+        Resource resource2 = new Resource("bar$");
+        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new Resources(resource1, resource2));
+        agentConfig.validateTree(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        return agentInstance;
     }
 }

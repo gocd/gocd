@@ -241,7 +241,6 @@ public class GoFileConfigDataSource {
         }
     }
 
-
     public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
         try {
 

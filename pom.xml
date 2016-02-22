@@ -77,6 +77,17 @@
         <jmock.version>2.4.0</jmock.version>
         <pax-exam.version>3.0.0.M4</pax-exam.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gson.version>2.6.1</gson.version>
+        <junit.version>4.12</junit.version>
+        <log4j.version>1.2.17</log4j.version>
+        <commons-codec.version>1.10</commons-codec.version>
+        <mailapi.version>1.5.5</mailapi.version>
+        <ant.version>1.9.6</ant.version>
+        <slf4j.version>1.7.16</slf4j.version>
+        <commons-validator.version>1.5.0</commons-validator.version>
+        <commons-beanutils.version>1.9.2</commons-beanutils.version>
+        <jaxen.version>1.1.4</jaxen.version>
+        <mockito.version>1.10.19</mockito.version>
     </properties>
     <modules>
         <module>base</module>

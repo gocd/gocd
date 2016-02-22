@@ -17,40 +17,45 @@
 package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
-import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.AuthSSLProtocolSocketFactory;
 import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.util.ClassMockery;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.log4j.Logger;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 
+import static com.thoughtworks.go.agent.service.SslInfrastructureService.*;
+import static com.thoughtworks.go.agent.testhelpers.AgentCertificateMother.agentCertificate;
+import static com.thoughtworks.go.config.GuidService.deleteGuid;
+import static com.thoughtworks.go.config.GuidService.storeGuid;
 import static com.thoughtworks.go.util.TestUtils.exists;
+import static org.apache.commons.httpclient.protocol.Protocol.getProtocol;
+import static org.apache.commons.httpclient.protocol.Protocol.unregisterProtocol;
+import static org.apache.log4j.Logger.getLogger;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 
-@RunWith(JMock.class)
 public class SslInfrastructureServiceTest {
-    private static final Logger LOGGER = Logger.getLogger(SslInfrastructureServiceTest.class);
-    private final Mockery context = new ClassMockery();
+    @Rule
+    public final JUnitRuleMockery context = new JUnitRuleMockery(){{
+        setImposteriser(ClassImposteriser.INSTANCE);
+    }};
+    private static final Logger LOGGER = getLogger(SslInfrastructureServiceTest.class);
     private SslInfrastructureService sslInfrastructureService;
     private boolean remoteCalled;
     private HttpConnectionManagerParams httpConnectionManagerParams = new HttpConnectionManagerParams();
@@ -60,19 +65,19 @@ public class SslInfrastructureServiceTest {
     @Before
     public void setup() throws Exception {
         remoteCalled = false;
-        SslInfrastructureService.AGENT_CERTIFICATE_FILE.delete();
-        SslInfrastructureService.AGENT_CERTIFICATE_FILE.deleteOnExit();
+        AGENT_CERTIFICATE_FILE.delete();
+        AGENT_CERTIFICATE_FILE.deleteOnExit();
         Registration registration = createRegistration();
         sslInfrastructureService = new SslInfrastructureService(requesterStub(registration), httpClientStub(), httpConnectionManagerParams);
-        GuidService.storeGuid("uuid");
+        storeGuid("uuid");
     }
 
     @After
     public void teardown() throws Exception {
-        GuidService.deleteGuid();
-        Protocol.unregisterProtocol("https");
-        SslInfrastructureService.AGENT_CERTIFICATE_FILE.delete();
-        SslInfrastructureService.AGENT_TRUST_FILE.delete();
+        deleteGuid();
+        unregisterProtocol("https");
+        AGENT_CERTIFICATE_FILE.delete();
+        AGENT_TRUST_FILE.delete();
     }
 
     @Test
@@ -83,7 +88,7 @@ public class SslInfrastructureServiceTest {
         shouldCreateSslInfrastucture();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
-        assertThat(SslInfrastructureService.AGENT_CERTIFICATE_FILE, exists());
+        assertThat(AGENT_CERTIFICATE_FILE, exists());
         assertRemoteCalled();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
@@ -96,7 +101,7 @@ public class SslInfrastructureServiceTest {
 
     private void shouldCreateSslInfrastucture() throws Exception {
         sslInfrastructureService.createSslInfrastructure();
-        Protocol protocol = Protocol.getProtocol("https");
+        Protocol protocol = getProtocol("https");
         assertThat(protocol.getSocketFactory(), instanceOf(AuthSSLProtocolSocketFactory.class));
     }
 
@@ -111,13 +116,13 @@ public class SslInfrastructureServiceTest {
     }
 
     private Registration createRegistration() {
-        Registration certificates = AgentCertificateMother.agentCertificate();
+        Registration certificates = agentCertificate();
         return new Registration(certificates.getPrivateKey(), certificates.getChain());
     }
 
-    private SslInfrastructureService.RemoteRegistrationRequester requesterStub(final Registration registration) {
+    private RemoteRegistrationRequester requesterStub(final Registration registration) {
         final SslInfrastructureServiceTest me = this;
-        return new SslInfrastructureService.RemoteRegistrationRequester(null, agentRegistryStub(), new HttpClient()) {
+        return new RemoteRegistrationRequester(null, agentRegistryStub(), new HttpClient()) {
             protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties)
                     throws IOException, ClassNotFoundException {
                 LOGGER.debug("Requesting remote registration");
@@ -149,6 +154,4 @@ public class SslInfrastructureServiceTest {
         });
         return registry;
     }
-
-
 }

@@ -50,17 +50,23 @@
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>4.1.0.201509280440-r</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.2</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
@@ -71,14 +77,14 @@
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>2.1_3</version>
+            <artifactId>cglib-nodep</artifactId>
+            <version>${cglib.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.47</version>
+            <version>${bcprov.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -101,7 +107,7 @@
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
-            <version>1.1</version>
+            <version>${jaxen.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

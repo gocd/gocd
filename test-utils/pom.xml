@@ -45,19 +45,13 @@
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.7.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>3.1.1</version>
+            <version>${ant.version}</version>
         </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>2.1_3</version>
+            <artifactId>cglib-nodep</artifactId>
+            <version>${cglib.version}</version>
         </dependency>
 
         <dependency>
@@ -110,13 +104,13 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>mailapi</artifactId>
-            <version>1.4.4</version>
+            <version>${mailapi.version}</version>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode</groupId>
@@ -138,7 +132,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
+            <version>${mockito.version}</version>
         </dependency>
 
         <!-- jmock -->
@@ -170,24 +164,6 @@
             </exclusions>
         </dependency>
         <!-- jmock end -->
-
-        <dependency>
-            <groupId>net.sf.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>1.8</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ognl</groupId>
-            <artifactId>ognl</artifactId>
-            <version>2.6.9</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dnsjava</groupId>
-            <artifactId>dnsjava</artifactId>
-            <version>1.2.3</version>
-        </dependency>
 
         <dependency>
             <groupId>org.mozilla</groupId>
@@ -223,17 +199,6 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>org.eclipse.birt.runtime.3_7_1</groupId>
-			<artifactId>org.mozilla.javascript</artifactId>
-			<version>1.7.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.mina</groupId>
-			<artifactId>mina-core</artifactId>
-			<version>2.0.0</version>
-		</dependency>
     </dependencies>
 
     <build>

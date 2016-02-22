@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.server.cache.GoCache;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -55,20 +55,18 @@ public class CacheInformationProvider implements ServerInfoProvider {
     }
 
     private void appendLiveCacheStatisticsInformation(InformationStringBuilder infoCollector, GoCache cache) {
-        LiveCacheStatistics statistics = cache.statistics();
+        StatisticsGateway statistics = cache.statistics();
 
         infoCollector.addSubSection("Cache runtime information");
-        infoCollector.append(String.format("Statistics enabled? %s\n", statistics.isStatisticsEnabled()));
-        infoCollector.append(String.format("Average get time in milliseconds: %s [Min: %s, Max: %s]\n", statistics.getAverageGetTimeMillis(),
-                statistics.getMinGetTimeMillis(), statistics.getMaxGetTimeMillis()));
-        infoCollector.append(String.format("Cache size: %s (Accuracy: %s)\n", statistics.getSize(), statistics.getStatisticsAccuracyDescription()));
+        infoCollector.append(String.format("Average get operation latency (in ms): %s\n", statistics.cacheGetOperation().latency()));
+        infoCollector.append(String.format("Cache size: %s\n", statistics.getSize()));
         infoCollector.append(String.format("Cache counts: [Hits: %s, Miss: %s, Expired: %s, Eviction: %s, Put: %s, Remove: %s]\n\n",
-                statistics.getCacheHitCount(), statistics.getCacheMissCount(), statistics.getExpiredCount(), statistics.getEvictedCount(),
-                statistics.getPutCount(), statistics.getRemovedCount()));
+                statistics.cacheHitCount(), statistics.cacheMissCount(), statistics.cacheExpiredCount(), statistics.cacheEvictedCount(),
+                statistics.cachePutCount(), statistics.cacheRemoveCount()));
 
-        infoCollector.append(String.format("Cache size (in-memory): %s\n", statistics.getInMemorySize()));
-        infoCollector.append(String.format("Cache hit count (in-memory): %s\n", statistics.getInMemoryHitCount()));
-        infoCollector.append(String.format("Cache size (disk): %s\n", statistics.getOnDiskSize()));
-        infoCollector.append(String.format("Cache hit count (disk): %s\n", statistics.getOnDiskHitCount()));
+        infoCollector.append(String.format("Cache size (in-memory): %s\n", statistics.getLocalHeapSize()));
+        infoCollector.append(String.format("Cache hit count (in-memory): %s\n", statistics.localHeapHitCount()));
+        infoCollector.append(String.format("Cache size (disk): %s\n", statistics.getLocalDiskSize()));
+        infoCollector.append(String.format("Cache hit count (disk): %s\n", statistics.localDiskHitCount()));
     }
 }

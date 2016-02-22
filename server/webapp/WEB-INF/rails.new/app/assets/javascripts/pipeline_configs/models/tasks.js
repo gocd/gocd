@@ -70,7 +70,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
     };
 
     this.toString = function() {
-      return _.join([this.type(), this.target(), this.buildFile()], ' ');
+      return _.join([this.target(), this.buildFile()], ' ');
     };
 
     this.isEmpty = function() {
@@ -103,7 +103,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
     };
 
     this.toString = function() {
-      return _.join([this.type(), this.target(), this.buildFile()], ' ');
+      return _.join([this.target(), this.buildFile()], ' ');
     };
 
     this.isEmpty = function() {
@@ -135,7 +135,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
     };
 
     this.toString = function () {
-      return _.join([this.type(), this.command(), this.args().toString()], ' ');
+      return _.join([this.command(), this.args().toString()], ' ');
     };
 
     this.isEmpty = function() {
@@ -167,7 +167,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
     };
 
     this.toString = function() {
-      return _.join([this.type(), this.target(), this.buildFile()], ' ');
+      return _.join([this.target(), this.buildFile()], ' ');
     };
 
     this.isEmpty = function() {
@@ -200,7 +200,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
     };
 
     this.toString = function() {
-      return _.join([this.type(), this.pipeline(), this.stage(), this.job()], ' ');
+      return _.join([this.pipeline(), this.stage(), this.job()], ' ');
     };
 
     this.isEmpty = function() {

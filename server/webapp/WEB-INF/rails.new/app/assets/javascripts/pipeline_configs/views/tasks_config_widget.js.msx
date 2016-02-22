@@ -53,10 +53,13 @@ define([
         return (
           <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
             <div>
-              <div class="task-header">
+              <div class="task-header" onclick={ctrl.toggleIsEditing.bind(ctrl)}>
+                <strong>{args.task.type()}</strong>
                 <span class='task-type'>{args.task.toString()}</span>
-                <f.removeButton onclick={args.onRemove} class="remove-task"/>
-                <f.editButton class={ctrl.isEditing() ? 'done' : null} onclick={ctrl.toggleIsEditing.bind(ctrl)}/>
+                <div class='actions'>
+                  <f.removeButton onclick={args.onRemove} class="remove-task"/>
+                  <f.editButton class={ctrl.isEditing() ? 'done' : null}/>
+                </div>
               </div>
               <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>{children}</div>
             </div>
@@ -329,8 +332,8 @@ define([
                     label='Add task of type'
                     items={items}
                     size={3}/>
-          <f.column size={2} end={true} class='add-task'>
-            <a href="javascript:void(0)" onclick={ctrl.addTask.bind(ctrl, ctrl.selected)}>Add</a>
+          <f.column size={2} end={true}>
+            <a class='button add-task' href="javascript:void(0)" onclick={ctrl.addTask.bind(ctrl, ctrl.selected)}>Add</a>
           </f.column>
         </f.row>
       );

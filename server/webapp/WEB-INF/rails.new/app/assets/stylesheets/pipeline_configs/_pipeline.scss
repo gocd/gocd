@@ -75,7 +75,6 @@
 
   .edit {
     @include icon-before($type: pencil-square-o, $color: $dark-gray);
-    float: right;
     &:hover {
       &:before {
         color: $black;
@@ -85,7 +84,6 @@
 
   .done {
     @include icon-before($type: check-square, $color: $dark-gray);
-    float: right;
     &:hover {
       &:before {
         color: $black;
@@ -119,6 +117,12 @@
     }
     .actions {
       margin: 7px 0 0 -24px;
+    }
+  }
+
+  .button{
+    &:before{
+      margin:0 5px 0 0;
     }
   }
 }

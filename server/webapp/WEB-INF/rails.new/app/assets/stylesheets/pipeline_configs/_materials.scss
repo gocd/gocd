@@ -67,7 +67,4 @@
 .add-material {
   margin-top: 26px;
   @include icon-before($type: plus-circle);
-  &:before {
-    margin: 0 5px 0 0;
-  }
 }

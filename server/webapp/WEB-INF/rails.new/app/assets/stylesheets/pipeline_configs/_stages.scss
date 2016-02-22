@@ -59,7 +59,7 @@ $active-job: $lighter-gray;
     word-break: break-all;
     word-wrap: break-word;
     height: 40px;
-    line-height: 40px;
+    line-height: 36px;
     font-size: rem-calc(14px);
   }
 
@@ -93,12 +93,15 @@ $active-job: $lighter-gray;
     background: $active-stage;
     box-shadow: $no-shadow;
     position: relative;
+
     .label {
       color: $white;
     }
+
     .drag-handle {
       color: $white
     }
+
     &:after {
       content: "";
       width: 0;
@@ -135,6 +138,7 @@ $active-job: $lighter-gray;
       height: auto;
       line-height: 32px;
     }
+
     &:active {
       box-shadow: $no-shadow;
       transition: all 0.2s ease-in-out;
@@ -149,141 +153,150 @@ $active-job: $lighter-gray;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 
-  .stage-definition {
+  .remove-job {
+    position: absolute;
+    left: calc(100% - 31px);
+    top: 8px;
+  }
+
+  .task-definition {
     position: relative;
+    border: 1px solid #cccccc;
+    margin-bottom: 10px;
 
-    a.add-job {
-      @include icon-before($type: plus-circle);
-      //background: #fefefe;
-      //box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
-      //border: 1px solid rgba(204, 204, 204, 0);
-      //transition: all 0.2s ease-in-out;
-      position: relative;
-      text-align: center;
-      margin-top: 10px;
-      //&:after{
-      //  content:"";
-      //position:absolute;
-      //  left:5px;
-      //  right:5px;
-      //  top:5px;
-      //  bottom:5px;
-      //  border:1px dashed #8a8a8a;
-      //}
+    textarea {
+      min-height: 98px
     }
 
+    .lookup {
+      background: #f5f5f5;
+      padding: 10px 20px;
+    }
   }
 
-  .job-definitions {
-    margin-top: 20px;
+  .snippet {
+    padding: 10px 20px;
+    margin: 23px 6px 20px 10px;
+    background: #ffffff;
 
-    .tabs {
-      border: 0;
-    }
-    .tabs-panel {
-      background: $lighter-gray;
-    }
-    .tabs-content {
-      border: 0;
-    }
-
-    .job-definitions-tabs-panel {
-      position: relative;
+    header {
+      overflow: hidden;
+      border-bottom: 1px solid #B7B7B7;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
     }
 
-  }
+    .snippet-title {
+      float: left;
+      margin: 0;
+      font-size: 1rem;
+    }
 
-  .job-definition {
-    .add-task {
-      padding-top: rem(26px);
+    p {
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
       a {
-        @include icon-before($type: plus-circle);
+        padding-left: 5px;
       }
     }
 
-    .remove-job {
-      position: absolute;
-      left: calc(100% - 31px);
-      top: 8px;
+    .author {
+      overflow: hidden;
+      font-size: 0.875rem;
+      float: right;
+      label {
+        padding-right: 5px;
+      }
     }
+  }
+}
 
-    legend {
-      background-color: inherit;
-    }
+.stage-definition {
+  position: relative;
 
-    .task-definitions {
-      padding-top: $fieldset-padding;
-    }
+  a.add-job {
+    @include icon-before($type: plus-circle);
+    position: relative;
+    text-align: center;
+    margin-top: 10px;
+  }
+}
 
-    .task-definition {
+.remove-stage {
+  position: absolute;
+  right: -15px;
+  top: -18px;
+}
+
+//tasks
+
+.add-task {
+  margin-top: 25px;
+  @include icon-before($type: plus-circle);
+}
+
+.task-header {
+  @include icon-before($type: ellipsis-v, $margin: 0 12px 0 0);
+  padding: 0 70px 0 30px;
+  height: 30px;
+  line-height: 30px;
+  background: $lighter-gray;
+  cursor: move;
+
+  &:before {
+    left: 15px;
+    top: 8px;
+    position: absolute;
+  }
+
+  strong {
+    margin-right: 15px;
+    float: left;
+    line-height: 28px;
+    height: 30px;
+  }
+
+  .task-type {
+    font-size: rem-calc(13px);
+    @include ellipsis();
+    width: calc(100% - 400px);
+    float: left;
+  }
+
+  .actions {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    .edit {
       position: relative;
-      border: $fieldset-border;
-      margin-bottom: $standard-margin/2;
-
-      .task-header {
-        @include icon-before($type: ellipsis-v, $margin: 0) {
-          padding-right: rem-calc(16px);
-        }
-      ;
-        padding: rem-calc(2px) $accordion-content-padding;
-      }
-
-      .task-header {
-        padding-right: 4px;
-        background: $light-gray;
-        cursor: move;
-
-        .task-type {
-          //@include icon-before($type: bars, $size: inherit, $margin: 0) {
-          //  padding-right: rem-calc(3px);
-          //}
-        }
-
-        .remove-task {
-          float: right;
-        }
-      }
-      textarea {
-        min-height: 98px
-      }
-      .lookup {
-        background: #f5f5f5;
-        padding: 10px 20px;
-      }
-
-      .snippet {
-        padding: 10px 20px;
-        margin: 23px 6px 20px 10px;
-        background: #ffffff;
-
-        header {
-          overflow: hidden;
-          border-bottom: 1px solid #B7B7B7;
-          padding-bottom: 4px;
-          margin-bottom: 10px;
-        }
-        .snippet-title {
-          float: left;
-          margin: 0;
-          font-size: 1rem;
-        }
-        p {
-          font-size: 0.875rem;
-          margin-bottom: 0.25rem;
-          a {
-            padding-left: 5px;
-          }
-        }
-        .author {
-          overflow: hidden;
-          font-size: 0.875rem;
-          float: right;
-          label {
-            padding-right: 5px;
-          }
-        }
-      }
+      top: -1px;
     }
+  }
+
+  .remove-task {
+    float: right;
+  }
+}
+
+//jobs
+
+.job-definitions {
+  margin-top: 20px;
+
+  .tabs {
+    border: 0;
+  }
+
+  .tabs-panel {
+    background: $lighter-gray;
+  }
+
+  .tabs-content {
+    border: 0;
+  }
+
+  .job-definitions-tabs-panel {
+    position: relative;
   }
 }
 
@@ -301,24 +314,9 @@ $active-job: $lighter-gray;
   }
 
   &.is-active {
-
     a {
       background-color: $active-job;
       margin-right: 0;
     }
   }
-}
-
-.remove-stage {
-  position: absolute;
-  right: -15px;
-  top: -18px;
-}
-
-.pipeline-flow-box {
-
-  &.materials {
-    cursor: pointer;
-  }
-
 }

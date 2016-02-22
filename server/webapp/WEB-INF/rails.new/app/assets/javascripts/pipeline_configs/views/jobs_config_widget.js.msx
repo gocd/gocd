@@ -60,7 +60,7 @@ define([
       var radioName = 'radio-' + job.uuid() + '-timeout';
       var errors    = job.validate(), timeoutError;
       if (errors.errors('timeout')) {
-        timeoutError = (<small class='error'>{errors.errorsForDisplay('timeout')}</small>)
+        timeoutError = (<small class='form-error is-visible'>{errors.errorsForDisplay('timeout')}</small>)
       }
       return (
         <div>
@@ -129,7 +129,7 @@ define([
       var errors    = job.validate(), runInstanceCounteError;
 
       if (errors.errors('runInstanceCount')) {
-        runInstanceCounteError = (<small class='error'>{errors.errorsForDisplay('runInstanceCount')}</small>)
+        runInstanceCounteError = (<small class='form-error is-visible'>{errors.errorsForDisplay('runInstanceCount')}</small>)
       }
 
       return (
@@ -238,37 +238,33 @@ define([
                                accordionKeys={['job-settings']}
                                selectedIndex={ctrl.vmState('jobSettingsSelected' + job.name(), m.prop(-1))}
                                class="accordion-inner">
-                    <f.row>
-                      <f.column size={12}>
-                        <f.row>
-                          <f.inputWithLabel
-                            attrName='name'
-                            model={job}
-                            size={4}/>
-                          <f.column size={8}>
-                            <JobTimeout job={job}/>
-                          </f.column>
-                        </f.row>
-                        <f.row>
-                          <f.inputWithLabel
-                            config={autoComplete(Resources.list, job, 'resources')}
-                            attrName='resources'
-                            model={job}
-                            tooltip={{
+                    <div>
+                      <f.row>
+                        <f.inputWithLabel
+                          attrName='name'
+                          model={job}
+                          size={6}
+                          largeSize={4}/>
+                        <f.inputWithLabel
+                          config={autoComplete(Resources.list, job, 'resources')}
+                          attrName='resources'
+                          model={job}
+                          tooltip={{
                               content: tt.job.resources,
                               direction: 'bottom',
                               size: 'small'
                             }}
-                            size={4}
-                            end={true}/>
-
-                          <f.column size={8}>
-                            <RunOnAgent job={job}/>
-                          </f.column>
-
-                        </f.row>
-                      </f.column>
-                    </f.row>
+                          size={4}
+                          largeSize={4}
+                          end={true}/>
+                      </f.row>
+                      <f.row>
+                        <JobTimeout job={job}/>
+                      </f.row>
+                      <f.row>
+                        <RunOnAgent job={job}/>
+                      </f.row>
+                    </div>
                   </f.accordion>
                   <f.row>
                     <EnvironmentVariablesConfigWidget title='Jobs Environment Variables'

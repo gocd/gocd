@@ -43,7 +43,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
       });
 
       it('should have a string representation', function () {
-        expect(task.toString()).toBe('ant clean build-moduleA.xml');
+        expect(task.toString()).toBe('clean build-moduleA.xml');
       });
 
       describe("Serialization from/to JSON", function () {
@@ -104,7 +104,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
       });
 
       it('should have a string representation', function () {
-        expect(task.toString()).toBe('nant clean build-moduleA.xml');
+        expect(task.toString()).toBe('clean build-moduleA.xml');
       });
 
       describe("Serialize from/to JSON", function () {
@@ -177,7 +177,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           taskJSON['args'] = '-a';
           var task = new Tasks.Task.Exec(taskJSON);
 
-          expect(task.toString()).toBe("exec bash -a");
+          expect(task.toString()).toBe("bash -a");
         });
       });
 
@@ -236,7 +236,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
       });
 
       it('should have a string representation', function () {
-        expect(task.toString()).toBe('rake clean foo.rake');
+        expect(task.toString()).toBe('clean foo.rake');
       });
 
       describe("Serialize from/to JSON", function () {
@@ -295,7 +295,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
       });
 
       it('should have a string representation', function () {
-        expect(task.toString()).toBe('fetchartifact Build Dist RPM');
+        expect(task.toString()).toBe('Build Dist RPM');
       });
 
       describe("Serialize from/to JSON", function () {

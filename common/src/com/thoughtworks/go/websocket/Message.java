@@ -31,9 +31,11 @@ public class Message implements Serializable {
         try {
             GZIPOutputStream zip = new GZIPOutputStream(bytes);
             ObjectOutputStream output = new ObjectOutputStream(zip);
-            output.writeObject(msg);
-            output.flush();
-            zip.finish();
+            try {
+                output.writeObject(msg);
+            } finally {
+                output.close();
+            }
         } catch (IOException e) {
             throw bomb(e);
         }
@@ -42,7 +44,12 @@ public class Message implements Serializable {
 
     public static Message decode(InputStream input) {
         try {
-            return (Message) new ObjectInputStream(new GZIPInputStream(input)).readObject();
+            ObjectInputStream stream = new ObjectInputStream(new GZIPInputStream(input));
+            try {
+                return (Message) stream.readObject();
+            } finally {
+                stream.close();
+            }
         } catch (Exception e) {
             throw bomb(e);
         }

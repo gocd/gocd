@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.exceptions;
+package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.util.ListUtil;
 
-public class GoConfigInvalidException extends RuntimeException {
-    private final CruiseConfig cruiseConfig;
+import java.util.ArrayList;
 
-    public GoConfigInvalidException(CruiseConfig cruiseConfig, String error) {
-        super(error);
-        this.cruiseConfig = cruiseConfig;
-    }
-
-    public CruiseConfig getCruiseConfig() {
-        return cruiseConfig;
+public class AllConfigErrors extends ArrayList<ConfigErrors> {
+    public String asString() {
+        return ListUtil.join(ListUtil.map(this, new ListUtil.Transformer<ConfigErrors, String>() {
+            @Override
+            public String transform(ConfigErrors errors) {
+                return errors.asString();
+            }
+        }));
     }
 }

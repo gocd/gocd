@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,11 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -212,13 +211,17 @@ public class GoFileConfigDataSource {
         }
     }
 
-    public synchronized CachedFileGoConfig.PipelineConfigSaveResult writePipelineWithLock(PipelineConfig pipelineConfig, GoConfigHolder serverCopy, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
-        CruiseConfig modifiedConfig = cloner.deepClone(serverCopy.configForEdit);
-        saveCommand.updateConfig(modifiedConfig, pipelineConfig);
+    public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, Username currentUser) {
+        CruiseConfig modifiedConfig = cloner.deepClone(configHolder.configForEdit);
+        try {
+            updatingCommand.update(modifiedConfig);
+        } catch (Exception e) {
+            bomb(e);
+        }
         CruiseConfig preprocessedConfig = cloner.deepClone(modifiedConfig);
         MagicalGoConfigXmlLoader.preprocess(preprocessedConfig);
-        PipelineConfig preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
-        if (saveCommand.isValid(preprocessedConfig, preprocessedPipelineConfig)) {
+
+        if (updatingCommand.isValid(preprocessedConfig)) {
             try {
                 LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
                 String configAsXml = configAsXml(modifiedConfig, true);
@@ -229,14 +232,15 @@ public class GoFileConfigDataSource {
                 configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser.getUsername().toString(), serverVersion.version(), timeProvider));
                 LOGGER.debug("[Config Save] Done writing with lock");
                 reloadStrategy.latestState(preprocessedConfig);
-                return new CachedFileGoConfig.PipelineConfigSaveResult(preprocessedPipelineConfig, saveCommand.getPipelineGroup(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
+                return new EntityConfigSaveResult(updatingCommand.getPreprocessedEntityConfig(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
             } catch (Exception e) {
                 throw new RuntimeException("failed to save : " + e.getMessage());
             }
         } else {
-            throw new ConfigUpdateCheckFailedException();
+            throw new GoConfigInvalidException(preprocessedConfig, "Validation failed.");
         }
     }
+
 
     public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
         try {

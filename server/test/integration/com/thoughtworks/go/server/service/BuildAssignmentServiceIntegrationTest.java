@@ -17,6 +17,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -49,6 +50,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.server.websocket.AgentStub;
@@ -92,7 +94,7 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-public class BuildAssignmentServiceTest {
+public class BuildAssignmentServiceIntegrationTest {
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
@@ -114,6 +116,7 @@ public class BuildAssignmentServiceTest {
     @Autowired private BuilderFactory builderFactory;
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private AgentRemoteHandler agentRemoteHandler;
+    @Autowired private PipelineConfigService pipelineConfigService;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -253,11 +256,15 @@ public class BuildAssignmentServiceTest {
 
     @Test
     public void shouldCancelBuildsForDeletedStagesWhenPipelineConfigChanges() throws Exception {
+        buildAssignmentService.initialize();
+
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
-        configHelper.removeStage(fixture.pipelineName, fixture.devStage);
 
-        buildAssignmentService.onPipelineConfigChange(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)), "g1");
+        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
+        pipelineConfig.remove(devStage);
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
@@ -267,14 +274,17 @@ public class BuildAssignmentServiceTest {
 
     @Test
     public void shouldCancelBuildsForDeletedJobsWhenPipelineConfigChanges() throws Exception {
+        buildAssignmentService.initialize();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate).usingTwoJobs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         fixture.createPipelineWithFirstStageScheduled();
 
         buildAssignmentService.onTimer();
-        configHelper.removeJob(fixture.pipelineName, fixture.devStage, fixture.JOB_FOR_DEV_STAGE);
 
-        buildAssignmentService.onPipelineConfigChange(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)), "g1");
+        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
+        devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);

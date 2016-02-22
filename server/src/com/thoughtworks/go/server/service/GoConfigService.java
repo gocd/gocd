@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.google.caja.util.Sets;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -139,7 +140,7 @@ public class GoConfigService implements Initializer {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
 
-    protected boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
+    public boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result, String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
         }
@@ -232,12 +233,12 @@ public class GoConfigService implements Initializer {
         goConfigDao.addAgent(agentConfig);
     }
 
-    public void updatePipeline(final PipelineConfig pipelineConfig, final Username currentUser, final LocalizedOperationResult result, PipelineConfigService.SaveCommand saveCommand) {
-        goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
-    }
-
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
         return goConfigDao.updateConfig(command);
+    }
+
+    public void updateConfig(EntityConfigUpdateCommand command, Username currentUser) {
+        goConfigDao.updateConfig(command, currentUser);
     }
 
     public long getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {

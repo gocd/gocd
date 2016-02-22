@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -92,9 +92,9 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
                 // create merge (uses merge strategy internally)
                 BasicCruiseConfig merge = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfigHolder.config, partials);
                 // validate
-                List<ConfigErrors> allErrors = validate(merge);
+                AllConfigErrors allErrors = validate(merge);
                 if (!allErrors.isEmpty()) {
-                    throw new GoConfigInvalidException(merge, allErrors);
+                    throw new GoConfigInvalidException(merge, allErrors.asString());
                 }
                 CruiseConfig basicForEdit = this.fileService.loadForEditing();
                 CruiseConfig forEdit = new BasicCruiseConfig((BasicCruiseConfig) basicForEdit, partials);
@@ -114,8 +114,8 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
         serverHealthService.update(state);
     }
 
-    public static List<ConfigErrors> validate(CruiseConfig config) {
-        List<ConfigErrors> validationErrors = new ArrayList<ConfigErrors>();
+    public static AllConfigErrors validate(CruiseConfig config) {
+        AllConfigErrors validationErrors = new AllConfigErrors();
         validationErrors.addAll(config.validateAfterPreprocess());
         return validationErrors;
     }
@@ -155,24 +155,24 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
         return this.fileService.writeWithLock(updateConfigCommand,new GoConfigHolder(this.currentConfig,this.currentConfigForEdit));
     }
 
-    @Override
-    public synchronized void writePipelineWithLock(PipelineConfig pipelineConfig, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
-        CachedFileGoConfig.PipelineConfigSaveResult saveResult = fileService.writePipelineWithLock(pipelineConfig, this.configHolder, saveCommand, currentUser);
-        saveValidConfigToCacheAndNotifyPipelineConfigChangeListeners(saveResult);
+    public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updateConfigCommand, Username currentUser) {
+        EntityConfigSaveResult entityConfigSaveResult = this.fileService.writeEntityWithLock(updateConfigCommand, new GoConfigHolder(this.currentConfig, this.currentConfigForEdit), currentUser);
+        saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(entityConfigSaveResult);
+        return entityConfigSaveResult;
     }
 
-    private void saveValidConfigToCacheAndNotifyPipelineConfigChangeListeners(CachedFileGoConfig.PipelineConfigSaveResult saveResult) {
+    private <T> void saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(EntityConfigSaveResult<T> saveResult) {
         saveValidConfigToCache(saveResult.getConfigHolder());
         LOGGER.info("About to notify pipeline config listeners");
 
         for (ConfigChangedListener listener : listeners) {
-            if(listener instanceof PipelineConfigChangedListener){
+            if(listener instanceof EntityConfigChangedListener<?> && ((EntityConfigChangedListener) listener).shouldCareAbout(saveResult.getEntityConfig())){
                 try {
                     long startTime = System.currentTimeMillis();
-                    ((PipelineConfigChangedListener) listener).onPipelineConfigChange(saveResult.getPipelineConfig(), saveResult.getGroup());
+                    ((EntityConfigChangedListener<T>) listener).onEntityConfigChange(saveResult.getEntityConfig());
                     LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
                 } catch (Exception e) {
-                    LOGGER.error("Failed to fire config changed event for listener: " + listener, e);
+                    LOGGER.error("failed to fire config changed event for listener: " + listener, e);
                 }
 
             }

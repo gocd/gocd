@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,8 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -168,20 +170,18 @@ public class GoConfigDao {
     public String md5OfConfigFile() {
         return cachedConfigService.currentConfig().getMd5();
     }
-
-    public void updatePipeline(PipelineConfig pipelineConfig, LocalizedOperationResult result, Username currentUser, PipelineConfigService.SaveCommand saveCommand) {
-        LOGGER.info("Config update for pipeline request by {} is in queue - {}", currentUser, saveCommand);
+    
+    public void updateConfig(EntityConfigUpdateCommand command, Username currentUser) {
+        LOGGER.info("Config update for pipeline request by {} is in queue - {}", currentUser, command);
         synchronized (GoConfigWriteLock.class) {
             LOGGER.info("Config update for pipeline request by {} is being processed", currentUser);
-            if (saveCommand.hasWritePermissions()) {
-                try {
-                    cachedConfigService.writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
-                } catch (ConfigUpdateCheckFailedException e) {
-                    result.unprocessableEntity(LocalizedMessage.string("PIPELINE_CONFIG_VALIDATION_FAILED", pipelineConfig.name()));
-                }
+            if (!command.canContinue(cachedConfigService.currentConfig())) {
+                throw new ConfigUpdateCheckFailedException();
             }
+            cachedConfigService.writeEntityWithLock(command, currentUser);
         }
     }
+
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);

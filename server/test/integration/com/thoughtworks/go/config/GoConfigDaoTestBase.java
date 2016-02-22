@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -565,50 +567,38 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldNotUpdatePipelineConfigIfUserDoesNotHaveRequiredPermissionsToDoSo(){
-        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
-        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
-        when(saveCommand.hasWritePermissions()).thenReturn(false);
-
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
         goConfigDao = new GoConfigDao(cachedConfigService);
-        goConfigDao.updatePipeline(pipelineConfig, result, new Username(new CaseInsensitiveString("user")), saveCommand);
-
-        verifyZeroInteractions(cachedConfigService);
+        EntityConfigUpdateCommand command = mock(EntityConfigUpdateCommand.class);
+        when(command.canContinue(cruiseConfig)).thenReturn(false);
+        try {
+            goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user")));
+            fail("Expected to throw exception of type:" + ConfigUpdateCheckFailedException.class.getName());
+        }catch (Exception e) {
+            assertTrue(e instanceof ConfigUpdateCheckFailedException);
+        }
+        verify(cachedConfigService).currentConfig();
+        verifyNoMoreInteractions(cachedConfigService);
     }
 
     @Test
-    public void shouldUpdateResultWithErrorCodeWhenPipelineConfigValidationFails(){
-        Username username = new Username(new CaseInsensitiveString("user"));
-        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
-        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
-        when(saveCommand.hasWritePermissions()).thenReturn(true);
-
+    public void shouldUpdateValidEntity(){
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
-        doThrow(new ConfigUpdateCheckFailedException()).when(cachedConfigService).writePipelineWithLock(pipelineConfig, saveCommand, username);
-        goConfigDao = new GoConfigDao(cachedConfigService);
-        goConfigDao.updatePipeline(pipelineConfig, result, username, saveCommand);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
+        EntityConfigUpdateCommand saveCommand = mock(EntityConfigUpdateCommand.class);
+        when(saveCommand.isValid(cruiseConfig)).thenReturn(true);
+        when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
 
-        verify(result).unprocessableEntity(Matchers.<Localizable>any());
-    }
-
-
-    @Test
-    public void shouldUpdateValidPipelineConfig(){
-        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        LocalizedOperationResult result = mock(LocalizedOperationResult.class);
-        PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
-        when(saveCommand.hasWritePermissions()).thenReturn(true);
-
-        CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
         goConfigDao = new GoConfigDao(cachedConfigService);
         Username currentUser = new Username(new CaseInsensitiveString("user"));
-        goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);
+        goConfigDao.updateConfig(saveCommand, currentUser);
 
-        verifyZeroInteractions(result);
-        verify(cachedConfigService).writePipelineWithLock(pipelineConfig, saveCommand, currentUser);
+        verify(cachedConfigService).writeEntityWithLock(saveCommand, currentUser);
     }
+
 
     private void assertCurrentConfigIs(CruiseConfig cruiseConfig) throws Exception {
         CruiseConfig currentConfig = goConfigDao.load();

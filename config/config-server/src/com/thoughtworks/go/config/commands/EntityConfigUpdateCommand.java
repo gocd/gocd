@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.exceptions;
+package com.thoughtworks.go.config.commands;
 
 import com.thoughtworks.go.config.CruiseConfig;
 
-public class GoConfigInvalidException extends RuntimeException {
-    private final CruiseConfig cruiseConfig;
+public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
+    void update(CruiseConfig preprocessedConfig) throws Exception;
 
-    public GoConfigInvalidException(CruiseConfig cruiseConfig, String error) {
-        super(error);
-        this.cruiseConfig = cruiseConfig;
-    }
+    boolean isValid(CruiseConfig preprocessedConfig);
 
-    public CruiseConfig getCruiseConfig() {
-        return cruiseConfig;
-    }
+    T getPreprocessedEntityConfig();
 }

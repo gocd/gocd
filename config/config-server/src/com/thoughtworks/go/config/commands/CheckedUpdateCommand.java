@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.commands;
 
 import com.thoughtworks.go.config.CruiseConfig;
 

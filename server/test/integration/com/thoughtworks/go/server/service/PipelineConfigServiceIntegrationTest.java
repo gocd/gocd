@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -266,6 +266,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), contains("Invalid label"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
@@ -358,27 +359,52 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulSave(){
+    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulUpdate(){
         final String pipelineName = UUID.randomUUID().toString();
         final String templateName = UUID.randomUUID().toString();
         final boolean[] listenerInvoked = {false};
         setupPipelineWithTemplate(pipelineName, templateName);
 
-        PipelineConfigChangedListener pipelineConfigChangedListener = new PipelineConfigChangedListener() {
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<PipelineConfig>() {
             @Override
-            public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-                listenerInvoked[0] = true;
-                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
+            public void onConfigChange(CruiseConfig newCruiseConfig) {
             }
 
             @Override
-            public void onConfigChange(CruiseConfig newCruiseConfig) {
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                listenerInvoked[0] = true;
+                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
             }
         };
         goConfigService.register(pipelineConfigChangedListener);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
         pipeline.setVariables(new EnvironmentVariablesConfig());
         pipelineConfigService.updatePipelineConfig(user, pipeline, new DefaultLocalizedOperationResult());
+        assertThat(listenerInvoked[0], is(true));
+    }
+
+    @Test
+    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulCreate(){
+        final String pipelineName = UUID.randomUUID().toString();
+        final String templateName = UUID.randomUUID().toString();
+        final boolean[] listenerInvoked = {false};
+        setupPipelineWithTemplate(pipelineName, templateName);
+
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onConfigChange(CruiseConfig newCruiseConfig) {
+            }
+
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                listenerInvoked[0] = true;
+                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
+            }
+        };
+        goConfigService.register(pipelineConfigChangedListener);
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
+        pipeline.setVariables(new EnvironmentVariablesConfig());
+        pipelineConfigService.createPipelineConfig(user, pipeline, new DefaultLocalizedOperationResult(), "group1");
         assertThat(listenerInvoked[0], is(true));
     }
 

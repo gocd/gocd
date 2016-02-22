@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.listener.PipelineConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.PipelineConfigService;
@@ -145,34 +147,36 @@ public class CachedFileGoConfig implements CachedGoConfig {
         return saveResult.getConfigSaveState();
     }
 
-    public synchronized void writePipelineWithLock(PipelineConfig pipelineConfig, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
-        GoConfigHolder serverCopy = new GoConfigHolder(currentConfig, currentConfigForEdit);
-        writePipelineWithLock(pipelineConfig, serverCopy, saveCommand, currentUser);
+    @Override
+    public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updateConfigCommand, Username currentUser) {
+        GoConfigHolder holder = new GoConfigHolder(currentConfig, currentConfigForEdit);
+        return writeEntityWithLock(updateConfigCommand, holder, currentUser);
     }
 
-    public synchronized PipelineConfigSaveResult writePipelineWithLock(PipelineConfig pipelineConfig, GoConfigHolder serverCopy, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
-        PipelineConfigSaveResult saveResult = dataSource.writePipelineWithLock(pipelineConfig, serverCopy, saveCommand, currentUser);
-        saveValidConfigToCacheAndNotifyPipelineConfigChangeListeners(saveResult);
-        return saveResult;
+    public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updateConfigCommand, GoConfigHolder holder, Username currentUser) {
+        EntityConfigSaveResult entityConfigSaveResult = dataSource.writeEntityWithLock(updateConfigCommand, holder, currentUser);
+        saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(entityConfigSaveResult);
+        return entityConfigSaveResult;
     }
 
-    private void saveValidConfigToCacheAndNotifyPipelineConfigChangeListeners(CachedFileGoConfig.PipelineConfigSaveResult saveResult) {
+    private <T> void saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(EntityConfigSaveResult<T> saveResult) {
         saveValidConfigToCache(saveResult.getConfigHolder());
-        LOGGER.info("About to notify pipeline config listeners");
+        LOGGER.info("About to notify {} config listeners", saveResult.getEntityConfig().getClass().getName());
 
         for (ConfigChangedListener listener : listeners) {
-            if(listener instanceof PipelineConfigChangedListener){
+            if(listener instanceof EntityConfigChangedListener<?> && ((EntityConfigChangedListener) listener).shouldCareAbout(saveResult.getEntityConfig())){
                 try {
                     long startTime = System.currentTimeMillis();
-                    ((PipelineConfigChangedListener) listener).onPipelineConfigChange(saveResult.getPipelineConfig(), saveResult.getGroup());
+                    @SuppressWarnings("unchecked")
+                    EntityConfigChangedListener<T> entityConfigChangedListener = (EntityConfigChangedListener<T>) listener;
+                    entityConfigChangedListener.onEntityConfigChange(saveResult.getEntityConfig());
                     LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
                 } catch (Exception e) {
                     LOGGER.error("failed to fire config changed event for listener: " + listener, e);
                 }
-
             }
         }
-        LOGGER.info("Finished notifying pipeline config listeners");
+        LOGGER.info("Finished notifying {} config listeners", saveResult.getEntityConfig().getClass().getName());
     }
 
     private synchronized void saveValidConfigToCacheAndNotifyConfigChangeListeners(GoConfigHolder configHolder) {

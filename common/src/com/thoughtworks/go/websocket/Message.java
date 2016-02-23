@@ -16,27 +16,26 @@
 
 package com.thoughtworks.go.websocket;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
-public class Message {
+public class Message implements Serializable {
 
     public static byte[] encode(Message msg) {
-        String encode = JsonMessage.encode(msg);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try {
-            GZIPOutputStream out = new GZIPOutputStream(bytes);
-            out.write(encode.getBytes(StandardCharsets.UTF_8));
-            out.finish();
+            GZIPOutputStream zip = new GZIPOutputStream(bytes);
+            ObjectOutputStream output = new ObjectOutputStream(zip);
+            try {
+                output.writeObject(msg);
+            } finally {
+                output.close();
+            }
         } catch (IOException e) {
             throw bomb(e);
         }
@@ -45,9 +44,13 @@ public class Message {
 
     public static Message decode(InputStream input) {
         try {
-            GZIPInputStream zipStream = new GZIPInputStream(input);
-            return JsonMessage.decode(new String(IOUtils.toByteArray(zipStream), StandardCharsets.UTF_8));
-        } catch (IOException e) {
+            ObjectInputStream stream = new ObjectInputStream(new GZIPInputStream(input));
+            try {
+                return (Message) stream.readObject();
+            } finally {
+                stream.close();
+            }
+        } catch (Exception e) {
             throw bomb(e);
         }
     }

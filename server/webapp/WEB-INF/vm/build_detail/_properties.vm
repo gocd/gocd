@@ -26,8 +26,8 @@
         
         #foreach ($property in $presenter.getProperties())
         <tr id="property-of-$property.key" class="#if ($velocityCount % 2 == 0) even #else odd #end">
-            <td class="first">$property.key</td>
-            <td>$property.value</td>
+            <td class="first">$esc.javascript($property.key)</td>
+            <td>$esc.javascript($property.value)</td>
             <td></td>
         </tr>
         #end

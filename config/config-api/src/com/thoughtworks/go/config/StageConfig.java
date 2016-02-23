@@ -116,6 +116,10 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return null;
     }
 
+    public JobConfig jobConfigByConfigName(String jobName) {
+        return jobConfigByConfigName(new CaseInsensitiveString(jobName));
+    }
+
     // TODO - #2491 - rename jobConfig to job
 
     public JobConfigs allBuildPlans() {
@@ -367,5 +371,4 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     public boolean canBeOperatedBy(Role role) {
         return getOperateRoles().contains(new AdminRole(role));
     }
-
 }

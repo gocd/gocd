@@ -250,6 +250,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return findBy(stageName);
     }
 
+    public StageConfig getStage(String stageName) {
+        return getStage(new CaseInsensitiveString(stageName));
+    }
+
     public StageConfig findBy(final CaseInsensitiveString stageName) {
         for (StageConfig stageConfig : this) {
             if (stageConfig.name().equals(stageName)) {

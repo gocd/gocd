@@ -255,10 +255,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     private void addCredentials(CommandLine line, StringArgument svnUserName, PasswordArgument svnPassword) {
         if (!StringUtils.isBlank(svnUserName.forCommandline())) {
             line.withArgs("--username", svnUserName.forCommandline());
-            if (StringUtils.isBlank(svnPassword.forCommandline())) {
-                line.withArg(String.format("--password="));
-            }
-            else {
+            if (!StringUtils.isBlank(svnPassword.forCommandline())) {
                 line.withArg("--password");
                 line.withArg(svnPassword);
             }

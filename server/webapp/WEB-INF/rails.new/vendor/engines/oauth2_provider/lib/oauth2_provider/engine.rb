@@ -10,11 +10,16 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'url_parser'))
 
 module Oauth2Provider
   class Engine < ::Rails::Engine
+    require 'active_model'
+    require 'active_model/validations'
+    require 'active_model/errors'
+    require 'ext/validatable_ext.rb'
+
     isolate_namespace Oauth2Provider
     engine_name 'oauth_engine'
-    
+
     Oauth2Provider::ModelBase.datasource = ENV["OAUTH2_PROVIDER_DATASOURCE"]
-    
+
     config.generators do |g|
       g.test_framework :rspec
       g.fixture_replacement :factory_girl, :dir => 'spec/factories'

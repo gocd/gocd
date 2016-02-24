@@ -313,158 +313,12 @@ public class GoConfigServiceTest {
         assertThat(configValidity.errorMessage(), is(""));
     }
 
-    @Test
-    public void shouldThrowExceptionWhenBuildFileIsInvalid() throws Exception {
-        goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
-        when(goConfigDao.loadForEditing()).thenThrow(new RuntimeException("Invalid config file", new JDOMParseException("JDom exception", new RuntimeException())));
-
-        GoConfigService service = new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory);
-
-        try {
-            service.buildSaver("pipeline", "stage", 1).asXml();
-            fail("Invalid config file.");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Invalid config file"));
-        }
-    }
-
-    @Test
-    public void shouldReturnInvalidWhenTemplatesPartialIsInvalid() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.server().setArtifactsDir("/var/logs");
-        config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
-
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        String templateContent = "<templates>"
-                + "  <unknown/>"
-                + "<pipeline name='pipeline'>\n"
-                + "  <stage name='firstStage'>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>"
-                + "</pipeline>"
-                + "</templates>";
-        GoConfigValidity validity = goConfigService.templatesSaver().saveXml(templateContent, "md5");
-        assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
-    }
-
-    @Test
-    public void shouldClearExistingTemplateDefinitionWhenAnEmptyStringIsPosted() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.server().setArtifactsDir("/var/logs");
-        config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        String templateContent = "";
-        GoConfigValidity validity = goConfigService.templatesSaver().saveXml(templateContent, "md5");
-        assertThat(validity.errorMessage(), is(""));
-    }
-
-    @Test
-    public void shouldBombWithErrorMessageWhenNoPipelinesExistAndATemplateIsConfigured() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.server().setArtifactsDir("/var/logs");
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        String templateContent = "<templates>"
-                + "<pipeline name='pipeline'>\n"
-                + "  <stage name='firstStage'>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>"
-                + "</pipeline>"
-                + "</templates>";
-        GoConfigValidity validity = goConfigService.templatesSaver().saveXml(templateContent, "md5");
-        assertThat(validity.errorMessage(), is("There are no pipelines configured. Please add at least one pipeline in order to use templates."));
-    }
-
-    @Test
-    public void shouldPersistTheNewAndValidTemplateDefinition() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.server().setArtifactsDir("/var/logs");
-        config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
-
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        String templateContent = "<templates>"
-                + "<pipeline name='pipeline'>\n"
-                + "  <stage name='firstStage'>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>"
-                + "</pipeline>"
-                + "</templates>";
-        GoConfigValidity validity = goConfigService.templatesSaver().saveXml(templateContent, "md5");
-        assertThat(validity.errorMessage(), is(""));
-    }
-
-    @Test
-    public void shouldReturnInvalidWhenIndividualTemplatePartialIsInvalid() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        config.server().setArtifactsDir("/var/logs");
-        config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("templateName"), StageConfigMother.custom("stage", "job")));
-
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        String templateContent = "<pipeline name='pipeline'>\n"
-                + "  <unknown/>"
-                + "  <stage name='firstStage'>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>"
-                + "</pipeline>";
-        GoConfigValidity validity = goConfigService.templateSaver(0).saveXml(templateContent, "md5");
-        assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
-    }
-
     private CruiseConfig configWithPipeline() {
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "stage", "first");
         pipelineConfig.addMaterialConfig(MaterialConfigsMother.hgMaterialConfig());
         CruiseConfig config = configWith(pipelineConfig);
         config.server().setArtifactsDir("/var/logs");
         return config;
-    }
-
-    @Test
-    public void shouldReturnInvalidWhenJobPartialIsInvalid() throws Exception {
-        CruiseConfig config = configWithPipeline();
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        GoConfigValidity validity = goConfigService.buildSaver("pipeline", "stage", 0).saveXml("<job name='first'><unknown></unknown></job>", "md5");
-        assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
-    }
-
-    @Test
-    public void shouldReturnInvalidWhenPipelinePartialIsInvalid() throws Exception {
-        CruiseConfig config = configWithPipeline();
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        String pipelineContent = "<pipeline name='pipeline'>\n"
-                + "    <materials>\n"
-                + "         <svn url ='svnurl' dest='a'/>\n"
-                + "    </materials>\n"
-                + "  <stage name='firstStage'>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>"
-                + "  <unknown/>"
-                + "</pipeline>";
-        GoConfigValidity validity = goConfigService.pipelineSaver("defaultGroup", 0).saveXml(pipelineContent, "md5");
-        assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
-    }
-
-    @Test
-    public void shouldReturnInvalidWhenStagePartialIsInvalid() throws Exception {
-        CruiseConfig config = configWithPipeline();
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        String stageContent = "<stage name='firstStage'>"
-                + "  <unknown/>"
-                + "     <jobs>"
-                + "         <job name='jobName'/>"
-                + "      </jobs>"
-                + "  </stage>";
-        GoConfigValidity validity = goConfigService.stageSaver("pipeline", 0).saveXml(stageContent, "md5");
-        assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
     }
 
     @Test
@@ -487,28 +341,6 @@ public class GoConfigServiceTest {
                 + "<server artifactsdir='artifactsDir'/><unknown/></cruise>";
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
         assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
-    }
-
-    @Test
-    @Ignore("Deprecated usage. Will be removed soon")
-    public void shouldReturnValidWhenJobPartialIsValid() throws Exception {
-        CruiseConfig config = configWithPipeline();
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        GoConfigValidity validity = goConfigService.buildSaver("pipeline", "stage", 0).saveXml("<job name='first'></job>", "md5");
-        assertThat(validity.isValid(), is(true));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenSavingJobToPipelineWithTemplate() throws Exception {
-        PipelineConfig pipeline = pipelineWithTemplate();
-        when(goConfigDao.loadForEditing()).thenReturn(configWith(pipeline));
-
-        try {
-            goConfigService.buildSaver("pipeline", "stage", 0).asXml();
-            fail("shouldThrowExceptionWhenSavingJobToPipelineWithTemplate");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline 'pipeline' references template 'foo'. Cannot edit job."));
-        }
     }
 
     @Test
@@ -542,20 +374,6 @@ public class GoConfigServiceTest {
     }
 
 
-    @Test
-    public void shouldThrowExceptionWhenSavingStageToPipelineWithTemplate() throws Exception {
-        PipelineConfig pipeline = pipelineWithTemplate();
-        expectLoadForEditing(configWith(pipeline));
-
-        try {
-            goConfigService.stageSaver("pipeline", 0).asXml();
-            fail("shouldThrowExceptionWhenSavingStageToPipelineWithTemplate");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline 'pipeline' references template 'foo'. Cannot edit stage."));
-        }
-    }
-
-
     private PipelineConfig pipelineWithTemplate() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline");
         pipeline.clear();
@@ -563,40 +381,6 @@ public class GoConfigServiceTest {
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("foo"), StageConfigMother.custom("stage", "job"));
         pipeline.usingTemplate(template);
         return pipeline;
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenUnknownStage() throws Exception {
-        expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
-        try {
-            goConfigService.buildSaver("pipeline", "unknown", 1).asXml();
-            fail("Unknown stage");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Stage 'unknown' not found in pipeline 'pipeline'"));
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionIfUnknownPipeline() throws Exception {
-        expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
-        try {
-            goConfigService.stageSaver("unknown", 0).asXml();
-            fail("Unknown pipeline");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline 'unknown' not found."));
-        }
-    }
-
-
-    @Test
-    public void shouldThrowExceptionIfPipelineDoesNotExist() throws Exception {
-        expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
-        try {
-            goConfigService.pipelineSaver(DEFAULT_GROUP, 2).asXml();
-            fail("Unknown pipeline");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline does not exist."));
-        }
     }
 
     @Test
@@ -1321,31 +1105,6 @@ public class GoConfigServiceTest {
                 new HttpLocalizedOperationResult());
         assertThat(configUpdateResponse.wasMerged(), is(false));
         assertThat(configUpdateResponse.getCruiseConfig().getMd5(), is("old-md5"));
-    }
-
-    @Test
-    @Ignore("Deprecated usage. Will be removed soon")
-    public void shouldReturnConfigValidityWithMergedStateWhenConfigIsMerged() throws Exception {
-        CruiseConfig config = configWithPipeline();
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.MERGED);
-
-        GoConfigValidity goConfigValidity = goConfigService.buildSaver("pipeline", "stage", 0).saveXml("<job name='first'></job>", "md5");
-
-        assertThat(goConfigValidity.isValid(), is(true));
-        assertThat(goConfigValidity.wasMerged(), is(true));
-    }
-
-    @Test
-    public void shouldReturnConfigValidityWithUpdatedStateWhenConfigIsUpdated() throws Exception {
-        CruiseConfig config = configWithPipeline();
-        when(goConfigDao.loadForEditing()).thenReturn(config);
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.UPDATED);
-
-        GoConfigValidity goConfigValidity = goConfigService.buildSaver("pipeline", "stage", 0).saveXml("<job name='first'></job>", "md5");
-
-        assertThat(goConfigValidity.isValid(), is(true));
-        assertThat(goConfigValidity.wasMerged(), is(false));
     }
 
     @Test

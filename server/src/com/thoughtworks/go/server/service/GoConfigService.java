@@ -49,11 +49,9 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.jdom.input.JDOMParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +64,6 @@ import java.util.*;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.invalid;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static java.lang.String.format;
 
 @Service
@@ -135,7 +132,7 @@ public class GoConfigService implements Initializer {
         GoConfigHolder configHolder = getConfigHolder();
         configHolder = cloner.deepClone(configHolder);
         PipelineConfig config = configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        return new ConfigForEdit<PipelineConfig>(config, configHolder);
+        return new ConfigForEdit<>(config, configHolder);
     }
 
     private boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
@@ -159,10 +156,6 @@ public class GoConfigService implements Initializer {
             return false;
         }
         return true;
-    }
-
-    public GoMailSender mailSender() {
-        return GoSmtpMailSender.createSender(currentCruiseConfig().mailHost());
     }
 
     public Agents agents() {
@@ -194,10 +187,6 @@ public class GoConfigService implements Initializer {
 
     public AgentConfig agentByUuid(String uuid) {
         return agents().getAgentByUuid(uuid);
-    }
-
-    public boolean isPipelineEmpty() {
-        return getCurrentConfig().hasPipeline();
     }
 
     public StageConfig stageConfigNamed(String pipelineName, String stageName) {
@@ -264,7 +253,7 @@ public class GoConfigService implements Initializer {
         JobConfig jobConfig = null;
         try {
             jobConfig = cruiseConfig().findJob(identifier.getPipelineName(), identifier.getStageName(), identifier.getBuildName());
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return jobConfig;
     }
@@ -327,7 +316,7 @@ public class GoConfigService implements Initializer {
     }
 
     private CruiseConfig handleMergeException(String md5, UiBasedConfigUpdateCommand updateCommand) {
-        CruiseConfig updatedConfig = null;
+        CruiseConfig updatedConfig;
         try {
             updateCommand.update(clonedConfigForEdit());
             updatedConfig = updateCommand.cruiseConfig();
@@ -367,14 +356,10 @@ public class GoConfigService implements Initializer {
         return new ConfigUpdateResponse(config, node, subject, updateCommand, configSaveState);
     }
 
-    public void updateMailHost(MailHost mailHost) {
-        goConfigDao.updateMailHost(mailHost);
-    }
-
     public ConfigSaveState updateServerConfig(final MailHost mailHost, final LdapConfig ldapConfig, final PasswordFileConfig passwordFileConfig, final boolean shouldAllowAutoLogin,
                                               final String md5, final String artifactsDir, final Double purgeStart, final Double purgeUpto, final String jobTimeout,
                                               final String siteUrl, final String secureSiteUrl, final String taskRepositoryLocation) {
-        final List<ConfigSaveState> result = new ArrayList<ConfigSaveState>();
+        final List<ConfigSaveState> result = new ArrayList<>();
         result.add(updateConfig(
                 new GoConfigDao.NoOverwriteCompositeConfigCommand(md5,
                         goConfigDao.mailHostUpdater(mailHost),
@@ -420,10 +405,6 @@ public class GoConfigService implements Initializer {
         goConfigDao.addPipeline(pipeline, groupName);
     }
 
-    public void updateAgentResources(String uuid, Resources newResources) {
-        goConfigDao.updateAgentResources(uuid, newResources);
-    }
-
     public void updateAgentIpByUuid(String uuid, String ipAddress, String userName) {
         goConfigDao.updateAgentIp(uuid, ipAddress, userName);
     }
@@ -445,7 +426,7 @@ public class GoConfigService implements Initializer {
     }
 
     private List<CaseInsensitiveString> getAuthorizedUsers(AdminsConfig authorizedAdmins) {
-        ArrayList<CaseInsensitiveString> users = new ArrayList<CaseInsensitiveString>();
+        ArrayList<CaseInsensitiveString> users = new ArrayList<>();
         for (Admin admin : authorizedAdmins) {
             if (admin instanceof AdminRole) {
                 addRoleUsers(users, admin.getName());
@@ -470,7 +451,7 @@ public class GoConfigService implements Initializer {
     }
 
     public List<String> allGroups() {
-        List<String> allGroup = new ArrayList<String>();
+        List<String> allGroup = new ArrayList<>();
         getCurrentConfig().groups(allGroup);
         return allGroup;
     }
@@ -485,10 +466,6 @@ public class GoConfigService implements Initializer {
 
     public boolean isSmtpEnabled() {
         return currentCruiseConfig().isSmtpEnabled();
-    }
-
-    public boolean isInFirstGroup(String pipelineName) {
-        return currentCruiseConfig().isInFirstGroup(new CaseInsensitiveString(pipelineName));
     }
 
     public void accept(PiplineConfigVisitor visitor) {
@@ -725,7 +702,7 @@ public class GoConfigService implements Initializer {
     }
 
     public List<String> getResourceList() {
-        ArrayList<String> resources = new ArrayList<String>();
+        ArrayList<String> resources = new ArrayList<>();
         for (Resource res : getCurrentConfig().getAllResources()) {
             resources.add(res.getName());
         }
@@ -734,7 +711,7 @@ public class GoConfigService implements Initializer {
 
     public List<CaseInsensitiveString> pipelines(String group) {
         PipelineConfigs configs = getCurrentConfig().pipelines(group);
-        List<CaseInsensitiveString> pipelines = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> pipelines = new ArrayList<>();
         for (PipelineConfig config : configs) {
             pipelines.add(config.name());
         }
@@ -769,10 +746,6 @@ public class GoConfigService implements Initializer {
         return getCurrentConfig().hasPreviousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(lastStageName));
     }
 
-    public Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName) {
-        return getCurrentConfig().getDownstreamPipelines(pipelineName);
-    }
-
     public boolean isFirstStage(String pipelineName, String stageName) {
         boolean hasPreviousStage = getCurrentConfig().hasPreviousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
         return !hasPreviousStage;
@@ -780,11 +753,6 @@ public class GoConfigService implements Initializer {
 
     public boolean requiresApproval(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
         return getCurrentConfig().requiresApproval(pipelineName, stageName);
-    }
-
-    public boolean isFirstStageRequiresApproval(final CaseInsensitiveString pipelineName) {
-        StageConfig stageConfig = findFirstStageOfPipeline(pipelineName);
-        return requiresApproval(pipelineName, stageConfig.name());
     }
 
     public StageConfig findFirstStageOfPipeline(final CaseInsensitiveString pipelineName) {
@@ -799,10 +767,6 @@ public class GoConfigService implements Initializer {
         return getCurrentConfig().previousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(lastStageName));
     }
 
-    public boolean anonymousAccess() {
-        return serverConfig().anonymousAccess();
-    }
-
     public Tabs getCustomizedTabs(String pipelineName, String stageName, String buildName) {
         try {
             JobConfig plan = getCurrentConfig().jobConfigByName(pipelineName, stageName, buildName, false);
@@ -810,21 +774,6 @@ public class GoConfigService implements Initializer {
         } catch (Exception e) {
             return new Tabs();
         }
-    }
-
-    @Deprecated
-    public XmlPartialSaver buildSaver(String pipeline, String stage, int buildIndex) {
-        return new XmlPartialBuildSaver(pipeline, stage, buildIndex, registry);
-    }
-
-    @Deprecated
-    public XmlPartialSaver stageSaver(String pipelineName, int stageIndex) {
-        return new XmlPartialStageSaver(pipelineName, stageIndex);
-    }
-
-    @Deprecated
-    public XmlPartialSaver pipelineSaver(String groupName, int pipelineIndex) {
-        return new XmlPartialPipelineSaver(groupName, pipelineIndex, registry);
     }
 
     public XmlPartialSaver groupSaver(String groupName) {
@@ -840,7 +789,7 @@ public class GoConfigService implements Initializer {
     }
 
     public List<PipelineConfig> downstreamPipelinesOf(String pipelineName) {
-        List<PipelineConfig> dependencies = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> dependencies = new ArrayList<>();
         for (PipelineConfig config : getAllPipelineConfigs()) {
             if (config.dependsOn(new CaseInsensitiveString(pipelineName))) {
                 dependencies.add(config);
@@ -867,7 +816,7 @@ public class GoConfigService implements Initializer {
     }
 
     private PipelineConfigDependencyGraph findUpstream(PipelineConfig currentPipeline) {
-        List<PipelineConfigDependencyGraph> graphs = new ArrayList<PipelineConfigDependencyGraph>();
+        List<PipelineConfigDependencyGraph> graphs = new ArrayList<>();
         for (CaseInsensitiveString name : currentPipeline.upstreamPipelines()) {
             PipelineConfig pipelineConfig = getCurrentConfig().pipelineConfigByName(name);
             graphs.add(findUpstream(pipelineConfig));
@@ -905,7 +854,7 @@ public class GoConfigService implements Initializer {
     }
 
     private List<String> invertSelections(List<String> selectedPipelines) {
-        List<String> unselectedPipelines = new ArrayList<String>();
+        List<String> unselectedPipelines = new ArrayList<>();
         List<PipelineConfig> pipelineConfigList = cruiseConfig().getAllPipelineConfigs();
         for (PipelineConfig pipelineConfig : pipelineConfigList) {
             String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
@@ -1057,7 +1006,7 @@ public class GoConfigService implements Initializer {
             return null;
         }
         PipelineConfigs config = cloner.deepClone(configForEdit.configForEdit.findGroup(groupName));
-        return new ConfigForEdit<PipelineConfigs>(config, configForEdit);
+        return new ConfigForEdit<>(config, configForEdit);
     }
 
     public boolean doesMd5Match(String md5) {
@@ -1148,7 +1097,7 @@ public class GoConfigService implements Initializer {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, out, true);
             org.dom4j.Document document = reader.read(new StringReader(out.toString()));
-            Map<String, String> map = new HashMap<String, String>();
+            Map<String, String> map = new HashMap<>();
             map.put("go", MagicalGoConfigXmlWriter.XML_NS);
             //TODO: verify this doesn't cache the factory
             DocumentFactory factory = DocumentFactory.getInstance();
@@ -1209,92 +1158,6 @@ public class GoConfigService implements Initializer {
         }
     }
 
-    @Deprecated
-    private class XmlPartialStageSaver extends XmlPartialSaver<StageConfig> {
-        private final String pipeline;
-        private final int stageIndex;
-
-        public XmlPartialStageSaver(String pipeline, int stageIndex) {
-            super(registry);
-            this.pipeline = pipeline;
-            this.stageIndex = stageIndex;
-        }
-
-        protected StageConfig valid() {
-            CruiseConfig config = configForEditing();
-            PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipeline));
-            bombIf(pipelineConfig.hasTemplate(), String.format("Pipeline '%s' references template '%s'. Cannot edit stage.", pipeline, pipelineConfig.getTemplateName()));
-            bombIf(pipelineConfig.size() <= stageIndex, "Stage does not exist.");
-            return pipelineConfig.get(stageIndex);
-        }
-
-        @Override
-        protected String getXpath() {
-            return String.format("/cruise/pipelines/pipeline[@name='%s']/stage[%s]", pipeline, stageIndex + 1);
-        }
-    }
-
-    @Deprecated
-    private class XmlPartialBuildSaver extends XmlPartialSaver<JobConfig> {
-        private final String pipeline;
-        private final String stage;
-        private final int buildIndex;
-
-        public XmlPartialBuildSaver(String pipeline, String stage, int buildIndex, final ConfigElementImplementationRegistry registry) {
-            super(registry);
-            this.pipeline = pipeline;
-            this.stage = stage;
-            this.buildIndex = buildIndex;
-        }
-
-        protected JobConfig valid() {
-            CruiseConfig config = configForEditing();
-            PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipeline));
-            bombIf(pipelineConfig.hasTemplate(), String.format("Pipeline '%s' references template '%s'. Cannot edit job.", pipeline, pipelineConfig.getTemplateName()));
-            JobConfigs jobConfigs = config.stageConfigByName(new CaseInsensitiveString(pipeline), new CaseInsensitiveString(stage)).allBuildPlans();
-            bombIf(jobConfigs.size() <= buildIndex, "Build does not exist.");
-            return jobConfigs.get(buildIndex);
-        }
-
-        @Override
-        protected String getXpath() {
-            return String.format("/cruise/pipelines/pipeline[@name='%s']//stage[@name='%s']//job[%s]", pipeline, stage, buildIndex + 1);
-        }
-    }
-
-    @Deprecated
-    private class XmlPartialPipelineSaver extends XmlPartialSaver<PipelineConfig> {
-        private final int pipelineIndex;
-        private final String groupName;
-
-        public XmlPartialPipelineSaver(String groupName, int pipelineIndex, final ConfigElementImplementationRegistry registry) {
-            super(registry);
-            this.groupName = groupName;
-            this.pipelineIndex = pipelineIndex;
-        }
-
-        protected PipelineConfig valid() {
-            CruiseConfig config = configForEditing();
-            bombIf(!config.exist(pipelineIndex), "Pipeline does not exist.");
-            PipelineConfig originalConfig = config.find(groupName, pipelineIndex);
-            return originalConfig.getCopyForEditing();
-        }
-
-        @Override
-        protected String getXpath() {
-            return String.format("/cruise/pipelines[@group='%s']/pipeline[%s]", groupName, pipelineIndex + 1);
-        }
-
-    }
-
-    @Deprecated
-    public XmlPartialSaver templateSaver(int pipelineIndex) {
-        return new XmlPartialTemplateSaver(pipelineIndex);
-    }
-
-    public XmlPartialSaver templatesSaver() {
-        return new XmlPartialTemplatesSaver();
-    }
 
     private class XmlPartialFileSaver extends XmlPartialSaver<CruiseConfig> {
         private final boolean shouldUpgrade;
@@ -1331,79 +1194,6 @@ public class GoConfigService implements Initializer {
             return outStream.toString();
         } catch (Exception e) {
             throw bomb(e);
-        }
-    }
-
-    @Deprecated
-    private class XmlPartialTemplateSaver extends XmlPartialSaver<PipelineTemplateConfig> {
-        private final int pipelineIndex;
-
-        public XmlPartialTemplateSaver(int pipelineIndex) {
-            super(registry);
-            this.pipelineIndex = pipelineIndex;
-        }
-
-        @Override
-        protected PipelineTemplateConfig valid() {
-            CruiseConfig config = configForEditing();
-            TemplatesConfig templates = config.getTemplates();
-            bombIf(templates.size() <= pipelineIndex, "Template does not exist.");
-            PipelineTemplateConfig templateConfig = templates.get(pipelineIndex);
-            return templateConfig;
-        }
-
-        @Override
-        protected String getXpath() {
-            return String.format("/cruise/templates/pipeline[%s]", pipelineIndex + 1);
-        }
-    }
-
-    private class XmlPartialTemplatesSaver extends XmlPartialSaver<TemplatesConfig> {
-
-        private XmlPartialTemplatesSaver() {
-            super(registry);
-        }
-
-        protected TemplatesConfig valid() {
-            CruiseConfig config = configForEditing();
-            return config.getTemplates();
-        }
-
-        @Override
-        protected ConfigSaveState updatePartial(String xmlPartial, String md5) throws Exception {
-            org.dom4j.Document document = documentRoot();
-            Element root = document.getRootElement();
-            Element oldTemplatesDefinition = ((Element) root.selectSingleNode("//cruise/templates"));
-            List nodesUnderRoot = root.content();
-            if (StringUtils.isBlank(xmlPartial) && oldTemplatesDefinition != null) {
-                root.remove(oldTemplatesDefinition);
-            } else {
-                Element newTemplatesDefinition = reader.read(new StringReader(xmlPartial)).getRootElement();
-                if (oldTemplatesDefinition == null) {
-                    List<Node> pipelinesNodes = root.selectNodes("//cruise/pipelines");
-                    bombIf(pipelinesNodes.size() == 0, "There are no pipelines configured. Please add at least one pipeline in order to use templates.");
-                    Node lastPipeline = pipelinesNodes.get(pipelinesNodes.size() - 1);
-                    int index = root.indexOf(lastPipeline);
-                    nodesUnderRoot.add(index + 1, newTemplatesDefinition);
-                } else {
-                    int index = nodesUnderRoot.indexOf(oldTemplatesDefinition);
-                    nodesUnderRoot.set(index, newTemplatesDefinition);
-                }
-            }
-            return saveConfig(document.asXML(), md5);
-        }
-
-        @Override
-        protected String getXpath() {
-            return "//cruise/templates";
-        }
-
-        private void addTemplatesPlaceHolderTo(CruiseConfig cruiseConfig) {
-            TemplatesConfig templates = new TemplatesConfig();
-            JobConfigs jobConfigs = new JobConfigs();
-            jobConfigs.add(new JobConfig(new CaseInsensitiveString("tempJob"), new Resources(), new ArtifactPlans()));
-            templates.add(new PipelineTemplateConfig(new CaseInsensitiveString("tempPipeline"), new StageConfig(new CaseInsensitiveString("tempStage"), jobConfigs)));
-            cruiseConfig.setTemplates(templates);
         }
     }
 

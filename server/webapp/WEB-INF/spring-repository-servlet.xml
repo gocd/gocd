@@ -27,9 +27,7 @@
     <import resource="velocity-config.xml"/>
 
     <context:component-scan base-package="com.thoughtworks.go.util"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.controller">
-        <context:exclude-filter type="regex" expression=".*TabController"/>
-    </context:component-scan>
+    <context:component-scan base-package="com.thoughtworks.go.server.controller"/>
     <context:component-scan base-package="com.thoughtworks.go.server.web"/>
     <context:component-scan base-package="com.thoughtworks.go.server.ui"/>
 

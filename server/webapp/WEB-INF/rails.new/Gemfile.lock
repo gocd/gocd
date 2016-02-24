@@ -10,6 +10,7 @@ PATH
   specs:
     oauth2_provider (1.0.3)
       rails (~> 4.0.4)
+      validatable (>= 1.6.0)
 
 GEM
   remote: https://rubygems.org/

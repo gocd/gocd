@@ -35,7 +35,7 @@ module ApiV1
       end
 
       link :find do |opts|
-        opts[:url_builder].apiv1_admin_pipeline_url(name: ':name')
+        opts[:url_builder].apiv1_admin_pipeline_url(name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
       end
 
       property :label_template

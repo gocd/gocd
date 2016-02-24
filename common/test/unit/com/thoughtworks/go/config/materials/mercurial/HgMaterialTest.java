@@ -16,15 +16,13 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
-import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -118,11 +116,15 @@ public class HgMaterialTest {
         File testFile = createNewFileInWorkingFolder();
 
         hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        updateMaterial(hgMaterial, new StringRevision("0"));
 
         String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
         assertThat(testFile.exists(), is(true));
+    }
+
+    private void updateMaterial(HgMaterial hgMaterial, StringRevision revision) {
+        hgMaterial.updateTo(outputStreamConsumer, workingFolder, new RevisionContext(revision), new TestSubprocessExecutionContext());
     }
 
     @Test
@@ -180,26 +182,25 @@ public class HgMaterialTest {
 
     @Test
     public void shouldUpdateToSpecificRevision() throws Exception {
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        updateMaterial(hgMaterial, new StringRevision("0"));
         File end2endFolder = new File(workingFolder, "end2end");
         assertThat(end2endFolder.listFiles().length, is(3));
         assertThat(outputStreamConsumer.getStdOut(), is(not("")));
-
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("1"), workingFolder, new TestSubprocessExecutionContext());
+        updateMaterial(hgMaterial, new StringRevision("1"));
         assertThat(end2endFolder.listFiles().length, is(4));
     }
 
     @Test
     public void shouldUpdateToDestinationFolder() throws Exception {
         hgMaterial.setFolder("dest");
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        updateMaterial(hgMaterial, new StringRevision("0"));
         File end2endFolder = new File(workingFolder, "dest/end2end");
         assertThat(end2endFolder.exists(), is(true));
     }
 
     @Test
     public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
-        hgMaterial.updateTo(outputStreamConsumer, new StringRevision("0"), workingFolder, new TestSubprocessExecutionContext());
+        updateMaterial(hgMaterial, new StringRevision("0"));
         assertThat(outputStreamConsumer.getStdOut(), containsString(
                 format("Start updating %s at revision %s from %s", "files", "0",
                         hgMaterial.getUrl())));

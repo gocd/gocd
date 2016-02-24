@@ -16,13 +16,6 @@
 
 package com.thoughtworks.go.config.materials.tfs;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.config.PasswordEncrypter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -36,13 +29,19 @@ import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -86,13 +85,6 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     public MaterialConfig config() {
         return new TfsMaterialConfig(url, userName, domain, getPassword(), projectPath, goCipher, autoUpdate, filter, folder, name);
     }
-
-    @Override
-    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
-        this.updateTo(output,revision,baseDir,execCtx);
-    }
-
 
     public String getDomain() {
         return domain;
@@ -153,7 +145,8 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         appendCriteria(parameters);
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+        Revision revision = revisionContext.getLatestRevision();
         File workingDir = workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[TFS] Updating to revision: " + revision + " in workingdirectory " + workingDir);

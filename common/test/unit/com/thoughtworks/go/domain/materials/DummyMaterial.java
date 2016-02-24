@@ -78,7 +78,7 @@ public final class DummyMaterial extends ScmMaterial {
         throw new UnsupportedOperationException();
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         throw unsupported();
     }
 

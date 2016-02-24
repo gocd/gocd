@@ -23,12 +23,11 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import java.util.LinkedHashMap;
+
 import java.util.Map;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Map;
 
 public interface Material extends Serializable {
 
@@ -45,7 +44,7 @@ public interface Material extends Serializable {
     //scm.findModificationsSince(revision)
     //scm.findRecentModifications(5)
 
-    void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, final SubprocessExecutionContext execCtx);
+    void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx);
 
     void toJson(Map jsonMap, Revision revision);
 
@@ -101,5 +100,11 @@ public interface Material extends Serializable {
 
     MaterialConfig config();
 
-    public Map<String, Object> getAttributes(boolean addSecureFields);
+    Map<String, Object> getAttributes(boolean addSecureFields);
+
+    // updateFromConfig is called during BuildWork creation upon a Material loaded from database. Material implementations
+    // should use this method fill in configure attributes that are not persisted in database, such as SVN password.
+    // Material implementations can safely assume correct MaterialConfig subtype is passed in. E.g For a SVNMaterial
+    // materialConfig will be SVNMaterialConfig
+    void updateFromConfig(MaterialConfig materialConfig);
 }

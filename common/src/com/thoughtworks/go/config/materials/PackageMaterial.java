@@ -117,7 +117,7 @@ public class PackageMaterial extends AbstractMaterial {
     }
 
     @Override
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, SubprocessExecutionContext execCtx) {
+    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, SubprocessExecutionContext execCtx) {
         //do nothing
     }
 

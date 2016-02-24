@@ -60,9 +60,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-
-      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'))
-      dup_git_material =GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'))
+      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), true)
+      dup_git_material =GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), true)
       material_configs = MaterialConfigs.new(git_config);
       material_configs.add(dup_git_material)
 

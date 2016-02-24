@@ -53,7 +53,18 @@ public class GitCommand extends SCMCommand {
     }
 
     public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
-        CommandLine gitClone = git().withArg("clone").withArg(String.format("--branch=%s", branch)).withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+        return cloneFrom(outputStreamConsumer, url, Integer.MAX_VALUE);
+    }
+
+    // Clone repository from url with specified depth.
+    // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
+    public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
+        CommandLine gitClone = git().withArg("clone").withArg(String.format("--branch=%s", branch));
+        if(depth < Integer.MAX_VALUE) {
+            gitClone.withArg(String.format("--depth=%s", depth));
+        }
+        gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+
         return run(gitClone, outputStreamConsumer);
     }
 
@@ -277,6 +288,23 @@ public class GitCommand extends SCMCommand {
         }
     }
 
+    // Unshallow a shallow cloned repository with "git fetch --depth n".
+    // Special depth 2147483647 (Integer.MAX_VALUE) are treated as infinite -- fully unshallow
+    // https://git-scm.com/docs/git-fetch-pack
+    public void unshallow(ProcessOutputStreamConsumer outputStreamConsumer, Integer depth) {
+        outputStreamConsumer.stdOutput(String.format("[GIT] Unshallowing repository with depth %d", depth));
+        CommandLine gitFetch = git()
+                .withArgs("fetch", "origin")
+                .withArg(String.format("--depth=%d", depth))
+                .withWorkingDir(workingDir);
+
+        int result = run(gitFetch, outputStreamConsumer);
+        if (result != 0) {
+            throw new RuntimeException(String.format("Unshallow repository failed for [%s]", this.workingRepositoryUrl()));
+        }
+    }
+
+
     private int gc(ProcessOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Performing git gc");
         CommandLine gitGc = git().withArgs("gc", "--auto").withWorkingDir(workingDir);
@@ -384,4 +412,19 @@ public class GitCommand extends SCMCommand {
         CommandLine foreachCmd = git().withArgs(foreachArgs).withWorkingDir(workingDir);
         runOrBomb(foreachCmd);
     }
+
+    public boolean isShallow() {
+        return new File(workingDir, ".git/shallow").exists();
+    }
+
+    public boolean hasRevision(Revision revision) {
+        CommandLine cmd = git().withArg("cat-file").withArg("-t").withArg(revision.getRevision()).withWorkingDir(workingDir);
+        try {
+            ConsoleResult consoleResult = runOrBomb(cmd);
+            return "commit".equals(consoleResult.outputAsString());
+        } catch (CommandLineException e) {
+            return false;
+        }
+    }
+
 }

@@ -59,8 +59,6 @@
                     {/if}
                 {/if}
             </span>
-                   ##        ${% data.pipelineName %}
-
         </div>
 
     </div>

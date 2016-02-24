@@ -20,6 +20,8 @@
 #set($current_tab='build')
 ## page level variable
 #set($_hide_collapse-sidebar-button = true)
+#set($pipelineName=$esc.javascript($pipelineName))
+
 #set($_page_title="$pipelineName")
 #parse("shared/_header.vm")
 
@@ -40,8 +42,6 @@
     <div class="yui-b">
         <!-- breadcrumbs -->
         #set($current_page="pipeline_history")
-        #set($pipelineName=$pipelineName)
-##        #parse("shared/_breadcrumbs.vm")
         <!-- /breadcrumbs -->
 
         #parse("shared/_page_intro_top.vm")

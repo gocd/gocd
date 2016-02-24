@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
@@ -73,11 +74,17 @@ public class PipelineHistoryController {
     }
 
     @RequestMapping(value = "/tab/pipeline/history", method = RequestMethod.GET)
-    public ModelAndView list(@RequestParam("pipelineName")String pipelineName) throws Exception {
+    public ModelAndView list(@RequestParam("pipelineName") String pipelineName) throws Exception {
         Map model = new HashMap();
-        model.put("pipelineName", pipelineName);
-        model.put("l", localizer);
-        return new ModelAndView("pipeline/pipeline_history", model);
+        try {
+            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+            model.put("pipelineName", pipelineConfig.name());
+            model.put("l", localizer);
+            return new ModelAndView("pipeline/pipeline_history", model);
+        } catch (PipelineNotFoundException e) {
+            model.put("errorMessage", e.getMessage());
+            return new ModelAndView("exceptions_page", model);
+        }
     }
 
     @RequestMapping(value = "/**/pipelineHistory.json", method = RequestMethod.GET)

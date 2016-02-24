@@ -37,6 +37,7 @@ public class DefaultJobPlan implements JobPlan {
     private String agentUuid;
     private EnvironmentVariablesConfig variables;
     private EnvironmentVariablesConfig triggerVariables;
+    private JobAgentConfig jobAgentConfig;
     private boolean fetchMaterials = StageConfig.DEFAULT_FETCH_MATERIALS;
     private boolean cleanWorkingDir = StageConfig.DEFAULT_CLEAN_WORKING_DIR;
 
@@ -47,13 +48,7 @@ public class DefaultJobPlan implements JobPlan {
 
     public DefaultJobPlan(Resources resources, ArtifactPlans plans,
                           ArtifactPropertiesGenerators generators, long jobId,
-                          JobIdentifier identifier) {
-        this(resources, plans, generators, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig());
-    }
-
-    public DefaultJobPlan(Resources resources, ArtifactPlans plans,
-                          ArtifactPropertiesGenerators generators, long jobId,
-                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables, EnvironmentVariablesConfig triggerTimeVariables) {
+                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables, EnvironmentVariablesConfig triggerTimeVariables, JobAgentConfig jobAgentConfig) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
@@ -62,6 +57,7 @@ public class DefaultJobPlan implements JobPlan {
         this.agentUuid = agentUuid;
         this.variables = variables;
         this.triggerVariables = triggerTimeVariables;
+        this.jobAgentConfig = jobAgentConfig;
     }
 
     public String getPipelineName() {
@@ -256,5 +252,18 @@ public class DefaultJobPlan implements JobPlan {
 
     public boolean shouldCleanWorkingDir() {
         return cleanWorkingDir;
+    }
+
+    public JobAgentConfig getJobAgentConfig() {
+        return jobAgentConfig;
+    }
+
+    @Override
+    public boolean requiresElasticAgent() {
+        return jobAgentConfig != null;
+    }
+
+    public void setJobAgentConfig(JobAgentConfig jobAgentConfig) {
+        this.jobAgentConfig = jobAgentConfig;
     }
 }

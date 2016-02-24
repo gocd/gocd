@@ -100,8 +100,7 @@ public class CreateAgentQueueHandler implements PluginChangeListener {
         }
     }
 
-    public void post(CreateAgentMessage createAgentMessage) {
-        String pluginId = createAgentMessage.getPluginId();
+    public void post(String pluginId, CreateAgentMessage createAgentMessage) {
         queues.get(pluginId).post(createAgentMessage);
     }
 

@@ -107,7 +107,9 @@ public class ElasticAgentPluginService implements JobStatusListener {
         for (JobPlan plan : plans) {
             List<String> resources = new Resources(plan.getResources()).resourceNames();
             String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-            createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), resources, environment));
+            if (plan.requiresElasticAgent()){
+                createAgentQueue.post(plan.getJobAgentConfig().getPluginId(), new CreateAgentMessage(serverConfigService.getAutoregisterKey(), resources, environment));
+            }
         }
     }
 

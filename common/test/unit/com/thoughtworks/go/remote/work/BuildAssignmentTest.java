@@ -19,6 +19,7 @@ package com.thoughtworks.go.remote.work;
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -108,6 +109,6 @@ public class BuildAssignmentTest {
 
     private DefaultJobPlan jobForPipeline(String pipelineName) {
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, 1, "1", "defaultStage", "1", "job1", 100L);
-        return new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier);
+        return new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), 1L, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
     }
 }

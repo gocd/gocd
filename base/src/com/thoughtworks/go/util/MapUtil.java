@@ -36,4 +36,14 @@ public class MapUtil {
         }
         return result;
     }
+
+    public static <T, V, O> Collection<O> collect(Map<T, V> input, ListUtil.Transformer<Map.Entry<T, V>, O> transformer) {
+        ArrayList<O> result = new ArrayList<>();
+
+        for (Map.Entry<T, V> entry : input.entrySet()) {
+            result.add(transformer.transform(entry));
+        }
+
+        return result;
+    }
 }

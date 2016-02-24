@@ -21,6 +21,8 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.util.StringUtil;
 
+import java.util.Collection;
+
 import static java.lang.String.format;
 
 @ConfigTag("agentConfig")
@@ -40,6 +42,10 @@ public class JobAgentConfig extends Configuration implements Validatable {
     JobAgentConfig(String pluginId, ConfigurationProperty... configurationProperties) {
         super(configurationProperties);
         this.pluginId = pluginId;
+    }
+
+    public JobAgentConfig(String pluginId, Collection<ConfigurationProperty> configProperties) {
+        this(pluginId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
     @Override
@@ -67,5 +73,26 @@ public class JobAgentConfig extends Configuration implements Validatable {
 
     public String getPluginId() {
         return pluginId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        JobAgentConfig that = (JobAgentConfig) o;
+
+        if (errors != null ? !errors.equals(that.errors) : that.errors != null) return false;
+        return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (errors != null ? errors.hashCode() : 0);
+        result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
+        return result;
     }
 }

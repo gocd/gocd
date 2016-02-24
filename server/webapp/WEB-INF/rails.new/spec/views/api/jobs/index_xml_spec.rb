@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 require 'spec_helper'
 
@@ -44,7 +44,7 @@ describe "/api/jobs" do
     @artifacts_url_reader.stub(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
 
     @job_plan_loader = double("job_plan_loader")
-    @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables))
+    @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil))
 
     @context = XmlWriterContext.new("http://test.host", @job_properties_reader, @artifacts_url_reader, @job_plan_loader, nil)
     assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
@@ -132,7 +132,7 @@ describe "/api/jobs" do
       @job_properties_reader.stub(:getPropertiesForJob).with(1).and_return(properties)
       @artifacts_url_reader.stub(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
       @artifacts_url_reader.stub(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
-      @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables))
+      @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables, nil))
 
       assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
     end

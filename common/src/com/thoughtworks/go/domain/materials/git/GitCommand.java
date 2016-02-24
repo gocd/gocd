@@ -59,7 +59,11 @@ public class GitCommand extends SCMCommand {
     // Clone repository from url with specified depth.
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
     public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
-        CommandLine gitClone = git().withArg("clone").withArg(String.format("--branch=%s", branch));
+        CommandLine gitClone = git()
+                .withArg("clone")
+                .withArg(String.format("--branch=%s", branch))
+                .withArg("--no-checkout");
+
         if(depth < Integer.MAX_VALUE) {
             gitClone.withArg(String.format("--depth=%s", depth));
         }

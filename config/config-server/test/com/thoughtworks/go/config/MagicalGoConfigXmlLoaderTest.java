@@ -1176,7 +1176,31 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <svn url=\"/hgrepo2\" dest=\"../../..\" />\n"
                         + "  </materials>\n";
         MagicalGoConfigXmlLoaderFixture.assertNotValid(
-                "File path is invalid. \"../../..\" should conform to the pattern - ([^. ].+[^. ])|([^. ][^. ])|([^. ])", materials2);
+                "File path is invalid. \"../../..\" should conform to the pattern - (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])", materials2);
+    }
+
+    @Test
+    public void shouldAllowPathStartWithDotSlash() throws Exception {
+        String materials =
+                "  <materials>\n"
+                        + "    <svn url=\"/hgrepo2\" dest=\"./folder3\" />\n"
+                        + "  </materials>\n";
+        MagicalGoConfigXmlLoaderFixture.assertValid(materials);
+    }
+
+    @Test
+    public void shouldAllowHiddenFolders() throws Exception {
+        String materials =
+                "  <materials>\n"
+                        + "    <svn url=\"/hgrepo2\" dest=\".folder3\" />\n"
+                        + "  </materials>\n";
+        MagicalGoConfigXmlLoaderFixture.assertValid(materials);
+
+        materials =
+                "  <materials>\n"
+                        + "    <svn url=\"/hgrepo2\" dest=\"./.folder3\" />\n"
+                        + "  </materials>\n";
+        MagicalGoConfigXmlLoaderFixture.assertValid(materials);
     }
 
     @Test

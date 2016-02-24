@@ -20,6 +20,7 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.jmock.Expectations;
@@ -139,7 +140,7 @@ public class ArtifactPlanTest {
    public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
         ArtifactPlan artifactPlan = new ArtifactPlan("foo/bar", "..");
         artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Invalid destination path. Destination path should match the pattern ([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
+        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
     }
 
     @Test

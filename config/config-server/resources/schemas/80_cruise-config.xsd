@@ -76,7 +76,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="81"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="80"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -828,7 +828,7 @@
     </xsd:element>
     <xsd:simpleType name="filePathType">
         <xsd:restriction base="xsd:string" xml:space="default">
-            <xsd:pattern value="(([.]\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"/>
+            <xsd:pattern value="([^. ].+[^. ])|([^. ][^. ])|([^. ])"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:complexType name="timerType">

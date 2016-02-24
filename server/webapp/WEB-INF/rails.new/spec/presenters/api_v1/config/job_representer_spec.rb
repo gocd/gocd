@@ -310,7 +310,7 @@ describe ApiV1::Config::JobRepresenter do
                                {
                                  errors:      {
                                    source:      ["Job 'null' has an artifact with an empty source"],
-                                   destination: ["Invalid destination path. Destination path should match the pattern ([^. ].+[^. ])|([^. ][^. ])|([^. ])"]
+                                   destination: ["Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"]
                                  },
                                  source:      nil,
                                  destination: "../foo",

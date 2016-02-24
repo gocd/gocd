@@ -61,7 +61,7 @@ describe ApiV1::Config::ArtifactRepresenter do
   def test_artifact_with_errors
     {source: nil, destination: '../foo', type: 'test',
      errors: {
-       destination: ['Invalid destination path. Destination path should match the pattern ([^. ].+[^. ])|([^. ][^. ])|([^. ])'],
+       destination: ['Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])'],
        source:      ["Job 'null' has an artifact with an empty source"]
      }
     }

@@ -62,7 +62,6 @@
     <bean id="tokenInterceptor" class="com.thoughtworks.go.server.web.TokenInterceptor" autowire="autodetect"/>
     <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
 
-    <import resource="tabs/admin-tab.xml"/>
     <import resource="tabs/mycruise-tab.xml"/>
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>

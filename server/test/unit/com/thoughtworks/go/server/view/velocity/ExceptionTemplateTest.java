@@ -27,8 +27,8 @@ public class ExceptionTemplateTest {
     public static final String TEMPLATE_PATH = "/WEB-INF/vm/exceptions_page.vm";
 
     @Test
-    public void shouldHaveErrorMessageInOutputOfTemplate() throws Exception {
-        HashMap<String, Object> data = new HashMap<String, Object>();
+    public void shouldHaveErrorMessageAlongWithCustomMessageInOutputOfTemplate() throws Exception {
+        HashMap<String, Object> data = new HashMap<>();
         data.put("errorMessage", "ERROR MESSAGE");
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
@@ -36,21 +36,18 @@ public class ExceptionTemplateTest {
         view.setupAdditionalFakeTemplate("shared/_flash_message.vm", "flash_message_template_content");
 
         String output = view.render();
-
-        assertThat(output, containsString("$('trans_content').update(\"Sorry, an unexpected error occurred. :( Please check the server logs for more information.\");"));
+        assertThat(output, containsString("$('trans_content').update(\"Sorry, an unexpected error occurred [ERROR MESSAGE]. :( Please check the server logs for more information.\");"));
     }
 
     @Test
-    public void shouldHaveErrorMessageAsACommentInOutputOfTemplate() throws Exception {
-        HashMap<String, Object> data = new HashMap<String, Object>();
-        data.put("errorMessage", "ERROR MESSAGE");
+    public void shouldHaveTheGenericMessageInOutputOfTemplateWhenCustomErrorMessageIsNotProvided() throws Exception {
+        HashMap<String, Object> data = new HashMap<>();
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
         view.setupAdditionalFakeTemplate("shared/_header.vm", "header_template_content");
         view.setupAdditionalFakeTemplate("shared/_flash_message.vm", "flash_message_template_content");
 
         String output = view.render();
-
-        assertThat(output, containsString("<!-- ERROR MESSAGE -->"));
+        assertThat(output, containsString("$('trans_content').update(\"Sorry, an unexpected error occurred. :( Please check the server logs for more information.\");"));
     }
 }

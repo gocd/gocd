@@ -19,6 +19,8 @@ package com.thoughtworks.go.plugin.api.task;
 import java.io.InputStream;
 import java.util.Map;
 
+@Deprecated
+//Will be moved to internal scope
 public class JobConsoleLogger {
     protected static TaskExecutionContext context;
 

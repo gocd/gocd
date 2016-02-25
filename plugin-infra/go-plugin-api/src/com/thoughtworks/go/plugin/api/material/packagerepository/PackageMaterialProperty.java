@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.api.material.packagerepository;
 
 import com.thoughtworks.go.plugin.api.config.Property;
 
+@Deprecated
+//Will be moved to internal scope
 public class PackageMaterialProperty extends Property implements Comparable {
     public PackageMaterialProperty(String key) {
         super(key);

@@ -23,6 +23,8 @@ package com.thoughtworks.go.plugin.api.material.packagerepository.exceptions;
  * @author Go Team
  * @see com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision#addData(String, String)
  */
+@Deprecated
+//Will be moved to internal scope
 public class InvalidPackageRevisionDataException extends RuntimeException {
     public InvalidPackageRevisionDataException(String message) {
         super(message);

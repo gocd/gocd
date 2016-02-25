@@ -21,6 +21,8 @@ import com.thoughtworks.go.plugin.api.response.Result;
 /**
  * Used to specify the result of an execution of a part of a plugin.
  */
+@Deprecated
+//Will be moved to internal scope
 public class ExecutionResult extends Result {
 
     /**

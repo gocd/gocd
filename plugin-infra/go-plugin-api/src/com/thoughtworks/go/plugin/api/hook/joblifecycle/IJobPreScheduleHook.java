@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.api.hook.joblifecycle;
 import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 
 @GoPluginApiMarker
+@Deprecated
 public interface IJobPreScheduleHook {
     public ResponseContext call(JobContext context);
 }

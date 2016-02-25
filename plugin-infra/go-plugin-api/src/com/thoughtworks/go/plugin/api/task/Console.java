@@ -22,6 +22,8 @@ import java.util.Map;
 /**
  * Used to write information of a task run, out to the build log.
  */
+@Deprecated
+//Will be moved to internal scope
 public interface Console {
     /**
      * Print a line out to the build log.

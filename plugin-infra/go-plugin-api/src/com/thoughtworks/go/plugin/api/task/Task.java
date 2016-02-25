@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
  * Task interface is the starting point for the task plugin.
  */
 @GoPluginApiMarker
+@Deprecated
 public interface Task {
     /**
      * Specifies the configuration accepted and expected for the task. It has a list of configuration

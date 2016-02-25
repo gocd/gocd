@@ -21,6 +21,8 @@ import java.util.Map;
 /**
  * Environment variables for the task.
  */
+@Deprecated
+//Will be moved to internal scope
 public interface EnvironmentVariables {
     /**
      * @return A map (key-value pairs) of the environment variables.

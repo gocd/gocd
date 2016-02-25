@@ -25,6 +25,8 @@ import com.thoughtworks.go.plugin.api.config.Property;
 /**
  * Represents {@link com.thoughtworks.go.plugin.api.config.Configuration} specific to package
  */
+@Deprecated
+//Will be moved to internal scope
 public class PackageConfiguration extends Configuration {
 
     @Override

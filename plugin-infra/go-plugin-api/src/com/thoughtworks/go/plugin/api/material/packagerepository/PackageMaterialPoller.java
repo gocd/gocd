@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.api.response.Result;
 /**
  * PackageMaterialPoller encapsulates all methods which are required to communicate with package repository.
  */
+@Deprecated
 public interface PackageMaterialPoller {
 
     /**

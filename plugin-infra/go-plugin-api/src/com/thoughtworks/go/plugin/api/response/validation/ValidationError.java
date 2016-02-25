@@ -20,6 +20,8 @@ package com.thoughtworks.go.plugin.api.response.validation;
 /**
  * Represents error reported when validation fails
  */
+@Deprecated
+//Will be moved to internal scope
 public class ValidationError {
 
     private static final String EMPTY_KEY = "";

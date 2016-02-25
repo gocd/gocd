@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 /**
  * PackageMaterialConfiguration encapsulates all the methods which will be used to capture the configurations related to the package and the repository.
  */
+@Deprecated
 public interface PackageMaterialConfiguration {
 
     /**

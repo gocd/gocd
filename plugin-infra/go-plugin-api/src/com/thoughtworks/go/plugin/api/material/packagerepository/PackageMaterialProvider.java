@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
  * which are two essential parts of package repository as material plugin
  */
 @GoPluginApiMarker
+@Deprecated
 public interface PackageMaterialProvider {
     /**
      * Gets an instance of PackageMaterialConfiguration which provides configuration for package repository as material.

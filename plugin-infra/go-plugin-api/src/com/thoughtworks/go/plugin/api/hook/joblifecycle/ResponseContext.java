@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.api.hook.joblifecycle;
 
+@Deprecated
 public class ResponseContext {
 
     private final ResponseCode responseCode;

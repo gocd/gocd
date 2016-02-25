@@ -22,6 +22,8 @@ import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
  * The implementation of this TaskExecutor interface will be the one which does the actual work of the task.
  *
  */
+@Deprecated
+//Will be moved to internal scope
 public interface TaskExecutor {
     /**
      * The plugin infrastructure will call the execute() method, on the agent side, when the task needs to be run.

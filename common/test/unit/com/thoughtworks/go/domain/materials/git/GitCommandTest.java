@@ -268,7 +268,7 @@ public class GitCommandTest {
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitWithSubmodule.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
-
+        gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         List<String> folders = gitWithSubmodule.submoduleFolders();
         assertThat(folders.size(), is(1));
@@ -299,7 +299,7 @@ public class GitCommandTest {
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitWithSubmodule.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
-
+        gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         List<String> folders = gitWithSubmodule.submoduleFolders();
         assertThat(folders.size(), is(1));
@@ -313,6 +313,7 @@ public class GitCommandTest {
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitWithSubmodule.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
 
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         Map<String, String> urls = gitWithSubmodule.submoduleUrls();

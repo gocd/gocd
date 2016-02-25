@@ -105,6 +105,8 @@ public class GitTestRepo extends TestRepo {
 
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
+
+        git.fetchAndResetToHead(outputStreamConsumer);
     }
 
     private GitCommand git(File workingDir) {

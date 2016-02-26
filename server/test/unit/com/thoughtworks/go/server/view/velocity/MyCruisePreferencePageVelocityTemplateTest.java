@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.view.velocity;
 
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.server.view.Escaper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
@@ -38,7 +37,6 @@ public class MyCruisePreferencePageVelocityTemplateTest {
         user.populateModel(data);
         data.put("pipelines", "[]");
         data.put("l", null);
-        data.put("escaper", new Escaper());
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
         view.setupAdditionalRealTemplate("shared/_header.vm");

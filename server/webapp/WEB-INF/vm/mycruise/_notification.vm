@@ -44,8 +44,8 @@
         <fieldset>
             <legend>Email</legend>
             <p>
-                <input id="email" name="email" type="text" value="$escaper.escape($!{email})" style="display:none"/>
-                <span id="email-text">#if ($email.isEmpty()) Email Not Set #else $escaper.escape($!{email}) #end</span>
+                <input id="email" name="email" type="text" value="$esc.html($!{email})" style="display:none"/>
+                <span id="email-text">#if ($email.isEmpty()) Email Not Set #else $esc.html($!{email}) #end</span>
             </p>
             <p class="checkbox">
                 <input id="emailme" name="emailme"
@@ -62,11 +62,11 @@
             #end
             <p>
             #foreach($matcher in $matchers.toCollection())
-                    <span class="matcher">$escaper.escape($matcher)#if($velocityCount < $matchers.toCollection().size()), #end</span>
+                    <span class="matcher">$esc.html($matcher)#if($velocityCount < $matchers.toCollection().size()), #end</span>
             #end
             </p>
             <p id="matchers-block" style="display:none">
-                <input id="matchers" maxlength="255" name="matchers" type="text" value="$escaper.escape($!{matchers.toString()})" />
+                <input id="matchers" maxlength="255" name="matchers" type="text" value="$esc.html($!{matchers.toString()})" />
                 <span class="tip">(comma separated)</span>
             </p>
         </fieldset>
@@ -150,12 +150,12 @@
         <tbody>
             #foreach($filter in $notificationFilters)
             <tr class="#if( 0 == $velocityCount%2 ) even #else odd #end">
-                <td>$escaper.escape($filter.pipelineName)</td>
-                <td>$escaper.escape($filter.stageName)</td>
-                <td>$filter.event</td>
+                <td>$esc.html($filter.pipelineName)</td>
+                <td>$esc.html($filter.stageName)</td>
+                <td>$esc.html($filter.event)</td>
                 <td>#if( $filter.myCheckin ) Mine #else All #end</td>
                 <td class="last">
-                    <button id="$escaper.escape("del_${filter.pipelineName}_${filter.stageName}_${filter.event}")" class="submit"
+                    <button id="$esc.html("del_${filter.pipelineName}_${filter.stageName}_${filter.event}")" class="submit"
                             onclick="myCruise.deleteFilter('$filter.id')"><span>Delete</span>
                     </button>
                 </td>

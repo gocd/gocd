@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.ui.controller.Redirection;
 import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.server.view.Escaper;
 import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang.StringUtils;
@@ -104,12 +103,12 @@ public class MyGoController {
             return new Redirection("/mycruise/user")
                     .addParameter(MESSAGE_KEY, "Successfully saved the notification filter.");
         } catch (Exception e) {
-            HashMap<String, Object> date = new HashMap<String, Object>();
-            date.put("pipeline", pipeline);
-            date.put("stage", stage);
-            date.put("event", event);
-            date.put("myCheckin", myCheckin);
-            return render(request, error(MESSAGE_KEY, "Failed to save: " + e.getMessage()), date);
+            HashMap<String, Object> data = new HashMap<String, Object>();
+            data.put("pipeline", pipeline);
+            data.put("stage", stage);
+            data.put("event", event);
+            data.put("myCheckin", myCheckin);
+            return render(request, error(MESSAGE_KEY, "Failed to save: " + e.getMessage()), data);
         }
     }
 
@@ -164,7 +163,6 @@ public class MyGoController {
         List<PipelineConfigs> groups = securityService.viewableGroupsFor(getUserName());
         data.put("pipelines", new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getPipelineModelsSortedByNameFor(groups)));
         data.put("l", localizer);
-        data.put("escaper", new Escaper());
 
         message.populateModel(data);
         return new ModelAndView("mycruise/mycruise-tab", data);

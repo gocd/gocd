@@ -243,6 +243,7 @@ public class AgentController {
             sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
             if (sslInfrastructureService.isRegistered()) {
                 if (!websocketService.isRunning()) {
+                    callbacks.clear();
                     websocketService.start();
                 }
                 updateServerAgentRuntimeInfo();

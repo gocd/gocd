@@ -19,6 +19,7 @@ package com.thoughtworks.go.websocket;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import java.io.*;
+import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -57,6 +58,7 @@ public class Message implements Serializable {
 
     private final Action action;
     private final Object data;
+    private String ackId;
 
     public Message(Action action) {
         this(action, null);
@@ -75,11 +77,16 @@ public class Message implements Serializable {
         return data;
     }
 
+    public String getAckId() {
+        return ackId;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
                 "action=" + action +
                 ", data=" + data +
+                ", ackId=" + ackId +
                 '}';
     }
 
@@ -91,15 +98,20 @@ public class Message implements Serializable {
         Message message = (Message) o;
 
         if (action != message.action) return false;
-        return data != null ? data.equals(message.data) : message.data == null;
+        if (data != null ? !data.equals(message.data) : message.data != null) return false;
+        return ackId != null ? ackId.equals(message.ackId) : message.ackId == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = action != null ? action.hashCode() : 0;
+        int result = action.hashCode();
         result = 31 * result + (data != null ? data.hashCode() : 0);
+        result = 31 * result + (ackId != null ? ackId.hashCode() : 0);
         return result;
     }
 
+    public void generateAckId() {
+        this.ackId = UUID.randomUUID().toString();
+    }
 }

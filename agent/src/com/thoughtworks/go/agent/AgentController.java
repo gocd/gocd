@@ -42,6 +42,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,11 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
 @Component
@@ -76,6 +81,7 @@ public class AgentController {
     private TaskExtension taskExtension;
     private AgentWebsocketService websocketService;
     private final AgentAutoRegistrationPropertiesImpl agentAutoRegistrationProperties;
+    private final Map<String, MessageCallback> callbacks = new ConcurrentHashMap<>();
 
     @Autowired
     public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
@@ -284,6 +290,13 @@ public class AgentController {
                 websocketService.stop();
                 sslInfrastructureService.invalidateAgentCertificate();
                 break;
+            case ack:
+                String messageId = (String) message.getData();
+                MessageCallback callback = callbacks.remove(messageId);
+                if (callback != null) {
+                    callback.call();
+                }
+                break;
             default:
                 throw new RuntimeException("Unknown action: " + message.getAction());
 
@@ -306,7 +319,7 @@ public class AgentController {
         AgentIdentifier agent = agentIdentifier();
         LOG.trace("{} is pinging server [{}]", agent, server);
         agentRuntimeInfo.refreshUsableSpace();
-        websocketService.send(new Message(Action.ping, agentRuntimeInfo));
+        websocketService.sendAndWaitForAck(new Message(Action.ping, agentRuntimeInfo));
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 
@@ -317,4 +330,11 @@ public class AgentController {
     protected AgentRuntimeInfo getAgentRuntimeInfo() {
         return agentRuntimeInfo;
     }
+
+    public void sendWithCallback(Message message, MessageCallback callback) {
+        message.generateAckId();
+        callbacks.put(message.getAckId(), callback);
+        websocketService.send(message);
+    }
+
 }

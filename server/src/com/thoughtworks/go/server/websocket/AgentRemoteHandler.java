@@ -53,35 +53,36 @@ public class AgentRemoteHandler {
     }
 
     public void process(Agent agent, Message msg) {
+        try {
+            processWithoutAck(agent, msg);
+        } finally {
+            if (msg.getAckId() != null) {
+                agent.send(new Message(Action.ack, msg.getAckId()));
+            }
+        }
+    }
+
+    public void processWithoutAck(Agent agent, Message msg) {
         switch (msg.getAction()) {
             case ping:
                 AgentRuntimeInfo info = (AgentRuntimeInfo) msg.getData();
-                // It is possible that server receives multiple same agent ping messages due to network issues or agent ping bug, no matter what we do at agent side.
-                // For identifying an agent that uses duplicated uuid, we have cookie system in place. Here we need synchronize to
-                // make sure we assign only one cookie to an agent.
-                // buildRepositoryRemote#getCookie is confusing, it actually generate new cookie every time you call it.
-                // In websocket case, we don't need cookie, because websocket itself can be used to identify 2 same UUID agents.
-                // But before we remove old server agent communication code, we need maintain it.
-                // We can clean up cookie stuff after we switched over to websocket.
-                synchronized (agent) {
-                    if (!sessionIds.containsKey(agent)) {
-                        LOGGER.info("{} is connected with websocket {}", info.getIdentifier(), agent);
-                        sessionIds.put(agent, info.getUUId());
-                        this.agentSessions.put(info.getUUId(), agent);
+                if (!sessionIds.containsKey(agent)) {
+                    LOGGER.info("{} is connected with websocket {}", info.getIdentifier(), agent);
+                    sessionIds.put(agent, info.getUUId());
+                    this.agentSessions.put(info.getUUId(), agent);
+                }
+                if (info.getCookie() == null) {
+                    String cookie = agentCookie.get(agent);
+                    if (cookie == null) {
+                        cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
+                        agentCookie.put(agent, cookie);
                     }
-                    if (info.getCookie() == null) {
-                        String cookie = agentCookie.get(agent);
-                        if (cookie == null) {
-                            cookie = buildRepositoryRemote.getCookie(info.getIdentifier(), info.getLocation());
-                            agentCookie.put(agent, cookie);
-                        }
-                        info.setCookie(cookie);
-                        agent.send(new Message(Action.setCookie, cookie));
-                    }
-                    AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
-                    if (instruction.isShouldCancelJob()) {
-                        agent.send(new Message(Action.cancelJob));
-                    }
+                    info.setCookie(cookie);
+                    agent.send(new Message(Action.setCookie, cookie));
+                }
+                AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
+                if (instruction.isShouldCancelJob()) {
+                    agent.send(new Message(Action.cancelJob));
                 }
                 break;
             case reportCurrentStatus:

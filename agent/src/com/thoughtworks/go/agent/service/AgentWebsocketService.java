@@ -30,6 +30,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageCallback;
 import com.thoughtworks.go.websocket.Report;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
@@ -41,18 +42,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Map;
+import java.util.concurrent.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Component
 @WebSocket
 public class AgentWebsocketService {
+    public static final int ACK_WAIT_TIMEOUT = 120; //seconds
+
     public static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
         private JobRunner runner;
         private AgentWebsocketService service;
@@ -73,17 +75,17 @@ public class AgentWebsocketService {
 
         @Override
         public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
-            service.send(new Message(Action.reportCurrentStatus, new Report(agentRuntimeInfo, jobIdentifier, jobState)));
+            service.sendAndWaitForAck(new Message(Action.reportCurrentStatus, new Report(agentRuntimeInfo, jobIdentifier, jobState)));
         }
 
         @Override
         public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
-            service.send(new Message(Action.reportCompleting, new Report(agentRuntimeInfo, jobIdentifier, result)));
+            service.sendAndWaitForAck(new Message(Action.reportCompleting, new Report(agentRuntimeInfo, jobIdentifier, result)));
         }
 
         @Override
         public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
-            service.send(new Message(Action.reportCompleted, new Report(agentRuntimeInfo, jobIdentifier, result)));
+            service.sendAndWaitForAck(new Message(Action.reportCompleted, new Report(agentRuntimeInfo, jobIdentifier, result)));
         }
 
         @Override
@@ -144,12 +146,24 @@ public class AgentWebsocketService {
 
     public void send(Message message) {
         LOGGER.debug("{} send message: {}", sessionName(), message);
+        session.getRemote().sendBytesByFuture(ByteBuffer.wrap(Message.encode(message)));
+    }
+
+    public void sendAndWaitForAck(Message message) {
+        final CountDownLatch wait = new CountDownLatch(1);
+        controller.sendWithCallback(message, new MessageCallback() {
+            @Override
+            public void call() {
+                wait.countDown();
+            }
+        });
         try {
-            session.getRemote().sendBytes(ByteBuffer.wrap(Message.encode(message)));
-        } catch (IOException e) {
+            wait.await(ACK_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
             bomb(e);
         }
     }
+
 
     @OnWebSocketConnect
     public void onConnect(Session session) {

@@ -38,6 +38,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageCallback;
 import com.thoughtworks.go.work.SleepWork;
 import org.junit.After;
 import org.junit.Before;
@@ -52,6 +53,7 @@ import org.mockito.stubbing.Answer;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
@@ -229,7 +231,7 @@ public class AgentControllerTest {
         verify(agentUpgradeService).checkForUpgrade();
         verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
         verify(agentWebsocketService).start();
-        verify(agentWebsocketService).send(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
+        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
     }
 
     @Test
@@ -278,7 +280,7 @@ public class AgentControllerTest {
 
         verify(work).doWork(eq(agentIdentifier), any(BuildRepositoryRemote.class), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
-        verify(agentWebsocketService).send(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
+        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
     }
 
     @Test
@@ -343,6 +345,24 @@ public class AgentControllerTest {
         assertThat(work1.canceled.get(), is(true));
         assertThat(work2.done.get(), is(true));
         assertThat(work2.canceled.get(), is(false));
+    }
+
+    @Test
+    public void sendWithCallback() throws Exception {
+        final AtomicBoolean callbackIsCalled = new AtomicBoolean(false);
+        agentController = createAgentController();
+        agentController.init();
+        final Message message = new Message(Action.reportCurrentStatus);
+        assertNull(message.getAckId());
+        agentController.sendWithCallback(message, new MessageCallback() {
+            @Override
+            public void call() {
+                callbackIsCalled.set(true);
+            }
+        });
+        assertNotNull(message.getAckId());
+        agentController.process(new Message(Action.ack, message.getAckId()));
+        assertTrue(callbackIsCalled.get());
     }
 
     private AgentController createAgentController() {

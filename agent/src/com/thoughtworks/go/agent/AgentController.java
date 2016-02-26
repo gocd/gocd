@@ -54,9 +54,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
 @Component
@@ -291,11 +289,7 @@ public class AgentController {
                 sslInfrastructureService.invalidateAgentCertificate();
                 break;
             case ack:
-                String messageId = (String) message.getData();
-                MessageCallback callback = callbacks.remove(messageId);
-                if (callback != null) {
-                    callback.call();
-                }
+                callbacks.remove(message.getData()).call();
                 break;
             default:
                 throw new RuntimeException("Unknown action: " + message.getAction());

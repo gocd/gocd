@@ -53,8 +53,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @Component
 @WebSocket
 public class AgentWebsocketService {
-    public static final int ACK_WAIT_TIMEOUT = 120; //seconds
-
     public static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
         private JobRunner runner;
         private AgentWebsocketService service;
@@ -102,12 +100,14 @@ public class AgentWebsocketService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentWebsocketService.class);
     private AgentController controller;
     private Session session;
+    private final SystemEnvironment environment;
     private URLService urlService;
     private WebSocketClient client;
     private Executor executor = Executors.newFixedThreadPool(5);
 
     @Autowired
-    public AgentWebsocketService(URLService urlService) {
+    public AgentWebsocketService(SystemEnvironment environment, URLService urlService) {
+        this.environment = environment;
         this.urlService = urlService;
     }
 
@@ -120,7 +120,6 @@ public class AgentWebsocketService {
         sslContextFactory.setTrustStorePassword(SslInfrastructureService.AGENT_STORE_PASSWORD);
         sslContextFactory.setWantClientAuth(true);
         if (client == null || client.isStopped()) {
-            SystemEnvironment environment = new SystemEnvironment();
             client = new WebSocketClient(sslContextFactory);
             client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
             client.start();
@@ -158,7 +157,7 @@ public class AgentWebsocketService {
             }
         });
         try {
-            wait.await(ACK_WAIT_TIMEOUT, TimeUnit.SECONDS);
+            wait.await(environment.getWebsocketAckMessageTimeout(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             bomb(e);
         }

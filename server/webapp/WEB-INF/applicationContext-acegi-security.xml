@@ -212,7 +212,7 @@
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
                 /remoting/**=ROLE_AGENT
-                /aws/**=ROLE_AGENT
+                /agent-websocket/**=ROLE_AGENT
             ]]></value>
         </property>
     </bean>

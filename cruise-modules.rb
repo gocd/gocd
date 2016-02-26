@@ -212,7 +212,6 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'common', "**/X509PrincipalGenerator*.class")
     include_fileset_from_target(jar, 'common', "**/KeyStoreManager.class")
     include_fileset_from_target(jar, 'common', "**/PKCS12BagAttributeSetter.class")
-    include_fileset_from_target(jar, 'common', "**/KeyPairCreator.class")
     include_fileset_from_target(jar, 'common', "**/Registration.class")
     include_fileset_from_target(jar, 'common', "**/CommandLineException.class")
 

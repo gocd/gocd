@@ -81,7 +81,7 @@ public class X509CertificateGenerator {
     }
 
     public Registration createCertificateWithDn(String dn) {
-        KeyPair keypair = KeyPairCreator.createKeyPair();
+        KeyPair keypair = generateKeyPair();
         Date epoch = new Date(0);
         X509Certificate certificate = createTypeOneX509Certificate(epoch, dn, keypair);
         return new Registration(keypair.getPrivate(), certificate);
@@ -179,10 +179,10 @@ public class X509CertificateGenerator {
         String principalDn = "ou=Cruise Server primary certificate, cn=" + getHostname();
 
         try {
-            KeyPair caKeyPair = KeyPairCreator.createKeyPair();
+            KeyPair caKeyPair = generateKeyPair();
             X509Certificate caCertificate = createTypeOneX509Certificate(startDate, principalDn, caKeyPair);
 
-            KeyPair intKeyPair = KeyPairCreator.createKeyPair();
+            KeyPair intKeyPair = generateKeyPair();
             X509Certificate intermediateCertificate = createIntermediateCertificate(
                     caKeyPair.getPrivate(), caCertificate, startDate, intKeyPair);
 
@@ -198,7 +198,7 @@ public class X509CertificateGenerator {
 
     public Registration createAgentCertificate(final File authorityKeystore, String agentHostname) {
         Date epoch = new Date(0);
-        KeyPair agentKeyPair = KeyPairCreator.createKeyPair();
+        KeyPair agentKeyPair = generateKeyPair();
         try {
             KeyStore store = loadOrCreateCAKeyStore(authorityKeystore);
             KeyStore.PrivateKeyEntry intermediateEntry = (KeyStore.PrivateKeyEntry) store.getEntry("ca-intermediate",
@@ -252,6 +252,14 @@ public class X509CertificateGenerator {
 
     private BigInteger serialNumber() {
         return new BigInteger(Long.toString(Math.round(Math.random() * 11234455544545L)));
+    }
+
+    private KeyPair generateKeyPair() {
+        try {
+            return KeyPairGenerator.getInstance("RSA", "BC").generateKeyPair();
+        } catch (Exception e) {
+            throw bomb("Couldn't create public-private key pair", e);
+        }
     }
 
     private class V3X509CertificateGenerator {

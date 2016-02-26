@@ -275,7 +275,7 @@ public class AgentController {
                 runner = new JobRunner();
                 try {
                     runner.run(work, agentIdentifier(),
-                            new AgentWebsocketService.BuildRepositoryRemoteAdapter(runner, websocketService),
+                            websocketService.buildRepositoryRemote(runner),
                             manipulator, agentRuntimeInfo,
                             packageAsRepositoryExtension, scmExtension,
                             taskExtension);

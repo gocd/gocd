@@ -53,7 +53,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @Component
 @WebSocket
 public class AgentWebsocketService {
-    public static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
+    private static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
         private JobRunner runner;
         private AgentWebsocketService service;
 
@@ -163,6 +163,9 @@ public class AgentWebsocketService {
         }
     }
 
+    public BuildRepositoryRemote buildRepositoryRemote(JobRunner runner) {
+        return new BuildRepositoryRemoteAdapter(runner, this);
+    }
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -191,7 +194,7 @@ public class AgentWebsocketService {
 
     @OnWebSocketClose
     public void onClose(int closeCode, String closeReason) {
-        LOGGER.info(sessionName() + " closed.");
+        LOGGER.info("{} closed: {}", sessionName(), closeReason);
     }
 
     @OnWebSocketError

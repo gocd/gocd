@@ -29,13 +29,7 @@ public class StageEventTest {
 
     @Test
     public void eventShouldIncludeItself() {
-
         assertThat(StageEvent.Fixed.include(StageEvent.Fixed), is(true));
-    }
-
-    @Test
-    public void shouldNotParseArbitraryStrings() {
-        assertThat(StageEvent.valueOf("<script>alert(1)</script>"), is(StageEvent.All));
     }
 
 }

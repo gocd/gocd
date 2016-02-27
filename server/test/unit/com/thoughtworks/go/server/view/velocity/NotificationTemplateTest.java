@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.view.velocity;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.server.view.Escaper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,13 +34,12 @@ public class NotificationTemplateTest {
 
     @Test
     public void shouldShowEmailAndMatchersSectionsWithBasicData() throws Exception {
-        HashMap<String, Object> data = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<>();
 
         User user = new User("name", "display-name", new String[]{"matcher1", "matcher2"}, "email1", true);
         user.populateModel(data);
         data.put("pipelines", "[]");
         data.put("l", null);
-        data.put("escaper", new Escaper());
 
         Document actualDoc = Jsoup.parse(new TestVelocityView(TEMPLATE_PATH, data).render());
 
@@ -51,13 +49,12 @@ public class NotificationTemplateTest {
 
     @Test
     public void shouldHTMLEscapeEmailAddress() throws Exception {
-        HashMap<String, Object> data = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<>();
 
         User user = new User("name", "display-name", new String[]{"matcher1", "matcher2"}, "email1@host.com<script>this && that</script>", true);
         user.populateModel(data);
         data.put("pipelines", "[]");
         data.put("l", null);
-        data.put("escaper", new Escaper());
 
         Document actualDoc = Jsoup.parse(new TestVelocityView(TEMPLATE_PATH, data).render());
 
@@ -66,13 +63,12 @@ public class NotificationTemplateTest {
 
     @Test
     public void shouldHTMLEscapeMatchers() throws Exception {
-        HashMap<String, Object> data = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<>();
 
         User user = new User("name", "display-name", new String[]{"<script>this && that</script>", "matcher2"}, "email1@host.com", true);
         user.populateModel(data);
         data.put("pipelines", "[]");
         data.put("l", null);
-        data.put("escaper", new Escaper());
 
         Document actualDoc = Jsoup.parse(new TestVelocityView(TEMPLATE_PATH, data).render());
 
@@ -81,7 +77,7 @@ public class NotificationTemplateTest {
 
     @Test
     public void shouldHTMLEscapeChosenNotificationFilters() throws Exception {
-        HashMap<String, Object> data = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<>();
 
         User user = new User("name", "display-name", new String[]{"matcher1", "matcher2"}, "email1@host.com", true);
         user.addNotificationFilter(new NotificationFilter("<script>pipeline1 && that</script>", "stage1", StageEvent.Passes, false));
@@ -89,7 +85,6 @@ public class NotificationTemplateTest {
         user.populateModel(data);
         data.put("pipelines", "[]");
         data.put("l", null);
-        data.put("escaper", new Escaper());
 
         Document actualDoc = Jsoup.parse(new TestVelocityView(TEMPLATE_PATH, data).render());
 

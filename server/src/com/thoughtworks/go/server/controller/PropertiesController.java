@@ -55,7 +55,7 @@ public class PropertiesController {
         this.pipelineService = pipelineService;
     }
 
-    @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST)
+    @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST, headers = "Accept=application/vnd.go.cd.v1+text")
     public void setProperty(@RequestParam("pipelineName")String pipelineName,
                             @RequestParam("pipelineLabel")String pipelineLabel,
                             @RequestParam("stageName")String stageName,

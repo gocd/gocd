@@ -201,7 +201,7 @@ public class GoArtifactsManipulator {
     public void setProperty(JobIdentifier jobIdentifier, Property property) {
         try {
             String propertiesUrl = urlService.getPropertiesUrl(jobIdentifier, property.getKey());
-            httpService.postToUrl(propertiesUrl, property.getValue());
+            httpService.postProperty(propertiesUrl, property.getValue());
         } catch (Exception e) {
             throw new ArtifactPublishingException(format("Failed to set property %s with value %s", property.getKey(), property.getValue()), e);
         }

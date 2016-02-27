@@ -112,14 +112,15 @@ public class HttpService {
         }
     }
 
-    public void postToUrl(String url, String value) throws IOException {
+    public void postProperty(String url, String value) throws IOException {
         LOGGER.info("Posting property to the URL " + url + "Property Value =" + value);
-        PostMethod propertyPost = httpClientFactory.createPost(url);
+        PostMethod post = httpClientFactory.createPost(url);
         try {
-            propertyPost.setRequestBody(new NameValuePair[]{new NameValuePair("value", value)});
-            execute(propertyPost);
+            post.setRequestHeader("Accept","application/vnd.go.cd.v1+text");
+            post.setRequestBody(new NameValuePair[]{new NameValuePair("value", value)});
+            execute(post);
         } finally {
-            propertyPost.releaseConnection();
+            post.releaseConnection();
         }
     }
 

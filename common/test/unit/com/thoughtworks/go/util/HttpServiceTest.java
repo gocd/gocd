@@ -18,9 +18,9 @@ package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.junit.After;
 import org.junit.Before;
@@ -61,11 +61,8 @@ public class HttpServiceTest {
 
     @Test
     public void shouldPostArtifactsAlongWithMD5() throws IOException {
-
-
         File uploadingFile = mock(File.class);
         java.util.Properties checksums = new java.util.Properties();
-
 
         String uploadUrl = "url";
 
@@ -108,6 +105,17 @@ public class HttpServiceTest {
     }
 
     @Test
+    public void shouldSetTheAcceptHeaderWhilePostingProperties() throws Exception {
+        PostMethod post = mock(PostMethod.class);
+        when(httpClientFactory.createPost("url")).thenReturn(post);
+
+        service.postProperty("url", "value");
+
+        verify(post).setRequestHeader("Accept","application/vnd.go.cd.v1+text");
+        verify(post).setRequestBody(new NameValuePair[]{new NameValuePair("value", "value")});
+    }
+
+    @Test
     public void shouldCreateMultipleRequestWithChecksumValues() throws IOException {
         HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(null);
         File artifact = new File(folderToSaveDowloadFiles, "artifact");
@@ -116,7 +124,7 @@ public class HttpServiceTest {
             java.util.Properties artifactChecksums = new java.util.Properties();
             artifactChecksums.setProperty("foo.txt","323233333");
 
-            MultipartRequestEntity multipartRequestEntity = factory.createMultipartRequestEntity(artifact, artifactChecksums, new HttpMethodParams());
+            factory.createMultipartRequestEntity(artifact, artifactChecksums, new HttpMethodParams());
 
         } catch (FileNotFoundException e) {
             fail("Nulitpart should be created even in the absence of checksum file");

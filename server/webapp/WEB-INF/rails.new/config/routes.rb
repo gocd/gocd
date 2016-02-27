@@ -297,9 +297,15 @@ Go::Application.routes.draw do
       post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name
 
       # pipeline api's
-      post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_action
-      post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_pipeline
-      post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :unpause_pipeline
+
+        pipeline_post_constraints = lambda do | req |
+          (req.path_parameters['pipeline_name'] =~ PIPELINE_NAME_FORMAT).nil? && req.headers['Accept'].include?("application/vnd.go.cd.v1+text")
+        end
+
+        post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', constraints: pipeline_post_constraints, as: :api_pipeline_action
+        post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: pipeline_post_constraints, as: :pause_pipeline
+        post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: pipeline_post_constraints, as: :unpause_pipeline
+
 
       post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify
 

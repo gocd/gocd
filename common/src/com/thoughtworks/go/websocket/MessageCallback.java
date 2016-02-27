@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.websocket;
 
-public enum Action {
-    assignWork,
-    cancelJob,
-    ping,
-    reregister,
-    reportCurrentStatus, reportCompleted, reportCompleting, ack, setCookie
+public interface MessageCallback {
+    void call();
 }

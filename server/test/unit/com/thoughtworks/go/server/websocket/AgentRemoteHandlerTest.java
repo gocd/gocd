@@ -201,4 +201,20 @@ public class AgentRemoteHandlerTest {
         assertNotEquals(cookie, info.getCookie());
         assertEquals("new cookie", info.getCookie());
     }
+
+    @Test
+    public void shouldSendBackAnAckMessageIfMessageHasAckId() {
+        AgentInstance instance = AgentInstanceMother.idle();
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
+        info.setCookie("cookie");
+        when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
+
+        Message msg = new Message(Action.ping, info);
+        msg.generateAckId();
+        handler.process(agent, msg);
+        assertEquals(1, agent.messages.size());
+        assertEquals(Action.ack, agent.messages.get(0).getAction());
+        assertEquals(msg.getAckId(), agent.messages.get(0).getData().toString());
+    }
 }

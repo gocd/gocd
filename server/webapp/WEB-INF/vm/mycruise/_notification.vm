@@ -26,7 +26,7 @@
 #end
 
 #if($!message)
-<p id="serverside-message" class="message ${message.level}">${message.message}</p>
+<p id="serverside-message" class="message ${message.level}">$esc.html(${message.message})</p>
 #end
 
 <p id="error-message" class="message error error_message" style="display:none"></p>

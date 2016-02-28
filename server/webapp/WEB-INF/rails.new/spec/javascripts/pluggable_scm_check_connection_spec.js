@@ -48,13 +48,13 @@ describe("pluggable_scm_check_connection", function () {
         "                        </span>\n" +
         "\n" +
         "                        <div class=\"form_item_block checkbox_row material_options\">\n" +
-        "                            <input name=\"material[autoUpdate]\" type=\"hidden\" value=\"0\"><input checked=\"checked\" class=\"form_input MB_focusable\" id=\"material_autoUpdate\" include_blank=\"true\" name=\"material[autoUpdate]\" type=\"checkbox\" value=\"true\">                            <label for=\"material_autoUpdate\">Poll for new changes</label>\n" +
+        "                            <input name=\"material[autoUpdate]\" type=\"hidden\" value=\"0\"><input checked=\"checked\" class=\"form_input MB_focusable\" id=\"material_autoUpdate\" name=\"material[autoUpdate]\" type=\"checkbox\" value=\"true\">                            <label for=\"material_autoUpdate\">Poll for new changes</label>\n" +
         "\n" +
         "                        </div>\n" +
         "\n" +
         "                        <div class=\"form_item_block\">\n" +
         "                            <label>Destination Directory:</label>\n" +
-        "                            <input class=\"form_input MB_focusable\" include_blank=\"true\" name=\"material[folder]\" type=\"text\" value=\"scm-destination\">                            \n" +
+        "                            <input class=\"form_input MB_focusable\" name=\"material[folder]\" type=\"text\" value=\"scm-destination\">                            \n" +
         "                        </div>\n" +
         "                    </div>\n" +
         "                    <p class=\"required\">\n" +
@@ -67,7 +67,7 @@ describe("pluggable_scm_check_connection", function () {
         "            <div class=\"fieldset\">\n" +
         "                <label>Enter the paths to be excluded. Separate multiple entries with a comma.</label>\n" +
         "\n" +
-        "                <textarea class=\"form_input MB_focusable\" include_blank=\"true\" name=\"material[filterAsString]\" rows=\"2\">scm-filter</textarea>\n" +
+        "                <textarea class=\"form_input MB_focusable\" name=\"material[filterAsString]\" rows=\"2\">scm-filter</textarea>\n" +
         "                <div class=\"clear\"></div>\n" +
         "            </div>\n" +
         "        </div>\n" +

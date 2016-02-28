@@ -7,7 +7,7 @@
     </div>
     <div class="form_item_block">
         <label><%= l.string('USERNAME') -%></label>
-        <%= scope[:form].text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:include_blank => true, :class => "form_input svn_username", :id => nil}) -%>
+        <%= scope[:form].text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:class => "form_input svn_username", :id => nil}) -%>
         <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, :css_class => "form_error") %>
     </div>
 
@@ -19,5 +19,3 @@
     <div class="clear"></div>
 </div>
 <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
-
-

@@ -6,7 +6,7 @@
 
 <div class="form_item_block">
     <label><%= l.string('DOMAIN') -%></label>
-    <%= scope[:form].text_field(com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN, {:include_blank => true, :class => "form_input tfs_domain", :id => nil}) -%>
+    <%= scope[:form].text_field(com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN, {:class => "form_input tfs_domain", :id => nil}) -%>
     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig::DOMAIN, :css_class => "form_error") %>
 </div>
 

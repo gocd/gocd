@@ -23,7 +23,7 @@
                 <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => f}} %>
                 <div class="form_item_block">
                     <label><%= l.string('USERNAME') -%></label>
-                    <%= f.text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:include_blank => true, :class => "form_input username", :id => nil}) -%>
+                    <%= f.text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:class => "form_input username", :id => nil}) -%>
                     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, :css_class => "form_error") %>
                 </div>
 

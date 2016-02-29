@@ -60,8 +60,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), true)
-      dup_git_material =GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), true)
+      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      dup_git_material =GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), false)
       material_configs = MaterialConfigs.new(git_config);
       material_configs.add(dup_git_material)
 
@@ -127,6 +127,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           },
           branch:           'branch',
           submodule_folder: 'sub_module_folder',
+          shallow_clone:    true,
           name:             'AwesomeGitMaterial',
           auto_update:      false
         }
@@ -143,7 +144,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           name:             nil,
           auto_update:      true,
           branch:           "master",
-          submodule_folder: nil
+          submodule_folder: nil,
+          shallow_clone:    false
         }
       }
     end
@@ -158,7 +160,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           name:             "!nV@l!d",
           auto_update:      true,
           branch:           "master",
-          submodule_folder: ""
+          submodule_folder: "",
+          shallow_clone:    false
         },
         errors:     {
           name:        ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],

@@ -1,5 +1,5 @@
 <div class="form_item_block checkbox_row material_options">
-    <%= scope[:form].check_box(com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE, {:include_blank => true, :class => "form_input"}, "true") -%>
+    <%= scope[:form].check_box(com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE, {:class => "form_input"}, "true") -%>
     <%= scope[:form].label(com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE, l.string('SHOULD_AUTO_UPDATE')) %>
     <%= error_message_on(scope[:form].object, com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE, :css_class => "form_error") %>
 </div>

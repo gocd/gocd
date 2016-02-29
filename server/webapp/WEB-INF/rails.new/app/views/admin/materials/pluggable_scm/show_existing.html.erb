@@ -21,7 +21,7 @@
 
             <h3><%= l.string('DESTINATION_DIR') -%></h3>
             <div class="fieldset">
-                <%= f.text_field(com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FOLDER, {:include_blank => true, :class => "form_input", :id => nil}) -%>
+                <%= f.text_field(com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FOLDER, {:class => "form_input", :id => nil}) -%>
                 <%= error_message_on(@material, com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FOLDER, :css_class => "form_error") %>
             </div>
 
@@ -35,7 +35,7 @@
                   end
                 end %>
 
-                <%= f.text_area(com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FILTER, {:include_blank => true, :class => "form_input", :id => nil, :rows => 2}) -%>
+                <%= f.text_area(com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FILTER, {:class => "form_input", :id => nil, :rows => 2}) -%>
                 <%= error_message_on(@material, com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig::FILTER, :css_class => "form_error") %>
                 <div class="clear"></div>
             </div>

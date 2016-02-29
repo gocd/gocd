@@ -20,19 +20,42 @@
         <user>operate</user>
       </admins>
     </authorization>
-    <pipeline name="up42">
+    <pipeline name="up42" template="up42t">
+      <environmentvariables>
+        <variable name="THIS">
+          <value>value</value>
+        </variable>
+      </environmentvariables>
       <materials>
-        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
+        <git url="https://github.com/zabil/listhandling" dest="git" materialName="GIT" />
       </materials>
+    </pipeline>
+  </pipelines>
+  <templates>
+    <pipeline name="up42t">
       <stage name="up42_stage">
         <jobs>
           <job name="up42_job">
+            <environmentvariables>
+              <variable name="THIS">
+                <value>this</value>
+              </variable>
+            </environmentvariables>
             <tasks>
               <exec command="ls" />
+              <exec command="bash">
+                <arg>-c</arg>
+                <arg>echo $THIS</arg>
+                <runif status="passed" />
+              </exec>
             </tasks>
           </job>
         </jobs>
       </stage>
     </pipeline>
-  </pipelines>
+  </templates>
+  <agents>
+    <agent hostname="ok-computer.local" ipaddress="10.4.22.93" uuid="d542080b-cf75-41d0-8bc3-7d85cd9be7bb" />
+  </agents>
 </cruise>
+

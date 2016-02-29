@@ -16,15 +16,7 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
-import java.util.Map;
-import javax.annotation.PostConstruct;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.ParamsAttributeAware;
-import com.thoughtworks.go.config.PasswordEncrypter;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -35,8 +27,12 @@ import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
+import javax.annotation.PostConstruct;
+import java.util.Map;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "svn", label = "Subversion")
 public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -109,6 +105,10 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     public void setPassword(String password) {
         resetPassword(password);
+    }
+
+    public void setCleartextPassword(String password) {
+        this.password = password;
     }
 
     private void resetPassword(String passwordToSet) {
@@ -199,6 +199,10 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     protected void validateConcreteScmMaterial(ValidationContext validationContext) {
         if (StringUtil.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
+        }
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
+            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
     }
 

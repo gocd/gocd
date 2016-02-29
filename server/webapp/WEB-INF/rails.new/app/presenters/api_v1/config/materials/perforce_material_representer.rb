@@ -22,8 +22,11 @@ module ApiV1
         property :server_and_port, as: :port
         property :user_name, as: :username
         property :password,
-                 skip_nil:    true,
-                 skip_render: true
+                 skip_render: true,
+                 skip_nil: true,
+                 setter:      lambda { |value, options|
+                   self.setCleartextPassword(value)
+                 }
         property :encrypted_password, skip_nil: true
         property :use_tickets
         property :view

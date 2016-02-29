@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class StageController {
         this.localizer = localizer;
     }
 
-    @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST)
+    @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST, headers = "Accept=application/vnd.go.cd.v1+text")
     public ModelAndView rerunStage(@RequestParam(value = "pipelineName") String pipelineName,
                                    @RequestParam(value = "pipelineLabel") String counterOrLabel,
                                    @RequestParam(value = "stageName") String stageName) {

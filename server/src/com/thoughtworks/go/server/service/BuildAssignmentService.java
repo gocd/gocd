@@ -148,13 +148,13 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
             if (!agentInstance.isRegistered()) {
                 agent.send(new Message(Action.reregister));
-                return;
+                continue;
             }
             if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Ignore agent [{}] that is {}", agentInstance.getAgentIdentifier().toString(), agentInstance.getStatus());
                 }
-                return;
+                continue;
             }
             Work work = assignWorkToAgent(agentInstance);
             if (work != NO_WORK) {

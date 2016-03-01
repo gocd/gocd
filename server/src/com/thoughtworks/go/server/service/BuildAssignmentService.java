@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.server.service;
@@ -27,11 +28,10 @@ import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.Agent;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import org.apache.commons.collections.Closure;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
 
@@ -50,7 +49,8 @@ import static org.apache.commons.collections.CollectionUtils.forAllDo;
  */
 @Service
 public class BuildAssignmentService implements PipelineConfigChangedListener {
-    private static final Logger LOGGER = Logger.getLogger(BuildAssignmentService.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BuildAssignmentService.class.getName());
+
     public static final NoWork NO_WORK = new NoWork();
 
     private GoConfigService goConfigService;
@@ -58,18 +58,17 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
     private ScheduleService scheduleService;
     private AgentService agentService;
     private EnvironmentConfigService environmentConfigService;
-    private TimeProvider timeProvider;
     private TransactionTemplate transactionTemplate;
     private final ScheduledPipelineLoader scheduledPipelineLoader;
 
-    private List<JobPlan> jobPlans = new ArrayList<JobPlan>();
+    private List<JobPlan> jobPlans = new ArrayList<>();
     private final UpstreamPipelineResolver resolver;
     private final BuilderFactory builderFactory;
     private AgentRemoteHandler agentRemoteHandler;
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
-                                  AgentService agentService, EnvironmentConfigService environmentConfigService, TimeProvider timeProvider,
+                                  AgentService agentService, EnvironmentConfigService environmentConfigService,
                                   TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory,
                                   AgentRemoteHandler agentRemoteHandler) {
         this.goConfigService = goConfigService;
@@ -77,7 +76,6 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
         this.scheduleService = scheduleService;
         this.agentService = agentService;
         this.environmentConfigService = environmentConfigService;
-        this.timeProvider = timeProvider;
         this.transactionTemplate = transactionTemplate;
         this.scheduledPipelineLoader = scheduledPipelineLoader;
         this.resolver = pipelineService;
@@ -112,7 +110,7 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
                 AgentBuildingInfo buildingInfo = new AgentBuildingInfo(job.getIdentifier().buildLocatorForDisplay(),
                         job.getIdentifier().buildLocator());
                 agentService.building(agent.getUuid(), buildingInfo);
-                LOGGER.info(format("[Agent Assignment] Assigned job [%s] to agent [%s]", job.getIdentifier(), agent.agentConfig().getAgentIdentifier()));
+                LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.agentConfig().getAgentIdentifier());
                 return buildWork;
             }
         }
@@ -154,7 +152,7 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             }
             if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Ignore agent that is " + agentInstance.getStatus());
+                    LOGGER.debug("Ignore agent [{}] that is {}", agentInstance.getAgentIdentifier().toString(), agentInstance.getStatus());
                 }
                 return;
             }
@@ -164,14 +162,14 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             }
         }
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(format("Matching %d agents with %d jobs took: %dms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start));
+            LOGGER.debug("Matching {} agents with {} jobs took: {}ms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start);
         }
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        LOGGER.info(String.format("[Configuration Changed] Removing jobs for pipelines that no longer exist in configuration."));
+        LOGGER.info("[Configuration Changed] Removing jobs for pipelines that no longer exist in configuration.");
         synchronized (this) {
-            List<JobPlan> jobsToRemove = new ArrayList<JobPlan>();
+            List<JobPlan> jobsToRemove = new ArrayList<>();
             for (JobPlan jobPlan : jobPlans) {
                 if (!newCruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
                     jobsToRemove.add(jobPlan);
@@ -188,10 +186,10 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
 
     @Override
     public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-        LOGGER.info(String.format("[Configuration Changed] Removing deleted jobs for pipeline %s.", pipelineConfig.name()));
+        LOGGER.info("[Configuration Changed] Removing deleted jobs for pipeline {}.", pipelineConfig.name());
 
         synchronized (this) {
-            List<JobPlan> jobsToRemove = new ArrayList<JobPlan>();
+            List<JobPlan> jobsToRemove = new ArrayList<>();
             for (JobPlan jobPlan : jobPlans) {
                 if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
                     StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
@@ -223,15 +221,15 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
     private void removeJob(JobPlan jobPlan) {
         try {
             jobPlans.remove(jobPlan);
-            LOGGER.info(String.format("Removing job plan %s that no longer exists in the config", jobPlan));
+            LOGGER.info("Removing job plan {} that no longer exists in the config", jobPlan);
             JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId());
             //#2846 - remove this hack
             instance.setIdentifier(jobPlan.getIdentifier());
 
             scheduleService.cancelJob(instance);
-            LOGGER.info(String.format("Successfully removed job plan %s that no longer exists in the config", jobPlan));
+            LOGGER.info("Successfully removed job plan {} that no longer exists in the config", jobPlan);
         } catch (Exception e) {
-            LOGGER.warn(String.format("Unable to remove plan %s from queue that no longer exists in the config", jobPlan));
+            LOGGER.warn("Unable to remove plan {} from queue that no longer exists in the config", jobPlan);
         }
     }
 

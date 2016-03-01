@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.server.service;
@@ -328,7 +329,7 @@ public class BuildAssignmentServiceTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, timeProvider, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler);
+                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler);
 
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
@@ -370,7 +371,7 @@ public class BuildAssignmentServiceTest {
         configHelper.removePipeline(fixture.pipelineName, config);
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
-        buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, timeProvider,
+        buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
                 transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler);
         buildAssignmentService.onTimer();
 

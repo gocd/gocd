@@ -197,8 +197,17 @@ public class PluginViewModelFactoryTest {
     public void shouldReturnNullTaskluginViewModelForInvalidPluginId() throws Exception {
         when(defaultPluginManager.hasReferenceFor((Class) anyObject(), anyString())).thenReturn(false);
 
-
         PluginViewModel pluginViewModel = pluginViewModelFactory.getPluginViewModel("task", "invalid-plugin-id");
+        TaskPluginViewModel taskPluginViewModel = (TaskPluginViewModel) pluginViewModel;
+
+        assertThat(taskPluginViewModel, is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnNullForPluginIdIsNotOfGivenType() throws Exception {
+        when(defaultPluginManager.hasReferenceFor((Class) anyObject(), anyString())).thenReturn(true);
+
+        PluginViewModel pluginViewModel = pluginViewModelFactory.getPluginViewModel("task", "scm-plugin-id");
         TaskPluginViewModel taskPluginViewModel = (TaskPluginViewModel) pluginViewModel;
 
         assertThat(taskPluginViewModel, is(nullValue()));

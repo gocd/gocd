@@ -56,4 +56,20 @@ public class PluggableTaskConfigStoreTest {
         assertThat(PluggableTaskConfigStore.store().getMetaData("invalid-plugin-id"), is(nullValue()));
     }
 
+    @Test
+    public void shouldBeAbleToCheckIfPluginExists() throws Exception {
+        TaskConfig taskConfig = new TaskConfig();
+        TaskView taskView = null;
+        Task task = mock(Task.class);
+        when(task.config()).thenReturn(taskConfig);
+        when(task.view()).thenReturn(taskView);
+
+        TaskPreference taskPreference = new TaskPreference(task);
+        PluggableTaskConfigStore.store().setPreferenceFor("plugin-id", taskPreference);
+
+        assertThat(PluggableTaskConfigStore.store().hasPlugin("plugin-id"), is(true));
+        assertThat(PluggableTaskConfigStore.store().hasPlugin("some-plugin-which-does-not-exist"), is(false));
+
+    }
+
 }

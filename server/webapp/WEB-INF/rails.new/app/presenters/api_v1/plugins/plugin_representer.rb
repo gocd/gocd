@@ -35,8 +35,12 @@ module ApiV1
 
       property :plugin_id
       property :version
-      property :type
-      property :message, skip_nil: true
+      property :type,
+               exec_context: :decorator,
+               skip_nil: true
+      property :message,
+               skip_nil: true
+
       property :configurations,
                exec_context: :decorator,
                decorator:    lambda { |opts, *|
@@ -44,11 +48,11 @@ module ApiV1
                }, skip_nil:  true
 
       def configurations
-        plugin unless plugin.class::TYPE.eql?(DisabledPluginViewModel::TYPE)
+        plugin unless plugin.class::TYPE == DisabledPluginViewModel::TYPE
       end
 
-      def message
-        plugin.status
+      def type
+        plugin.type unless plugin.class::TYPE == DisabledPluginViewModel::TYPE
       end
     end
   end

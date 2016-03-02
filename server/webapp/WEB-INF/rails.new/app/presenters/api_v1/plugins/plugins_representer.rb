@@ -19,7 +19,7 @@ module ApiV1
     class PluginsRepresenter < BaseRepresenter
       attr_accessor :plugins, :type
 
-      def initialize(stages, params = [])
+      def initialize(stages, params = {})
         @plugins = stages
         @type    = params[:type] unless params.empty?
       end

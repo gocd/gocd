@@ -23,35 +23,23 @@ import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 
 import java.util.List;
 
-public class SCMPluginViewModel implements PluginViewModel {
-    private String pluginId;
-    private String version;
+public class SCMPluginViewModel extends PluginViewModel {
+
     private SCMConfigurations scmConfigurations;
     public static final String TYPE = SCMExtension.EXTENSION_NAME;
-    private String message;
+
 
     public SCMPluginViewModel() {
+        super();
     }
 
-    public SCMPluginViewModel(String pluginId, String version, SCMConfigurations scmConfigurations) {
-        this.pluginId = pluginId;
-        this.version = version;
+    public SCMPluginViewModel(String pluginId, String version, String message) {
+        super(pluginId, version, message);
+    }
+
+    public SCMPluginViewModel(String pluginId, String version, String message, SCMConfigurations scmConfigurations) {
+        super(pluginId, version, message);
         this.scmConfigurations = scmConfigurations;
-    }
-
-    @Override
-    public String getPluginId() {
-        return pluginId;
-    }
-
-    @Override
-    public String getVersion() {
-        return version;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
     }
 
     @Override
@@ -60,14 +48,13 @@ public class SCMPluginViewModel implements PluginViewModel {
     }
 
     public List<SCMConfiguration> getConfigurations() {
+        if (scmConfigurations == null) {
+            this.scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(getPluginId());
+        }
         return scmConfigurations.list();
     }
 
-    @Override
-    public void setViewModel(String id, String version,String message) {
-        this.pluginId = id;
-        this.version = version;
-        this.scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(id);
-        this.message = message;
+    public Boolean hasPlugin(String pluginId){
+        return SCMMetadataStore.getInstance().hasPlugin(pluginId);
     }
 }

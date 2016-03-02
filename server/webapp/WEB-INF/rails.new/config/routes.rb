@@ -19,7 +19,8 @@ Go::Application.routes.draw do
   mount JasmineRails::Engine => '/jasmine-specs-new', as: :jasmine_new if defined?(JasmineRails)
 
   unless defined?(CONSTANTS)
-    USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = PLUGIN_ID_FORMAT = /[\w\-][\w\-.]*/
+    USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT =  /[\w\-][\w\-.]*/
+    PLUGIN_ID_FORMAT = /[a-zA-Z0-9\-_.]+/
     JOB_NAME_FORMAT = /[\w\-.]+/
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     NON_NEGATIVE_INTEGER = /\d+/
@@ -234,8 +235,8 @@ Go::Application.routes.draw do
         get 'command_snippets/show', controller: :command_snippets, action: :show, as: :command_snippet
 
         get "plugins" => 'plugins#index', as: :all_plugin_list_api
-        get "plugins/:type" => 'plugins#show', as: :plugin_list_api
         get "plugins/:type/:plugin_id" => 'plugins#show', as: :plugin_api, constraints: {plugin_id: PLUGIN_ID_FORMAT}
+        get "plugins/:type" => 'plugins#list_plugins_of_type', as: :plugin_list_api
       end
 
       get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api

@@ -22,7 +22,7 @@ describe ApiV1::Plugins::PluginRepresenter do
 
     it 'renders a plugin of SCM type with hal representation' do
 
-      scm_view_model = SCMPluginViewModel.new('plugin-id', 'version', get_scm_configurations)
+      scm_view_model = SCMPluginViewModel.new('plugin-id', 'version', nil, get_scm_configurations)
 
       presenter   = ApiV1::Plugins::PluginRepresenter.new(scm_view_model)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -66,7 +66,7 @@ describe ApiV1::Plugins::PluginRepresenter do
 
     it 'renders a plugin of Package Repository type with hal representation' do
 
-      package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', get_package_configurations, get_repo_configurations)
+      package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', nil, get_package_configurations, get_repo_configurations)
       presenter                     = ApiV1::Plugins::PluginRepresenter.new(package_repository_view_model)
       actual_json                   = presenter.to_hash(url_builder: UrlBuilder.new)
 
@@ -133,7 +133,7 @@ describe ApiV1::Plugins::PluginRepresenter do
 
   describe :task do
     it 'renders all plugins of Task type with hal representation' do
-      task_view_model = TaskPluginViewModel.new('plugin-id', 'version', get_task_configurations)
+      task_view_model = TaskPluginViewModel.new('plugin-id', 'version', nil, get_task_configurations)
       presenter       = ApiV1::Plugins::PluginRepresenter.new(task_view_model)
       actual_json     = presenter.to_hash(url_builder: UrlBuilder.new)
 
@@ -191,7 +191,7 @@ describe ApiV1::Plugins::PluginRepresenter do
     private
     def get_task_configurations
       task_config = com.thoughtworks.go.plugin.api.task.TaskConfig.new
-      task_config.addProperty("K1").withDefault("V1");
+      task_config.addProTperty("K1").withDefault("V1");
       task_config.addProperty("K2").withDefault("V2");
       task_config
     end

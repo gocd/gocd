@@ -45,4 +45,8 @@ public class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreferen
         }
         return preferenceFor(pluginId).getConfig();
     }
+
+    public boolean hasPlugin(String pluginId) {
+        return hasPreferenceFor(pluginId);
+    }
 }

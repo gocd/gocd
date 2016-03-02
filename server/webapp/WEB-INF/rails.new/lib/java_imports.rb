@@ -242,9 +242,5 @@ module JavaImports
   java_import com.thoughtworks.go.config.PipelineConfigSaveValidationContext unless defined? PipelineConfigSaveValidationContext
   java_import com.thoughtworks.go.domain.GoVersion unless defined? GoVersion
   java_import com.thoughtworks.go.domain.VersionInfo unless defined? VersionInfo
-  java_import com.thoughtworks.go.server.ui.SCMPluginViewModel unless defined? SCMPluginViewModel
-  java_import com.thoughtworks.go.server.ui.PackageRepositoryPluginViewModel unless defined? PackageRepositoryPluginViewModel
-  java_import com.thoughtworks.go.server.ui.TaskPluginViewModel unless defined? TaskPluginViewModel
   java_import com.thoughtworks.go.server.ui.DisabledPluginViewModel unless defined? DisabledPluginViewModel
-
 end

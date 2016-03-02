@@ -16,14 +16,32 @@
 
 package com.thoughtworks.go.server.ui;
 
-public interface PluginViewModel {
-    String getPluginId();
+public abstract class PluginViewModel {
+    private String pluginId;
+    private String version;
+    private String message;
 
-    String getVersion();
+    protected PluginViewModel(){}
 
-    String getMessage();
+    protected PluginViewModel(String pluginId, String version, String message) {
+        this.pluginId = pluginId;
+        this.version = version;
+        this.message = message;
+    }
 
-    String getType();
+    public String getPluginId() {
+        return pluginId;
+    }
 
-    void setViewModel(String id, String version, String message);
+    public String getVersion() {
+        return version;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public abstract String getType();
+
+    public abstract Boolean hasPlugin(String pluginId);
 }

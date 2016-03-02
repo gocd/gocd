@@ -45,12 +45,30 @@ describe ApiV1::Admin::PluginsController do
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_user
-        expect(controller).to disallow_action(:get, :show, type: 'scm').with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:get, :show, type: 'scm', plugin_id: 'plugin-id').with(401, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
         expect(controller).to allow_action(:get, :show)
+      end
+    end
+
+    describe :list_plugins_of_type do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:get, :list_plugins_of_type)
+      end
+
+      it 'should disallow non-admin user, with security enabled' do
+        enable_security
+        login_as_user
+        expect(controller).to disallow_action(:get, :list_plugins_of_type, type: 'scm').with(401, "You are not authorized to perform this action.")
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:get, :list_plugins_of_type)
       end
     end
   end
@@ -65,13 +83,13 @@ describe ApiV1::Admin::PluginsController do
     describe :index do
       it 'should render all plugins json' do
         view_models    = ArrayList.new
-        scm_view_model = SCMPluginViewModel.new('plugin-id', 'version', get_scm_configurations)
+        scm_view_model = SCMPluginViewModel.new('plugin-id', 'version','', get_scm_configurations)
         view_models.add(scm_view_model)
 
-        package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', get_package_configurations, get_repo_configurations)
+        package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', '', get_package_configurations, get_repo_configurations)
         view_models.add(package_repository_view_model)
 
-        task_plugin_view_model = TaskPluginViewModel.new('plugin-id', 'version', get_task_configurations)
+        task_plugin_view_model = TaskPluginViewModel.new('plugin-id', 'version', '', get_task_configurations)
         view_models.add(task_plugin_view_model)
 
         invalid_plugin_view_model = com.thoughtworks.go.server.ui.DisabledPluginViewModel.new('plugin-id', 'version', 'Invalid Plugin')
@@ -86,17 +104,17 @@ describe ApiV1::Admin::PluginsController do
         expect(actual_response).to eq(expected_response_with_options(view_models, ApiV1::Plugins::PluginsRepresenter))
       end
     end
-    describe :show_with_type do
+    describe :list_plugins_of_type do
       describe :scm do
         it 'should render scm plugins json' do
-          scm_view_model         = SCMPluginViewModel.new('plugin-id', 'version', get_scm_configurations)
+          scm_view_model = SCMPluginViewModel.new('plugin-id', 'version', '', get_scm_configurations)
           scm_plugin_view_models = ArrayList.new
           scm_plugin_view_models.add(scm_view_model)
           @plugin_service.stub(:populatePluginViewModelsOfType).and_return(scm_plugin_view_models)
           @plugin_service.stub(:isValidPluginType).and_return(true)
 
           login_as_admin
-          get_with_api_header :show, type: 'scm'
+          get_with_api_header :list_plugins_of_type, type: 'scm'
           expect(response.code).to eq("200")
           expect(actual_response).to eq(expected_response_with_options(scm_plugin_view_models, {type: 'scm'}, ApiV1::Plugins::PluginsRepresenter))
         end
@@ -105,14 +123,14 @@ describe ApiV1::Admin::PluginsController do
 
       describe :package_configurations do
         it 'should render package repository plugins json' do
-          package_repository_view_model  = PackageRepositoryPluginViewModel.new('plugin-id', 'version', get_package_configurations, get_repo_configurations)
+          package_repository_view_model  = PackageRepositoryPluginViewModel.new('plugin-id', 'version', '', get_package_configurations, get_repo_configurations)
           package_repository_view_models = ArrayList.new
           package_repository_view_models.add(package_repository_view_model)
           @plugin_service.stub(:populatePluginViewModelsOfType).and_return(package_repository_view_models)
           @plugin_service.stub(:isValidPluginType).and_return(true)
 
           login_as_admin
-          get_with_api_header :show, type: 'package_repository'
+          get_with_api_header :list_plugins_of_type, type: 'package_repository'
           expect(response.code).to eq("200")
           expect(actual_response).to eq(expected_response_with_options(package_repository_view_models, {type: 'package_repository'}, ApiV1::Plugins::PluginsRepresenter))
         end
@@ -121,7 +139,7 @@ describe ApiV1::Admin::PluginsController do
 
       describe :task do
         it 'should render task plugins json' do
-          task_plugin_view_model  = TaskPluginViewModel.new('plugin-id', 'version', get_task_configurations)
+          task_plugin_view_model  = TaskPluginViewModel.new('plugin-id', 'version', '', get_task_configurations)
           task_plugin_view_models = ArrayList.new
           task_plugin_view_models.add(task_plugin_view_model)
 
@@ -129,7 +147,7 @@ describe ApiV1::Admin::PluginsController do
           @plugin_service.stub(:isValidPluginType).and_return(true)
 
           login_as_admin
-          get_with_api_header :show, type: 'task'
+          get_with_api_header :list_plugins_of_type, type: 'task'
           expect(response.code).to eq("200")
           expect(actual_response).to eq(expected_response_with_options(task_plugin_view_models, {type: 'task'}, ApiV1::Plugins::PluginsRepresenter))
         end
@@ -140,16 +158,16 @@ describe ApiV1::Admin::PluginsController do
         @plugin_service.stub(:isValidPluginType).and_return(false)
 
         login_as_admin
-        get_with_api_header :show, type: 'invalid_plugin'
+        get_with_api_header :list_plugins_of_type, type: 'invalid_plugin'
 
-        expect(response.code).to eq("422")
+        expect(response.code).to eq("404")
         expect(response.body).to include("Invalid plugin type")
       end
     end
-    describe :show_with_type_and_plugin_id do
+    describe :show do
       describe :scm do
         it 'should render a scm plugin json' do
-          scm_view_model = SCMPluginViewModel.new('plugin-id', 'version', get_scm_configurations)
+          scm_view_model = SCMPluginViewModel.new('plugin-id', 'version', '', get_scm_configurations)
           @plugin_service.stub(:populatePluginViewModel).and_return(scm_view_model)
           @plugin_service.stub(:isValidPluginType).and_return(true)
 
@@ -161,7 +179,7 @@ describe ApiV1::Admin::PluginsController do
       end
       describe :package_repository do
         it 'should render a package repository plugin json' do
-          package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', get_package_configurations, get_repo_configurations)
+          package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', '', get_package_configurations, get_repo_configurations)
           @plugin_service.stub(:populatePluginViewModel).and_return(package_repository_view_model)
           @plugin_service.stub(:isValidPluginType).and_return(true)
 
@@ -174,7 +192,7 @@ describe ApiV1::Admin::PluginsController do
 
       describe :task do
         it 'should render a task plugin json' do
-          task_plugin_view_model = TaskPluginViewModel.new('plugin-id', 'version', get_task_configurations)
+          task_plugin_view_model = TaskPluginViewModel.new('plugin-id', 'version', '', get_task_configurations)
 
           @plugin_service.stub(:populatePluginViewModel).and_return(task_plugin_view_model)
           @plugin_service.stub(:isValidPluginType).and_return(true)
@@ -191,8 +209,8 @@ describe ApiV1::Admin::PluginsController do
         @plugin_service.stub(:isValidPluginType).and_return(true)
         login_as_admin
         get_with_api_header :show, type: 'invalid_plugin', plugin_id: 'plugin-id'
-        expect(response.code).to eq("422")
-        expect(response.body).to include("Your request could not be processed. Invalid plugin id 'plugin-id' or invalid plugin type 'invalid_plugin'. Type has to be one of 'scm','package-repository'")
+        expect(response.code).to eq("404")
+        expect(response.body).to include("Invalid plugin id 'plugin-id' or invalid plugin type 'invalid_plugin'. Type has to be one of 'scm','package-repository', 'task'")
 
       end
 
@@ -201,8 +219,8 @@ describe ApiV1::Admin::PluginsController do
         @plugin_service.stub(:isValidPluginType).and_return(false)
         login_as_admin
         get_with_api_header :show, type: 'scm', plugin_id: 'invalid-plugin-id'
-        expect(response.code).to eq("422")
-        expect(response.body).to include("Your request could not be processed. Invalid plugin id 'invalid-plugin-id' or invalid plugin type 'scm'. Type has to be one of 'scm','package-repository'")
+        expect(response.code).to eq("404")
+        expect(response.body).to include("Invalid plugin id 'invalid-plugin-id' or invalid plugin type 'scm'. Type has to be one of 'scm','package-repository', 'task'")
       end
     end
 

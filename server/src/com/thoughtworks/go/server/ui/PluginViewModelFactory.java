@@ -38,17 +38,17 @@ public class PluginViewModelFactory {
         this.defaultPluginManager = defaultPluginManager;
     }
 
-    public PluginViewModel getPluginViewModel(String type, String pluginId) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public PluginViewModel getPluginViewModel(String type, String pluginId) throws ReflectiveOperationException {
+        String viewModel = typeToViewModelMap.get(type);
         if (!isValidPluginType(type) || !defaultPluginManager.hasReferenceFor(GoPlugin.class, pluginId)) {
             return null;
         }
 
-        PluginViewModel pluginViewModel = (PluginViewModel) Class.forName(typeToViewModelMap.get(type)).newInstance();
-        pluginViewModel.setViewModel(pluginId, getVersion(pluginId), getMessages(pluginId));
-        return pluginViewModel;
+        PluginViewModel pluginViewModel = (PluginViewModel) Class.forName(viewModel).getDeclaredConstructor(String.class, String.class, String.class).newInstance(pluginId, getVersion(pluginId), getMessages(pluginId));
+        return pluginViewModel.hasPlugin(pluginId) ? pluginViewModel : null;
     }
 
-    public List<PluginViewModel> getPluginViewModelsOfType(String type) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public List<PluginViewModel> getPluginViewModelsOfType(String type) throws ReflectiveOperationException {
         List<PluginViewModel> pluginViewModels = new ArrayList<>();
 
         if (!isValidPluginType(type)) {
@@ -66,7 +66,7 @@ public class PluginViewModelFactory {
         return pluginViewModels;
     }
 
-    public List<PluginViewModel> getAllPluginViewModels() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public List<PluginViewModel> getAllPluginViewModels() throws ReflectiveOperationException {
         List<PluginViewModel> pluginViewModels = new ArrayList<>();
         for (String type : typeToViewModelMap.keySet()) {
             pluginViewModels.addAll(getPluginViewModelsOfType(type));
@@ -75,13 +75,13 @@ public class PluginViewModelFactory {
         return pluginViewModels;
     }
 
-    private List<PluginViewModel> getInvalidPlugins(List<PluginViewModel> pluginViewModels) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    private List<PluginViewModel> getInvalidPlugins(List<PluginViewModel> pluginViewModels) throws ReflectiveOperationException {
         List<GoPluginDescriptor> plugins = defaultPluginManager.plugins();
         for (GoPluginDescriptor descriptor : plugins) {
             String pluginId = descriptor.id();
             if (defaultPluginManager.getPluginDescriptorFor(pluginId).isInvalid()) {
-                DisabledPluginViewModel disabledPluginViewModel = (DisabledPluginViewModel) Class.forName(DisabledPluginViewModel.class.getCanonicalName()).newInstance();
-                disabledPluginViewModel.setViewModel(pluginId, getVersion(pluginId), getMessages(pluginId));
+                DisabledPluginViewModel disabledPluginViewModel;
+                disabledPluginViewModel = (DisabledPluginViewModel) Class.forName(DisabledPluginViewModel.class.getCanonicalName()).getDeclaredConstructor(String.class, String.class, String.class).newInstance(pluginId, getVersion(pluginId), getMessages(pluginId));
                 pluginViewModels.add(disabledPluginViewModel);
             }
         }

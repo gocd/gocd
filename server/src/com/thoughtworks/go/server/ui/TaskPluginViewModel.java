@@ -19,35 +19,20 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 
-public class TaskPluginViewModel implements PluginViewModel {
-    private String pluginId;
-    private String version;
-    private String message;
+public class TaskPluginViewModel extends PluginViewModel {
     private TaskConfig taskConfig;
     public static final String TYPE = "task";
 
     public TaskPluginViewModel() {
     }
 
-    public TaskPluginViewModel(String pluginId, String version, TaskConfig taskConfig) {
-        this.pluginId = pluginId;
-        this.version = version;
+    public TaskPluginViewModel(String pluginId, String version, String message) {
+        super(pluginId, version, message);
+    }
+
+    public TaskPluginViewModel(String pluginId, String version, String message, TaskConfig taskConfig) {
+        super(pluginId, version, message);
         this.taskConfig = taskConfig;
-    }
-
-    @Override
-    public String getPluginId() {
-        return pluginId;
-    }
-
-    @Override
-    public String getVersion() {
-        return version;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
     }
 
     @Override
@@ -56,14 +41,13 @@ public class TaskPluginViewModel implements PluginViewModel {
     }
 
     public TaskConfig getConfigurations() {
+        if (taskConfig == null) {
+            this.taskConfig = PluggableTaskConfigStore.store().getMetaData(getPluginId());
+        }
         return taskConfig;
     }
 
-    @Override
-    public void setViewModel(String id, String version, String message) {
-        this.pluginId = id;
-        this.version = version;
-        this.taskConfig = PluggableTaskConfigStore.store().getMetaData(id);
-        this.message = message;
+    public Boolean hasPlugin(String pluginId){
+        return PluggableTaskConfigStore.store().hasPlugin(pluginId);
     }
 }

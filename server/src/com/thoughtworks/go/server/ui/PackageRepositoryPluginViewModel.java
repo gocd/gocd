@@ -20,10 +20,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.*;
 
 import java.util.List;
 
-public class PackageRepositoryPluginViewModel implements PluginViewModel {
-    private String pluginId;
-    private String version;
-    private String message;
+public class PackageRepositoryPluginViewModel extends PluginViewModel {
     private PackageConfigurations packageConfigurations;
     private PackageConfigurations repositoryConfigurations;
     public static final String TYPE = JsonBasedPackageRepositoryExtension.EXTENSION_NAME;
@@ -31,47 +28,36 @@ public class PackageRepositoryPluginViewModel implements PluginViewModel {
     public PackageRepositoryPluginViewModel() {
     }
 
-    public PackageRepositoryPluginViewModel(String pluginId, String version, PackageConfigurations packageConfigurations, PackageConfigurations repositoryConfigurations) {
-        this.pluginId = pluginId;
-        this.version = version;
+    public PackageRepositoryPluginViewModel(String pluginId, String version, String message) {
+        super(pluginId, version, message);
+    }
+
+    public PackageRepositoryPluginViewModel(String pluginId, String version, String message, PackageConfigurations packageConfigurations, PackageConfigurations repositoryConfigurations) {
+        super(pluginId, version, message);
         this.packageConfigurations = packageConfigurations;
         this.repositoryConfigurations = repositoryConfigurations;
     }
 
-    @Override
-    public String getPluginId() {
-        return pluginId;
-    }
-
-    @Override
-    public String getVersion() {
-        return version;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
 
     @Override
     public String getType() {
         return TYPE;
     }
 
-    @Override
-    public void setViewModel(String id, String version, String message) {
-        this.pluginId = id;
-        this.version = version;
-        this.packageConfigurations = PackageMetadataStore.getInstance().getMetadata(id);
-        this.repositoryConfigurations = RepositoryMetadataStore.getInstance().getMetadata(id);
-        this.message = message;
-    }
-
     public List<PackageConfiguration> getPackageConfigurations() {
+        if (packageConfigurations == null) {
+            this.packageConfigurations = PackageMetadataStore.getInstance().getMetadata(getPluginId());
+        }
         return packageConfigurations.list();
     }
 
     public List<PackageConfiguration> getRepositoryConfigurations() {
+        if (repositoryConfigurations == null) {
+            this.repositoryConfigurations = RepositoryMetadataStore.getInstance().getMetadata(getPluginId());
+        }
         return repositoryConfigurations.list();
+    }
+    public Boolean hasPlugin(String pluginId){
+        return RepositoryMetadataStore.getInstance().hasPlugin(pluginId);
     }
 }

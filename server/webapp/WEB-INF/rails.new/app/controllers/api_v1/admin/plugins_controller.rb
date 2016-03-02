@@ -35,20 +35,25 @@ module ApiV1
             json = ApiV1::Plugins::PluginRepresenter.new(plugin_view_model).to_hash(url_builder: self)
             render json_hal_v1: json
           else
-            raise ApiV1::UnprocessableEntity, "Invalid plugin id '#{plugin_id}' or invalid plugin type '#{type}'. Type has to be one of 'scm','package-repository', 'task'"
+            raise ApiV1::RecordNotFound, "Invalid plugin id '#{plugin_id}' or invalid plugin type '#{type}'. Type has to be one of 'scm','package-repository', 'task'"
           end
         end
+      end
 
-        if (type && plugin_id.blank?)
+      def list_plugins_of_type
+        type = params[:type]
+
+        if (type)
           plugin_view_models = plugin_service.populatePluginViewModelsOfType(type)
           if plugin_view_models
             json = ApiV1::Plugins::PluginsRepresenter.new(plugin_view_models, {type: type}).to_hash(url_builder: self)
             render json_hal_v1: json
           else
-            raise ApiV1::UnprocessableEntity, "Invalid plugin type '#{type}'. It has to be one of 'scm', 'package-repository', 'task'"
+            raise ApiV1::RecordNotFound, "Invalid plugin type '#{type}'. It has to be one of 'scm', 'package-repository', 'task'"
           end
         end
       end
+
     end
   end
 end

@@ -16,46 +16,24 @@
 
 package com.thoughtworks.go.server.ui;
 
-public class DisabledPluginViewModel implements PluginViewModel {
-    private String pluginId;
-    private String version;
+public class DisabledPluginViewModel extends PluginViewModel {
     public static final String TYPE = "disabled";
-    private String message;
 
     public DisabledPluginViewModel() {
     }
 
     public DisabledPluginViewModel(String pluginId, String version, String message) {
-        this.pluginId = pluginId;
-        this.version = version;
-        this.message = message;
-    }
-
-    @Override
-    public String getPluginId() {
-        return pluginId;
-    }
-
-    @Override
-    public String getVersion() {
-        return version;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public void setViewModel(String id, String version, String message) {
-        this.pluginId = id;
-        this.version = version;
-        this.message = message;
+        super(pluginId, version, message);
     }
 
     @Override
     public String getType() {
         return TYPE;
+    }
+
+    @Override
+    public Boolean hasPlugin(String pluginId) {
+        return null;
     }
 
 }

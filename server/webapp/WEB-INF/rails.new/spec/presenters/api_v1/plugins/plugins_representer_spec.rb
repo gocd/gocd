@@ -20,7 +20,7 @@ describe ApiV1::Plugins::PluginRepresenter do
 
   describe :scm do
     it 'renders all plugins of SCM type with hal representation' do
-      scm_view_model         = SCMPluginViewModel.new('plugin-id', 'version', SCMConfigurations.new)
+      scm_view_model         = SCMPluginViewModel.new('plugin-id', 'version', '', SCMConfigurations.new)
       scm_plugin_view_models = ArrayList.new
       scm_plugin_view_models.add(scm_view_model)
       presenter   = ApiV1::Plugins::PluginsRepresenter.new(scm_plugin_view_models, {type: 'scm'})
@@ -36,7 +36,7 @@ describe ApiV1::Plugins::PluginRepresenter do
 
   describe :package_repository do
     it 'renders all plugins of Package Repository type with hal representation' do
-      package_repository_view_model  = PackageRepositoryPluginViewModel.new('plugin-id', 'version', PackageConfigurations.new, PackageConfigurations.new)
+      package_repository_view_model  = PackageRepositoryPluginViewModel.new('plugin-id', 'version', '', PackageConfigurations.new, PackageConfigurations.new)
       package_repository_view_models = ArrayList.new
       package_repository_view_models.add(package_repository_view_model)
       presenter   = ApiV1::Plugins::PluginsRepresenter.new(package_repository_view_models, {type: 'package_repository'})
@@ -51,7 +51,7 @@ describe ApiV1::Plugins::PluginRepresenter do
 
     describe :task do
       it 'renders all plugins of Task type with hal representation' do
-        task_view_model  = TaskPluginViewModel.new('plugin-id', 'version', com.thoughtworks.go.plugin.api.task::TaskConfig.new)
+        task_view_model  = TaskPluginViewModel.new('plugin-id', 'version', '', com.thoughtworks.go.plugin.api.task::TaskConfig.new)
         task_view_models = ArrayList.new
         task_view_models.add(task_view_model)
         presenter   = ApiV1::Plugins::PluginsRepresenter.new(task_view_models, {type: 'task'})
@@ -67,8 +67,8 @@ describe ApiV1::Plugins::PluginRepresenter do
   end
   it 'renders all plugins  with hal representation' do
     view_models                   = ArrayList.new
-    task_view_model               = TaskPluginViewModel.new('plugin-id', 'version', com.thoughtworks.go.plugin.api.task::TaskConfig.new)
-    package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', PackageConfigurations.new, PackageConfigurations.new)
+    task_view_model               = TaskPluginViewModel.new('plugin-id', 'version','', com.thoughtworks.go.plugin.api.task::TaskConfig.new)
+    package_repository_view_model = PackageRepositoryPluginViewModel.new('plugin-id', 'version', '', PackageConfigurations.new, PackageConfigurations.new)
     disabled_plugin_view_model    = DisabledPluginViewModel.new('plugin-id', 'version', 'Invalid plugin')
 
     view_models.add(task_view_model)

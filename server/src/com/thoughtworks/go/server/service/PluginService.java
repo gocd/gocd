@@ -50,15 +50,15 @@ public class PluginService {
         this.pluginViewModelFactory = new PluginViewModelFactory(defaultPluginManager);
     }
 
-    public List<PluginViewModel> populatePluginViewModelsOfType(String type) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public List<PluginViewModel> populatePluginViewModelsOfType(String type) throws ReflectiveOperationException {
         return pluginViewModelFactory.getPluginViewModelsOfType(type);
     }
 
-    public PluginViewModel populatePluginViewModel(String type, String pluginId) throws IllegalAccessException, ClassNotFoundException, InstantiationException {
+    public PluginViewModel populatePluginViewModel(String type, String pluginId) throws ReflectiveOperationException {
         return pluginViewModelFactory.getPluginViewModel(type, pluginId);
     }
 
-    public List<PluginViewModel> populatePluginViewModels() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
+    public List<PluginViewModel> populatePluginViewModels() throws ReflectiveOperationException {
         return pluginViewModelFactory.getAllPluginViewModels();
     }
 

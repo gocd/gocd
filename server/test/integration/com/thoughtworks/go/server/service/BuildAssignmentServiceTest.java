@@ -782,6 +782,43 @@ public class BuildAssignmentServiceTest {
         assertThat(agent.messages.get(0).getAction(), is(Action.reregister));
     }
 
+    @Test
+    public void shouldAssignAgentsWhenThereAreAgentsAreDisabledOrNeedReregister() {
+        fixture.createPipelineWithFirstStageScheduled();
+
+        AgentConfig canceledAgentConfig = AgentMother.remoteAgent();
+        configHelper.addAgent(canceledAgentConfig);
+        AgentRuntimeInfo canceledAgentInfo = AgentRuntimeInfo.fromServer(canceledAgentConfig, true, "location", 1000000l, "OS");
+        canceledAgentInfo.setCookie("cookie1");
+        AgentStub canceledAgent = new AgentStub();
+        agentRemoteHandler.process(canceledAgent, new Message(Action.ping, canceledAgentInfo));
+        AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(canceledAgentInfo.getUUId());
+        agentInstance.cancel();
+
+        AgentConfig needRegisterAgentConfig = AgentMother.remoteAgent();
+        AgentRuntimeInfo needRegisterAgentInfo = AgentRuntimeInfo.fromServer(needRegisterAgentConfig, true, "location", 1000000l, "OS");
+        agentService.requestRegistration(needRegisterAgentInfo);
+        needRegisterAgentInfo.setCookie("cookie2");
+        AgentStub needRegisterAgent = new AgentStub();
+        agentRemoteHandler.process(needRegisterAgent, new Message(Action.ping, needRegisterAgentInfo));
+
+        AgentConfig assignedAgent = AgentMother.remoteAgent();
+        configHelper.addAgent(assignedAgent);
+        AgentRuntimeInfo assignedAgentInfo = AgentRuntimeInfo.fromServer(assignedAgent, true, "location", 1000000l, "OS");
+        assignedAgentInfo.setCookie("cookie3");
+        agentRemoteHandler.process(agent, new Message(Action.ping, assignedAgentInfo));
+
+        buildAssignmentService.onTimer();
+
+        assertThat(canceledAgent.messages.size(), is(0));
+
+        assertThat(needRegisterAgent.messages.size(), is(1));
+        assertThat(needRegisterAgent.messages.get(0).getAction(), is(Action.reregister));
+
+        assertThat(agent.messages.size(), is(1));
+        assertThat(agent.messages.get(0).getData(), instanceOf(BuildWork.class));
+    }
+
     private JobInstance buildOf(Pipeline pipeline) {
         return pipeline.getStages().first().getJobInstances().first();
     }

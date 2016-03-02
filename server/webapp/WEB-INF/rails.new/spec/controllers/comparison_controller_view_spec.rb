@@ -138,7 +138,7 @@ describe ComparisonController, "view" do
           end
         end
       end
-      expect(response.body).to include("<h3>You do not have view permissions for pipeline 'some_pipeline'.</h3>")
+      expect(response.body).to include("<h3>You do not have view permissions for pipeline &#39;some_pipeline&#39;.</h3>")
       expect(response.status).to eq(401)
     end
 
@@ -161,7 +161,7 @@ describe ComparisonController, "view" do
           end
         end
       end
-      expect(response.body).to include("<h3>You do not have view permissions for pipeline 'admin_only'. { too bad for you! }\n</h3>")
+      expect(response.body).to include("<h3>You do not have view permissions for pipeline &#39;admin_only&#39;. { too bad for you! }\n</h3>")
       expect(response.status).to eq(401)
     end
 

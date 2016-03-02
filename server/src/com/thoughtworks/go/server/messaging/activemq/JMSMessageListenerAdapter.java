@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.messaging.GoMessageListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-class JMSMessageListenerAdapter implements Runnable {
+public class JMSMessageListenerAdapter implements Runnable {
     private static final Log LOG = LogFactory.getLog(JMSMessageListenerAdapter.class);
 
     private final MessageConsumer consumer;
@@ -53,6 +53,10 @@ class JMSMessageListenerAdapter implements Runnable {
         }
     }
 
+    public void stop() throws JMSException {
+        consumer.close();
+    }
+
     protected boolean runImpl() {
         try {
             Message message = consumer.receive();
@@ -76,4 +80,5 @@ class JMSMessageListenerAdapter implements Runnable {
             throws JMSException {
         return new JMSMessageListenerAdapter(consumer, listener);
     }
+
 }

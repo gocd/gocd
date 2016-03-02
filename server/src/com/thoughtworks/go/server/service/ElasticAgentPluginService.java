@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
@@ -27,7 +26,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
-import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueue;
+import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueue;
 import com.thoughtworks.go.util.ListUtil;
@@ -50,7 +49,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     private final ElasticAgentPluginRegistry elasticAgentPluginRegistry;
     private final AgentService agentService;
     private final EnvironmentConfigService environmentConfigService;
-    private final CreateAgentQueue createAgentQueue;
+    private final CreateAgentQueueHandler createAgentQueue;
     private final ServerPingQueue serverPingQueue;
     private final ServerConfigService serverConfigService;
 
@@ -58,7 +57,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     public ElasticAgentPluginService(
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
-            CreateAgentQueue createAgentQueue,
+            CreateAgentQueueHandler createAgentQueue,
             ServerPingQueue serverPingQueue,
             ServerConfigService serverConfigService) {
         this.pluginManager = pluginManager;

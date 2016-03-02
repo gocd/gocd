@@ -16,16 +16,20 @@
 
 package com.thoughtworks.go.server.messaging;
 
+import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
+
 import javax.jms.JMSException;
 
 public interface MessagingService {
     MessageSender createSender(String topic);
 
-    void addListener(String topic, GoMessageListener listener);
+    JMSMessageListenerAdapter addListener(String topic, GoMessageListener listener);
+
+    void removeQueue(String queueName);
 
     void stop() throws JMSException;
 
-    void addQueueListener(String topic, GoMessageListener listener);
+    JMSMessageListenerAdapter addQueueListener(String topic, GoMessageListener listener);
 
     MessageSender createQueueSender(String queueName);
 

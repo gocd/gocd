@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.messaging;
 
+import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
+
 public class GoMessageTopic<T extends GoMessage> implements GoMessageChannel<T> {
     private MessagingService messaging;
     private String topic;
@@ -33,8 +35,8 @@ public class GoMessageTopic<T extends GoMessage> implements GoMessageChannel<T> 
         return sender;
     }
 
-    public void addListener(GoMessageListener<T> listener) {
-        messaging.addListener(topic, listener);
+    public JMSMessageListenerAdapter addListener(GoMessageListener<T> listener) {
+        return messaging.addListener(topic, listener);
     }
 
     public void sendText(String message) {

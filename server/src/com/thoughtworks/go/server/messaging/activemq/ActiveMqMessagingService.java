@@ -29,7 +29,14 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.ConnectionContext;
+import org.apache.activemq.broker.region.Destination;
+import org.apache.activemq.broker.region.Subscription;
+import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.util.BrokerSupport;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -52,6 +59,7 @@ public class ActiveMqMessagingService implements MessagingService {
         broker.getManagementContext().setConnectorPort(systemEnvironment.getActivemqConnectorPort());
         broker.start();
 
+
         factory = new ActiveMQConnectionFactory(BROKER_URL);
         factory.getPrefetchPolicy().setQueuePrefetch(systemEnvironment.getActivemqQueuePrefetch());
         factory.setCopyMessageOnSend(false);
@@ -73,15 +81,16 @@ public class ActiveMqMessagingService implements MessagingService {
         }
     }
 
-    public void addListener(String topic, final GoMessageListener listener) {
+    public JMSMessageListenerAdapter addListener(String topic, final GoMessageListener listener) {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createTopic(topic));
-            JMSMessageListenerAdapter.startListening(consumer, listener);
+            return JMSMessageListenerAdapter.startListening(consumer, listener);
         } catch (Exception e) {
             throw bomb(e);
         }
     }
+
 
     public MessageSender createQueueSender(String queueName) {
         try {
@@ -94,11 +103,28 @@ public class ActiveMqMessagingService implements MessagingService {
         }
     }
 
-    public void addQueueListener(String queueName, final GoMessageListener listener) {
+    public JMSMessageListenerAdapter addQueueListener(String queueName, final GoMessageListener listener) {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
-            JMSMessageListenerAdapter.startListening(consumer, listener);
+            return JMSMessageListenerAdapter.startListening(consumer, listener);
+        } catch (Exception e) {
+            throw bomb(e);
+        }
+    }
+
+    public void removeQueue(String queueName) {
+        try {
+            ActiveMQQueue destination = new ActiveMQQueue(queueName);
+            ConnectionContext connectionContext = BrokerSupport.getConnectionContext(broker.getBroker());
+            Destination brokerDestination = broker.getDestination(destination);
+            List<Subscription> consumers = brokerDestination.getConsumers();
+            for (Subscription consumer : consumers) {
+                consumer.remove(connectionContext, brokerDestination);
+                brokerDestination.removeSubscription(connectionContext, consumer, 0);
+            }
+            broker.getBroker().removeDestination(connectionContext, destination, 1000);
+            broker.removeDestination(destination);
         } catch (Exception e) {
             throw bomb(e);
         }

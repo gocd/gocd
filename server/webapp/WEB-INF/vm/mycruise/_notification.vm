@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,10 @@
 <div class="content_wrapper_outer"><div class="content_wrapper_inner">
 <div id="email-settings" class="aside">
     <form action="user" method="post" onsubmit="return myCruise.validate();">
+        <input type="hidden" name="post.token" value="$session.getAttribute('post.token')"/>
         <h2>
             Email Settings
         </h2>
-        
-        
         
         <fieldset>
             <legend>Email</legend>
@@ -76,11 +75,9 @@
         </fieldset>
         
         <fieldset class="save-actions" style="display: none;">
-##            <input id="save-matchers" type="submit" value="Save" name="save"/>
             <button class="submit" id="save-matchers" type="submit" value="Save" name="save">
                 <span>Save</span>
             </button>
-##            <input type="reset" value="Cancel" onclick="myCruise.cancelMatchers()"/>
             <button class="submit" type="reset" value="Cancel" onclick="myCruise.cancelMatchers()">
                 <span>Cancel</span>
             </button>
@@ -91,6 +88,8 @@
 
 <div id="filters-settings" class="section">
     <form action="notification" method="post" id="notification_form" class="add-filter identity">
+        <input type="hidden" name="post.token" value="$session.getAttribute('post.token')"/>
+
         <h2>Filters</h2>
         <fieldset>
             <input id="filterId" name="filterId" type="hidden"/>

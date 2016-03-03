@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Controller
 public class MyGoInterceptor implements HandlerInterceptor {
     private final GoConfigService goConfigService;
-    private final EnvironmentConfigService environmentConfigService;
     public static final String SECURITY_IS_ENABLED = "securityIsEnabled";
     public static final String SMTP_IS_ENABLED = "smtpIsEnabled";
 
     @Autowired
-    public MyGoInterceptor(GoConfigService goConfigService, EnvironmentConfigService environmentConfigService) {
+    public MyGoInterceptor(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-        this.environmentConfigService = environmentConfigService;
     }
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

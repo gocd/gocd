@@ -54,7 +54,7 @@ describe "/navigation_elements/navigation" do
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to have_selector(".current-user a[href='#']", text: "go_user")
       expect(response.body).to have_selector(".current-user a[href='https://go.cd/help']", text: "Help")
@@ -68,7 +68,7 @@ describe "/navigation_elements/navigation" do
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to_not have_selector(".current-user a[href='#']", text: "go_user")
       expect(response.body).to_not have_selector(".current-user a[href='/tab/mycruise/user']", text: "Preferences")

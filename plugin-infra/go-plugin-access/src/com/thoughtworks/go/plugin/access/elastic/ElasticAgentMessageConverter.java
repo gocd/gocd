@@ -17,11 +17,12 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface ElasticAgentMessageConverter {
     String canHandlePluginRequestBody(Collection<String> resources, String environment);
 
-    String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment);
+    String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment, Map<String, String> configuration);
 
     Boolean canHandlePluginResponseFromBody(String responseBody);
 

@@ -25,10 +25,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
@@ -63,11 +60,11 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    public void createAgent(final String autoRegisterKey, String pluginId, final Collection<String> resources, final String environment) {
+    public void createAgent(final String autoRegisterKey, String pluginId, final Collection<String> resources, final String environment, final Map<String, String> configuration) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, resources, environment);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, resources, environment, configuration);
             }
         });
     }

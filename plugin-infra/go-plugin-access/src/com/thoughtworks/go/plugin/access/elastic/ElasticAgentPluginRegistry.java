@@ -21,15 +21,13 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class ElasticAgentPluginRegistry implements PluginChangeListener {
@@ -64,15 +62,25 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         return Collections.unmodifiableList(plugins);
     }
 
-    public void createAgent(String autoRegisterKey, Collection<String> resources, String environment) {
-        PluginDescriptor plugin = findPluginMatching(resources, environment);
+    public void createAgent(String autoRegisterKey, Collection<String> resources, String environment, final String pluginId, Map<String, String> configuration) {
+        PluginDescriptor plugin = findPlugin(pluginId);
         if (plugin != null) {
-            LOGGER.debug("Processing create agent for plugin: {} with resources: [{}] and environment: {}", plugin.id(), resources, environment);
-            elasticAgentExtension.createAgent(autoRegisterKey, plugin.id(), resources, environment);
-            LOGGER.debug("Done processing create agent for plugin: {} with resources: [{}] and environment: {}", plugin.id(), resources, environment);
+            LOGGER.debug("Processing create agent for plugin: {} with resources: [{}] and environment: {}", pluginId, resources, environment);
+            elasticAgentExtension.createAgent(autoRegisterKey, pluginId, resources, environment, configuration);
+            LOGGER.debug("Done processing create agent for plugin: {} with resources: [{}] and environment: {}", pluginId, resources, environment);
         } else {
-            LOGGER.warn("Could not find plugin matching resources: [{}] and environment: {}", resources, environment);
+            LOGGER.warn("Could not find plugin with id: {}", pluginId);
         }
+    }
+
+    private PluginDescriptor findPlugin(final String pluginId) {
+        return ListUtil.find(plugins, new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                PluginDescriptor pluginDescriptor = (PluginDescriptor) item;
+                return pluginDescriptor.id().equals(pluginId);
+            }
+        });
     }
 
     public void serverPing(String pluginId, Collection<AgentMetadata> agents) {

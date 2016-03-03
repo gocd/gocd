@@ -20,6 +20,8 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -46,8 +48,11 @@ public class ElasticAgentExtensionConverterV1Test {
 
     @Test
     public void shouldJSONizeCreateAgentRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().createAgentRequestBody("secret-key", Arrays.asList("foo", "bar"), "prod");
-        JSONAssert.assertEquals(json, "{\"resources\":[\"foo\",\"bar\"],\"environment\":\"prod\",\"auto_register_key\":\"secret-key\"}", true);
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put("key1", "value1");
+        configuration.put("key2", "value2");
+        String json = new ElasticAgentExtensionConverterV1().createAgentRequestBody("secret-key", Arrays.asList("foo", "bar"), "prod", configuration);
+        JSONAssert.assertEquals(json, "{\"auto_register_key\":\"secret-key\",\"properties\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"environment\":\"prod\"}", true);
     }
 
     @Test

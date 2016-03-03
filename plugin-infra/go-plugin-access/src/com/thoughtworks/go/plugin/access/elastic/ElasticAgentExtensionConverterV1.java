@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
 
@@ -37,11 +38,15 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment) {
+    public String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment, Map<String, String> configuration) {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("auto_register_key", autoRegisterKey);
-        jsonObject.add("resources", gson.toJsonTree(resources));
+        JsonObject properties = new JsonObject();
+        for (Map.Entry<String, String> entry : configuration.entrySet()) {
+            properties.addProperty(entry.getKey(), entry.getValue());
+        }
+        jsonObject.add("properties", properties);
         jsonObject.addProperty("environment", environment);
         return gson.toJson(jsonObject);
 

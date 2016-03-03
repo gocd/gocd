@@ -16,19 +16,23 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
+import com.thoughtworks.go.config.JobAgentConfig;
 import com.thoughtworks.go.server.messaging.GoMessage;
 
 import java.util.List;
+import java.util.Map;
 
 public class CreateAgentMessage implements GoMessage {
     private final String autoregisterKey;
     private final List<String> resources;
     private final String environment;
+    private final JobAgentConfig jobAgentConfig;
 
-    public CreateAgentMessage(String autoregisterKey, List<String> resources, String environment) {
+    public CreateAgentMessage(String autoregisterKey, List<String> resources, String environment, JobAgentConfig jobAgentConfig) {
         this.autoregisterKey = autoregisterKey;
         this.resources = resources;
         this.environment = environment;
+        this.jobAgentConfig = jobAgentConfig;
     }
 
     public String autoregisterKey() {
@@ -49,5 +53,13 @@ public class CreateAgentMessage implements GoMessage {
                 "resources=" + resources +
                 ", environment='" + environment + '\'' +
                 '}';
+    }
+
+    public String getPluginId() {
+        return jobAgentConfig.getPluginId();
+    }
+
+    public Map<String, String> getConfiguration() {
+        return jobAgentConfig.getConfigurationAsMap(true);
     }
 }

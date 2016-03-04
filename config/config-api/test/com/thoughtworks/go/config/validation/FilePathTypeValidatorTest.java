@@ -39,7 +39,7 @@ public class FilePathTypeValidatorTest {
         assertThat(filePathTypeValidator.isPathValid(".."), is(false));
         assertThat(filePathTypeValidator.isPathValid("../a"), is(false));
         assertThat(filePathTypeValidator.isPathValid(" "), is(false));
-        assertThat(filePathTypeValidator.isPathValid("./a"), is(false));
+        assertThat(filePathTypeValidator.isPathValid("./a"), is(true));
         assertThat(filePathTypeValidator.isPathValid(". "), is(false));
         assertThat(filePathTypeValidator.isPathValid(" ."), is(false));
         assertThat(filePathTypeValidator.isPathValid("abc"), is(true));

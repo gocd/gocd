@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.materials.git;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -154,7 +153,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    protected void validateConcreteScmMaterial(ValidationContext validationContext) {
+    public void validateConcreteScmMaterial() {
         if (url == null || StringUtil.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }

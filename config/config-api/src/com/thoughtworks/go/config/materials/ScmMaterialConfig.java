@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigSubtag;
-import com.thoughtworks.go.config.ParamsAttributeAware;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -33,6 +24,10 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -187,10 +182,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     protected final void validateConcreteMaterial(ValidationContext validationContext) {
         validateNotOutsideSandbox();
         validateDestFolderPath();
-        validateConcreteScmMaterial(validationContext);
+        validateConcreteScmMaterial();
     }
 
-    protected abstract void validateConcreteScmMaterial(ValidationContext validationContext);
+    public abstract void validateConcreteScmMaterial();
 
     private void validateDestFolderPath() {
         if (StringUtils.isBlank(folder)) {

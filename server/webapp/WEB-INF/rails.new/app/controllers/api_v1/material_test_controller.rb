@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,13 @@ module ApiV1
 
     def test
       material_config = ApiV1::Config::Materials::MaterialRepresenter.new(ApiV1::Config::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)
+      material_config.validateConcreteScmMaterial()
+      if material_config.errors.any?
+        json = ApiV1::Config::Materials::MaterialRepresenter.new(material_config).to_hash(url_builder: self)
+        return render_message('There was an error with the material configuration!', 422, { data: json})
+      end
 
+      material_config.ensureEncrypted() if material_config.respond_to?(:ensureEncrypted)
       perform_param_expansion(material_config) unless params[:pipeline_name].blank?
 
       material = MaterialConfigConverter.new.toMaterial(material_config)

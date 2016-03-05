@@ -55,7 +55,9 @@ module ApiV1
                             "stageName"         => "stage",
                             "pipelineStageName" => "pipeline",
                             "packageId"         => "ref",
-                            "scmId"             => "ref"
+                            "scmId"             => "ref",
+                            "password"          => "password",
+                            "encryptedPassword" => "encrypted_password",
                           }
         )
 

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,19 +43,37 @@ describe ApiV1::MaterialTestController do
       end
 
       it 'renders OK if connection test passed' do
-        com.thoughtworks.go.config.materials.git.GitMaterial.
+        com.thoughtworks.go.config.materials.svn.SvnMaterial.
           any_instance.
           should_receive(:checkConnection).with(ApiV1::MaterialTestController.check_connection_execution_context).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
+        com.thoughtworks.go.config.materials.svn.SvnMaterialConfig.
+          any_instance.
+          should_receive(:ensureEncrypted)
+
         post_with_api_header :test, {
-          type:       'git',
+          type:       'svn',
           attributes: {
-            url: 'https://example.com/git/FooBarWidgets.git'
+            url: 'https://example.com/git/FooBarWidgets.git',
+            password: 'password'
           }
         }
 
         expect(response).to have_api_message_response(200, 'Connection OK.')
+      end
+
+      it 'validates material before testing connection' do
+        post_with_api_header :test, {
+          type:       'svn',
+          attributes: {
+            url: 'https://example.com/svn/FooBarWidgets.git',
+            password: 'foo',
+            encrypted_password: GoCipher.new.encrypt('bar')
+          }
+        }
+
+        expect(response).to have_api_message_response(422, 'There was an error with the material configuration!')
       end
 
       it 'renders error if connection test failed' do

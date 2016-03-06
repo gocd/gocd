@@ -45,6 +45,11 @@ public class ServerCall {
         HashMap<String, String> headers = new HashMap<String, String>();
         HttpClient httpClient = new HttpClient();
         httpClient.setConnectionTimeout(HTTP_TIMEOUT_IN_MILLISECONDS);
+        final String proxyHost = System.getProperty("http.proxyHost");
+        final String proxyPort = System.getProperty("http.proxyPort");
+        final String nonProxyHosts = System.getProperty("http.nonProxyHosts");
+        httpClient.getHostConfiguration().setProxyHost(
+                ProxyConfigurator.create(method, proxyHost, proxyPort, nonProxyHosts));
         try {
             final int status = httpClient.executeMethod(method);
             if (status == HttpStatus.SC_NOT_FOUND) {

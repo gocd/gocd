@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThat;
 
 public class EnvironmentVariableContextTest {
     private static final String PROPERTY_NAME = "PROPERTY_NAME";
+    private static final String PROPERTY_NAME_WITH_END_SPACE = "PROPERTY_NAME ";
     private static final String PROPERTY_VALUE = "property value";
     private static final String NEW_VALUE = "new value";
 
@@ -35,6 +36,13 @@ public class EnvironmentVariableContextTest {
     public void shouldBeAbleToAddProperties() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
+        assertThat(context.getProperty(PROPERTY_NAME), is(PROPERTY_VALUE));
+    }
+
+    @Test
+    public void shouldBeAbleToTrimPropertiesBeforeAdding() {
+        EnvironmentVariableContext context = new EnvironmentVariableContext();
+        context.setProperty(PROPERTY_NAME_WITH_END_SPACE, PROPERTY_VALUE, false);
         assertThat(context.getProperty(PROPERTY_NAME), is(PROPERTY_VALUE));
     }
 
@@ -66,6 +74,7 @@ public class EnvironmentVariableContextTest {
         assertThat(report.get(0), is("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
         assertThat(report.get(1), is("[go] overriding environment variable 'PROPERTY_NAME' with value 'new value'"));
     }
+
 
     @Test
     public void shouldMaskOverRiddenSecureVariable() {

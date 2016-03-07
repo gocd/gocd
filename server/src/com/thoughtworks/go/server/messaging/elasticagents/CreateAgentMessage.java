@@ -19,28 +19,23 @@ package com.thoughtworks.go.server.messaging.elasticagents;
 import com.thoughtworks.go.config.JobAgentConfig;
 import com.thoughtworks.go.server.messaging.GoMessage;
 
-import java.util.List;
 import java.util.Map;
 
 public class CreateAgentMessage implements GoMessage {
     private final String autoregisterKey;
-    private final List<String> resources;
     private final String environment;
-    private final JobAgentConfig jobAgentConfig;
+    private final Map<String, String> configuration;
+    private final String pluginId;
 
-    public CreateAgentMessage(String autoregisterKey, List<String> resources, String environment, JobAgentConfig jobAgentConfig) {
+    public CreateAgentMessage(String autoregisterKey, String environment, JobAgentConfig jobAgentConfig) {
         this.autoregisterKey = autoregisterKey;
-        this.resources = resources;
         this.environment = environment;
-        this.jobAgentConfig = jobAgentConfig;
+        this.pluginId = jobAgentConfig.getPluginId();
+        this.configuration = jobAgentConfig.getConfigurationAsMap(true);
     }
 
     public String autoregisterKey() {
         return autoregisterKey;
-    }
-
-    public List<String> resources() {
-        return resources;
     }
 
     public String environment() {
@@ -52,15 +47,15 @@ public class CreateAgentMessage implements GoMessage {
         return "CreateAgentMessage{" +
                 "autoregisterKey='" + autoregisterKey + '\'' +
                 ", environment='" + environment + '\'' +
-                ", jobAgentConfig=" + jobAgentConfig +
+                ", jobAgentConfig=" + configuration +
                 '}';
     }
 
     public String getPluginId() {
-        return jobAgentConfig.getPluginId();
+        return pluginId;
     }
 
-    public Map<String, String> getConfiguration() {
-        return jobAgentConfig.getConfigurationAsMap(true);
+    public Map<String, String> configuration() {
+        return configuration;
     }
 }

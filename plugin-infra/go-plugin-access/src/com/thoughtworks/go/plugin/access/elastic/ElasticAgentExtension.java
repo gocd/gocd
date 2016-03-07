@@ -45,26 +45,11 @@ public class ElasticAgentExtension extends AbstractExtension {
         messageHandlerMap.put(ElasticAgentExtensionConverterV1.VERSION, extensionHandler);
     }
 
-    public boolean canPluginHandle(String pluginId, final Collection<String> resources, final String environment) {
-        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_CAN_PLUGIN_HANDLE, new DefaultPluginInteractionCallback<Boolean>() {
-
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).canHandlePluginRequestBody(resources, environment);
-            }
-
-            @Override
-            public Boolean onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).canHandlePluginResponseFromBody(responseBody);
-            }
-        });
-    }
-
-    public void createAgent(final String autoRegisterKey, String pluginId, final Collection<String> resources, final String environment, final Map<String, String> configuration) {
+    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, resources, environment, configuration);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, environment, configuration);
             }
         });
     }
@@ -78,12 +63,12 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final Collection<String> resources, final String environment, final Map<String, String> configuration) {
+    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration) {
         return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
 
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkRequestBody(agent, resources, environment, configuration);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkRequestBody(agent, environment, configuration);
             }
 
             @Override

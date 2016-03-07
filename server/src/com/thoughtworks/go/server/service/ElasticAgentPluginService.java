@@ -107,13 +107,13 @@ public class ElasticAgentPluginService implements JobStatusListener {
         for (JobPlan plan : plans) {
             String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
             if (plan.requiresElasticAgent()){
-                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), null, environment, plan.getJobAgentConfig()));
+                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getJobAgentConfig()));
             }
         }
     }
 
-    public boolean shouldAssignWork(ElasticAgentMetadata metadata, List<String> resources, String environment, JobAgentConfig jobAgentConfig) {
-        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), resources, environment, jobAgentConfig.getConfigurationAsMap(true));
+    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, JobAgentConfig jobAgentConfig) {
+        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), environment, jobAgentConfig.getConfigurationAsMap(true));
     }
 
     public void notifyAgentBusy(ElasticAgentMetadata metadata) {

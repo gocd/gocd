@@ -29,16 +29,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     public static final String VERSION = "1.0";
 
     @Override
-    public String canHandlePluginRequestBody(Collection<String> resources, String environment) {
-        Gson gson = new Gson();
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.add("resources", gson.toJsonTree(resources));
-        jsonObject.addProperty("environment", environment);
-        return gson.toJson(jsonObject);
-    }
-
-    @Override
-    public String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment, Map<String, String> configuration) {
+    public String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration) {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("auto_register_key", autoRegisterKey);
@@ -53,10 +44,9 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, Collection<String> resources, String environment, Map<String, String> configuration) {
+    public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration) {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
-//        jsonObject.add("resources", gson.toJsonTree(resources));
         JsonObject properties = new JsonObject();
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
             properties.addProperty(entry.getKey(), entry.getValue());

@@ -62,12 +62,12 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         return Collections.unmodifiableList(plugins);
     }
 
-    public void createAgent(String autoRegisterKey, Collection<String> resources, String environment, final String pluginId, Map<String, String> configuration) {
+    public void createAgent(final String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration) {
         PluginDescriptor plugin = findPlugin(pluginId);
         if (plugin != null) {
-            LOGGER.debug("Processing create agent for plugin: {} with resources: [{}] and environment: {}", pluginId, resources, environment);
-            elasticAgentExtension.createAgent(autoRegisterKey, pluginId, resources, environment, configuration);
-            LOGGER.debug("Done processing create agent for plugin: {} with resources: [{}] and environment: {}", pluginId, resources, environment);
+            LOGGER.debug("Processing create agent for plugin: {} with environment: {} with configuration: {}", pluginId, environment, configuration);
+            elasticAgentExtension.createAgent(pluginId, autoRegisterKey, environment, configuration);
+            LOGGER.debug("Done processing create agent for plugin: {} with environment: {} with configuration: {}", pluginId, environment, configuration);
         } else {
             LOGGER.warn("Could not find plugin with id: {}", pluginId);
         }
@@ -89,10 +89,10 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         LOGGER.debug("Done processing server ping {} [{}]", pluginId, agents);
     }
 
-    public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, Collection<String> resources, String environment, Map<String, String> configuration) {
-        LOGGER.debug("Processing should assign work for plugin: {} with agent: {} resources: [{}] and environment: {}", plugin.id(), agent, resources, environment);
-        boolean result = elasticAgentExtension.shouldAssignWork(plugin.id(), agent, resources, environment, configuration);
-        LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} resources: [{}] and environment: {}", result, plugin.id(), agent, resources, environment);
+    public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration) {
+        LOGGER.debug("Processing should assign work for plugin: {} with agent: {} with environment: {} with configuration: {}", plugin.id(), agent, environment, configuration);
+        boolean result = elasticAgentExtension.shouldAssignWork(plugin.id(), agent, environment, configuration);
+        LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} with environment: {} with configuration {}", result, plugin.id(), agent, environment, configuration);
         return result;
     }
 
@@ -108,12 +108,4 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         LOGGER.debug("Done processing notify agent idle for plugin: {} with agent: {}", plugin.id(), agent);
     }
 
-    private PluginDescriptor findPluginMatching(Collection<String> resources, String environment) {
-        for (PluginDescriptor pluginDescriptor : plugins) {
-            if (elasticAgentExtension.canPluginHandle(pluginDescriptor.id(), resources, environment)) {
-                return pluginDescriptor;
-            }
-        }
-        return null;
-    }
 }

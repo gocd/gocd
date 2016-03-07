@@ -29,12 +29,6 @@ import static org.junit.Assert.assertTrue;
 public class ElasticAgentExtensionConverterV1Test {
 
     @Test
-    public void shouldJSONizeCanHandleRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().canHandlePluginRequestBody(Arrays.asList("foo", "bar"), "prod");
-        JSONAssert.assertEquals(json, "{\"resources\":[\"foo\",\"bar\"],\"environment\":\"prod\"}", true);
-    }
-
-    @Test
     public void shouldUnJSONizeCanHandleResponseBody() throws Exception {
         assertTrue(new ElasticAgentExtensionConverterV1().canHandlePluginResponseFromBody("true"));
         assertFalse(new ElasticAgentExtensionConverterV1().canHandlePluginResponseFromBody("false"));
@@ -51,7 +45,7 @@ public class ElasticAgentExtensionConverterV1Test {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
-        String json = new ElasticAgentExtensionConverterV1().createAgentRequestBody("secret-key", Arrays.asList("foo", "bar"), "prod", configuration);
+        String json = new ElasticAgentExtensionConverterV1().createAgentRequestBody("secret-key", "prod", configuration);
         JSONAssert.assertEquals(json, "{\"auto_register_key\":\"secret-key\",\"properties\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"environment\":\"prod\"}", true);
     }
 
@@ -59,7 +53,7 @@ public class ElasticAgentExtensionConverterV1Test {
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
-        String json = new ElasticAgentExtensionConverterV1().shouldAssignWorkRequestBody(elasticAgent(), Arrays.asList("foo", "bar"), "prod", configuration);
+        String json = new ElasticAgentExtensionConverterV1().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration);
         System.out.println(json);
         JSONAssert.assertEquals(json, "{\"environment\":\"prod\",\"agent\":{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"},\"properties\":{\"property_name\":\"property_value\"}}", true);
     }

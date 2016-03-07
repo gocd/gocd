@@ -20,13 +20,12 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface ElasticAgentMessageConverter {
-    String canHandlePluginRequestBody(Collection<String> resources, String environment);
 
-    String createAgentRequestBody(String autoRegisterKey, Collection<String> resources, String environment, Map<String, String> configuration);
+    String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration);
 
     Boolean canHandlePluginResponseFromBody(String responseBody);
 
-    String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, Collection<String> resources, String environment, Map<String, String> configuration);
+    String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration);
 
     Boolean shouldAssignWorkResponseFromBody(String responseBody);
 

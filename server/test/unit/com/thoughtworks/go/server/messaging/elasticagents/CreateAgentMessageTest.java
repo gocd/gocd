@@ -18,9 +18,9 @@ public class CreateAgentMessageTest {
     public void shouldGetPluginId() {
         List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
         JobAgentConfig jobAgentConfig = new JobAgentConfig("plugin-id", properties);
-        CreateAgentMessage message = new CreateAgentMessage("key", null, "env", jobAgentConfig);
+        CreateAgentMessage message = new CreateAgentMessage("key", "env", jobAgentConfig);
         assertThat(message.getPluginId(), is(jobAgentConfig.getPluginId()));
         Map<String, String> configurationAsMap = jobAgentConfig.getConfigurationAsMap(true);
-        assertThat(message.getConfiguration(), is(configurationAsMap));
+        assertThat(message.configuration(), is(configurationAsMap));
     }
 }

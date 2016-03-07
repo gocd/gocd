@@ -29,19 +29,19 @@ import java.util.*;
 public class ProxyConfigurator {
 
     private final HttpMethod method;
-    private final String proxyHost;
-    private final int proxyPort;
+    private final String httpProxyHost;
+    private final int httpProxyPort;
     private final String nonProxyHosts;
 
-    private ProxyConfigurator(final HttpMethod method, String proxyHost, int proxyPort, String nonProxyHosts) {
+    private ProxyConfigurator(final HttpMethod method, String httpProxyHost, int httpProxyPort, String nonProxyHosts) {
         this.method = method;
-        this.proxyHost = proxyHost;
-        this.proxyPort = proxyPort;
+        this.httpProxyHost = httpProxyHost;
+        this.httpProxyPort = httpProxyPort;
         this.nonProxyHosts = nonProxyHosts;
     }
 
     private ProxyHost getProxy() {
-        final ProxyHost proxyHost = new ProxyHost(this.proxyHost, proxyPort);
+        final ProxyHost proxyHost = new ProxyHost(this.httpProxyHost, httpProxyPort);
         final String host;
         try {
             final URI uri = method.getURI();
@@ -69,19 +69,32 @@ public class ProxyConfigurator {
      * when the properties are not set or the host of the method
      * matches nonProxyHosts.
      *
-     * @param method        - called HttpMethod
-     * @param proxyHost     - proxyHost from System.properties
-     * @param proxyPort     - proxyPort from System.properties
-     * @param nonProxyHosts - nonProxyHosts from System.properties
-     * @return the ProxyHost to be used or null
+     * @param method            - called HttpMethod
+     * @param httpProxyHost     - http.proxyHost from System.properties
+     * @param httpProxyPort     - http.proxyPort from System.properties
+     * @param httpsProxyHost    - https.proxyHost from System.properties
+     * @param httpsProxyPort    - https.proxyPort from System.properties
+     * @param nonProxyHosts     - nonProxyHosts from System.properties  @return the ProxyHost to be used or null
      */
-    public static ProxyHost create(final HttpMethod method, String proxyHost, String proxyPort, String nonProxyHosts) {
-        if (method == null || proxyHost == null || proxyPort == null) {
-            return null;
+    public static ProxyHost create(final HttpMethod method, final String httpProxyHost, final String httpProxyPort, final String httpsProxyHost, final String httpsProxyPort, final String nonProxyHosts) {
+        final String scheme;
+        try {
+            scheme = method.getURI().getScheme();
+        } catch (URIException e) {
+            throw new IllegalArgumentException("Method is illegal", e);
+        }
+        if (scheme.equals("http")) {
+            return (httpProxyHost == null || httpProxyPort == null) ? null : new ProxyConfigurator(
+                    method,
+                    httpProxyHost, Integer.valueOf(httpProxyPort),
+                    nonProxyHosts).getProxy();
+        } else if (scheme.equals("https")) {
+            return (httpsProxyHost == null || httpsProxyPort == null) ? null : new ProxyConfigurator(
+                    method,
+                    httpsProxyHost, Integer.valueOf(httpsProxyPort),
+                    nonProxyHosts).getProxy();
         } else {
-            final ProxyConfigurator proxyConfigurator = new ProxyConfigurator(
-                    method, proxyHost, Integer.valueOf(proxyPort), nonProxyHosts);
-            return proxyConfigurator.getProxy();
+            return null;
         }
     }
 }

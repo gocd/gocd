@@ -96,16 +96,4 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         return result;
     }
 
-    public void notifyAgentBusy(PluginDescriptor plugin, AgentMetadata agent) {
-        LOGGER.debug("Processing notify agent busy for plugin: {} with agent: {}", plugin.id(), agent);
-        elasticAgentExtension.notifyAgentBusy(plugin.id(), agent);
-        LOGGER.debug("Done processing notify agent busy for plugin: {} with agent: {}", plugin.id(), agent);
-    }
-
-    public void notifyAgentIdle(PluginDescriptor plugin, AgentMetadata agent) {
-        LOGGER.debug("Processing notify agent idle for plugin: {} with agent: {}", plugin.id(), agent);
-        elasticAgentExtension.notifyAgentIdle(plugin.id(), agent);
-        LOGGER.debug("Done processing notify agent idle for plugin: {} with agent: {}", plugin.id(), agent);
-    }
-
 }

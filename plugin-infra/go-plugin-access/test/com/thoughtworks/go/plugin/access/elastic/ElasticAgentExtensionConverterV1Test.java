@@ -59,18 +59,6 @@ public class ElasticAgentExtensionConverterV1Test {
     }
 
     @Test
-    public void shouldJSONizeNotifyAgentBusyRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().notifyAgentBusyRequestBody(elasticAgent());
-        JSONAssert.assertEquals(json, "{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"}", true);
-    }
-
-    @Test
-    public void shouldJSONizeNotifyAgentIdleRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().notifyAgentIdleRequestBody(elasticAgent());
-        JSONAssert.assertEquals(json, "{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"}", true);
-    }
-
-    @Test
     public void shouldJSONizesServerPingRequestBody() throws Exception {
         String json = new ElasticAgentExtensionConverterV1().serverPingRequestBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
         JSONAssert.assertEquals(json, "[{\"agent_id\":\"42\",\"agent_state\":\"AgentState\",\"config_state\":\"ConfigState\",\"build_state\":\"BuildState\"}]", true);

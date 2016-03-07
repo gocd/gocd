@@ -47,7 +47,8 @@ public class CreateAgentMessage implements GoMessage {
         return "CreateAgentMessage{" +
                 "autoregisterKey='" + autoregisterKey + '\'' +
                 ", environment='" + environment + '\'' +
-                ", jobAgentConfig=" + configuration +
+                ", configuration=" + configuration +
+                ", pluginId='" + pluginId + '\'' +
                 '}';
     }
 

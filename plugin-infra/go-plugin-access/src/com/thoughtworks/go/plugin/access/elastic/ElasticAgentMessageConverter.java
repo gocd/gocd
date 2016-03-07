@@ -29,10 +29,6 @@ public interface ElasticAgentMessageConverter {
 
     Boolean shouldAssignWorkResponseFromBody(String responseBody);
 
-    String notifyAgentBusyRequestBody(AgentMetadata elasticAgent);
-
-    String notifyAgentIdleRequestBody(AgentMetadata elasticAgent);
-
     String serverPingRequestBody(Collection<AgentMetadata> metadata);
 
     Collection<AgentMetadata> deleteAgentRequestBody(String requestBody);

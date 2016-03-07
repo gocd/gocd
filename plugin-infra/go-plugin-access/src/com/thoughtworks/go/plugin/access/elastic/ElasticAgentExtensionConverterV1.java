@@ -40,7 +40,6 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
         jsonObject.add("properties", properties);
         jsonObject.addProperty("environment", environment);
         return gson.toJson(jsonObject);
-
     }
 
     @Override
@@ -52,20 +51,9 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
             properties.addProperty(entry.getKey(), entry.getValue());
         }
         jsonObject.add("properties", properties);
-
         jsonObject.addProperty("environment", environment);
         jsonObject.add("agent", elasticAgent.toJSON());
         return gson.toJson(jsonObject);
-    }
-
-    @Override
-    public String notifyAgentBusyRequestBody(AgentMetadata elasticAgent) {
-        return new Gson().toJson(elasticAgent.toJSON());
-    }
-
-    @Override
-    public String notifyAgentIdleRequestBody(AgentMetadata elasticAgent) {
-        return notifyAgentBusyRequestBody(elasticAgent);
     }
 
     @Override

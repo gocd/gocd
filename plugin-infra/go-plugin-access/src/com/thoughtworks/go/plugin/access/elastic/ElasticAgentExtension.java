@@ -55,7 +55,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public void serverPing(final String pluginId, final Collection<AgentMetadata> metadata) {
-        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>(){
+        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).serverPingRequestBody(metadata);
@@ -74,24 +74,6 @@ public class ElasticAgentExtension extends AbstractExtension {
             @Override
             public Boolean onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkResponseFromBody(responseBody);
-            }
-        });
-    }
-
-    public void notifyAgentBusy(String pluginId, final AgentMetadata agent) {
-        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_NOTIFY_AGENT_BUSY, new DefaultPluginInteractionCallback<Void>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).notifyAgentBusyRequestBody(agent);
-            }
-        });
-    }
-
-    public void notifyAgentIdle(String pluginId, final AgentMetadata agent) {
-        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_NOTIFY_AGENT_IDLE, new DefaultPluginInteractionCallback<Void>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).notifyAgentIdleRequestBody(agent);
             }
         });
     }

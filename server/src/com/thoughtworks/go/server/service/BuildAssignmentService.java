@@ -153,8 +153,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 if (agent.isElastic()) {
                     if (!elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(job.getPipelineName()), job.getJobAgentConfig())) {
                         return NO_WORK;
-                    } else {
-                        elasticAgentPluginService.notifyAgentBusy(agent.elasticAgentMetadata());
                     }
                 }
 

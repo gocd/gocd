@@ -17,15 +17,12 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.JobAgentConfig;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
-import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
@@ -42,7 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class ElasticAgentPluginService implements JobStatusListener {
+public class ElasticAgentPluginService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentPluginService.class);
 
     private final PluginManager pluginManager;
@@ -116,19 +113,4 @@ public class ElasticAgentPluginService implements JobStatusListener {
         return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), environment, jobAgentConfig.getConfigurationAsMap(true));
     }
 
-    public void notifyAgentBusy(ElasticAgentMetadata metadata) {
-        elasticAgentPluginRegistry.notifyAgentBusy(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata));
-    }
-
-    @Override
-    public void jobStatusChanged(JobInstance job) {
-        if (job.getAgentUuid() == null) {
-            return;
-        }
-        AgentInstance agent = agentService.findAgent(job.getAgentUuid());
-        if (job.isCompleted() && agent.isElastic()) {
-            ElasticAgentMetadata metadata = agent.elasticAgentMetadata();
-            elasticAgentPluginRegistry.notifyAgentIdle(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata));
-        }
-    }
 }

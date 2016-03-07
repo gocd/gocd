@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,12 +47,6 @@ describe ApplicationController do
     it "should generate run stage url" do
       expect(run_stage_path(pipeline_name: "pipeline_name", stage_name: "stage_name",
                             pipeline_counter: 10)).to eq("/run/pipeline_name/10/stage_name")
-    end
-
-    it "should generate cancel stage url" do
-      expect(post: "/api/stages/10/cancel").to route_to(controller: "api/stages", action: "cancel",
-          id: "10", no_layout: true)
-      expect(cancel_stage_path(id: 10)).to eq("/api/stages/10/cancel")
     end
   end
 

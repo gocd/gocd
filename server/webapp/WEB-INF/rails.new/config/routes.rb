@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
+
+class HeaderConstraint
+  def matches? (request)
+    'application/vnd.go.cd.v1+text'.eql?(request.headers['HTTP_ACCEPT'])
+  end
+end
 
 Go::Application.routes.draw do
   mount JasmineRails::Engine => '/jasmine-specs', as: :jasmine_old if defined?(JasmineRails)
@@ -293,13 +299,17 @@ Go::Application.routes.draw do
       get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
 
       # stage api's
-      post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage
-      post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name
+      post 'stages/:id/cancel' => 'stages#cancel', constraints: HeaderConstraint.new ,as: :cancel_stage
+      constraints pipeline_name: PIPELINE_NAME_FORMAT do
+        post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', constraints: HeaderConstraint.new, as: :cancel_stage_using_pipeline_stage_name
+      end
 
       # pipeline api's
-      post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_action
-      post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_pipeline
-      post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :unpause_pipeline
+      constraints pipeline_name: PIPELINE_NAME_FORMAT do
+        post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', :no_layout => true, constraints: HeaderConstraint.new, as: :api_pipeline_action
+        post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: HeaderConstraint.new, as: :pause_pipeline
+        post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: HeaderConstraint.new, as: :unpause_pipeline
+      end
 
       post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify
 

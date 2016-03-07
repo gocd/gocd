@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -955,6 +955,7 @@ module PrototypeHelper
     js_options = build_callbacks(options)
 
     js_options['asynchronous'] = options[:type] != :synchronous
+    js_options['requestHeaders'] = quote_hash(options[:headers]) if options[:headers]
     js_options['method']       = method_option_to_s(options[:method]) if options[:method]
     js_options['insertion']    = "'#{options[:position].to_s.downcase}'" if options[:position]
     js_options['evalScripts']  = options[:script].nil? || options[:script]
@@ -977,6 +978,10 @@ module PrototypeHelper
     end
 
     options_for_javascript(js_options)
+  end
+
+  def quote_hash(hash)
+    "{#{hash.keys.map { |key| "'#{key}':'#{hash[key]}'" }.join(', ')}}"
   end
 
   def method_option_to_s(method)

@@ -53,11 +53,6 @@ public class AcegiSecurityConfigTest {
     }
 
     @Test
-    public void shouldAllowAnonymousAccessToBackupInProgressPage() {
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/static/backup_in_progress.html?param=foo", "IS_AUTHENTICATED_ANONYMOUSLY");
-    }
-
-    @Test
     public void shouldNotAllowAnonymousAccessToWildcardAuthUrl(){
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/login", "IS_AUTHENTICATED_ANONYMOUSLY");
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/logout", "IS_AUTHENTICATED_ANONYMOUSLY");

@@ -243,8 +243,6 @@
                 /shine/sparql.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /compressed/*=IS_AUTHENTICATED_ANONYMOUSLY
                 /assets/**=IS_AUTHENTICATED_ANONYMOUSLY
-                /static/backup_in_progress.html=IS_AUTHENTICATED_ANONYMOUSLY
-                /is_backup_finished.json=IS_AUTHENTICATED_ANONYMOUSLY
                 /images/cruise.ico=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/latest-agent.status=IS_AUTHENTICATED_ANONYMOUSLY

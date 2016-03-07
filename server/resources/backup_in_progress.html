@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
     <title>Backup in Progress</title>
     <style type="text/css">
         #header {
-            background: url('images/bg_header_default.png') repeat-x 0 0 transparent;
+            background: url('/go/static/images/bg_header_default.png') repeat-x 0 0 transparent;
             color: #FFF;
             font-size: 11px;
             border-bottom: 1px solid #333;
@@ -48,7 +48,7 @@
         }
 
         .header #application_logo {
-            background-image: url("images/logo_go.png");
+            background-image: url("/go/static/images/logo_go.png");
             background-position: 0 4px;
             background-repeat: no-repeat;
             float: left;
@@ -81,8 +81,7 @@
         <div class="header clear_float">
             <a href="#" id="application_logo">&nbsp;</a>
 
-            <div class="message">Go backup in progress. Backup initiated by '<span
-                    id="backup_started_by">&nbsp;</span>' on '<span id="backup_started_at">&nbsp;</span>'
+            <div class="message">Go backup in progress. Backup initiated by '<span>%backup_started_by%</span>' on '<span>%backup_initiated_by%</span>'
             </div>
         </div>
     </div>
@@ -91,20 +90,8 @@
 <script type="text/javascript">
     (function () {
         // DOM will be loaded by now
-        var params = function () {
-            var params = {};
-            var query = window.location.search.substring(1);
-            var vars = query.split("&");
-            for (var i = 0; i < vars.length; i++) {
-                var pair = vars[i].split("=");
-                params[pair[0]] = decodeURIComponent(pair[1]);
-            }
-            return params;
-        }();
 
-        document.getElementById("backup_started_by").innerHTML = params.backup_started_by;
-        document.getElementById("backup_started_at").innerHTML = params.backup_started_at;
-        var url = "/go/is_backup_finished.json?from=" + encodeURIComponent(params.from);
+        var url = "/go/is_backup_finished.json";
 
         function getRequest(url) {
             var xhr = new XMLHttpRequest();
@@ -118,15 +105,16 @@
                     }
                 }
             }
-
             xhr.open("GET", url, true);
             xhr.send();
         }
 
         function _onComplete(xhr) {
-            var forcePageReloadUrl = xhr.getResponseHeader("X-GO-FORCE-LOAD-PAGE");
-            if (forcePageReloadUrl) {
-                window.location = forcePageReloadUrl;
+            var jsonResponse = JSON.parse(xhr.responseText);
+            var isBackingUp = jsonResponse["is_backing_up"];
+
+            if (!isBackingUp) {
+                location.reload(true);
             }
         }
 

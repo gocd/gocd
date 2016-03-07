@@ -89,7 +89,6 @@ public class ScheduleService {
     private PipelinePauseService pipelinePauseService;
     private InstanceFactory instanceFactory;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
-    private ElasticAgentPluginService elasticAgentPluginService;
 
     protected ScheduleService() {
     }
@@ -118,8 +117,7 @@ public class ScheduleService {
                            ConsoleActivityMonitor consoleActivityMonitor,
                            PipelinePauseService pipelinePauseService,
                            InstanceFactory instanceFactory,
-                           SchedulingPerformanceLogger schedulingPerformanceLogger,
-                           ElasticAgentPluginService elasticAgentPluginService
+                           SchedulingPerformanceLogger schedulingPerformanceLogger
     ) {
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
@@ -145,7 +143,6 @@ public class ScheduleService {
         this.pipelinePauseService = pipelinePauseService;
         this.instanceFactory = instanceFactory;
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
-        this.elasticAgentPluginService = elasticAgentPluginService;
     }
 
     //Note: This is called from a Spring timer

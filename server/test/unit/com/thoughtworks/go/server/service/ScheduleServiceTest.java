@@ -96,7 +96,7 @@ public class ScheduleServiceTest {
                 PipelineScheduledTopic.class), mock(PipelineDao.class), mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue,
                 jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class), environmentConfigService, mock(PipelineLockService.class), serverHealthService,
                 new TestTransactionTemplate(synchronizationManager),
-                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, null);
+                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger);
     }
 
     @Test
@@ -282,7 +282,7 @@ public class ScheduleServiceTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         StubPipelineScheduleTopic stubTopic = new StubPipelineScheduleTopic();
         service = new ScheduleService(goConfigService, null, null, schedulingChecker, stubTopic, null, null, null, null, pipelineScheduleQueue,
-                jobInstanceService, null, null, environmentConfigService, null, serverHealthService, null, null, null, timeProvider, null, null, null, schedulingPerformanceLogger, null);
+                jobInstanceService, null, null, environmentConfigService, null, serverHealthService, null, null, null, timeProvider, null, null, null, schedulingPerformanceLogger);
 
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
         PipelineConfig evolveConfig = PipelineConfigMother.createPipelineConfig("evolve", "build", "unit");

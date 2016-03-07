@@ -16,10 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -27,23 +25,28 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.LOCAL;
+import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class AgentInstanceTest {
     private SystemEnvironment systemEnvironment;
@@ -558,6 +561,48 @@ public class AgentInstanceTest {
     public void shouldNOTIndicateThatAgentNeedsUpgrade_WhenItIsMissing() {
         AgentInstance agentInstance = AgentInstanceMother.missing();
         assertThat(agentInstance.needsUpgrade(), is(false));
+    }
+
+    @Test
+    public void shouldMatchJobPlanIfTheAgentWasLaunchedByTheSamePluginAsWasConfiguredForTheJob(){
+        AgentConfig agentConfig = new AgentConfig("uuid");
+        agentConfig.setElasticAgentId("elastic-agent-id-1");
+        String elasticPluginId = "elastic-plugin-id-1";
+        agentConfig.setElasticPluginId(elasticPluginId);
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        DefaultJobPlan jobPlan1 = new DefaultJobPlan();
+        jobPlan1.setJobAgentConfig(new JobAgentConfig(elasticPluginId, new ArrayList<ConfigurationProperty>()));
+        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+
+        assertThat(agentInstance.firstMatching(jobPlans), Is.<JobPlan>is(jobPlan1));
+    }
+
+    @Test
+    public void shouldNotMatchJobPlanIfTheAgentWasLaunchedByADifferentPluginFromThatConfiguredForTheJob(){
+        AgentConfig agentConfig = new AgentConfig("uuid");
+        agentConfig.setElasticAgentId("elastic-agent-id-1");
+        String elasticPluginId = "elastic-plugin-id-1";
+        agentConfig.setElasticPluginId(elasticPluginId);
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        DefaultJobPlan jobPlan1 = new DefaultJobPlan();
+        jobPlan1.setJobAgentConfig(new JobAgentConfig("elastic-plugin-id-2", new ArrayList<ConfigurationProperty>()));
+        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+
+        assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
+    }
+
+    @Test
+    public void shouldNotMatchJobPlanIfTheAgentIsElasticAndJobHasResourcesDefined(){
+        AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "11.1.1.1", new Resources(new Resource("r1")));
+        agentConfig.setElasticAgentId("elastic-agent-id-1");
+        String elasticPluginId = "elastic-plugin-id-1";
+        agentConfig.setElasticPluginId(elasticPluginId);
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        DefaultJobPlan jobPlan1 = new DefaultJobPlan();
+        jobPlan1.setResources(asList(new Resource("r1")));
+        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+
+        assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
     }
 
     @Test

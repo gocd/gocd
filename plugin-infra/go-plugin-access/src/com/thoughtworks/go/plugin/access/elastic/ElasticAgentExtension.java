@@ -78,12 +78,12 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final Collection<String> resources, final String environment) {
+    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final Collection<String> resources, final String environment, final Map<String, String> configuration) {
         return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
 
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkRequestBody(agent, resources, environment);
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).shouldAssignWorkRequestBody(agent, resources, environment, configuration);
             }
 
             @Override

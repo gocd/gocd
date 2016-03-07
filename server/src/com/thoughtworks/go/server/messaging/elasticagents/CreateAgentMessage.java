@@ -50,8 +50,9 @@ public class CreateAgentMessage implements GoMessage {
     @Override
     public String toString() {
         return "CreateAgentMessage{" +
-                "resources=" + resources +
+                "autoregisterKey='" + autoregisterKey + '\'' +
                 ", environment='" + environment + '\'' +
+                ", jobAgentConfig=" + jobAgentConfig +
                 '}';
     }
 

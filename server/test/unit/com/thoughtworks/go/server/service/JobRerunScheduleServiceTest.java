@@ -90,7 +90,7 @@ public class JobRerunScheduleServiceTest {
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), synchronizationManager, timeProvider, null, null, instanceFactory,
-                schedulingPerformanceLogger, null);
+                schedulingPerformanceLogger);
     }
 
     @Test
@@ -136,8 +136,8 @@ public class JobRerunScheduleServiceTest {
 
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
-                environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), null, null, null, null, null, schedulingPerformanceLogger,
-                null);
+                environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), null, null, null, null, null, schedulingPerformanceLogger
+        );
 
         HttpOperationResult result = new HttpOperationResult();
         LogFixture logFixture = LogFixture.startListening();
@@ -256,7 +256,7 @@ public class JobRerunScheduleServiceTest {
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, template, mock(AgentService.class), null, timeProvider, null, null, mock(InstanceFactory.class),
-                schedulingPerformanceLogger, null) {
+                schedulingPerformanceLogger) {
             @Override
             public Stage scheduleStage(Pipeline pipeline, String stageName, String username, StageInstanceCreator creator,
                                        ErrorConditionHandler errorHandler) {

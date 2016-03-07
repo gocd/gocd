@@ -321,14 +321,24 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public JobPlan firstMatching(List<JobPlan> jobPlans) {
         for (JobPlan jobPlan : jobPlans) {
             if (jobPlan.getAgentUuid() == null) {
-                if (agentConfig.hasAllResources(jobPlan.getResources())) {
+                if (isElasticAndLaunchedBySamePluginAsConfiguredForJob(jobPlan) || resourcesMatchForNonElasticAgents(jobPlan)) {
                     return jobPlan;
                 }
             } else {
-                if (agentConfig.getUuid().equals(jobPlan.getAgentUuid())) { return jobPlan; }
+                if (agentConfig.getUuid().equals(jobPlan.getAgentUuid())) {
+                    return jobPlan;
+                }
             }
         }
         return null;
+    }
+
+    private boolean resourcesMatchForNonElasticAgents(JobPlan jobPlan) {
+        return !isElastic() && agentConfig.hasAllResources(jobPlan.getResources());
+    }
+
+    private boolean isElasticAndLaunchedBySamePluginAsConfiguredForJob(JobPlan jobPlan) {
+        return isElastic() && jobPlan.getJobAgentConfig() != null && jobPlan.getJobAgentConfig().getPluginId().equals(agentConfig.getElasticPluginId());
     }
 
     public String getBuildLocator() {

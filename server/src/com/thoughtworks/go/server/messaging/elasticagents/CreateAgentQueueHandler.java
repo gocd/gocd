@@ -18,20 +18,13 @@ package com.thoughtworks.go.server.messaging.elasticagents;
 
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
-import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.GoPlugin;
-import com.thoughtworks.go.plugin.api.logging.Logger;
-import com.thoughtworks.go.plugin.api.task.Task;
-import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.messaging.MessagingService;
-import com.thoughtworks.go.server.messaging.activemq.ActiveMqMessagingService;
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,7 +32,6 @@ import org.springframework.stereotype.Component;
 import javax.jms.JMSException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -59,7 +51,6 @@ public class CreateAgentQueueHandler implements PluginChangeListener {
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.elasticAgentExtension = elasticAgentExtension;
         pluginManager.addPluginChangeListener(this, GoPlugin.class);
-
     }
 
     @Override
@@ -100,8 +91,16 @@ public class CreateAgentQueueHandler implements PluginChangeListener {
         }
     }
 
-    public void post(String pluginId, CreateAgentMessage createAgentMessage) {
-        queues.get(pluginId).post(createAgentMessage);
+    public void post(CreateAgentMessage createAgentMessage) {
+        String pluginId = createAgentMessage.getPluginId();
+        try {
+            if (queues.containsKey(pluginId)) {
+                queues.get(pluginId).post(createAgentMessage);
+            } else {
+                LOGGER.error("Could not find a create-agent-queue for {}", pluginId);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed while posting to create-agent-queue for {}", pluginId, e.getMessage(), e);
+        }
     }
-
 }

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.JobAgentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -107,13 +107,13 @@ public class ElasticAgentPluginService implements JobStatusListener {
         for (JobPlan plan : plans) {
             String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
             if (plan.requiresElasticAgent()){
-                createAgentQueue.post(plan.getJobAgentConfig().getPluginId(), new CreateAgentMessage(serverConfigService.getAutoregisterKey(), null, environment, plan.getJobAgentConfig()));
+                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), null, environment, plan.getJobAgentConfig()));
             }
         }
     }
 
-    public boolean shouldAssignWork(ElasticAgentMetadata metadata, List<String> resources, String environment) {
-        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), resources, environment);
+    public boolean shouldAssignWork(ElasticAgentMetadata metadata, List<String> resources, String environment, JobAgentConfig jobAgentConfig) {
+        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), resources, environment, jobAgentConfig.getConfigurationAsMap(true));
     }
 
     public void notifyAgentBusy(ElasticAgentMetadata metadata) {

@@ -57,8 +57,11 @@ public class ElasticAgentExtensionConverterV1Test {
 
     @Test
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().shouldAssignWorkRequestBody(elasticAgent(), Arrays.asList("foo", "bar"), "prod");
-        JSONAssert.assertEquals(json, "{\"resources\":[\"foo\",\"bar\"],\"environment\":\"prod\",\"agent\":{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"}}", true);
+        HashMap<String, String> configuration = new HashMap<>();
+        configuration.put("property_name", "property_value");
+        String json = new ElasticAgentExtensionConverterV1().shouldAssignWorkRequestBody(elasticAgent(), Arrays.asList("foo", "bar"), "prod", configuration);
+        System.out.println(json);
+        JSONAssert.assertEquals(json, "{\"environment\":\"prod\",\"agent\":{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"},\"properties\":{\"property_name\":\"property_value\"}}", true);
     }
 
     @Test

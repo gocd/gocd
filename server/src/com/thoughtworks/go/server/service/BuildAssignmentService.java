@@ -144,7 +144,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
         synchronized (this) {
             //check if agent already has assigned build, if so, reschedule it
             scheduleService.rescheduleAbandonedBuildIfNecessary(agent.getAgentIdentifier());
-
             final JobPlan job = findMatchingJob(agent);
             if (job != null) {
                 Work buildWork = createWork(agent, job);
@@ -152,7 +151,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                         job.getIdentifier().buildLocator());
 
                 if (agent.isElastic()) {
-                    if (!elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), new Resources(job.getResources()).resourceNames(), environmentConfigService.envForPipeline(job.getPipelineName()))) {
+                    if (!elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), new Resources(job.getResources()).resourceNames(), environmentConfigService.envForPipeline(job.getPipelineName()), job.getJobAgentConfig())) {
                         return NO_WORK;
                     } else {
                         elasticAgentPluginService.notifyAgentBusy(agent.elasticAgentMetadata());

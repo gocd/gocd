@@ -20,6 +20,10 @@ import org.apache.commons.httpclient.ProxyHost;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
@@ -31,38 +35,54 @@ public class ProxyConfiguratorTest {
     private static final String HTTPS_PROXY_PORT = "3129";
     private static final GetMethod HTTP_METHOD = new GetMethod("http://www.example.com/foo");
     private static final GetMethod HTTPS_METHOD = new GetMethod("https://www.example.com/foo");
+    private static final String NON_PROXY_HOSTS = "www.example.com|example.org";
 
     @Test
     public void shouldReturnNullIfRequiredVariablesAreNotSet() {
-        assertNull(ProxyConfigurator.create(HTTP_METHOD, null, null, null, null, null));
+        assertNull(ProxyConfigurator.create(HTTP_METHOD, new Properties()));
     }
 
     @Test
-    public void shouldReturnProxyHost() {
-        final ProxyHost httpProxy = ProxyConfigurator.create(HTTP_METHOD, HTTP_PROXY_HOST, HTTP_PROXY_PORT, null, null, null);
+    public void shouldReturnProxyHost() throws IOException {
+        final Properties properties = readProperties();
+        properties.remove("http.nonProxyHosts");
+        final ProxyHost httpProxy = ProxyConfigurator.create(HTTP_METHOD, properties);
         assertThat(httpProxy.getHostName(), is(HTTP_PROXY_HOST));
         assertThat(httpProxy.getPort(), is(Integer.valueOf(HTTP_PROXY_PORT)));
-        final ProxyHost httpsProxy = ProxyConfigurator.create(HTTPS_METHOD, null, null, HTTPS_PROXY_HOST, HTTPS_PROXY_PORT, null);
+        final ProxyHost httpsProxy = ProxyConfigurator.create(HTTPS_METHOD, properties);
         assertThat(httpsProxy.getHostName(), is(HTTPS_PROXY_HOST));
         assertThat(httpsProxy.getPort(), is(Integer.valueOf(HTTPS_PROXY_PORT)));
     }
 
     @Test
-    public void shouldReturnProxyHostWhenHostDoesNotMatchNonProxyHosts() {
-        final ProxyHost httpProxy = ProxyConfigurator.create(HTTP_METHOD, HTTP_PROXY_HOST, HTTP_PROXY_PORT, null, null, "www.example.org");
+    public void shouldReturnProxyHostWhenHostDoesNotMatchNonProxyHosts() throws IOException {
+        final Properties properties = readProperties();
+        properties.setProperty("http.nonProxyHosts", "www.example.org");
+        final ProxyHost httpProxy = ProxyConfigurator.create(HTTP_METHOD, properties);
         assertThat(httpProxy.getHostName(), is(HTTP_PROXY_HOST));
         assertThat(httpProxy.getPort(), is(Integer.valueOf(HTTP_PROXY_PORT)));
     }
 
     @Test
-    public void shouldReturnNullWhenHostIsInNonProxyHosts() {
-        assertNull(ProxyConfigurator.create(HTTP_METHOD, HTTP_PROXY_HOST, HTTP_PROXY_PORT, null, null, "www.example.com|example.org"));
-        assertNull(ProxyConfigurator.create(HTTPS_METHOD, null, null, HTTPS_PROXY_HOST, HTTPS_PROXY_PORT, "www.example.com|example.org"));
+    public void shouldReturnNullWhenHostIsInNonProxyHosts() throws IOException {
+        final Properties properties = readProperties();
+        properties.setProperty("http.nonProxyHosts", NON_PROXY_HOSTS);
+        assertNull(ProxyConfigurator.create(HTTP_METHOD, properties));
+        assertNull(ProxyConfigurator.create(HTTPS_METHOD, properties));
     }
 
     @Test
-    public void shouldReturnNullWhenHostMatchesNonProxyHosts() {
-        assertNull(ProxyConfigurator.create(HTTP_METHOD, HTTP_PROXY_HOST, HTTP_PROXY_PORT, null, null, "*.example.com|example.org"));
-        assertNull(ProxyConfigurator.create(HTTPS_METHOD, null, null, HTTPS_PROXY_HOST, HTTPS_PROXY_PORT, "*.example.com|example.org"));
+    public void shouldReturnNullWhenHostMatchesNonProxyHosts() throws IOException {
+        final Properties properties = readProperties();
+        assertNull(ProxyConfigurator.create(HTTP_METHOD, properties));
+        assertNull(ProxyConfigurator.create(HTTPS_METHOD, properties));
+    }
+
+    private Properties readProperties() throws IOException {
+        final Properties properties = new Properties();
+        try (final InputStream stream = ProxyConfiguratorTest.class.getResourceAsStream("proxy.properties")) {
+            properties.load(stream);
+        }
+        return properties;
     }
 }

@@ -51,6 +51,14 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>test</directory>
+                <includes>
+                    <include>**/proxy.properties</include>
+                </includes>
+            </testResource>
+        </testResources>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <finalName>agent-common</finalName>

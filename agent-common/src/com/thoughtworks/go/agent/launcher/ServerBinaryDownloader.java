@@ -168,6 +168,8 @@ public class ServerBinaryDownloader implements Downloader {
     private boolean download() throws Exception {
         HttpClient httpClient = new HttpClient();
         HttpMethod method = new GetMethod(checkUrl());
+        httpClient.getHostConfiguration().setProxyHost(
+                ProxyConfigurator.create(method, System.getProperties()));
         InputStream body = null;
         OutputStream outputFile = null;
         httpClient.setConnectionTimeout(ServerCall.HTTP_TIMEOUT_IN_MILLISECONDS);

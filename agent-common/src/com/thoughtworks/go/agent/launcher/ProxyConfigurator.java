@@ -74,7 +74,8 @@ public class ProxyConfigurator {
      * @param httpProxyPort     - http.proxyPort from System.properties
      * @param httpsProxyHost    - https.proxyHost from System.properties
      * @param httpsProxyPort    - https.proxyPort from System.properties
-     * @param nonProxyHosts     - nonProxyHosts from System.properties  @return the ProxyHost to be used or null
+     * @param nonProxyHosts     - nonProxyHosts from System.properties
+     * @return the ProxyHost to be used or null
      */
     public static ProxyHost create(final HttpMethod method, final String httpProxyHost, final String httpProxyPort, final String httpsProxyHost, final String httpsProxyPort, final String nonProxyHosts) {
         final String scheme;
@@ -96,5 +97,23 @@ public class ProxyConfigurator {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Creates a {@link ProxyHost} for the given method or null
+     * when the properties are not set or the host of the method
+     * matches nonProxyHosts.
+     *
+     * @param method            - called HttpMethod
+     * @param properties        - propeties
+     * @return the ProxyHost to be used or null
+     */
+    public static ProxyHost create(final HttpMethod method, final Properties properties) {
+        final String httpProxyHost = properties.getProperty("http.proxyHost");
+        final String httpProxyPort = properties.getProperty("http.proxyPort");
+        final String httpsProxyHost = properties.getProperty("https.proxyHost");
+        final String httpsProxyPort = properties.getProperty("https.proxyPort");
+        final String nonProxyHosts = properties.getProperty("http.nonProxyHosts");
+        return create(method, httpProxyHost, httpProxyPort, httpsProxyHost, httpsProxyPort, nonProxyHosts);
     }
 }

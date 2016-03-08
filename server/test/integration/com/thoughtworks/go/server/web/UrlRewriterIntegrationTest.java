@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
@@ -33,8 +33,8 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -64,14 +64,15 @@ import static org.mockito.Mockito.when;
 public class UrlRewriterIntegrationTest {
     private static final DateTime BACKUP_RUNNING_SINCE = new DateTime();
     private static final String BACKUP_STARTED_BY = "admin";
-    public HttpTestUtil httpUtil;
+    public static HttpTestUtil httpUtil;
     public static final int HTTP = 5197;
     public static final int HTTPS = 9071;
-    public WebApplicationContext wac;
-    public boolean useConfiguredUrls;
-    public String originalSslPort;
+    public static WebApplicationContext wac;
+    public static boolean useConfiguredUrls;
+    public static String originalSslPort;
 
-    public UrlRewriterIntegrationTest() throws Exception {
+    @BeforeClass
+    public static void beforeClass() throws Exception {
         ServletHelper.init();
         httpUtil = new HttpTestUtil(new HttpTestUtil.ContextCustomizer() {
             public void customize(WebAppContext ctx) throws Exception {
@@ -84,7 +85,7 @@ public class UrlRewriterIntegrationTest {
                 }
 
                 ctx.setBaseResource(Resource.newResource(new File(resource.getFile()).getParent()));
-				ctx.addFilter(UrlRewriteFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)).setInitParameter("confPath", "/urlrewrite.xml");
+                ctx.addFilter(UrlRewriteFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)).setInitParameter("confPath", "/urlrewrite.xml");
                 ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
             }
         });
@@ -100,18 +101,15 @@ public class UrlRewriterIntegrationTest {
                 return siteUrl.siteUrlFor(url);
             }
         });
-    }
 
-    @Before
-    public void setUp() throws IOException, InterruptedException {
         httpUtil.start();
         Protocol.registerProtocol("https", new Protocol("https", (ProtocolSocketFactory) new PermissiveSSLSocketFactory(), HTTPS));
         originalSslPort = System.getProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, String.valueOf(9071));
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void afterClass() {
         if (originalSslPort == null) {
             System.getProperties().remove(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
         } else {

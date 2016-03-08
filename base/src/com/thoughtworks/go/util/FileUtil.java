@@ -15,30 +15,17 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-import java.util.StringTokenizer;
-import java.util.UUID;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.net.URI;
+import java.util.*;
+
 import static java.lang.System.getProperty;
 
 public class FileUtil {
@@ -62,7 +49,7 @@ public class FileUtil {
         return files == null || files.length == 0;
     }
 
-    public static boolean isDirectoryReadable(File directory){
+    public static boolean isDirectoryReadable(File directory) {
         return directory.canRead() && directory.canExecute() && directory.listFiles() != null;
     }
 
@@ -81,13 +68,17 @@ public class FileUtil {
     }
 
     public static String readToEnd(InputStream input) throws IOException {
-        @SuppressWarnings("unchecked") List<String> list = IOUtils.readLines(input);
-        StringBuilder builder = new StringBuilder();
-        for (String line : list) {
-            builder.append(line);
-            builder.append(lineSeparator());
+        try {
+            @SuppressWarnings("unchecked") List<String> list = IOUtils.readLines(input);
+            StringBuilder builder = new StringBuilder();
+            for (String line : list) {
+                builder.append(line);
+                builder.append(lineSeparator());
+            }
+            return builder.toString().trim();
+        } finally {
+            IOUtils.closeQuietly(input);
         }
-        return builder.toString().trim();
     }
 
     public static boolean isHidden(File file) {

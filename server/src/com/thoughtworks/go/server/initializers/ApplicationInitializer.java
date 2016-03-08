@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,10 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.server.initializers;
 
+import com.thoughtworks.go.config.ConfigCipherUpdater;
 import com.thoughtworks.go.config.MergedGoConfig;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
@@ -75,6 +77,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private ArtifactsService artifactsService;
     @Autowired private ConsoleService consoleService;
     @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
+    @Autowired private ConfigCipherUpdater configCipherUpdater;
     @Autowired private RailsAssetsService railsAssetsService;
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
@@ -91,8 +94,9 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             defaultPluginJarLocationMonitor.initialize();
             pluginsInitializer.initialize();
             pluginsZip.create();
-
             //config
+
+            configCipherUpdater.migrate(); // Should be done before configs get loaded
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();
             goFileConfigDataSource.upgradeIfNecessary();

@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -42,11 +41,11 @@ import java.util.List;
 public class AgentInstance implements Comparable<AgentInstance> {
     private AgentType agentType;
     protected AgentConfig agentConfig;
-    protected AgentRuntimeInfo agentRuntimeInfo;
+    private AgentRuntimeInfo agentRuntimeInfo;
 
     private AgentConfigStatus agentConfigStatus;
 
-    protected volatile Date lastHeardTime;
+    private volatile Date lastHeardTime;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
 
@@ -160,36 +159,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentConfigStatus != AgentConfigStatus.Enabled && !agentConfig.isDisabled();
     }
 
-    public void addToVirtuals(AgentInstances agents) {
-        if (this.isVirtualAgent()) {
-            agents.add(this);
-        }
-    }
-
-    public void addToPhysical(AgentInstances physicalAgents) {
-        if (!isVirtualAgent()) {
-            physicalAgents.add(this);
-        }
-    }
-
-    public void addToEnabled(AgentInstances agentInstances) {
-        if (this.getStatus().isEnabled()) {
-            agentInstances.add(this);
-        }
-    }
-
-    public void addToRegistered(AgentInstances agentInstances) {
-        if (this.getStatus().isRegistered()) {
-            agentInstances.add(this);
-        }
-    }
-
-    public void addTo(AgentInstances agentInstances, AgentStatus status) {
-        if (this.getStatus().equals(status)) {
-            agentInstances.add(this);
-        }
-    }
-
     public void refresh(final AgentRuntimeStatus.ChangeListener changeListener) {
         if (agentConfigStatus == AgentConfigStatus.Pending || agentConfigStatus == AgentConfigStatus.Disabled) {
             return;
@@ -222,10 +191,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         }
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
         Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agentConfig.getHostname());
-        if (AgentType.VIRTUAL.equals(agentType)) {
-            return new Registration(entry.getPrivateKey(), entry.getChain());
-        }
-
         return new Registration(entry.getPrivateKey(), entry.getChain());
     }
 
@@ -246,8 +211,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isIpChangeRequired(String newIpAdress) {
-        return !StringUtils.equals(this.agentConfig.getIpAddress(), newIpAdress)
-                && (!isVirtualAgent()) && this.isRegistered();
+        return !StringUtils.equals(this.agentConfig.getIpAddress(), newIpAdress) && this.isRegistered();
     }
 
     public String getLocation() {
@@ -266,24 +230,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getAgentLauncherVersion();
     }
 
-    public boolean isActiveRemoteAgent() {
-        return isRemote() && isBuilding();
-    }
-
-    public boolean isFromRemoteHost() {
-        return agentConfig().isFromRemoteHost();
-    }
-
-    public boolean isVirtualAgent() {
-        return agentType == AgentType.VIRTUAL;
-    }
-
     public boolean isRegistered() {
         return agentConfigStatus != AgentConfigStatus.Pending;
-    }
-
-    private boolean isRemote() {
-        return agentType == AgentType.REMOTE;
     }
 
     public boolean isDisabled() {
@@ -383,8 +331,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return isDisabled() && !(isBuilding() || isCancelled());
     }
 
-    public static enum AgentType {
-        LOCAL, VIRTUAL, REMOTE
+    enum AgentType {
+        LOCAL, REMOTE
     }
 
     public static AgentInstance createFromConfig(AgentConfig agentInConfig,
@@ -411,21 +359,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
             instance.update(agentRuntimeInfo);
         }
         return instance;
-    }
-
-    @Deprecated // ChrisT & JJ: For tests
-    public static AgentInstance create(AgentConfig agentConfig,
-                                       boolean virtual, SystemEnvironment systemEnvironment) {
-        if (virtual) {
-            return new AgentInstance(agentConfig, AgentType.VIRTUAL, systemEnvironment);
-        } else if (agentConfig.isFromLocalHost()) {
-            AgentInstance local = new AgentInstance(agentConfig, AgentType.LOCAL, systemEnvironment);
-            local.agentConfigStatus = AgentConfigStatus.Enabled;
-            local.agentRuntimeInfo.idle();
-            return local;
-        } else {
-            return new AgentInstance(agentConfig, AgentType.REMOTE, systemEnvironment);
-        }
     }
 
     public boolean equals(Object that) {

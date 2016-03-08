@@ -107,10 +107,6 @@ public class AgentService {
         agentInstances.sync(agents);
     }
 
-    public AgentInstances findPhysicalAgents() {
-        return agentInstances.findPhysicalAgents();
-    }
-
     public List<String> getUniqueAgentNames() {
         return new ArrayList<>(agentInstances.getAllHostNames());
     }
@@ -123,9 +119,8 @@ public class AgentService {
         return new ArrayList<>(agentInstances.getAllOperatingSystems());
     }
 
-
     public AgentsViewModel agents() {
-        return toAgentViewModels(agentInstances.findPhysicalAgents());
+        return toAgentViewModels(agentInstances.allAgents());
     }
 
     public AgentsViewModel registeredAgents() {
@@ -380,10 +375,6 @@ public class AgentService {
         agentInstances.refresh();
     }
 
-    public int numberOfActiveRemoteAgents() {
-        return agentInstances.numberOfActiveRemoteAgents();
-    }
-
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {
         agentInstances.building(uuid, agentBuildingInfo);
     }
@@ -420,5 +411,13 @@ public class AgentService {
 
     public AgentInstance findElasticAgent(String elasticAgentId, String elasticPluginId) {
         return agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
+    }
+
+    public AgentInstances findEnabledAgents() {
+        return agentInstances.findEnabledAgents();
+    }
+
+    public AgentInstances findDisabledAgents() {
+        return agentInstances.findDisabledAgents();
     }
 }

@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -238,15 +237,6 @@ public class AgentInstanceTest {
         agentRuntimeInfo.busy(defaultBuildingInfo);
         agentRuntimeInfo.cancel();
         return agentRuntimeInfo;
-    }
-
-    @Test
-    public void shouldNotChangeVirtualMachineIpAddress() throws Exception {
-        AgentInstance virtual = AgentInstance.create(new AgentConfig("uuid", "ccedev01", "10.18.7.51"), true, systemEnvironment);
-        final AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
-        boolean required = virtual.isIpChangeRequired(
-                info.getIpAdress());
-        assertThat(required, is(false));
     }
 
     @Test

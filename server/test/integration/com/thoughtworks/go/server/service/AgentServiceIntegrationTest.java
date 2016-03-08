@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -456,13 +456,12 @@ public class AgentServiceIntegrationTest {
         AgentInstance denied = AgentInstanceMother.disabled();
         AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied));
 
-        AgentInstances agents = agentService.findPhysicalAgents();
-        assertThat(agents.size(), is(4));
+        assertThat(agentService.agents().size(), is(4));
 
-        assertThat(agents.findAgentAndRefreshStatus(idle.agentConfig().getUuid()), is(idle));
-        assertThat(agents.findAgentAndRefreshStatus(pending.agentConfig().getUuid()), is(pending));
-        assertThat(agents.findAgentAndRefreshStatus(building.agentConfig().getUuid()), is(building));
-        assertThat(agents.findAgentAndRefreshStatus(denied.agentConfig().getUuid()), is(denied));
+        assertThat(agentService.findAgentAndRefreshStatus(idle.agentConfig().getUuid()), is(idle));
+        assertThat(agentService.findAgentAndRefreshStatus(pending.agentConfig().getUuid()), is(pending));
+        assertThat(agentService.findAgentAndRefreshStatus(building.agentConfig().getUuid()), is(building));
+        assertThat(agentService.findAgentAndRefreshStatus(denied.agentConfig().getUuid()), is(denied));
     }
 
     @Test
@@ -501,7 +500,7 @@ public class AgentServiceIntegrationTest {
         agentService.disableAgents(USERNAME, operationResult, Arrays.asList(uuid));
         assertAgentDisablingSucceeded(operationResult, uuid);
         Agents agents = agentConfigService.agents();
-        assertThat(agentService.findPhysicalAgents().size(), is(1));
+        assertThat(agentService.agents().size(), is(1));
         assertThat(agents.size(), is(1));
         assertThat(agents.get(0).isDisabled(), is(true));
         assertThat(agentService.findAgentAndRefreshStatus(uuid).isDisabled(), is(true));
@@ -739,12 +738,11 @@ public class AgentServiceIntegrationTest {
 
         agentService.initialize();
 
-        AgentInstances approvedAgents = agentService.findPhysicalAgents().findEnabledAgents();
+        AgentInstances approvedAgents = agentService.findEnabledAgents();
         assertThat(approvedAgents.size(), is(1));
         assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").agentConfig().getHostname(), is("approvedAgent1"));
 
-        AgentInstances deniedAgents =
-                agentService.findPhysicalAgents().findAgents(AgentStatus.Disabled);
+        AgentInstances deniedAgents = agentService.findDisabledAgents();
         assertThat(deniedAgents.size(), is(2));
         assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").agentConfig().getHostname(), is("deniedAgent1"));
         assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").agentConfig().getHostname(), is("deniedAgent2"));

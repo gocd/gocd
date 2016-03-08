@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.server.service;
@@ -85,8 +84,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -245,10 +243,12 @@ public class BuildAssignmentServiceIntegrationTest {
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
-        int before = agentService.numberOfActiveRemoteAgents();
+        AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
+        assertFalse(agent.isBuilding());
+
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
         assertThat(work, instanceOf(BuildWork.class));
-        assertThat(agentService.numberOfActiveRemoteAgents(), is(before + 1));
+        assertTrue(agent.isBuilding());
     }
 
     @Test
@@ -704,13 +704,14 @@ public class BuildAssignmentServiceIntegrationTest {
 
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
-        int before = agentService.numberOfActiveRemoteAgents();
+        AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
+        assertFalse(agent.isBuilding());
 
         buildAssignmentService.onTimer();
 
-        assertThat(agent.messages.size(), is(1));
-        assertThat(MessageEncoding.decodeWork(agent.messages.get(0).getData()), instanceOf(BuildWork.class));
-        assertThat(agentService.numberOfActiveRemoteAgents(), is(before + 1));
+        assertThat(this.agent.messages.size(), is(1));
+        assertThat(MessageEncoding.decodeWork(this.agent.messages.get(0).getData()), instanceOf(BuildWork.class));
+        assertTrue(agent.isBuilding());
     }
 
     @Test

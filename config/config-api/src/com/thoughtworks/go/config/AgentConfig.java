@@ -172,14 +172,9 @@ public class AgentConfig implements Validatable {
         return cachedIsFromLocalHost.booleanValue();
     }
 
-    public boolean isFromRemoteHost() {
-        return !isFromLocalHost();
-    }
-
     public String getIpAddress() {
         return this.ipAddress;
     }
-
 
     public String getHostname() {
         return this.hostName;

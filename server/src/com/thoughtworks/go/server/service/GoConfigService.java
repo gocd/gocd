@@ -173,10 +173,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cruiseConfig().getEnvironments();
     }
 
-    public int getNumberOfApprovedRemoteAgents() {
-        return agents().countApprovedRemoteAgents();
-    }
-
     @Deprecated()
     public CruiseConfig getCurrentConfig() {
         return cruiseConfig();

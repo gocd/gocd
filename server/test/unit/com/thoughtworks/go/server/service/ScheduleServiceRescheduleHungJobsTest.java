@@ -18,25 +18,20 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashSet;
 
 import static org.mockito.Mockito.*;
 
 public class ScheduleServiceRescheduleHungJobsTest {
-    private Mockery context = new ClassMockery();
     private JobInstanceService jobInstanceService;
     private AgentService agentService;
     private ScheduleService scheduleService;
@@ -82,9 +77,8 @@ public class ScheduleServiceRescheduleHungJobsTest {
     private AgentInstances activities() {
         final AgentInstances activities = new AgentInstances(null);
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        HashSet<EnvironmentPipelineMatcher> noEnvironments = new HashSet<EnvironmentPipelineMatcher>();
-        activities.add(AgentInstance.create(new AgentConfig("uuid1"), false, systemEnvironment));
-        activities.add(AgentInstance.create(new AgentConfig("uuid2"), false, systemEnvironment));
+        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid1"), systemEnvironment));
+        activities.add(AgentInstance.createFromConfig(new AgentConfig("uuid2"), systemEnvironment));
         return activities;
     }
 

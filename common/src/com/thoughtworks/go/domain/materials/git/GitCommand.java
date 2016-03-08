@@ -91,13 +91,14 @@ public class GitCommand extends SCMCommand {
 
         try {
             if (!isSubmodule) {
-                fetchAndResetToHead(outputStreamConsumer);
+                fetch(outputStreamConsumer);
+                gc(outputStreamConsumer);
             }
         } catch (Exception e) {
             throw new RuntimeException(String.format("Working directory: %s\n%s", workingDir, outputStreamConsumer.getStdError()), e);
         }
 
-        CommandLine gitCmd = git().withArg("log").withArgs(args).withWorkingDir(workingDir);
+        CommandLine gitCmd = git().withArg("log").withArg(remoteBranch()).withArgs(args).withWorkingDir(workingDir);
         ConsoleResult result = runOrBomb(gitCmd);
 
         GitModificationParser parser = new GitModificationParser();
@@ -179,7 +180,7 @@ public class GitCommand extends SCMCommand {
     }
 
     public void fetchAndResetToHead(ProcessOutputStreamConsumer outputStreamConsumer) {
-        fetchAndReset(outputStreamConsumer, new StringRevision("origin/" + branch));
+        fetchAndReset(outputStreamConsumer, new StringRevision(remoteBranch()));
     }
 
     public void updateSubmoduleWithInit(ProcessOutputStreamConsumer outputStreamConsumer) {
@@ -278,8 +279,12 @@ public class GitCommand extends SCMCommand {
     }
 
     public void checkoutRemoteBranchToLocal() {
-        CommandLine gitCmd = git().withArgs("checkout", "-b", branch, "origin/" + branch).withWorkingDir(workingDir);
+        CommandLine gitCmd = git().withArgs("checkout", "-b", branch, remoteBranch()).withWorkingDir(workingDir);
         runOrBomb(gitCmd);
+    }
+
+    private String remoteBranch() {
+        return "origin/" + branch;
     }
 
     public void fetch(ProcessOutputStreamConsumer outputStreamConsumer) {

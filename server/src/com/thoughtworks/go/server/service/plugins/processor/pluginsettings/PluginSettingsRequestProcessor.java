@@ -21,8 +21,8 @@ import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
-import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
@@ -62,7 +62,7 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
             }
 
             if (goPluginApiRequest.api().equals(GET_PLUGIN_SETTINGS)) {
-                return handlePluginSettingsGetRequest(goPluginApiRequest);
+                return handlePluginSettingsGetRequest(pluginDescriptor.id(), goPluginApiRequest);
             }
         } catch (Exception e) {
             LOGGER.error("Error occurred while authenticating user", e);
@@ -70,8 +70,7 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
         return new DefaultGoApiResponse(400);
     }
 
-    private GoApiResponse handlePluginSettingsGetRequest(GoApiRequest goPluginApiRequest) {
-        String pluginId = messageHandlerMap.get(goPluginApiRequest.apiVersion()).requestMessagePluginSettingsGet(goPluginApiRequest.requestBody());
+    private GoApiResponse handlePluginSettingsGetRequest(String pluginId, GoApiRequest goPluginApiRequest) {
         Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
         PluginSettings pluginSettings = new PluginSettings(pluginId);
         if (!(plugin instanceof NullPlugin)) {

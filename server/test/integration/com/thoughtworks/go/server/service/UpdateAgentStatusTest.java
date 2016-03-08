@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -71,7 +72,7 @@ public class UpdateAgentStatusTest {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(agentId, "CCEDev01", "10.81.2.1"), false, "/var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig(agentId, "CCEDev01", "10.81.2.1"), false, "/var/lib", 0L, "linux", false));
         agentService.approve(agentId);
     }
 

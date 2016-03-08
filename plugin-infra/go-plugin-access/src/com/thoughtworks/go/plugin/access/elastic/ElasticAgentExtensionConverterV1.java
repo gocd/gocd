@@ -57,7 +57,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public String serverPingRequestBody(Collection<AgentMetadata> metadata) {
+    public String listAgentsResponseBody(Collection<AgentMetadata> metadata) {
         Gson gson = new Gson();
         JsonArray array = new JsonArray();
         for (AgentMetadata agentMetadata : metadata) {
@@ -67,7 +67,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public Collection<AgentMetadata> deleteAgentRequestBody(String requestBody) {
+    public Collection<AgentMetadata> deleteAndDisableAgentRequestBody(String requestBody) {
         Type AGENT_METADATA_LIST_TYPE = new TypeToken<ArrayList<AgentMetadata>>() {
         }.getType();
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();

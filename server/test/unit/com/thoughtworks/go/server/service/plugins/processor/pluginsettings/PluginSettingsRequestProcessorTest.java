@@ -85,10 +85,11 @@ public class PluginSettingsRequestProcessorTest {
 
     @Test
     public void shouldGetPluginSettingsForPluginThatExistsInDB() {
-        String pluginId = "plugin-id-1";
+        when(pluginDescriptor.id()).thenReturn("plugin-foo-id");
+        when(pluginSqlMapDao.findPlugin("plugin-foo-id")).thenReturn(new Plugin("plugin-foo-id", "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+
         String requestBody = "expected-request";
         String responseBody = "expected-response";
-        when(jsonMessageHandler.requestMessagePluginSettingsGet(requestBody)).thenReturn(pluginId);
         when(jsonMessageHandler.responseMessagePluginSettingsGet(requestArgumentCaptor.capture())).thenReturn(responseBody);
 
         DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", null);
@@ -106,9 +107,9 @@ public class PluginSettingsRequestProcessorTest {
 
     @Test
     public void shouldNotGetPluginSettingsForPluginThatDoesNotExistInDB() {
-        String pluginId = "plugin-id-2";
+        when(pluginDescriptor.id()).thenReturn("plugin-foo-id");
+        when(pluginSqlMapDao.findPlugin("plugin-foo-id")).thenReturn(new NullPlugin());
         String requestBody = "expected-request";
-        when(jsonMessageHandler.requestMessagePluginSettingsGet(requestBody)).thenReturn(pluginId);
         when(jsonMessageHandler.responseMessagePluginSettingsGet(any(PluginSettings.class))).thenReturn(null);
 
         DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", null);

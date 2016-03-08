@@ -35,10 +35,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import static com.thoughtworks.go.plugin.access.elastic.Constants.PROCESS_DELETE_AGENT;
-import static com.thoughtworks.go.plugin.access.elastic.Constants.PROCESS_DISABLE_AGENT;
+import static com.thoughtworks.go.plugin.access.elastic.Constants.*;
+import static com.thoughtworks.go.server.service.ElasticAgentPluginService.toAgentMetadata;
+import static java.lang.String.format;
 
 @Component
 public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor {
@@ -57,34 +60,81 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
 
         registry.registerProcessorFor(PROCESS_DISABLE_AGENT, this);
         registry.registerProcessorFor(PROCESS_DISABLE_AGENT, this);
+        registry.registerProcessorFor(REQUEST_SERVER_LIST_AGENTS, this);
     }
 
     @Override
     public GoApiResponse process(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        Collection<AgentMetadata> agents = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAgentRequestBody(goPluginApiRequest.requestBody());
+        Collection<AgentMetadata> agents = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
         if (agents.isEmpty()) {
             return new DefaultGoApiResponse(200);
         }
-        Collection<AgentInstance> agentInstances = agentsMatching(pluginDescriptor, agents);
-        Collection<ElasticAgentMetadata> metadata = ElasticAgentMetadata.from(agentInstances);
 
         switch (goPluginApiRequest.api()) {
             case PROCESS_DISABLE_AGENT:
-                LOGGER.debug("Disabling agents {}", metadata);
-                agentConfigService.disableAgents(new Username("plugin." + pluginDescriptor.id()), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
-                LOGGER.debug("Done disabling agents {}", metadata);
-                return new DefaultGoApiResponse(200);
+                return processDisableAgent(pluginDescriptor, goPluginApiRequest);
             case PROCESS_DELETE_AGENT:
-                LOGGER.debug("Deleting agents {}", metadata);
-                agentConfigService.deleteAgents(new Username("plugin." + pluginDescriptor.id()), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
-                LOGGER.debug("Done deleting agents {}", metadata);
-                return new DefaultGoApiResponse(200);
+                return processDeleteAgent(pluginDescriptor, goPluginApiRequest);
+            case REQUEST_SERVER_LIST_AGENTS:
+                return processListAgents(pluginDescriptor, goPluginApiRequest);
             default:
                 return DefaultGoApiResponse.error("Illegal api request");
         }
     }
 
-    private Collection<AgentInstance> agentsMatching(final GoPluginDescriptor pluginDescriptor, Collection<AgentMetadata> agents) {
+    private GoApiResponse processListAgents(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        LOGGER.debug("Listing agents for plugin {}", pluginDescriptor.id());
+        List<ElasticAgentMetadata> elasticAgents = agentService.allElasticAgents().get(pluginDescriptor.id());
+
+        Collection<AgentMetadata> metadata;
+        if (elasticAgents == null) {
+            metadata = new ArrayList<>();
+        } else {
+            metadata = ListUtil.map(elasticAgents, new ListUtil.Transformer<ElasticAgentMetadata, AgentMetadata>() {
+                @Override
+                public AgentMetadata transform(ElasticAgentMetadata obj) {
+                    return toAgentMetadata(obj);
+                }
+            });
+        }
+
+        String responseBody = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(metadata);
+        return DefaultGoApiResponse.success(responseBody);
+    }
+
+    private GoApiResponse processDeleteAgent(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        Collection<AgentInstance> agentInstances = getAgentInstances(pluginDescriptor, goPluginApiRequest);
+
+        if (agentInstances.isEmpty()) {
+            return new DefaultGoApiResponse(200);
+        }
+
+        LOGGER.debug("Deleting agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
+        agentConfigService.deleteAgents(usernameFor(pluginDescriptor), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
+        LOGGER.debug("Done deleting agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
+        return new DefaultGoApiResponse(200);
+    }
+
+    private GoApiResponse processDisableAgent(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        Collection<AgentInstance> agentInstances = getAgentInstances(pluginDescriptor, goPluginApiRequest);
+
+        if (agentInstances.isEmpty()) {
+            return new DefaultGoApiResponse(200);
+        }
+
+        LOGGER.debug("Disabling agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
+        agentConfigService.disableAgents(usernameFor(pluginDescriptor), agentInstances.toArray(new AgentInstance[agentInstances.size()]));
+        LOGGER.debug("Done disabling agents from plugin {} {}", pluginDescriptor.id(), agentInstances);
+        return new DefaultGoApiResponse(200);
+    }
+
+    private Username usernameFor(GoPluginDescriptor pluginDescriptor) {
+        return new Username(format("plugin-%s", pluginDescriptor.id()));
+    }
+
+    private Collection<AgentInstance> getAgentInstances(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        Collection<AgentMetadata> agents = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
+
         return ListUtil.map(agents, new ListUtil.Transformer<AgentMetadata, AgentInstance>() {
             @Override
             public AgentInstance transform(AgentMetadata input) {

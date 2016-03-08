@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -71,8 +70,8 @@ public class ElasticAgentPluginServiceTest {
         ArgumentCaptor<ServerPingMessage> captor = ArgumentCaptor.forClass(ServerPingMessage.class);
         verify(serverPingQueue, times(2)).post(captor.capture());
         List<ServerPingMessage> messages = captor.getAllValues();
-        assertThat(messages.contains(new ServerPingMessage("p1", new ArrayList<AgentMetadata>())), is(true));
-        assertThat(messages.contains(new ServerPingMessage("p2", new ArrayList<AgentMetadata>())), is(true));
+        assertThat(messages.contains(new ServerPingMessage("p1")), is(true));
+        assertThat(messages.contains(new ServerPingMessage("p2")), is(true));
 
     }
 

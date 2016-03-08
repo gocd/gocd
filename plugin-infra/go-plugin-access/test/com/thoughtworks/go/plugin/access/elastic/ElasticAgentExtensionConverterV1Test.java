@@ -54,13 +54,12 @@ public class ElasticAgentExtensionConverterV1Test {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
         String json = new ElasticAgentExtensionConverterV1().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration);
-        System.out.println(json);
         JSONAssert.assertEquals(json, "{\"environment\":\"prod\",\"agent\":{\"agent_id\":\"42\",\"agent_state\":\"Idle\",\"build_state\":\"Idle\",\"config_state\":\"Enabled\"},\"properties\":{\"property_name\":\"property_value\"}}", true);
     }
 
     @Test
-    public void shouldJSONizesServerPingRequestBody() throws Exception {
-        String json = new ElasticAgentExtensionConverterV1().serverPingRequestBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
+    public void shouldJSONizesListAgentsResponseBody() throws Exception {
+        String json = new ElasticAgentExtensionConverterV1().listAgentsResponseBody(Arrays.asList(new AgentMetadata("42", "AgentState", "BuildState", "ConfigState")));
         JSONAssert.assertEquals(json, "[{\"agent_id\":\"42\",\"agent_state\":\"AgentState\",\"config_state\":\"ConfigState\",\"build_state\":\"BuildState\"}]", true);
     }
 

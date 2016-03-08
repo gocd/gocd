@@ -29,7 +29,8 @@ public interface ElasticAgentMessageConverter {
 
     Boolean shouldAssignWorkResponseFromBody(String responseBody);
 
-    String serverPingRequestBody(Collection<AgentMetadata> metadata);
+    String listAgentsResponseBody(Collection<AgentMetadata> metadata);
 
-    Collection<AgentMetadata> deleteAgentRequestBody(String requestBody);
+    Collection<AgentMetadata> deleteAndDisableAgentRequestBody(String requestBody);
+
 }

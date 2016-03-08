@@ -49,7 +49,6 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.service.AgentConfigService.createAddAgentCommand;
 import static com.thoughtworks.go.util.FileDigester.copyAndDigest;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 
@@ -200,8 +199,8 @@ public class AgentRegistrationController {
         }
         Registration keyEntry;
         String preferredHostname = hostname;
+
         try {
-            preferredHostname = hostname;
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
@@ -214,7 +213,7 @@ public class AgentRegistrationController {
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
-                        createAddAgentCommand(agentConfig),
+                        new AgentConfigService.AddAgentCommand(agentConfig),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)
                 );
@@ -235,7 +234,7 @@ public class AgentRegistrationController {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);
             }
 
-            keyEntry = agentService.requestRegistration(agentRuntimeInfo);
+            keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);
         } catch (Exception e) {
             keyEntry = Registration.createNullPrivateKeyEntry();
             LOG.error("Error occured during agent registration process: ", e);

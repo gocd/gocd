@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -172,7 +171,7 @@ public class AgentService {
         }
 
         AgentConfig agentConfig = agentConfigService.updateAgentAttributes(uuid, username, newHostname, resources, environments, enable, agentInstances, result);
-        if(agentConfig !=null)
+        if (agentConfig != null)
             return AgentInstance.createFromConfig(agentConfig, systemEnvironment);
         return null;
     }
@@ -308,25 +307,24 @@ public class AgentService {
             LOGGER.warn(
                     String.format("Agent with UUID [%s] changed IP Address from [%s] to [%s]",
                             info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress()));
-            String userName = usernameForAgent(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDispaly());
+            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDispaly());
             agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
         }
         agentInstances.updateAgentRuntimeInfo(info);
     }
 
-    private String usernameForAgent(String uuId, String ipAddress, String hostNameForDisplay) {
-        return String.format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay);
+    public Username agentUsername(String uuId, String ipAddress, String hostNameForDisplay) {
+        return new Username(String.format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
     }
 
-    public Registration requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
+    public Registration requestRegistration(Username username, AgentRuntimeInfo agentRuntimeInfo) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Agent is requesting registration " + agentRuntimeInfo);
         }
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
         if (agentInstance.isRegistered()) {
-            String userName = usernameForAgent(agentInstance.getUuid(), agentInstance.getIpAddress(), agentInstance.getHostname());
-            agentConfigService.saveOrUpdateAgent(agentInstance, new Username(new CaseInsensitiveString(userName)));
+            agentConfigService.saveOrUpdateAgent(agentInstance, username);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("New Agent approved " + agentRuntimeInfo);
             }

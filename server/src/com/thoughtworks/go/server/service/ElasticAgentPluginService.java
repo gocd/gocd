@@ -35,8 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @Service
 public class ElasticAgentPluginService {
@@ -68,18 +66,8 @@ public class ElasticAgentPluginService {
 
     public void heartbeat() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> elasticAgents = agentService.allElasticAgents();
-        Collection<AgentMetadata> agents = Collections.emptyList();
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
-            if (elasticAgents.containsKey(descriptor.id())) {
-                List<ElasticAgentMetadata> elasticAgentMetadatas = elasticAgents.remove(descriptor.id());
-                agents = ListUtil.map(elasticAgentMetadatas, new ListUtil.Transformer<ElasticAgentMetadata, AgentMetadata>() {
-                    @Override
-                    public AgentMetadata transform(ElasticAgentMetadata input) {
-                        return toAgentMetadata(input);
-                    }
-                });
-            }
-            serverPingQueue.post(new ServerPingMessage(descriptor.id(), agents));
+            serverPingQueue.post(new ServerPingMessage(descriptor.id()));
         }
 
         if (!elasticAgents.isEmpty()) {
@@ -103,7 +91,7 @@ public class ElasticAgentPluginService {
     public void createAgentsFor(Collection<JobPlan> plans) {
         for (JobPlan plan : plans) {
             String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-            if (plan.requiresElasticAgent()){
+            if (plan.requiresElasticAgent()) {
                 createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getJobAgentConfig()));
             }
         }

@@ -793,7 +793,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         fixture.createPipelineWithFirstStageScheduled();
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        agentService.requestRegistration(info);
+        agentService.requestRegistration(new Username("bob"), info);
 
         assertThat(agentService.findAgent(info.getUUId()).isRegistered(), is(false));
 
@@ -820,7 +820,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         AgentConfig needRegisterAgentConfig = AgentMother.remoteAgent();
         AgentRuntimeInfo needRegisterAgentInfo = AgentRuntimeInfo.fromServer(needRegisterAgentConfig, true, "location", 1000000l, "OS", false);
-        agentService.requestRegistration(needRegisterAgentInfo);
+        agentService.requestRegistration(new Username("bob"), needRegisterAgentInfo);
         needRegisterAgentInfo.setCookie("cookie2");
         AgentStub needRegisterAgent = new AgentStub();
         agentRemoteHandler.process(needRegisterAgent, new Message(Action.ping, MessageEncoding.encodeData(needRegisterAgentInfo)));

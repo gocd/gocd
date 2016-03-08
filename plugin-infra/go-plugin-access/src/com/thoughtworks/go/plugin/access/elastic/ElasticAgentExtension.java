@@ -30,7 +30,7 @@ import java.util.*;
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
 
-    public final static List<String> supportedVersions = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION);
+    private final static List<String> supportedVersions = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION);
 
     private final HashMap<String, ElasticAgentMessageConverter> messageHandlerMap = new HashMap<>();
 
@@ -40,7 +40,7 @@ public class ElasticAgentExtension extends AbstractExtension {
         addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
     }
 
-    void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, ElasticAgentMessageConverter extensionHandler) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
         messageHandlerMap.put(ElasticAgentExtensionConverterV1.VERSION, extensionHandler);
     }
@@ -54,13 +54,8 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    public void serverPing(final String pluginId, final Collection<AgentMetadata> metadata) {
-        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return getElasticAgentMessageConverter(resolvedExtensionVersion).serverPingRequestBody(metadata);
-            }
-        });
+    public void serverPing(final String pluginId) {
+        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
     }
 
     public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration) {

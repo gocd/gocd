@@ -197,7 +197,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         }
         environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, plan.getVariables());
 
-        if (plan.getJobAgentConfig() != null){
+        if (plan.requiresElasticAgent()){
             jobAgentMetadataDao.save(new JobAgentMetadata(jobId, plan.getJobAgentConfig()));
         }
     }

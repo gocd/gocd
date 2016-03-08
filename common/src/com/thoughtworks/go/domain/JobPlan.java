@@ -72,4 +72,6 @@ public interface JobPlan extends Serializable {
     JobAgentConfig getJobAgentConfig();
 
     boolean requiresElasticAgent();
+
+    boolean assignedToAgent();
 }

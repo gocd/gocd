@@ -28,5 +28,5 @@ public class Constants {
 
     public static final String PROCESS_DISABLE_AGENT = PROCESSOR_PREFIX + ".disable-agent";
     public static final String PROCESS_DELETE_AGENT = PROCESSOR_PREFIX + ".delete-agent";
-
+    public static final String REQUEST_SERVER_LIST_AGENTS = PROCESSOR_PREFIX + ".list";
 }

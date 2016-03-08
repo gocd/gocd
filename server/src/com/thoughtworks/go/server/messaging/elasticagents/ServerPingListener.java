@@ -29,7 +29,7 @@ public class ServerPingListener implements GoMessageListener<ServerPingMessage> 
 
     @Override
     public void onMessage(final ServerPingMessage message) {
-        elasticAgentPluginRegistry.serverPing(message.pluginId(), message.agents());
+        elasticAgentPluginRegistry.serverPing(message.pluginId());
     }
 
 }

@@ -266,4 +266,9 @@ public class DefaultJobPlan implements JobPlan {
     public void setJobAgentConfig(JobAgentConfig jobAgentConfig) {
         this.jobAgentConfig = jobAgentConfig;
     }
+
+    @Override
+    public boolean assignedToAgent() {
+        return agentUuid == null;
+    }
 }

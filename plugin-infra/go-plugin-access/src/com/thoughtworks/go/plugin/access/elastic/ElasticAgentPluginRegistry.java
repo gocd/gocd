@@ -73,20 +73,10 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         }
     }
 
-    private PluginDescriptor findPlugin(final String pluginId) {
-        return ListUtil.find(plugins, new ListUtil.Condition() {
-            @Override
-            public <T> boolean isMet(T item) {
-                PluginDescriptor pluginDescriptor = (PluginDescriptor) item;
-                return pluginDescriptor.id().equals(pluginId);
-            }
-        });
-    }
-
-    public void serverPing(String pluginId, Collection<AgentMetadata> agents) {
-        LOGGER.debug("Processing server ping {} [{}]", pluginId, agents);
-        elasticAgentExtension.serverPing(pluginId, agents);
-        LOGGER.debug("Done processing server ping {} [{}]", pluginId, agents);
+    public void serverPing(String pluginId) {
+        LOGGER.debug("Processing server ping for plugin {}", pluginId);
+        elasticAgentExtension.serverPing(pluginId);
+        LOGGER.debug("Done processing server ping for plugin {}", pluginId);
     }
 
     public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration) {
@@ -96,4 +86,13 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         return result;
     }
 
+    private PluginDescriptor findPlugin(final String pluginId) {
+        return ListUtil.find(plugins, new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                PluginDescriptor pluginDescriptor = (PluginDescriptor) item;
+                return pluginDescriptor.id().equals(pluginId);
+            }
+        });
+    }
 }

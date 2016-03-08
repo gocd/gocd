@@ -16,26 +16,17 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
-import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
 import com.thoughtworks.go.server.messaging.GoMessage;
-
-import java.util.Collection;
 
 public class ServerPingMessage implements GoMessage {
     private final String pluginId;
-    private final Collection<AgentMetadata> agents;
 
-    public ServerPingMessage(String pluginId, Collection<AgentMetadata> agents) {
+    public ServerPingMessage(String pluginId) {
         this.pluginId = pluginId;
-        this.agents = agents;
     }
 
     public String pluginId() {
         return pluginId;
-    }
-
-    public Collection<AgentMetadata> agents() {
-        return agents;
     }
 
     @Override
@@ -45,15 +36,12 @@ public class ServerPingMessage implements GoMessage {
 
         ServerPingMessage that = (ServerPingMessage) o;
 
-        if (!pluginId.equals(that.pluginId)) return false;
-        return agents.equals(that.agents);
+        return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = pluginId.hashCode();
-        result = 31 * result + agents.hashCode();
-        return result;
+        return pluginId != null ? pluginId.hashCode() : 0;
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2015 ThoughtWorks, Inc.
+  ~ Copyright 2016 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -30,73 +30,12 @@
     </rule>
 
     <rule>
-        <name>Set flag if backup in progress</name>
-        <note>Figures out if the Go server backup is in progress and sets flag to indicate. Also sets original url only if backup in progress.</note>
-        <run class="com.thoughtworks.go.server.web.RedirectDuringBackup" method="setServerBackupFlag"/>
-    </rule>
-
-    <rule>
-        <name>Handle poll from maintenance page after backup is complete</name>
-        <note>Requests auto-refresher on maintenance page to throw user back to original url if backup is complete</note>
-        <condition type="attribute" name="backupInProgress">false</condition>
-        <from>^(/is_backup_finished\.json(\?.*)?)$</from>
-        <set name="X-GO-FORCE-LOAD-PAGE" type="response-header">%{param:from}</set>
-        <set name="Content-Type" type="response-header">application/json; charset=utf-8</set>
-        <set name="echo-body">{}</set>
-        <to last="true" type="forward">/echo-attribute/echo</to>
-    </rule>
-
-    <rule>
-        <name>Handle explicit maintenance page request after backup is complete</name>
-        <note>Redirects to original page if maintenance page requested after backup is complete</note>
-        <condition type="attribute" name="backupInProgress">false</condition>
-        <from>^(/static/backup_in_progress\.html(\?.*)?)$</from>
-        <to last="true" type="redirect">%{param:from}</to>
-    </rule>
-
-    <rule>
         <name>Static content when backup in progress</name>
         <note>Serve static content when backup in progress</note>
         <from>^((/static/.*)|(/images/.*)|(/javascripts/.*)|(/stylesheets/.*)|(/compressed/.*))$</from>
         <to last="true">$1</to>
     </rule>
 
-    <rule>
-        <name>no-op polling response</name>
-        <note>Informs auto-refresher to continue polling</note>
-        <from>^(/is_backup_finished\.json(\?.*)?)$</from>
-        <set name="Content-Type" type="response-header">application/json; charset=utf-8</set>
-        <set name="echo-body">{}</set>
-        <to last="true" type="forward">/echo-attribute/echo</to>
-    </rule>
-
-    <rule>
-        <name>HealthMessage poll if backup in progress</name>
-        <note>Informs ServerHealthMessage poll to take user to maintenance page if backup in progress</note>
-        <condition type="attribute" name="backupInProgress">true</condition>
-        <from>^(/server/messages.json(\?.*)?)$</from>
-        <set name="X-GO-FORCE-LOAD-PAGE" type="response-header">%{context-path}/static/backup_in_progress.html?from=%{attribute:redirected_from}&amp;backup_started_at=%{attribute:backup_started_at}&amp;backup_started_by=%{attribute:backup_started_by}</set>
-        <set name="Content-Type" type="response-header">application/json; charset=utf-8</set>
-        <set name="echo-body">{}</set>
-        <to last="true" type="forward">/echo-attribute/echo</to>
-    </rule>
-
-    <rule>
-        <name>API 503 if backup in progress</name>
-        <note>Informs Api that is server is unavailable</note>
-        <condition type="attribute" name="backupInProgress">true</condition>
-        <from>^((/api/.*)|(.*[^/]+\.(xml|json)(\?.*)?))$</from>
-        <set name="echo-body">Server is under maintenance mode, please try later.</set>
-        <set name="status" type="status">503</set>
-        <to last="true" type="forward">/echo-attribute/echo</to>
-    </rule>
-
-    <rule>
-        <name>App page request if backup in progress</name>
-        <note>Redirects app-page to maintenance page if backup in progress</note>
-        <condition type="attribute" name="backupInProgress">true</condition>
-        <to last="true" type="redirect">%{context-path}/static/backup_in_progress.html?from=%{attribute:redirected_from}&amp;backup_started_at=%{attribute:backup_started_at}&amp;backup_started_by=%{attribute:backup_started_by}</to>
-    </rule>
 
     <rule match-type="regex">
         <name>https enforcement opt-out</name>

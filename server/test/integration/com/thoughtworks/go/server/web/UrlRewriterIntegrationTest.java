@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
-import com.thoughtworks.go.server.GoServer;
 import com.thoughtworks.go.server.util.HttpTestUtil;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -32,7 +31,6 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.DataPoint;
@@ -53,7 +51,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -62,8 +59,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(Theories.class)
 public class UrlRewriterIntegrationTest {
-    private static final DateTime BACKUP_RUNNING_SINCE = new DateTime();
-    private static final String BACKUP_STARTED_BY = "admin";
     public static HttpTestUtil httpUtil;
     public static final int HTTP = 5197;
     public static final int HTTPS = 9071;
@@ -126,9 +121,7 @@ public class UrlRewriterIntegrationTest {
         private final String requestedUrl;
         private final String servedUrl;
         private boolean useConfiguredUrls = false;
-        private String serverBackupRunningSince;
         private Map<String, String> responseHeaders = new HashMap<String, String>();
-        private String referrer;
         private int responseCode = 200;
         private METHOD method;
 
@@ -150,30 +143,6 @@ public class UrlRewriterIntegrationTest {
         public ResponseAssertion(String requestedUrl, String servedUrl, METHOD method, boolean useConfiguredUrls) {
             this(requestedUrl, servedUrl, method);
             this.useConfiguredUrls = useConfiguredUrls;
-        }
-
-        public ResponseAssertion(String requestedUrl, String servedUrl, boolean useConfiguredUrls, final DateTime backupRunningSince) {
-            this(requestedUrl, servedUrl, useConfiguredUrls);
-            this.serverBackupRunningSince = backupRunningSince == null ? null : backupRunningSince.toString();
-        }
-
-        public ResponseAssertion(String requestedUrl, String servedUrl, boolean useConfiguredUrls, boolean serverBackupRunningSince, Map<String, String> responseHeaders) {
-            this(requestedUrl, servedUrl, useConfiguredUrls, serverBackupRunningSince ? BACKUP_RUNNING_SINCE : null);
-            this.responseHeaders = responseHeaders;
-        }
-
-        public ResponseAssertion(String requestedUrl, String servedUrl, boolean useConfiguredUrls, boolean serverBackupRunningSince, Map<String, String> responseHeaders, String referrer) {
-            this(requestedUrl, servedUrl, useConfiguredUrls, serverBackupRunningSince, responseHeaders);
-            this.referrer = referrer;
-        }
-
-        public ResponseAssertion(String requestedUrl, String servedUrl, boolean useConfiguredUrls, boolean serverBackupRunningSince, int responseCode) {
-            this(requestedUrl, servedUrl,useConfiguredUrls, serverBackupRunningSince ? BACKUP_RUNNING_SINCE : null);
-            this.responseCode = responseCode;
-        }
-
-        @Override public String toString() {
-            return String.format("ResponseAssertion{requestedUrl='%s', servedUrl='%s', useConfiguredUrls=%s, responseHeaders=%s, backupInProgress=%s, referrer=%s, responseCode=%d}", requestedUrl, servedUrl, useConfiguredUrls, responseHeaders, serverBackupRunningSince, referrer, responseCode);
         }
     }
 
@@ -211,29 +180,10 @@ public class UrlRewriterIntegrationTest {
     @DataPoint public static final ResponseAssertion CONFIG_API_FOR_CURRENT = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/api/admin/config.xml", "http://127.1.1.1:" + HTTP + "/go/admin/restful/configuration/file/GET/xml?version=current");
     @DataPoint public static final ResponseAssertion CONFIG_API_FOR_HISTORICAL = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/api/admin/config/some-md5.xml", "http://127.1.1.1:" + HTTP +"/go/admin/restful/configuration/file/GET/historical-xml?version=some-md5");
 
-    @DataPoint public static ResponseAssertion STATIC_PAGE_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/static/something/else?foo=bar", "http://127.1.1.1:" + HTTP +"/go/static/something/else?foo=bar", true, BACKUP_RUNNING_SINCE);
-    @DataPoint public static ResponseAssertion IMAGES_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/images/foo.png", "http://127.1.1.1:" + HTTP +"/go/images/foo.png", true, BACKUP_RUNNING_SINCE);
-    @DataPoint public static ResponseAssertion JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/javascripts/foo.js", "http://127.1.1.1:" + HTTP +"/go/javascripts/foo.js", true, BACKUP_RUNNING_SINCE);
-    @DataPoint public static ResponseAssertion COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/compressed/all.js", "http://127.1.1.1:" + HTTP +"/go/compressed/all.js", true, BACKUP_RUNNING_SINCE);
-    @DataPoint public static ResponseAssertion STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/stylesheets/foo.css", "http://127.1.1.1:" + HTTP +"/go/stylesheets/foo.css", true, BACKUP_RUNNING_SINCE);
-
-    @DataPoint public static ResponseAssertion APP_PAGE_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/some/url?foo=bar&baz=quux", "http://127.1.1.1:" + HTTP + "/go/static/backup_in_progress.html?from=" + enc( "/go/some/url?foo=bar&baz=quux") + "&backup_started_at=" + enc(BACKUP_RUNNING_SINCE.toString())  + "&backup_started_by=" + BACKUP_STARTED_BY, true, BACKUP_RUNNING_SINCE);
-    @DataPoint public static ResponseAssertion SERVER_HEALTH_URL_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/server/messages.json?bar=baz&quux=bang", "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo?bar=baz&quux=bang", true, true,
-            m(GoServer.GO_FORCE_LOAD_PAGE_HEADER, "/go/static/backup_in_progress.html?from=" + enc("http://127.1.1.1:5197/go/some/url?foo=bar&baz=quux")  + "&backup_started_at=" + enc(BACKUP_RUNNING_SINCE.toString()) + "&backup_started_by=" + BACKUP_STARTED_BY,
-                    "Content-Type", "application/json; charset=utf-8"), "http://127.1.1.1:" + HTTP +"/go/some/url?foo=bar&baz=quux");
-    @DataPoint public static ResponseAssertion BACKUP_POLLING_URL_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/is_backup_finished.json?from=/go/foo/page?bar=baz", "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo?from=/go/foo/page?bar=baz", true, true,
-            m(GoServer.GO_FORCE_LOAD_PAGE_HEADER, (String) null,
-                    "Content-Type", "application/json; charset=utf-8"));
-    @DataPoint public static ResponseAssertion API_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/pipelines/go_pipeline/stages.xml", "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo", true, true, 503);
-    @DataPoint public static ResponseAssertion XML_ACTION_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/foo.xml", "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo", true, true, 503);
-    @DataPoint public static ResponseAssertion XML_ACTION_WITH_QUERY_STRING_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/foo.xml?bar=baz", "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo?bar=baz", true, true, 503);
-    @DataPoint public static ResponseAssertion JSON_ACTION_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/foo.json", "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo", true, true, 503);
-    @DataPoint public static ResponseAssertion JSON_ACTION_WITH_QUERY_STRING_WHILE_SERVER_BACKUP_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/foo.json?quux=bang", "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo?quux=bang", true, true, 503);
-
-    @DataPoint public static ResponseAssertion BACKUP_PAGE_WHEN_BACKUP_FINISHES = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/static/backup_in_progress.html?from=" + enc("/go/some/url?foo=bar&baz=quux"), "http://127.1.1.1:" + HTTP + "/go/some/url?foo=bar&baz=quux", true, null);
-    @DataPoint public static ResponseAssertion BACKUP_POLLING_URL_WHEN_BACKUP_FINISHES = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/is_backup_finished.json?from=" + enc("/go/foo/page?bar=baz&foo=quux"), "http://127.1.1.1:" + HTTP + "/go/echo-attribute/echo?from="+ enc("/go/foo/page?bar=baz&foo=quux"), true, false,
-            m(GoServer.GO_FORCE_LOAD_PAGE_HEADER, "/go/foo/page?bar=baz&foo=quux",
-                    "Content-Type", "application/json; charset=utf-8"));
+    @DataPoint public static ResponseAssertion IMAGES_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/images/foo.png", "http://127.1.1.1:" + HTTP +"/go/images/foo.png");
+    @DataPoint public static ResponseAssertion JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/javascripts/foo.js", "http://127.1.1.1:" + HTTP +"/go/javascripts/foo.js");
+    @DataPoint public static ResponseAssertion COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/compressed/all.js", "http://127.1.1.1:" + HTTP +"/go/compressed/all.js");
+    @DataPoint public static ResponseAssertion STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/stylesheets/foo.css", "http://127.1.1.1:" + HTTP +"/go/stylesheets/foo.css", true);
 
     @DataPoint public static ResponseAssertion TASKS_LOOKUP_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/commands", "http://127.1.1.1:" + HTTP + "/go/rails/admin/commands", true);
     @DataPoint public static ResponseAssertion TASKS_LOOKUP_SHOW = new ResponseAssertion("http://127.1.1.1:" + HTTP +"/go/admin/commands/show", "http://127.1.1.1:" + HTTP + "/go/rails/admin/commands/show", true);
@@ -272,19 +222,6 @@ public class UrlRewriterIntegrationTest {
 
     @Theory
     public void shouldRewrite(final ResponseAssertion assertion) throws IOException {
-        when(wac.getBean("backupService")).thenReturn(new BackupStatusProvider() {
-            public boolean isBackingUp() {
-                return assertion.serverBackupRunningSince != null;
-            }
-
-            public String backupRunningSinceISO8601() {
-                return assertion.serverBackupRunningSince;
-            }
-
-            public String backupStartedBy() {
-                return "admin";
-            }
-        });
         useConfiguredUrls = assertion.useConfiguredUrls;
         HttpClient httpClient = new HttpClient(new HttpClientParams());
 
@@ -299,9 +236,6 @@ public class UrlRewriterIntegrationTest {
             throw new RuntimeException("Method has to be one of GET, POST and PUT. Was: " + assertion.method);
         }
 
-        if (assertion.referrer != null) {
-            httpMethod.setRequestHeader(new Header("Referer", assertion.referrer));
-        }
         int resp = httpClient.executeMethod(httpMethod);
         assertThat("status code match failed", resp, is(assertion.responseCode));
         assertThat("handler url match failed", httpMethod.getResponseBodyAsString(), is(assertion.servedUrl));

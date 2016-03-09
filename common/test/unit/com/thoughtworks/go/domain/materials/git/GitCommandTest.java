@@ -110,6 +110,10 @@ public class GitCommandTest {
         assertThat(output.getStdOut(), Is.is("* master"));
     }
 
+    @Test
+    public void freshCloneDoesNotHaveWorkingCopy() {
+        assertWorkingCopyNotCheckedOut();
+    }
 
     @Test
     public void fullCloneIsNotShallow() {
@@ -145,6 +149,14 @@ public class GitCommandTest {
         assertThat(git.isShallow(), is(false));
 
         assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(true));
+    }
+
+    @Test
+    public void unshallowShouldNotResultInWorkingCopyCheckout() {
+        FileUtil.deleteFolder(this.gitLocalRepoDir);
+        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        git.unshallow(inMemoryConsumer(), 3);
+        assertWorkingCopyNotCheckedOut();
     }
 
     @Test
@@ -232,6 +244,18 @@ public class GitCommandTest {
         assertThat(files.size(), is(1));
         assertThat(files.get(0).getFileName(), is("build.xml"));
         assertThat(files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
+    }
+
+    @Test
+    public void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception{
+        git.latestModification();
+        assertWorkingCopyNotCheckedOut();
+    }
+
+    @Test
+    public void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() throws Exception{
+        git.modificationsSince(GitTestRepo.REVISION_2);
+        assertWorkingCopyNotCheckedOut();
     }
 
     @Test
@@ -553,5 +577,9 @@ public class GitCommandTest {
         assertThat(dir.exists(), is(true));
         commandLine.setWorkingDir(dir);
         commandLine.runOrBomb(true, null);
+    }
+
+    private void assertWorkingCopyNotCheckedOut() {
+        assertThat(gitLocalRepoDir.listFiles(), Is.is(new File[]{new File(gitLocalRepoDir, ".git")}));
     }
 }

@@ -199,8 +199,10 @@ public class BackupServiceIntegrationTest {
         TestUtils.extractZipToDir(repoZip, repoDir);
         File cloneDir = tempFiles.createUniqueFolder("cloned-config-repo-backup");
         GitMaterial git = new GitMaterial(repoDir.getAbsolutePath());
+
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);
         String latestChangeRev = modifications.get(0).getRevision();
+        git.checkout(cloneDir, new StringRevision(latestChangeRev), subprocessExecutionContext);
         assertThat(FileUtil.readContentFromFile(new File(cloneDir, "cruise-config.xml")).indexOf("too-unique-to-be-present"), greaterThan(0));
         StringRevision revision = new StringRevision(latestChangeRev + "~1");
         git.updateTo(new InMemoryStreamConsumer(), cloneDir, new RevisionContext(revision), subprocessExecutionContext);

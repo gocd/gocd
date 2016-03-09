@@ -113,6 +113,12 @@ public class GitMaterialTest {
     }
 
     @Test
+    public void shouldNotCheckingOutWorkingCopyUponCallingGetLatestModification() throws Exception {
+        git.latestModification(workingDir, new TestSubprocessExecutionContext());
+        assertWorkingCopyNotCheckedOut(workingDir);
+    }
+
+    @Test
     public void shouldGetLatestModificationUsingPassword() {
         GitMaterial gitMaterial = new GitMaterial("http://username:password@0.0.0.0");
         try {
@@ -146,6 +152,12 @@ public class GitMaterialTest {
         assertThat(modifications.get(2).getComment(), is("Created second.txt from first.txt"));
         assertThat(modifications.get(3).getRevision(), is(REVISION_1.getRevision()));
         assertThat(modifications.get(3).getComment(), is("Added second line"));
+    }
+
+    @Test
+    public void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() throws Exception {
+        git.modificationsSince(workingDir, REVISION_0, new TestSubprocessExecutionContext());
+        assertWorkingCopyNotCheckedOut(workingDir);
     }
 
     @Test
@@ -410,7 +422,7 @@ public class GitMaterialTest {
     }
 
     @Test
-    public void shouldGetLatestModificationsFromSubmodules() throws Exception {
+    public void shouldGetLatestModificationsFromRepoWithSubmodules() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
@@ -423,10 +435,6 @@ public class GitMaterialTest {
         assertThat(materialRevisions.numberOfRevisions(), is(1));
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
         assertThat(materialRevision.getRevision().getRevision(), is(submoduleRepos.currentRevision(GitSubmoduleRepos.NAME)));
-
-        File file = submoduleRepos.files(SUBMODULE).get(0);
-        File workingSubmoduleFolder = new File(workingDirectory, "sub1");
-        assertThat(new File(workingSubmoduleFolder, file.getName()), exists());
     }
 
     @Test
@@ -561,5 +569,10 @@ public class GitMaterialTest {
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
         assertThat((String) configuration.get("url"), is("http://username:******@gitrepo.com"));
         assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+    }
+
+
+    private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {
+        assertThat(localWorkingDir.listFiles(), is(new File[]{new File(localWorkingDir, ".git")}));
     }
 }

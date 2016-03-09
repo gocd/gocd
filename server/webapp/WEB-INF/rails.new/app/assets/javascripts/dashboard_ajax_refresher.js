@@ -214,7 +214,6 @@ var PipelineOperations = {
         AjaxRefreshers.disableAjax();
         var button_id = 'deploy-with-options-' + pipeline_name;
         $(button_id).disable=true;
-        debugger;
         new Ajax.Request(url,
                             {
                                 asynchronous:true,

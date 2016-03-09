@@ -71,9 +71,9 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     public EnvironmentVariableConfig(GoCipher goCipher, String name, String value, boolean isSecure) {
         this(goCipher);
-        this.name = name;
         this.isSecure = isSecure;
         setValue(value);
+        setName(name);
     }
 
     public EnvironmentVariableConfig(EnvironmentVariableConfig variable) {
@@ -140,7 +140,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.trim();
     }
 
     void addTo(EnvironmentVariableContext context) {

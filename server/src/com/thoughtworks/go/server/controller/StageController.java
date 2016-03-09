@@ -84,7 +84,7 @@ public class StageController {
         }
     }
 
-    @RequestMapping(value = "/**/cancel.json", method = RequestMethod.POST)
+    @RequestMapping(value = "/**/cancel.json", method = RequestMethod.POST, headers = "Accept=application/vnd.go.cd.v1+text")
     public ModelAndView cancelViaPost(@RequestParam(value = "id") Long stageId, HttpServletResponse response) {
         try {
             HttpLocalizedOperationResult cancelResult = new HttpLocalizedOperationResult();

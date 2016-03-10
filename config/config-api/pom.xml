@@ -36,6 +36,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.7.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.thoughtworks.go</groupId>
             <artifactId>util</artifactId>
             <version>${project.parent.version}</version>

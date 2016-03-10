@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,30 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.Serializable;
-
+import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.util.UrlUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
+import java.io.Serializable;
+
 public class JobIdentifier implements Serializable, LocatableEntity {
+    @Expose
     private String pipelineName;
+    @Expose
     private Integer pipelineCounter;
+    @Expose
     private String pipelineLabel;
+    @Expose
     private String stageName;
+    @Expose
     private String buildName;
 
+    @Expose
     private Long buildId;
+    @Expose
     private String stageCounter;
     public static final String LATEST = "latest";
+    @Expose
     private Integer rerunOfCounter;
 
     public JobIdentifier(Pipeline pipeline, Stage stage, JobInstance jobInstance) {
@@ -78,7 +87,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         this.pipelineCounter = pipelineCounter;
         this.pipelineLabel = pipelineLabel;
         this.stageName = stageName;
-        this.stageCounter = String.valueOf(stageCounter);
+        this.stageCounter = stageCounter;
         this.buildName = buildName;
         this.buildId = buildId;
     }

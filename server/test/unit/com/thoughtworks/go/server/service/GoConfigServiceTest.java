@@ -60,13 +60,11 @@ import org.jdom.input.JDOMParseException;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.*;
 
-import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.AgentMother.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
@@ -571,7 +569,7 @@ public class GoConfigServiceTest {
     public void shouldEnableAgentWhenPending() {
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
         goConfigService.disableAgents(false, instance);
         shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(GoConfigDao.createAddAgentCommand(agentConfig)));
@@ -583,7 +581,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldEnableMultipleAgents() {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("remote-host", "50.40.30.20", "abc"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
 
         AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");

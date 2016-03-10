@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.domain.BuildSettings;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
@@ -29,6 +30,7 @@ import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.work.BuildWork;
+import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -40,6 +42,7 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageEncoding;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,16 +134,16 @@ public class JobInstanceStatusMonitorTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
         info.setCookie("cookie");
-        agentRemoteHandler.process(agent, new Message(Action.ping, info));
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         buildAssignmentService.onTimer();
 
         assertThat(agent.messages.size(), is(1));
-        assertThat(agent.messages.get(0).getData(), instanceOf(BuildWork.class));
-        BuildWork work = (BuildWork) agent.messages.get(0).getData();
-        JobPlan jobPlan = work.getAssignment().getPlan();
+        Work work = MessageEncoding.decodeWork(agent.messages.get(0).getData());
+        assertThat(work, instanceOf(BuildWork.class));
+        JobPlan jobPlan = ((BuildWork) work).getAssignment().getPlan();
         final JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -158,15 +161,15 @@ public class JobInstanceStatusMonitorTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS");
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
         info.setCookie("cookie");
-        agentRemoteHandler.process(agent, new Message(Action.ping, info));
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         buildAssignmentService.onTimer();
 
         assertThat(agent.messages.size(), is(1));
-        assertThat(agent.messages.get(0).getData(), instanceOf(BuildWork.class));
-        BuildWork work = (BuildWork) agent.messages.get(0).getData();
+        assertThat(MessageEncoding.decodeWork(agent.messages.get(0).getData()), instanceOf(BuildWork.class));
+        BuildWork work = (BuildWork) MessageEncoding.decodeWork(agent.messages.get(0).getData());
         JobPlan jobPlan = work.getAssignment().getPlan();
         final JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId());
         scheduleService.rescheduleJob(instance);
@@ -174,4 +177,32 @@ public class JobInstanceStatusMonitorTest {
         assertThat(agent.messages.size(), is(2));
         assertThat(agent.messages.get(1).getAction(), is(Action.cancelJob));
     }
+
+    @Test
+    public void shouldSendCancelBuildMessageIfSupportsBuildCommand() {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        configHelper.addAgent(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        info.setSupportsBuildCommandProtocol(true);
+        info.setCookie("cookie");
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+
+        buildAssignmentService.onTimer();
+
+        assertThat(agent.messages.size(), is(1));
+        BuildSettings settings = MessageEncoding.decodeData(agent.messages.get(0).getData(), BuildSettings.class);
+        long buildId = Long.parseLong(settings.getBuildId());
+        final JobInstance instance = jobInstanceService.buildById(buildId);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                jobInstanceService.cancelJob(instance);
+            }
+        });
+
+        assertThat(agent.messages.size(), is(2));
+        assertThat(agent.messages.get(1).getAction(), is(Action.cancelBuild));
+    }
+
 }

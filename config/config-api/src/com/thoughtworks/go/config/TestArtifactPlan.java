@@ -98,7 +98,7 @@ public class TestArtifactPlan extends ArtifactPlan {
                 File testResultSource = new File(tempFolder, MERGED_RESULT_FOLDER);
                 testResultSource.mkdirs();
                 UnitTestReportGenerator generator = new UnitTestReportGenerator(publisher, testResultSource);
-                generator.generate(allFiles.toArray(new File[allFiles.size()]));
+                generator.generate(allFiles.toArray(new File[allFiles.size()]), "testoutput");
                 publisher.upload(testResultSource, "testoutput");
             } finally {
                 if (tempFolder!=null) {

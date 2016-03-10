@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,20 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
+import com.thoughtworks.go.domain.FetchHandler;
+import com.thoughtworks.go.util.HttpService;
+import org.apache.commons.io.IOUtils;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
-import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.go.util.HttpService;
+import java.util.Map;
 
 public class HttpServiceStub extends HttpService {
     private Map<String, File> uploadedFiles = new HashMap<String, File>();
+    private Map<String, byte[]> downloadFiles = new HashMap<>();
     private List<String> uploadedFileUrls = new ArrayList<String>();
 
     private int returnCode;
@@ -51,5 +53,24 @@ public class HttpServiceStub extends HttpService {
     public Map<String, File> getUploadedFiles() {
         return uploadedFiles;
     }
+
+    @Override
+    public int download(String url, FetchHandler handler) throws IOException {
+        byte[] body = downloadFiles.get(url);
+        if(body == null) {
+            return HttpServletResponse.SC_NOT_FOUND;
+        }
+        handler.handle(new ByteArrayInputStream(body));
+        return returnCode;
+    }
+
+    public void setupDownload(String url, String body) {
+        downloadFiles.put(url, body.getBytes());
+    }
+
+    public void setupDownload(String url, File file) throws IOException {
+        downloadFiles.put(url, IOUtils.toByteArray(new FileInputStream(file)));
+    }
+
 }
 

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,10 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.command.*;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.PasswordArgument;
+import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -47,6 +50,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
 import static java.lang.String.format;
@@ -114,7 +118,7 @@ public class BuildWork implements Work {
         try {
             builders.waitForCancelTasks();
             if (result == null) {
-                goPublisher.reportCurrentStatus(JobState.Completed);
+                goPublisher.reportCurrentStatus(Completed);
                 goPublisher.reportCompletedAction();
             } else {
                 goPublisher.reportCompleted(result);
@@ -170,7 +174,7 @@ public class BuildWork implements Work {
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension) {
         goPublisher.reportAction("Start to prepare");
-        goPublisher.reportCurrentStatus(JobState.Preparing);
+        goPublisher.reportCurrentStatus(Preparing);
 
         createWorkingDirectoryIfNotExist(workingDirectory);
         if (!plan.shouldFetchMaterials()) {
@@ -203,7 +207,7 @@ public class BuildWork implements Work {
     }
 
     private JobResult buildJob(EnvironmentVariableContext environmentVariableContext) {
-        goPublisher.reportCurrentStatus(JobState.Building);
+        goPublisher.reportCurrentStatus(Building);
         goPublisher.reportAction("Start to build");
         return execute(environmentVariableContext);
     }
@@ -215,7 +219,7 @@ public class BuildWork implements Work {
 
         goPublisher.consumeLineWithPrefix(format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
 
-        goPublisher.reportCurrentStatus(JobState.Completing);
+        goPublisher.reportCurrentStatus(Completing);
         goPublisher.reportAction("Start to create properties");
         harvestProperties(goPublisher);
 
@@ -265,7 +269,6 @@ public class BuildWork implements Work {
         builders.cancel(environmentVariableContext);
     }
 
-    // only for test
     public BuildAssignment getAssignment() {
         return assignment;
     }

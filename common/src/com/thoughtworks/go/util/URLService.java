@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,10 @@ public class URLService implements ServerUrlGenerator{
             url = url.substring(0, url.length() - 1);
         }
         baseRemotingURL = url;
+    }
+
+    public URLService(String baseRemotingURL) {
+        this.baseRemotingURL = baseRemotingURL;
     }
 
     public String baseRemoteURL() {
@@ -75,6 +79,11 @@ public class URLService implements ServerUrlGenerator{
         return format("/%s/%s", "files", jobIdentifier.artifactLocator(filePath));
     }
 
+
+    public String getUploadBaseUrlOfAgent(JobIdentifier jobIdentifier) {
+        return format("%s/%s/%s/%s", baseRemotingURL, "remoting", "files", jobIdentifier.artifactLocator(""));
+    }
+
     /*
     * Agent will use this method, the baseUrl will be injected from config xml in agent side.
     *   This is used to fix security issues with the agent uploading artifacts when security is enabled.
@@ -107,5 +116,12 @@ public class URLService implements ServerUrlGenerator{
         } catch (URISyntaxException e) {
             throw new RuntimeException("Invalid Go Server url", e);
         }
+    }
+
+    public String prefixPartialUrl(String url) {
+        if(url.startsWith("/")) {
+            return format("%s%s", baseRemoteURL(), url);
+        }
+        return url;
     }
 }

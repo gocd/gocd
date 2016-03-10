@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package com.thoughtworks.go.util.command;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.ListUtil.join;
-import org.apache.log4j.Logger;
 
 public class InMemoryConsumer implements StreamConsumer {
     private Queue<String> lines = new ConcurrentLinkedQueue<String>();
@@ -45,6 +47,40 @@ public class InMemoryConsumer implements StreamConsumer {
     }
 
     public String toString() {
+        return output();
+    }
+
+    public String output() {
         return join(asList(), "\n");
+    }
+
+    public String lastLine() {
+        List<String> lines = asList();
+        return lines.get(lines.size() - 1);
+    }
+
+    public String firstLine() {
+        return asList().get(0);
+    }
+
+    public int lineCount() {
+        return lines.size();
+    }
+
+    public void waitForContain(String content, int timeoutInSeconds) throws InterruptedException {
+        long start = System.nanoTime();
+        while (true) {
+            if (contains(content)) {
+                break;
+            }
+            if (System.nanoTime() - start > TimeUnit.SECONDS.toNanos(timeoutInSeconds)) {
+                throw new RuntimeException("waiting timeout!");
+            }
+            Thread.sleep(10);
+        }
+    }
+
+    public void clear() {
+        lines.clear();
     }
 }

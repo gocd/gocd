@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     protected volatile Date lastHeardTime;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
+    private boolean supportsBuildCommandProtocol;
 
     protected AgentInstance(AgentConfig agentConfig,AgentType agentType, SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
@@ -353,6 +354,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public boolean needsUpgrade() {
         if(isMissing()) return false;
         return StringUtil.isBlank(agentRuntimeInfo.getAgentLauncherVersion());
+    }
+
+    public boolean getSupportsBuildCommandProtocol() {
+        return agentRuntimeInfo.getSupportsBuildCommandProtocol();
     }
 
     public static enum AgentType {

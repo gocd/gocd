@@ -19,8 +19,7 @@ package com.thoughtworks.go.config.materials.git;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.materials.Materials;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -39,7 +38,11 @@ import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.thoughtworks.go.util.command.StreamConsumer;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrLookup;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -57,6 +60,7 @@ import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -570,7 +574,6 @@ public class GitMaterialTest {
         assertThat((String) configuration.get("url"), is("http://username:******@gitrepo.com"));
         assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
     }
-
 
     private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {
         assertThat(localWorkingDir.listFiles(), is(new File[]{new File(localWorkingDir, ".git")}));

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
@@ -29,39 +30,49 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.String.format;
 
 public class AgentRuntimeInfo implements Serializable {
-    private AgentIdentifier identifier;
-    private volatile AgentRuntimeStatus runtimeStatus;
-    private volatile AgentBuildingInfo buildingInfo;
-    private volatile String location;
-    private volatile Long usableSpace;
     private static Logger LOGGER = Logger.getLogger(AgentRuntimeInfo.class);
+
+    @Expose
+    private AgentIdentifier identifier;
+    @Expose
+    private volatile AgentRuntimeStatus runtimeStatus;
+    @Expose
+    private volatile AgentBuildingInfo buildingInfo;
+    @Expose
+    private volatile String location;
+    @Expose
+    private volatile Long usableSpace;
+    @Expose
     private volatile String operatingSystemName;
+    @Expose
     private volatile String cookie;
+    @Expose
     private volatile String agentLauncherVersion;
+    @Expose
+    private volatile boolean supportsBuildCommandProtocol;
 
-    private AgentRuntimeInfo(AgentIdentifier identifier, AgentStatus status, String location) {
-        this(identifier, status.getRuntimeStatus(), location, null, null);
-    }
-
-    public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String agentLauncherVersion) {
+    public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String agentLauncherVersion, boolean supportsBuildCommandProtocol) {
         this.identifier = identifier;
         this.runtimeStatus = runtimeStatus;
+        this.supportsBuildCommandProtocol = supportsBuildCommandProtocol;
         this.buildingInfo = AgentBuildingInfo.NOT_BUILDING;
         this.location = location;
         this.cookie = cookie;
         this.agentLauncherVersion = agentLauncherVersion;
     }
 
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, String agentLauncherVersion) {
-        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null, agentLauncherVersion).refreshOperatingSystem().refreshUsableSpace();
+    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, String agentLauncherVersion, boolean supportsBuildCommandProtocol) {
+        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null, agentLauncherVersion, supportsBuildCommandProtocol).refreshOperatingSystem().refreshUsableSpace();
     }
 
     public static AgentRuntimeInfo fromServer(AgentConfig agentConfig, boolean registeredAlready, String location,
-                                              Long usablespace, String operatingSystem) {
+                                              Long usablespace, String operatingSystem, boolean supportsBuildCommandProtocol) {
 
         if (StringUtils.isEmpty(location)) {
             throw new RuntimeException("Agent should not register without installation path.");
@@ -71,14 +82,14 @@ public class AgentRuntimeInfo implements Serializable {
             status = AgentStatus.Idle;
         }
 
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), status, location);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), status.getRuntimeStatus(), location, null, null, supportsBuildCommandProtocol);
         agentRuntimeInfo.setUsableSpace(usablespace);
         agentRuntimeInfo.operatingSystemName = operatingSystem;
         return agentRuntimeInfo;
     }
 
     public static AgentRuntimeInfo initialState(AgentConfig agentConfig) {
-        return new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing), "");
+        return new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing).getRuntimeStatus(), "", null, null, false);
     }
 
     public void busy(AgentBuildingInfo agentBuildingInfo) {
@@ -135,7 +146,9 @@ public class AgentRuntimeInfo implements Serializable {
         if (runtimeStatus != that.runtimeStatus) {
             return false;
         }
-
+        if (supportsBuildCommandProtocol != that.supportsBuildCommandProtocol) {
+            return false;
+        }
         return true;
     }
 
@@ -147,6 +160,7 @@ public class AgentRuntimeInfo implements Serializable {
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (hasCookie() ? cookie.hashCode() : 0);
         result = 31 * result + (int) (usableSpace != null ? usableSpace ^ (usableSpace >>> 32) : 0);
+        result = 31 * result + (supportsBuildCommandProtocol ? 1 : 0);
         return result;
     }
 
@@ -286,6 +300,7 @@ public class AgentRuntimeInfo implements Serializable {
         this.usableSpace = newRuntimeInfo.getUsableSpace();
         this.operatingSystemName = newRuntimeInfo.getOperatingSystem();
         this.agentLauncherVersion = newRuntimeInfo.getAgentLauncherVersion();
+        this.supportsBuildCommandProtocol = newRuntimeInfo.getSupportsBuildCommandProtocol();
     }
 
     public String getAgentLauncherVersion() {
@@ -296,4 +311,11 @@ public class AgentRuntimeInfo implements Serializable {
         this.agentLauncherVersion = agentLauncherVersion;
     }
 
+    public boolean getSupportsBuildCommandProtocol() {
+        return supportsBuildCommandProtocol;
+    }
+
+    public void setSupportsBuildCommandProtocol(boolean b) {
+        this.supportsBuildCommandProtocol = b;
+    }
 }

@@ -45,7 +45,7 @@ public class BuildRepositoryMessageProducerTest {
     private WorkAssignments newImplementation;
     private BuildRepositoryMessageProducer producer;
     private static final AgentIdentifier AGENT = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-    private static final AgentRuntimeInfo AGENT_INFO = new AgentRuntimeInfo(AGENT, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+    private static final AgentRuntimeInfo AGENT_INFO = new AgentRuntimeInfo(AGENT, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
 
     @Before
     public void setUp() {
@@ -57,20 +57,20 @@ public class BuildRepositoryMessageProducerTest {
 
     @Test
     public void shouldDelegatePingToTheOldImplementation() {
-        producer.ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
-        verify(oldImplementation).ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        producer.ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+        verify(oldImplementation).ping(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
     }
 
     @Test
     public void shouldDelegateReportJobStatusToTheOldImplementation() {
-        producer.reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), jobIdentifier, assigned);
-        verify(oldImplementation).reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), jobIdentifier, assigned);
+        producer.reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), jobIdentifier, assigned);
+        verify(oldImplementation).reportCurrentStatus(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), jobIdentifier, assigned);
     }
 
     @Test
     public void shouldDelegateReportJobResultToTheOldImplementation() {
-        producer.reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), jobIdentifier, passed);
-        verify(oldImplementation).reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), jobIdentifier, passed);
+        producer.reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), jobIdentifier, passed);
+        verify(oldImplementation).reportCompleting(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), jobIdentifier, passed);
     }
 
     @Test

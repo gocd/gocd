@@ -79,8 +79,8 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.hasAgent("blahAgent-uuid")).thenReturn(false);
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "1", null);
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
-        controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", request);
-        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig("blahAgent-uuid", "blahAgent-host", request.getRemoteAddr()), false, "blah-location", 34567L, "osx"));
+        controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", false, request);
+        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig("blahAgent-uuid", "blahAgent-host", request.getRemoteAddr()), false, "blah-location", 34567L, "osx", false));
     }
 
     @Test
@@ -90,9 +90,9 @@ public class AgentRegistrationControllerTest {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "1", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
 
-        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", request);
+        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", false, request);
 
-        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
+        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false));
         verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
     }
 
@@ -103,9 +103,9 @@ public class AgentRegistrationControllerTest {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "1", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
 
-        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "autoregister-hostname", "", "", request);
+        controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "autoregister-hostname", "", "", false, request);
 
-        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx"));
+        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx", false));
         verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
     }
 
@@ -116,9 +116,9 @@ public class AgentRegistrationControllerTest {
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "1", "");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
 
-        controller.agentRequest("host", uuid, "location", "233232", "osx", "", "", "", "", "", "", request);
+        controller.agentRequest("host", uuid, "location", "233232", "osx", "", "", "", "", "", "", false, request);
 
-        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
+        verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false));
         verify(goConfigService, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 

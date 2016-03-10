@@ -144,9 +144,9 @@ public class EmailNotificationIntegerationTest {
     private void agentReportJobIsCompleted(String unitLinux) {
         job = pipeline.getFirstStage().findJob(unitLinux);
 
-        producer.reportCompleting(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", job.getAgentUuid()), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), job.getIdentifier(),
+        producer.reportCompleting(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", job.getAgentUuid()), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), job.getIdentifier(),
                 JobResult.Failed);
-        producer.reportCurrentStatus(new AgentRuntimeInfo(new AgentIdentifier("", "", job.getAgentUuid()), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), job.getIdentifier(),
+        producer.reportCurrentStatus(new AgentRuntimeInfo(new AgentIdentifier("", "", job.getAgentUuid()), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), job.getIdentifier(),
                 JobState.Completed);
     }
 }

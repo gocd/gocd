@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,16 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageEncoding;
 import com.thoughtworks.go.websocket.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +49,14 @@ public class AgentRemoteHandler {
     private BuildRepositoryRemote buildRepositoryRemote;
     @Autowired
     private AgentService agentService;
+    @Autowired
+    private JobInstanceService jobInstanceService;
 
     @Autowired
-    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote, AgentService agentService) {
+    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote, AgentService agentService, JobInstanceService jobInstanceService) {
         this.buildRepositoryRemote = buildRepositoryRemote;
         this.agentService = agentService;
+        this.jobInstanceService = jobInstanceService;
     }
 
     public void process(Agent agent, Message msg) {
@@ -57,7 +64,7 @@ public class AgentRemoteHandler {
             processWithoutAck(agent, msg);
         } finally {
             if (msg.getAckId() != null) {
-                agent.send(new Message(Action.ack, msg.getAckId()));
+                agent.send(new Message(Action.ack, MessageEncoding.encodeData(msg.getAckId())));
             }
         }
     }
@@ -65,7 +72,7 @@ public class AgentRemoteHandler {
     public void processWithoutAck(Agent agent, Message msg) {
         switch (msg.getAction()) {
             case ping:
-                AgentRuntimeInfo info = (AgentRuntimeInfo) msg.getData();
+                AgentRuntimeInfo info = MessageEncoding.decodeData(msg.getData(), AgentRuntimeInfo.class);
                 if (!sessionIds.containsKey(agent)) {
                     LOGGER.info("{} is connected with websocket {}", info.getIdentifier(), agent);
                     sessionIds.put(agent, info.getUUId());
@@ -78,28 +85,37 @@ public class AgentRemoteHandler {
                         agentCookie.put(agent, cookie);
                     }
                     info.setCookie(cookie);
-                    agent.send(new Message(Action.setCookie, cookie));
+                    agent.send(new Message(Action.setCookie, MessageEncoding.encodeData(cookie)));
                 }
                 AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
                 if (instruction.isShouldCancelJob()) {
-                    agent.send(new Message(Action.cancelJob));
+                    cancelBuild(agent, info.getSupportsBuildCommandProtocol());
                 }
                 break;
             case reportCurrentStatus:
-                Report report = (Report) msg.getData();
-                buildRepositoryRemote.reportCurrentStatus(report.getAgentRuntimeInfo(), report.getJobIdentifier(), report.getJobState());
+                Report report = MessageEncoding.decodeData(msg.getData(), Report.class);
+                buildRepositoryRemote.reportCurrentStatus(report.getAgentRuntimeInfo(), findJobIdentifier(report), report.getJobState());
                 break;
             case reportCompleting:
-                report = (Report) msg.getData();
-                buildRepositoryRemote.reportCompleting(report.getAgentRuntimeInfo(), report.getJobIdentifier(), report.getResult());
+                report = MessageEncoding.decodeData(msg.getData(), Report.class);
+                buildRepositoryRemote.reportCompleting(report.getAgentRuntimeInfo(), findJobIdentifier(report), report.getResult());
                 break;
             case reportCompleted:
-                report = (Report) msg.getData();
-                buildRepositoryRemote.reportCompleted(report.getAgentRuntimeInfo(), report.getJobIdentifier(), report.getResult());
+                report = MessageEncoding.decodeData(msg.getData(), Report.class);
+                buildRepositoryRemote.reportCompleted(report.getAgentRuntimeInfo(), findJobIdentifier(report), report.getResult());
                 break;
             default:
                 throw new RuntimeException("Unknown action: " + msg.getAction());
         }
+    }
+
+    private JobIdentifier findJobIdentifier(Report report) {
+        if (report.getJobIdentifier() != null) {
+            return report.getJobIdentifier();
+        }
+
+        JobInstance instance = jobInstanceService.buildById(Long.valueOf(report.getBuildId()));
+        return instance.getIdentifier();
     }
 
     public void remove(Agent agent) {
@@ -125,8 +141,18 @@ public class AgentRemoteHandler {
             return;
         }
         Agent agent = agentSessions.get(uuid);
-        if (agent != null) {
+        AgentInstance instance = agentService.findAgentAndRefreshStatus(uuid);
+        if (agent != null && instance != null) {
+            cancelBuild(agent, instance.getSupportsBuildCommandProtocol());
+        }
+    }
+    private void cancelBuild(Agent agent, boolean supportsBuildCommandProtocol) {
+        if (supportsBuildCommandProtocol) {
+            agent.send(new Message(Action.cancelBuild));
+        } else {
             agent.send(new Message(Action.cancelJob));
         }
     }
+
+
 }

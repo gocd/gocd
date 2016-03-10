@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,9 +69,9 @@ public class AgentInstancesTest {
     public void shouldUnderstandFilteringAgentListBasedOnUuid() {
         AgentInstances instances = new AgentInstances(null);
 
-        AgentRuntimeInfo agent1 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux");
-        AgentRuntimeInfo agent2 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), true, "/bar/baz", 200l, "linux");
-        AgentRuntimeInfo agent3 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux");
+        AgentRuntimeInfo agent1 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux", false);
+        AgentRuntimeInfo agent2 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), true, "/bar/baz", 200l, "linux", false);
+        AgentRuntimeInfo agent3 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux", false);
 
         AgentInstance instance1 = AgentInstance.createFromLiveAgent(agent1, new SystemEnvironment());
         instances.add(instance1);
@@ -223,8 +223,8 @@ public class AgentInstancesTest {
     public void agentHostnameShouldBeUnique() {
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
         AgentInstances agentInstances = new AgentInstances(null);
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
+        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
+        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
         assertThat(agentInstances.findPhysicalAgents().size(), is(1));
     }
 
@@ -339,7 +339,7 @@ public class AgentInstancesTest {
             int count = 0;
             while (!stop) {
                 AgentConfig agentConfig = new AgentConfig("uuid" + count, "CCeDev_" + count, "10.18.5." + count);
-                agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux"));
+                agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux", false));
                 count++;
             }
         }

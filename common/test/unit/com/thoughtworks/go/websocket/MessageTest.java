@@ -25,8 +25,6 @@ import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.*;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -38,7 +36,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -49,27 +46,28 @@ public class MessageTest {
 
     @Test
     public void encodeAndDecodeMessageWithoutData() {
-        byte[] msg = Message.encode(new Message(Action.ping));
-        Message decoded = Message.decode(new ByteArrayInputStream(msg));
+        byte[] msg = MessageEncoding.encodeMessage(new Message(Action.ping));
+        Message decoded = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
         assertThat(decoded.getAction(), is(Action.ping));
         assertNull(decoded.getData());
 
-        assertEquals(decoded, Message.decode(new ByteArrayInputStream(msg)));
+        assertEquals(decoded, MessageEncoding.decodeMessage(new ByteArrayInputStream(msg)));
     }
 
     @Test
     public void encodeAndDecodePingMessage() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, null);
-        byte[] msg = Message.encode(new Message(Action.ping, info));
-        Message decoded = Message.decode(new ByteArrayInputStream(msg));
-        assertThat(((AgentRuntimeInfo) decoded.getData()).getIdentifier(), is(info.getIdentifier()));
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, null, false);
+        byte[] msg = MessageEncoding.encodeMessage(new Message(Action.ping, MessageEncoding.encodeData(info)));
+        Message decoded = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
+        AgentRuntimeInfo decodedInfo = MessageEncoding.decodeData(decoded.getData(), AgentRuntimeInfo.class);
+        assertThat(decodedInfo.getIdentifier(), is(info.getIdentifier()));
     }
 
     @Test
     public void encodeAndDecodeSetCookie() {
-        byte[] msg = Message.encode(new Message(Action.setCookie, "cookie"));
-        Message decoded = Message.decode(new ByteArrayInputStream(msg));
-        assertThat((String) decoded.getData(), is("cookie"));
+        byte[] msg = MessageEncoding.encodeMessage(new Message(Action.setCookie, MessageEncoding.encodeData("cookie")));
+        Message decoded = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
+        assertThat(MessageEncoding.decodeData(decoded.getData(), String.class), is("cookie"));
     }
 
     @Test
@@ -89,49 +87,12 @@ public class MessageTest {
         BuildAssignment assignment = BuildAssignment.create(jobPlan(), buildCause, builder, workingDir);
 
         BuildWork work = new BuildWork(assignment);
-        byte[] msg = Message.encode(new Message(Action.assignWork, work));
-        Message decodedMsg = Message.decode(new ByteArrayInputStream(msg));
-        assertThat(((BuildWork) decodedMsg.getData()).getAssignment().getPlan().getPipelineName(), is("pipelineName"));
+        byte[] msg = MessageEncoding.encodeMessage(new Message(Action.assignWork, MessageEncoding.encodeWork(work)));
+        Message decodedMsg = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
+        BuildWork decodedWork = (BuildWork) MessageEncoding.decodeWork(decodedMsg.getData());
+        assertThat(decodedWork.getAssignment().getPlan().getPipelineName(), is("pipelineName"));
     }
 
-    @Test
-    public void materialRevisions() {
-        assertEncodeDecode(ModificationsMother.createHgMaterialRevisions());
-        assertEncodeDecode(ModificationsMother.createSvnMaterialRevisions(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()));
-        assertEncodeDecode(ModificationsMother.createP4MaterialRevisions(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()));
-
-        assertEncodeDecode(ModificationsMother.createPackageMaterialRevision("revision"));
-        assertEncodeDecode(ModificationsMother.createPipelineMaterialRevision("stageIdentifier"));
-    }
-
-    @Test
-    public void materialInstance() {
-        assertEncodeDecodeMaterialInstance(MaterialsMother.pluggableSCMMaterial());
-        assertEncodeDecodeMaterialInstance(MaterialsMother.gitMaterial("url"));
-        assertEncodeDecodeMaterialInstance(MaterialsMother.hgMaterial());
-        assertEncodeDecodeMaterialInstance(MaterialsMother.tfsMaterial("url"));
-        assertEncodeDecodeMaterialInstance(MaterialsMother.p4Material());
-        assertEncodeDecodeMaterialInstance(MaterialsMother.packageMaterial());
-    }
-
-    private void assertEncodeDecodeMaterialInstance(Material material) {
-        MaterialRevisions materialRevisions = new MaterialRevisions();
-
-        final ArrayList<Modification> modifications = new ArrayList<>();
-
-        Modification m = new Modification("user2", "comment2", "email2", new Date(), "9fdcf27f16eadc362733328dd481d8a2c29915e1");
-        m.setMaterialInstance(material.createMaterialInstance());
-        modifications.add(m);
-        materialRevisions.addRevision(MaterialsMother.hgMaterial(), modifications);
-
-        assertEncodeDecode(materialRevisions);
-    }
-
-    private void assertEncodeDecode(Object obj) {
-        byte[] msg = Message.encode(new Message(Action.assignWork, obj));
-        Message decodedMsg = Message.decode(new ByteArrayInputStream(msg));
-        assertEquals(decodedMsg.getData().getClass(), obj.getClass());
-    }
 
     private DefaultJobPlan jobPlan() {
         JobIdentifier jobIdentifier = new JobIdentifier("pipelineName", 1, "1", "defaultStage", "1", "job1", 100L);

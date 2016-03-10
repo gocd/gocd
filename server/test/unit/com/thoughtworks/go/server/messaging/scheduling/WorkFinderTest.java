@@ -70,7 +70,7 @@ public class WorkFinderTest {
             will(returnValue(NO_WORK));
             one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
         }});
-        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false)));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class WorkFinderTest {
             will(returnValue(SOME_WORK));
             one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, SOME_WORK));
         }});
-        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false)));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class WorkFinderTest {
         }});
 
         try {
-            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null)));
+            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false)));
         } catch (Exception e) {
             assertSame(exception, e);
         }

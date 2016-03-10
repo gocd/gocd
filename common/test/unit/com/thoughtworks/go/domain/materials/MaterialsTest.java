@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.materials;
 
+import com.google.gson.Gson;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.*;
@@ -26,6 +27,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
@@ -37,8 +39,11 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
+import static com.thoughtworks.go.domain.BuildCommand.noop;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static org.hamcrest.Matchers.sameInstance;
@@ -278,5 +283,24 @@ public class MaterialsTest {
 
         assertThat(junkFolder.exists(), is(true));
         temporaryFolder.delete();
+    }
+
+    @Test
+    public void shouldGenerateCleanupCommandForRemovingJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
+        Materials materials = new Materials();
+        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
+        materials.add(gitMaterial);
+
+        BuildCommand command = materials.cleanUpCommand("basedir");
+        assertThat(command.getName(), is("cleandir"));
+        assertThat(command.getStringArg("path"), is("basedir"));
+        assertThat(command.getArrayArg("allowed"), is(new String[]{"some-folder", "cruise-output"}));
+    }
+
+    @Test
+    public void shouldGenerateNoopCommandWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
+        Materials materials = new Materials();
+        materials.add(new GitMaterial("http://some-url.com", "some-branch"));
+        assertThat(materials.cleanUpCommand("foo"), is(noop()));
     }
 }

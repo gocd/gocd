@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageEncoding;
 import com.thoughtworks.go.websocket.Report;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,16 +46,16 @@ public class AgentRemoteHandlerTest {
     public void setUp() {
         remote = mock(BuildRepositoryRemote.class);
         agentService = mock(AgentService.class);
-        handler = new AgentRemoteHandler(remote, agentService);
+        handler = new AgentRemoteHandler(remote, agentService, mock(JobInstanceService.class));
     }
 
     @Test
     public void registerConnectedAgentsByPing() {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, "cookie", null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, "cookie", null, false);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
 
-        handler.process(agent, new Message(Action.ping, info));
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         verify(remote).ping(info);
         assertEquals(1, handler.connectedAgents().size());
@@ -63,12 +65,12 @@ public class AgentRemoteHandlerTest {
 
     @Test
     public void shouldCancelJobIfAgentRuntimeStatusIsCanceledOnSeverSideWhenClientPingsServer() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null, false);
         info.setCookie("cookie");
 
         when(remote.ping(info)).thenReturn(new AgentInstruction(true));
 
-        handler.process(agent, new Message(Action.ping, info));
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         verify(remote).ping(info);
         assertEquals(1, handler.connectedAgents().size());
@@ -79,64 +81,87 @@ public class AgentRemoteHandlerTest {
     }
 
     @Test
-    public void shouldSetCookieIfNoCookieFoundWhenAgentPingsServer() {
-        AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
-        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, null);
+    public void shouldCancelBuildIfAgentRuntimeStatusIsCanceledOnSeverSideWhenClientWithBuildCommandSupportPingsServer() {
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null, true);
+        info.setCookie("cookie");
 
-        when(remote.getCookie(identifier, info.getLocation())).thenReturn("new cookie");
-        when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        when(remote.ping(info)).thenReturn(new AgentInstruction(true));
 
-        handler.process(agent, new Message(Action.ping, info));
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         verify(remote).ping(info);
+        assertEquals(1, handler.connectedAgents().size());
+        assertEquals(agent, handler.connectedAgents().get("uuid"));
+
+        assertEquals(1, agent.messages.size());
+        assertEquals(agent.messages.get(0).getAction(), Action.cancelBuild);
+    }
+
+    @Test
+    public void shouldSetCookieIfNoCookieFoundWhenAgentPingsServer() {
+        AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
+        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, null, false);
+
+        when(remote.getCookie(identifier, info.getLocation())).thenReturn("new cookie");
+        when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
+
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+
+        verify(remote).ping(withCookie(info, "new cookie"));
         assertEquals(1, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.setCookie);
-        assertEquals(agent.messages.get(0).getData(), "new cookie");
+        assertEquals(MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class), "new cookie");
     }
 
     @Test
     public void shouldSetCookieAndCancelJobWhenPingServerWithoutCookieAndServerSideRuntimeStatusIsCanceled() {
         AgentIdentifier identifier = new AgentIdentifier("HostName", "ipAddress", "uuid");
-        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, null, null, null, false);
 
         when(remote.getCookie(identifier, info.getLocation())).thenReturn("new cookie");
-        when(remote.ping(info)).thenReturn(new AgentInstruction(true));
+        when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(true));
 
-        handler.process(agent, new Message(Action.ping, info));
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
-        verify(remote).ping(info);
+        verify(remote).ping(withCookie(info, "new cookie"));
         assertEquals(2, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.setCookie);
-        assertEquals(agent.messages.get(0).getData(), "new cookie");
+        assertEquals(MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class), "new cookie");
         assertEquals(agent.messages.get(1).getAction(), Action.cancelJob);
+    }
+
+    private AgentRuntimeInfo withCookie(AgentRuntimeInfo info, String cookie) {
+        AgentRuntimeInfo newInfo = MessageEncoding.decodeData(MessageEncoding.encodeData(info), AgentRuntimeInfo.class);
+        newInfo.setCookie(cookie);
+        return newInfo;
     }
 
     @Test
     public void reportCurrentStatus() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null, false);
 
         JobIdentifier jobIdentifier = new JobIdentifier();
-        handler.process(agent, new Message(Action.reportCurrentStatus, new Report(info, jobIdentifier, JobState.Preparing)));
+        handler.process(agent, new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(info, jobIdentifier, JobState.Preparing))));
 
         verify(remote).reportCurrentStatus(info, jobIdentifier, JobState.Preparing);
     }
 
     @Test
     public void reportCompleting() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null, false);
 
         JobIdentifier jobIdentifier = new JobIdentifier();
-        handler.process(agent, new Message(Action.reportCompleting, new Report(info, jobIdentifier, JobResult.Passed)));
+        handler.process(agent, new Message(Action.reportCompleting, MessageEncoding.encodeData(new Report(info, jobIdentifier, JobResult.Passed))));
 
         verify(remote).reportCompleting(info, jobIdentifier, JobResult.Passed);
     }
 
     @Test
     public void reportCompleted() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null, false);
 
         JobIdentifier jobIdentifier = new JobIdentifier();
-        handler.process(agent, new Message(Action.reportCompleted, new Report(info, jobIdentifier, JobResult.Passed)));
+        handler.process(agent, new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(info, jobIdentifier, JobResult.Passed))));
 
         verify(remote).reportCompleted(info, jobIdentifier, JobResult.Passed);
     }
@@ -149,12 +174,12 @@ public class AgentRemoteHandlerTest {
     @Test
     public void removeRegisteredAgent() {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
-        when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null, false);
+        when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
         when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
 
-        handler.process(agent, new Message(Action.ping, info));
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         handler.remove(agent);
         assertEquals(0, handler.connectedAgents().size());
@@ -164,10 +189,11 @@ public class AgentRemoteHandlerTest {
     @Test
     public void sendCancelMessage() {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
-        when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null, false);
+        when(agentService.findAgentAndRefreshStatus(instance.getUuid())).thenReturn(instance);
+        when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
         when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
-        handler.process(agent, new Message(Action.ping, info));
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         agent.messages.clear();
         handler.sendCancelMessage(instance.getAgentIdentifier().getUuid());
@@ -183,38 +209,45 @@ public class AgentRemoteHandlerTest {
     @Test
     public void shouldNotSetDupCookieForSameAgent() {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
-        when(remote.ping(info)).thenReturn(new AgentInstruction(false));
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null, false);
+        when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
         when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("cookie");
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
 
-        handler.process(agent, new Message(Action.ping, info));
-        String cookie = info.getCookie();
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
         info.setCookie(null);
+
+        reset(remote);
+        when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
         when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
-        handler.process(agent, new Message(Action.ping, info));
-        assertEquals(cookie, info.getCookie());
+
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+        verify(remote).ping(withCookie(info, "cookie"));
 
         info.setCookie(null);
         handler.remove(agent);
-        handler.process(agent, new Message(Action.ping, info));
-        assertNotEquals(cookie, info.getCookie());
-        assertEquals("new cookie", info.getCookie());
+
+        reset(remote);
+        when(remote.ping(any(AgentRuntimeInfo.class))).thenReturn(new AgentInstruction(false));
+        when(remote.getCookie(instance.getAgentIdentifier(), info.getLocation())).thenReturn("new cookie");
+
+        handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+        verify(remote).ping(withCookie(info, "new cookie"));
     }
 
     @Test
     public void shouldSendBackAnAckMessageIfMessageHasAckId() {
         AgentInstance instance = AgentInstanceMother.idle();
-        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, null, false);
         info.setCookie("cookie");
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
 
-        Message msg = new Message(Action.ping, info);
+        Message msg = new Message(Action.ping, MessageEncoding.encodeData(info));
         msg.generateAckId();
         handler.process(agent, msg);
         assertEquals(1, agent.messages.size());
         assertEquals(Action.ack, agent.messages.get(0).getAction());
-        assertEquals(msg.getAckId(), agent.messages.get(0).getData().toString());
+        assertEquals(msg.getAckId(), MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class));
     }
 }

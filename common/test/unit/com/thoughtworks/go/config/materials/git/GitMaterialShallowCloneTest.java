@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
-import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.*;
+import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -147,7 +147,6 @@ public class GitMaterialShallowCloneTest {
         assertThat(original.withShallowClone(true).isShallowClone(), is(true));
         assertThat(original.withShallowClone(false).isShallowClone(), is(false));
         assertThat(original.isShallowClone(), is(false));
-
     }
 
     @Test
@@ -162,7 +161,6 @@ public class GitMaterialShallowCloneTest {
         assertThat(localRepoFor(material).isShallow(), is(true));
     }
 
-
     private TestSubprocessExecutionContext context() {
         return new TestSubprocessExecutionContext();
     }
@@ -170,6 +168,4 @@ public class GitMaterialShallowCloneTest {
     private GitCommand localRepoFor(GitMaterial material) {
         return new GitCommand(material.getFingerprint(), workingDir, GitMaterialConfig.DEFAULT_BRANCH, false);
     }
-
-
 }

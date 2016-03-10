@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 
 import static com.thoughtworks.go.security.CertificateUtil.md5Fingerprint;
 import static com.thoughtworks.go.security.SelfSignedCertificateX509TrustManager.CRUISE_SERVER;
@@ -199,7 +199,7 @@ public class SslInfrastructureService {
         }
 
         protected Registration readResponse(InputStream is) throws IOException, ClassNotFoundException {
-            return (Registration) new ObjectInputStream(is).readObject();
+            return Registration.fromJson(IOUtils.toString(is));
         }
     }
 }

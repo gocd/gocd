@@ -78,7 +78,7 @@ public class UnitTestReportGeneratorTest {
 
 
         copyAndClose(source("TestResult.xml"), target("test-result.xml"));
-        final Properties properties = generator.generate(testFolder.listFiles());
+        final Properties properties = generator.generate(testFolder.listFiles(), "testoutput");
         assertThat(testFolder.listFiles().length, is(2));
     }
 
@@ -95,7 +95,7 @@ public class UnitTestReportGeneratorTest {
         });
 
         copyAndClose(source("NunitTestResultWithByteOrderMark.xml"), target("test-result.xml"));
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
         assertThat(testFolder.listFiles().length, is(2));
     }
 
@@ -104,7 +104,7 @@ public class UnitTestReportGeneratorTest {
         expectZeroedProperties();
 
         suppressConsoleOutput();
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
         restoreConsoleOutput();
     }
 
@@ -124,7 +124,7 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("empty.xml"), target("empty.xml"));
 
         suppressConsoleOutput();
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
         restoreConsoleOutput();
     }
 
@@ -156,7 +156,7 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("InvalidTestResult.xml"), target("Invalid.xml"));
 
         suppressConsoleOutput();
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
         restoreConsoleOutput();
     }
 
@@ -177,7 +177,7 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("xml_samples/Coverage.xml"), target("Coverage.xml"));
 
         suppressConsoleOutput();
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
         restoreConsoleOutput();
     }
 
@@ -195,7 +195,7 @@ public class UnitTestReportGeneratorTest {
 
         copyAndClose(source("SerializableProjectConfigUtilTest.xml"), target("AgentTest.xml"));
 
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
     }
 
     @Test
@@ -215,7 +215,7 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("SerializableProjectConfigUtilTest.xml"),
                 target("SerializableProjectConfigUtilTest.xml"));
 
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
     }
 
     @Test
@@ -233,7 +233,7 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("TestReport-Integration.xml"), target("test-result1.xml"));
         copyAndClose(source("TestReport-Unit.xml"), target("test-result2.xml"));
 
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
     }
 
     @Test
@@ -257,7 +257,7 @@ public class UnitTestReportGeneratorTest {
         copyAndClose(source("xml_samples/TestResult.xml"), target("reports/TestResult.xml"));
 
         suppressConsoleOutput();
-        generator.generate(testFolder.listFiles());
+        generator.generate(testFolder.listFiles(), "testoutput");
         restoreConsoleOutput();
     }
 

@@ -116,7 +116,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
                 }
 
                 for (SCM scm : scmsWithSameFingerprint) {
-                    scm.addError(SCM.SCM_ID, String.format("Cannot save SCM, found duplicate SCMs. %s", join(scmNames)));
+                    scm.addError(SCM.SCM_ID, String.format("Cannot save SCM, found duplicate SCMs %s.", join(scmNames)));
                 }
             }
         }

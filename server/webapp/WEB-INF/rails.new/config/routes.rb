@@ -237,6 +237,8 @@ Go::Application.routes.draw do
         namespace :internal do
           resources :pipelines, param: :name, only: [:index]
         end
+
+        resources :scms, param: :material_name, controller: :pluggable_scms, except: [:delete]
       end
 
       get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api

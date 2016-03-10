@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.domain.scm;
 
@@ -130,7 +131,7 @@ public class SCMsTest {
         assertThat(scm4.getFingerprint().equals(scm1.getFingerprint()), is(false));
         assertThat(scm5.getFingerprint().equals(scm1.getFingerprint()), is(true));
 
-        String expectedErrorMessage = "Cannot save SCM, found duplicate SCMs. scm1, scm3, scm5";
+        String expectedErrorMessage = "Cannot save SCM, found duplicate SCMs scm1, scm3, scm5.";
         assertThat(scm1.errors().getAllOn(SCM.SCM_ID), is(asList(expectedErrorMessage)));
         assertThat(scm2.errors().getAllOn(SCM.SCM_ID), is(nullValue()));
         assertThat(scm3.errors().getAllOn(SCM.SCM_ID), is(asList(expectedErrorMessage)));

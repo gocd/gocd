@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -184,16 +184,14 @@ describe ApiV1::Admin::PipelinesController do
 
         put_with_api_header :update, name: @pipeline_name, :pipeline => pipeline
 
-        expect(response.code).to eq("412")
-        expect(actual_response).to eq({ :message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes." })
+        expect(response).to have_api_message_response(412, "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes.")
       end
 
 
       it "should not update pipeline config if no etag is passed" do
         put_with_api_header :update, name: @pipeline_name, :pipeline => pipeline
 
-        expect(response.code).to eq("412")
-        expect(actual_response).to eq({ :message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes." })
+        expect(response).to have_api_message_response(412, "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes.")
       end
 
       it "should handle server validation errors" do
@@ -228,8 +226,7 @@ describe ApiV1::Admin::PipelinesController do
 
         put_with_api_header :update, name: @pipeline_name, :pipeline => pipeline("renamed_pipeline")
 
-        expect(response.code).to eq("406")
-        expect(actual_response).to eq({ :message => "Renaming of pipeline is not supported by this API." })
+        expect(response).to have_api_message_response(422, 'Renaming of pipeline is not supported by this API.')
       end
 
       it "should set package definition on to package material before save" do

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ describe Admin::Materials::PluggableScmController do
       before :each do
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
-        @pluggable_scm_service.should_receive(:validate)
+        @pluggable_scm_service.should_receive(:isValid)
       end
 
       it "should add new material" do
@@ -204,7 +204,7 @@ describe Admin::Materials::PluggableScmController do
       before :each do
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         @go_config_service.should_receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
-        @pluggable_scm_service.should_receive(:validate)
+        @pluggable_scm_service.should_receive(:isValid)
       end
 
       it "should update existing material" do

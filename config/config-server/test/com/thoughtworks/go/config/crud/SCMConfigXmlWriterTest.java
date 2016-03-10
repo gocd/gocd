@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.config.crud;
 
@@ -116,19 +117,20 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
 
     @Test
     public void shouldNotAllowMultipleSCMsWithSameName() throws Exception {
-        Configuration scmConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
+        Configuration scmConfigurationOne = new Configuration(getConfigurationProperty("url", false, "http://go"));
+        Configuration scmConfigurationTwo = new Configuration(getConfigurationProperty("url", false, "http://gocd"));
         CruiseConfig configToSave = new BasicCruiseConfig();
 
-        SCM scm1 = createSCM("id1", "scm-name-1", "plugin-id", "1.0", scmConfiguration);
+        SCM scm1 = createSCM("id1", "scm.name", "plugin-id", "1.0", scmConfigurationOne);
 
-        SCM scm2 = createSCM("id2", "scm-name-2", "plugin-id", "1.0", scmConfiguration);
+        SCM scm2 = createSCM("id2", "scm.name", "plugin-id", "1.0", scmConfigurationTwo);
 
         configToSave.setSCMs(new SCMs(scm1, scm2));
         try {
             xmlWriter.write(configToSave, output, false);
-            fail("should not have allowed two SCMs with same id");
+            fail("should not have allowed two SCMs with same name");
         } catch (GoConfigInvalidException e) {
-            assertThat(e.getMessage(), is("Cannot save SCM, found duplicate SCMs. scm-name-1, scm-name-2"));
+            assertThat(e.getMessage(), is("Cannot save SCM, found multiple SCMs called 'scm.name'. SCM names are case-insensitive and must be unique."));
         }
     }
 

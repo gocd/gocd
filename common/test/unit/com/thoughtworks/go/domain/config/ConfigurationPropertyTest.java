@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.config;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import javax.annotation.PostConstruct;
 
@@ -33,6 +34,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -311,5 +313,36 @@ public class ConfigurationPropertyTest {
     public void shouldGetMaskedStringIfConfigurationPropertyIsSecure() throws Exception {
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new EncryptedConfigurationValue("value")).getDisplayValue(), is("****"));
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")).getDisplayValue(), is("value"));
+    }
+
+    @Test
+    public void shouldDeserializeWithErrorFlagIfPropertyHasBothClearTextAndCipherText() throws Exception {
+        ConfigurationProperty property = new ConfigurationProperty();
+        
+        property.deserialize("url", "clearText", true, "c!ph3rt3xt");
+
+        assertThat(property.errors().getAllOn("value"), is(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!")));
+        assertThat(property.errors().getAllOn("encryptedValue"), is(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!")));
+    }
+
+    @Test
+    public void shouldDeserializeWithNoErrorFlagIfPropertyHasEitherClearTextOrCipherText() throws Exception {
+        ConfigurationProperty property1 = new ConfigurationProperty();
+        ConfigurationProperty property2 = new ConfigurationProperty();
+
+        property1.deserialize("url", "clearText", true, null);
+        property2.deserialize("url", null, true, "encryptedValue");
+
+        assertTrue(property1.errors().isEmpty());
+        assertTrue(property2.errors().isEmpty());
+    }
+
+    @Test
+    public void shouldDeserializeWithErrorIfPropertyHasEncryptedValueWhileSecureIsFalse() throws Exception {
+        ConfigurationProperty property = new ConfigurationProperty();
+
+        property.deserialize("url", null, false, "encryptedValue");
+
+        assertThat(property.errors().getAllOn("encryptedValue"), is(Arrays.asList("You may specify encrypted value only when option 'secure' is true.")));
     }
 }

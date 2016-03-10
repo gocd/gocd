@@ -174,6 +174,7 @@ public class SCM implements Serializable, Validatable {
             errors().add(NAME, NameTypeValidator.errorMessage("SCM", name));
         }
         configuration.validateUniqueness(String.format("SCM '%s'", name));
+        configuration.validateProperties(validationContext);
     }
 
     @Override
@@ -294,6 +295,10 @@ public class SCM implements Serializable, Validatable {
 
     public void clearEmptyConfigurations() {
         configuration.clearEmptyConfigurations();
+    }
+
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
     }
 
     @PostConstruct

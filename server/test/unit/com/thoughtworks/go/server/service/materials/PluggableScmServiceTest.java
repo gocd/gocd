@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
@@ -27,12 +27,14 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,6 +52,8 @@ public class PluggableScmServiceTest {
     @Mock
     private Localizer localizer;
     @Mock
+    private GoConfigService goConfigService;
+    @Mock
     private SCMPreference preference;
 
     private PluggableScmService pluggableScmService;
@@ -59,7 +63,7 @@ public class PluggableScmServiceTest {
     public void setUp() throws Exception {
         initMocks(this);
 
-        pluggableScmService = new PluggableScmService(scmExtension, localizer);
+        pluggableScmService = new PluggableScmService(scmExtension, localizer, goConfigService);
 
         SCMPropertyConfiguration scmConfig = new SCMPropertyConfiguration();
         scmConfig.add(new SCMProperty("KEY1").with(Property.REQUIRED, true));
@@ -173,6 +177,37 @@ public class PluggableScmServiceTest {
         assertSame(expectedResult, gotResult);
     }
 
+    @Test
+    public void shouldReturnAListOfAllScmsInTheConfig() {
+        ArrayList<SCM> list = new ArrayList<>();
+        list.add(new SCM());
+        when(goConfigService.getSCMs()).thenReturn(list);
+
+        ArrayList<SCM> scms = pluggableScmService.listAllScms();
+
+        assertThat(scms, is(list));
+    }
+
+    @Test
+    public void shouldReturnAPluggableScmMaterialIfItExists() {
+        SCM scm = new SCM("1", null, null);
+        scm.setName("foo");
+
+        ArrayList<SCM> list = new ArrayList<>();
+        list.add(scm);
+        when(goConfigService.getSCMs()).thenReturn(list);
+
+        assertThat(pluggableScmService.findPluggableScmMaterial("foo"), is(scm));
+    }
+
+    @Test
+    public void shouldReturnNullIfPluggableScmMaterialDoesNotExist() {
+        ArrayList<SCM> scms = new ArrayList<>();
+        when(goConfigService.getSCMs()).thenReturn(scms);
+
+        assertNull(pluggableScmService.findPluggableScmMaterial("bar"));
+    }
+
     private ValidationError getValidationErrorFor(List<ValidationError> validationErrors, final String key) {
         return ListUtil.find(validationErrors, new ListUtil.Condition() {
             @Override
@@ -181,4 +216,5 @@ public class PluggableScmServiceTest {
             }
         });
     }
+
 }

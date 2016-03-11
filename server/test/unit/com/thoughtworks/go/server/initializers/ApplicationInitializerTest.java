@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.initializers;
 
+import com.thoughtworks.go.config.ConfigCipherUpdater;
 import com.thoughtworks.go.config.MergedGoConfig;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
@@ -44,8 +45,12 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -125,6 +130,8 @@ public class ApplicationInitializerTest {
     private PipelineConfigService pipelineConfigService;
     @Mock
     private ServerVersionInfoManager serverVersionInfoManager;
+    @Mock
+    private ConfigCipherUpdater configCipherUpdater;
 
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
@@ -151,6 +158,17 @@ public class ApplicationInitializerTest {
     @Test
     public void shouldInitializePipelineConfigServiceAfterGoConfigServiceIsInitialized() throws Exception {
         verifyOrder(goConfigService, pipelineConfigService);
+    }
+
+    @Test
+    public void shouldRunConfigCipherUpdaterBeforeInitializationOfOtherConfigRelatedServicesAndDatastores() throws Exception {
+        InOrder inOrder = inOrder(configCipherUpdater, configElementImplementationRegistrar, configRepository, goFileConfigDataSource, mergedGoConfig, goConfigService);
+        inOrder.verify(configCipherUpdater).migrate();
+        inOrder.verify(configElementImplementationRegistrar).initialize();
+        inOrder.verify(configRepository).initialize();
+        inOrder.verify(goFileConfigDataSource).upgradeIfNecessary();
+        inOrder.verify(mergedGoConfig).loadConfigIfNull();
+        inOrder.verify(goConfigService).initialize();
     }
 
     private void verifyOrder(Initializer... initializers) {

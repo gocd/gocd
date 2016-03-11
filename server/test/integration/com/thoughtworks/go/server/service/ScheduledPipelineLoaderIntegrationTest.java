@@ -16,12 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -30,34 +25,20 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.serverhealth.HealthStateLevel;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.ArtifactLogUtil;
-import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.utils.Timeout;
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -68,6 +49,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsString;
@@ -91,6 +77,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     @Autowired private ArtifactsService artifactsService;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private MaterialExpansionService materialExpansionService;
+    @Autowired private ConsoleService consoleService;
 
     GoConfigFileHelper configHelper;
     private SvnTestRepoWithExternal svnRepo;
@@ -102,6 +89,13 @@ public class ScheduledPipelineLoaderIntegrationTest {
         goCache.clear();
         configHelper.onSetUp();
         svnRepo = new SvnTestRepoWithExternal();
+        cleanupTempFolders();
+    }
+
+    private void cleanupTempFolders() {
+        FileUtils.deleteQuietly(new File("data/console"));
+        FileUtils.deleteQuietly(new File("logs"));
+        FileUtils.deleteQuietly(new File("pipelines"));
     }
 
     @After
@@ -109,6 +103,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         configHelper.onTearDown();
         dbHelper.onTearDown();
         TestRepo.internalTearDown();
+        cleanupTempFolders();
     }
 
     @Test
@@ -194,7 +189,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         assertThat(expiryTime.toDate().after(currentTime), is(true));
         assertThat(expiryTime.toDate().before(new Date(System.currentTimeMillis() + 5 * 60 * 1000 + 1)), is(true));
 
-        String logText = FileUtil.readToEnd(artifactsService.findArtifact(reloadedJobInstance.getIdentifier(), ArtifactLogUtil.getConsoleLogOutputFolderAndFileName()));
+        String logText = FileUtil.readToEnd(consoleService.findConsoleArtifact(reloadedJobInstance.getIdentifier()));
         assertThat(logText, containsString("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
         assertThat(logText, containsString("Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed."));
     }

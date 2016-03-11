@@ -99,6 +99,7 @@ class LinuxPackage
 
     desc 'package the distribution'
     task :package do
+      p fpm_command
       sh(Shellwords.join(fpm_command))
       mkdir_p 'target/pkg'
       mv Dir["#{package_name}*.#{packaging_type.type}"].first, 'target/pkg', force: true
@@ -117,6 +118,7 @@ class LinuxPackage
     cmd << '-s' << 'dir'
     cmd << '-C' << File.expand_path(build_root)
     cmd << '--name' << package_name
+    # cmd << '--description' << description
     cmd << '--version' << VERSION
     cmd << '--iteration' << RELEASE
     cmd << '--license' << 'Apache-2.0'
@@ -134,7 +136,6 @@ class LinuxPackage
 
     cmd += packaging_type.fpm_opts(self)
 
-    cmd << '--description' << description
 
     directories.each do |dir, permissions|
       cmd << '--directories' << dir if permissions[:owned_by_package]
@@ -221,7 +222,7 @@ Next generation continuous integration and release management server from Though
         '/etc/default/go-agent'                      => { mode: 0640, owner: 'root', group: 'go', source: 'installers/fpm/agent/go-agent.default', conf_file: true },
         '/etc/init.d/go-agent'                       => { mode: 0755, owner: 'root', group: 'root', source: 'installers/fpm/agent/go-agent.init' },
         '/usr/share/doc/go-agent/LICENSE'            => { mode: 0644, owner: 'root', group: 'root', source: 'LICENSE' },
-        '/usr/share/go-agent/agent-bootstrapper.jar' => { mode: 0644, owner: 'root', group: 'root', source: 'agent-bootstrapper/target/agent-bootstrapper.jar' },
+        '/usr/share/go-agent/agent-bootstrapper.jar' => { mode: 0644, owner: 'root', group: 'root', source: 'agent-bootstrapper/target/libs/agent-bootstrapper-16.3.0.jar' },
         '/usr/share/go-agent/agent.sh'               => { mode: 0755, owner: 'root', group: 'root', source: 'installers/fpm/agent/agent.sh' },
         '/usr/share/go-agent/stop-agent.sh'          => { mode: 0755, owner: 'root', group: 'root', source: 'installers/fpm/agent/stop-agent.sh' },
         '/var/lib/go-agent/log4j.properties'         => { mode: 0644, owner: 'root', group: 'root', source: 'agent/properties/log4j.properties', conf_file: true }

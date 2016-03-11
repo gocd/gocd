@@ -32,7 +32,6 @@ configurations {
 }
 
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
-project.ext.railsAssetsDir = file("${project.railsRoot}/public/assets")
 
 sourceSets {
   main {
@@ -303,13 +302,16 @@ clean.doFirst {
   cleanDb.execute()
 }
 
-task prepareAssets(type: Exec, dependsOn: [':server:jar']) {
+task compileAssets(type: Exec, dependsOn: [':server:jar']) {
   onlyIf { !project.hasProperty('fastBuild') }
+
+  def outputAssetsDir = file("${project.buildDir}/assets")
+  def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
   inputs.dir(file("${project.railsRoot}/app/assets"))
   inputs.dir(file("${project.railsRoot}/vendor/assets"))
 
-  outputs.dir(project.railsAssetsDir)
+  outputs.dir(outputAssetsDir)
 
   commandLine "${projectDir.parent}/tools/bin/jruby", '-S', './bin/bundle', 'exec', './bin/rake', '-S', 'assets:clobber', 'assets:precompile', '--trace'
   environment(
@@ -319,28 +321,24 @@ task prepareAssets(type: Exec, dependsOn: [':server:jar']) {
   workingDir = project.railsRoot
   args = ['./bin/rake', 'assets:clobber', 'assets:precompile', '--trace']
 
+  doFirst {
+    delete "${project.railsRoot}/tmp"
+    delete outputAssetsDir
+  }
+
   doLast {
     delete "${project.railsRoot}/tmp"
-  }
-}
 
-task compileAssets(dependsOn: [':server:prepareAssets']) {
-  def assetsDirectory = file("${project.buildDir}/assets")
-
-  inputs.dir(project.railsAssetsDir)
-  outputs.dir(assetsDirectory)
-
-  doLast {
-    delete assetsDirectory
-    assetsDirectory.parentFile.mkdirs()
+    outputAssetsDir.parentFile.mkdirs()
     copy {
-      from project.railsAssetsDir
-      into assetsDirectory
+      from publicAssetsDir
+      into outputAssetsDir
     }
 
-    delete project.railsAssetsDir
+    delete publicAssetsDir
   }
 }
+
 
 task war(type: Jar) {
   dependsOn ':server:jar', ':server:createVersionFile', ':server:compileAssets'

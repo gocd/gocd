@@ -43,12 +43,12 @@ namespace :server do
   end
 
   task :layout do
-    sh("set -o pipefail; curl --silent --fail #{ENV['WINDOWS_JRE_LOCATION']} | tar -zxf - -C #{build_root}")
+    sh("set -o pipefail; curl --silent --fail #{ENV['WINDOWS_JRE_URL']} | tar -zxf - -C #{build_root}")
     sh("unix2dos < LICENSE > target/pkgs/#{package}/windows/BUILD_ROOT/LICENSE.dos")
     cp 'LICENSE', "#{versioned_dir}/LICENSE"
 
-    cp 'installers/windows/JavaHome.ini', "#{build_root}/JavaHome.ini"
-    cp 'installers/windows/gocd.ico', "#{build_root}/#{package}.ico"
+    # cp 'installers/windows/JavaHome.ini', "#{build_root}/JavaHome.ini"
+    # cp 'installers/windows/gocd.ico', "#{build_root}/#{package}.ico"
 
     cp 'server/target/go.jar', "#{versioned_dir}/go.jar"
     cp 'installers/windows/go-server/server.cmd', "#{versioned_dir}/server.cmd"
@@ -82,15 +82,15 @@ namespace :agent do
   end
 
   task :layout do
-    sh("set -o pipefail; curl --silent --fail #{ENV['WINDOWS_JRE_LOCATION']} | tar -zxf - -C #{build_root}")
+    sh("set -o pipefail; curl --silent --fail #{ENV['WINDOWS_JRE_URL']} | tar -zxf - -C #{build_root}")
     sh("unix2dos < LICENSE > target/pkgs/#{package}/windows/BUILD_ROOT/LICENSE.dos")
     cp 'LICENSE', "#{versioned_dir}/LICENSE"
 
-    cp 'installers/windows/JavaHome.ini', "#{build_root}/JavaHome.ini"
-    cp 'installers/windows/go-agent/ServerIP.ini', "#{build_root}/ServerIP.ini"
-    cp 'installers/windows/gocd.ico', "#{build_root}/#{package}.ico"
+    # cp 'installers/windows/JavaHome.ini', "#{build_root}/JavaHome.ini"
+    # cp 'installers/windows/go-agent/ServerIP.ini', "#{build_root}/ServerIP.ini"
+    # cp 'installers/windows/gocd.ico', "#{build_root}/#{package}.ico"
 
-    cp 'agent-bootstrapper/target/agent-bootstrapper.jar', "#{versioned_dir}/agent-bootstrapper.jar"
+    cp 'agent-bootstrapper/target/libs/agent-bootstrapper-16.3.0.jar', "#{versioned_dir}/agent-bootstrapper.jar"
     cp 'installers/windows/go-agent/agent.cmd', "#{versioned_dir}/agent.cmd"
     cp 'installers/windows/go-agent/start-agent.bat', "#{versioned_dir}/start-agent.bat"
     cp 'installers/windows/go-agent/stop-agent.bat', "#{versioned_dir}/stop-agent.bat"

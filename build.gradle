@@ -27,8 +27,19 @@ def gitRevision = { ->
   return hashStdOut.toString().trim()
 }
 
+def releaseRevision = { ->
+  def hashStdOut = new ByteArrayOutputStream()
+  exec {
+    commandLine "git", "log", "--pretty=format:''"
+    standardOutput = hashStdOut
+    workingDir = script.buildscript.sourceFile.parent
+  }
+
+  return hashStdOut.toString().length().toString()
+}
+
 def GO_VERSION = '16.3.0'
-def DIST_VERSION = System.getenv('GO_DIST_VERSION')
+def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 
 allprojects {

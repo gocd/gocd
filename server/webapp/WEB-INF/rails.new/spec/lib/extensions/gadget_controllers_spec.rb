@@ -16,7 +16,6 @@
 
 require 'spec_helper'
 
-if Gadgets.enabled?
 describe GadgetsOauthClientsController, type: :controller do
   it "should set the tab_name" do
     controller.send(:set_tab_name)
@@ -35,5 +34,4 @@ describe GadgetsOauthClientsController, type: :controller do
   it "should use set the view title as a before filter" do
     expect(controller.class._process_action_callbacks.map(&:filter)).to include(:set_view_title)
   end
-end
 end

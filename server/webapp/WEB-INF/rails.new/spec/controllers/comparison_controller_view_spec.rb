@@ -72,7 +72,6 @@ describe ComparisonController, "view" do
     end
 
     it "should load mingle config for given pipeline" do
-      next unless Gadgets.enabled?
       controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
       controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
@@ -99,7 +98,6 @@ describe ComparisonController, "view" do
     end
 
     it "should not fail if mingle not configured for given pipeline" do
-      next unless Gadgets.enabled?
       controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
       service = stub_service(:mingle_config_service)
       result = stub_localized_result()
@@ -166,7 +164,6 @@ describe ComparisonController, "view" do
     end
 
     it "should render Card Activity and Checkins as tabs" do
-      next unless Gadgets.enabled?
       controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
       controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new

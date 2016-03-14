@@ -16,7 +16,6 @@
 
 require 'spec_helper'
 
-if Gadgets.enabled?
 describe 'gadgets/pipeline/content.html.erb' do
 
   it "should render the given pipeline with absolute urls which open in a new window" do
@@ -57,5 +56,4 @@ describe 'gadgets/pipeline/content.html.erb' do
       render
     end
   end
-end
 end

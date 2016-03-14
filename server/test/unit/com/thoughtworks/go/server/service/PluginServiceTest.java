@@ -26,12 +26,22 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataS
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.ui.PackageRepositoryPluginViewModel;
+import com.thoughtworks.go.server.ui.PluginViewModel;
+import com.thoughtworks.go.server.ui.SCMPluginViewModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +71,9 @@ public class PluginServiceTest {
 
     private PluginService pluginService;
     private List<GoPluginExtension> extensions;
+    private DefaultPluginManager defaultPluginManager;
+    private GoPluginDescriptor goPluginDescriptor1;
+    private GoPluginDescriptor goPluginDescriptor2;
 
     @Before
     public void setUp() {
@@ -91,7 +104,18 @@ public class PluginServiceTest {
         PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
 
         extensions = Arrays.asList(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension);
-        pluginService = new PluginService(extensions, pluginDao);
+
+        defaultPluginManager = mock(DefaultPluginManager.class);
+
+        goPluginDescriptor1 = new GoPluginDescriptor("plugin-id1", null, new GoPluginDescriptor.About("plugin", "version", null, null, null, null), null, null, false);
+        goPluginDescriptor2 = new GoPluginDescriptor("plugin-id2", null, new GoPluginDescriptor.About("plugin", "version", null, null, null, null), null, null, false);
+        List<GoPluginDescriptor> pluginDescriptors = Arrays.asList(goPluginDescriptor1, goPluginDescriptor2);
+        when(defaultPluginManager.plugins()).thenReturn(pluginDescriptors);
+
+        when(defaultPluginManager.getPluginDescriptorFor(anyString())).thenReturn(goPluginDescriptor1);
+        when(defaultPluginManager.hasReferenceFor((Class) anyObject(), anyString())).thenReturn(true);
+
+        pluginService = new PluginService(extensions, pluginDao, defaultPluginManager);
     }
 
     @After
@@ -117,7 +141,6 @@ public class PluginServiceTest {
         assertThat(pluginSettings.getValueFor("p2-k1"), is(""));
         assertThat(pluginSettings.getValueFor("p2-k2"), is(""));
         assertThat(pluginSettings.getValueFor("p2-k3"), is(""));
-
     }
 
     @Test
@@ -217,6 +240,77 @@ public class PluginServiceTest {
         Plugin plugin = new Plugin("plugin-id-1", toJSON(parameterMap));
         plugin.setId(1L);
         verify(pluginDao).saveOrUpdate(plugin);
+    }
+
+    @Test
+    public void shouldPopulatePluginViewModelOfType() throws Exception {
+        when(defaultPluginManager.isPluginOfType("scm","plugin-id1")).thenReturn(true);
+        when(defaultPluginManager.isPluginOfType("scm","plugin-id2")).thenReturn(true);
+        SCMConfigurations scmConfigurations = new SCMConfigurations();
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id1", scmConfigurations, null);
+        SCMMetadataStore.getInstance().addMetadataFor("plugin-id2", scmConfigurations, null);
+
+        List<PluginViewModel> scmViewModels = pluginService.populatePluginViewModelsOfType("scm");
+        SCMPluginViewModel scmPluginViewModel1 = (SCMPluginViewModel) scmViewModels.get(0);
+        SCMPluginViewModel scmPluginViewModel2 = (SCMPluginViewModel) scmViewModels.get(1);
+
+        assertThat(scmPluginViewModel1.getPluginId(), is("plugin-id1"));
+        assertThat(scmPluginViewModel2.getPluginId(), is("plugin-id2"));
+        assertThat(scmPluginViewModel1.getVersion(), is("version"));
+        assertThat(scmPluginViewModel1.getConfigurations(), is(scmConfigurations.list()));
+    }
+
+    @Test
+    public void shouldPopulatePluginViewModelsOfGivenType() throws Exception {
+        when(defaultPluginManager.isPluginOfType("package-repository","plugin-id1")).thenReturn(true);
+        when(defaultPluginManager.isPluginOfType("package-repository","plugin-id2")).thenReturn(true);
+        PackageConfigurations packageConfigurations = new PackageConfigurations();
+        PackageConfigurations repositoryConfigurations = new PackageConfigurations();
+        RepositoryMetadataStore.getInstance().addMetadataFor("plugin-id1", repositoryConfigurations);
+        RepositoryMetadataStore.getInstance().addMetadataFor("plugin-id2", repositoryConfigurations);
+        PackageMetadataStore.getInstance().addMetadataFor("plugin-id1", packageConfigurations);
+        PackageMetadataStore.getInstance().addMetadataFor("plugin-id2", packageConfigurations);
+
+        List<PluginViewModel> packageRepositoryViewModels = pluginService.populatePluginViewModelsOfType("package-repository");
+        PackageRepositoryPluginViewModel packageRepositoryPluginViewModel1 = (PackageRepositoryPluginViewModel) packageRepositoryViewModels.get(0);
+        PackageRepositoryPluginViewModel packageRepositoryPluginViewModel2 = (PackageRepositoryPluginViewModel) packageRepositoryViewModels.get(1);
+
+        assertThat(packageRepositoryPluginViewModel1.getPluginId(), is("plugin-id1"));
+        assertThat(packageRepositoryPluginViewModel2.getPluginId(), is("plugin-id2"));
+        assertThat(packageRepositoryPluginViewModel1.getVersion(), is("version"));
+        assertThat(packageRepositoryPluginViewModel1.getPackageConfigurations(), is(packageConfigurations.list()));
+        assertThat(packageRepositoryPluginViewModel1.getRepositoryConfigurations(), is(repositoryConfigurations.list()));
+    }
+
+    @Test
+    public void shouldpopulatePluginViewModelGivenPluginIdAndTypeOfPlugin() throws Exception {
+        when(defaultPluginManager.isPluginOfType("package-repository","plugin-id1")).thenReturn(true);
+        PackageConfigurations packageConfigurations = new PackageConfigurations();
+        PackageConfigurations repositoryConfigurations = new PackageConfigurations();
+        RepositoryMetadataStore.getInstance().addMetadataFor("plugin-id1", repositoryConfigurations);
+        PackageMetadataStore.getInstance().addMetadataFor("plugin-id1", packageConfigurations);
+
+        PluginViewModel pluginViewModel = pluginService.populatePluginViewModel("package-repository", "plugin-id1");
+        PackageRepositoryPluginViewModel packageRepositoryPluginViewModel = (PackageRepositoryPluginViewModel) pluginViewModel;
+
+        assertThat(packageRepositoryPluginViewModel.getPluginId(), is("plugin-id1"));
+        assertThat(packageRepositoryPluginViewModel.getVersion(), is("version"));
+        assertThat(packageRepositoryPluginViewModel.getPackageConfigurations(), is(packageConfigurations.list()));
+        assertThat(packageRepositoryPluginViewModel.getRepositoryConfigurations(), is(repositoryConfigurations.list()));
+    }
+
+    @Test
+    public void shouldReturnNullForInvalidPluginId() throws Exception {
+        when(defaultPluginManager.hasReferenceFor((Class)anyObject(), anyString())).thenReturn(false);
+        PackageConfigurations packageConfigurations = new PackageConfigurations();
+        PackageConfigurations repositoryConfigurations = new PackageConfigurations();
+        RepositoryMetadataStore.getInstance().addMetadataFor("plugin-id", repositoryConfigurations);
+        PackageMetadataStore.getInstance().addMetadataFor("plugin-id", packageConfigurations);
+
+        PluginViewModel pluginViewModel = pluginService.populatePluginViewModel("scm", "invalid-plugin-id");
+        SCMPluginViewModel scmPluginViewModel = (SCMPluginViewModel) pluginViewModel;
+
+        assertThat(scmPluginViewModel, is(nullValue()));
     }
 
     private String toJSON(Map<String, String> configuration) {

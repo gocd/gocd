@@ -54,8 +54,13 @@ module ApiV1
       end
     end
 
-    def render_not_found_error
-      render :json_hal_v1 => { :message => 'Either the resource you requested was not found, or you are not authorized to perform this action.' }, :status => 404
+    def render_not_found_error(exception = nil)
+      if exception.message
+        render :json_hal_v1 => {:message => "#{exception.message}"}, :status => 404
+      else
+        render :json_hal_v1 => {:message => "Either the resource you requested was not found, or you are not authorized to perform this action."}, :status => 404
+      end
+
     end
 
     def render_bad_request(exception)

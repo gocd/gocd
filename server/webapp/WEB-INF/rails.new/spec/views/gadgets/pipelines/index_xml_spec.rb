@@ -16,7 +16,6 @@
 
 require 'spec_helper'
 
-if Gadgets.enabled?
 describe 'gadgets/pipeline/index.xml.erb' do
   describe 'Module Preferences' do
     it "should return gadget spec" do
@@ -92,5 +91,4 @@ describe 'gadgets/pipeline/index.xml.erb' do
       expect(Nokogiri::XML(response.body).xpath("/Module/Content[@type='html']").text.strip).to include(expected_content.strip)
     end
   end
-end
 end

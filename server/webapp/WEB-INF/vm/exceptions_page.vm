@@ -23,7 +23,7 @@
     <div id="yui-main">
         <div class="yui-b"></div>
     </div>
-    #set($msg = $esc.html("$errorMessage"))
+    #set($msg = $esc.html($esc.javascript("$errorMessage")))
     #set($customErrorMessage = "#if($errorMessage) [$msg]#end")
     <script type="text/javascript">
         $('trans_content').update("Sorry, an unexpected error occurred$customErrorMessage. :( Please check the server logs for more information.");

@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
-import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueue;
+import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
 import com.thoughtworks.go.util.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class ElasticAgentPluginService {
     private final AgentService agentService;
     private final EnvironmentConfigService environmentConfigService;
     private final CreateAgentQueueHandler createAgentQueue;
-    private final ServerPingQueue serverPingQueue;
+    private final ServerPingQueueHandler serverPingQueue;
     private final ServerConfigService serverConfigService;
 
     @Autowired
@@ -53,7 +53,7 @@ public class ElasticAgentPluginService {
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue,
-            ServerPingQueue serverPingQueue,
+            ServerPingQueueHandler serverPingQueue,
             ServerConfigService serverConfigService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;

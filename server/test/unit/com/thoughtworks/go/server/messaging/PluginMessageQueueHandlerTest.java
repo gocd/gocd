@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.messaging.elasticagents;
+package com.thoughtworks.go.server.messaging;
 
 
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.messaging.GoMessageListener;
-import com.thoughtworks.go.server.messaging.MessagingService;
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,74 +29,95 @@ import javax.jms.JMSException;
 import java.util.ArrayList;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-public class CreateAgentQueueHandlerTest {
-    private ElasticAgentExtension elasticAgentExtension;
-    private CreateAgentQueueHandler handler;
+public class PluginMessageQueueHandlerTest {
+    private static final String PLUGIN_ID = "plugin-1";
+    private static final String QUEUE_NAME_PREFIX = "queue";
+    private GoPluginExtension extension;
+    private PluginMessageQueueHandler<FooMessage> handler;
     private MessagingService messaging;
+    private MyQueueFactory queueFactory;
+
 
     @Before
     public void setUp() throws Exception {
-        elasticAgentExtension = mock(ElasticAgentExtension.class);
+        extension = mock(GoPluginExtension.class);
         messaging = mock(MessagingService.class);
-        handler = new CreateAgentQueueHandler(messaging, mock(ElasticAgentPluginRegistry.class), elasticAgentExtension, mock(PluginManager.class));
+
+        queueFactory = new MyQueueFactory();
+        handler = new PluginMessageQueueHandler<FooMessage>(extension, messaging, mock(PluginManager.class), queueFactory) {
+        };
     }
 
     @Test
     public void shouldCreateListenerWhenAPluginLoadsUp() {
-        String pluginId = "plugin-1";
-        String queueName = CreateAgentQueueHandler.QUEUE_NAME_PREFIX + pluginId;
-        when(elasticAgentExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        String pluginId = PLUGIN_ID;
+        String queueName = QUEUE_NAME_PREFIX + pluginId;
+        when(extension.canHandlePlugin(pluginId)).thenReturn(true);
         when(messaging.addQueueListener(eq(queueName), any(GoMessageListener.class))).thenReturn(mock(JMSMessageListenerAdapter.class));
         handler.pluginLoaded(new GoPluginDescriptor(pluginId, null, null, null, null, false));
 
         assertThat(handler.queues.containsKey(pluginId), is(true));
-        assertThat(handler.listeners.containsKey(pluginId), is(true));
-        ArrayList<JMSMessageListenerAdapter> listeners = handler.listeners.get(pluginId);
-        assertThat(listeners.size(), is(1));
+        assertThat(handler.queues.get(pluginId).listeners.containsKey(pluginId), is(true));
+        ArrayList<JMSMessageListenerAdapter> listeners = handler.queues.get(pluginId).listeners.get(pluginId);
+        assertThat(listeners.size(), is(10));
         ArgumentCaptor<GoMessageListener> argumentCaptor = ArgumentCaptor.forClass(GoMessageListener.class);
-        verify(messaging, times(1)).addQueueListener(eq(queueName), argumentCaptor.capture());
-        GoMessageListener listener = argumentCaptor.getValue();
-        assertThat(listener instanceof CreateAgentListener, is(true));
+        verify(messaging, times(10)).addQueueListener(eq(queueName), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue() instanceof GoMessageListener, is(true));
     }
 
     @Test
     public void shouldRemoveListenerWhenAPluginIsUnloaded() throws JMSException {
-        String pluginId = "plugin-1";
-        String queueName = CreateAgentQueueHandler.QUEUE_NAME_PREFIX + pluginId;
-        when(elasticAgentExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        String pluginId = PLUGIN_ID;
+        String queueName = QUEUE_NAME_PREFIX + pluginId;
+        when(extension.canHandlePlugin(pluginId)).thenReturn(true);
         JMSMessageListenerAdapter listenerAdapter = mock(JMSMessageListenerAdapter.class);
         when(messaging.addQueueListener(eq(queueName), any(GoMessageListener.class))).thenReturn(listenerAdapter);
         GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, null, null, null, null, false);
-        handler.pluginLoaded(pluginDescriptor);
 
+        handler.pluginLoaded(pluginDescriptor);
         handler.pluginUnLoaded(pluginDescriptor);
 
         assertThat(handler.queues.containsKey(pluginId), is(false));
-        assertThat(handler.listeners.containsKey(pluginId), is(false));
-        ArrayList<JMSMessageListenerAdapter> listeners = handler.listeners.get(pluginId);
-        assertThat(listeners, is(nullValue()));
-        verify(listenerAdapter).stop();
+        verify(listenerAdapter, times(10)).stop();
         verify(messaging, times(1)).removeQueue(queueName);
     }
 
     @Test
     public void shouldIgnoreOtherPluginTypesDuringLoadAndUnload() {
-        String pluginId = "plugin-1";
-        String queueName = CreateAgentQueueHandler.QUEUE_NAME_PREFIX + pluginId;
-        when(elasticAgentExtension.canHandlePlugin(pluginId)).thenReturn(false);
+        String pluginId = PLUGIN_ID;
+        String queueName = QUEUE_NAME_PREFIX + pluginId;
+        when(extension.canHandlePlugin(pluginId)).thenReturn(false);
         GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(pluginId, null, null, null, null, false);
-        handler.pluginLoaded(pluginDescriptor);
 
+        handler.pluginLoaded(pluginDescriptor);
         handler.pluginUnLoaded(pluginDescriptor);
 
         assertThat(handler.queues.containsKey(pluginId), is(false));
-        assertThat(handler.listeners.containsKey(pluginId), is(false));
-        assertThat(handler.listeners.get(pluginId), is(nullValue()));
         verify(messaging, never()).removeQueue(queueName);
         verify(messaging, never()).addQueueListener(any(String.class), any(GoMessageListener.class));
+    }
+
+    private class MyQueueFactory implements QueueFactory {
+        @Override
+        public PluginAwareMessageQueue create(GoPluginDescriptor pluginDescriptor) {
+            return new PluginAwareMessageQueue(messaging, PLUGIN_ID, QUEUE_NAME_PREFIX + pluginDescriptor.id(), 10, new MyListenerFactory());
+        }
+    }
+
+    private class MyListenerFactory implements ListenerFactory {
+        @Override
+        public GoMessageListener create() {
+            return mock(GoMessageListener.class);
+        }
+    }
+
+    private class FooMessage implements PluginAwareMessage {
+        @Override
+        public String pluginId() {
+            return PLUGIN_ID;
+        }
     }
 }

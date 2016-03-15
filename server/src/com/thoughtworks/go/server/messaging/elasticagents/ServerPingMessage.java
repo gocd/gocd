@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
-import com.thoughtworks.go.server.messaging.GoMessage;
+import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
-public class ServerPingMessage implements GoMessage {
+public class ServerPingMessage implements PluginAwareMessage {
     private final String pluginId;
 
     public ServerPingMessage(String pluginId) {
@@ -37,7 +37,6 @@ public class ServerPingMessage implements GoMessage {
         ServerPingMessage that = (ServerPingMessage) o;
 
         return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
-
     }
 
     @Override

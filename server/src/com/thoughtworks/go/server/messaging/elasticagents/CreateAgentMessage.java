@@ -17,11 +17,11 @@
 package com.thoughtworks.go.server.messaging.elasticagents;
 
 import com.thoughtworks.go.config.JobAgentConfig;
-import com.thoughtworks.go.server.messaging.GoMessage;
+import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
 import java.util.Map;
 
-public class CreateAgentMessage implements GoMessage {
+public class CreateAgentMessage implements PluginAwareMessage {
     private final String autoregisterKey;
     private final String environment;
     private final Map<String, String> configuration;
@@ -52,7 +52,7 @@ public class CreateAgentMessage implements GoMessage {
                 '}';
     }
 
-    public String getPluginId() {
+    public String pluginId() {
         return pluginId;
     }
 

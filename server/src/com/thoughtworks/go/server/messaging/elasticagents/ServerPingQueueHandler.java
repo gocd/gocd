@@ -26,27 +26,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateAgentQueueHandler extends PluginMessageQueueHandler<CreateAgentMessage> {
-    final static String QUEUE_NAME_PREFIX = CreateAgentQueueHandler.class.getSimpleName() + ".";
+public class ServerPingQueueHandler extends PluginMessageQueueHandler<ServerPingMessage> {
+    final static String QUEUE_NAME_PREFIX = ServerPingQueueHandler.class.getSimpleName() + ".";
 
     @Autowired
-    public CreateAgentQueueHandler(final MessagingService messaging, final ElasticAgentPluginRegistry elasticAgentPluginRegistry, ElasticAgentExtension elasticAgentExtension, PluginManager pluginManager, final SystemEnvironment systemEnvironment) {
+    public ServerPingQueueHandler(final MessagingService messaging, final ElasticAgentPluginRegistry elasticAgentPluginRegistry, ElasticAgentExtension elasticAgentExtension, PluginManager pluginManager, final SystemEnvironment systemEnvironment) {
         super(elasticAgentExtension, messaging, pluginManager, new QueueFactory() {
             @Override
             public PluginAwareMessageQueue create(GoPluginDescriptor pluginDescriptor) {
-                return new PluginAwareMessageQueue(messaging, pluginDescriptor.id(), QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS), listener());
+                return new PluginAwareMessageQueue(messaging, pluginDescriptor.id(), QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_SERVER_PING_THREADS), listener());
             }
 
             public ListenerFactory listener() {
                 return new ListenerFactory() {
                     @Override
-
                     public GoMessageListener create() {
-                        return new CreateAgentListener(elasticAgentPluginRegistry);
+                        return new ServerPingListener(elasticAgentPluginRegistry);
                     }
                 };
             }
         });
     }
-
 }

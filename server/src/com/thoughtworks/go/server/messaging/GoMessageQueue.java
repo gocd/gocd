@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 
 public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> {
     private MessagingService messaging;
-    private String queueName;
+    protected String queueName;
     private MessageSender queueSender;
 
     public GoMessageQueue(MessagingService messaging, String queueName) {

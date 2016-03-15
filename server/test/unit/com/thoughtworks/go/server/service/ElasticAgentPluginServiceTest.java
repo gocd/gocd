@@ -22,7 +22,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
-import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueue;
+import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,7 +49,7 @@ public class ElasticAgentPluginServiceTest {
     @Mock
     private EnvironmentConfigService environmentConfigService;
     @Mock
-    private ServerPingQueue serverPingQueue;
+    private ServerPingQueueHandler serverPingQueue;
 
     @Before
     public void setUp() throws Exception {

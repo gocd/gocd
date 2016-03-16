@@ -14,28 +14,30 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-package com.thoughtworks.go.domain.scm;
-
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
-import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+package com.thoughtworks.go.domain;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
+import com.thoughtworks.go.plugin.access.packagematerial.AbstractMetaDataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
+import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+
 import static com.thoughtworks.go.util.StringUtil.isBlank;
 
 public class ConfigurationDisplayUtil {
-    public static List<ConfigurationProperty> getConfigurationPropertiesToBeUsedForDisplay(SCMMetadataStore metadataStore, String pluginId, final Configuration configuration) {
+    public static List<ConfigurationProperty> getConfigurationPropertiesToBeUsedForDisplay(PluginPreferenceStore metadataStore, String pluginId, final Configuration configuration) {
         List<ConfigurationProperty> keysForDisplay = new ArrayList<ConfigurationProperty>();
-        boolean pluginDoesNotExist = !metadataStore.hasPlugin(pluginId);
+        boolean pluginDoesNotExist = !metadataStore.hasPreferenceFor(pluginId);
 
         for (ConfigurationProperty property : configuration) {
             boolean isNotASecureProperty = !property.isSecure();
-            boolean isPartOfIdentity = metadataStore.hasOption(pluginId, property.getConfigurationKey().getName(), SCMConfiguration.PART_OF_IDENTITY);
-            boolean doesNotHaveEmptyValue = !isBlank(property.getValue());
-            if (isNotASecureProperty && doesNotHaveEmptyValue && (pluginDoesNotExist || isPartOfIdentity)) {
+            boolean isPartOfIdentity = metadataStore.hasOption(pluginId, property.getConfigurationKey().getName(), PackageConfiguration.PART_OF_IDENTITY);
+            if (isNotASecureProperty && !isBlank(property.getValue()) && (pluginDoesNotExist || isPartOfIdentity)) {
                 keysForDisplay.add(property);
             }
         }

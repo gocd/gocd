@@ -5,13 +5,14 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.util;
@@ -283,6 +284,18 @@ public class GoConfigFileHelper {
     public PipelineConfig addPipelineWithGroupAndTimer(String groupName, String pipelineName, MaterialConfigs materialConfigs, String stageName, TimerConfig timer, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipelineWithGroupAndTimer(cruiseConfig, groupName, pipelineName, materialConfigs, stageName, timer, buildNames);
+        writeConfigFile(cruiseConfig);
+        return pipelineConfig;
+    }
+
+    public interface Updater<T>{
+        void update(T t);
+    }
+
+    public PipelineConfig updatePipeline(CaseInsensitiveString pipelineName, Updater<PipelineConfig> updater) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineName);
+        updater.update(pipelineConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
     }

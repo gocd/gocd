@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
@@ -26,9 +26,20 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
+import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.SCMProperty;
+import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
@@ -37,6 +48,7 @@ import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
@@ -55,12 +67,14 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -68,16 +82,30 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class ScheduledPipelineLoaderIntegrationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private ScheduledPipelineLoader loader;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoCache goCache;
-    @Autowired private ServerHealthService serverHealthService;
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private ArtifactsService artifactsService;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private MaterialExpansionService materialExpansionService;
-    @Autowired private ConsoleService consoleService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private ScheduledPipelineLoader loader;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private ServerHealthService serverHealthService;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private ArtifactsService artifactsService;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private MaterialExpansionService materialExpansionService;
+    @Autowired
+    private ConsoleService consoleService;
+    @Autowired
+    private InstanceFactory instanceFactory;
+    @Autowired
+    private StageService stageService;
 
     GoConfigFileHelper configHelper;
     private SvnTestRepoWithExternal svnRepo;
@@ -134,6 +162,108 @@ public class ScheduledPipelineLoaderIntegrationTest {
     }
 
     @Test
+    public void shouldUpdateScmConfigurationOfPluggableScmMaterialsOnPipeline() {
+        String jobName = "job-one";
+        PipelineConfig pipelineConfig = setupPipelineWithScmMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
+        final Pipeline previousSuccessfulBuildWithOlderScmConfig = simulateSuccessfulPipelineRun(pipelineConfig);
+        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), new GoConfigFileHelper.Updater<PipelineConfig>() {
+            @Override
+            public void update(PipelineConfig config) {
+                PluggableSCMMaterialConfig materialConfig = (PluggableSCMMaterialConfig) config.materialConfigs().first();
+                materialConfig.getSCMConfig().getConfiguration().getProperty("password").setConfigurationValue(new ConfigurationValue("new_value"));
+            }
+        });
+
+        final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderScmConfig);
+
+        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
+            public Object doInTransaction(TransactionStatus status) {
+                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
+            }
+        });
+
+        MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
+        Configuration updatedConfiguration = ((PluggableSCMMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial()).getScmConfig().getConfiguration();
+        assertThat(updatedConfiguration.size(), is(2));
+        assertThat(updatedConfiguration.getProperty("password").getConfigurationValue(), is(new ConfigurationValue("new_value")));
+    }
+
+    @Test
+    public void shouldUpdatePackageMaterialConfigurationOfMaterialsOnPipeline() throws Exception {
+        String jobName = "job-one";
+        PipelineConfig pipelineConfig = setupPipelineWithPackageMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
+        final Pipeline previousSuccessfulBuildWithOlderPackageConfig = simulateSuccessfulPipelineRun(pipelineConfig);
+        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), new GoConfigFileHelper.Updater<PipelineConfig>() {
+            @Override
+            public void update(PipelineConfig config) {
+                PackageMaterialConfig materialConfig = (PackageMaterialConfig) config.materialConfigs().first();
+                materialConfig.getPackageDefinition().getConfiguration().getProperty("package-key2").setConfigurationValue(new ConfigurationValue("package-updated-value"));
+                materialConfig.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").setConfigurationValue(new ConfigurationValue("repo-updated-value"));
+            }
+        });
+        final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderPackageConfig);
+        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
+            public Object doInTransaction(TransactionStatus status) {
+                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
+            }
+        });
+
+        MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
+        PackageMaterial updatedMaterial = (PackageMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial();
+        Configuration updatedConfiguration = updatedMaterial.getPackageDefinition().getConfiguration();
+        assertThat(updatedConfiguration.size(), is(2));
+        assertThat(updatedConfiguration.getProperty("package-key2").getConfigurationValue(), is(new ConfigurationValue("package-updated-value")));
+        assertThat(updatedMaterial.getPackageDefinition().getRepository().getConfiguration().size(), is(2));
+        assertThat(updatedMaterial.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").getConfigurationValue(), is(new ConfigurationValue("repo-updated-value")));
+    }
+
+    private long rerunJob(String jobName, PipelineConfig pipelineConfig, Pipeline previousSuccessfulBuildWithOlderPackageConfig) {
+        Stage stage = instanceFactory.createStageForRerunOfJobs(previousSuccessfulBuildWithOlderPackageConfig.getFirstStage(), asList(jobName), new DefaultSchedulingContext(), pipelineConfig.getFirstStageConfig(), new TimeProvider(), configHelper.getGoConfigDao().md5OfConfigFile());
+        stage = stageService.save(previousSuccessfulBuildWithOlderPackageConfig, stage);
+        return stage.getFirstJob().getId();
+    }
+
+    private PipelineConfig setupPipelineWithScmMaterial(String pipelineName, String stageName, String jobName) {
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfigWithConfigProperties("url", "password");
+        SCMPropertyConfiguration configuration = new SCMPropertyConfiguration();
+        configuration.add(new SCMProperty("url", null).with(PackageConfiguration.PART_OF_IDENTITY, true));
+        configuration.add(new SCMProperty("password", null).with(PackageConfiguration.PART_OF_IDENTITY, false));
+        SCMMetadataStore.getInstance().addMetadataFor(pluggableSCMMaterialConfig.getPluginId(), new SCMConfigurations(configuration), null);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName, stageName, new MaterialConfigs(pluggableSCMMaterialConfig), jobName);
+        configHelper.addSCMConfig(pluggableSCMMaterialConfig.getSCMConfig());
+        configHelper.addPipeline(pipelineConfig);
+        return pipelineConfig;
+    }
+
+    private Pipeline simulateSuccessfulPipelineRun(PipelineConfig pipelineConfig) {
+        final Pipeline previousSuccessfulBuildWithOlderPackageConfig = PipelineMother.completed(pipelineConfig);
+        dbHelper.savePipelineWithMaterials(previousSuccessfulBuildWithOlderPackageConfig);
+        return previousSuccessfulBuildWithOlderPackageConfig;
+    }
+
+    private PipelineConfig setupPipelineWithPackageMaterial(String pipelineName, String stageName, String jobName) {
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("p-id");
+        Configuration repoConfig = new Configuration(ConfigurationPropertyMother.create("repo-key1", false, "repo-k1-value"), ConfigurationPropertyMother.create("repo-key2", false, "repo-k2-value"));
+        PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", repoConfig);
+        Configuration packageConfig = new Configuration(ConfigurationPropertyMother.create("package-key1", false, "package-key1-value"), ConfigurationPropertyMother.create("package-key2", false, "package-key2-value"));
+        PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "package-name", packageConfig, repository);
+        packageMaterialConfig.setPackageDefinition(packageDefinition);
+        repository.getPackages().add(packageDefinition);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName, stageName, new MaterialConfigs(packageMaterialConfig), jobName);
+        configHelper.addPackageDefinition(packageMaterialConfig);
+        configHelper.addPipeline(pipelineConfig);
+        PackageConfigurations packageConfigurations = new PackageConfigurations();
+        packageConfigurations.add(new PackageConfiguration("package-key1").with(PackageConfiguration.PART_OF_IDENTITY, true));
+        packageConfigurations.add(new PackageConfiguration("package-key2").with(PackageConfiguration.PART_OF_IDENTITY, false));
+        PackageMetadataStore.getInstance().addMetadataFor(packageMaterialConfig.getPluginId(), packageConfigurations);
+        PackageConfigurations configuration = new PackageConfigurations();
+        configuration.add(new PackageConfiguration("repo-key1").with(PackageConfiguration.PART_OF_IDENTITY, true));
+        configuration.add(new PackageConfiguration("repo-key2").with(PackageConfiguration.PART_OF_IDENTITY, false));
+        RepositoryMetadataStore.getInstance().addMetadataFor(packageMaterialConfig.getPluginId(), configuration);
+        return pipelineConfig;
+    }
+
+    @Test
     public void shouldSetAServerHealthMessageWhenMaterialForPipelineWithBuildCauseIsNotFound() throws IllegalArtifactLocationException, IOException {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
         pipelineConfig.materialConfigs().clear();
@@ -171,7 +301,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
                 return loadedPipeline;
             }
         });
-        
+
         assertThat(loadedPipeline, is(nullValue()));
 
         JobInstance reloadedJobInstance = jobInstanceService.buildById(jobId);

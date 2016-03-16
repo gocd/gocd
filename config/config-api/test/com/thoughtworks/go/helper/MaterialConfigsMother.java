@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.helper;
@@ -25,11 +26,15 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
@@ -72,6 +77,17 @@ public class MaterialConfigsMother {
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
          return pluggableSCMMaterialConfig("scm-id", "des-folder", filter);
+    }
+
+    public static PluggableSCMMaterialConfig pluggableSCMMaterialConfigWithConfigProperties(String... properties) {
+        SCM scmConfig = SCMMother.create("scm-id");
+        Configuration configuration = new Configuration();
+        for (String property : properties) {
+            ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey(property), new ConfigurationValue(property+"-value"));
+            configuration.add(configurationProperty);
+        }
+        scmConfig.setConfiguration(configuration);
+        return new PluggableSCMMaterialConfig(null, scmConfig, "des-folder", null);
     }
 
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String destinationFolder, Filter filter) {

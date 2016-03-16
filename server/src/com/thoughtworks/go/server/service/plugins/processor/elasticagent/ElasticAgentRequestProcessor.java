@@ -58,8 +58,8 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         this.agentConfigService = agentConfigService;
         this.agentService = agentService;
 
-        registry.registerProcessorFor(PROCESS_DISABLE_AGENT, this);
-        registry.registerProcessorFor(PROCESS_DISABLE_AGENT, this);
+        registry.registerProcessorFor(PROCESS_DISABLE_AGENTS, this);
+        registry.registerProcessorFor(PROCESS_DELETE_AGENTS, this);
         registry.registerProcessorFor(REQUEST_SERVER_LIST_AGENTS, this);
     }
 
@@ -71,9 +71,9 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         }
 
         switch (goPluginApiRequest.api()) {
-            case PROCESS_DISABLE_AGENT:
+            case PROCESS_DISABLE_AGENTS:
                 return processDisableAgent(pluginDescriptor, goPluginApiRequest);
-            case PROCESS_DELETE_AGENT:
+            case PROCESS_DELETE_AGENTS:
                 return processDeleteAgent(pluginDescriptor, goPluginApiRequest);
             case REQUEST_SERVER_LIST_AGENTS:
                 return processListAgents(pluginDescriptor, goPluginApiRequest);

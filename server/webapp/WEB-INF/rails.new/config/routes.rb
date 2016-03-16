@@ -16,7 +16,7 @@
 
 class HeaderConstraint
   def matches? (request)
-    'application/vnd.go.cd.v1+text'.eql?(request.headers['HTTP_ACCEPT'])
+    'true'.eql?(request.headers['HTTP_GO_API'])
   end
 end
 

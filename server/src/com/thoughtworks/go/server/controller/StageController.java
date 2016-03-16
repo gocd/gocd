@@ -16,22 +16,9 @@
 
 package com.thoughtworks.go.server.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.StageNotFoundException;
-
-import static com.thoughtworks.go.util.json.JsonHelper.addFriendlyErrorMessage;
-
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.GoUnauthorizedException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
-import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonOK;
-import static java.lang.String.format;
-
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.ErrorHandler;
@@ -45,10 +32,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
+import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonOK;
+import static com.thoughtworks.go.util.json.JsonHelper.addFriendlyErrorMessage;
+import static java.lang.String.format;
+
 @Controller
+@RequestMapping(headers = "GO_API=true")
 public class StageController {
 
     private static final Logger LOGGER = Logger.getLogger(StageController.class);
@@ -65,7 +60,7 @@ public class StageController {
         this.localizer = localizer;
     }
 
-    @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST, headers = "Accept=application/vnd.go.cd.v1+text")
+    @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST)
     public ModelAndView rerunStage(@RequestParam(value = "pipelineName") String pipelineName,
                                    @RequestParam(value = "pipelineLabel") String counterOrLabel,
                                    @RequestParam(value = "stageName") String stageName) {
@@ -84,7 +79,7 @@ public class StageController {
         }
     }
 
-    @RequestMapping(value = "/**/cancel.json", method = RequestMethod.POST, headers = "Accept=application/vnd.go.cd.v1+text")
+    @RequestMapping(value = "/**/cancel.json", method = RequestMethod.POST)
     public ModelAndView cancelViaPost(@RequestParam(value = "id") Long stageId, HttpServletResponse response) {
         try {
             HttpLocalizedOperationResult cancelResult = new HttpLocalizedOperationResult();

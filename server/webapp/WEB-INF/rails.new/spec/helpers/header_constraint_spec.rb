@@ -19,7 +19,7 @@ require 'spec_helper'
 describe 'HeaderConstraint' do
 
   it 'should return true if request header matches the required header' do
-    request = double('foo', :headers => {'HTTP_ACCEPT' => 'application/vnd.go.cd.v1+text'})
+    request = double('foo', :headers => {'GO_API => "true"})
     
     expect(HeaderConstraint.new.matches?(request)).to be(true)
   end

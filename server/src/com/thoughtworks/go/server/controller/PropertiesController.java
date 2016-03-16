@@ -16,14 +16,10 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.util.List;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.server.controller.actions.BasicRestfulAction;
-import static com.thoughtworks.go.server.controller.actions.BasicRestfulAction.notFound;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
@@ -34,6 +30,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import static com.thoughtworks.go.server.controller.actions.BasicRestfulAction.notFound;
 
 @Controller
 public class PropertiesController {
@@ -55,7 +56,7 @@ public class PropertiesController {
         this.pipelineService = pipelineService;
     }
 
-    @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST, headers = "Accept=application/vnd.go.cd.v1+text")
+    @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST, headers = "GO_API=true")
     public void setProperty(@RequestParam("pipelineName")String pipelineName,
                             @RequestParam("pipelineLabel")String pipelineLabel,
                             @RequestParam("stageName")String stageName,

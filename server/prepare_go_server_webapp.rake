@@ -49,30 +49,30 @@ end
 
 desc "erase any non-prod gems from the final distribution"
 task 'keep-only-prod-gems' do
-  require 'pathname'
-
-  $stderr.puts "*** Cleaning up any gems not needed in production environment"
-  gemfile = Pathname.new("target/webapp/WEB-INF/rails.new/Gemfile").expand_path
-  root = gemfile.dirname
-  puts "*** Using gemfile #{gemfile}"
-
-  cd root do
-    require 'bundler'
-    definition = ::Bundler.definition
-    all = definition.specs.to_a
-    puts "*** All gems - #{all.collect(&:full_name)}"
-    requested = definition.specs_for(definition.groups.collect(&:to_sym) - [:development, :test, :assets]).to_a
-    puts "*** Requested gems - #{requested.collect(&:full_name)}"
-    ignored_gems = all - requested
-    puts "*** Ignored gems - #{ignored_gems.collect(&:full_name)}"
-
-    gem_dirs_to_remove = Dir["vendor/bundle/jruby/1.9/gems/{#{ignored_gems.collect(&:full_name).join(',')}}"]
-    spec_files_to_remove = Dir["vendor/bundle/jruby/1.9/specifications/{#{ignored_gems.collect(&:full_name).join(',')}}.gemspec"]
-
-    (gem_dirs_to_remove + spec_files_to_remove).each do |file|
-      rm_rf file
-    end
-  end
+  # require 'pathname'
+  #
+  # $stderr.puts "*** Cleaning up any gems not needed in production environment"
+  # gemfile = Pathname.new("webapp/WEB-INF/rails.new/Gemfile").expand_path
+  # root = gemfile.dirname
+  # puts "*** Using gemfile #{gemfile}"
+  #
+  # cd root do
+  #   require 'bundler'
+  #   definition = ::Bundler.definition
+  #   all = definition.specs.to_a
+  #   puts "*** All gems - #{all.collect(&:full_name)}"
+  #   requested = definition.specs_for(definition.groups.collect(&:to_sym) - [:development, :test, :assets]).to_a
+  #   puts "*** Requested gems - #{requested.collect(&:full_name)}"
+  #   ignored_gems = all - requested
+  #   puts "*** Ignored gems - #{ignored_gems.collect(&:full_name)}"
+  #
+  #   gem_dirs_to_remove = Dir["vendor/bundle/jruby/1.9/gems/{#{ignored_gems.collect(&:full_name).join(',')}}"]
+  #   spec_files_to_remove = Dir["vendor/bundle/jruby/1.9/specifications/{#{ignored_gems.collect(&:full_name).join(',')}}.gemspec"]
+  #
+  #   (gem_dirs_to_remove + spec_files_to_remove).each do |file|
+  #     rm_rf file
+  #   end
+  # end
 end
 
 task :handle_assets_rails4 do
@@ -93,21 +93,21 @@ ADMIN_VERSION_FILE = "target/webapp/WEB-INF/vm/admin/admin_version.txt.vm"
 CRUISE_VERSION_FILE = "target/webapp/WEB-INF/classes/ui/navigation/cruise_version.st"
 
 task :copy_files do
-  safe_cp "webapp", "target"
-
-  FileUtils.remove_dir("target/webapp/WEB-INF/rails.new/spec", true)
-
-  cp "messages/message.properties", "target/webapp"
-  cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
+  # safe_cp "webapp", "target"
+  #
+  # FileUtils.remove_dir("target/webapp/WEB-INF/rails.new/spec", true)
+  #
+  # cp "messages/message.properties", "target/webapp"
+  # cp "../config/config-server/resources/cruise-config.xsd", "target/webapp"
 
 end
 
 task :write_revision_number do
-  mkdir_p "target/webapp/WEB-INF/classes/ui/navigation"
-
-  {ADMIN_VERSION_FILE => "%s(%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
-    File.open(path, "w") { |h| h.write(template % [VERSION_NUMBER, RELEASE_COMMIT]) }
-  end
+  # mkdir_p "target/webapp/WEB-INF/classes/ui/navigation"
+  #
+  # {ADMIN_VERSION_FILE => "%s(%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
+  #   File.open(path, "w") { |h| h.write(template % [VERSION_NUMBER, RELEASE_COMMIT]) }
+  # end
 end
 
 def create_pathing_jar classpath_file

@@ -1,0 +1,66 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+task agentOSXZip(type: Zip, dependsOn: [':agent-bootstrapper:fatJar']) { zipTask ->
+  def packageName = 'go-agent'
+  into 'Go Agent.app'
+
+  configureOsxZip(zipTask, packageName)
+
+  from(configurations.agentBootstrapperJar) {
+    into "Contents/Resources"
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  }
+}
+
+task serverOSXZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask ->
+  def packageName = 'go-server'
+  into 'Go Server.app'
+
+  configureOsxZip(zipTask, packageName)
+
+  from(configurations.serverJar) {
+    into "Contents/Resources"
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  }
+}
+
+
+private void configureOsxZip(Zip zipTask, String packageName) {
+  zipTask.configure {
+    archiveName "${packageName}-${rootProject.fullVersion}-osx.zip"
+
+    from('osx-shared/JavaApplicationStub64') {
+      into "Contents/MacOS"
+      rename '.*', packageName
+      fileMode 0755
+    }
+
+    from('osx-shared/gocd.icns') {
+      into "Contents/Resources"
+      rename ".*", "${packageName}.icns"
+    }
+
+    from("${packageName}/osx/Info.plist") {
+      filter ReplaceTokens, tokens: ['distVersion': rootProject.distVersion ? rootProject.distVersion : '', 'version': rootProject.version, 'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString()]
+      into "Contents"
+    }
+  }
+}
+
+assemble.dependsOn(":installers:agentOSXZip", ":installers:serverOSXZip")

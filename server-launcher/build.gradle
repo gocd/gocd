@@ -1,0 +1,247 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'GoCD Server Launcher'
+
+configurations {
+  packagingInLibDir.extendsFrom packagingOnly
+  packagingInDefaultFilesDir.extendsFrom packagingOnly
+}
+
+dependencies {
+  compile project(':base')
+  compile project(':server')
+
+  packagingInDefaultFilesDir project(path: ':agent-launcher', configuration: 'fatJarConfig')
+  packagingInDefaultFilesDir project(path: ':agent-bootstrapper', configuration: 'fatJarConfig')
+  packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
+  packagingInDefaultFilesDir project(path: ':server', configuration: 'warConfig')
+
+  packagingInLibDir project(path: ':tfs-impl', configuration: 'fatJarConfig')
+  packagingInLibDir project(path: ':go-plugin-activator', configuration: 'jarConfig')
+  packagingInLibDir group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+  packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  packagingInLibDir group: 'commons-io', name: 'commons-io', version: '2.4'
+  packagingInLibDir group: 'joda-time', name: 'joda-time', version: '2.3'
+  packagingInLibDir group: 'log4j', name: 'log4j', version: '1.2.12'
+  packagingInLibDir group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
+  packagingInLibDir group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.2'
+  packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.5'
+
+  extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
+}
+
+jar {
+  classifier 'classes'
+}
+
+task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app-server:jar', ':common:jar', ':base:jar']) {
+  baseName = 'main'
+
+  with(copySpec {
+    from {
+      def topLevelJars = [
+          project(':jetty9').jar.archivePath,
+          project(':app-server').jar.archivePath
+      ]
+
+      topLevelJars.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    into('/')
+  })
+
+  with(copySpec {
+    from { zipTree(project(':common').jar.archivePath) }
+    include "**/SubprocessLogger*.class"
+    include "**/validators/*.class"
+    include "**/Environment*.class"
+    include "**/X509CertificateGenerator*.class"
+    include "**/X509PrincipalGenerator*.class"
+    include "**/KeyStoreManager.class"
+    include "**/PKCS12BagAttributeSetter.class"
+    include "**/Registration.class"
+    include "**/CommandLineException.class"
+
+    exclude "**/domain/*.class"
+    exclude "**/validation/*.class"
+    exclude "**/remote/*.class"
+    exclude "**/remote/work/*.class"
+    into('/')
+  })
+
+  with(copySpec {
+    from { zipTree(project(':base').jar.archivePath) }
+
+    include "**/OperatingSystem.class"
+    include "**/SystemEnvironment*.class"
+    include "**/ConfigDirProvider.class"
+    include "**/validators/*.class"
+    include "**/SystemUtil.class"
+    include "**/Os.class"
+    include "**/ExceptionUtils.class"
+    include "**/FileUtil*.class"
+    include "**/StreamConsumer.class"
+    include "**/InMemoryConsumer.class"
+    include "**/InMemoryStreamConsumer.class"
+    include "**/ConsoleOutputStreamConsumer.class"
+    include "**/ArrayUtil.class"
+    include "**/StringUtil.class"
+
+    into('/')
+  })
+
+  with(copySpec {
+    from { zipTree(project(':server').jar.archivePath) }
+
+    include "**/GoServer*.class"
+    include "**/DeploymentContextWriter*.class"
+    include "**/BaseUrlProvider*.class"
+    include "**/GoLauncher*.class"
+
+    into('/')
+  })
+}
+
+
+task h2deltasZip(type: Zip) {
+  baseName = 'h2deltas'
+  destinationDir = project.libsDir
+  from("${project(':server').projectDir}/db/migrate/h2deltas") { into '/h2deltas' }
+}
+
+task h2dbZip(type: Zip) {
+  baseName = 'h2db'
+  destinationDir = project.libsDir
+  from("${project(':server').projectDir}/db/dbtemplate/h2db") { into '/h2db' }
+}
+
+def commandRepoCheckoutDir = "${project.buildDir}/go-command-repo"
+
+task cloneCommandRepository(type: Exec) {
+  onlyIf { !project.hasProperty('fastBuild') }
+  outputs.upToDateWhen { false }
+  doFirst { execTask ->
+    if (new File(commandRepoCheckoutDir).exists()) {
+      execTask.workingDir = commandRepoCheckoutDir
+      execTask.commandLine "git", "pull"
+    } else {
+      execTask.commandLine "git", "clone", project.commandRepoUrl, commandRepoCheckoutDir
+    }
+  }
+}
+
+task defaultCommandSnippetsZip(type: Zip, dependsOn: [':server-launcher:cloneCommandRepository']) {
+  baseName 'defaultCommandSnippets'
+  destinationDir = project.libsDir
+  from(commandRepoCheckoutDir) { into '/' }
+  // because .git is in global excludes
+  from("${commandRepoCheckoutDir}/.git") { into '/.git' }
+}
+
+
+task createVersionFile {
+  def file = file("${project.buildDir}/version.txt")
+  inputs.property('version', rootProject.version)
+  inputs.property('distVersion', rootProject.distVersion)
+  inputs.property('gitRevision', rootProject.gitRevision)
+
+  outputs.file file
+
+  doLast {
+    file.getParentFile().mkdirs()
+    file.withWriter { out ->
+      out.write("${rootProject.version}(${rootProject.distVersion}-${rootProject.gitRevision})")
+    }
+  }
+}
+
+
+task pluginsZip(type: Zip, dependsOn: ':server-launcher:createVersionFile') {
+  baseName = 'plugins'
+
+  destinationDir = project.libsDir
+  from("${rootProject.rootDir}/tw-go-plugins/dist") { into '/' }
+  from(createVersionFile) { into '/' }
+}
+
+clean.doLast {
+  delete 'defaultFiles'
+}
+
+task fatJar(type: Jar,
+    dependsOn: [
+        ':common:jar', ':server-launcher:jar', ':server:war', ':server:jar', ':tfs-impl:fatJar', ':server-launcher:mainJar',
+        ':server-launcher:h2deltasZip', ':server-launcher:h2dbZip', ':server-launcher:defaultCommandSnippetsZip', ':server-launcher:pluginsZip'
+    ]) {
+  manifest {
+    attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
+    attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.server.util.GoLauncher'
+  }
+
+  from(configurations.packagingInDefaultFilesDir) {
+    into "defaultFiles/"
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  }
+
+  from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
+  from("${project(':installers').projectDir}/go-server/release/config.properties") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
+  from("${project(':config-server').projectDir}/resources/cruise-config.xsd") { into 'defaultFiles/config' }
+  from(h2dbZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(h2deltasZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(defaultCommandSnippetsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(pluginsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+
+  from(project(':jetty9').configurations.provided + configurations.packagingInLibDir + configurations.provided) {
+    into 'lib/'
+    rename "tfs-impl-${project.version}.jar", 'tfs-impl.jar'
+  }
+
+  from(mainJar.archivePath) {
+    into('main/')
+    rename "(.*)-${project.version}.jar", '$1.jar'
+  }
+
+  with(copySpec {
+    from { zipTree(project(':common').jar.archivePath) }
+    include "log4j.upgrade.*.properties"
+    into('/')
+  })
+
+
+  with(copySpec {
+    from { configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }
+    include '**/*.class', '**/*.java'
+    into("/")
+  })
+
+  with(copySpec {
+    from { zipTree(jar.archivePath) }
+    into('/')
+  })
+
+  with(copySpec {
+    from "${rootProject.rootDir}/LICENSE"
+    into "/"
+  })
+}
+
+artifacts {
+  fatJarConfig fatJar
+}

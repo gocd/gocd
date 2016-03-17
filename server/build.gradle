@@ -1,0 +1,405 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'GoCD Server'
+
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+
+  dependencies {
+    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+  }
+}
+
+configurations {
+  warConfig
+}
+
+project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
+
+sourceSets {
+  main {
+    resources {
+      srcDirs = ['resources', 'properties/src', "${project.railsRoot}/vendor/engines/gadgets/config"]
+      exclude 'routes.rb'
+    }
+  }
+  test {
+    java {
+      srcDirs = ['test/unit', 'test/integration', 'test/common', 'test/agent']
+    }
+
+    resources {
+      srcDirs += ['properties/test', 'webapp', 'test/data']
+    }
+  }
+}
+
+dependencies {
+  compile project(':database')
+  compile project(':config-server')
+  compile project(':common')
+  compile project(':rack_hack')
+  compile(group: 'commons-beanutils', name: 'commons-beanutils-core', version: '1.7.0') {
+    exclude(module: 'commons-logging')
+    exclude(module: 'commons-collections')
+  }
+  compile(group: 'commons-validator', name: 'commons-validator', version: '1.3.1') {
+    exclude(module: 'commons-digester')
+    exclude(module: 'commons-logging')
+    exclude(module: 'junit')
+  }
+
+  compile group: 'oro', name: 'oro', version: '2.0.8'
+  compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+  compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
+  compile group: 'com.h2database', name: 'h2', version: '1.3.168'
+  compile group: 'net.sf', name: 'dbdeploy', version: '2.11.1'
+  compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: '3.3.2.GA') {
+    exclude(module: 'ehcache')
+    exclude(module: 'commons-collections')
+  }
+  compile(group: 'org.hibernate', name: 'hibernate-annotations', version: '3.4.0.GA') {
+    exclude(module: 'slf4j-api')
+  }
+  compile group: 'javassist', name: 'javassist', version: '3.9.0.GA'
+  compile group: 'org.apache.ibatis', name: 'ibatis-sqlmap', version: '2.3.4.726'
+  compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.0.0'
+  compile(group: 'opensymphony', name: 'oscache', version: '2.4.1') {
+    exclude(module: 'commons-logging')
+    exclude(module: 'jms')
+    exclude(module: 'servlet-api')
+    exclude(module: 'hibernate')
+  }
+  compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.5.0') {
+    exclude(module: 'spring-context')
+    exclude(module: 'org.osgi.core')
+    exclude(module: 'commons-logging')
+  }
+  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+  compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
+  compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
+  compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
+  compile group: 'org.springframework', name: 'web.servlet', version: '3.1.3.RELEASE'
+  compile(group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.2.1') {
+    exclude(module: 'servlet-api')
+    exclude(module: 'commons-logging')
+  }
+  compile(group: 'org.springframework.security', name: 'spring-security-acl', version: '2.0.3') {
+    exclude(module: 'spring-support')
+    exclude(module: 'spring-jdbc')
+    exclude(module: 'spring-core')
+    exclude(module: 'spring-beans')
+    exclude(module: 'spring-context')
+    exclude(module: 'spring-aop')
+    exclude(module: 'commons-codec')
+    exclude(module: 'commons-logging')
+    exclude(module: 'commons-collections')
+  }
+  compile(group: 'org.springframework.security', name: 'spring-security-cas-client', version: '2.0.3') {
+    exclude(module: 'spring-support')
+    exclude(module: 'spring-dao')
+    exclude(module: 'cas-client-core')
+  }
+  compile group: 'org.springframework.security', name: 'spring-security-core-tiger', version: '2.0.3'
+  compile(group: 'org.springframework.ldap', name: 'spring-ldap', version: '1.2.1') {
+    exclude(module: 'spring-support')
+    exclude(module: 'spring-core')
+    exclude(module: 'spring-beans')
+    exclude(module: 'commons-lang')
+    exclude(module: 'commons-logging')
+  }
+  compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
+  compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
+  compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
+  compile group: 'org.tuckey', name: 'urlrewritefilter', version: '3.2.0'
+  compile(group: 'org.apache.velocity', name: 'velocity', version: '1.7') {
+    exclude(module: 'commons-lang')
+    exclude(module: 'commons-collections')
+  }
+  compile group: 'velocity-tools', name: 'velocity-tools-view', version: '1.2'
+  compile group: 'org.apache.shindig', name: 'shindig-features', version: '1.1-BETA5-incubating'
+  compile(group: 'org.apache.shindig', name: 'shindig-gadgets', version: '1.1-BETA5-incubating') {
+    exclude(module: 'xstream')
+    exclude(module: 'caja')
+    exclude(module: 'guice')
+    exclude(module: 'commons-betwixt')
+    exclude(module: 'commons-codec')
+    exclude(module: 'commons-io')
+    exclude(module: 'commons-lang')
+    exclude(module: 'commons-httpclient')
+    exclude(module: 'ehcache')
+    exclude(module: 'icu4j')
+  }
+  compile group: 'caja', name: 'caja', version: '3828'
+  compile group: 'com.google.inject', name: 'guice', version: '2.0'
+  compile group: 'com.thoughtworks.studios', name: 'gadgets', version: '1.1'
+  compile group: 'com.sun.mail', name: 'dsn', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'mailapi', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'imap', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'pop3', version: '1.4.4'
+  compile group: 'com.sun.mail', name: 'smtp', version: '1.4.4'
+  compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
+  compile(group: 'jaxen', name: 'jaxen', version: '1.1') {
+    exclude(module: 'xom')
+    exclude(module: 'xercesImpl')
+    exclude(module: 'jdom')
+  }
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.2'
+  testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
+  testCompile project(':common').sourceSets.test.output
+  testCompile project(':config-server').sourceSets.test.output
+  testCompile project(':config-api').sourceSets.test.output
+  testCompile project(':test-utils')
+  testCompile project(':jetty9')
+  testCompile(group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3')
+  testCompile(group: 'com.tlb', name: 'tlb-java', version: '0.3.2-90-g6df47e3') {
+    exclude(module: 'commons-io')
+    exclude(module: 'commons-codec')
+    exclude(module: 'log4j')
+    exclude(module: 'xalan')
+  }
+  testCompile group: 'org.jsoup', name: 'jsoup', version: '1.8.1'
+  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: '1.7.0'
+
+  provided project(':app-server')
+  provided group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  provided group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: '9.2.11.v20150529'
+}
+
+test {
+  dependsOn ':server:prepareDb'
+  doFirst {
+    systemProperty 'go.enforce.serverId.immutability', "N"
+    systemProperty 'rails.use.compressed.js', "false"
+    systemProperty 'go.database.provider', "com.thoughtworks.go.server.database.H2Database"
+    systemProperty 'db.host', "localhost"
+    systemProperty 'db.user', "sa"
+    systemProperty 'db.password', ""
+    systemProperty 'db.name', "cruise"
+    systemProperty 'db.port', ""
+  }
+}
+
+task createVersionFile {
+  def file = file("${project.buildDir}/admin_version.txt.vm")
+  inputs.property('version', rootProject.version)
+  inputs.property('distVersion', rootProject.distVersion)
+  inputs.property('gitRevision', rootProject.gitRevision)
+
+  outputs.file file
+
+  doLast {
+    file.getParentFile().mkdirs()
+    file.withWriter { out ->
+      out.write("${rootProject.version}(${rootProject.distVersion}-${rootProject.gitRevision})")
+    }
+  }
+}
+
+jar {
+  enabled = true
+  classifier = 'classes'
+  exclude '**/*/log4j.properties'
+  exclude 'log4j.properties'
+}
+
+def findGemsToNotPack = {
+  if (project.hasProperty('noAssets')) {
+    return []
+  }
+
+  def gems
+  org.jruby.Ruby ruby
+  try {
+    ruby = org.jruby.Ruby.newInstance()
+    gems = ruby.evalScriptlet(
+        """
+          Dir.chdir('${project.railsRoot}') do
+            \$LOAD_PATH.unshift("vendor/bundle/jruby/1.9/gems/bundler-1.9.9/lib")
+            require 'bundler'
+            require 'json'
+            definition = ::Bundler.definition
+            all = definition.specs.to_a
+            #puts "*** All gems - #{all.collect(&:full_name)}"
+
+            requested = definition.specs_for(definition.groups.collect(&:to_sym) - [:development, :test, :assets]).to_a
+            #puts "*** Gems that should be packaged - #{requested.collect(&:full_name)}"
+
+            ignored_gems = all - requested
+            #puts "*** Ignored gems - #{ignored_gems.collect(&:full_name)}"
+            ignored_gems.collect(&:full_name)
+          end
+          """
+    )
+  } finally {
+    if (ruby != null) {
+      ruby.tearDown()
+    }
+  }
+  return gems
+}
+
+
+task cleanDb(type: Delete) {
+  outputs.upToDateWhen { false }
+  delete "db/h2db"
+  delete "db/h2deltas"
+  delete "db/shine"
+  delete "db/config.git"
+  delete "db/pgsqldeltas"
+}
+
+task prepareDb(dependsOn: [':server:cleanDb']) {
+  outputs.upToDateWhen { false }
+
+  doLast {
+    copy {
+      from 'db/dbtemplate/h2db'
+      into 'db/h2db'
+    }
+    copy {
+      from 'db/migrate/h2deltas'
+      into 'db/h2deltas'
+    }
+  }
+
+}
+
+clean.doFirst {
+  delete 'artifactsDir'
+  delete 'data'
+  delete 'felix-cache'
+  delete 'logs'
+  delete 'pipelines'
+  delete 'plugins'
+  delete 'go-shine.log'
+  delete 'go-server.log'
+  delete 'cce_server.log'
+  delete 'webapp/WEB-INF/rails.new/logs'
+  delete 'webapp/WEB-INF/rails.new/go-server.log'
+  delete 'webapp/WEB-INF/rails.new/go-shine.log'
+  delete 'webapp/WEB-INF/rails.new/config/cipher'
+  delete 'webapp/WEB-INF/rails.new/tmp'
+  delete 'webapp/WEB-INF/rails.new/historical_jars'
+  cleanDb.execute()
+}
+
+task compileAssets(type: Exec, dependsOn: [':server:jar']) {
+  onlyIf { !project.hasProperty('fastBuild') }
+
+  def outputAssetsDir = file("${project.buildDir}/assets")
+  def publicAssetsDir = file("${project.railsRoot}/public/assets")
+
+  inputs.dir(file("${project.railsRoot}/app/assets"))
+  inputs.dir(file("${project.railsRoot}/vendor/assets"))
+
+  outputs.dir(outputAssetsDir)
+
+  commandLine "${projectDir.parent}/tools/bin/jruby", '-S', './bin/bundle', 'exec', './bin/rake', '-S', 'assets:clobber', 'assets:precompile', '--trace'
+  environment(
+      'CLASSPATH': sourceSets.test.runtimeClasspath.asPath,
+      'RAILS_ENV': 'production'
+  )
+  workingDir = project.railsRoot
+  args = ['./bin/rake', 'assets:clobber', 'assets:precompile', '--trace']
+
+  doFirst {
+    delete "${project.railsRoot}/tmp"
+    delete outputAssetsDir
+  }
+
+  doLast {
+    delete "${project.railsRoot}/tmp"
+
+    outputAssetsDir.parentFile.mkdirs()
+    copy {
+      from publicAssetsDir
+      into outputAssetsDir
+    }
+
+    delete publicAssetsDir
+  }
+}
+
+
+task war(type: Jar) {
+  dependsOn ':server:jar', ':server:createVersionFile', ':server:compileAssets'
+  baseName = 'cruise'
+  extension 'war'
+  exclude '**/*/log4j.properties'
+  exclude 'log4j.properties'
+
+  from(createVersionFile) { into 'WEB-INF/vm/admin' }
+
+  // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
+  def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)
+
+  from(classpath) {
+    into 'WEB-INF/lib'
+  }
+
+  with(copySpec {
+    from { zipTree(jar.archivePath) }
+    into('WEB-INF/classes')
+  })
+
+  from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
+    into '/'
+  }
+
+  from(project(':config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
+  from("messages/message.properties") { into('/') }
+
+  from(compileAssets) {
+    into '/WEB-INF/rails.new/public/assets'
+  }
+
+  from("webapp/WEB-INF/web.xml") {
+    filter {
+      it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
+    }
+    into "/WEB-INF"
+  }
+
+  // do this lazily because finding gems is expensive during the configure cycle causing gradle to boot really slow
+  doFirst { Jar warFile ->
+    warFile.from('webapp') { theSpec ->
+      into '/'
+      exclude('WEB-INF/web.xml')
+      exclude("**/rails.new/*.log")
+      exclude("**/rails.new/log/*")
+      exclude("**/rails.new/spec/*")
+      exclude("**/rails.new/tmp/**/*.*")
+      exclude("**/rails.new/**/jruby/*/cache/*.gem")
+      exclude("**/rails.new/app/assets/**/*.*")
+      findGemsToNotPack().each { gem ->
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/build_info/${gem}.info")
+      }
+    }
+  }
+}
+
+artifacts {
+  warConfig war
+  jarConfig jar
+}

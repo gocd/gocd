@@ -1,0 +1,225 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def script = this
+
+def gitRevision = { ->
+  def hashStdOut = new ByteArrayOutputStream()
+  exec {
+    commandLine "git", "log", "-n", "1", "--format=%H"
+    standardOutput = hashStdOut
+    workingDir = script.buildscript.sourceFile.parent
+  }
+
+  return hashStdOut.toString().trim()
+}
+
+def releaseRevision = { ->
+  def hashStdOut = new ByteArrayOutputStream()
+  exec {
+    commandLine "git", "log", "--pretty=format:''"
+    standardOutput = hashStdOut
+    workingDir = script.buildscript.sourceFile.parent
+  }
+
+  return hashStdOut.toString().length().toString()
+}
+
+def GO_VERSION = '16.3.0'
+def DIST_VERSION = releaseRevision()
+def GIT_REVISION = gitRevision()
+
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'idea'
+
+  group = 'com.thoughtworks.go'
+  version = GO_VERSION
+  buildDir = "${projectDir}/target"
+
+  rootProject.ext.distVersion = DIST_VERSION
+  rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
+  rootProject.ext.gitRevision = GIT_REVISION
+
+  rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
+
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven { url "${script.buildscript.sourceFile.parent}/local-maven-repo" }
+    maven { url "http://oauth.googlecode.com/svn/code/maven" }
+  }
+
+  configurations {
+    packagingOnly { transitive false }
+    extractedAtTopLevel { transitive false }
+    testJarConfig.extendsFrom(testRuntime)
+    fatJarConfig
+
+    jarConfig
+    provided
+  }
+
+  sourceSets {
+    main {
+      java {
+        srcDirs = ['src']
+        compileClasspath += configurations.provided
+      }
+      resources {
+        srcDirs = ['resources']
+      }
+    }
+    test {
+      java {
+        srcDirs = ['test']
+        compileClasspath += configurations.provided
+        runtimeClasspath += configurations.provided
+      }
+      resources {
+        srcDirs = ['test-resources']
+      }
+    }
+  }
+
+  idea {
+    module {
+      scopes.PROVIDED.plus += [configurations.provided]
+    }
+  }
+
+  tasks.withType(Jar) {
+    manifest {
+      attributes(
+          'Go-Version': project.version,
+          'ImplementationVersion': project.version,
+          'Go-Revision': project.gitRevision,
+          'Implementation-Title': project.name,
+          'Implementation-Version': project.version,
+          'Source-Compatibility': project.sourceCompatibility,
+          'Target-Compatibility': project.targetCompatibility
+      )
+    }
+    includeEmptyDirs false
+    duplicatesStrategy 'exclude'
+  }
+
+  tasks.withType(Zip) {
+    includeEmptyDirs false
+    duplicatesStrategy 'exclude'
+  }
+
+  tasks.withType(Exec) {
+    if (logger.isInfoEnabled()) {
+      standardOutput = System.out
+      errorOutput = System.err
+    } else {
+      standardOutput = new ByteArrayOutputStream()
+      errorOutput = new ByteArrayOutputStream()
+    }
+  }
+
+  test {
+    // run tests even when inputs have not changed
+    outputs.upToDateWhen { false }
+    systemProperty 'java.io.tmpdir', "${project.buildDir}/tmp"
+
+    filter {
+      failOnNoMatchingTests = true
+    }
+
+    doFirst {
+      List myPartition = partitionTests(project)
+
+      myPartition.each { f ->
+        include f
+      }
+    }
+
+    testLogging {
+      showStandardStreams = true
+
+      exceptionFormat 'full'
+
+      beforeSuite { suite ->
+        if (suite.parent) {
+          logger.quiet("Running ${suite.name}")
+        }
+      }
+
+      afterSuite { suite, result ->
+        if (suite.parent) {
+          logger.quiet("Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
+          if (result.resultType == TestResult.ResultType.FAILURE) {
+            logger.quiet("Test ${suite.name} FAILED")
+          }
+        } else {
+          logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
+        }
+      }
+    }
+  }
+}
+
+private List partitionTests(Project project) {
+  // no partitioning needed!
+  if (!(System.getenv().containsKey('GO_JOB_RUN_COUNT') && System.getenv().containsKey('GO_JOB_RUN_INDEX'))) {
+    return []
+  }
+
+  Integer totalWorkers = System.getenv('GO_JOB_RUN_COUNT').toInteger()
+  Integer currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX').toInteger()
+  def files = new LinkedHashSet()
+
+  // find all .class files, ignoring inner classes and such
+  project.sourceSets.test.output.classesDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+    def relPath = new File(project.sourceSets.test.output.classesDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+    files << relPath
+  }
+
+  Integer testsPerBucket = Math.ceil((double) files.size() / totalWorkers)
+
+  project.logger.quiet("Partitioning ${files.size()} files into ${totalWorkers} buckets with approx ${testsPerBucket} files per bucket.")
+
+  // random shuffle, every agent uses the same seed, so shuffling is predictable
+  Collections.shuffle(files.sort(), new Random(System.getenv('GO_PIPELINE_COUNTER').toInteger()))
+
+  def allPartitions = files.collate(testsPerBucket)
+  allPartitions[currentWorkerIndex - 1]
+}
+
+subprojects {
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  buildDir = "${projectDir}/target"
+
+  task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
+    classifier = 'tests'
+    from { sourceSets.test.output + sourceSets.test.allSource }
+  }
+
+  artifacts {
+    jarConfig jar
+    testJarConfig testJar
+  }
+}
+
+task all(dependsOn: [':server-launcher:fatJar', ':server:prepareDb'])

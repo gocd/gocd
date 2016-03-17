@@ -1,0 +1,82 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'GoCD Agent'
+
+sourceSets {
+  test {
+    java {
+      srcDirs = ['test/functional', 'test/unit']
+    }
+  }
+}
+
+dependencies {
+  compile project(':agent-common')
+  compile project(':common')
+  compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: '9.2.11.v20150529'
+  compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
+  testCompile project(':common').sourceSets.test.output
+  testCompile project(':config-api').sourceSets.test.output
+  testCompile project(':test-utils')
+  packagingOnly project(path: ':tfs-impl', configuration: 'fatJarConfig')
+  extractedAtTopLevel project(':agent-process-launcher')
+  extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
+}
+
+jar {
+  classifier 'classes'
+}
+
+
+clean.doFirst {
+  delete 'config'
+  delete 'felix-cache'
+  delete 'main'
+  delete 'pipelines'
+  delete 'plugins'
+  delete 'plugins_work'
+}
+
+task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar', ':tfs-impl:fatJar']) {
+  manifest {
+    attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
+    attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.agent.AgentMain'
+    attributes 'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.agent.AgentProcessParentImpl'
+  }
+
+  from(configurations.packagingOnly + configurations.compile) {
+    into "lib/"
+    rename "tfs-impl-${project.version}.jar", 'tfs-impl.jar'
+  }
+
+  from(jar.archivePath) {
+    into('main/')
+    rename "agent-${project.version}-classes.jar", 'agent-classes.jar'
+  }
+
+  with(copySpec {
+    from { configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }
+    include '**/*.class', '**/*.java'
+    into("/")
+  })
+}
+
+artifacts {
+  fatJarConfig fatJar
+}

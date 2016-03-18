@@ -255,8 +255,9 @@ describe ApiV1::Config::JobRepresenter do
 
   it 'should map errors' do
     job_config = JobConfig.new
-    job_config.setRunInstanceCount(-2);
-    plans      = ArtifactPlans.new
+    job_config.setRunInstanceCount(-2)
+    job_config.addResource("#?{45}")
+    plans = ArtifactPlans.new
     plans.add(TestArtifactPlan.new(nil, '../foo'))
     job_config.setArtifactPlans(plans)
     job_config.setTasks(com.thoughtworks.go.config.Tasks.new(FetchTask.new(CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), nil, nil)))
@@ -274,7 +275,7 @@ describe ApiV1::Config::JobRepresenter do
       run_instance_count:    -2,
       timeout:               nil,
       environment_variables: [],
-      resources:             [],
+      resources:             ["#?{45}"],
       tasks:                 [
                                {
                                  type:       'fetch',
@@ -318,7 +319,8 @@ describe ApiV1::Config::JobRepresenter do
       properties:            nil,
       errors:                {
         run_instance_count: ["'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime."],
-        name:               ["Name is a required field"]
+        name:               ["Name is a required field"],
+        resources:          ["Resource name '#?{45}' is not valid. Valid names much match '^[-\\w\\s|.]*$'"]
       }
     }
   end

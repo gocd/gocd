@@ -18,41 +18,6 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
 
   var Mixins = {};
 
-  Mixins.Errors = function () {
-    var errors = {};
-
-    this.add = function (attrName, message) {
-      errors[attrName] = errors[attrName] || [];
-      errors[attrName].push(message);
-    };
-
-    this.clear = function () {
-      errors = {};
-    };
-
-    this.errors = function (optionalAttribute) {
-      if (this._isEmpty()) {
-        return;
-      }
-
-      if (optionalAttribute) {
-        return errors[optionalAttribute];
-      }
-
-      return errors;
-    };
-
-    this._isEmpty = function () {
-      return _.isEmpty(errors);
-    };
-
-    this.errorsForDisplay = function (attrName) {
-      return _.map(errors[attrName] || [], function (message) {
-        return message + ".";
-      }).join(" ");
-    };
-  };
-
   Mixins.HasUUID = function () {
     this.uuid = Mixins.GetterSetter(this.constructor.modelType + '-' + s.uuid());
   };
@@ -242,6 +207,7 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
       return s.humanize(attribute) + " must contain the string '" + string + "'";
     }
   };
+
 
   return Mixins;
 });

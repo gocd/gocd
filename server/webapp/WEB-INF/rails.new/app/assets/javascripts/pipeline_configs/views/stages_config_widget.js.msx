@@ -70,6 +70,9 @@ define([
             <f.row>
             <f.warning>Permissions will be inherited from the pipeline group if not specified.</f.warning>
             </f.row>
+            <f.error model = {args.approval().authorization()} attrName='authorization'>
+            </f.error>
+
             <f.row>
               <f.inputWithLabel config={autoComplete(Users.list, args.approval().authorization(), 'users')}
                                 attrName='users'

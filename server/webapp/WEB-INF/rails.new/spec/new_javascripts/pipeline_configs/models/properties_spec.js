@@ -83,11 +83,23 @@ define(["pipeline_configs/models/properties"], function (Properties) {
         expect(property.xpath()).toBe("substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')");
       });
 
+      it("should de-serialize and map errors on plain variables", function () {
+        expect(property.errors().errorsForDisplay('name')).toBe('error message for name.');
+        expect(property.errors().errorsForDisplay('source')).toBe('error message for source.');
+        expect(property.errors().errorsForDisplay('xpath')).toBe('error message for xpath.');
+      });
+
+
       function sampleJSON() {
         return {
           name:   "coverage.class",
           source: "target/emma/coverage.xml",
-          xpath:  "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"
+          xpath:  "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')",
+          errors: {
+            name:   ["error message for name"],
+            source: ["error message for source"],
+            xpath:  ["error message for xpath"]
+          }
         };
       }
     });

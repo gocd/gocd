@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './errors'], function (m, _, s, Mixins, Errors) {
 
   var Artifacts = function (data) {
     Mixins.HasMany.call(this, {factory: Artifacts.Artifact.create, as: 'Artifact', collection: data});
@@ -28,13 +28,14 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
     this.type        = m.prop(s.defaultToIfBlank(data.type, 'build'));
     this.source      = m.prop(s.defaultToIfBlank(data.source, ''));
     this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
+    this.errors      = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
 
     this.isBlank = function () {
       return s.isBlank(this.source()) && s.isBlank(this.destination());
     };
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       if (s.isBlank(this.source()) && !s.isBlank(this.destination())) {
         errors.add('source', Mixins.ErrorMessages.mustBePresent('source'));
@@ -60,7 +61,12 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
   });
 
   Artifacts.Artifact.fromJSON = function (data) {
-    return new Artifacts.Artifact(_.pick(data, ['type', 'source', 'destination']));
+    return new Artifacts.Artifact({
+      type:        data.type,
+      source:      data.source,
+      destination: data.destination,
+      errors:      Errors.fromJson(data)
+    });
   };
 
   return Artifacts;

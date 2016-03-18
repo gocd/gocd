@@ -119,6 +119,11 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
         expect(expectedProperties).toEqual(['coverage.class']);
       });
 
+      it("should de-serialize and map errors on plain variables", function () {
+        expect(job.errors().errorsForDisplay('name')).toBe('error message for name.');
+        expect(job.errors().errorsForDisplay('resources')).toBe('error message for resources.');
+      });
+
       it("should serialize to JSON", function () {
         expect(JSON.parse(JSON.stringify(job, s.snakeCaser))).toEqual(sampleJobJSON());
       });
@@ -200,9 +205,9 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
           resources:             ["jdk5", "tomcat"],
           environment_variables: [
             {
-              name:   "MULTIPLE_LINES",
-              encrypted_value:  "multiplelines",
-              secure: true
+              name:            "MULTIPLE_LINES",
+              encrypted_value: "multiplelines",
+              secure:          true
             },
             {
               name:   "COMPLEX",
@@ -224,22 +229,29 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
             {
               type:        "build",
               source:      "target/dist.jar",
-              destination: "pkg"
+              destination: "pkg",
+              errors:      {}
             }
           ],
           tabs:                  [
             {
-              name: "coverage",
-              path: "Jcoverage/index.html"
+              name:   "coverage",
+              path:   "Jcoverage/index.html",
+              errors: {}
             }
           ],
           properties:            [
             {
               name:   "coverage.class",
               source: "target/emma/coverage.xml",
-              xpath:  "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"
+              xpath:  "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')",
+              errors: {}
             }
-          ]
+          ],
+          errors:                {
+            name:      ["error message for name"],
+            resources: ["error message for resources"]
+          }
         };
       }
     });

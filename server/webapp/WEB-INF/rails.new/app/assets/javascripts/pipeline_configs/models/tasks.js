@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], function (m, _, s, Mixins, Argument) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './errors'], function (m, _, s, Mixins, Argument, Errors) {
 
   var Tasks = function (data) {
     Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
@@ -32,15 +32,18 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
     this.constructor.modelType = 'task';
     Mixins.HasUUID.call(this);
 
-    this.type   = m.prop(type);
+    this.type = m.prop(type);
     this.parent = Mixins.GetterSetter();
+    this.errors = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
 
     var self = this;
 
     this.toJSON = function () {
       return {
         type:       self.type(),
-        attributes: self._attributesToJSON()
+        attributes: self._attributesToJSON(),
+        errors:     self.errors().errors()
+
       };
     };
 
@@ -56,7 +59,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
   });
 
   Tasks.Task.Ant = function (data) {
-    Tasks.Task.call(this, "ant");
+    Tasks.Task.call(this, "ant", data);
     this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
@@ -69,29 +72,31 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
       }
     };
 
-    this.toString = function() {
+    this.toString = function () {
       return _.join([this.target(), this.buildFile()], ' ');
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.target(), this.buildFile()]));
     };
   };
 
   Tasks.Task.Ant.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Tasks.Task.Ant({
-      target:           data.target,
-      workingDirectory: data.working_directory,
-      buildFile:        data.build_file
+      target:           attributes.target,
+      workingDirectory: attributes.working_directory,
+      buildFile:        attributes.build_file,
+      errors:           Errors.fromJson(data)
     });
   };
 
   Tasks.Task.NAnt = function (data) {
-    Tasks.Task.call(this, "nant");
-    this.target            = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDirectory  = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
-    this.buildFile         = m.prop(s.defaultToIfBlank(data.buildFile, ''));
-    this.nantPath          = m.prop(s.defaultToIfBlank(data.nantPath, ''));
+    Tasks.Task.call(this, "nant", data);
+    this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
+    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
+    this.nantPath         = m.prop(s.defaultToIfBlank(data.nantPath, ''));
 
     this._attributesToJSON = function () {
       return {
@@ -102,30 +107,31 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
       }
     };
 
-    this.toString = function() {
+    this.toString = function () {
       return _.join([this.target(), this.buildFile()], ' ');
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.target(), this.buildFile()]));
     };
   };
 
   Tasks.Task.NAnt.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Tasks.Task.NAnt({
-      target:           data.target,
-      workingDirectory: data.working_directory,
-      buildFile:        data.build_file,
-      nantPath:         data.nant_path
+      target:           attributes.target,
+      workingDirectory: attributes.working_directory,
+      buildFile:        attributes.build_file,
+      nantPath:         attributes.nant_path,
+      errors:           Errors.fromJson(data)
     });
   };
 
   Tasks.Task.Exec = function (data) {
-    Tasks.Task.call(this, "exec");
+    Tasks.Task.call(this, "exec", data);
     this.command          = m.prop(s.defaultToIfBlank(data.command, ''));
     this.args             = m.prop(Argument.create(data.args, data.arguments));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
-    var self = this;
 
     this._attributesToJSON = function () {
       return _.assign({
@@ -138,22 +144,24 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
       return _.join([this.command(), this.args().toString()], ' ');
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.command(), this.args().toString()]));
     };
   };
 
   Tasks.Task.Exec.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Tasks.Task.Exec({
-      command:          data.command,
-      args:             data.args,
-      arguments:        data.arguments,
-      workingDirectory: data.working_directory
+      command:          attributes.command,
+      args:             attributes.args,
+      arguments:        attributes.arguments,
+      workingDirectory: attributes.working_directory,
+      errors:           Errors.fromJson(data)
     });
   };
 
   Tasks.Task.Rake = function (data) {
-    Tasks.Task.call(this, "rake");
+    Tasks.Task.call(this, "rake", data);
     this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
@@ -166,25 +174,27 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
       }
     };
 
-    this.toString = function() {
+    this.toString = function () {
       return _.join([this.target(), this.buildFile()], ' ');
     };
 
-    this.isEmpty = function() {
+    this.isEmpty = function () {
       return _.isEmpty(_.compact([this.target(), this.buildFile()]));
     };
   };
 
   Tasks.Task.Rake.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Tasks.Task.Rake({
-      target:           data.target,
-      workingDirectory: data.working_directory,
-      buildFile:        data.build_file
+      target:           attributes.target,
+      workingDirectory: attributes.working_directory,
+      buildFile:        attributes.build_file,
+      errors:           Errors.fromJson(data)
     });
   };
 
   Tasks.Task.FetchArtifact = function (data) {
-    Tasks.Task.call(this, "fetchartifact");
+    Tasks.Task.call(this, "fetchartifact", data);
     this.pipeline = m.prop(s.defaultToIfBlank(data.pipeline, ''));
     this.stage    = m.prop(s.defaultToIfBlank(data.stage, ''));
     this.job      = m.prop(s.defaultToIfBlank(data.job, ''));
@@ -214,18 +224,19 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
   };
 
   Tasks.Task.FetchArtifact.fromJSON = function (data) {
-    var source = new Tasks.Task.FetchArtifact.Source(_.pick(data.source, ['type', 'location']));
-
+    var attributes = data.attributes;
+    var source = new Tasks.Task.FetchArtifact.Source(_.pick(attributes.source, ['type', 'location']));
     return new Tasks.Task.FetchArtifact({
-      pipeline: data.pipeline,
-      stage:    data.stage,
-      job:      data.job,
-      source:   source
+      pipeline: attributes.pipeline,
+      stage:    attributes.stage,
+      job:      attributes.job,
+      source:   source,
+      errors:   Errors.fromJson(data)
     });
   };
 
   Tasks.Task.PluginTask = function (data) {
-    Tasks.Task.call(this, "plugin");
+    Tasks.Task.call(this, "plugin", data);
 
     this.pluginId      = m.prop(s.defaultToIfBlank(data.pluginId, ''));
     this.version       = m.prop(s.defaultToIfBlank(data.version, ''));
@@ -326,7 +337,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument'], fun
 
   Tasks.Task.fromJSON = function (data) {
     if (Tasks.isBuiltInTaskType(data.type)) {
-      return Tasks.Types[data.type].type.fromJSON(data.attributes || {});
+      return Tasks.Types[data.type].type.fromJSON(data || {});
     } else {
       return Tasks.Task.PluginTask.fromJSON(data.attributes || {});
     }

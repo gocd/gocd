@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
+
+import java.util.List;
 
 @ConfigTag("user")
 public class AdminUser implements Admin {
     @ConfigValue private CaseInsensitiveString name;
+    public static final String NAME = "user";
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
@@ -36,7 +37,7 @@ public class AdminUser implements Admin {
 
     public void validate(ValidationContext validationContext) {
         if(name == null || name.isBlank())
-            addError("User cannot be blank.");
+            configErrors.add(NAME,("User cannot be blank."));
     }
 
     public ConfigErrors errors() {
@@ -60,7 +61,7 @@ public class AdminUser implements Admin {
     }
 
     public void addError(String message) {
-        errors().add("name", message);
+        errors().add(NAME, message);
     }
 
     public boolean isSameAs(Admin admin, List<Role> memberRoles) {

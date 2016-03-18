@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_variables', './parameters', './materials', './tracking_tool', './stages'], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_variables', './parameters', './materials', './tracking_tool', './stages', './errors'], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, Errors) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
     Mixins.HasUUID.call(this);
 
-    this.name                  = m.prop(data.name);
+    this.name = m.prop(data.name);
     this.enablePipelineLocking = m.prop(data.enablePipelineLocking);
-    this.templateName          = m.prop(s.defaultToIfBlank(data.templateName, ''));
-    this.labelTemplate         = m.prop(s.defaultToIfBlank(data.labelTemplate, ''));
-    this.timer                 = m.prop(s.defaultToIfBlank(data.timer, new Pipeline.Timer({})));
-    this.timer.toJSON          = function () {
+    this.templateName = m.prop(s.defaultToIfBlank(data.templateName, ''));
+    this.labelTemplate = m.prop(s.defaultToIfBlank(data.labelTemplate, ''));
+    this.timer = m.prop(s.defaultToIfBlank(data.timer, new Pipeline.Timer({})));
+    this.errors = m.prop(s.defaultToIfBlank(data.errors, new Errors({})));
+    this.timer.toJSON = function () {
       var timer = this();
 
       if (timer && timer.isBlank()) {
@@ -33,11 +34,16 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
 
       return timer;
     };
-    this.environmentVariables  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
-    this.parameters            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.parameters, new Parameters())));
-    this.materials             = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.materials, new Materials())));
-    this.trackingTool          = m.prop(data.trackingTool);
-    this.trackingTool.toJSON   = function () {
+
+    this.errors.toJSON = function(){
+      return this().errors();
+    };
+
+    this.environmentVariables = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.environmentVariables, new EnvironmentVariables())));
+    this.parameters = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.parameters, new Parameters())));
+    this.materials = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.materials, new Materials())));
+    this.trackingTool = m.prop(data.trackingTool);
+    this.trackingTool.toJSON = function () {
       var value = this();
       if (value) {
         return value.toJSON();
@@ -45,10 +51,11 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
         return null;
       }
     };
-    this.stages                = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
+
+    this.stages = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors({});
 
       if (s.isBlank(this.labelTemplate())) {
         errors.add('labelTemplate', Mixins.ErrorMessages.mustBePresent('labelTemplate'));
@@ -71,7 +78,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
       environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
       parameters:            Parameters.fromJSON(data.parameters),
       materials:             Materials.fromJSON(data.materials),
-      stages:                Stages.fromJSON(data.stages)
+      stages:                Stages.fromJSON(data.stages),
+      errors:                Errors.fromJson(data)
     });
   };
 
@@ -79,8 +87,13 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
     this.constructor.modelType = 'pipelineTimer';
     Mixins.HasUUID.call(this);
 
-    this.spec          = m.prop(s.defaultToIfBlank(data.spec, ''));
+    this.spec = m.prop(s.defaultToIfBlank(data.spec, ''));
     this.onlyOnChanges = m.prop(data.onlyOnChanges);
+    this.errors = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
+
+    this.errors.toJSON = function(){
+      return this().errors();
+    };
 
     this.isBlank = function () {
       return s.isBlank(this.spec()) && !this.onlyOnChanges();
@@ -91,10 +104,10 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './environment_var
     if (!_.isEmpty(data)) {
       return new Pipeline.Timer({
         spec:          data.spec,
-        onlyOnChanges: data.only_on_changes
+        onlyOnChanges: data.only_on_changes,
+        errors:        Errors.fromJson(data)
       });
     }
-
   };
 
   return Pipeline;

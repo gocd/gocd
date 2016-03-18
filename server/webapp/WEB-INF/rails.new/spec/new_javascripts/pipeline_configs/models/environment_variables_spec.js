@@ -107,11 +107,25 @@ define(['string-plus', "pipeline_configs/models/environment_variables"], functio
         expect(JSON.parse(JSON.stringify(secureVariable, s.snakeCaser))).toEqual(sampleSecureVariableJSON());
       });
 
+      it("should de-serialize and map errors on plain variables", function () {
+        expect(plainVariable.errors().errorsForDisplay('name')).toBe('error message for name.');
+        expect(plainVariable.errors().errorsForDisplay('value')).toBe('error message for value.');
+      });
+
+      it("should de-serialize and map errors on plain variables", function () {
+        expect(secureVariable.errors().errorsForDisplay('name')).toBe('error message for name.');
+        expect(secureVariable.errors().errorsForDisplay('encryptedValue')).toBe('error message for encrypted value.');
+      });
+
       function samplePlainVariableJSON() {
         return {
           name:   "WORKING_DIR",
           value:  "/var/foo",
-          secure: false
+          secure: false,
+          errors: {
+            name:  ["error message for name"],
+            value: ["error message for value"]
+          }
         };
       }
 
@@ -119,7 +133,11 @@ define(['string-plus', "pipeline_configs/models/environment_variables"], functio
         return {
           name:            "HTTP_PASSWORD",
           encrypted_value: "c!ph3rt3xt",
-          secure:          true
+          secure:          true,
+          errors:          {
+            name:            ["error message for name"],
+            encrypted_value: ["error message for encrypted value"]
+          }
         };
       }
     });

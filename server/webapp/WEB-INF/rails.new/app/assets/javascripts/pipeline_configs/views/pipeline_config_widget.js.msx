@@ -74,7 +74,10 @@ define([
               ctrl.saveState('success');
               ctrl.setPipelineAndPreserveSelection(pipeline);
             },
-            error:      function () {
+            error:      function (xhr, textStatus,errorThrown) {
+              var pipeline = Pipeline.fromJSON(xhr.responseJSON.data);
+
+              ctrl.setPipelineAndPreserveSelection(pipeline);
               ctrl.saveState('alert')
             },
             complete:   function () {
@@ -119,7 +122,7 @@ define([
               </f.column>
               <f.column size={1}>
                 <f.button onclick={ctrl.savePipeline.bind(ctrl)}
-                          class={'save-pipeline' + ctrl.saveState()}>
+                          class={'save-pipeline ' + ctrl.saveState()}>
                   <span class={'save-state ' + ctrl.saveState()}/>
                   Save
                 </f.button>

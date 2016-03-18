@@ -233,6 +233,12 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(svnMaterial.filter().ignore()).toEqual(['*.doc']);
         });
 
+        it("should de-serialize and map errors on plain variables", function(){
+          expect(svnMaterial.errors().errorsForDisplay('url')).toBe('error message for url.');
+          expect(svnMaterial.errors().errorsForDisplay('branch')).toBe('error message for branch.');
+        });
+
+
         function sampleJSON() {
           return {
             type:       "svn",
@@ -247,6 +253,10 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
               filter:          {
                 ignore: ['*.doc']
               }
+            },
+            errors:     {
+              url:    ["error message for url"],
+              branch: ["error message for branch"]
             }
           };
         }
@@ -305,6 +315,11 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(gitMaterial.filter().ignore()).toEqual(['*.doc'])
         });
 
+        it("should de-serialize and map errors on plain variables", function(){
+          expect(gitMaterial.errors().errorsForDisplay('url')).toBe('error message for url.');
+          expect(gitMaterial.errors().errorsForDisplay('branch')).toBe('error message for branch.');
+        });
+
         function sampleJSON() {
           return {
             type:       "git",
@@ -317,7 +332,12 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
               filter:      {
                 ignore: ['*.doc']
               }
+            },
+            errors:     {
+              url:    ["error message for url"],
+              branch: ["error message for branch"]
             }
+
           };
         }
       });
@@ -375,6 +395,12 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(mercurialMaterial.filter().ignore()).toEqual(['*.doc'])
         });
 
+        it("should de-serialize and map errors on plain variables", function(){
+          expect(mercurialMaterial.errors().errorsForDisplay('url')).toBe('error message for url.');
+          expect(mercurialMaterial.errors().errorsForDisplay('branch')).toBe('error message for branch.');
+        });
+
+
         function sampleJSON() {
           return {
             type:       "hg",
@@ -387,6 +413,10 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
               filter:      {
                 ignore: ['*.doc']
               }
+            },
+            errors:     {
+              url:    ["error message for url"],
+              branch: ["error message for branch"]
             }
           };
         }
@@ -466,6 +496,12 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(perforceMaterial.filter().ignore()).toEqual(['*.doc']);
         });
 
+        it("should de-serialize and map errors on plain variables", function(){
+          expect(perforceMaterial.errors().errorsForDisplay('port')).toBe('error message for port.');
+          expect(perforceMaterial.errors().errorsForDisplay('view')).toBe('error message for view.');
+        });
+
+
         function sampleJSON() {
           return {
             type:       "p4",
@@ -481,6 +517,10 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
               filter:      {
                 ignore: ['*.doc']
               }
+            },
+            errors:     {
+              port:    ["error message for port"],
+              view: ["error message for view"]
             }
           };
         }
@@ -570,6 +610,12 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(tfsMaterial.filter().ignore()).toEqual(['*.doc']);
         });
 
+        it("should de-serialize and map errors on plain variables", function(){
+          expect(tfsMaterial.errors().errorsForDisplay('url')).toBe('error message for url.');
+          expect(tfsMaterial.errors().errorsForDisplay('domain')).toBe('error message for domain.');
+        });
+
+
         function sampleTaskJSON() {
           return {
             type:       "tfs",
@@ -585,6 +631,10 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
               domain:       'AcmeCorp',
               destination:  "projectA",
               project_path: "$/webApp"
+            },
+            errors:     {
+              url:    ["error message for url"],
+              domain: ["error message for domain"]
             }
           };
         }

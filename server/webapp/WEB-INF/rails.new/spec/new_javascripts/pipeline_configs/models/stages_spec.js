@@ -103,6 +103,11 @@ define(['lodash', "pipeline_configs/models/stages", 'pipeline_configs/models/app
 
       });
 
+      it("should de-serialize and map errors on plain variables", function () {
+        expect(stage.errors().errorsForDisplay('name')).toBe('error message for name.');
+      });
+
+
       it("should serialize to JSON", function () {
         expect(JSON.parse(JSON.stringify(stage, s.snakeCaser))).toEqual(sampleStageJSON());
       });
@@ -115,9 +120,9 @@ define(['lodash', "pipeline_configs/models/stages", 'pipeline_configs/models/app
           never_cleanup_artifacts: true,
           environment_variables:   [
             {
-              name:   "MULTIPLE_LINES",
-              encrypted_value:  "multiplelines",
-              secure: true
+              name:            "MULTIPLE_LINES",
+              encrypted_value: "multiplelines",
+              secure:          true
             },
             {
               name:   "COMPLEX",
@@ -129,9 +134,13 @@ define(['lodash', "pipeline_configs/models/stages", 'pipeline_configs/models/app
           approval:                {
             type:          'manual',
             authorization: {
-              users: [],
-              roles: []
+              users:  [],
+              roles:  [],
+              errors: {}
             }
+          },
+          errors:                  {
+            name: ["error message for name"]
           }
         };
       }

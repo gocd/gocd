@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value'], function (m, _, s, Mixins, EncryptedValue) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value', './errors'], function (m, _, s, Mixins, EncryptedValue, Errors) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -69,10 +69,11 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   Materials.Material = function (type, hasFilter, data) {
     this.constructor.modelType = 'material';
     Mixins.HasUUID.call(this);
-    this.parent           = Mixins.GetterSetter();
-    this.type             = m.prop(type);
-    this.name             = m.prop(s.defaultToIfBlank(data.name, ''));
-    this.autoUpdate       = m.prop(data.autoUpdate);
+    this.parent                = Mixins.GetterSetter();
+    this.type                  = m.prop(type);
+    this.name                  = m.prop(s.defaultToIfBlank(data.name, ''));
+    this.autoUpdate            = m.prop(data.autoUpdate);
+    this.errors                = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
 
     if (hasFilter) {
       this.filter = m.prop(s.defaultToIfBlank(data.filter, new Materials.Filter(s.defaultToIfBlank(data.filter, {}))));
@@ -96,14 +97,15 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
 
       return {
         type:       this.type(),
-        attributes: _.merge(attrs, this._attributesToJSON())
+        attributes: _.merge(attrs, this._attributesToJSON()),
+        errors:       this.errors().errors()
       };
     };
 
     this.testConnection = function (pipelineName) {
       var self = this;
 
-      var xhrConfig = function(xhr) {
+      var xhrConfig = function (xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
       };
@@ -134,11 +136,11 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
       throw new Error("Subclass responsibility!");
     };
 
-    this._passwordHash = function() {
+    this._passwordHash = function () {
       if (this.isPlainPasswordValue() || this.isDirtyPasswordValue()) {
-        return { password: this.passwordValue() };
+        return {password: this.passwordValue()};
       }
-      return { encryptedPassword: this.passwordValue() };
+      return {encryptedPassword: this.passwordValue()};
     };
   };
 
@@ -158,7 +160,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       this._validate(errors);
 
@@ -182,16 +184,19 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   };
 
   Materials.Material.SVN.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Materials.Material.SVN({
-      url:               data.url,
-      username:          data.username,
-      password:          data.password,
-      encryptedPassword: data.encrypted_password,
-      checkExternals:    data.check_externals,
-      destination:       data.destination,
-      name:              data.name,
-      autoUpdate:        data.auto_update,
-      filter:            Materials.Filter.fromJSON(data.filter)
+      url:               attributes.url,
+      username:          attributes.username,
+      password:          attributes.password,
+      encryptedPassword: attributes.encrypted_password,
+      checkExternals:    attributes.check_externals,
+      destination:       attributes.destination,
+      name:              attributes.name,
+      autoUpdate:        attributes.auto_update,
+      filter:            Materials.Filter.fromJSON(attributes.filter),
+      errors:            Errors.fromJson(data)
+
     });
   };
 
@@ -202,7 +207,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.branch      = m.prop(s.defaultToIfBlank(data.branch, ''));
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       this._validate(errors);
 
@@ -223,14 +228,17 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   };
 
   Materials.Material.Git.fromJSON = function (data) {
-    return new Materials.Material.Git({
-      url:         data.url,
-      branch:      data.branch,
-      destination: data.destination,
-      name:        data.name,
-      autoUpdate:  data.auto_update,
-      filter:      Materials.Filter.fromJSON(data.filter)
+    var attributes = data.attributes;
+    var material = new Materials.Material.Git({
+      url:         attributes.url,
+      branch:      attributes.branch,
+      destination: attributes.destination,
+      name:        attributes.name,
+      autoUpdate:  attributes.auto_update,
+      filter:      Materials.Filter.fromJSON(attributes.filter),
+      errors:      Errors.fromJson(data)
     });
+    return material;
   };
 
   Materials.Material.Mercurial = function (data) {
@@ -240,7 +248,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.branch      = m.prop(s.defaultToIfBlank(data.branch, ''));
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       this._validate(errors);
 
@@ -261,13 +269,15 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   };
 
   Materials.Material.Mercurial.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Materials.Material.Mercurial({
-      url:         data.url,
-      branch:      data.branch,
-      destination: data.destination,
-      name:        data.name,
-      autoUpdate:  data.auto_update,
-      filter:      Materials.Filter.fromJSON(data.filter)
+      url:         attributes.url,
+      branch:      attributes.branch,
+      destination: attributes.destination,
+      name:        attributes.name,
+      autoUpdate:  attributes.auto_update,
+      filter:      Materials.Filter.fromJSON(attributes.filter),
+      errors:      Errors.fromJson(data)
     });
   };
 
@@ -282,7 +292,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       this._validate(errors);
 
@@ -312,17 +322,19 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   };
 
   Materials.Material.Perforce.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Materials.Material.Perforce({
-      port:              data.port,
-      username:          data.username,
-      password:          data.password,
-      encryptedPassword: data.encrypted_password,
-      useTickets:        data.use_tickets,
-      destination:       data.destination,
-      view:              data.view,
-      autoUpdate:        data.auto_update,
-      name:              data.name,
-      filter:            Materials.Filter.fromJSON(data.filter)
+      port:              attributes.port,
+      username:          attributes.username,
+      password:          attributes.password,
+      encryptedPassword: attributes.encrypted_password,
+      useTickets:        attributes.use_tickets,
+      destination:       attributes.destination,
+      view:              attributes.view,
+      autoUpdate:        attributes.auto_update,
+      name:              attributes.name,
+      filter:            Materials.Filter.fromJSON(attributes.filter),
+      errors:            Errors.fromJson(data)
     });
   };
 
@@ -337,7 +349,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       this._validate(errors);
 
@@ -370,17 +382,19 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   };
 
   Materials.Material.TFS.fromJSON = function (data) {
+    var attributes = data.attributes;
     return new Materials.Material.TFS({
-      url:               data.url,
-      domain:            data.domain,
-      username:          data.username,
-      password:          data.password,
-      encryptedPassword: data.encrypted_password,
-      destination:       data.destination,
-      projectPath:       data.project_path,
-      autoUpdate:        data.auto_update,
-      name:              data.name,
-      filter:            Materials.Filter.fromJSON(data.filter)
+      url:               attributes.url,
+      domain:            attributes.domain,
+      username:          attributes.username,
+      password:          attributes.password,
+      encryptedPassword: attributes.encrypted_password,
+      destination:       attributes.destination,
+      projectPath:       attributes.project_path,
+      autoUpdate:        attributes.auto_update,
+      name:              attributes.name,
+      filter:            Materials.Filter.fromJSON(attributes.filter),
+      errors:            Errors.fromJson(data)
     });
   };
 
@@ -393,7 +407,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
   };
 
   Materials.Material.fromJSON = function (data) {
-    return Materials.Types[data.type].type.fromJSON(data.attributes || {});
+    return Materials.Types[data.type].type.fromJSON(data || {});
   };
 
   return Materials;

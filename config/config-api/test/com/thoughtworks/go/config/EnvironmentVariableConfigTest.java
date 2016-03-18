@@ -251,6 +251,18 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
+    public void shouldCopyErrorsOfVariableValueConfigOnEnvironmentVariable() throws Exception {
+        VariableValueConfig valueWithError = new VariableValueConfig("#{bar}");
+        valueWithError.addError("value", "error message");
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("foo", "value");
+        environmentVariableConfig.setValue(valueWithError);
+        environmentVariableConfig.getValue();
+        ConfigErrors errors = environmentVariableConfig.errors();
+        assertThat(errors.isEmpty(),is(false));
+        assertThat(errors.on("value"),is("error message"));
+    }
+
+    @Test
     public void shouldNotErrorOutWhenValidationIsSuccessfulForSecureVariables() throws InvalidCipherTextException {
         String plainText = "secure_value";
         String cipherText = "cipherText";

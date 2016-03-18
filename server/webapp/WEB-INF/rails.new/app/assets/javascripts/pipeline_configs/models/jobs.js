@@ -17,10 +17,10 @@
 define([
   'mithril', 'lodash', 'string-plus',
   './model_mixins',
-  './environment_variables', './tasks', './artifacts', './tabs', './properties'
+  './environment_variables', './tasks', './artifacts', './tabs', './properties', './errors'
 ], function (m, _, s,
              Mixins,
-             EnvironmentVariables, Tasks, Artifacts, Tabs, Properties) {
+             EnvironmentVariables, Tasks, Artifacts, Tabs, Properties, Errors) {
 
   var Jobs = function (data) {
     Mixins.HasMany.call(this, {factory: Jobs.Job.create, as: 'Job', collection: data, uniqueOn: 'name'});
@@ -41,6 +41,10 @@ define([
     this.artifacts            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.artifacts, new Artifacts())));
     this.tabs                 = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.tabs, new Tabs())));
     this.properties           = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new Properties())));
+    this.errors               = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
+    this.errors.toJSON = function () {
+      return this().errors();
+    };
 
     this.isRunOnAllAgents = function () {
       return this.runInstanceCount() == 'all';
@@ -73,7 +77,7 @@ define([
     };
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       if (s.isBlank(this.name())) {
         errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
@@ -115,7 +119,8 @@ define([
       tasks:                Tasks.fromJSON(data.tasks),
       artifacts:            Artifacts.fromJSON(data.artifacts),
       tabs:                 Tabs.fromJSON(data.tabs),
-      properties:           Properties.fromJSON(data.properties)
+      properties:           Properties.fromJSON(data.properties),
+      errors:               Errors.fromJson(data)
     });
   };
 

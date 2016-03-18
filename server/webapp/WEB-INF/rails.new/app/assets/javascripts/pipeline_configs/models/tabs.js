@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './errors'], function (m, _, s, Mixins, Errors) {
   var Tabs = function (data) {
     Mixins.HasMany.call(this, {factory: Tabs.Tab.create, as: 'Tab', collection: data, uniqueOn: 'name'});
   };
@@ -27,13 +27,14 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
     this.name = m.prop(s.defaultToIfBlank(data.name, ''));
     this.path = m.prop(s.defaultToIfBlank(data.path, ''));
+    this.errors      = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
 
     this.isBlank = function () {
       return s.isBlank(this.name()) && s.isBlank(this.path());
     };
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       if (this.isBlank()) {
         return errors;
@@ -62,7 +63,11 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
   });
 
   Tabs.Tab.fromJSON = function (data) {
-    return new Tabs.Tab(_.pick(data, ['name', 'path']));
+    return new Tabs.Tab({
+      name:   data.name,
+      path:   data.path,
+      errors: Errors.fromJson(data)
+    });
   };
 
   return Tabs;

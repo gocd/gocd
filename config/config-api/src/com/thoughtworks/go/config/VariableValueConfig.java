@@ -16,15 +16,18 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.ConfigErrors;
+
 import java.io.Serializable;
 
 /**
  * @understands Value of env variable
  */
 @ConfigTag("value")
-public class VariableValueConfig implements Serializable {
+public class VariableValueConfig implements Serializable, Validatable{
     @ConfigValue
     private String value;
+    private ConfigErrors configErrors = new ConfigErrors();
 
     public VariableValueConfig(String value) {
         this.value = value;
@@ -48,7 +51,7 @@ public class VariableValueConfig implements Serializable {
 
         VariableValueConfig that = (VariableValueConfig) o;
 
-        if (!value.equals(that.value)) {
+        if (value != null ? !value.equals(that.value) : that.value != null) {
             return false;
         }
 
@@ -58,5 +61,19 @@ public class VariableValueConfig implements Serializable {
     @Override
     public int hashCode() {
         return value.hashCode();
+    }
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+    }
+
+    @Override
+    public ConfigErrors errors() {
+        return configErrors;
+    }
+
+    @Override
+    public void addError(String fieldName, String message) {
+        configErrors.add(fieldName, message);
     }
 }

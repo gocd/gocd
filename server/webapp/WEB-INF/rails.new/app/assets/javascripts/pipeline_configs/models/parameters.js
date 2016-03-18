@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './errors'], function (m, _, s, Mixins, Errors) {
 
   var Parameters = function (data) {
     Mixins.HasMany.call(this, {
@@ -31,15 +31,16 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
     this.parent = Mixins.GetterSetter();
 
-    this.name  = m.prop(s.defaultToIfBlank(data.name, ''));
-    this.value = m.prop(s.defaultToIfBlank(data.value, ''));
+    this.name   = m.prop(s.defaultToIfBlank(data.name, ''));
+    this.value  = m.prop(s.defaultToIfBlank(data.value, ''));
+    this.errors = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
 
     this.isBlank = function () {
       return s.isBlank(this.name()) && s.isBlank(this.value());
     };
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       if (this.isBlank()) {
         return errors;
@@ -68,7 +69,11 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
   });
 
   Parameters.Parameter.fromJSON = function (data) {
-    return new Parameters.Parameter(_.pick(data, ['name', 'value']));
+    return new Parameters.Parameter({
+      name:   data.name,
+      value:  data.value,
+      errors: Errors.fromJson(data)
+    });
   };
 
   return Parameters;

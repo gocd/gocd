@@ -19,7 +19,7 @@ module ApiV1
     class StageAuthorizationRepresenter < ApiV1::BaseRepresenter
       alias_method :authorization, :represented
 
-      error_representer
+      error_representer({'user'=> 'users', 'role' => 'roles'})
 
       collection :roles,
                  getter: lambda { |roles| roles().map { |role| role.getName().to_s } },

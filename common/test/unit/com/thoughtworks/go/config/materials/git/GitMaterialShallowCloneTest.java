@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
+import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.hamcrest.Matchers;
@@ -147,6 +148,18 @@ public class GitMaterialShallowCloneTest {
         assertThat(original.withShallowClone(false).isShallowClone(), is(false));
         assertThat(original.isShallowClone(), is(false));
 
+    }
+
+    @Test
+    public void updateToANewRevisionShouldNotResultInUnshallowing() throws IOException {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
+        material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(REVISION_4, REVISION_4, 1), context());
+        assertThat(localRepoFor(material).isShallow(), is(true));
+        List<Modification> modifications = repo.addFileAndPush("newfile", "add new file");
+        StringRevision newRevision = new StringRevision(modifications.get(0).getRevision());
+        material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(newRevision, newRevision, 1), context());
+        assertThat(new File(workingDir, "newfile").exists(), is(true));
+        assertThat(localRepoFor(material).isShallow(), is(true));
     }
 
 

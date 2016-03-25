@@ -78,7 +78,7 @@ public class ArtifactsControllerTest {
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
-        when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class), any(ConsoleService.LineListener.class))).thenReturn(true);
+        when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class))).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }

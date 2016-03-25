@@ -410,6 +410,32 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @Test
+    public void shouldPutConsoleOutput_withNoNewLineAtTheAtOfTheLog() throws Exception {
+        String log = "junit report\nstart\n....";
+        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", log);
+
+        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile));
+        String[] lines = consoleLogContent.split("\n");
+        assertThat(lines.length, is(3));
+        assertThat(lines[0], is("junit report"));
+        assertThat(lines[1], is("start"));
+        assertThat(lines[2], is("...."));
+        assertStatus(mav, SC_OK);
+    }
+
+    @Test
+    public void shouldPutConsoleOutput_withoutNewLineChar() throws Exception {
+        String log = "....";
+        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", log);
+
+        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile));
+        String[] lines = consoleLogContent.split("\n");
+        assertThat(lines.length, is(1));
+        assertThat(lines[0], is("...."));
+        assertStatus(mav, SC_OK);
+    }
+
+    @Test
     public void shouldReturnBuildOutputAsPlainText() throws Exception {
         String firstLine = "Chris sucks.\n";
         String secondLine = "Build succeeded.";

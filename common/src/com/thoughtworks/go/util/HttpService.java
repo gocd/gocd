@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Properties;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -40,6 +32,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Properties;
 
 @Component
 public class HttpService {
@@ -116,7 +116,7 @@ public class HttpService {
         LOGGER.info("Posting property to the URL " + url + "Property Value =" + value);
         PostMethod post = httpClientFactory.createPost(url);
         try {
-            post.setRequestHeader("Accept","application/vnd.go.cd.v1+text");
+            post.setRequestHeader("Confirm", "true");
             post.setRequestBody(new NameValuePair[]{new NameValuePair("value", value)});
             execute(post);
         } finally {

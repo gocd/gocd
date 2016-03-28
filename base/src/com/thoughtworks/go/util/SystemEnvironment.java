@@ -182,6 +182,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP = new GoBooleanSystemProperty("go.server.scheduledPipelineLoader.globalMaterialLookup", false);
     public static GoSystemProperty<Boolean> PLUGIN_UPLOAD_ENABLED = new GoBooleanSystemProperty("go.plugin.upload.enabled", false);
 
+    public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
+
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
     private volatile static String cruiseConfigDir;
@@ -714,6 +716,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
     public Long getWebsocketAckMessageTimeout() {
         return GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT.getValue();
+    }
+
+    public boolean isApiSafeModeEnabled() {
+        return GO_API_WITH_SAFE_MODE.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

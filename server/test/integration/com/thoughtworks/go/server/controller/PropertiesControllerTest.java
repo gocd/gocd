@@ -22,12 +22,15 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.Csv;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.jruby.RubyProcess;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +56,7 @@ public class PropertiesControllerTest {
     @Autowired private PipelineService pipelineService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired private SystemEnvironment systemEnvironment;
     
     private PipelineWithTwoStages fixture;
     private GoConfigFileHelper configHelper;
@@ -64,7 +68,7 @@ public class PropertiesControllerTest {
         configHelper = new GoConfigFileHelper();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
-        controller = new PropertiesController(propertiesService, restfulService, pipelineService);
+        controller = new PropertiesController(propertiesService, restfulService, pipelineService, systemEnvironment);
         response = new MockHttpServletResponse();
     }
 

@@ -18,21 +18,33 @@ require 'spec_helper'
 
 describe 'HeaderConstraint' do
 
-  it 'should return true if request header matches the required header' do
-    request = double('foo', :headers => {'HTTP_ACCEPT' => 'application/vnd.go.cd.v1+text'})
+  before :each do
+    allow_any_instance_of(SystemEnvironment).to receive(:isApiSafeModeEnabled).and_return(true)
+  end
+
+  it 'should return true if request has the required header' do
+    request = double('foo', :headers => {'HTTP_CONFIRM' => 'True'})
     
     expect(HeaderConstraint.new.matches?(request)).to be(true)
   end
 
-  it 'should return false if request header does not exist' do
+  it 'should return false if required request header is missing' do
     request = double('foo', :headers => {})
 
     expect(HeaderConstraint.new.matches?(request)).to be(false)
   end
 
-  it 'should return false if request header does match required header' do
-    request = double('foo', :headers => {'HTTP_ACCEPT' => 'application/vnd.go.cd.v1+json'})
+  it 'should return false if the required header value is incorrect' do
+    request = double('foo', :headers => {'HTTP_CONFIRM' => 'incorrect_value'})
 
     expect(HeaderConstraint.new.matches?(request)).to be(false)
+  end
+
+  it 'should skip constraints check if API in unsafe mode allowed' do
+    expect_any_instance_of(SystemEnvironment).to receive(:isApiSafeModeEnabled).and_return(false)
+
+    request = double('foo', :headers => {'HTTP_CONFIRM' => 'incorrect_value'})
+
+    expect(HeaderConstraint.new.matches?(request)).to be(true)
   end
 end

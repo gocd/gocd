@@ -111,7 +111,7 @@ public class HttpServiceTest {
 
         service.postProperty("url", "value");
 
-        verify(post).setRequestHeader("Accept","application/vnd.go.cd.v1+text");
+        verify(post).setRequestHeader("Confirm","true");
         verify(post).setRequestBody(new NameValuePair[]{new NameValuePair("value", "value")});
     }
 

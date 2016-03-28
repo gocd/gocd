@@ -197,7 +197,7 @@ var PipelineOperations = {
                     asynchronous:true,
                     evalScripts:true,
                     requestHeaders: {
-                      Accept: 'application/vnd.go.cd.v1+text'
+                      Confirm: 'true'
                     },
                     on401:function() {
                         redirectToLoginPage('/go/auth/login');
@@ -251,7 +251,7 @@ var PipelineOperations = {
                     asynchronous:true,
                     evalScripts:true,
                     requestHeaders: {
-                      Accept: 'application/vnd.go.cd.v1+text'
+                      Confirm: 'true'
                     },
                     on401:function() {
                         redirectToLoginPage('/go/auth/login');
@@ -275,7 +275,7 @@ var PipelineOperations = {
                             asynchronous:true,
                             evalScripts:true,
                             requestHeaders: {
-                              Accept: 'application/vnd.go.cd.v1+text'
+                              Confirm: 'true'
                             },
                             on401:function() {
                                 redirectToLoginPage('/go/auth/login');
@@ -297,7 +297,7 @@ var PipelineOperations = {
                             asynchronous:true,
                             evalScripts:true,
                             requestHeaders: {
-                              Accept: 'application/vnd.go.cd.v1+text'
+                              Confirm: 'true'
                             },
                             on401:function() {
                                 redirectToLoginPage('/go/auth/login');

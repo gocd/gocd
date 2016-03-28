@@ -49,7 +49,8 @@ ServerConfiguration = function(validation_url) {
         new Ajax.Request(url, {
             method: 'POST',
             requestHeaders: {
-                'X-CSRF-Token': csrfToken
+                'X-CSRF-Token': csrfToken,
+                'Confirm': 'true'
             },
             onSuccess: function() {
                 showSuccess(statusElementId, "Done!");

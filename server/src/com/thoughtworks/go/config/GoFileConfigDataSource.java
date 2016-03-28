@@ -43,6 +43,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.charset.Charset;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -54,6 +55,7 @@ import static java.lang.String.format;
 @Component
 public class GoFileConfigDataSource {
     private static final Logger LOGGER = Logger.getLogger(GoFileConfigDataSource.class);
+    private final Charset UTF_8 = Charset.forName("UTF-8");
 
     private ReloadStrategy reloadStrategy = new ReloadIfModified();
     private final MagicalGoConfigXmlWriter magicalGoConfigXmlWriter;
@@ -164,7 +166,6 @@ public class GoFileConfigDataSource {
     @Deprecated
     public synchronized GoConfigHolder write(String configFileContent, boolean shouldMigrate) throws Exception {
         File configFile = fileLocation();
-        FileOutputStream output = null;
         try {
             if (shouldMigrate) {
                 configFileContent = upgrader.upgradeIfNecessary(configFileContent);
@@ -174,15 +175,12 @@ public class GoFileConfigDataSource {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Writing config file: " + configFile.getAbsolutePath());
             }
-            output = new FileOutputStream(configFile);
-            IOUtils.write(toWrite, output);
+            writeToConfigXmlFile(toWrite);
             return configHolder;
         } catch (Exception e) {
             LOGGER.error("Unable to write config file: " + configFile.getAbsolutePath()
                     + "\n" + e.getMessage(), e);
             throw e;
-        } finally {
-            IOUtils.closeQuietly(output);
         }
     }
 
@@ -197,7 +195,8 @@ public class GoFileConfigDataSource {
             randomAccessFile.seek(0);
             randomAccessFile.setLength(0);
             outputStream = new FileOutputStream(randomAccessFile.getFD());
-            IOUtils.write(content, outputStream);
+
+            IOUtils.write(content, outputStream, UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {

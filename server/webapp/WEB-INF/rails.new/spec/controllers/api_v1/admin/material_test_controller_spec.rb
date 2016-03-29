@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe ApiV1::MaterialTestController do
+describe ApiV1::Admin::MaterialTestController do
 
   describe :test do
     describe :security do
@@ -31,21 +31,31 @@ describe ApiV1::MaterialTestController do
         expect(controller).to disallow_action(:post, :test).with(401, 'You are not authorized to perform this action.')
       end
 
-      it 'should allow normal users, with security enabled' do
+      it 'should disallow normal users, with security enabled' do
         login_as_user
+        expect(controller).to disallow_action(:post, :test)
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:post, :test)
+      end
+
+      it 'should allow pipeline group admin users, with security enabled' do
+        login_as_group_admin
         expect(controller).to allow_action(:post, :test)
       end
     end
 
     describe 'logged in' do
       before(:each) do
-        login_as_user
+        login_as_group_admin
       end
 
       it 'renders OK if connection test passed' do
         com.thoughtworks.go.config.materials.svn.SvnMaterial.
           any_instance.
-          should_receive(:checkConnection).with(ApiV1::MaterialTestController.check_connection_execution_context).
+          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
         com.thoughtworks.go.config.materials.svn.SvnMaterialConfig.
@@ -79,7 +89,7 @@ describe ApiV1::MaterialTestController do
       it 'renders error if connection test failed' do
         com.thoughtworks.go.config.materials.git.GitMaterial.
           any_instance.
-          should_receive(:checkConnection).with(ApiV1::MaterialTestController.check_connection_execution_context).
+          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.notValid('boom!'))
 
         post_with_api_header :test, {
@@ -95,7 +105,7 @@ describe ApiV1::MaterialTestController do
       it 'performs parameter expansion if pipeline_name param is specified' do
         com.thoughtworks.go.config.materials.git.GitMaterial.
           any_instance.
-          should_receive(:checkConnection).with(ApiV1::MaterialTestController.check_connection_execution_context).
+          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
         controller.go_config_service.should_receive(:pipelineConfigNamed).with(CaseInsensitiveString.new('BuildLinux')).and_return(PipelineConfigMother.createPipelineConfigWithJobConfigs('BuildLinux'))
@@ -118,7 +128,7 @@ describe ApiV1::MaterialTestController do
       it 'does not perform parameter expansion if pipeline_name param is blank' do
         com.thoughtworks.go.config.materials.git.GitMaterial.
           any_instance.
-          should_receive(:checkConnection).with(ApiV1::MaterialTestController.check_connection_execution_context).
+          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
         post_with_api_header :test, {

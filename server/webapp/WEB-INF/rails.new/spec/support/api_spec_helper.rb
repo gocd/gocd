@@ -41,6 +41,7 @@ module ApiSpecHelper
     enable_security
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
     @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
   end
 
   def allow_current_user_to_access_pipeline(pipeline_name)
@@ -68,9 +69,17 @@ module ApiSpecHelper
     @security_service.stub(:isUserAdmin).with(@user).and_return(true)
   end
 
+  def login_as_group_admin
+    enable_security
+    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(true)
+  end
+
   def login_as_anonymous
     controller.stub(:current_user).and_return(@user = Username::ANONYMOUS)
     @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
   end
 
   def actual_response

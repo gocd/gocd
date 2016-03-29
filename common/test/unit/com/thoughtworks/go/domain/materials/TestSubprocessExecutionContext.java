@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain.materials;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -23,5 +25,10 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 public class TestSubprocessExecutionContext implements SubprocessExecutionContext {
     public String getProcessNamespace(String fingerprint) {
         return UUID.randomUUID().toString();
+    }
+
+    @Override
+    public Map<String, String> getDefaultEnvironmentVariables() {
+        return new HashMap<>();
     }
 }

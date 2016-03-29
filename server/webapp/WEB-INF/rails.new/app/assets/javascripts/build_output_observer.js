@@ -189,7 +189,7 @@ BuildOutputObserver.prototype = {
         this.update_date($('build_completing_date'), json.building_info.build_completing_date)
         this.update_date($('build_completed_date'), json.building_info.build_completed_date)
         $('agent_name').setAttribute("href", context_path("agents/" + json.building_info.agent_uuid));
-        $('agent_name').update(json.building_info.agent + ' (ip:' + json.building_info.agent_ip + ')');
+        $('agent_name').update(json.building_info.agent.escapeHTML() + ' (ip:' + json.building_info.agent_ip + ')');
         // TODO: update css on building panel
         json_to_css.update_build_detail_header(json);
     },

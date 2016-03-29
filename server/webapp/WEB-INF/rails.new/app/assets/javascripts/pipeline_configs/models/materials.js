@@ -121,7 +121,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
       };
 
       return m.request({
-        url:         Routes.apiv1MaterialTestPath(),
+        url:         Routes.apiv1AdminMaterialTestPath(),
         method:      'POST',
         config:      xhrConfig,
         data:        payload(),

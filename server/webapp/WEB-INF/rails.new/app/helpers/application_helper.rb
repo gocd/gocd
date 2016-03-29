@@ -370,17 +370,6 @@ module ApplicationHelper
     "</div></div>".html_safe
   end
 
-  def word_breaker(txt, break_at_length=15)
-    loop_count = txt.length / break_at_length;
-    new_txt = txt.clone
-    i = 0
-    while i < loop_count do
-      i+=1
-      new_txt.insert(i*break_at_length, "<wbr/>")
-    end
-    return new_txt.html_safe
-  end
-
   def selections
     Array(params[:selections]).map do |entry|
       TriStateSelection.new(*entry)
@@ -397,26 +386,6 @@ module ApplicationHelper
 
   def number? s
     Integer(s) rescue false
-  end
-
-  def smart_word_breaker(txt)
-    splitTxt = txt.split(/-/)
-    i=0
-    while i < splitTxt.length do
-      segment = splitTxt[i]
-      break_at_length = 15
-      divisions = (segment.length/break_at_length)
-      if divisions >= 1
-        j = 1
-        while j <= divisions
-          segment.insert(break_at_length*j, "<wbr/>")
-          j += 1
-        end
-      end
-      splitTxt[i] = segment
-      i+=1
-    end
-    return splitTxt.join("-<wbr/>").html_safe
   end
 
   def make_https url

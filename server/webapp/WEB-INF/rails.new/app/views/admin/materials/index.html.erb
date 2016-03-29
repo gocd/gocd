@@ -14,17 +14,17 @@
         <tr>
             <td>
                 <% if material.getType() == 'PluggableSCMMaterial' %>
-                    <a class="material_name" href="#" onclick="Util.ajax_modal('<%= admin_pluggable_scm_edit_path(:finger_print => material.getPipelineUniqueFingerprint()) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(material.getPluginId())-%>'}, function(text){return text})">
-                        <%= smart_word_breaker(material.getDisplayName()) -%>
+                    <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_pluggable_scm_edit_path(:finger_print => material.getPipelineUniqueFingerprint()) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + com.thoughtworks.go.plugin.access.scm.SCMMetadataStore.getInstance().displayValue(material.getPluginId())-%>'}, function(text){return text})">
+                        <%= material.getDisplayName() -%>
                     </a>
                 <% else %>
-                <a class="material_name" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + l.string(material.getTypeForDisplay().upcase())-%>'}, function(text){return text})">
-                    <%= smart_word_breaker(material.getDisplayName()) -%>
+                <a class="material_name wrapped_word" href="#" onclick="Util.ajax_modal('<%= admin_material_edit_path(material) -%>', {overlayClose: false, title: '<%=l.string("EDIT_MATERIAL") + " - " + l.string(material.getTypeForDisplay().upcase())-%>'}, function(text){return text})">
+                    <%= material.getDisplayName() -%>
                 </a>
                 <% end %>
             </td>
             <td><%= material.getTypeForDisplay() %></td>
-            <td><%= word_breaker(material.getUriForDisplay(), 25) %></td>
+            <td class="wrapped_word"><%= material.getUriForDisplay() %></td>
             <td>
                 <% if @pipeline.materialConfigs().size() <= 1 %>
                     <%= action_icon({:type => "delete", :disabled => true, :title => l.string("MATERIAL_CANNOT_BE_DELETED")}) %>

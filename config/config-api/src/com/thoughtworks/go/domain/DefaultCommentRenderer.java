@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class DefaultCommentRenderer implements CommentRenderer {
     private static final Log LOGGER = LogFactory.getLog(DefaultCommentRenderer.class);
@@ -66,7 +66,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
     }
 
     private String dynamicLink(Matcher matcher) {
-        String linkWithRealId = link.replace("${ID}", id(matcher));
+        String linkWithRealId = StringEscapeUtils.escapeHtml(link.replace("${ID}", id(matcher)));
         return String.format("<a href=\"%s\" target=\"story_tracker\">%s</a>", linkWithRealId, textOnLink(matcher));
     }
 

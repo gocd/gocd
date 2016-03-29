@@ -20,6 +20,9 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class AgentSubprocessExecutionContext implements SubprocessExecutionContext {
     private AgentIdentifier agentIdentifier;
     private final String workingDirectory;
@@ -31,5 +34,10 @@ class AgentSubprocessExecutionContext implements SubprocessExecutionContext {
 
     public String getProcessNamespace(String fingerprint) {
         return CachedDigestUtils.sha256Hex(fingerprint + agentIdentifier.getUuid() + workingDirectory);
+    }
+
+    @Override
+    public Map<String, String> getDefaultEnvironmentVariables() {
+        return new HashMap<>();
     }
 }

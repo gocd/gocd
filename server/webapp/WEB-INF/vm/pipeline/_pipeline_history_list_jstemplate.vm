@@ -104,7 +104,7 @@
                             {if pipeline.buildCauseBy ==  ''} No modifications
                             {else}
                                 <a href="javascript:void(0)"
-                                   onclick="pipelineHistoryPage.buildCauseActor.hideOrShowBuildCause('${%pipeline.pipelineId%}')">${% pipeline.buildCauseBy %}</a>
+                                   onclick="pipelineHistoryPage.buildCauseActor.hideOrShowBuildCause('${%pipeline.pipelineId%}')">${% pipeline.buildCauseBy.escapeHTML() %}</a>
                             {/if}
                             <div id="pipeline-${%pipeline.pipelineId%}-buildCauseSummary" class="popup ${% pipelineHistoryPage.buildCauseActor.getPositionClass(pipeline.pipelineId) %}" style="${%pipelineHistoryPage.buildCauseActor.getStyleText(pipeline.pipelineId)%};">
                                 <div class="popup-arrow"></div>

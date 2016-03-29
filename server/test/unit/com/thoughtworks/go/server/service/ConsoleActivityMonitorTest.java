@@ -263,14 +263,14 @@ public class ConsoleActivityMonitorTest {
         when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(2).plusSeconds(1).getMillis());//just over warning time limit i.e. 2 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-        verify(serverHealthService).update(ServerHealthState.warning("Job 'foo/stage/job' is not responding",
+        verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                 "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but has not shown any console activity in the last 2 minute(s). This job may be hung.",
                 HealthStateType.general(HealthStateScope.forJob("foo", "stage", "job"))));
 
         when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(4).plusSeconds(1).getMillis());//after 4 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-        verify(serverHealthService).update(ServerHealthState.warning("Job 'foo/stage/job' is not responding",
+        verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                 "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but has not shown any console activity in the last 4 minute(s). This job may be hung.",
                 HealthStateType.general(HealthStateScope.forJob("foo", "stage", "job"))));
 
@@ -278,7 +278,7 @@ public class ConsoleActivityMonitorTest {
         when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).getMillis());//after 62 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-        verify(serverHealthService).update(ServerHealthState.warning("Job 'foo/stage/job' is not responding",
+        verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                 "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but has not shown any console activity in the last 62 minute(s). This job may be hung.",
                 HealthStateType.general(HealthStateScope.forJob("foo", "stage", "job"))));
     }

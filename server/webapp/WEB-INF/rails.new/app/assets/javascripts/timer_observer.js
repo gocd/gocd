@@ -29,18 +29,5 @@ TimerObserver.prototype = {
             }
             $('build-detail-summary').innerHTML = $('build-summary-template').value.process({build:jsonArray[i].building_info});
         }
-    },
-    evaluate_time_to_seconds : function (time) {
-        if (!time) return 0;
-        time = time.replace("second", "", "gi");
-        time = time.replace("minute", "*60+", "gi");
-        time = time.replace("hour", " *3600+" , "gi");
-        time = time.replace(/s/gi, "");
-        time = time.replace(/\+$/gi, "");
-        try{
-            return eval(time) - 0
-        } catch (err) {
-            return 0
-        }
     }
 }

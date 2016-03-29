@@ -29,7 +29,7 @@
                     <%- if stage_in_stage_history.hasRerunJobs() -%>
                         <img class="has_rerun_jobs_icon" src="<%=image_path('g9/icons/icon_rerun_flag.png')%>">
                      <%- end -%>
-                    <span class="pipeline_label"><%= smart_word_breaker(stage_in_stage_history.getIdentifier().getPipelineLabel()) %></span>
+                    <span class="pipeline_label wrapped_word"><%= stage_in_stage_history.getIdentifier().getPipelineLabel() %></span>
                     <% if stage_in_stage_history.getIdentifier().getStageCounter().to_i > 1 %>
                         <span class="stage_counter secondary"><%= l.string("STAGE_RUN_NUMBER", [stage_in_stage_history.getIdentifier().getStageCounter()]) %></span>
                     <% end %>

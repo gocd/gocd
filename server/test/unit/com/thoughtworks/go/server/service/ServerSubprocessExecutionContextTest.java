@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -29,7 +30,7 @@ public class ServerSubprocessExecutionContextTest {
     public void shouldGet_Servers_ProcessNamespace_prefixed() {
         GoConfigService goConfigService = mock(GoConfigService.class);
         when(goConfigService.getServerId()).thenReturn("my-server-id");
-        ServerSubprocessExecutionContext serverSubprocessExecutionContext = new ServerSubprocessExecutionContext(goConfigService);
+        ServerSubprocessExecutionContext serverSubprocessExecutionContext = new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment());
         assertThat(serverSubprocessExecutionContext.getProcessNamespace("fingerprint"), is(CachedDigestUtils.sha256Hex("my-server-id" + "fingerprint")));
     }
 }

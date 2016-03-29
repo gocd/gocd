@@ -135,7 +135,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
       describe('post', function(){
         it('should post to material_test url', function () {
           expect(requestArgs.method).toBe('POST');
-          expect(requestArgs.url).toBe('/go/api/material_test');
+          expect(requestArgs.url).toBe('/go/api/admin/material_test');
         });
 
         it('should post required headers', function () {

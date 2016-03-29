@@ -31,9 +31,8 @@ import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
@@ -484,7 +483,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldSetConfigRepoGCToBeAggressiveByDefault(){
+    public void shouldSetConfigRepoGCToBeAggressiveByDefault() {
         assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE), is(true));
     }
 
@@ -494,7 +493,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldGetUpdateServerPublicKeyFilePath(){
+    public void shouldGetUpdateServerPublicKeyFilePath() {
         assertThat(SystemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.propertyName(), is("go.update.server.public.key.file.name"));
 
         System.setProperty("go.update.server.public.key.file.name", "public_key");
@@ -502,7 +501,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldGetUpdateServerUrl(){
+    public void shouldGetUpdateServerUrl() {
         assertThat(SystemEnvironment.GO_UPDATE_SERVER_URL.propertyName(), is("go.update.server.url"));
 
         System.setProperty("go.update.server.url", "http://update_server_url");
@@ -510,7 +509,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldCheckIfGOUpdatesIsEnabled(){
+    public void shouldCheckIfGOUpdatesIsEnabled() {
         assertThat(SystemEnvironment.GO_CHECK_UPDATES.propertyName(), is("go.check.updates"));
         assertTrue(systemEnvironment.isGOUpdateCheckEnabled());
 

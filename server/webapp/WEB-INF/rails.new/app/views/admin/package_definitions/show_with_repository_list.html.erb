@@ -44,7 +44,7 @@
                                      </button>
                                  </div>
                                 <%= render :partial => 'admin/shared/submit_with_prompt.html',
-                                           :locals => {:scope => {:button_container=> "trigger_package_delete_#{params[:package_id]}", :button_id => "delete_button_#{params[:package_id]}",:message => "You are about to delete package <span style='font-weight:bold'>#{@package_configuration.name}</span>",:on_confirmation_js => "$('delete_package_form').submit()"}} %>
+                                           :locals => {:scope => {:button_container=> "trigger_package_delete_#{params[:package_id]}", :button_id => "delete_button_#{params[:package_id]}",:message => "You are about to delete package #{@package_configuration.name}",:on_confirmation_js => "$('delete_package_form').submit()"}} %>
                             </span>
                     <% end %>
                 <% else %>

@@ -19,15 +19,15 @@ package com.thoughtworks.go.serverhealth;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.utils.Timeout;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 public class ServerHealthState {
     private final HealthStateLevel healthStateLevel;
@@ -47,7 +47,7 @@ public class ServerHealthState {
         this(healthStateLevel, type, message, description, Timeout.NEVER);
     }
 
-    public ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type, String message, String description, Timeout timeout) {
+    private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type, String message, String description, Timeout timeout) {
         bombIfNull(description, "description cannot be null");
         bombIfNull(message, "message cannot be null");
         this.healthStateLevel = healthStateLevel;
@@ -58,7 +58,7 @@ public class ServerHealthState {
         this.timestamp = new Date();
     }
 
-    public ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType healthStateType, String message, String description, long milliSeconds) {
+    private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType healthStateType, String message, String description, long milliSeconds) {
         bombIfNull(description, "description cannot be null");
         bombIfNull(message, "message cannot be null");
         this.healthStateLevel = healthStateLevel;
@@ -82,11 +82,11 @@ public class ServerHealthState {
     }
 
     public static ServerHealthState warning(String message, String description, HealthStateType healthStateType) {
-        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, message, description);
+        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml(message), escapeHtml(description));
     }
 
     public static ServerHealthState error(String message, String description, HealthStateType type) {
-        return new ServerHealthState(HealthStateLevel.ERROR, type, message, description);
+        return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml(message), escapeHtml(description));
     }
 
     public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, Timeout timeout) {
@@ -94,7 +94,15 @@ public class ServerHealthState {
     }
 
     public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, long milliSeconds) {
-        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, message, description, milliSeconds);
+        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml(message), escapeHtml(description), milliSeconds);
+    }
+
+    public static ServerHealthState warningWithHtml(String message, String description, HealthStateType stateType) {
+        return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description);
+    }
+
+    public static ServerHealthState warningWithHtml(String message, String description, HealthStateType stateType, long milliSeconds) {
+        return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description, milliSeconds);
     }
 
     public static ServerHealthState failToScheduling(HealthStateType healthStateType, String pipelineName, String description) {
@@ -128,7 +136,7 @@ public class ServerHealthState {
         int result = healthStateLevel.compareTo(otherServerHealthState.healthStateLevel);
         return result > 0 ? this : otherServerHealthState;
     }
-
+    
     public boolean equals(Object that) {
         if (this == that) {
             return true;

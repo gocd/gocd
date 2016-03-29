@@ -76,10 +76,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -182,8 +179,8 @@ public class GoConfigMigrationIntegrationTest {
             loadConfigFileWithContent("<cruise></cruise>");
             ServerHealthStates states = serverHealthService.getAllLogs();
             assertThat(states.size(), is(1));
-            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to ‘"));
-            assertThat(states.get(0).getDescription(), containsString("’ and a new configuration file has been automatically created using the last good configuration."));
+            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to &lsquo;"));
+            assertThat(states.get(0).getDescription(), containsString("&rsquo; and a new configuration file has been automatically created using the last good configuration."));
             assertThat(states.get(0).getMessage(), containsString("Invalid Configuration"));
             assertThat(states.get(0).getType(), is(HealthStateType.general(HealthStateScope.forInvalidConfig())));
             assertThat(states.get(0).getLogLevel(), is(HealthStateLevel.WARNING));
@@ -199,8 +196,8 @@ public class GoConfigMigrationIntegrationTest {
             loadConfigFileWithContent("<cruise></cruise>");
             ServerHealthStates states = serverHealthService.getAllLogs();
             assertThat(states.size(), is(1));
-            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to ‘"));
-            assertThat(states.get(0).getDescription(), containsString("’ and a new configuration file has been automatically created using the last good configuration."));
+            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to &lsquo;"));
+            assertThat(states.get(0).getDescription(), containsString("&rsquo; and a new configuration file has been automatically created using the last good configuration."));
             assertThat(states.get(0).getMessage(), containsString("Invalid Configuration"));
             assertThat(states.get(0).getType(), is(HealthStateType.general(HealthStateScope.forInvalidConfig())));
             assertThat(states.get(0).getLogLevel(), is(HealthStateLevel.WARNING));

@@ -51,7 +51,7 @@ public class ConfigRepositoryGCWarningService {
                         "'&lt;go server installation directory&gt;/db/config.git/' to address this problem. Go can do this " +
                         "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='http://www.go.cd/documentation/user/current/advanced_usage/config_repo.html'>read more...</a>";
 
-                serverHealthService.update(ServerHealthState.warning(message, description, HealthStateType.general(HealthStateScope.forConfigRepo(SCOPE))));
+                serverHealthService.update(ServerHealthState.warningWithHtml(message, description, HealthStateType.general(HealthStateScope.forConfigRepo(SCOPE))));
                 LOGGER.warn("{}:{}", message, description);
             } else {
                 serverHealthService.removeByScope(HealthStateScope.forConfigRepo(SCOPE));

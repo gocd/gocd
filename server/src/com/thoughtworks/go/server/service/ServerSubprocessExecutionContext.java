@@ -18,19 +18,29 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 public class ServerSubprocessExecutionContext implements SubprocessExecutionContext {
     private final GoConfigService goConfigService;
+    private final SystemEnvironment systemEnvironment;
 
     @Autowired
-    public ServerSubprocessExecutionContext(GoConfigService goConfigService) {
+    public ServerSubprocessExecutionContext(GoConfigService goConfigService, SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public String getProcessNamespace(String fingerprint) {
         return CachedDigestUtils.sha256Hex(goConfigService.getServerId() + fingerprint);//memoize if necessary(for gc reasons) -jj
+    }
+
+    @Override
+    public Map<String, String> getDefaultEnvironmentVariables() {
+        return systemEnvironment.getGitAllowedProtocols();
     }
 }

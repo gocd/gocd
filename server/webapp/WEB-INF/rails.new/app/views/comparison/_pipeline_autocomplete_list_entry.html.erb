@@ -1,7 +1,7 @@
 <div class="pipeline">
     <div class="stages autocomplete">
         <div class="pipeline_counter">
-            <h3><%= highlight(word_breaker(scope[:pipeline].getLabel().to_s), params[:q]) -%></h3>
+            <h3 class='wrapped_word'><%= highlight(scope[:pipeline].getLabel().to_s, params[:q]) -%></h3>
         </div>
         <div class="pipeline_details">
             <div class="stage_graphic clear_float">

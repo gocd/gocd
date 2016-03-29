@@ -45,11 +45,6 @@ public class AppServerStub extends AppServer {
     }
 
     @Override
-    void addStopServlet() {
-        calls.put("addStopServlet", true);
-    }
-
-    @Override
     Throwable getUnavailableException() {
         calls.put("getUnavailableException", true);
         return null;

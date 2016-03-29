@@ -182,7 +182,6 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'server', "**/DeploymentContextWriter*.class")
     include_fileset_from_target(jar, 'server', "**/BaseUrlProvider*.class")
 
-    include_fileset_from_target(jar, 'app-server', "**/StopJettyFromLocalhostServlet*.class")
     include_fileset_from_target(jar, 'app-server', "**/AppServer.class")
     include_fileset_from_target(jar, 'app-server', "**/ServletHelper.class")
     include_fileset_from_target(jar, 'app-server', "**/ServletRequest.class")

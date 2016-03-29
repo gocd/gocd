@@ -241,8 +241,8 @@ public class ScheduleServiceTest {
         } catch (CannotScheduleException e) {
             assertThat(e.getMessage(), is("foo"));
         }
-        verify(serverHealthService).update(new ServerHealthState(HealthStateLevel.ERROR, HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "Failed to trigger stage [stage-baz] pipeline [pipeline-quux]", "foo", Timeout.TWO_MINUTES));
+        verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
+                "pipeline-quux","stage-baz" , "foo"));
     }
 
     @Test
@@ -273,8 +273,8 @@ public class ScheduleServiceTest {
 
         service.autoSchedulePipelinesFromRequestBuffer();
 
-        verify(serverHealthService).update(new ServerHealthState(HealthStateLevel.ERROR, HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "Failed to trigger stage [stage-baz] pipeline [pipeline-quux]", "foo", Timeout.TWO_MINUTES));
+        verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
+                "pipeline-quux","stage-baz" , "foo"));
     }
 
     @Test

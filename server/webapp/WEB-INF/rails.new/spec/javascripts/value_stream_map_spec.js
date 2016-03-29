@@ -40,7 +40,7 @@ describe("value_stream_map", function () {
     });
 
     it("testShouldRenderErrorMessageIfVSMHasErrors", function () {
-        var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3> error message</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
+        var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3>' + _.escape("error message") + '</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
         var vsm = eval('({"error":"error message"})');
         new VSM(vsm, "#vsm-container", new mockRenderer()).render();
         assertEquals(false, called);

@@ -46,8 +46,8 @@ public class AgentInstanceMother {
         return instance;
     }
 
-    public static AgentInstance local() {
-        return AgentInstance.createFromConfig(new AgentConfig("uuid-local", "localhost", "127.0.0.1"), new SystemEnvironment()
+    public static AgentInstance local(SystemEnvironment systemEnvironment) {
+        return AgentInstance.createFromConfig(new AgentConfig("uuid-local", "localhost", "127.0.0.1"), systemEnvironment
         );
     }
 
@@ -55,17 +55,21 @@ public class AgentInstanceMother {
         return idle(new Date(), "CCeDev01");
     }
 
-    public static AgentInstance idle(final Date lastHeardAt, final String hostname)  {
+    public static AgentInstance idle(final Date lastHeardAt, final String hostname, SystemEnvironment systemEnvironment)  {
         AgentConfig idleAgentConfig = new AgentConfig("uuid2", hostname, "10.18.5.1");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
         agentRuntimeInfo.setUsableSpace(10*1024l);
-        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment());
+        AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment);
         agentInstance.idle();
         agentInstance.update(agentRuntimeInfo);
         ReflectionUtil.setField(agentInstance, "lastHeardTime", lastHeardAt);
         return agentInstance;
+
+    }
+    public static AgentInstance idle(final Date lastHeardAt, final String hostname)  {
+        return idle(lastHeardAt, hostname, new SystemEnvironment());
     }
 
     public static AgentInstance building() {
@@ -73,23 +77,29 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance building(String buildLocator) {
+        return building(buildLocator, new SystemEnvironment());
+    }
+
+    public static AgentInstance building(String buildLocator, SystemEnvironment systemEnvironment) {
         AgentConfig buildingAgentConfig = new AgentConfig("uuid3", "CCeDev01", "10.18.5.1", new Resources("java"));
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
-        AgentInstance building = AgentInstance.createFromConfig(buildingAgentConfig, new SystemEnvironment());
+        AgentInstance building = AgentInstance.createFromConfig(buildingAgentConfig, systemEnvironment);
         building.update(agentRuntimeInfo);
         return building;
     }
 
-    public static AgentInstance pending() {
+    public static AgentInstance pending(SystemEnvironment systemEnvironment) {
         AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid4", "CCeDev03", "10.18.5.3", new Resources(new Resource("db"),new Resource("web"))), false,
                 "/var/lib", 0L, "linux", false);
-        AgentInstance pending = AgentInstance.createFromLiveAgent(runtimeInfo, new SystemEnvironment()
-        );
+        AgentInstance pending = AgentInstance.createFromLiveAgent(runtimeInfo, systemEnvironment);
         pending.pending();
         pending.update(runtimeInfo);
         pending.pending();
         return pending;
+    }
+    public static AgentInstance pending() {
+        return pending(new SystemEnvironment());
     }
 
     public static AgentInstance pendingInstance() {
@@ -162,12 +172,15 @@ public class AgentInstanceMother {
         return disabled("10.18.5.4");
     }
 
-    public static AgentInstance disabled(String ip) {
-        AgentInstance denied = AgentInstance.createFromConfig(new AgentConfig("uuid5", "CCeDev04", ip), new SystemEnvironment()
+    public static AgentInstance disabled(String ip, SystemEnvironment systemEnvironment) {
+        AgentInstance denied = AgentInstance.createFromConfig(new AgentConfig("uuid5", "CCeDev04", ip), systemEnvironment
         );
         denied.enable();
         denied.deny();
         return denied;
+    }
+    public static AgentInstance disabled(String ip) {
+        return disabled(ip, new SystemEnvironment());
     }
 
 
@@ -176,7 +189,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance cancelled(String buildLocator) {
-        return cancel(building(buildLocator));
+        return cancel(building((String) buildLocator));
     }
 
     public static AgentInstance cancel(AgentInstance building) {

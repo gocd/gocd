@@ -140,7 +140,7 @@ describe "admin/materials/index.html.erb" do
 
       pipeline_name = @pipeline_config.name()
       material_fingerprint = @pipeline_config.materialConfigs().get(0).getPipelineUniqueFingerprint()
-      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[0]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/svn/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Subversion'}, function(text){return text})")
+      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name wrapped_word']")[0]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/svn/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Subversion'}, function(text){return text})")
     end
 
     it "should display material name in the listing with the link to edit for package material" do
@@ -149,7 +149,7 @@ describe "admin/materials/index.html.erb" do
       pipeline_name = @pipeline_config.name()
       material_fingerprint = @pipeline_config.materialConfigs().get(1).getPipelineUniqueFingerprint()
       material_type = "package"
-      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[1]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/#{material_type}/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Package'}, function(text){return text})")
+      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name wrapped_word']")[1]['onclick']).to eq("Util.ajax_modal('/admin/pipelines/#{pipeline_name}/materials/#{material_type}/#{material_fingerprint}/edit', {overlayClose: false, title: 'Edit Material - Package'}, function(text){return text})")
     end
   end
 
@@ -183,7 +183,7 @@ describe "admin/materials/index.html.erb" do
 
       pipeline_name = @pipeline_config.name()
       material_fingerprint = @pipeline_config.materialConfigs().get(2).getPipelineUniqueFingerprint()
-      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name']")[2]['onclick']).to eq("Util.ajax_modal('#{admin_pluggable_scm_edit_path(:pipeline_name => pipeline_name, :finger_print => material_fingerprint)}', {overlayClose: false, title: 'Edit Material - Display Name'}, function(text){return text})")
+      expect(Capybara.string(response.body).all("td a[href='#'][class='material_name wrapped_word']")[2]['onclick']).to eq("Util.ajax_modal('#{admin_pluggable_scm_edit_path(:pipeline_name => pipeline_name, :finger_print => material_fingerprint)}', {overlayClose: false, title: 'Edit Material - Display Name'}, function(text){return text})")
     end
   end
 

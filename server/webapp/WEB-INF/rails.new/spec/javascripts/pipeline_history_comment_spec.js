@@ -21,14 +21,20 @@
         });
 
         it("submits a request with the new modal text", function() {
-            spyOn(jQuery, 'post');
+            spyOn(jQuery, "ajax").and.callFake(function (options) {
+                options.success();
+            });
+
             pipelineHistoryComment.submit('test-pipeline', '1');
-            expect(jQuery.post).toHaveBeenCalledWith(
-                '/go/pipelines/test-pipeline/1/comment',
-                { comment: 'This is the comment.' },
-                pipelineHistoryComment.onCommentSuccessCloseModalAndRefreshPipelineHistory,
-                'json');
+
+            expect(jQuery.ajax).toHaveBeenCalled();
+            expect(jQuery.ajax.calls.mostRecent().args[0]['url']).toBe('/go/pipelines/test-pipeline/1/comment');
+            expect(jQuery.ajax.calls.mostRecent().args[0]['type']).toBe('POST');
+            expect(jQuery.ajax.calls.mostRecent().args[0]['dataType']).toBe('json');
+            expect(jQuery.ajax.calls.mostRecent().args[0]['headers'].Confirm).toBe("true");
+            expect(jQuery.ajax.calls.mostRecent().args[0]['data'].comment).toBe("This is the comment.");
         });
+
     });
 
     describe("#onCommentSuccessCloseModalAndRefreshPipelineHistory", function() {

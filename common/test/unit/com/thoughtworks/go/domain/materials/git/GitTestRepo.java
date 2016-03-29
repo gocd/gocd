@@ -29,8 +29,8 @@ import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
@@ -110,7 +110,7 @@ public class GitTestRepo extends TestRepo {
     }
 
     private GitCommand git(File workingDir) {
-        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false);
+        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
     }
 
     public GitMaterial createMaterial() {
@@ -124,14 +124,14 @@ public class GitTestRepo extends TestRepo {
     }
 
     private void checkoutRemoteBranchToLocal(String branch) {
-        new GitCommand(null, gitRepo, branch, false).checkoutRemoteBranchToLocal();
+        new GitCommand(null, gitRepo, branch, false, new HashMap<String, String>()).checkoutRemoteBranchToLocal();
     }
 
     public List<Modification> addFileAndPush(String fileName, String message) throws IOException {
         File newFile = new File(gitRepo, fileName);
         newFile.createNewFile();
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false).add(newFile);
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false).commit(message);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).add(newFile);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).commit(message);
         return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
     }
 }

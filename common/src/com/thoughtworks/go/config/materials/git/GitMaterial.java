@@ -114,12 +114,12 @@ public class GitMaterial extends ScmMaterial {
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
         ArrayList<Modification> mods = new ArrayList<Modification>();
-        mods.add(getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH).latestModification());
+        mods.add(getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx).latestModification());
         return mods;
     }
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
-        GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH);
+        GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
         unshallowIfNeeded(gitCommand, ProcessOutputStreamConsumer.inMemoryConsumer(), revision, baseDir);
         return gitCommand.modificationsSince(revision);
     }
@@ -145,7 +145,7 @@ public class GitMaterial extends ScmMaterial {
         Revision revision = revisionContext.getLatestRevision();
         try {
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
-            GitCommand git = git(outputStreamConsumer, workingdir(baseDir), revisionContext.numberOfModifications() + 1);
+            GitCommand git = git(outputStreamConsumer, workingdir(baseDir), revisionContext.numberOfModifications() + 1, execCtx);
             git.fetch(outputStreamConsumer);
             unshallowIfNeeded(git, outputStreamConsumer, revisionContext.getOldestRevision(), baseDir);
             git.resetWorkingDir(outputStreamConsumer, revision);
@@ -157,11 +157,11 @@ public class GitMaterial extends ScmMaterial {
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         try {
-            GitCommand.checkConnection(url);
+            GitCommand.checkConnection(url, execCtx.getDefaultEnvironmentVariables());
             return ValidationBean.valid();
         } catch (Exception e) {
             try {
-                return handleException(e, GitCommand.version());
+                return handleException(e, GitCommand.version(execCtx.getDefaultEnvironmentVariables()));
             } catch (Exception notInstallGitException) {
                 return ValidationBean.notValid(ERR_GIT_NOT_FOUND);
             }
@@ -199,21 +199,21 @@ public class GitMaterial extends ScmMaterial {
         }
     }
 
-    private GitCommand getGit(File workingdir, int preferredCloneDepth) {
+    private GitCommand getGit(File workingdir, int preferredCloneDepth, SubprocessExecutionContext executionContext) {
         InMemoryStreamConsumer output = inMemoryConsumer();
         try {
-            return git(output, workingdir, preferredCloneDepth);
+            return git(output, workingdir, preferredCloneDepth, executionContext);
         } catch (Exception e) {
             throw bomb(e.getMessage() + " " + output.getStdError(), e);
         }
     }
 
-    private GitCommand git(ProcessOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth) throws Exception {
+    private GitCommand git(ProcessOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
         if (isSubmoduleFolder()) {
-            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true);
+            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables());
         }
 
-        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false);
+        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Invalid git working copy or repository changed. Delete folder: " + workingFolder);

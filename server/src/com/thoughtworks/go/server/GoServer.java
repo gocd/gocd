@@ -84,7 +84,6 @@ public class GoServer {
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
         server.setCookieExpirePeriod(twoWeeks());
-        server.addStopServlet();
         return server;
     }
 

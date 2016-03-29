@@ -35,10 +35,10 @@
                            value ="<%= scope[:user].getEmail() -%>"
                            disabled="disabled"/>
                 </td>
-                <%== cell_with_title( user_search_model.getUser().getName(), 'fullname') %>
-                <%== cell_with_title( user_search_model.getUser().getDisplayName(), 'username') %>
-                <%== cell_with_title( user_search_model.getUser().getEmail(), 'email') %>
-                <%== cell_with_title( user_search_model.getUserSourceType().displayString(), 'source') %>
+                <%= cell_with_title(h(user_search_model.getUser().getName()), 'fullname') %>
+                <%= cell_with_title(h(user_search_model.getUser().getDisplayName()), 'username') %>
+                <%= cell_with_title(h(user_search_model.getUser().getEmail()), 'email') %>
+                <%= cell_with_title(h(user_search_model.getUserSourceType().displayString()), 'source') %>
             </tr>
         <% end %>
     </table>

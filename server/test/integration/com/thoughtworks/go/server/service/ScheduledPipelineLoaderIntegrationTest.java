@@ -310,11 +310,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         assertThat(serverHealthService.filterByScope(HealthStateScope.forJob("last", "stage", "job-one")).size(), is(1));
         ServerHealthState error = serverHealthService.filterByScope(HealthStateScope.forJob("last", "stage", "job-one")).get(0);
-        assertThat(error, is(new ServerHealthState(HealthStateLevel.ERROR,
-                HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one")),
-                "Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.",
-                "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.",
-                Timeout.FIVE_MINUTES)));
+        assertThat(error, is(ServerHealthState.error("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.", "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.", HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one")))));
         DateTime expiryTime = (DateTime) ReflectionUtil.getField(error, "expiryTime");
         assertThat(expiryTime.toDate().after(currentTime), is(true));
         assertThat(expiryTime.toDate().before(new Date(System.currentTimeMillis() + 5 * 60 * 1000 + 1)), is(true));

@@ -333,7 +333,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldUpdateAgentStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(null, instance));
+        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
@@ -348,7 +348,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
         AgentInstance instance = AgentInstanceMother.building();
-        AgentService agentService = getAgentService(new AgentInstances(null, instance));
+        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), instance));
         AgentInstances agents = agentService.findRegisteredAgents();
 
         String uuid = instance.agentConfig().getUuid();
@@ -450,7 +450,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance pending = AgentInstanceMother.pending();
         AgentInstance building = AgentInstanceMother.building();
         AgentInstance denied = AgentInstanceMother.disabled();
-        AgentService agentService = getAgentService(new AgentInstances(null, idle, pending, building, denied));
+        AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied));
 
         AgentInstances agents = agentService.findPhysicalAgents();
         assertThat(agents.size(), is(4));
@@ -781,7 +781,7 @@ public class AgentServiceIntegrationTest {
         createEnvironment("uat");
         EnvironmentConfig environment = environmentConfigService.named("uat");
         environment.addAgent(UUID);
-        AgentInstances instances = new AgentInstances(null, idle, pending, building, denied);
+        AgentInstances instances = new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied);
         AgentService agentService = getAgentService(instances);
         AgentsViewModel agents = agentService.agents();
 
@@ -805,7 +805,7 @@ public class AgentServiceIntegrationTest {
         createEnvironment("uat");
         EnvironmentConfig environment = environmentConfigService.named("uat");
         environment.addAgent(UUID);
-        AgentInstances instances = new AgentInstances(null, idle, pending, building, denied);
+        AgentInstances instances = new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied);
         AgentService agentService = getAgentService(instances);
 
         AgentsViewModel agents = agentService.registeredAgents();

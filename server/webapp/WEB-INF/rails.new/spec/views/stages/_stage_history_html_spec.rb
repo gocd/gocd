@@ -150,19 +150,6 @@ describe "_stage_history.html.erb" do
     end
   end
 
-  it "should wrap long pipeline labels" do
-    identifier = @stage_history_page.getStages()[9].getIdentifier()
-    longPipelineLabel = "a"*20
-    @stage_history_page.getStages()[0].setIdentifier(StageIdentifier.new(identifier.getPipelineName(), identifier.getPipelineCounter(), longPipelineLabel, identifier.getStageName(), "2"))
-    render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => @stage_history_page, :tab => 'jobs', :current_stage_pipeline => @pipeline, :current_config_version => "md5-test"}}
-
-    Capybara.string(response.body).all(".stage_history .stage .label_counter_wrapper .pipeline_label").tap do |labels|
-      (0..labels.count()-1).each do |i|
-        expect(labels[i]).to have_selector "wbr"
-      end
-    end
-  end
-
   it "should not divide stage history instances when config has not changed" do
     render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => @stage_history_page, :tab => 'jobs', :current_stage_pipeline => @pipeline, :current_config_version => "md5-test"}}
     Capybara.string(response.body).find(".stage_history").tap do |f|

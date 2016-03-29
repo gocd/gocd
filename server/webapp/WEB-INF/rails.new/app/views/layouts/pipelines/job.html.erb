@@ -28,7 +28,7 @@
             <div class="admin_workspace has_tree_view">
                 <div class="pipeline_header">
                     <h3 class="title entity_title">
-                        <%= link_to word_breaker(@pipeline.name(),75), pipeline_edit_path(:current_tab => 'general') %> &raquo;
+                        <%= link_to @pipeline.name(), pipeline_edit_path(:current_tab => 'general'), :class => 'wrapped_word' %> &raquo;
                         <%= link_to @stage.name(), admin_stage_edit_path(:current_tab => 'settings') %> &raquo;
                         <%= @job.name() -%>
                     </h3>

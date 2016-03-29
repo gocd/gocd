@@ -48,8 +48,6 @@ describe "/shared/_build_cause_popup.html.erb" do
     @svn_material_id = "material_#{PIPELINE_NAME}_#{REVISION_NUMBER}_#{SVN_MATERIAL_NAME}"
     @hg_material_id = "material_#{PIPELINE_NAME}_#{REVISION_NUMBER}_#{HG_MATERIAL_NAME}"
     @dependency_material_id = "material_#{PIPELINE_NAME}_#{REVISION_NUMBER}_#{UPSTREAM_PIPELINE_NAME}"
-
-    allow(view).to receive(:smart_word_breaker) {|arg| arg}
   end
 
   it "should not display modified files if the flag is not set" do

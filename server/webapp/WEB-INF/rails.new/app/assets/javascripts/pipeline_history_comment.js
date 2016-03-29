@@ -12,12 +12,14 @@ function initPipelineHistoryComment(jQuery, Modalbox, dashboardPeriodicalExecute
         var commentText = jQuery('#comment-input').val();
         var url = '/go/pipelines/' + pipelineName + '/' + pipelineCounter + '/comment';
 
-        jQuery.post(
-            url,
-            { comment: commentText },
-            my.onCommentSuccessCloseModalAndRefreshPipelineHistory,
-            'json'
-        );
+        jQuery.ajax({
+            type: 'POST',
+            url: url,
+            headers: {Confirm: "true"},
+            data: {comment: commentText},
+            success: my.onCommentSuccessCloseModalAndRefreshPipelineHistory,
+            dataType: 'json'
+        });
     };
 
     my.onCommentSuccessCloseModalAndRefreshPipelineHistory = function () {

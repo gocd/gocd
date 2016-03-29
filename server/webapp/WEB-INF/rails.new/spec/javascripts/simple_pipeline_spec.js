@@ -35,7 +35,7 @@ describe("simple-pipeline", function () {
         };
 
         var ajax_call_arguments = jQuery.ajax.calls.mostRecent().args[0];
-        expect(ajax_call_arguments['url']).toBe("/go/api/material_test")
+        expect(ajax_call_arguments['url']).toBe("/go/api/admin/material_test")
         expect(ajax_call_arguments['data']).toBe(JSON.stringify(requestBody));
         expect(ajax_call_arguments['headers']['Accept']).toBe("application/vnd.go.cd.v1+json");
         expect(ajax_call_arguments['headers']['Content-Type']).toBe("application/json");
@@ -63,7 +63,7 @@ describe("simple-pipeline", function () {
         };
 
         var ajax_call_arguments = jQuery.ajax.calls.mostRecent().args[0];
-        expect(ajax_call_arguments['url']).toBe("/go/api/material_test")
+        expect(ajax_call_arguments['url']).toBe("/go/api/admin/material_test")
         expect(ajax_call_arguments['data']).toBe(JSON.stringify(requestBody));
         expect(jQuery.ajax).toHaveBeenCalled();
     });

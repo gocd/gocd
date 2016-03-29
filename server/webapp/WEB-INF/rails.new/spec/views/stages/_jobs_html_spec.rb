@@ -33,14 +33,6 @@ describe 'stages/_jobs.html.erb' do
     in_params(:pipeline_name => "cruise", :pipeline_counter => "1", :stage_name => "dev", :stage_counter => "2", :tab => "jobs", :action => "jobs")
   end
 
-  it "should wrap the job name if its too long" do
-    render :partial => "stages/jobs", :locals => {:scope => {:jobs => jobs_with_long_and_short_name, :stage => @stage, :has_operate_permissions => true}}
-    Capybara.string(response.body).all(".jobs_summary .job").tap do |a|
-      expect(a[0]).to have_selector("wbr")
-      expect(a[1]).to_not have_selector("wbr")
-    end
-  end
-
   describe "rerun form" do
     it "should display form only if stage is complete" do
       stage = StageMother.scheduledStage("foo_pipeline", 10, "bar_stage", 2, "quux")

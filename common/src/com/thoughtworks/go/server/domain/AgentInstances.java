@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.domain;
 
@@ -32,6 +32,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -39,15 +40,18 @@ import com.thoughtworks.go.util.SystemEnvironment;
 public class AgentInstances implements Iterable<AgentInstance> {
 
 
+    private SystemEnvironment systemEnvironment;
     private Map<String, AgentInstance> agentInstances = new ConcurrentHashMap<String, AgentInstance>();
     private AgentRuntimeStatus.ChangeListener changeListener;
 
     public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener) {
         this.changeListener = changeListener;
+        this.systemEnvironment = new SystemEnvironment();
     }
 
-    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener, AgentInstance... agentInstances) {
+    public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener, SystemEnvironment systemEnvironment, AgentInstance... agentInstances) {
         this(changeListener);
+        this.systemEnvironment = systemEnvironment;
         for (AgentInstance agentInstance : agentInstances) {
             this.add(agentInstance);
         }
@@ -223,12 +227,24 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public AgentInstance register(AgentRuntimeInfo info) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
         if (!agentInstance.isRegistered()) {
-            agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment());
+            if(isMaxPendingAgentsLimitReached()) {
+                throw new MaxPendingAgentsLimitReachedException(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED));
+            }
+            agentInstance = AgentInstance.createFromLiveAgent(info, systemEnvironment);
             this.add(agentInstance);
         }
         agentInstance.update(info);
         return agentInstance;
     }
+
+    private boolean isMaxPendingAgentsLimitReached() {
+        Integer maxPendingAgentsAllowed = systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED);
+        int pendingAgentsCount = this.size() - findRegisteredAgents().size();
+
+        return pendingAgentsCount >= maxPendingAgentsAllowed;
+    }
+
+
 
     public void updateAgentRuntimeInfo(AgentRuntimeInfo info) {
         AgentInstance instance = this.findAgentAndRefreshStatus(info.getUUId());

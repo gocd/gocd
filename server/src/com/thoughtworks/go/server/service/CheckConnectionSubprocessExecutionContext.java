@@ -16,12 +16,25 @@
 
 package com.thoughtworks.go.server.service;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.util.SystemEnvironment;
 
 public class CheckConnectionSubprocessExecutionContext implements SubprocessExecutionContext {
+    private SystemEnvironment systemEnvironment;
+
+    public CheckConnectionSubprocessExecutionContext(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+    }
+
     public String getProcessNamespace(String fingerprint) {
         return UUID.randomUUID().toString();
+    }
+
+    @Override
+    public Map<String, String> getDefaultEnvironmentVariables() {
+        return systemEnvironment.getGitAllowedProtocols();
     }
 }

@@ -23,6 +23,9 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
@@ -183,10 +186,19 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> PLUGIN_UPLOAD_ENABLED = new GoBooleanSystemProperty("go.plugin.upload.enabled", false);
 
     public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
+    public static GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);
 
     public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
 
+    private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
+    static {
+        Map<String, String> map = new HashMap<String, String>() {{
+            put("GIT_ALLOW_PROTOCOL", System.getenv("GIT_ALLOW_PROTOCOL") == null ?
+                    "http:https:ssh:git:file:rsync" : System.getenv("GIT_ALLOW_PROTOCOL"));
+        }};
+        GIT_ALLOW_PROTOCOL = Collections.unmodifiableMap(map);
+    }
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
     private volatile static String cruiseConfigDir;
@@ -420,6 +432,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public int getNumberOfMaterialCheckListener() {
         return Integer.parseInt(getPropertyImpl("material.check.threads", "10"));
     }
+
     public int getNumberOfConfigMaterialCheckListener() {
         return Integer.parseInt(getPropertyImpl("material.config.check.threads", "2"));
     }
@@ -512,6 +525,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getEnvironmentVariable(String key) {
         return System.getenv(key);
+    }
+
+    public Map<String, String> getGitAllowedProtocols() {
+        return GIT_ALLOW_PROTOCOL;
     }
 
     public String getBaseUrlForShine() {
@@ -690,15 +707,15 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         set(GO_SERVER_STATE, "passive");
     }
 
-    public String getUpdateServerPublicKeyPath(){
+    public String getUpdateServerPublicKeyPath() {
         return String.format("%s/%s", getConfigDir(), GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.getValue());
     }
 
-    public boolean isGOUpdateCheckEnabled(){
+    public boolean isGOUpdateCheckEnabled() {
         return GO_CHECK_UPDATES.getValue();
     }
 
-    public String getUpdateServerUrl(){
+    public String getUpdateServerUrl() {
         return GO_UPDATE_SERVER_URL.getValue();
     }
 
@@ -717,6 +734,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public Long getWebsocketMaxIdleTime() {
         return GO_WEBSOCKET_MAX_IDLE_TIME.getValue();
     }
+
     public Long getWebsocketAckMessageTimeout() {
         return GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT.getValue();
     }
@@ -831,17 +849,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
                 return defaultValue;
             }
             return "Y".equalsIgnoreCase(propertyValueFromSystem);
-        }
-    }
-
-    private static class GoFileSystemProperty extends GoSystemProperty<File> {
-        public GoFileSystemProperty(String propertyName, File defaultFile) {
-            super(propertyName, defaultFile);
-        }
-
-        @Override
-        protected File convertValue(String propertyValueFromSystem, File defaultValue) {
-            return propertyValueFromSystem == null ? defaultValue : new File(propertyValueFromSystem);
         }
     }
 }

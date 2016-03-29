@@ -20,8 +20,8 @@
 {if build.current_status.toLowerCase() == 'passed' ||  build.current_status.toLowerCase() == 'failed'}
 <li><span class="header">Duration: </span><span>${% cruiseTimeConverter.fromSecondsToHHMMSS(parseInt(build.current_build_duration)) %}</span></li>
 {/if}
-<li><span class="header">Agent: </span><span><a id="agent_name" href="$req.getContextPath()/agents/${% build.agent_uuid %}">${% build.agent %} (ip:${% build.agent_ip %})</a></span></li>
-<li><span class="header">Build cause: </span><span id="stage-${% build.id %}-buildCause">$presenter.buildCauseMessage</span></li>
+<li><span class="header">Agent: </span><span><a id="agent_name" href="$req.getContextPath()/agents/${% build.agent_uuid %}">${% build.agent.escapeHTML() %} (ip:${% build.agent_ip %})</a></span></li>
+<li><span class="header">Build cause: </span><span id="stage-${% build.id %}-buildCause">$esc.html($esc.html($presenter.buildCauseMessage))</span></li>
 {if isEstimatable(build.current_status) }
 <li class="progress-info">
     <span class="header">Progress:</span>

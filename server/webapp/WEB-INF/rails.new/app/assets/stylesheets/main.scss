@@ -67,8 +67,11 @@ a.contextual_help {
   padding-left: 1em;
 }
 
-
-
 .shadedDefaultValue {
     color: #aaa;
+}
+
+.wrapped_word {
+  word-break: break-all;
+  word-wrap: break-word;
 }

@@ -221,6 +221,18 @@ public class DefaultCommentRendererTest {
         assertThat(result, is(StringEscapeUtils.escapeHtml(toRender)));
     }
 
+    @Test
+    public void shouldEscapeDynamicLink() {
+        String link = "http://jira.example.com/${ID}";
+        String regex = "^ABC-[^ ]+";
+        trackingTool = new DefaultCommentRenderer(link, regex);
+
+        String result = trackingTool.render("ABC-\"><svg/onload=\"alert(1)");
+        assertThat(result,
+                is("<a href=\"http://jira.example.com/ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)\" " +
+                        "target=\"story_tracker\">ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a>"));
+    }
+
     private String dynamicLink(String id) {
         return "<a href=\"http://mingle05/projects/cce/cards/" + id + "\" target=\"story_tracker\">#" + id + "</a>";
     }

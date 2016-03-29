@@ -1,5 +1,5 @@
 <div class="material_title">
-    <strong> <%= "#{scope[:material].getTypeForDisplay()}" %> - <%= smart_word_breaker(scope[:material].getDisplayName()) -%></strong>
+    <strong class="wrapped_word"> <%= "#{scope[:material].getTypeForDisplay()}" %> - <%= scope[:material].getDisplayName() -%></strong>
 </div>
 <table class="list_table dependency_material_modifications">
     <tr>
@@ -16,8 +16,8 @@
                 <%== stage_identifier = stage_identifier_for_locator(modification_in_diff_material_revision.getRevision())
                     link_to(modification_in_diff_material_revision.getPipelineLabel(), vsm_show_path(stage_identifier.getPipelineName(),stage_identifier.getPipelineCounter())) -%>
             </td>
-            <td class="completed_at">
-                <%== smart_word_breaker(modification_in_diff_material_revision.getModifiedTime().iso8601) -%>
+            <td class="completed_at wrapped_word">
+                <%= modification_in_diff_material_revision.getModifiedTime().iso8601 -%>
             </td>
         </tr>
     <% end %>

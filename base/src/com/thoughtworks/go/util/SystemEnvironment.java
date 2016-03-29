@@ -180,6 +180,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Long> GO_WEBSOCKET_MAX_IDLE_TIME = new GoLongSystemProperty("go.websocket.max.idle.time", 60 * 1000L);
     public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", true);
     public static GoSystemProperty<Boolean> GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP = new GoBooleanSystemProperty("go.server.scheduledPipelineLoader.globalMaterialLookup", false);
+    public static GoSystemProperty<Boolean> PLUGIN_UPLOAD_ENABLED = new GoBooleanSystemProperty("go.plugin.upload.enabled", false);
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
@@ -702,6 +703,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean isAutoRegisterLocalAgentEnabled() {
         return AUTO_REGISTER_LOCAL_AGENT_ENABLED.getValue();
+    }
+
+    public boolean isPluginUploadEnabled() {
+        return PLUGIN_UPLOAD_ENABLED.getValue();
     }
 
     public Long getWebsocketMaxIdleTime() {

@@ -92,7 +92,6 @@ public class GitCommand extends SCMCommand {
         try {
             if (!isSubmodule) {
                 fetch(outputStreamConsumer);
-                gc(outputStreamConsumer);
             }
         } catch (Exception e) {
             throw new RuntimeException(String.format("Working directory: %s\n%s", workingDir, outputStreamConsumer.getStdError()), e);
@@ -134,12 +133,10 @@ public class GitCommand extends SCMCommand {
     }
 
 
-    public void fetchAndReset(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision) {
-        outputStreamConsumer.stdOutput(String.format("[GIT] Fetch and reset in working directory %s", workingDir));
+    public void resetWorkingDir(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision) {
+        outputStreamConsumer.stdOutput(String.format("[GIT] Reset working directory %s", workingDir));
         cleanAllUnversionedFiles(outputStreamConsumer);
         removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
-        fetch(outputStreamConsumer);
-        gc(outputStreamConsumer);
         resetHard(outputStreamConsumer, revision);
         checkoutAllModifiedFilesInSubmodules(outputStreamConsumer);
         updateSubmoduleWithInit(outputStreamConsumer);
@@ -180,7 +177,8 @@ public class GitCommand extends SCMCommand {
     }
 
     public void fetchAndResetToHead(ProcessOutputStreamConsumer outputStreamConsumer) {
-        fetchAndReset(outputStreamConsumer, new StringRevision(remoteBranch()));
+        fetch(outputStreamConsumer);
+        resetWorkingDir(outputStreamConsumer, new StringRevision(remoteBranch()));
     }
 
     public void updateSubmoduleWithInit(ProcessOutputStreamConsumer outputStreamConsumer) {
@@ -295,6 +293,7 @@ public class GitCommand extends SCMCommand {
         if (result != 0) {
             throw new RuntimeException(String.format("git fetch failed for [%s]", this.workingRepositoryUrl()));
         }
+        gc(outputStreamConsumer);
     }
 
     // Unshallow a shallow cloned repository with "git fetch --depth n".

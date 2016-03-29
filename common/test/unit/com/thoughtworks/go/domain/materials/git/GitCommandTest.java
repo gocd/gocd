@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,12 +181,12 @@ public class GitCommandTest {
     }
 
     @Test
-    public void shouldBombForFetchAndResetFailureWhileFetching() throws IOException {
+    public void shouldBombForFetchFailure() throws IOException {
         executeOnGitRepo("git", "remote", "rm", "origin");
         executeOnGitRepo("git", "remote", "add", "origin", "git://user:secret@foo.bar/baz");
         try {
             InMemoryStreamConsumer output = new InMemoryStreamConsumer();
-            git.fetchAndReset(output, new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85"));
+            git.fetch(output);
             fail("should have failed for non 0 return code. Git output was:\n " + output.getAllOutput());
         } catch (Exception e) {
             assertThat(e.getMessage(), is(String.format("git fetch failed for [git://user:******@foo.bar/baz]")));
@@ -194,9 +194,9 @@ public class GitCommandTest {
     }
 
     @Test
-    public void shouldBombForFetchAndResetFailureWhileReseting() throws IOException {
+    public void shouldBombForResettingFailure() throws IOException {
         try {
-            git.fetchAndReset(new SysOutStreamConsumer(), new StringRevision("abcdef"));
+            git.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("abcdef"));
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
             assertThat(e.getMessage(), is(String.format("git reset failed for [%s]", gitLocalRepoDir)));
@@ -210,13 +210,13 @@ public class GitCommandTest {
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false);
         gitWithSubmodule.cloneFrom(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
         InMemoryStreamConsumer outConsumer = new InMemoryStreamConsumer();
-        gitWithSubmodule.fetchAndReset(outConsumer, new StringRevision("HEAD"));
+        gitWithSubmodule.resetWorkingDir(outConsumer, new StringRevision("HEAD"));
         Matcher matcher = Pattern.compile(".*^\\s[a-f0-9A-F]{40} sub1 \\(heads/master\\)$.*", Pattern.MULTILINE | Pattern.DOTALL).matcher(outConsumer.getAllOutput());
         assertThat(matcher.matches(), is(true));
     }
 
     @Test
-    public void shouldBombForFetchAndResetWhenSubmoduleUpdateFails() throws Exception {
+    public void shouldBombForResetWorkingDirWhenSubmoduleUpdateFails() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
         File submoduleFolder = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false);
@@ -225,7 +225,7 @@ public class GitCommandTest {
 
         assertThat(submoduleFolder.exists(), is(false));
         try {
-            gitWithSubmodule.fetchAndReset(new SysOutStreamConsumer(), new StringRevision("HEAD"));
+            gitWithSubmodule.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("HEAD"));
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())));
@@ -455,11 +455,11 @@ public class GitCommandTest {
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl()); // Clone repository without submodules
-        clonedCopy.fetchAndReset(outputStreamConsumer, new StringRevision("HEAD"));  // Pull submodules to working copy - Pipeline counter 1
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));  // Pull submodules to working copy - Pipeline counter 1
         File unversionedFile = new File(new File(cloneDirectory, submoduleDirectoryName), "unversioned_file.txt");
         FileUtils.writeStringToFile(unversionedFile, "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!");
 
-        clonedCopy.fetchAndReset(outputStreamConsumer, new StringRevision("HEAD")); // Should clean unversioned file on next fetch - Pipeline counter 2
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD")); // Should clean unversioned file on next fetch - Pipeline counter 2
 
         assertThat(unversionedFile.exists(), is(false));
     }
@@ -476,7 +476,7 @@ public class GitCommandTest {
         /* Simulate an agent checkout of code. */
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false);
         clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
-        clonedCopy.fetchAndReset(outputStreamConsumer, new StringRevision("HEAD"));
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));
 
         /* Simulate a local modification of file inside submodule, on agent side. */
         File fileInSubmodule = allFilesIn(new File(cloneDirectory, submoduleDirectoryName), "file-").get(0);
@@ -487,7 +487,8 @@ public class GitCommandTest {
                 remoteSubmoduleLocation, submoduleDirectoryName, fileInSubmodule.getName(), "NEW CONTENT OF FILE");
 
         /* Simulate start of a new build on agent. */
-        clonedCopy.fetchAndReset(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()));
+        clonedCopy.fetch(outputStreamConsumer);
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()));
 
         assertThat(FileUtils.readFileToString(fileInSubmodule), is("NEW CONTENT OF FILE"));
     }
@@ -507,7 +508,7 @@ public class GitCommandTest {
         File cloneDirectory = createTempWorkingDirectory();
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false);
         clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
-        clonedCopy.fetchAndReset(outputStreamConsumer, new StringRevision("HEAD"));
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));
     }
 
     @Test

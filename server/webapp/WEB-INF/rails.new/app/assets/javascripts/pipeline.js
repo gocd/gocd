@@ -365,7 +365,7 @@ var PipelineActions = Class.create({
             new Ajax.Request(url, {
                 method: 'put',
                 requestHeaders: {
-                    Accept: 'application/vnd.go.cd.v1+text'
+                    Confirm: 'true'
                 },
                 onComplete: function() {
                     dashboard_periodical_executer.fireNow();
@@ -388,7 +388,7 @@ var PipelineActions = Class.create({
         new Ajax.Request(url, {
             method: 'post',
             requestHeaders: {
-                Accept: 'application/vnd.go.cd.v1+text'
+                Confirm: 'true'
             },
             onComplete: function() {
                 dashboard_periodical_executer.fireNow();
@@ -434,7 +434,7 @@ var PipelineActions = Class.create({
                 method: 'post',
                 parameters : 'pauseCause=' + cause,
                 requestHeaders: {
-                    Accept: 'application/vnd.go.cd.v1+text'
+                    Confirm: 'true'
                 },
                 onComplete: function() {
                     dashboard_periodical_executer.fireNow();
@@ -463,7 +463,7 @@ var PipelineActions = Class.create({
         new Ajax.Request(url, {
             method: 'post',
             requestHeaders: {
-                Accept: 'application/vnd.go.cd.v1+text'
+                Confirm: 'true'
             },
             onComplete: function() {
                 dashboard_periodical_executer.fireNow();
@@ -501,7 +501,7 @@ var StageActions = Class.create({
             new Ajax.Request(url, {
                 method: 'post',
                 requestHeaders: {
-                    Accept: 'application/vnd.go.cd.v1+text'
+                    Confirm: 'true'
                 },
                 onComplete: function() {
                     dashboard_periodical_executer.fireNow();

@@ -14,12 +14,6 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-class HeaderConstraint
-  def matches? (request)
-    'application/vnd.go.cd.v1+text'.eql?(request.headers['HTTP_ACCEPT'])
-  end
-end
-
 Go::Application.routes.draw do
   mount JasmineRails::Engine => '/jasmine-specs', as: :jasmine_old if defined?(JasmineRails)
   mount JasmineRails::Engine => '/jasmine-specs-new', as: :jasmine_new if defined?(JasmineRails)
@@ -275,8 +269,8 @@ Go::Application.routes.draw do
 
       # state
       get 'state/status' => 'server_state#status'
-      post 'state/active' => 'server_state#to_active'
-      post 'state/passive' => 'server_state#to_passive'
+      post 'state/active' => 'server_state#to_active', constraints: HeaderConstraint.new
+      post 'state/passive' => 'server_state#to_passive', constraints: HeaderConstraint.new
 
       # history
       get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
@@ -311,23 +305,27 @@ Go::Application.routes.draw do
         post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: HeaderConstraint.new, as: :unpause_pipeline
       end
 
-      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify
+      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify, constraints: HeaderConstraint.new
 
-      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload
+      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 
-      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url
+      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url, constraints: HeaderConstraint.new
 
       scope 'admin/feature_toggles' do
         defaults :no_layout => true, :format => :json do
           get "" => "feature_toggles#index", as: :api_admin_feature_toggles
-          post "/:toggle_key" => "feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :api_admin_feature_toggle_update
+          constraints HeaderConstraint.new do
+            post "/:toggle_key" => "feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :api_admin_feature_toggle_update
+          end
         end
       end
 
       #agents api's
       get 'agents' => 'agents#index', format: 'json', as: :agents_information
-      post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
-      post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
+      constraints HeaderConstraint.new do
+        post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
+        post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
+      end
 
       defaults :format => 'text' do
         get 'support' => 'server#capture_support_info'
@@ -363,7 +361,9 @@ Go::Application.routes.draw do
   namespace :api do
     scope :config do
       namespace :internal do
-        post 'pluggable_task/:plugin_id' => 'pluggable_task#validate', as: :pluggable_task_validation, constraints: { plugin_id: /[\w+\.\-]+/ }
+        constraints HeaderConstraint.new do
+          post 'pluggable_task/:plugin_id' => 'pluggable_task#validate', as: :pluggable_task_validation, constraints: {plugin_id: /[\w+\.\-]+/}
+        end
       end
     end
   end

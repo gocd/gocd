@@ -23,12 +23,12 @@ class Admin::Plugins::PluginsController < AdminController
                               .collect { |descriptor| GoPluginDescriptorModel::convertToDescriptorWithAllValues descriptor }
                               .sort { |plugin1, plugin2| plugin1.about().name().downcase <=> plugin2.about().name().downcase }
     @external_plugin_location = system_environment.getExternalPluginAbsolutePath()
-    @upload_feature_enabled = Toggles.isToggleOn(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY)
+    @upload_feature_enabled = system_environment.isPluginUploadEnabled()
     assert_load :meta_data_store, meta_data_store
   end
 
   def upload
-    render :status => 403, :text => "Feature is not enabled" and return unless Toggles.isToggleOn(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY)
+    render :status => 403, :text => "Feature is not enabled" and return unless system_environment.isPluginUploadEnabled()
     if params[:plugin].nil?
       respond_to do |format|
         format.html { flash[:error] = "Please select a file to upload." and redirect_to action: "index" }

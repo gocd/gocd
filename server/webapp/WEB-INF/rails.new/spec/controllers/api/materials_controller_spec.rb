@@ -25,6 +25,7 @@ describe Api::MaterialsController do
     end
 
     it "should resolve" do
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
       expect(:post => "/api/material/notify/svn").to route_to(:controller => "api/materials", :action => "notify", :no_layout=>true, :post_commit_hook_material_type => "svn")
     end
   end

@@ -43,7 +43,7 @@ describe Admin::Plugins::PluginsController do
   describe :upload do
     before :each do
       controller.stub(:default_plugin_manager).and_return(@plugin_manager = double('plugin_manager'))
-      expect(Toggles).to receive(:isToggleOn).with(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY).and_return(true)
+      controller.stub(:system_environment).and_return(@system_environment = double("system_environment", :isPluginUploadEnabled => true))
     end
 
     it "should show success message when upload is successful" do
@@ -91,8 +91,7 @@ describe Admin::Plugins::PluginsController do
     end
 
     it "should refuse to upload when feature is turned off" do
-      RSpec::Mocks.proxy_for(Toggles).reset
-      expect(Toggles).to receive(:isToggleOn).with(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY).and_return(false)
+      @system_environment.should_receive(:isPluginUploadEnabled).and_return(false)
 
       post :upload, :plugin => nil
 
@@ -124,8 +123,10 @@ describe Admin::Plugins::PluginsController do
 
     it "should populate the current list of plugins and the external plugins path" do
       @plugin_manager.should_receive(:plugins).and_return([@plugin_1, @plugin_2])
-      controller.should_receive(:system_environment).and_return(@system_environment = double("system_environment"))
+      controller.stub(:system_environment).and_return(@system_environment = double("system_environment"))
+
       @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
+      @system_environment.should_receive(:isPluginUploadEnabled).and_return(true)
 
       get :index
 
@@ -150,7 +151,11 @@ describe Admin::Plugins::PluginsController do
     end
 
     it "should populate the feature toggle flag for upload plugin" do
-      expect(Toggles).to receive(:isToggleOn).with(Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY).and_return(true)
+      controller.stub(:system_environment).and_return(@system_environment = double("system_environment"))
+
+      @system_environment.should_receive(:getExternalPluginAbsolutePath).and_return("some_path")
+      @system_environment.should_receive(:isPluginUploadEnabled).and_return(true)
+
       @plugin_manager.should_receive(:plugins).and_return([])
 
       get :index

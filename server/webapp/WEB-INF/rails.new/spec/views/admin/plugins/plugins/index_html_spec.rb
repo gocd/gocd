@@ -39,7 +39,7 @@ describe "admin/plugins/plugins/index.html.erb" do
     expect(plugin_upload).to have_selector("form")
   end
 
-  it "should hide the upload plugins form when the Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY is off" do
+  it "should hide thNe upload plugins form when the PLUGIN_UPLOAD_FEATURE is off" do
     assign(:upload_feature_enabled, false)
     assign(:plugin_descriptors, [])
 
@@ -47,7 +47,6 @@ describe "admin/plugins/plugins/index.html.erb" do
 
     expect(response).to_not have_selector('div#plugins-listing div#upload-plugin')
     expect(response).to_not have_selector('div#plugins-listing form')
-    expect("This test should fail when the toggle is removed. So, access the toggle: #{Toggles.PLUGIN_UPLOAD_FEATURE_TOGGLE_KEY}").to_not be_nil
   end
 
   it "should list a set of plugins" do

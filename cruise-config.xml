@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="81">
+  <server artifactsdir="logs" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" commandRepositoryLocation="default" serverId="dev-id">
+    <security>
+      <passwordFile path="../manual-testing/ant_hg/password.properties" />
+      <roles>
+        <role name="xyz" />
+      </roles>
+      <admins>
+        <user>admin</user>
+      </admins>
+    </security>
+  </server>
+  <pipelines group="GoCD">
+    <authorization>
+      <admins>
+        <user>operate</user>
+      </admins>
+    </authorization>
+    <pipeline name="GoCD-Golang-Agent">
+      <materials>
+        <git url="https://github.com/gocd-contrib/gocd-golang-agent.git" dest="src/github.com/gocd-contrib/gocd-golang-agent" />
+      </materials>
+      <stage name="defaultStage">
+        <jobs>
+          <job name="defaultJob">
+            <tasks>
+              <exec command="./build.sh" workingdir="src/github.com/gocd-contrib/gocd-golang-agent">
+                <runif status="passed" />
+              </exec>
+            </tasks>
+            <artifacts>
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent/README.md" />
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent" />
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent/installers" dest="dest" />
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent/README.md" dest="the-readme" />
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent/server" dest="dest" />
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent/**/*.go" dest="gofiles" />
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent/*.go" dest="maingo" />
+              <artifact src="src/github.com/gocd-contrib/gocd-golang-agent/**/????.go" dest="qmarks" />
+            </artifacts>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="te">
+      <materials>
+        <git url="/Users/xli/code/gotest" />
+      </materials>
+      <stage name="defaultStage">
+        <jobs>
+          <job name="defaultJob">
+            <tasks>
+              <rake target="output" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+  <agents>
+    <agent hostname="xiao.local" ipaddress="0:0:0:0:0:0:0:1" uuid="9cd92470-f7c0-45d3-8189-6c839445f5da" />
+    <agent hostname="xiao.local" ipaddress="10.19.22.168" uuid="bd79d646-2047-4e43-8e1f-0617e2bf9b73" />
+    <agent hostname="xiao.local" ipaddress="10.0.1.27" uuid="8018e0bd-4366-4b2e-93d0-a747ed16e495" />
+  </agents>
+</cruise>
+

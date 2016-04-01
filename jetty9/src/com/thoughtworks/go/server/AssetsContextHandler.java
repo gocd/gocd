@@ -40,7 +40,8 @@ public class AssetsContextHandler extends ContextHandler {
         handler = new AssetsHandler();
 
         GzipHandler gzipHandler = new GzipHandler();
-        gzipHandler.setMimeTypes("text/html,text/plain,text/xml,application/xhtml+xml,text/css,application/javascript,image/svg+xml,application/vnd.go.cd.v1+json,application/json");
+        String mimeTypes = "text/html,text/plain,text/xml,application/xhtml+xml,text/css,application/javascript,image/svg+xml,application/vnd.go.cd.v1+json,application/json";
+        gzipHandler.addIncludedMimeTypes(mimeTypes.split(","));
         gzipHandler.setHandler(handler);
         setHandler(gzipHandler);
     }

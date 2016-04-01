@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -106,54 +107,18 @@ public class ConsoleService {
 
     public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException, IOException {
         File file = findConsoleArtifact(jobIdentifier);
-        updateConsoleLog(file, new ByteArrayInputStream(text.getBytes()), LineListener.NO_OP_LINE_LISTENER);
+        updateConsoleLog(file, new ByteArrayInputStream(text.getBytes()));
     }
 
-    public boolean updateConsoleLog(File dest, InputStream in, LineListener lineListener) throws IOException {
+    public boolean updateConsoleLog(File dest, InputStream in) throws IOException {
         File parentFile = dest.getParentFile();
         parentFile.mkdirs();
 
         LOGGER.trace("Updating console log [" + dest.getAbsolutePath() + "]");
-
-        char[] data = new char[DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE];
-        char[] overflow = new char[DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE];
-
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(dest, dest.exists()));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            int hasRead, overflowIndex, offset = 0, end;
-            while ((hasRead = reader.read(data, offset, data.length - offset)) != -1) {
-                end = offset + hasRead;
-                overflowIndex = end;
-                for (int i = end; i > 0; i--) {
-                    int index = i - 1;
-                    char c = data[index];
-                    if ('\n' == c) {
-                        break;
-                    }
-                    overflow[index] = data[index];
-                    overflowIndex = index;
-                }
-                if (overflowIndex == 0) {
-                    if (end == data.length) {//realloc if line is bigger than our buffer
-                        data = realloc(data);
-                        overflow = realloc(overflow);
-                        offset = end;
-                        continue;
-                    } else {
-                        overflowIndex = end;
-                        offset = 0;
-                    }
-                }
-                lineListener.copyLine(new CharArraySequence(data, 0, overflowIndex));
-                writer.write(data, 0, overflowIndex);
-                //place overflow back in data
-                for (int i = overflowIndex; i < end; i++) {
-                    data[i - overflowIndex] = overflow[i];
-                }
-                offset = end - overflowIndex;
-            }
+            IOUtils.copy(in, writer);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [" + dest.getAbsolutePath() + "]", e);
             return false;
@@ -183,52 +148,4 @@ public class ConsoleService {
             throw new RuntimeException(e);
         }
     }
-
-    public static interface LineListener {
-        LineListener NO_OP_LINE_LISTENER = new LineListener() {
-            public void copyLine(CharSequence line) {
-
-            }
-        };
-
-        void copyLine(CharSequence line);
-    }
-
-    static class CharArraySequence implements CharSequence {
-        private final char[] chars;
-        private final int start;
-        private final int end;
-
-        CharArraySequence(char[] chars, int start, int end) {
-            this.chars = chars;
-            this.start = start;
-            this.end = end;
-        }
-
-        public int length() {
-            return end;
-        }
-
-        public char charAt(int index) {
-            return chars[start + index];
-        }
-
-        public CharSequence subSequence(int start, int end) {
-            return new CharArraySequence(chars, start, end);
-        }
-
-        @Override
-        public String toString() {
-            return new String(chars, start, end - start);
-        }
-    }
-
-    private char[] realloc(char[] old) {
-        char[] newAlloc = new char[old.length * 2];
-        for (int i = 0; i < old.length; i++) {
-            newAlloc[i] = old[i];
-        }
-        return newAlloc;
-    }
-
 }

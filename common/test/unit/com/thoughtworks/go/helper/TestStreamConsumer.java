@@ -40,11 +40,11 @@ public class TestStreamConsumer implements StreamConsumer {
     public void waitForContain(String content, int timeoutInSeconds) throws InterruptedException {
         long start = System.nanoTime();
         while (true) {
-            if (lines.contains(content)) {
+            if (output().contains(content)) {
                 break;
             }
             if (System.nanoTime() - start > TimeUnit.SECONDS.toNanos(timeoutInSeconds)) {
-                throw new RuntimeException("waiting timeout!");
+                throw new RuntimeException("waiting timeout!, current output is: \n" + output());
             }
             Thread.sleep(10);
         }

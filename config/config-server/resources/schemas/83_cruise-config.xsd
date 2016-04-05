@@ -30,7 +30,6 @@
                         <xsd:all>
                             <xsd:element minOccurs="0" maxOccurs="1" name="security" type="securityType"/>
                             <xsd:element minOccurs="0" maxOccurs="1" name="mailhost" type="mailHostType"/>
-                            <xsd:element minOccurs="0" maxOccurs="1" name="elastic" type="serverElasticConfigType"/>
                         </xsd:all>
                         <xsd:attributeGroup ref="serverAttributeGroup"/>
                     </xsd:complexType>
@@ -77,7 +76,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="84"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="83"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -219,9 +218,6 @@
         <xsd:attribute name="tls" type="xsd:boolean" use="required"/>
         <xsd:attribute name="from" type="emailType" use="required"/>
         <xsd:attribute name="admin" type="emailType" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="serverElasticConfigType">
-        <xsd:attribute name="jobStarvationTimeout" type="xsd:long"/>
     </xsd:complexType>
     <xsd:simpleType name="emailType">
         <xsd:restriction base="xsd:string">

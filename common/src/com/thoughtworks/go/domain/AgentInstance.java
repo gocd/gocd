@@ -276,7 +276,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public JobPlan firstMatching(List<JobPlan> jobPlans) {
         for (JobPlan jobPlan : jobPlans) {
             if (jobPlan.assignedToAgent()) {
-                if (isElasticAndLaunchedBySamePluginAsConfiguredForJob(jobPlan) || resourcesMatchForNonElasticAgents(jobPlan)) {
+                if (isElasticAndLaunchedBySamePluginAsConfiguredForJob(jobPlan) || isNotElasticAndResourcesMatchForNonElasticAgents(jobPlan)) {
                     return jobPlan;
                 }
             } else {
@@ -288,8 +288,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return null;
     }
 
-    private boolean resourcesMatchForNonElasticAgents(JobPlan jobPlan) {
-        return !isElastic() && agentConfig.hasAllResources(jobPlan.getResources());
+    private boolean isNotElasticAndResourcesMatchForNonElasticAgents(JobPlan jobPlan) {
+        return !jobPlan.requiresElasticAgent() && !isElastic() && agentConfig.hasAllResources(jobPlan.getResources());
     }
 
     private boolean isElasticAndLaunchedBySamePluginAsConfiguredForJob(JobPlan jobPlan) {

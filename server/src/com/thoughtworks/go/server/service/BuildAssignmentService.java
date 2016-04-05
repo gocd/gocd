@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.Agent;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
+import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
@@ -41,12 +42,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
-import static org.apache.commons.collections.CollectionUtils.disjunction;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
 
@@ -71,13 +70,14 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private final BuilderFactory builderFactory;
     private AgentRemoteHandler agentRemoteHandler;
     private final ElasticAgentPluginService elasticAgentPluginService;
+    private final TimeProvider timeProvider;
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
                                   AgentService agentService, EnvironmentConfigService environmentConfigService,
                                   TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory,
                                   AgentRemoteHandler agentRemoteHandler,
-                                  ElasticAgentPluginService elasticAgentPluginService) {
+                                  ElasticAgentPluginService elasticAgentPluginService, TimeProvider timeProvider) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
@@ -89,6 +89,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         this.builderFactory = builderFactory;
         this.agentRemoteHandler = agentRemoteHandler;
         this.elasticAgentPluginService = elasticAgentPluginService;
+        this.timeProvider = timeProvider;
     }
 
     public void initialize() {
@@ -181,13 +182,12 @@ public class BuildAssignmentService implements ConfigChangedListener {
         synchronized (this) {
             if (jobPlans == null) {
                 jobPlans = jobInstanceService.orderedScheduledBuilds();
-                elasticAgentPluginService.createAgentsFor(jobPlans);
+                elasticAgentPluginService.createAgentsFor(jobPlans, new ArrayList<JobPlan>());
             } else {
                 List<JobPlan> old = jobPlans;
                 List<JobPlan> newPlan = jobInstanceService.orderedScheduledBuilds();
-                Collection changedPlans = disjunction(old, newPlan);
                 jobPlans = newPlan;
-                elasticAgentPluginService.createAgentsFor(changedPlans);
+                elasticAgentPluginService.createAgentsFor(old, newPlan);
             }
         }
     }

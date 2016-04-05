@@ -16,13 +16,27 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.ArtifactPlans;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.JobAgentConfig;
+import com.thoughtworks.go.domain.DefaultJobPlan;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
+import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
+import com.thoughtworks.go.serverhealth.HealthStateLevel;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,13 +44,13 @@ import org.mockito.Mock;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ElasticAgentPluginServiceTest {
@@ -50,21 +64,31 @@ public class ElasticAgentPluginServiceTest {
     private EnvironmentConfigService environmentConfigService;
     @Mock
     private ServerPingQueueHandler serverPingQueue;
+    @Mock
+    private ServerHealthService serverHealthService;
+    @Mock
+    private ServerConfigService serverConfigService;
+    @Mock
+    private CreateAgentQueueHandler createAgentQueue;
+    private TimeProvider timeProvider;
+    private ElasticAgentPluginService service;
+    private String autoRegisterKey = "key";
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-    }
-
-    @Test
-    public void shouldSendServerHeartbeatToAllElasticPlugins() {
         ArrayList<PluginDescriptor> plugins = new ArrayList<>();
         plugins.add(new GoPluginDescriptor("p1", null, null, null, null, true));
         plugins.add(new GoPluginDescriptor("p2", null, null, null, null, true));
         when(registry.getPlugins()).thenReturn(plugins);
         when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<String, ElasticAgentMetadata>());
-        ElasticAgentPluginService service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, null, serverPingQueue, null);
+        timeProvider = new TimeProvider();
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, serverConfigService, timeProvider, serverHealthService);
+        when(serverConfigService.getAutoregisterKey()).thenReturn(autoRegisterKey);
+    }
 
+    @Test
+    public void shouldSendServerHeartbeatToAllElasticPlugins() {
         service.heartbeat();
 
         ArgumentCaptor<ServerPingMessage> captor = ArgumentCaptor.forClass(ServerPingMessage.class);
@@ -72,7 +96,68 @@ public class ElasticAgentPluginServiceTest {
         List<ServerPingMessage> messages = captor.getAllValues();
         assertThat(messages.contains(new ServerPingMessage("p1")), is(true));
         assertThat(messages.contains(new ServerPingMessage("p2")), is(true));
-
     }
 
+    @Test
+    public void shouldNotCreateAgentIfAutoRegisterIsNotSetup() {
+        JobPlan plan = plan(1);
+        when(serverConfigService.getAutoregisterKey()).thenReturn(null);
+        ArgumentCaptor<ServerHealthState> captor = ArgumentCaptor.forClass(ServerHealthState.class);
+
+        service.createAgentsFor(new ArrayList<JobPlan>(), Arrays.asList(plan));
+        verify(serverHealthService).update(captor.capture());
+        ServerHealthState serverHealthState = captor.getValue();
+        assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.ERROR));
+        assertThat(serverHealthState.getType(), is(HealthStateType.autoregisterKeyRequired()));
+        verifyZeroInteractions(createAgentQueue);
+    }
+
+    @Test
+    public void shouldCreateAgentForNewlyAddedJobPlansOnly() {
+        JobPlan plan1 = plan(1);
+        JobPlan plan2 = plan(2);
+        ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
+        ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
+        when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
+        service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1, plan2));
+
+        verify(createAgentQueue).post(captor.capture());
+        CreateAgentMessage createAgentMessage = captor.getValue();
+        assertThat(createAgentMessage.autoregisterKey(), is(autoRegisterKey));
+        assertThat(createAgentMessage.pluginId(), is(plan2.getJobAgentConfig().getPluginId()));
+        assertThat(createAgentMessage.configuration(), is(plan2.getJobAgentConfig().getConfigurationAsMap(true)));
+        assertThat(createAgentMessage.environment(), is("env-2"));
+
+        verify(serverHealthService).update(captorForHealthState.capture());
+        ServerHealthState serverHealthState = captorForHealthState.getValue();
+        assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.OK));
+        assertThat(serverHealthState.getType(), is(HealthStateType.autoregisterKeyRequired()));
+    }
+
+    @Test
+    public void shouldRetryCreateAgentForJobThatHasBeenWaitingForAnAgentForALongTime() {
+        when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
+        JobPlan plan1 = plan(1);
+        ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
+        ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
+        service.createAgentsFor(new ArrayList<JobPlan>(), Arrays.asList(plan1));
+        service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
+
+        verify(createAgentQueue, times(2)).post(captor.capture());
+        CreateAgentMessage createAgentMessage = captor.getValue();
+        assertThat(createAgentMessage.autoregisterKey(), is(autoRegisterKey));
+        assertThat(createAgentMessage.pluginId(), is(plan1.getJobAgentConfig().getPluginId()));
+        assertThat(createAgentMessage.configuration(), is(plan1.getJobAgentConfig().getConfigurationAsMap(true)));
+        verifyNoMoreInteractions(createAgentQueue);
+        verify(serverHealthService, times(2)).update(captorForHealthState.capture());
+        ServerHealthState serverHealthState = captorForHealthState.getValue();
+        assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.OK));
+        assertThat(serverHealthState.getType(), is(HealthStateType.autoregisterKeyRequired()));
+    }
+
+    private JobPlan plan(int jobId) {
+        JobAgentConfig jobAgentConfig = new JobAgentConfig("p-id", new ArrayList<ConfigurationProperty>());
+        JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
+        return new DefaultJobPlan(null, new ArtifactPlans(), null, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), jobAgentConfig);
+    }
 }

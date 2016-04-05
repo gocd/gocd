@@ -103,8 +103,6 @@ public class SslInfrastructureService {
             } catch (Exception e) {
                 LOGGER.error("[Agent Registration] There was a problem registering with the go server.", e);
                 throw e;
-            } finally {
-                agentAutoRegistrationProperties.scrubRegistrationProperties();
             }
 
             try {
@@ -115,6 +113,7 @@ public class SslInfrastructureService {
         }
         LOGGER.info("[Agent Registration] Retrieved registration from Go server.");
         storeChainIntoAgentStore(keyEntry);
+        agentAutoRegistrationProperties.scrubRegistrationProperties();
     }
 
     private void storeChainIntoAgentStore(Registration keyEntry) {

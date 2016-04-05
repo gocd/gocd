@@ -186,4 +186,8 @@ public class ServerConfigService implements BaseUrlProvider {
         return serverConfig().hasAnyUrlConfigured();
     }
 
+    public Long elasticJobStarvationThreshold() {
+        return serverConfig().getElasticConfig().getJobStarvationThreshold();
+    }
+
 }

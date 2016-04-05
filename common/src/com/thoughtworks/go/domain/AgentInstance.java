@@ -47,7 +47,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
     protected volatile Date lastHeardTime;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
-    private boolean supportsBuildCommandProtocol;
 
     protected AgentInstance(AgentConfig agentConfig,AgentType agentType, SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;

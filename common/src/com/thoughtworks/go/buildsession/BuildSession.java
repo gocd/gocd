@@ -225,7 +225,7 @@ public class BuildSession {
         this.println(String.format("[%s] %s", GoConstants.PRODUCT_NAME, line));
     }
 
-    String buildVariableSubstitude(String str) {
+    String buildVariableSubstitute(String str) {
         return new StrSubstitutor(buildVariables).replace(str);
     }
 

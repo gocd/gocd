@@ -40,12 +40,12 @@ public class MessageEncoding {
 
     public static String encodeWork(Work work) {
         try {
-            ByteArrayOutputStream binaryOutput = new ByteArrayOutputStream();
-            try (ObjectOutputStream objectStream = new ObjectOutputStream(binaryOutput)) {
-                objectStream.writeObject(work);
+            try (ByteArrayOutputStream binaryOutput = new ByteArrayOutputStream()) {
+                try (ObjectOutputStream objectStream = new ObjectOutputStream(binaryOutput)) {
+                    objectStream.writeObject(work);
+                }
+                return Base64.encodeBase64String(binaryOutput.toByteArray());
             }
-
-            return Base64.encodeBase64String(binaryOutput.toByteArray());
         } catch (IOException e) {
             throw bomb(e);
         }
@@ -64,22 +64,25 @@ public class MessageEncoding {
 
     public static byte[] encodeMessage(Message msg) {
         String encode = gson.toJson(msg);
-        org.apache.commons.io.output.ByteArrayOutputStream bytes = new org.apache.commons.io.output.ByteArrayOutputStream();
         try {
-            GZIPOutputStream out = new GZIPOutputStream(bytes);
-            out.write(encode.getBytes(StandardCharsets.UTF_8));
-            out.finish();
+            try (ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
+                try (GZIPOutputStream out = new GZIPOutputStream(bytes)) {
+                    out.write(encode.getBytes(StandardCharsets.UTF_8));
+                    out.finish();
+                }
+                return bytes.toByteArray();
+            }
         } catch (IOException e) {
             throw bomb(e);
         }
-        return bytes.toByteArray();
     }
 
     public static Message decodeMessage(InputStream input) {
         try {
-            GZIPInputStream zipStream = new GZIPInputStream(input);
-            String jsonStr = new String(IOUtils.toByteArray(zipStream), StandardCharsets.UTF_8);
-            return gson.fromJson(jsonStr, Message.class);
+            try (GZIPInputStream zipStream = new GZIPInputStream(input)) {
+                String jsonStr = new String(IOUtils.toByteArray(zipStream), StandardCharsets.UTF_8);
+                return gson.fromJson(jsonStr, Message.class);
+            }
         } catch (IOException e) {
             throw bomb(e);
         }

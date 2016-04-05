@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.ArtifactsRepositoryStub;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildStateReporterStub;
 import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.helper.TestStreamConsumer;
 import com.thoughtworks.go.remote.work.HttpServiceStub;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TestingClock;
@@ -41,7 +42,7 @@ public class BuildSessionBasedTestCase {
     protected Map<String, String> buildVariables;
     protected File sandbox;
     protected ArtifactsRepositoryStub artifactsRepository;
-    protected InMemoryConsumer console;
+    protected TestStreamConsumer console;
     protected HttpServiceStub httpService;
 
     @Before
@@ -50,7 +51,7 @@ public class BuildSessionBasedTestCase {
         buildVariables = new HashMap<>();
         artifactsRepository = new ArtifactsRepositoryStub();
         sandbox = TestFileUtil.createTempFolder(UUID.randomUUID().toString());
-        console = new InMemoryConsumer();
+        console = new TestStreamConsumer();
         httpService = new HttpServiceStub();
     }
 

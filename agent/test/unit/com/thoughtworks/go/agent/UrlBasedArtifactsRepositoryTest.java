@@ -17,6 +17,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.domain.Property;
+import com.thoughtworks.go.helper.TestStreamConsumer;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.InMemoryConsumer;
 import org.apache.commons.io.FileUtils;
@@ -45,14 +46,14 @@ public class UrlBasedArtifactsRepositoryTest {
     private File tempFile;
     private File artifactFolder;
     private ArtifactsRepository artifactsRepository;
-    private InMemoryConsumer console;
+    private TestStreamConsumer console;
 
     @Before
     public void setUp() throws Exception {
         httpService = mock(HttpService.class);
         artifactFolder = TestFileUtil.createTempFolder("artifact_folder");
         tempFile = TestFileUtil.createTestFile(artifactFolder, "file.txt");
-        console = new InMemoryConsumer();
+        console = new TestStreamConsumer();
         artifactsRepository = new UrlBasedArtifactsRepository(httpService, "http://baseurl/artifacts/", "http://baseurl/properties/", new ZipUtil());
     }
 

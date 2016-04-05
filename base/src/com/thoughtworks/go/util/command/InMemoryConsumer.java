@@ -47,40 +47,6 @@ public class InMemoryConsumer implements StreamConsumer {
     }
 
     public String toString() {
-        return output();
-    }
-
-    public String output() {
         return join(asList(), "\n");
-    }
-
-    public String lastLine() {
-        List<String> lines = asList();
-        return lines.get(lines.size() - 1);
-    }
-
-    public String firstLine() {
-        return asList().get(0);
-    }
-
-    public int lineCount() {
-        return lines.size();
-    }
-
-    public void waitForContain(String content, int timeoutInSeconds) throws InterruptedException {
-        long start = System.nanoTime();
-        while (true) {
-            if (contains(content)) {
-                break;
-            }
-            if (System.nanoTime() - start > TimeUnit.SECONDS.toNanos(timeoutInSeconds)) {
-                throw new RuntimeException("waiting timeout!");
-            }
-            Thread.sleep(10);
-        }
-    }
-
-    public void clear() {
-        lines.clear();
     }
 }

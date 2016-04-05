@@ -39,7 +39,7 @@ public class BuildComposer {
 
     public BuildCommand compose() {
         return BuildCommand.compose(
-                echoWithPrefix("Job started ${date}"),
+                echoWithPrefix("Job Started: ${date}"),
                 prepare(),
                 build(),
                 reportAction("Job completed").runIf("any"))

@@ -21,7 +21,7 @@ public class EchoCommandExecutor implements BuildCommandExecutor {
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {
         String line = command.getStringArg("line");
-        buildSession.println(buildSession.buildVariableSubstitude(line));
+        buildSession.println(buildSession.buildVariableSubstitute(line));
         return true;
     }
 }

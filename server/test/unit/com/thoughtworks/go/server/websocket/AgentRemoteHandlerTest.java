@@ -77,7 +77,7 @@ public class AgentRemoteHandlerTest {
         assertEquals(agent, handler.connectedAgents().get("uuid"));
 
         assertEquals(1, agent.messages.size());
-        assertEquals(agent.messages.get(0).getAction(), Action.cancelJob);
+        assertEquals(agent.messages.get(0).getAction(), Action.cancelBuild);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class AgentRemoteHandlerTest {
         assertEquals(2, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.setCookie);
         assertEquals(MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class), "new cookie");
-        assertEquals(agent.messages.get(1).getAction(), Action.cancelJob);
+        assertEquals(agent.messages.get(1).getAction(), Action.cancelBuild);
     }
 
     private AgentRuntimeInfo withCookie(AgentRuntimeInfo info, String cookie) {

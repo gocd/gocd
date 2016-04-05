@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.BuildSettings;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
@@ -153,7 +152,7 @@ public class JobInstanceStatusMonitorTest {
         });
 
         assertThat(agent.messages.size(), is(2));
-        assertThat(agent.messages.get(1).getAction(), is(Action.cancelJob));
+        assertThat(agent.messages.get(1).getAction(), is(Action.cancelBuild));
     }
 
     @Test
@@ -175,34 +174,6 @@ public class JobInstanceStatusMonitorTest {
         scheduleService.rescheduleJob(instance);
 
         assertThat(agent.messages.size(), is(2));
-        assertThat(agent.messages.get(1).getAction(), is(Action.cancelJob));
-    }
-
-    @Test
-    public void shouldSendCancelBuildMessageIfSupportsBuildCommand() {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
-        fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        info.setSupportsBuildCommandProtocol(true);
-        info.setCookie("cookie");
-        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
-
-        buildAssignmentService.onTimer();
-
-        assertThat(agent.messages.size(), is(1));
-        BuildSettings settings = MessageEncoding.decodeData(agent.messages.get(0).getData(), BuildSettings.class);
-        long buildId = Long.parseLong(settings.getBuildId());
-        final JobInstance instance = jobInstanceService.buildById(buildId);
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                jobInstanceService.cancelJob(instance);
-            }
-        });
-
-        assertThat(agent.messages.size(), is(2));
         assertThat(agent.messages.get(1).getAction(), is(Action.cancelBuild));
     }
-
 }

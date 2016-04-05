@@ -270,8 +270,9 @@ public class AgentController {
 
     public void process(Message message) throws InterruptedException {
         switch (message.getAction()) {
-            case cancelJob:
+            case cancelBuild:
                 cancelJobIfThereIsOneRunning();
+                cancelBuild();
                 break;
             case setCookie:
                 String cookie = MessageEncoding.decodeData(message.getData(), String.class);
@@ -299,9 +300,6 @@ public class AgentController {
                 cancelBuild();
                 BuildSettings buildSettings = MessageEncoding.decodeData(message.getData(), BuildSettings.class);
                 runBuild(buildSettings);
-                break;
-            case cancelBuild:
-                cancelBuild();
                 break;
             case reregister:
                 LOG.warn("Reregister: invalidate current agent certificate fingerprint {} and stop websocket client.", agentRegistry.uuid());

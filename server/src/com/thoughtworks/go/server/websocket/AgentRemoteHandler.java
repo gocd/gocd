@@ -89,7 +89,7 @@ public class AgentRemoteHandler {
                 }
                 AgentInstruction instruction = this.buildRepositoryRemote.ping(info);
                 if (instruction.isShouldCancelJob()) {
-                    cancelBuild(agent, info.getSupportsBuildCommandProtocol());
+                    agent.send(new Message(Action.cancelBuild));
                 }
                 break;
             case reportCurrentStatus:
@@ -141,18 +141,8 @@ public class AgentRemoteHandler {
             return;
         }
         Agent agent = agentSessions.get(uuid);
-        AgentInstance instance = agentService.findAgentAndRefreshStatus(uuid);
-        if (agent != null && instance != null) {
-            cancelBuild(agent, instance.getSupportsBuildCommandProtocol());
-        }
-    }
-    private void cancelBuild(Agent agent, boolean supportsBuildCommandProtocol) {
-        if (supportsBuildCommandProtocol) {
+        if(agent != null) {
             agent.send(new Message(Action.cancelBuild));
-        } else {
-            agent.send(new Message(Action.cancelJob));
         }
     }
-
-
 }

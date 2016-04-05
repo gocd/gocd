@@ -317,12 +317,13 @@ public class AgentControllerTest {
     }
 
     @Test
-    public void processCancelBuildAction() throws IOException, InterruptedException {
+    public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(httpService.httpClient()).thenReturn(httpClient);
 
         agentController = createAgentController();
         agentController.init();
+        agentController.getAgentRuntimeInfo().setSupportsBuildCommandProtocol(true);
         final BuildSettings build = new BuildSettings();
         build.setBuildId("b001");
         build.setConsoleUrl("http://foo.bar/console");
@@ -382,7 +383,7 @@ public class AgentControllerTest {
 
         waitForAgentRuntimeState(agentController.getAgentRuntimeInfo(), AgentRuntimeStatus.Building);
 
-        agentController.process(new Message(Action.cancelJob));
+        agentController.process(new Message(Action.cancelBuild));
         buildingThread.join(MAX_WAIT_IN_TEST);
 
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));

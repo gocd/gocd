@@ -1,6 +1,8 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.utils.Assertions;
+import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -41,17 +43,13 @@ public class TestStreamConsumer implements StreamConsumer {
         return lines.size();
     }
 
-    public void waitForContain(String content, int timeoutInSeconds) throws InterruptedException {
-        long start = System.nanoTime();
-        while (true) {
-            if (output().contains(content)) {
-                break;
+    public void waitForContain(final String content, Timeout timeout) throws InterruptedException {
+        Assertions.waitUntil(timeout, new Assertions.Predicate() {
+            @Override
+            public boolean call() throws Exception {
+                return output().contains(content);
             }
-            if (System.nanoTime() - start > TimeUnit.SECONDS.toNanos(timeoutInSeconds)) {
-                throw new RuntimeException("waiting timeout!, current output is: \n" + output());
-            }
-            Thread.sleep(10);
-        }
+        }, 1);
     }
 
     public void clear() {

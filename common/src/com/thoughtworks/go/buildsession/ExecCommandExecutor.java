@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -88,54 +86,45 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
     }
 
     private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
         final AtomicInteger exitCode = new AtomicInteger(-1);
         final CountDownLatch canceledOrDone = new CountDownLatch(1);
+        buildSession.submitRunnable(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(), null));
+                } catch (CommandLineException e) {
+                    LOG.error("Command failed", e);
+                    String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", commandLine.toStringForDisplay(), commandLine.getExecutable());
+                    String path = System.getenv("PATH");
+                    buildSession.println(message);
+                    buildSession.println(format("[Debug Information] Environment variable PATH: %s", path));
+                    LOG.error(format("[Command Line] %s. Path: %s", message, path));
+                } finally {
+                    canceledOrDone.countDown();
+                }
+            }
+        });
+
+        Future<?> cancelMonitor = buildSession.submitRunnable(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    buildSession.waitUntilCanceled();
+                } catch (InterruptedException e) {
+                    // ignore
+                } finally {
+                    canceledOrDone.countDown();
+                }
+            }
+        });
 
         try {
-            final Future<?> executing = executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        exitCode.set(commandLine.run(buildSession.processOutputStreamConsumer(), null));
-                    } catch (CommandLineException e) {
-                        LOG.error("Command failed", e);
-                        String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", commandLine.toStringForDisplay(), commandLine.getExecutable());
-                        String path = System.getenv("PATH");
-                        buildSession.println(message);
-                        buildSession.println(format("[Debug Information] Environment variable PATH: %s", path));
-                        LOG.error(format("[Command Line] %s. Path: %s", message, path));
-                    } finally {
-                        canceledOrDone.countDown();
-                    }
-                }
-            });
-
-            Future<?> cancelMonitor = executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        buildSession.waitUntilCanceled();
-                        executing.cancel(true);
-                    } catch (InterruptedException e) {
-                        //ignored
-                    } finally {
-                        canceledOrDone.countDown();
-                    }
-                }
-            });
-
-            try {
-                canceledOrDone.await();
-            } catch (InterruptedException e) {
-                LOG.error("Building thread interrupted", e);
-            }
-            executing.cancel(true);
-            cancelMonitor.cancel(true);
-            return exitCode.get();
-        } finally {
-            executorService.shutdown();
+            canceledOrDone.await();
+        } catch (InterruptedException e) {
+            LOG.error("Building thread interrupted", e);
         }
-
+        cancelMonitor.cancel(true);
+        return exitCode.get();
     }
 }

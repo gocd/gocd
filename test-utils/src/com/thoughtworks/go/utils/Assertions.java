@@ -76,6 +76,10 @@ public class Assertions {
     }
 
     public static void waitUntil(Timeout timeout, Predicate predicate) {
+        waitUntil(timeout, predicate, 1000);
+    }
+
+    public static void waitUntil(Timeout timeout, Predicate predicate, int sleepInMillis) {
         long end = System.currentTimeMillis() + timeout.inMillis();
         Exception e = null;
         while (true) {
@@ -92,7 +96,7 @@ public class Assertions {
             if (timedout) {
                 break;
             } else {
-                sleepOneSec();
+                sleepMillis(sleepInMillis);
             }
         }
         String msg = e == null ? "wait timed out after " + timeout + " for: " + predicate.toString() : e.getMessage();

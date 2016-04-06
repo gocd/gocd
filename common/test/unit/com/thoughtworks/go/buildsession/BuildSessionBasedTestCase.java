@@ -94,10 +94,15 @@ public class BuildSessionBasedTestCase {
 
     public static BuildCommand execSleepScript(int seconds) {
         if (SystemUtil.isWindows()) {
-            return exec("cmd", "/c", "echo start sleeping & ping 1.1.1.1 -n 1 -w " + seconds * 1000 + " >NULL & echo after sleep");
+            return exec("ping 1.1.1.1 -n 1 -w " + seconds * 1000 + " >NULL");
         } else {
-            return exec("/bin/sh", "-c", "echo start sleeping;sleep " + seconds + ";echo after sleep");
+            return exec("sleep", String.valueOf(seconds));
         }
     }
+
+    protected String execSleepScriptProcessCommand() {
+        return SystemUtil.isWindows() ? "ping" : "sleep";
+    }
+
 }
 

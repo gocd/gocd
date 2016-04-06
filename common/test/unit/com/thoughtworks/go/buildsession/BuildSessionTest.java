@@ -21,18 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
-import static com.google.common.collect.Iterables.getLast;
 import static com.thoughtworks.go.domain.BuildCommand.*;
-import static com.thoughtworks.go.domain.JobResult.*;
+import static com.thoughtworks.go.domain.JobResult.Failed;
+import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobState.*;
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertTrue;
 
 public class BuildSessionTest extends BuildSessionBasedTestCase {
     @Test
@@ -116,113 +111,5 @@ public class BuildSessionTest extends BuildSessionBasedTestCase {
         buildVariables.put("test.foo", "world");
         runBuild(echo("hello ${test.foo}"), Passed);
         assertThat(console.lastLine(), is("hello world"));
-    }
-
-    @Test
-    public void cancelLongRunningBuild() throws InterruptedException {
-        final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(compose(
-                        execSleepScript(50),
-                        echo("build done")));
-            }
-        });
-        try {
-            buildingThread.start();
-            console.waitForContain("start sleeping", 5);
-            assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
-            assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
-            assertThat(buildInfo(), console.output(), not(containsString("build done")));
-        } finally {
-            buildingThread.join();
-        }
-    }
-
-    @Test
-    public void cancelLongRunningTestCommand() throws InterruptedException {
-        final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(compose(
-                        echo("after sleep").setTest(execSleepScript(50))));
-            }
-        });
-        try {
-            buildingThread.start();
-            console.waitForContain("start sleeping", 5);
-            assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
-            assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
-            assertThat(buildInfo(), console.output(), not(containsString("after sleep")));
-        } finally {
-            buildingThread.join();
-        }
-    }
-
-    @Test
-    public void doubleCancelDoNothing() throws InterruptedException {
-        final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(execSleepScript(50));
-            }
-        });
-        Runnable cancel = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    buildSession.cancel(30, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    throw bomb(e);
-                }
-            }
-        };
-        Thread cancelThread1 = new Thread(cancel);
-        Thread cancelThread2 = new Thread(cancel);
-
-        try {
-            buildingThread.start();
-            console.waitForContain("start sleeping", 5);
-            cancelThread1.start();
-            cancelThread2.start();
-            cancelThread1.join();
-            cancelThread2.join();
-            assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
-            assertThat(buildInfo(), console.output(), not(containsString("after sleep")));
-        } finally {
-            buildingThread.join();
-        }
-    }
-
-    @Test
-    public void cancelShouldProcessOnCancelCommandOfCommandThatIsRunning() throws InterruptedException {
-        final BuildSession buildSession = newBuildSession();
-        Thread buildingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                buildSession.build(compose(
-                        compose(
-                            execSleepScript(50).setOnCancel(echo("exec canceled")),
-                            echo("after sleep"))
-                                .setOnCancel(echo("inner oncancel"))
-                ).setOnCancel(echo("outter oncancel")));
-            }
-        });
-
-        try {
-            buildingThread.start();
-            console.waitForContain("start sleeping", 5);
-            assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
-            assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
-            assertThat(buildInfo(), console.output(), not(containsString("after sleep")));
-            assertThat(buildInfo(), console.output(), containsString("exec canceled"));
-            assertThat(buildInfo(), console.output(), containsString("inner oncancel"));
-            assertThat(buildInfo(), console.output(), containsString("outter oncancel"));
-        } finally {
-            buildingThread.join();
-        }
     }
 }

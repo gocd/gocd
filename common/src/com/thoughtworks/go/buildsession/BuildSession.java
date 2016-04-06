@@ -29,9 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
@@ -46,6 +47,7 @@ public class BuildSession {
     private final BuildStateReporter buildStateReporter;
     private final StreamConsumer console;
     private final DownloadAction downloadAction;
+    private final ExecutorService executorService;
     private File workingDir;
     private JobResult buildResult;
     private final StrLookup buildVariables;
@@ -92,6 +94,7 @@ public class BuildSession {
         this.doneLatch = new CountDownLatch(1);
         this.cancelLatch = new CountDownLatch(1);
         this.downloadAction = new DownloadAction(httpService, getPublisher(), clock);
+        this.executorService = Executors.newCachedThreadPool();
     }
 
     public void setEnv(String name, String value) {
@@ -132,9 +135,17 @@ public class BuildSession {
         } finally {
             try {
                 buildStateReporter.reportCompleted(buildId, buildResult);
-            } finally {
-                doneLatch.countDown();
+            } catch (Exception e) {
+                reportException(e);
             }
+
+            try {
+                executorService.shutdownNow();
+            } catch (Exception e) {
+                reportException(e);
+            }
+
+            doneLatch.countDown();
         }
     }
 
@@ -179,7 +190,7 @@ public class BuildSession {
 
             BuildCommand test = command.getTest();
             if (test != null) {
-                if (!newTestingSession(console).processCommand(test)) {
+                if (newTestingSession(console).build(test) != JobResult.Passed) {
                     return true;
                 }
             }
@@ -195,19 +206,27 @@ public class BuildSession {
             return false;
         } finally {
             if (isCanceled() && onCancelCommand != null) {
-                newCancelSession().processCommand(onCancelCommand);
+                newCancelSession().build(onCancelCommand);
             }
         }
     }
 
-    private void reportException(Exception e) {
-        String msg = messageOf(e);
-        try {
-            LOG.error(msg, e);
-            printlnSafely(msg);
-        } catch (Exception reportException) {
-            LOG.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
+
+    File resolveRelativeDir(String... dirs) {
+        if (dirs.length == 0) {
+            return workingDir;
         }
+
+        File result = new File(dirs[dirs.length - 1]);
+        for (int i = dirs.length - 2; i >= 0; i--) {
+            result = applyBaseDirIfRelative(new File(dirs[i]), result);
+        }
+        return applyBaseDirIfRelative(workingDir, result);
+    }
+
+
+    Future<?> submitRunnable(Runnable runnable) {
+        return executorService.submit(runnable);
     }
 
     void addSecret(String secret, String substitution) {
@@ -310,15 +329,13 @@ public class BuildSession {
         return streamConsumer;
     }
 
-    File resolveRelativeDir(String... dirs) {
-        if (dirs.length == 0) {
-            return workingDir;
+    private void reportException(Exception e) {
+        String msg = messageOf(e);
+        try {
+            LOG.error(msg, e);
+            printlnSafely(msg);
+        } catch (Exception reportException) {
+            LOG.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
-
-        File result = new File(dirs[dirs.length - 1]);
-        for (int i = dirs.length - 2; i >= 0; i--) {
-            result = applyBaseDirIfRelative(new File(dirs[i]), result);
-        }
-        return applyBaseDirIfRelative(workingDir, result);
     }
 }

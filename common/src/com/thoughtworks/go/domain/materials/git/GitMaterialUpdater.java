@@ -41,7 +41,7 @@ public class GitMaterialUpdater {
         UrlArgument url = material.getUrlArgument();
         return compose(
                 echoWithPrefix("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay()),
-                secret(url.hostInfoForCommandline(), url.hostInfoForDisplay()),
+                secret(url.forCommandline(), url.forDisplay()),
                 cloneIfNeeded(workingDir, revisionContext.numberOfModifications() + 1),
                 fetchRemote(workingDir),
                 unshallowIfNeeded(workingDir, revision, new Integer[]{GitMaterial.UNSHALLOW_TRYOUT_STEP, Integer.MAX_VALUE}),

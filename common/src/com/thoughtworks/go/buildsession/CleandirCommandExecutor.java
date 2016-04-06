@@ -15,15 +15,12 @@
  * ************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.buildsession;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.DirectoryCleaner;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 public class CleandirCommandExecutor implements BuildCommandExecutor {
     @Override

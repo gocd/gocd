@@ -15,17 +15,18 @@
  * ************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.buildsession;
 
-import com.jezhumble.javasysmon.JavaSysMon;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
-import com.thoughtworks.go.util.command.StringArgument;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,8 +50,33 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
 
         String cmd = command.getStringArg("command");
         String[] args = command.getArrayArg("args");
-        CommandLine commandLine;
 
+        Map<String, String> secrets = buildSession.getSecretSubstitutions();
+        Set<String> leftSecrets = new HashSet<>(secrets.keySet());
+
+        CommandLine commandLine = createCommandLine(cmd);
+
+        for (String arg : args) {
+            if(secrets.containsKey(arg)) {
+                leftSecrets.remove(arg);
+                commandLine.withArg(new SubstitutableCommandArgument(arg, secrets.get(arg)));
+            } else {
+                commandLine.withArg(arg);
+            }
+        }
+
+        for (String secret: leftSecrets) {
+            commandLine.withNonArgSecret(new SecretSubstitution(secret, secrets.get(secret)));
+        }
+
+        commandLine.withWorkingDir(workingDir);
+        commandLine.withEnv(buildSession.getEnvs());
+
+        return executeCommandLine(buildSession, commandLine) == 0;
+    }
+
+    private CommandLine createCommandLine(String cmd) {
+        CommandLine commandLine;
         if (SystemUtil.isWindows()) {
             commandLine = CommandLine.createCommandLine("cmd");
             commandLine.withArg("/c");
@@ -58,13 +84,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         } else {
             commandLine = CommandLine.createCommandLine(cmd);
         }
-        commandLine.withWorkingDir(workingDir);
-        commandLine.withEnv(buildSession.getEnvs());
-        commandLine.withArgs(args);
-        for (SecretSubstitution secretSubstitution : buildSession.getSecretSubstitutions()) {
-            commandLine.withNonArgSecret(secretSubstitution);
-        }
-        return executeCommandLine(buildSession, commandLine) == 0;
+        return commandLine;
     }
 
     private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
@@ -97,7 +117,6 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
                     try {
                         buildSession.waitUntilCanceled();
                         executing.cancel(true);
-                        new JavaSysMon().infanticide();
                     } catch (InterruptedException e) {
                         //ignored
                     } finally {

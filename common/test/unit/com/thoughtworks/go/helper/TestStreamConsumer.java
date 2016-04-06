@@ -1,6 +1,5 @@
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.StreamConsumer;
 import org.apache.commons.lang.StringUtils;
 
@@ -18,6 +17,11 @@ public class TestStreamConsumer implements StreamConsumer {
 
     public String output() {
         return StringUtils.join(lines, "\n");
+    }
+
+    @Override
+    public String toString() {
+        return output();
     }
 
     public List<String> asList() {

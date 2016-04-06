@@ -125,6 +125,11 @@ public class BuildCommand {
         return new BuildCommand("generateProperty", map("name", name, "src", src, "xpath", xpath));
     }
 
+    //not part of the protocol, only for tests
+    public static BuildCommand error(String message) {
+        return new BuildCommand("error", map("message", message));
+    }
+
     @Expose
     private final String name;
     @Expose
@@ -309,4 +314,5 @@ public class BuildCommand {
         }
         return GSON.fromJson(args.get(arg), String[].class);
     }
+
 }

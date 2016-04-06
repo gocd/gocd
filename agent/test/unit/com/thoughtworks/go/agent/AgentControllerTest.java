@@ -19,6 +19,7 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.domain.*;
@@ -332,7 +333,7 @@ public class AgentControllerTest {
         build.setBuildLocator("build1");
         build.setBuildLocatorForDisplay("build1ForDisplay");
         build.setBuildCommand(BuildCommand.compose(
-                BuildSessionTest.execSleepScript(MAX_WAIT_IN_TEST / 1000),
+                BuildSessionBasedTestCase.execSleepScript(MAX_WAIT_IN_TEST / 1000),
                 BuildCommand.reportCurrentStatus(JobState.Building)));
 
 

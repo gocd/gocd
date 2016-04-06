@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.BuildStateReporterStub;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.helper.TestStreamConsumer;
 import com.thoughtworks.go.remote.work.HttpServiceStub;
+import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.command.InMemoryConsumer;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.domain.BuildCommand.exec;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -84,6 +86,18 @@ public class BuildSessionBasedTestCase {
 
     protected void runBuild(BuildCommand command, JobResult expectedResult) {
         runBuild(newBuildSession(), command, expectedResult);
+    }
+
+    protected String pathSystemEnvName() {
+        return SystemUtil.isWindows() ? "Path" : "PATH";
+    }
+
+    public static BuildCommand execSleepScript(int seconds) {
+        if (SystemUtil.isWindows()) {
+            return exec("cmd", "/c", "echo start sleeping & ping 1.1.1.1 -n 1 -w " + seconds * 1000 + " >NULL & echo after sleep");
+        } else {
+            return exec("/bin/sh", "-c", "echo start sleeping;sleep " + seconds + ";echo after sleep");
+        }
     }
 }
 

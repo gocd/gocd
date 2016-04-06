@@ -15,6 +15,7 @@
  * ************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.buildsession;
 
+import com.jezhumble.javasysmon.JavaSysMon;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
@@ -40,7 +41,7 @@ import static java.lang.String.format;
 public class BuildSession {
     private static final Logger LOG = LoggerFactory.getLogger(BuildSession.class);
     private final Map<String, String> envs;
-    private final List<SecretSubstitution> secretSubstitutions;
+    private final Map<String, String> secretSubstitutions;
     private final String buildId;
     private final BuildStateReporter buildStateReporter;
     private final StreamConsumer console;
@@ -73,6 +74,7 @@ public class BuildSession {
         executors.put("reportCompleting", new ReportCompletingCommandExecutor());
         executors.put("generateTestReport", new GenerateTestReportCommandExecutor());
         executors.put("generateProperty", new GeneratePropertyCommandExecutor());
+        executors.put("error", new ErrorCommandExecutor());
     }
 
     public BuildSession(String buildId, BuildStateReporter buildStateReporter, StreamConsumer console, StrLookup buildVariables, ArtifactsRepository artifactsRepository, HttpService httpService, Clock clock, File workingDir) {
@@ -85,7 +87,7 @@ public class BuildSession {
         this.clock = clock;
         this.workingDir = workingDir;
         this.envs = new HashMap<>();
-        this.secretSubstitutions = new ArrayList<>();
+        this.secretSubstitutions = new HashMap<>();
         this.buildResult = JobResult.Passed;
         this.doneLatch = new CountDownLatch(1);
         this.cancelLatch = new CountDownLatch(1);
@@ -109,8 +111,14 @@ public class BuildSession {
         if (isCanceled()) {
             return true;
         }
+
         cancelLatch.countDown();
-        return doneLatch.await(timeout, timeoutUnit);
+
+        try {
+            return doneLatch.await(timeout, timeoutUnit);
+        } finally {
+            new JavaSysMon().infanticide();
+        }
     }
 
     public JobResult build(BuildCommand command) {
@@ -136,7 +144,7 @@ public class BuildSession {
             return false;
         }
 
-        LOG.debug("Processing build command {}", command);
+        LOG.debug("Processing build command {}", command.getName());
 
         BuildCommandExecutor executor = executors.get(command.getName());
         if (executor == null) {
@@ -196,7 +204,7 @@ public class BuildSession {
         String msg = messageOf(e);
         try {
             LOG.error(msg, e);
-            println(msg);
+            printlnSafely(msg);
         } catch (Exception reportException) {
             LOG.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
@@ -206,7 +214,7 @@ public class BuildSession {
         if (substitution == null) {
             substitution = "******";
         }
-        this.secretSubstitutions.add(new SecretSubstitution(secret, substitution));
+        this.secretSubstitutions.put(secret, substitution);
     }
 
     Map<String, String> getEnvs() {
@@ -237,8 +245,8 @@ public class BuildSession {
         return new ProcessOutputStreamConsumer<>(console, console);
     }
 
-    List<SecretSubstitution> getSecretSubstitutions() {
-        return Collections.unmodifiableList(secretSubstitutions);
+    Map<String, String> getSecretSubstitutions() {
+        return Collections.unmodifiableMap(secretSubstitutions);
     }
 
     void waitUntilCanceled() throws InterruptedException {
@@ -296,8 +304,8 @@ public class BuildSession {
     private SafeOutputStreamConsumer newSafeConsole() {
         ProcessOutputStreamConsumer processConsumer = new ProcessOutputStreamConsumer<>(console, console);
         SafeOutputStreamConsumer streamConsumer = new SafeOutputStreamConsumer(processConsumer);
-        for (SecretSubstitution secretSubstitution : secretSubstitutions) {
-            streamConsumer.addSecret(secretSubstitution);
+        for (String secret : secretSubstitutions.keySet()) {
+            streamConsumer.addSecret(new SecretSubstitution(secret, secretSubstitutions.get(secret)));
         }
         return streamConsumer;
     }

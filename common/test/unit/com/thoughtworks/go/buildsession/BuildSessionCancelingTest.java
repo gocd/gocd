@@ -27,6 +27,8 @@ import com.thoughtworks.go.utils.Timeout;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Iterables.getLast;
@@ -40,6 +42,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JunitExtRunner.class)
@@ -57,9 +60,9 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
             }
         });
         buildingThread.start();
-        waitUntilSubProcessExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
         assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
-        waitUntilSubProcessNotExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), false);
         assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
         assertThat(buildInfo(), console.output(), not(containsString("build done")));
         buildingThread.join();
@@ -77,10 +80,10 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
             }
         });
         buildingThread.start();
-        waitUntilSubProcessExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
 
         assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
-        waitUntilSubProcessNotExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), false);
         assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
         assertThat(buildInfo(), console.output(), not(containsString("after sleep")));
         buildingThread.join();
@@ -110,12 +113,12 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
         Thread cancelThread2 = new Thread(cancel);
 
         buildingThread.start();
-        waitUntilSubProcessExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
         cancelThread1.start();
         cancelThread2.start();
         cancelThread1.join();
         cancelThread2.join();
-        waitUntilSubProcessNotExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), false);
         assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
         assertThat(buildInfo(), console.output(), not(containsString("after sleep")));
         buildingThread.join();
@@ -137,10 +140,22 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
         });
 
         buildingThread.start();
-        waitUntilSubProcessExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
         assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
-        waitUntilSubProcessNotExists(execSleepScriptProcessCommand());
-        assertThat(subProcessWithNameExists(execSleepScriptProcessCommand()), is(false));
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), false);
+        JavaSysMon javaSysMon = new JavaSysMon();
+        final boolean[] exists = {false};
+        javaSysMon.visitProcessTree(javaSysMon.currentPid(), new ProcessVisitor() {
+            @Override
+            public boolean visit(OsProcess osProcess, int i) {
+                String command = osProcess.processInfo().getName();
+                if (execSleepScriptProcessCommand().equals(command)) {
+                    exists[0] = true;
+                }
+                return false;
+            }
+        });
+        assertThat(exists[0], is(false));
 
         assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
         assertThat(buildInfo(), console.output(), not(containsString("after sleep")));
@@ -167,46 +182,40 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
         });
 
         buildingThread.start();
-        waitUntilSubProcessExists(execSleepScriptProcessCommand());
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
         assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
-        waitUntilSubProcessNotExists(execSleepScriptProcessCommand());
-        assertThat(console.lastLine().trim(), is("1"));
+        waitUntilSubProcessExists(execSleepScriptProcessCommand(), false);
+        assertThat(Integer.parseInt(console.lastLine().trim()), greaterThan(0));
         buildingThread.join();
     }
 
 
-    private void waitUntilSubProcessNotExists(final String processName) {
-        waitUntil(Timeout.FIVE_SECONDS, new Assertions.Predicate() {
-            @Override
-            public boolean call() throws Exception {
-                return !subProcessWithNameExists(processName);
-            }
-        }, 1);
+    private void waitUntilSubProcessExists(final String processName, final boolean expectExist) {
+        try {
+            waitUntil(Timeout.FIVE_SECONDS, new Assertions.Predicate() {
+                @Override
+                public boolean call() throws Exception {
+                    return subProcessNames().contains(processName) == expectExist;
+                }
+            }, 1);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("timeout waiting for subprocess " + (expectExist ? "exists" : "not exists") + ", current sub processes are: " + subProcessNames());
+        }
     }
 
-    private void waitUntilSubProcessExists(final String processName) {
-        waitUntil(Timeout.FIVE_SECONDS, new Assertions.Predicate() {
-            @Override
-            public boolean call() throws Exception {
-                return subProcessWithNameExists(processName);
-            }
-        }, 1);
-    }
-
-
-    private boolean subProcessWithNameExists(final String name) {
+    private List<String> subProcessNames() {
         JavaSysMon javaSysMon = new JavaSysMon();
-        final boolean[] exists = {false};
-        javaSysMon.visitProcessTree(javaSysMon.currentPid(), new ProcessVisitor() {
+        final List<String> names = new ArrayList<>();
+        final int currentPid = javaSysMon.currentPid();
+        javaSysMon.visitProcessTree(currentPid, new ProcessVisitor() {
             @Override
             public boolean visit(OsProcess osProcess, int i) {
-                String command = osProcess.processInfo().getName();
-                if (name.equals(command)) {
-                    exists[0] = true;
+                if(osProcess.processInfo().getPid() != currentPid) {
+                    names.add(osProcess.processInfo().getName());
                 }
                 return false;
             }
         });
-        return exists[0];
+        return names;
     }
 }

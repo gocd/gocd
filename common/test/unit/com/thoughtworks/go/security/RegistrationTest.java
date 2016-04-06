@@ -17,8 +17,10 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.TestFileUtil;
+import org.bouncycastle.asn1.x509.X509Name;
 import org.junit.Test;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.File;
 
 import static org.hamcrest.Matchers.is;
@@ -30,9 +32,13 @@ public class RegistrationTest {
 
     @Test
     public void decodeFromJson() {
-        String json = createRegistration().toJson();
-        Registration reg = Registration.fromJson(json);
-        assertNotNull(reg.getPrivateKey());
+        Registration origin = createRegistration();
+        Registration reg = Registration.fromJson(origin.toJson());
+        assertThat(reg.getPrivateKey(), is(origin.getPrivateKey()));
+        assertThat(reg.getPublicKey(), is(origin.getPublicKey()));
+        assertThat(reg.getChain(), is(origin.getChain()));
+        assertThat(reg.getCertificateNotBeforeDate(), is(origin.getCertificateNotBeforeDate()));
+        assertThat(reg.getFirstCertificate(), is(origin.getFirstCertificate()));
         assertThat(reg.getChain().length, is(3));
     }
 

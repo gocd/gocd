@@ -225,7 +225,7 @@ public class AgentRegistrationController {
         final Registration anotherCopy = keyEntry;
         return new ModelAndView(new View() {
             public String getContentType() {
-                return "application/x-java-serialized-object";
+                return "application/json";
             }
 
             public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws IOException {

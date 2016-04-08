@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -79,7 +80,10 @@ public class AgentRegistrationControllerTest {
         when(goConfigService.hasAgent("blahAgent-uuid")).thenReturn(false);
         ServerConfig serverConfig = new ServerConfig("artifacts", new SecurityConfig(), 10, 20, "1", null);
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
-        controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", false, request);
+
+        ModelAndView modelAndView = controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", false, request);
+        assertThat(modelAndView.getView().getContentType(), is("application/json"));
+
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig("blahAgent-uuid", "blahAgent-host", request.getRemoteAddr()), false, "blah-location", 34567L, "osx", false));
     }
 

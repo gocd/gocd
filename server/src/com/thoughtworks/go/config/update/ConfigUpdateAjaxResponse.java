@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -27,7 +24,7 @@ import com.thoughtworks.go.util.json.JsonHelper;
 public final class ConfigUpdateAjaxResponse {
 
     @Expose
-    private Map<String, List<String>> fieldErrors = new HashMap<String, List<String>>();
+    private Map<String, List<String>> fieldErrors = new LinkedHashMap<>();
     @Expose
     private List<String> globalErrors = new ArrayList<String>();
     @Expose

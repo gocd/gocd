@@ -183,8 +183,64 @@ task "spec" => RAILS_DEPENDENCIES do
   ENV['REPORTS_DIR'] = reports_dir
 
   str = "#{rspec_executable} spec"
-  str = str + ' --pattern ' + ENV['spec_module'] +'/**/*_spec.rb' if ENV.has_key? 'spec_module'
+  str = str + ' --pattern ' + ENV['spec_module'] +'/**/*_spec.rb' if ENV['spec_module']
   execute_under_rails(str)
+end
+
+task 'parallel-spec' => RAILS_DEPENDENCIES do
+  if ENV['GO_JOB_RUN_COUNT'].to_i == 0 || ENV['GO_JOB_RUN_INDEX'].to_i == 0
+    puts 'Must define `GO_JOB_RUN_COUNT` and `GO_JOB_RUN_INDEX`'
+    exit -1
+  end
+
+
+  def partition(options={})
+    files                = options[:files]
+    total_workers        = options[:total_workers]
+    current_worker_index = options[:current_worker_index]
+
+    return [] if files.nil? || files.empty?
+
+    files = files.sort
+
+    result = []
+
+    # pick up things on a round-robin basis to distribute them evenly
+    index  = current_worker_index - 1
+    while index <= files.count do
+      result << files[index]
+      index += total_workers
+    end
+    result.compact!
+
+    result
+  end
+
+  def find_all_tests(tests, options = {})
+    (tests || []).map do |file_or_folder|
+      if File.directory?(file_or_folder)
+        files = Dir[File.join(file_or_folder, '**{,/*/**}/*')].uniq
+        files.grep(options[:test_suffix])
+      else
+        file_or_folder
+      end
+    end.flatten.uniq
+  end
+
+  files = []
+
+  cd RAILS_WORKING_DIR do
+    files = find_all_tests(['./spec'], :test_suffix => /_spec\.rb$/)
+  end
+
+
+  running_tests!
+  rm_rf SPEC_SERVER_DIR
+  reports_dir = File.join(File.dirname(__FILE__), 'target', 'reports', 'spec')
+  puts "reports directory: " + reports_dir
+  ENV['REPORTS_DIR'] = reports_dir
+
+  execute_under_rails([rspec_executable, *files].join(' '))
 end
 
 task "spec_module", [:spec_module_path] => RAILS_DEPENDENCIES do |t, args|

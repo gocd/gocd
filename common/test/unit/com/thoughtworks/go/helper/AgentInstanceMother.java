@@ -1,24 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.helper;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Resource;
@@ -33,6 +29,12 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+
 public class AgentInstanceMother {
     private static final Set<EnvironmentPipelineMatcher> NO_ENVIRONMENTS = new HashSet<EnvironmentPipelineMatcher>();
 
@@ -40,7 +42,7 @@ public class AgentInstanceMother {
         AgentConfig virtualAgentConfig = new AgentConfig("uuid1", "ec2", "10.18.8.10");
         AgentInstance instance = AgentInstance.create(virtualAgentConfig, true, new SystemEnvironment()
         );
-        instance.update(AgentRuntimeInfo.fromAgent(virtualAgentConfig.getAgentIdentifier(), "cookie", null));
+        instance.update(new AgentRuntimeInfo(virtualAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
         return instance;
     }
 
@@ -55,7 +57,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance idle(final Date lastHeardAt, final String hostname)  {
         AgentConfig idleAgentConfig = new AgentConfig("uuid2", hostname, "10.18.5.1");
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(idleAgentConfig.getAgentIdentifier(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
         agentRuntimeInfo.setUsableSpace(10*1024l);
@@ -72,7 +74,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance building(String buildLocator) {
         AgentConfig buildingAgentConfig = new AgentConfig("uuid3", "CCeDev01", "10.18.5.1", new Resources("java"));
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(buildingAgentConfig.getAgentIdentifier(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
         AgentInstance building = AgentInstance.createFromConfig(buildingAgentConfig, new SystemEnvironment());
         building.update(agentRuntimeInfo);
@@ -91,7 +93,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance pendingInstance() {
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"));
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null);
         return AgentInstance.createFromLiveAgent(runtimeInfo, new SystemEnvironment());
     }
 

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.git;
 
@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -43,7 +44,6 @@ import java.util.regex.Pattern;
 import static com.thoughtworks.go.util.ExceptionUtils.*;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
 import static com.thoughtworks.go.util.FileUtil.deleteDirectoryNoisily;
-import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
 
@@ -76,7 +76,7 @@ public class GitMaterial extends ScmMaterial {
 
     public GitMaterial(String url, String branch) {
         this(url);
-        if (branch != null) {
+        if(branch != null) {
             this.branch = branch;
         }
     }
@@ -234,7 +234,12 @@ public class GitMaterial extends ScmMaterial {
             LOG.trace("Current repository url of [" + workingDirectory + "]: " + currentWorkingUrl);
             LOG.trace("Target repository url: " + url);
         }
-        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline()) || !getBranch().equals(command.getCurrentBranch());
+        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline()) || !isBranchEqual(command);
+    }
+
+    private boolean isBranchEqual(GitCommand command) {
+        String branchName =  StringUtil.isBlank(this.branch)? GitMaterialConfig.DEFAULT_BRANCH: this.branch;
+        return branchName.equals(command.getCurrentBranch());
     }
 
     /**

@@ -123,7 +123,7 @@ public class PipelineSchedulerTest {
         final HashMap<String, String> revisions = new HashMap<String, String>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Collections.singletonMap("blahVariable","blahValue"), new HashMap<String, String>()), operationResult);
         //noinspection unchecked
-        verify(buildCauseProducerService, new NoMoreInteractions()).manualSchedulePipeline(any(Username.class), any(PipelineConfig.class), any(ScheduleOptions.class), any(OperationResult.class));
+        verify(buildCauseProducerService, new NoMoreInteractions()).manualSchedulePipeline(any(Username.class), any(CaseInsensitiveString.class), any(ScheduleOptions.class), any(OperationResult.class));
         verify(operationResult).notFound("Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'","Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'",
                 HealthStateType.general(HealthStateScope.forPipeline("blahPipeline")));
     }
@@ -139,7 +139,7 @@ public class PipelineSchedulerTest {
         final HashMap<String, String> revisions = new HashMap<String, String>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, variables, new HashMap<String, String>()), operationResult);
         //noinspection unchecked
-        verify(buildCauseProducerService).manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig, new ScheduleOptions(new HashMap<String, String>(), variables, new HashMap<String, String>()),
+        verify(buildCauseProducerService).manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(new HashMap<String, String>(), variables, new HashMap<String, String>()),
                 operationResult);
     }
 

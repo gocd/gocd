@@ -25,17 +25,21 @@ import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.websocket.Agent;
+import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.websocket.Action;
+import com.thoughtworks.go.websocket.Message;
 import org.apache.commons.collections.Closure;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
@@ -61,11 +65,13 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
     private List<JobPlan> jobPlans = new ArrayList<JobPlan>();
     private final UpstreamPipelineResolver resolver;
     private final BuilderFactory builderFactory;
+    private AgentRemoteHandler agentRemoteHandler;
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
                                   AgentService agentService, EnvironmentConfigService environmentConfigService, TimeProvider timeProvider,
-                                  TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory) {
+                                  TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory,
+                                  AgentRemoteHandler agentRemoteHandler) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
@@ -76,6 +82,7 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
         this.scheduledPipelineLoader = scheduledPipelineLoader;
         this.resolver = pipelineService;
         this.builderFactory = builderFactory;
+        this.agentRemoteHandler = agentRemoteHandler;
     }
 
     public void initialize() {
@@ -122,11 +129,42 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
 
     public void onTimer() {
         reloadJobPlans();
+        matchingJobForRegisteredAgents();
     }
 
     private void reloadJobPlans() {
         synchronized (this) {
             jobPlans = jobInstanceService.orderedScheduledBuilds();
+        }
+    }
+
+    private void matchingJobForRegisteredAgents() {
+        Map<String, Agent> agents = agentRemoteHandler.connectedAgents();
+        if (agents.isEmpty()) {
+            return;
+        }
+        Long start = System.currentTimeMillis();
+        for (Map.Entry<String, Agent> entry : agents.entrySet()) {
+            String agentUUId = entry.getKey();
+            Agent agent = entry.getValue();
+            AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
+            if (!agentInstance.isRegistered()) {
+                agent.send(new Message(Action.reregister));
+                return;
+            }
+            if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Ignore agent that is " + agentInstance.getStatus());
+                }
+                return;
+            }
+            Work work = assignWorkToAgent(agentInstance);
+            if (work != NO_WORK) {
+                agent.send(new Message(Action.assignWork, work));
+            }
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(format("Matching %d agents with %d jobs took: %dms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start));
         }
     }
 

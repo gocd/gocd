@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
@@ -159,24 +160,24 @@ public class JobRunnerTest {
     @Test
     public void shouldDoNothingWhenJobIsNotCancelled() throws CruiseControlException {
         runner.setWork(work);
-        runner.handleInstruction(new AgentInstruction(false), AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+        runner.handleInstruction(new AgentInstruction(false), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
         assertThat(work.getCallCount(), is(0));
     }
 
     @Test
     public void shouldCancelOncePerJob() throws CruiseControlException {
         runner.setWork(work);
-        runner.handleInstruction(new AgentInstruction(true), AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
         assertThat(work.getCallCount(), is(1));
 
-        runner.handleInstruction(new AgentInstruction(true), AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
         assertThat(work.getCallCount(), is(1));
     }
 
     @Test
     public void shoudReturnTrueOnGetJobIsCancelledWhenJobIsCancelled() {
         assertThat(runner.isJobCancelled(), is(false));
-        runner.handleInstruction(new AgentInstruction(true), AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
         assertThat(runner.isJobCancelled(), is(true));
     }
 
@@ -197,12 +198,12 @@ public class JobRunnerTest {
             public void run() {
                 jobRunner.run(buildWork, agentIdentifier,
                         new BuildRepositoryRemoteStub(), stubPublisher(properties, consoleOut),
-                        AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null, null, null);
+                        new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
             }
         });
         Thread cancel = new Thread(new Runnable() {
             public void run() {
-                jobRunner.handleInstruction(new AgentInstruction(true), AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                jobRunner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
             }
         });
 
@@ -244,12 +245,12 @@ public class JobRunnerTest {
             public void run() {
                 jobRunner.run(buildWork, agentIdentifier,
                         new BuildRepositoryRemoteStub(), stubPublisher(properties, consoleOut),
-                        AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null), null, null, null);
+                        new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
             }
         });
         Thread cancel = new Thread(new Runnable() {
             public void run() {
-                jobRunner.handleInstruction(new AgentInstruction(true), AgentRuntimeInfo.fromAgent(agentIdentifier, "cookie", null));
+                jobRunner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
             }
         });
 

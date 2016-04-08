@@ -849,6 +849,21 @@ public class PipelineConfigTest {
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(true));
     }
+    @Test
+    public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOriginButDestinationIsDifferent()
+    {
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
+        pipelineConfig.materialConfigs().clear();
+        GitMaterialConfig pipeMaterialConfig = new GitMaterialConfig("http://git");
+        pipeMaterialConfig.setFolder("dest1");
+        pipelineConfig.materialConfigs().add(pipeMaterialConfig);
+
+        GitMaterialConfig repoMaterialConfig = new GitMaterialConfig("http://git");
+
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(repoMaterialConfig,"plugin"),"1233"));
+
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(true));
+    }
 
     @Test
     public void shouldReturnFalseWhenOneOfPipelineMaterialsIsNotTheSameAsConfigOrigin()

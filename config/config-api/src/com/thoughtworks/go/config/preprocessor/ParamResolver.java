@@ -85,7 +85,7 @@ public class ParamResolver {
                 Object nonStringLeaf = leaf.get(resolvable);
                 if (nonStringLeaf != null) {
                     Class type = leaf.getType();
-                    Field field = type.getDeclaredField(configAttributeValue(leaf).fieldName());
+                    Field field = getField(leaf, type);
                     field.setAccessible(true);
                     if (field.getType().equals(CaseInsensitiveString.class)) {
                         CaseInsensitiveString cis = (CaseInsensitiveString) field.get(nonStringLeaf);
@@ -100,6 +100,18 @@ public class ParamResolver {
             } catch (Exception e) {
                 bomb(e);
             }
+        }
+    }
+
+    private Field getField(Field leaf, Class type) throws NoSuchFieldException {
+        try {
+            return type.getDeclaredField(configAttributeValue(leaf).fieldName());
+        } catch (NoSuchFieldException e) {
+            Class superclass = type.getSuperclass();
+            if (superclass == null) {
+                throw e;
+            }
+            return getField(leaf, superclass);
         }
     }
 

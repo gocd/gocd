@@ -20,6 +20,9 @@ import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.domain.JobIdentifier;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import static java.lang.String.format;
 
 @Component
@@ -89,4 +92,20 @@ public class URLService implements ServerUrlGenerator{
         return baseRemotingURL;
     }
 
+    public String getAgentRemoteWebSocketUrl() {
+        return format("%s/%s", getWebSocketBaseUrl(), "agent-websocket");
+    }
+    public String getWebSocketBaseUrl() {
+        try {
+            URI uri = new URI(baseRemotingURL);
+            StringBuffer ret = new StringBuffer("wss://");
+            ret.append(uri.getHost()).append(":").append(uri.getPort());
+            if (uri.getPath() != null) {
+                ret.append(uri.getPath());
+            }
+            return ret.toString();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid Go Server url", e);
+        }
+    }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,12 +49,12 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public GitMaterialConfig(String url) {
         super(TYPE);
-        this.url = new UrlArgument(url);
+        setUrl(url);
     }
 
     public GitMaterialConfig(String url, String branch) {
         this(url);
-        if (branch != null) {
+        if(branch != null) {
             this.branch = branch;
         }
     }
@@ -62,7 +62,9 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name) {
         super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
-        this.branch = branch;
+        if(branch != null) {
+            this.branch = branch;
+        }
         this.submoduleFolder = submoduleFolder;
     }
 
@@ -213,7 +215,8 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         super.setConfigAttributes(attributes);
         Map map = (Map) attributes;
         if (map.containsKey(BRANCH)) {
-            this.branch = (String) map.get(BRANCH);
+            String branchName = (String) map.get(BRANCH);
+            this.branch = StringUtil.isBlank(branchName)? DEFAULT_BRANCH: branchName;
         }
         if (map.containsKey(URL)) {
             this.url = new UrlArgument((String) map.get(URL));

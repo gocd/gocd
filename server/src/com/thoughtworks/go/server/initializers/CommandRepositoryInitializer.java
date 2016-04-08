@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.zip.ZipInputStream;
-
 import com.thoughtworks.go.server.domain.Version;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -31,6 +27,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_COMMAND_SNIPPETS_ZIP;
 import static com.thoughtworks.go.util.SystemEnvironment.VERSION_FILE_IN_DEFAULT_COMMAND_REPOSITORY;
@@ -79,11 +79,8 @@ public class CommandRepositoryInitializer implements Initializer {
     }
 
     private Version getPackagedVersion() throws IOException {
-        ZipInputStream zipInputStream = getPackagedRepositoryZipStream();
-        try {
+        try (ZipInputStream zipInputStream = getPackagedRepositoryZipStream()) {
             return new Version(zipUtil.getFileContentInsideZip(zipInputStream, systemEnvironment.get(VERSION_FILE_IN_DEFAULT_COMMAND_REPOSITORY)));
-        } finally {
-            zipInputStream.close();
         }
     }
 

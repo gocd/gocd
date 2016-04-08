@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.controller;
 
@@ -25,10 +25,12 @@ import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,12 +179,14 @@ public class AgentRegistrationController {
     public ModelAndView agentRequest(@RequestParam("hostname") String hostname,
                                      @RequestParam("uuid") String uuid,
                                      @RequestParam("location") String location,
-                                     @RequestParam("usablespace") String usablespace,
-                                     @RequestParam("operating_system") String operatingSystem,
+                                     @RequestParam("usablespace") String usablespaceAsString,
+                                     @RequestParam("operatingSystem") String operatingSystem,
                                      @RequestParam("agentAutoRegisterKey") String agentAutoRegisterKey,
                                      @RequestParam("agentAutoRegisterResources") String agentAutoRegisterResources,
                                      @RequestParam("agentAutoRegisterEnvironments") String agentAutoRegisterEnvironments,
                                      @RequestParam("agentAutoRegisterHostname") String agentAutoRegisterHostname,
+                                     @RequestParam("elasticAgentId") String elasticAgentId,
+                                     @RequestParam("elasticPluginId") String elasticPluginId,
                                      HttpServletRequest request) throws IOException {
         final String ipAddress = request.getRemoteAddr();
         if (LOG.isDebugEnabled()) {
@@ -201,9 +205,17 @@ public class AgentRegistrationController {
                 );
                 goConfigService.updateConfig(compositeConfigCommand);
             }
-            keyEntry = agentService.requestRegistration(
-                    AgentRuntimeInfo.fromServer(new AgentConfig(uuid, preferredHostname, ipAddress), goConfigService.hasAgent(uuid), location,
-                            Long.parseLong(usablespace), operatingSystem));
+            AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
+            boolean registeredAlready = goConfigService.hasAgent(uuid);
+            long usablespace = Long.parseLong(usablespaceAsString);
+
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usablespace, operatingSystem);
+
+            if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
+                agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);
+            }
+
+            keyEntry = agentService.requestRegistration(agentRuntimeInfo);
         } catch (Exception e) {
             keyEntry = Registration.createNullPrivateKeyEntry();
             LOG.error("Error occured during agent registration process: ", e);
@@ -228,6 +240,10 @@ public class AgentRegistrationController {
                 }
             }
         });
+    }
+
+    private boolean elasticAgentAutoregistrationInfoPresent(@RequestParam("elasticAgentId") String elasticAgentId, @RequestParam("elasticPluginId") String elasticPluginId) {
+        return !StringUtils.isBlank(elasticAgentId) && !StringUtils.isBlank(elasticPluginId);
     }
 
     private String getPreferredHostname(String agentAutoRegisterHostname, String hostname) {

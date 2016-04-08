@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,14 @@ module ApiV1
   module Config
     module Materials
       class GitMaterialRepresenter < ScmMaterialRepresenter
-        property :branch
+        property :branch,
+                 getter: lambda {|args|
+                   branch = self.getBranch
+                   branch.blank? ? 'master' : branch
+                 },
+                 setter: lambda {|value, options|
+                   value.blank? ? self.setBranch('master') : self.setBranch(value)
+                 }
         property :submodule_folder
       end
     end

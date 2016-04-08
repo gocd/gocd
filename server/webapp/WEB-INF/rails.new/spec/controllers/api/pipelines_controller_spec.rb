@@ -17,7 +17,7 @@
 require 'spec_helper'
 
 def schedule_options(specified_revisions, variables, secure_variables = {})
-  ScheduleOptions.new(HashMap.new(specified_revisions), HashMap.new(variables), HashMap.new(secure_variables))
+  ScheduleOptions.new(HashMap.new(specified_revisions), LinkedHashMap.new(variables), HashMap.new(secure_variables))
 end
 
 describe Api::PipelinesController do

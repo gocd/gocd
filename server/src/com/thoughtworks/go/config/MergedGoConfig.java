@@ -35,6 +35,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+
 /**
  * @understands when to reload the config file or other config source
  */
@@ -116,6 +118,13 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
         List<ConfigErrors> validationErrors = new ArrayList<ConfigErrors>();
         validationErrors.addAll(config.validateAfterPreprocess());
         return validationErrors;
+    }
+
+    //used in tests
+    public void throwExceptionIfExists() {
+        if (lastException != null) {
+            throw bomb("Invalid config file", lastException);
+        }
     }
 
     // used in tests

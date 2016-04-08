@@ -1,0 +1,963 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:annotation>
+        <xsd:documentation xml:lang="en">
+            Configuration schema for Go. Copyright (c) 2013 ThoughtWorks, Inc.
+            www.thoughtworks.com. All rights reserved.
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:element name="cruise">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="1" name="server">
+                    <xsd:complexType>
+                        <xsd:all>
+                            <xsd:element minOccurs="0" maxOccurs="1" name="security" type="securityType"/>
+                            <xsd:element minOccurs="0" maxOccurs="1" name="mailhost" type="mailHostType"/>
+                        </xsd:all>
+                        <xsd:attributeGroup ref="serverAttributeGroup"/>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element minOccurs="0" maxOccurs="1" name="repositories" type="repositoriesType">
+                    <xsd:unique name="uniqueRepositoryId">
+                        <xsd:selector xpath="repository"/>
+                        <xsd:field xpath="@id"/>
+                    </xsd:unique>
+                    <xsd:unique name="uniqueRepositoryName">
+                        <xsd:selector xpath="repository"/>
+                        <xsd:field xpath="@name"/>
+                    </xsd:unique>
+                </xsd:element>
+                <xsd:element minOccurs="0" maxOccurs="1" name="scms" type="scmsType">
+                    <xsd:unique name="uniqueSCMName">
+                        <xsd:selector xpath="scm"/>
+                        <xsd:field xpath="@name"/>
+                    </xsd:unique>
+                </xsd:element>
+                <xsd:element minOccurs="0" maxOccurs="1" name="config-repos" type="configReposType">
+                </xsd:element>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="pipelines" type="pipelinesType"/>
+                <xsd:element minOccurs="0" maxOccurs="1" name="templates" type="templatesType">
+                    <xsd:unique name="uniquePipelineTemplateName">
+                        <xsd:selector xpath="pipeline"/>
+                        <xsd:field xpath="@name"/>
+                    </xsd:unique>
+                </xsd:element>
+                <xsd:element minOccurs="0" maxOccurs="1" name="environments" type="environmentsType">
+                    <xsd:unique name="uniqueEnvironmentName">
+                        <xsd:selector xpath="environment"/>
+                        <xsd:field xpath="@name"/>
+                    </xsd:unique>
+                    <xsd:unique name="uniqueEnvironmentPipelineName">
+                        <xsd:selector xpath=".//environment/pipelines/pipeline"/>
+                        <xsd:field xpath="@name"/>
+                    </xsd:unique>
+                </xsd:element>
+                <xsd:element minOccurs="0" name="agents" type="agentsType">
+                    <xsd:unique name="uniqueUuid">
+                        <xsd:selector xpath="agent"/>
+                        <xsd:field xpath="@uuid"/>
+                    </xsd:unique>
+                </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="77"/>
+        </xsd:complexType>
+        <xsd:unique name="uniquePipelines">
+            <xsd:selector xpath="pipelines"/>
+            <xsd:field xpath="@group"/>
+        </xsd:unique>
+        <xsd:unique name="uniquePackageId">
+            <xsd:selector xpath="repositories/repository/packages/package"/>
+            <xsd:field xpath="@id"/>
+        </xsd:unique>
+        <xsd:keyref name="packageIdReferredByMaterial" refer="uniquePackageId">
+            <xsd:selector xpath="pipelines/pipeline/materials/package"/>
+            <xsd:field xpath="@ref"/>
+        </xsd:keyref>
+        <xsd:unique name="uniqueSCMId">
+            <xsd:selector xpath="scms/scm"/>
+            <xsd:field xpath="@id"/>
+        </xsd:unique>
+        <xsd:keyref name="scmIdReferredByMaterial" refer="uniqueSCMId">
+            <xsd:selector xpath="pipelines/pipeline/materials/scm"/>
+            <xsd:field xpath="@ref"/>
+        </xsd:keyref>
+    </xsd:element>
+
+    <xsd:complexType name="repositoriesType">
+        <xsd:sequence>
+            <xsd:element name="repository" minOccurs="0" maxOccurs="unbounded" type="repositoryType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="repositoryType">
+        <xsd:sequence>
+            <xsd:element name="pluginConfiguration" minOccurs="1" maxOccurs="1" type="pluginConfigurationType"/>
+            <xsd:element name="configuration" minOccurs="1" maxOccurs="1" type="configurationType"/>
+            <xsd:element name="packages" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="package" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element name="configuration" minOccurs="1" maxOccurs="1" type="configurationType"/>
+                                </xsd:sequence>
+                                <xsd:attribute type="packageIdType" name="id"/>
+                                <xsd:attribute type="nameType" name="name" use="required"/>
+                                <xsd:attribute type="xsd:boolean" name="autoUpdate" use="optional"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+                <xsd:unique name="uniquePackageName">
+                    <xsd:selector xpath="package"/>
+                    <xsd:field xpath="@name"/>
+                </xsd:unique>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute type="repoIdType" name="id"/>
+        <xsd:attribute type="nameType" name="name" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="configReposType">
+        <xsd:sequence>
+            <xsd:element name="config-repo" minOccurs="0" maxOccurs="unbounded" type="configRepoType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="configRepoType">
+        <xsd:sequence>
+            <xsd:choice minOccurs="1" maxOccurs="1">
+                <xsd:element name="svn" type="svnType"/>
+                <xsd:element name="hg" type="hgType"/>
+                <xsd:element name="p4" type="p4Type"/>
+                <xsd:element name="git" type="gitType"/>
+                <xsd:element name="tfs" type="tfsType"/>
+                <xsd:element name="scm" type="scmReferenceType"/>
+            </xsd:choice>
+            <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
+        </xsd:sequence>
+        <xsd:attribute type="nameType" name="plugin" use="optional"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="scmsType">
+        <xsd:sequence>
+            <xsd:element name="scm" minOccurs="0" maxOccurs="unbounded" type="scmType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="scmType">
+        <xsd:sequence>
+            <xsd:element name="pluginConfiguration" minOccurs="1" maxOccurs="1" type="pluginConfigurationType"/>
+            <xsd:element name="configuration" minOccurs="1" maxOccurs="1" type="configurationType"/>
+        </xsd:sequence>
+        <xsd:attribute type="scmIdType" name="id"/>
+        <xsd:attribute type="nameType" name="name" use="required"/>
+        <xsd:attribute type="xsd:boolean" name="autoUpdate" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="pluginConfigurationType">
+        <xsd:attribute type="xsd:string" name="id"/>
+        <xsd:attribute type="xsd:string" name="version" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="configurationType">
+        <xsd:sequence>
+            <xsd:element name="property" minOccurs="1" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element type="xsd:string" name="key"/>
+                        <xsd:element type="xsd:string" name="value" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element type="xsd:string" name="encryptedValue" minOccurs="0" maxOccurs="1"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="securityType">
+        <xsd:all>
+            <xsd:element minOccurs="0" maxOccurs="1" name="ldap" type="ldapType"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="passwordFile" type="passwordfileType"/>
+            <xsd:element minOccurs="0" maxOccurs="1" name="roles" type="rolesType">
+                <xsd:unique name="uniqueRole">
+                    <xsd:selector xpath="role"/>
+                    <xsd:field xpath="@name"/>
+                    <!-- Unique role name -->
+                </xsd:unique>
+            </xsd:element>
+            <xsd:element minOccurs="0" maxOccurs="1" name="admins" type="adminType">
+                <xsd:unique name="uniqueUserInAdmins">
+                    <xsd:selector xpath="user"/>
+                    <xsd:field xpath="."/>
+                </xsd:unique>
+                <xsd:unique name="uniqueRoleInAdmins">
+                    <xsd:selector xpath="role"/>
+                    <xsd:field xpath="."/>
+                </xsd:unique>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute name="anonymous" type="xsd:boolean"/>
+        <xsd:attribute name="allowOnlyKnownUsersToLogin" type="xsd:boolean"/>
+    </xsd:complexType>
+    <xsd:complexType name="mailHostType">
+        <xsd:attribute name="hostname" type="xsd:string" use="required"/>
+        <xsd:attribute name="port" type="xsd:integer" use="required"/>
+        <xsd:attribute name="username" type="xsd:string"/>
+        <xsd:attribute name="password" type="xsd:string"/>
+        <xsd:attribute name="encryptedPassword" type="xsd:string"/>
+        <xsd:attribute name="tls" type="xsd:boolean" use="required"/>
+        <xsd:attribute name="from" type="emailType" use="required"/>
+        <xsd:attribute name="admin" type="emailType" use="required"/>
+    </xsd:complexType>
+    <xsd:simpleType name="emailType">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value=".*@.*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="rolesType">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="unbounded" name="role">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="users">
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element minOccurs="0" maxOccurs="unbounded" name="user">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:string">
+                                                <xsd:minLength value="1"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                    <xsd:attribute name="name" type="nameType" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="adminType">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="user" type="xsd:string"/>
+            <xsd:element name="role" type="xsd:string"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="ldapType">
+        <xsd:sequence>
+            <xsd:element name="bases" type="searchBasesType"/>
+        </xsd:sequence>
+        <xsd:attribute name="uri" type="xsd:string" use="required"/>
+        <xsd:attribute name="managerDn" type="xsd:string"/>
+        <xsd:attribute name="managerPassword" type="xsd:string"/>
+        <xsd:attribute name="encryptedManagerPassword" type="xsd:string"/>
+        <xsd:attribute name="searchFilter" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="searchBasesType">
+        <xsd:sequence>
+            <xsd:element name="base" type="searchBaseType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="searchBaseType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute type="xsd:string" name="value"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:complexType name="passwordfileType">
+        <xsd:attribute name="path" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    <xsd:complexType name="pipelinesType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="1" name="authorization" type="authorizationType"/>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="pipeline">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="0" maxOccurs="1" ref="params"/>
+                        <xsd:choice minOccurs="0" maxOccurs="1">
+                            <xsd:element name="trackingtool" type="trackingToolType"/>
+                            <xsd:element name="mingle" type="mingleType"/>
+                        </xsd:choice>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="timer" type="timerType"/>
+                        <xsd:element minOccurs="0" maxOccurs="1" ref="environmentvariables"/>
+                        <xsd:element minOccurs="0" maxOccurs="unbounded" name="dependencies" type="dependenciesType"/>
+                        <xsd:element name="materials" type="materialsType">
+                            <xsd:unique name="uniqueDependencyMaterial">
+                                <xsd:selector xpath="pipeline"/>
+                                <xsd:field xpath="@pipelineName"/>
+                                <xsd:field xpath="@stageName"/>
+                            </xsd:unique>
+                        </xsd:element>
+                        <xsd:element minOccurs="0" maxOccurs="unbounded" name="stage" type="stageType"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="name" type="nameType" use="required"/>
+                    <xsd:attribute name="labeltemplate" type="labelType"/>
+                    <xsd:attribute name="isLocked" type="xsd:boolean"/>
+                    <xsd:attribute name="template" type="nameType" use="optional"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="group" use="optional" default="defaultGroup" type="nameType"/>
+    </xsd:complexType>
+    <xsd:complexType name="stageType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="1" name="approval" type="approvalType"/>
+            <xsd:element minOccurs="0" maxOccurs="1" ref="environmentvariables"/>
+            <xsd:element maxOccurs="unbounded" name="jobs" type="jobsType">
+                <xsd:unique name="uniqueJob">
+                    <xsd:selector xpath="job"/>
+                    <xsd:field xpath="@name"/>
+                </xsd:unique>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="nameType" use="required"/>
+        <xsd:attribute name="fetchMaterials" type="xsd:boolean"/>
+        <xsd:attribute name="cleanWorkingDir" type="xsd:boolean"/>
+        <xsd:attribute name="artifactCleanupProhibited" type="xsd:boolean"/>
+    </xsd:complexType>
+    <xsd:complexType name="approvalType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="1" name="authorization" type="authorizedUserListType"/>
+        </xsd:sequence>
+        <xsd:attribute name="type" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="success"/>
+                    <xsd:enumeration value="manual"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+    <xsd:complexType name="materialsType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="pipeline" type="pipelineType"/>
+            <xsd:element name="svn" type="svnType"/>
+            <xsd:element name="hg" type="hgType"/>
+            <xsd:element name="p4" type="p4Type"/>
+            <xsd:element name="git" type="gitType"/>
+            <xsd:element name="tfs" type="tfsType"/>
+            <xsd:element name="package" type="packageType"/>
+            <xsd:element name="scm" type="scmReferenceType"/>
+        </xsd:choice>
+    </xsd:complexType>
+    <xsd:complexType name="pipelineType">
+        <xsd:attribute name="pipelineName" type="xsd:string" use="required"/>
+        <xsd:attribute name="stageName" type="xsd:string" use="required"/>
+        <xsd:attribute name="materialName" type="nameType" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="svnType">
+        <xsd:sequence>
+            <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="url" type="xsd:string" use="required"/>
+        <xsd:attribute name="username" type="xsd:string"/>
+        <xsd:attribute name="password" type="xsd:string"/>
+        <xsd:attribute name="encryptedPassword" type="xsd:string"/>
+        <xsd:attribute name="checkexternals" type="xsd:boolean"/>
+        <xsd:attribute name="dest" type="filePathType" use="optional"/>
+        <xsd:attribute name="materialName" type="nameType" use="optional"/>
+        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="p4Type">
+        <xsd:sequence>
+            <xsd:element name="view" minOccurs="1" maxOccurs="1"/>
+            <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="port" type="xsd:string" use="required"/>
+        <xsd:attribute name="username" type="xsd:string"/>
+        <xsd:attribute name="password" type="xsd:string"/>
+        <xsd:attribute name="encryptedPassword" type="xsd:string"/>
+        <xsd:attribute name="useTickets" type="xsd:boolean" use="optional"/>
+        <xsd:attribute name="dest" type="filePathType" use="optional"/>
+        <xsd:attribute name="materialName" type="nameType" use="optional"/>
+        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="gitType">
+        <xsd:sequence>
+            <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="url" type="xsd:string" use="required"/>
+        <xsd:attribute name="dest" type="filePathType" use="optional"/>
+        <xsd:attribute name="branch" type="xsd:string" use="optional"/>
+        <xsd:attribute name="materialName" type="nameType" use="optional"/>
+        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="hgType">
+        <xsd:sequence>
+            <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="url" type="xsd:string" use="required"/>
+        <xsd:attribute name="dest" type="filePathType" use="optional"/>
+        <xsd:attribute name="materialName" type="nameType" use="optional"/>
+        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="tfsType">
+        <xsd:sequence>
+            <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="url" type="xsd:string" use="required"/>
+        <xsd:attribute name="username" type="xsd:string" use="required"/>
+        <xsd:attribute name="domain" type="xsd:string"/>
+        <xsd:attribute name="password" type="xsd:string"/>
+        <xsd:attribute name="encryptedPassword" type="xsd:string"/>
+        <xsd:attribute name="projectPath" type="xsd:string" use="required"/>
+        <xsd:attribute name="dest" type="filePathType" use="optional"/>
+        <xsd:attribute name="materialName" type="nameType" use="optional"/>
+        <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="packageType">
+        <xsd:attribute name="ref" type="xsd:string" use="required">
+        </xsd:attribute>
+    </xsd:complexType>
+    <xsd:complexType name="scmReferenceType">
+        <xsd:sequence>
+            <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="ref" type="xsd:string" use="required" />
+        <xsd:attribute name="dest" type="filePathType" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="jobsType">
+        <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" name="job" type="jobType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="jobType">
+        <xsd:all>
+            <xsd:element ref="environmentvariables" minOccurs="0" maxOccurs="1"/>
+            <xsd:element minOccurs="0" name="tasks" type="tasksType"/>
+            <xsd:element minOccurs="0" name="artifacts" type="artifactsType"/>
+            <xsd:element minOccurs="0" name="resources" type="resourcesType"/>
+            <xsd:element minOccurs="0" name="tabs" type="tabsType">
+                <xsd:unique name="uniqueTabsName">
+                    <xsd:selector xpath="tab"/>
+                    <xsd:field xpath="@name"/>
+                </xsd:unique>
+            </xsd:element>
+            <xsd:element minOccurs="0" name="properties" type="propertiesType">
+                <xsd:unique name="uniqueProperty">
+                    <xsd:selector xpath="property"/>
+                    <xsd:field xpath="@name"/>
+                </xsd:unique>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute name="name" type="jobnameType" use="required"/>
+        <xsd:attribute name="runOnAllAgents" type="xsd:boolean" use="optional" default="false"/>
+        <xsd:attribute name="runInstanceCount" type="xsd:positiveInteger" use="optional"/>
+        <xsd:attribute name="timeout" type="xsd:double" use="optional"/>
+    </xsd:complexType>
+    <xsd:complexType name="resourcesType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="resource" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="tabsType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" ref="tab"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:attributeGroup name="taskAttributes">
+        <xsd:attribute name="workingdir" type="xsd:string" use="optional"/>
+        <xsd:attribute name="buildfile" type="xsd:string" use="optional"/>
+        <xsd:attribute name="target" type="xsd:string" use="optional"/>
+    </xsd:attributeGroup>
+    <xsd:complexType name="taskType" abstract="true">
+    </xsd:complexType>
+    <xsd:complexType name="pluggableTaskType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="taskType">
+                <xsd:sequence>
+                    <xsd:element name="pluginConfiguration" minOccurs="1" maxOccurs="1" type="pluginConfigurationType"/>
+                    <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element name="runif" type="runIfType"/>
+                        <xsd:element name="oncancel" type="onCancelType"/>
+                    </xsd:choice>
+                </xsd:sequence>
+                <xsd:attribute name="description" type="xsd:string" use="optional"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="antType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="taskType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="runif" type="runIfType"/>
+                    <xsd:element name="oncancel" type="onCancelType"/>
+                </xsd:choice>
+                <xsd:attributeGroup ref="taskAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="nantType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="taskType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="runif" type="runIfType"/>
+                    <xsd:element name="oncancel" type="onCancelType"/>
+                </xsd:choice>
+                <xsd:attributeGroup ref="taskAttributes"/>
+                <xsd:attribute name="nantpath" type="xsd:string" use="optional"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="execType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="taskType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="runif" type="runIfType"/>
+                    <xsd:element name="oncancel" type="onCancelType"/>
+                    <xsd:element name="arg" type="xsd:string"/>
+                </xsd:choice>
+                <xsd:attributeGroup ref="execAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="rakeType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="taskType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="runif" type="runIfType"/>
+                    <xsd:element name="oncancel" type="onCancelType"/>
+                </xsd:choice>
+                <xsd:attributeGroup ref="taskAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="fetchType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="taskType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="runif" type="runIfType"/>
+                    <xsd:element name="oncancel" type="onCancelType"/>
+                </xsd:choice>
+                <xsd:attribute name="pipeline" type="xsd:string" use="optional"/>
+                <xsd:attribute name="stage" type="xsd:string" use="required"/>
+                <xsd:attribute name="job" type="xsd:string" use="required"/>
+                <xsd:attribute name="srcdir" type="filePathType"/>
+                <xsd:attribute name="srcfile" type="filePathType"/>
+                <xsd:attribute name="dest" type="filePathType"/>
+                <xsd:attributeGroup ref="taskAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element abstract="true" name="baseTask" type="taskType"/>
+    <xsd:element name="task" substitutionGroup="baseTask" type="pluggableTaskType">
+        <xsd:unique name='uniqueRunIfTypeForPluggableTask'>
+            <xsd:selector xpath="runif"/>
+            <xsd:field xpath="@status"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="ant" substitutionGroup="baseTask" type="antType">
+        <xsd:unique name='uniqueRunIfTypeForAnt'>
+            <xsd:selector xpath="runif"/>
+            <xsd:field xpath="@status"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="nant" substitutionGroup="baseTask" type="nantType">
+        <xsd:unique name='uniqueRunIfTypeForNant'>
+            <xsd:selector xpath="runif"/>
+            <xsd:field xpath="@status"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="exec" substitutionGroup="baseTask" type="execType">
+        <xsd:unique name='uniqueRunIfTypeForExec'>
+            <xsd:selector xpath="runif"/>
+            <xsd:field xpath="@status"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="rake" substitutionGroup="baseTask" type="rakeType">
+        <xsd:unique name='uniqueRunIfTypeForRake'>
+            <xsd:selector xpath="runif"/>
+            <xsd:field xpath="@status"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="fetchartifact" substitutionGroup="baseTask" type="fetchType">
+        <xsd:unique name='uniqueRunIfTypeForFetch'>
+            <xsd:selector xpath="runif"/>
+            <xsd:field xpath="@status"/>
+        </xsd:unique>
+    </xsd:element>
+
+    <xsd:complexType name="tasksType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" ref="baseTask"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="artifactsType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" ref="artifactType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="abstractArtifactType" abstract="true"/>
+
+    <xsd:complexType name="testType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="abstractArtifactType">
+                <xsd:attributeGroup ref="genericArtifactAttributeGroup"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="artifactType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="abstractArtifactType">
+                <xsd:attributeGroup ref="genericArtifactAttributeGroup"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:element abstract="true" name="artifactType" type="abstractArtifactType"/>
+    <xsd:element name="test" substitutionGroup="artifactType" type="testType"/>
+    <xsd:element name="artifact" substitutionGroup="artifactType" type="artifactType"/>
+
+    <xsd:attributeGroup name="genericArtifactAttributeGroup">
+        <xsd:attribute name="src" type="xsd:string"/>
+        <xsd:attribute name="dest" type="filePathType"/>
+    </xsd:attributeGroup>
+    <xsd:complexType name="templatesType">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="unbounded" name="pipeline">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="authorization" type="adminOnlyAuthorizationType"/>
+                        <xsd:element minOccurs="1" maxOccurs="unbounded" name="stage" type="stageType" />
+                    </xsd:sequence>
+                    <xsd:attribute name="name" type="nameType"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="adminOnlyAuthorizationType">
+        <xsd:all>
+            <xsd:element name="admins" type="adminType" minOccurs="0" maxOccurs="1"/>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:complexType name="environmentsType">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="unbounded" name="environment">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element ref="environmentvariables" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="agents" type="environmentAgentsType">
+                            <xsd:unique name="uniqueEnvironmentAgentsUuid">
+                                <xsd:selector xpath="physical"/>
+                                <xsd:field xpath="@uuid"/>
+                            </xsd:unique>
+                        </xsd:element>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="pipelines" type="environmentPipelinesType"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="name" type="environmentName" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="environmentAgentsType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="physical">
+                <xsd:complexType>
+                    <xsd:attribute name="uuid" type="xsd:string" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="environmentPipelinesType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="pipeline">
+                <xsd:complexType>
+                    <xsd:attribute name="name" type="nameType" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="agentsType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="agent">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element minOccurs="0" name="resources" type="resourcesType"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="hostname" type="xsd:string" use="required"/>
+                    <xsd:attribute name="ipaddress" type="xsd:string" use="required"/>
+                    <xsd:attribute name="uuid" type="xsd:string" use="required"/>
+                    <xsd:attribute name="isDisabled" type="xsd:boolean" use="optional"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:simpleType name="nameType">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="255"/>
+            <xsd:pattern value="[a-zA-Z0-9_\-]{1}[a-zA-Z0-9_\-.]*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="repoIdType">
+        <xsd:restriction base="nameType"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="packageIdType">
+        <xsd:restriction base="nameType"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="scmIdType">
+        <xsd:restriction base="nameType"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="environmentName">
+        <xsd:restriction base="nameType"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="propertyNameType">
+        <xsd:restriction base="nameType">
+            <xsd:maxLength value="255"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="middleLengthString">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="512"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="nonEmptyString">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[\s]*[\S][\s\S]*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="labelType">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)\])?\}([a-zA-Z0-9_\-.!~*'()#:])*)+"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="jobnameType">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="255"/>
+            <xsd:pattern value="[a-zA-Z0-9_\-.]+"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:attributeGroup name="serverAttributeGroup">
+        <xsd:attribute name="serverId" type="xsd:string"/>
+        <xsd:attribute name="artifactsdir" type="xsd:string"/>
+        <xsd:attribute name="commandRepositoryLocation" type="xsd:string"/>
+        <xsd:attribute name="siteUrl">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="https?://.+"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="secureSiteUrl">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="https://.+"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="purgeStart" type="xsd:double"/>
+        <xsd:attribute name="purgeUpto" type="xsd:double"/>
+        <xsd:attribute name="jobTimeout" type="xsd:double"/>
+        <xsd:attribute name="agentAutoRegisterKey" type="xsd:string"/>
+    </xsd:attributeGroup>
+    <xsd:attributeGroup name="execAttributes">
+        <xsd:attribute name="command" type="commandType" use="required"/>
+        <xsd:attribute name="args" type="xsd:string"/>
+        <xsd:attribute name="workingdir" type="filePathType"/>
+        <xsd:attribute name="timeout" type="xsd:positiveInteger"/>
+    </xsd:attributeGroup>
+    <xsd:simpleType name="commandType">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="\S+(.*\S+)*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="dependsType">
+        <xsd:attribute use="required" name="pipeline" type="xsd:string"/>
+        <xsd:attribute use="required" name="stage" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="dependenciesType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="depends" type="dependsType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="tab">
+        <xsd:complexType>
+            <xsd:attribute name="name" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:maxLength value="15"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="path" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:pattern value="[\S]+"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:simpleType name="filePathType">
+        <xsd:restriction base="xsd:string" xml:space="default">
+            <xsd:pattern value="([^. ].+[^. ])|([^. ][^. ])|([^. ])"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="timerType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string" xml:space="default">
+                <xsd:attribute name="onlyOnChanges" type="xsd:boolean"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    <xsd:complexType name="propertiesType">
+        <xsd:sequence>
+            <xsd:element name="property" minOccurs="1" maxOccurs="unbounded" type="propertyType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="propertyType">
+        <xsd:attribute name="name" type="propertyNameType" use="required"/>
+        <xsd:attribute name="src" type="middleLengthString"/>
+        <xsd:attribute name="xpath" type="middleLengthString"/>
+    </xsd:complexType>
+    <xsd:complexType name="trackingToolType">
+        <xsd:attribute name="link" type="xsd:string" use="required"/>
+        <xsd:attribute name="regex" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    <xsd:complexType name="mingleType">
+        <xsd:sequence>
+            <xsd:element name="mqlGroupingConditions" minOccurs="0" maxOccurs="1">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string" xml:space="default"/>
+                </xsd:simpleType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="baseUrl" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string"/>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="projectIdentifier" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="[^\s]+"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+    <xsd:element name="filter" type="filterType"/>
+    <xsd:complexType name="filterType">
+        <xsd:sequence>
+            <xsd:element name="ignore" minOccurs="1" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:attribute name="pattern" type="xsd:string" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="runIfType">
+        <xsd:attribute name="status" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="passed"/>
+                    <xsd:enumeration value="failed"/>
+                    <xsd:enumeration value="any"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+    <xsd:complexType name="onCancelType">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element ref="baseTask" minOccurs="0" maxOccurs="1"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="oncancel" type="onCancelType"/>
+    <xsd:element name="runif" type="runIfType"/>
+    <xsd:complexType name="authorizationType">
+        <xsd:all>
+            <xsd:element name="view" type="authorizedUserListType" minOccurs="0" maxOccurs="1">
+                <xsd:unique name="uniqueUserInView">
+                    <xsd:selector xpath="user"/>
+                    <xsd:field xpath="."/>
+                </xsd:unique>
+                <xsd:unique name="uniqueRoleInView">
+                    <xsd:selector xpath="role"/>
+                    <xsd:field xpath="."/>
+                </xsd:unique>
+            </xsd:element>
+            <xsd:element name="operate" type="authorizedUserListType" minOccurs="0" maxOccurs="1">
+                <xsd:unique name="uniqueUserInOperate">
+                    <xsd:selector xpath="user"/>
+                    <xsd:field xpath="."/>
+                </xsd:unique>
+                <xsd:unique name="uniqueRoleInOperate">
+                    <xsd:selector xpath="role"/>
+                    <xsd:field xpath="."/>
+                </xsd:unique>
+            </xsd:element>
+            <xsd:element name="admins" type="adminType" minOccurs="0" maxOccurs="1"/>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:complexType name="authorizedUserListType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="user" type="xsd:string"/>
+            <xsd:element name="role" type="xsd:string"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:element name="environmentvariables">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="variable" minOccurs="0" maxOccurs="unbounded" type="variableType"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="params">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="param" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:simpleContent>
+                            <xsd:extension base="xsd:string">
+                                <xsd:attribute name="name" type="nameType" use="required"/>
+                            </xsd:extension>
+                        </xsd:simpleContent>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="variableType">
+        <xsd:all>
+            <xsd:element name="value" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                    <xsd:simpleContent>
+                        <xsd:extension base="xsd:string"/>
+                    </xsd:simpleContent>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="encryptedValue" minOccurs="0" maxOccurs="1">
+                <xsd:complexType>
+                    <xsd:simpleContent>
+                        <xsd:extension base="xsd:string"/>
+                    </xsd:simpleContent>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="secure" type="xsd:boolean"/>
+    </xsd:complexType>
+</xsd:schema>

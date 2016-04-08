@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -34,7 +33,7 @@ import java.util.Map;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @ConfigTag("pipelines")
-@ConfigCollection(value = PipelineConfig.class, asFieldName = "pipelines")
+@ConfigCollection(PipelineConfig.class)
 public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs, Serializable {
 
 

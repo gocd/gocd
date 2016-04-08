@@ -34,6 +34,8 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -128,6 +130,7 @@ public class BuildCauseProducerServiceTest {
 
         triggerMonitor = new TriggerMonitor();
         healthStateType = HealthStateType.general(HealthStateScope.forPipeline(CaseInsensitiveString.str(pipelineConfig.name())));
+        when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
 
         buildCauseProducerService = createBuildCauseProducerService(mockMaterialUpdateStatusNotifier);
     }
@@ -141,17 +144,17 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void onErrorShouldUpdateServerHealthWhenUpdateServerHealthStatusByDefault() throws Exception {
-        buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig, new ScheduleOptions(), errorResult());
+        buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), errorResult());
         verify(mockServerHealthService).update(SERVER_ERROR);
     }
 
     @Test
     public void shouldAllowRetriggeringIfThePreviousTriggerFailed() throws Exception {
 
-        buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig, new ScheduleOptions(), errorResult());
+        buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), errorResult());
 
         HttpOperationResult result = new HttpOperationResult();
-        buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig, new ScheduleOptions(), result);
+        buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), result);
         assertThat(result.httpCode(), is(202));
 
     }
@@ -170,7 +173,7 @@ public class BuildCauseProducerServiceTest {
 
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig, new ScheduleOptions(), result);
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), result);
         assertThat(result.getServerHealthState().isSuccess(), is(true));
 
         verify(mockMaterialUpdateService, times(2)).updateMaterial(any(Material.class));
@@ -191,7 +194,7 @@ public class BuildCauseProducerServiceTest {
         });
 
         buildCauseProducerService.markPipelineAsAlreadyTriggered(pipelineConfig);
-        buildCauseProducerService.manualSchedulePipeline(user, pipelineConfig, new ScheduleOptions(), result);
+        buildCauseProducerService.manualSchedulePipeline(user, pipelineConfig.name(), new ScheduleOptions(), result);
 
         assertThat(result.canContinue(), is(false));
         assertThat(result.message(), is("Failed to force pipeline: pipeline"));
@@ -206,7 +209,7 @@ public class BuildCauseProducerServiceTest {
             throws Exception {
         try {
             when(operationResult.canContinue()).thenThrow(new RuntimeException("force a failure"));
-            buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig, new ScheduleOptions(), operationResult);
+            buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), operationResult);
             fail("expected exception, got none");
         } catch (Exception e) {
             assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(false));
@@ -225,7 +228,7 @@ public class BuildCauseProducerServiceTest {
         when(pipelineScheduleQueue.mostRecentScheduled(CaseInsensitiveString.str(pipelineConfig.name()))).thenReturn(BuildCause.createNeverRun());
         when(materialRepository.findLatestModification(hgMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(hgMaterial, new ArrayList<Modification>())));
 
-        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig, new ScheduleOptions(), new ServerHealthStateOperationResult());
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(true));
         sendMaterialUpdateCompleteMessage(extractMaterialListenerInstanceFromRegisterCall(), hgMaterial);
         assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(false));
@@ -239,7 +242,7 @@ public class BuildCauseProducerServiceTest {
         pipelineConfig.addMaterialConfig(hgMaterialConfig);
         when(materialConfigConverter.toMaterial(hgMaterialConfig)).thenReturn(hgMaterial);
 
-        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig, new ScheduleOptions(), new ServerHealthStateOperationResult());
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         sendMaterialUpdateFailedMessage(extractMaterialListenerInstanceFromRegisterCall(), hgMaterial);
         assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(false));
     }
@@ -270,7 +273,7 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void shouldNotCheckForModificationsUnableToTriggerManualPipeline() throws Exception {
-        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig, new ScheduleOptions(), errorResult());
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), errorResult());
         verify(mockMaterialUpdateService, never()).updateMaterial(any(Material.class));
         verify(mockMaterialUpdateStatusNotifier, never()).registerListenerFor(eq(pipelineConfig),
                 any(MaterialUpdateStatusListener.class));
@@ -292,7 +295,7 @@ public class BuildCauseProducerServiceTest {
 
         MaterialUpdateStatusNotifier notifier = new MaterialUpdateStatusNotifier(mock(MaterialUpdateCompletedTopic.class));
         buildCauseProducerService = spy(createBuildCauseProducerService(notifier));
-        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig, new ScheduleOptions(), new ServerHealthStateOperationResult());
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         final HashMap<String, String> stringStringHashMap = new HashMap<String, String>();
         doReturn(ServerHealthState.success(healthStateType)).when(buildCauseProducerService).newProduceBuildCause(
                 eq(pipelineConfig), any(ManualBuild.class),
@@ -312,7 +315,7 @@ public class BuildCauseProducerServiceTest {
     public void shouldUpdateResultAsAcceptedOnSuccess() throws Exception {
         when(mockMaterialUpdateStatusNotifier.hasListenerFor(pipelineConfig)).thenReturn(false);
         when(operationResult.canContinue()).thenReturn(true);
-        buildCauseProducerService.manualSchedulePipeline(Username.BLANK, pipelineConfig, new ScheduleOptions(), operationResult);
+        buildCauseProducerService.manualSchedulePipeline(Username.BLANK, pipelineConfig.name(), new ScheduleOptions(), operationResult);
         verify(operationResult).accepted(eq("Request to schedule pipeline pipeline accepted"), any(String.class),
                 any(HealthStateType.class));
     }
@@ -390,7 +393,7 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
         when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(material2);
 
-        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig,
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
                 new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
                 new ServerHealthStateOperationResult());
         verify(mockMaterialUpdateService, times(1)).updateMaterial(any(Material.class));
@@ -398,6 +401,90 @@ public class BuildCauseProducerServiceTest {
         statusListener.onMaterialUpdate(new MaterialUpdateFailedMessage(materials[0], 0, new Exception("Cannot connect to repo")));
         verify(mockMaterialUpdateStatusNotifier).removeListenerFor(pipelineConfig);
 
+    }
+
+    @Test
+    public void manualTrigger_shouldUpdatePipelineConfigWhenMaterialIsConfigRepo() {
+        HgMaterial material1 = new HgMaterial("url", null);
+        HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
+
+        pipelineConfig.addMaterialConfig(materialConfig1);
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1,"plug"),"revision1"));
+
+        when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
+        when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
+
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
+                new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
+                new ServerHealthStateOperationResult());
+        verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
+
+        MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
+        statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
+        verify(mockMaterialUpdateStatusNotifier).removeListenerFor(pipelineConfig);
+
+        verify(goConfigService, times(2)).pipelineConfigNamed(pipelineConfig.name());
+    }
+
+    @Test
+    public void manualTrigger_shouldNotUpdatePipelineConfigWhenConfigRepoIsNotInMaterials() {
+        HgMaterial material1 = new HgMaterial("url", null);
+        HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
+        HgMaterialConfig materialConfig2 = new HgMaterialConfig("url2", null);
+
+        pipelineConfig.addMaterialConfig(materialConfig1);
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig2,"plug"),"revision1"));
+
+        when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
+
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
+                new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
+                new ServerHealthStateOperationResult());
+        verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
+
+        MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
+        statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
+        verify(mockMaterialUpdateStatusNotifier).removeListenerFor(pipelineConfig);
+
+        verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
+    }
+
+    @Test
+    public void manualTrigger_shouldRequestUpdateOfNewMaterials_WhenPipelineConfigInConfigRepo() {
+        HgMaterial material1 = new HgMaterial("url", null);
+        HgMaterial material2 = new HgMaterial("url2", null);
+        HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
+        HgMaterialConfig materialConfig2 = new HgMaterialConfig("url2", null);
+
+        pipelineConfig.addMaterialConfig(materialConfig1);
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1,"plug"),"revision1"));
+
+        when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
+        when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(material2);
+
+        buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
+                new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
+                new ServerHealthStateOperationResult());
+        verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
+
+        // updated pipeline config
+        PipelineConfig pipelineConfig1 = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
+        pipelineConfig1.addMaterialConfig(materialConfig1);
+        pipelineConfig1.addMaterialConfig(materialConfig2);
+        when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig1);
+        when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
+
+        MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
+        statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
+
+        verify(goConfigService, times(2)).pipelineConfigNamed(pipelineConfig.name());
+
+        verify(mockMaterialUpdateService,times(1)).updateMaterial(material1);
+        verify(mockMaterialUpdateService,times(1)).updateMaterial(material2);
+
+        statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material2, 0));
+
+        verify(mockMaterialUpdateStatusNotifier).removeListenerFor(pipelineConfig1);
     }
 
     @Test

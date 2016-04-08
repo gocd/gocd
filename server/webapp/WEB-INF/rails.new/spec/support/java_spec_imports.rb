@@ -19,6 +19,7 @@ module JavaSpecImports
   java_import java.util.ArrayList unless defined? ArrayList
   java_import java.util.Arrays unless defined? Arrays
   java_import java.util.HashMap unless defined? HashMap
+  java_import java.util.LinkedHashMap unless defined? LinkedHashMap
   java_import com.thoughtworks.go.helper.ConfigFileFixture unless defined? ConfigFileFixture
   java_import com.thoughtworks.go.config.ConfigMigrator unless defined? ConfigMigrator
   java_import com.thoughtworks.go.helper.AgentInstanceMother unless defined? AgentInstanceMother

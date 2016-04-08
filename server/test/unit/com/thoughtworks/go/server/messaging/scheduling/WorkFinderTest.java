@@ -1,28 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.messaging.scheduling;
 
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.BuildAssignmentService;
-import com.thoughtworks.go.server.service.WorkAssigner;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.FakeWork;
 import org.jmock.Expectations;
@@ -32,11 +32,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JMock.class)
 public class WorkFinderTest {
@@ -71,7 +70,7 @@ public class WorkFinderTest {
             will(returnValue(NO_WORK));
             one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
         }});
-        finder.onMessage(new IdleAgentMessage(AgentRuntimeInfo.fromAgent(AGENT_1, "cookie", null)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null)));
     }
 
     @Test
@@ -81,7 +80,7 @@ public class WorkFinderTest {
             will(returnValue(SOME_WORK));
             one(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, SOME_WORK));
         }});
-        finder.onMessage(new IdleAgentMessage(AgentRuntimeInfo.fromAgent(AGENT_1, "cookie", null)));
+        finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null)));
     }
 
     @Test
@@ -94,7 +93,7 @@ public class WorkFinderTest {
         }});
 
         try {
-            finder.onMessage(new IdleAgentMessage(AgentRuntimeInfo.fromAgent(AGENT_1, "cookie", null)));
+            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null)));
         } catch (Exception e) {
             assertSame(exception, e);
         }

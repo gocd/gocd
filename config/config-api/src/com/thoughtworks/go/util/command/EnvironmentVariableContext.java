@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.util.command;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.util.GoConstants;
 
-import static java.lang.String.*;
+import java.io.Serializable;
+import java.util.*;
+
+import static java.lang.String.format;
 
 /**
  * @understands a set of variables to be passed to the Agent for a job
@@ -227,25 +224,21 @@ public class EnvironmentVariableContext implements Serializable {
         return properties != null ? properties.hashCode() : 0;
     }
 
-    public String reportText() {
-        throw new RuntimeException("IMPLEMENT ME");
-    }
-
-    public void setupRuntimeEnvironment(Map<String, String> env, ConsoleOutputStreamConsumer consumer) {
+    public List<String> report(Collection<String> predefinedEnvs) {
+        ArrayList<String> lines = new ArrayList<>(properties.size());
+        Set<String> existing = new HashSet<>(predefinedEnvs);
         for (EnvironmentVariable property : properties) {
             String name = property.name;
             String value = property.value;
             if (value != null) {
-                String line;
-                if (env.containsKey(name)) {
-                    line = format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
+                if (existing.contains(name)) {
+                    lines.add(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
                 } else {
-                    line = format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay());
+                    lines.add(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
                 }
-
-                consumer.stdOutput(line);
-                env.put(name, value);
+                existing.add(name);
             }
         }
+        return lines;
     }
 }

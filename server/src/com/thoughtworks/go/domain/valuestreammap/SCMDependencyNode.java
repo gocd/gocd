@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2015 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,13 @@
 
 package com.thoughtworks.go.domain.valuestreammap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class SCMDependencyNode extends Node {
-    private Set<Revision> revisions = new HashSet<Revision>();
+    private Set<Revision> revisions = new HashSet<>();
     private String materialType;
-    private HashSet<String> materialNames = new HashSet<String>();
+    private HashSet<String> materialNames = new LinkedHashSet<>();
 
     public SCMDependencyNode(String nodeId, String nodeName, String materialType) {
         super(DependencyNodeType.MATERIAL, nodeId, nodeName);
@@ -41,7 +36,7 @@ public class SCMDependencyNode extends Node {
 
     @Override
     public List<Revision> revisions() {
-        ArrayList<Revision> revisions = new ArrayList<Revision>(this.revisions);
+        ArrayList<Revision> revisions = new ArrayList<>(this.revisions);
         Collections.sort(revisions, new Comparator<Revision>() {
             @Override
             public int compare(Revision o1, Revision o2) {

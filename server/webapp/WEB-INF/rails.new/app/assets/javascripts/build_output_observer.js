@@ -40,6 +40,7 @@ BuildOutputObserver.prototype = {
         this.consoleTabElement.on('click', function(){
             self.initializeScroll();
         });
+        this.outputBuffer = [];
         this.initializeScroll();
     },
     initializeScroll: function(){
@@ -114,44 +115,76 @@ BuildOutputObserver.prototype = {
                 onSuccess: function(transport, next_start_as_json) {
                     if (next_start_as_json) {
                         _this.start_line_number = next_start_as_json[0];
-                        _this.is_output_empty = _this._update_live_output_color(transport.responseText);
+                        _this._update_live_output_color(transport.responseText);
+                        _this.is_output_empty = !transport.responseText;
                     } else {
                         _this.is_output_empty = true;
                     }
                 },
               onFailure: function(response){
-                if (404 === response.status){
-                  _this.is_output_empty = _this._update_live_output_color(response.responseText);
-                } else {
-                  var message = "There was an error contacting the server. The HTTP status was " + response.status + ".";
-                  _this.is_output_empty = _this._update_live_output_color(message);
-                }
+                  if (404 === response.status){
+                      _this._update_live_output_color(response.responseText);
+                      _this.is_output_empty = !response.responseText;
+                  } else {
+                      var message = "There was an error contacting the server. The HTTP status was " + response.status + "."
+                      _this._update_live_output_color(message);
+                      _this.is_output_empty = false;
+                  }
               }
             });
         }
     },
 
     _update_live_output_color: function(build_output) {
-        var is_output_empty = !build_output;
-        if (!is_output_empty) {
+        if(!build_output) {
+            return;
+        }
+        this.outputBuffer = this.outputBuffer.concat(build_output.match(/^.*([\n\r]+|$)/gm));
+        if(this.renderOutputTimeout) {
+            // rendering is going on, new lines appended to buffer
+            // will be picked up anyway.
+            return;
+        }
 
-            // parsing the entier console output and building HTML is computationally expensive and blows up memory
-            // we therefore chunk the console output into 1000 lines each and hand it over to the parser, and also insert it into the DOM.
-
-            var lines = build_output.match(/^.*([\n\r]+|$)/gm);
-            while(lines.length){
-                var slice = lines.splice(0, 1000);
-                var htmlContents = this.ansi_up.ansi_to_html(slice.join("").escapeHTML(), {use_classes: true});
-                this.consoleElement.append(htmlContents);
+        var self = this;
+        this._renderOutput(100, function() {
+            if (self.enableTailing){
+                self.scrollToBottom();
             }
-        }
-
-        if (this.enableTailing){
-            this.scrollToBottom();
-        }
-
-        return is_output_empty;
+        });
     },
+
+    // parsing the entire console output and building HTML is
+    // computationally expensive , blows up memory and has huge layout cost.
+    // we therefore chunk the console output into 100, 200, 400 ...
+    // 1000 lines, and incrementally insert into the DOM.
+    _renderOutput: function(batchSize, onDone) {
+        if(!this.outputBuffer.length) {
+            onDone.call();
+            this.renderOutputTimeout = null;
+            return;
+        }
+
+        var slice = this.outputBuffer.splice(0, batchSize);
+        var htmlContents = this.ansi_up.ansi_to_html(slice.join("").escapeHTML(), {use_classes: true});
+
+        var chunk = jQuery("<i/>")
+            .addClass("console-output-chunk progressive-display")
+            .html(htmlContents);
+
+        this.consoleElement.append(chunk);
+
+        if(this.outputBuffer.length) {
+            var self = this;
+            this.renderOutputTimeout = setTimeout(function() {
+                self._renderOutput(Math.min(1000, batchSize * 2), onDone);
+            }, 20);
+        } else {
+            onDone.call();
+            this.renderOutputTimeout = null;
+        }
+    },
+
 
     update_page : function(json) {
         this.update_build_detail_summary_result(json);

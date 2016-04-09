@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,22 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.validation.ChecksumValidator;
+import com.thoughtworks.go.work.GoPublisher;
+import org.apache.log4j.Logger;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.ZipUtil;
-import com.thoughtworks.go.validation.ChecksumValidator;
-import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.log4j.Logger;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
+import static com.thoughtworks.go.util.MapBuilder.map;
+import static java.lang.String.format;
 
 public class DirHandler implements FetchHandler {
     private final String srcFile;
@@ -45,21 +47,21 @@ public class DirHandler implements FetchHandler {
     }
 
     public String url(String remoteHost, String workingUrl) throws IOException {
-        return java.lang.String.format("%s/%s/%s/%s.zip", remoteHost, "remoting", "files", workingUrl);
+        return format("%s/%s/%s/%s.zip", remoteHost, "remoting", "files", workingUrl);
     }
 
     public void handle(InputStream stream) throws IOException {
         ZipInputStream zipInputStream = new ZipInputStream(stream);
-        LOG.info(String.format("[Agent Fetch Artifact] Downloading from '%s' to '%s'. Will read from Socket stream to compute MD5 and write to file", srcFile, destOnAgent.getAbsolutePath()));
+        LOG.info(format("[Agent Fetch Artifact] Downloading from '%s' to '%s'. Will read from Socket stream to compute MD5 and write to file", srcFile, destOnAgent.getAbsolutePath()));
 
         long before = System.currentTimeMillis();
         new ZipUtil(new ZipUtil.ZipEntryHandler() {
             public void handleEntry(ZipEntry entry, InputStream stream) throws IOException {
-                LOG.info(String.format("[Agent Fetch Artifact] Downloading a directory from '%s' to '%s'. Handling the entry: '%s'", srcFile, destOnAgent.getAbsolutePath(), entry.getName()));
+                LOG.info(format("[Agent Fetch Artifact] Downloading a directory from '%s' to '%s'. Handling the entry: '%s'", srcFile, destOnAgent.getAbsolutePath(), entry.getName()));
                 new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), md5Hex(stream), checksumValidationPublisher);
             }
         }).unzip(zipInputStream, destOnAgent);
-        LOG.info(String.format("[Agent Fetch Artifact] Downloading a directory from '%s' to '%s'. Took: %sms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before));
+        LOG.info(format("[Agent Fetch Artifact] Downloading a directory from '%s' to '%s'. Took: %sms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before));
     }
 
     private String getSrcFilePath(ZipEntry entry) {
@@ -67,13 +69,23 @@ public class DirHandler implements FetchHandler {
         return FileUtil.normalizePath(new File(parent, entry.getName()).getPath());
     }
 
-    public boolean handleResult(int httpCode, DefaultGoPublisher goPublisher) {
+    public boolean handleResult(int httpCode, GoPublisher goPublisher) {
         checksumValidationPublisher.publish(httpCode, destOnAgent, goPublisher);
         return httpCode < HttpServletResponse.SC_BAD_REQUEST;
     }
 
     public void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums) {
         this.artifactMd5Checksums = artifactMd5Checksums;
+    }
+
+    @Override
+    public BuildCommand toDownloadCommand(String locator, String checksumUrl, File checksumPath) {
+        return BuildCommand.downloadDir(map(
+                "url", format("/remoting/files/%s.zip", locator),
+                "src", srcFile,
+                "dest", destOnAgent.getPath(),
+                "checksumUrl", checksumUrl,
+                "checksumFile", checksumPath.getPath()));
     }
 
     @Override

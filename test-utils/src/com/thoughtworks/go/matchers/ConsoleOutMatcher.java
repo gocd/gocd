@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,6 +141,24 @@ public class ConsoleOutMatcher {
         };
     }
 
+    public static TypeSafeMatcher<String> printedJobCanceledInfo(final Object jobIdentifer) {
+        return new TypeSafeMatcher<String>() {
+            private String consoleOut;
+            public String stdout;
+
+            public boolean matchesSafely(String consoleOut) {
+                this.consoleOut = consoleOut;
+                stdout = format("Job is canceled %s", jobIdentifer.toString());
+                return StringUtils.contains(consoleOut, stdout);
+            }
+
+            public void describeTo(Description description) {
+                description.appendText("expected console to contain [" + stdout + "]"
+                        + " but was " + consoleOut);
+            }
+        };
+    }
+
     public static TypeSafeMatcher<String> printedBuildFailed() {
         return new TypeSafeMatcher<String>() {
             private String consoleOut;
@@ -193,13 +211,9 @@ public class ConsoleOutMatcher {
             public String message;
 
             public boolean matchesSafely(String consoleOut) {
-                try {
-                    this.consoleOut = consoleOut;
-                    this.message = "Failed to upload " + file.getCanonicalPath();
-                    return StringUtils.contains(consoleOut.toLowerCase(), message.toLowerCase());
-                } catch (IOException e) {
-                    return false;
-                }
+                this.consoleOut = consoleOut;
+                this.message = "Failed to upload " + file.getAbsolutePath();
+                return StringUtils.contains(consoleOut.toLowerCase(), message.toLowerCase());
             }
 
             public void describeTo(Description description) {

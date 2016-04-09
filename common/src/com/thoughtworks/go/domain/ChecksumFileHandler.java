@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
-
 package com.thoughtworks.go.domain;
 
 import java.io.File;
@@ -23,12 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.work.GoPublisher;
 import org.apache.log4j.Logger;
 
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 public class ChecksumFileHandler implements FetchHandler {
+
     private final File checksumFile;
     private static final Logger LOG = Logger.getLogger(ChecksumFileHandler.class);
 
@@ -44,7 +44,7 @@ public class ChecksumFileHandler implements FetchHandler {
         FileUtil.writeToFile(stream, checksumFile);
     }
 
-    public boolean handleResult(int returncode, DefaultGoPublisher goPublisher) {
+    public boolean handleResult(int returncode, GoPublisher goPublisher) {
         if (returncode == HttpServletResponse.SC_NOT_FOUND) {
             deleteQuietly(checksumFile);
             goPublisher.consumeLineWithPrefix("[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.");
@@ -63,6 +63,11 @@ public class ChecksumFileHandler implements FetchHandler {
 
     public void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BuildCommand toDownloadCommand(String locator, String checksumUrl, File checksumPath) {
+        throw new UnsupportedOperationException("not supported for checksum handler");
     }
 
     @Override
@@ -90,5 +95,9 @@ public class ChecksumFileHandler implements FetchHandler {
 
     public ArtifactMd5Checksums getArtifactMd5Checksums() {
         return checksumFile.exists() ? new ArtifactMd5Checksums(checksumFile) : null;
+    }
+
+    public File getChecksumFile() {
+        return checksumFile;
     }
 }

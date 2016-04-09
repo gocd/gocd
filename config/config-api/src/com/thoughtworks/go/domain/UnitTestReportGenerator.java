@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.text.MessageFormat;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.XpathUtils;
+import com.thoughtworks.go.work.GoPublisher;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -34,13 +30,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.XpathUtils;
-import com.thoughtworks.go.work.GoPublisher;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import java.io.*;
+import java.text.MessageFormat;
 
 public class UnitTestReportGenerator implements TestReportGenerator {
     private final File folderToUpload;
@@ -52,7 +43,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
         this.folderToUpload = folderToUpload;
     }
 
-    public Properties generate(File[] allTestFiles) {
+    public Properties generate(File[] allTestFiles, String uploadDestPath) {
         FileOutputStream transformedHtml = null;
         File mergedResults = new File(folderToUpload.getAbsolutePath() + FileUtil.fileseparator() + TEST_RESULTS_FILE);
         File mergedResource = null;
@@ -78,7 +69,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
 
             extractProperties(mergedResults);
 
-            publisher.upload(mergedResults, "testoutput");
+            publisher.upload(mergedResults, uploadDestPath);
 
             return null;
         } catch (Exception e) {

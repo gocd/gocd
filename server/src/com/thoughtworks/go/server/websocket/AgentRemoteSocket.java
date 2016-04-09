@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageEncoding;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
@@ -43,7 +44,7 @@ public class AgentRemoteSocket implements Agent {
 
     @OnWebSocketMessage
     public void onMessage(InputStream input) {
-        Message msg = Message.decode(input);
+        Message msg = MessageEncoding.decodeMessage(input);
         LOGGER.debug("{} message: {}", sessionName(), msg);
         handler.process(this, msg);
     }
@@ -67,7 +68,7 @@ public class AgentRemoteSocket implements Agent {
     @Override
     public void send(final Message msg) {
         LOGGER.debug("{} send message: {}", sessionName(), msg);
-        session.getRemote().sendBytesByFuture(ByteBuffer.wrap(Message.encode(msg)));
+        session.getRemote().sendBytesByFuture(ByteBuffer.wrap(MessageEncoding.encodeMessage(msg)));
     }
 
     private String sessionName() {

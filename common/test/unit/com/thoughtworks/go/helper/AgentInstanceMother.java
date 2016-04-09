@@ -42,7 +42,7 @@ public class AgentInstanceMother {
         AgentConfig virtualAgentConfig = new AgentConfig("uuid1", "ec2", "10.18.8.10");
         AgentInstance instance = AgentInstance.create(virtualAgentConfig, true, new SystemEnvironment()
         );
-        instance.update(new AgentRuntimeInfo(virtualAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        instance.update(new AgentRuntimeInfo(virtualAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         return instance;
     }
 
@@ -57,7 +57,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance idle(final Date lastHeardAt, final String hostname)  {
         AgentConfig idleAgentConfig = new AgentConfig("uuid2", hostname, "10.18.5.1");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
         agentRuntimeInfo.setUsableSpace(10*1024l);
@@ -74,7 +74,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance building(String buildLocator) {
         AgentConfig buildingAgentConfig = new AgentConfig("uuid3", "CCeDev01", "10.18.5.1", new Resources("java"));
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
         AgentInstance building = AgentInstance.createFromConfig(buildingAgentConfig, new SystemEnvironment());
         building.update(agentRuntimeInfo);
@@ -83,7 +83,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance pending() {
         AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid4", "CCeDev03", "10.18.5.3", new Resources(new Resource("db"),new Resource("web"))), false,
-                "/var/lib", 0L, "linux");
+                "/var/lib", 0L, "linux", false);
         AgentInstance pending = AgentInstance.createFromLiveAgent(runtimeInfo, new SystemEnvironment()
         );
         pending.pending();
@@ -93,7 +93,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance pendingInstance() {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null, false);
         return AgentInstance.createFromLiveAgent(runtimeInfo, new SystemEnvironment());
     }
 
@@ -110,14 +110,14 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freespace) {
         AgentConfig agentConfig = agentInstance.agentConfig();
-        agentInstance.update(AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), freespace, "linux"));
+        agentInstance.update(AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), freespace, "linux", false));
         return agentInstance;
     }
 
 
     public static AgentInstance updateOS(AgentInstance agentInstance, String operatingSystem) {
         AgentConfig agentConfig = agentInstance.agentConfig();
-        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), operatingSystem);
+        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), operatingSystem, false);
         newRuntimeInfo.setStatus(agentInstance.getStatus());
         agentInstance.update(newRuntimeInfo);
         return agentInstance;
@@ -131,7 +131,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateLocation(AgentInstance agentInstance, String location) {
         AgentConfig agentConfig = agentInstance.agentConfig();
-        agentInstance.update(AgentRuntimeInfo.fromServer(agentConfig, true, location, agentInstance.getUsableSpace(), "linux"));
+        agentInstance.update(AgentRuntimeInfo.fromServer(agentConfig, true, location, agentInstance.getUsableSpace(), "linux", agentInstance.getSupportsBuildCommandProtocol()));
         return agentInstance;
     }
 
@@ -143,7 +143,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateRuntimeStatus(AgentInstance agentInstance, AgentRuntimeStatus status) {
         AgentConfig agentConfig = agentInstance.agentConfig();
-        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), "linux");
+        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), "linux", false);
         newRuntimeInfo.setRuntimeStatus(status, null);
         agentInstance.update(newRuntimeInfo);
         return agentInstance;
@@ -151,7 +151,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateAgentLauncherVersion(AgentInstance agentInstance, String agentLauncherVersion) {
         AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentInstance.agentConfig(), agentInstance.isRegistered(), agentInstance.getLocation(), agentInstance.getUsableSpace(),
-                agentInstance.getOperatingSystem());
+                agentInstance.getOperatingSystem(), false);
         newRuntimeInfo.setAgentLauncherVersion(agentLauncherVersion);
         agentInstance.update(newRuntimeInfo);
         return agentInstance;

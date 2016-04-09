@@ -56,7 +56,7 @@ public class WorkAssignmentsTest {
         }});
         assignments = new WorkAssignments(idleAgentsTopic, assignedWorkTopic);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
     }
 
     @Test

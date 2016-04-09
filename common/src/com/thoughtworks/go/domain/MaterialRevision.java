@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ public class MaterialRevision implements Serializable {
         material.updateTo(consumer, baseDir, toRevisionContext(), execCtx);
     }
 
-    private RevisionContext toRevisionContext() {
+    public RevisionContext toRevisionContext() {
         return new RevisionContext(getRevision(), getOldestRevision(), numberOfModifications());
     }
 

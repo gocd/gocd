@@ -187,6 +187,7 @@ public class AgentRegistrationController {
                                      @RequestParam("agentAutoRegisterHostname") String agentAutoRegisterHostname,
                                      @RequestParam("elasticAgentId") String elasticAgentId,
                                      @RequestParam("elasticPluginId") String elasticPluginId,
+                                     @RequestParam(value = "supportsBuildCommandProtocol", required = false, defaultValue = "false") boolean supportsBuildCommandProtocol,
                                      HttpServletRequest request) throws IOException {
         final String ipAddress = request.getRemoteAddr();
         if (LOG.isDebugEnabled()) {
@@ -209,7 +210,7 @@ public class AgentRegistrationController {
             boolean registeredAlready = goConfigService.hasAgent(uuid);
             long usablespace = Long.parseLong(usablespaceAsString);
 
-            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usablespace, operatingSystem);
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usablespace, operatingSystem, supportsBuildCommandProtocol);
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);
@@ -224,19 +225,16 @@ public class AgentRegistrationController {
         final Registration anotherCopy = keyEntry;
         return new ModelAndView(new View() {
             public String getContentType() {
-                return "application/x-java-serialized-object";
+                return "application/json";
             }
 
             public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws IOException {
                 ServletOutputStream servletOutputStream = null;
-                ObjectOutputStream objectOutputStream = null;
                 try {
                     servletOutputStream = response.getOutputStream();
-                    objectOutputStream = new ObjectOutputStream(servletOutputStream);
-                    objectOutputStream.writeObject(anotherCopy);
+                    servletOutputStream.print(anotherCopy.toJson());
                 } finally {
                     IOUtils.closeQuietly(servletOutputStream);
-                    IOUtils.closeQuietly(objectOutputStream);
                 }
             }
         });

@@ -18,8 +18,8 @@ package com.thoughtworks.go.websocket;
 
 public enum Action {
     assignWork,
-    cancelJob,
+    cancelBuild,
     ping,
     reregister,
-    reportCurrentStatus, reportCompleted, reportCompleting, ack, setCookie
+    reportCurrentStatus, reportCompleted, reportCompleting, ack, build, setCookie
 }

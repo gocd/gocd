@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.materials.git;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
@@ -41,6 +42,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
@@ -53,7 +55,7 @@ import static java.lang.String.format;
  */
 public class GitMaterial extends ScmMaterial {
     private static final Logger LOG = Logger.getLogger(GitMaterial.class);
-    private static final int UNSHALLOW_TRYOUT_STEP = 100;
+    public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;
 
 
@@ -271,8 +273,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     private boolean isBranchEqual(GitCommand command) {
-        String branchName = StringUtil.isBlank(this.branch) ? GitMaterialConfig.DEFAULT_BRANCH : this.branch;
-        return branchName.equals(command.getCurrentBranch());
+        return branchWithDefault().equals(command.getCurrentBranch());
     }
 
     /**
@@ -414,4 +415,9 @@ public class GitMaterial extends ScmMaterial {
         config.setShallowClone(value);
         return new GitMaterial(config);
     }
+
+    public String branchWithDefault() {
+        return StringUtil.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
+    }
+
 }

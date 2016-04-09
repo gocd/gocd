@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private Date updateHeardTime() throws Exception {
         agentService.requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
-                false, "/var/lib", 0L, "linux"));
+                false, "/var/lib", 0L, "linux", false));
         agentService.approve("uuid");
         artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, "/foo.xml",
                 "uuid", request);

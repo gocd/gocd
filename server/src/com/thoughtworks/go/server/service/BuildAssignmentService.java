@@ -23,13 +23,16 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.listener.PipelineConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
+import com.thoughtworks.go.server.domain.BuildComposer;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.Agent;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
+import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.collections.Closure;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
 import static org.apache.commons.collections.CollectionUtils.forAllDo;
 
 
@@ -158,12 +162,33 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             }
             Work work = assignWorkToAgent(agentInstance);
             if (work != NO_WORK) {
-                agent.send(new Message(Action.assignWork, work));
+                if(agentInstance.getSupportsBuildCommandProtocol()) {
+                    BuildSettings buildSettings = createBuildSettings(((BuildWork) work).getAssignment());
+                    agent.send(new Message(Action.build, MessageEncoding.encodeData(buildSettings)));
+                } else {
+                    agent.send(new Message(Action.assignWork, MessageEncoding.encodeWork(work)));
+                }
             }
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Matching {} agents with {} jobs took: {}ms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start);
         }
+    }
+
+    private BuildSettings createBuildSettings(BuildAssignment assignment) {
+        URLService urlService = new URLService(""); // generate path only url
+        JobPlan plan = assignment.getPlan();
+        JobIdentifier jobIdentifier = plan.getIdentifier();
+
+        BuildSettings buildSettings = new BuildSettings();
+        buildSettings.setBuildId(String.valueOf(jobIdentifier.getBuildId()));
+        buildSettings.setBuildLocatorForDisplay(jobIdentifier.buildLocatorForDisplay());
+        buildSettings.setBuildLocator(jobIdentifier.buildLocator());
+        buildSettings.setBuildCommand(new BuildComposer(assignment).compose());
+        buildSettings.setConsoleUrl(urlService.getUploadUrlOfAgent(plan.getIdentifier(), getConsoleOutputFolderAndFileNameUrl()));
+        buildSettings.setArtifactUploadBaseUrl(urlService.getUploadBaseUrlOfAgent(plan.getIdentifier()));
+        buildSettings.setPropertyBaseUrl(urlService.getPropertiesUrl(plan.getIdentifier(), ""));
+        return buildSettings;
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {

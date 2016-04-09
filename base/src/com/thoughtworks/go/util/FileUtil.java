@@ -145,6 +145,11 @@ public class FileUtil {
         if (actualFileToUse.isAbsolute()) {
             return actualFileToUse;
         }
+
+        if(StringUtil.isBlank(baseDir.getPath())) {
+            return actualFileToUse;
+        }
+
         return new File(baseDir, actualFileToUse.getPath());
 
     }

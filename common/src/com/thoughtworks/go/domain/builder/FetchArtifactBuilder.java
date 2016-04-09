@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,18 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import com.thoughtworks.go.domain.BuildLogElement;
-import com.thoughtworks.go.domain.ChecksumFileHandler;
-import com.thoughtworks.go.domain.DownloadAction;
-import com.thoughtworks.go.domain.FetchHandler;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FetchArtifactBuilder extends Builder {
     public static Logger LOG = Logger.getLogger(FetchArtifactBuilder.class);
@@ -95,5 +95,13 @@ public class FetchArtifactBuilder extends Builder {
 
     public JobIdentifier getJobIdentifier() {
         return jobIdentifier;
+    }
+
+    @Override
+    public BuildCommand buildCommand() {
+            String checksumUrl = String.format("/remoting/files/%s/%s/%s", jobIdentifier.buildLocator(), ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
+            return BuildCommand.compose(
+                    BuildCommand.echoWithPrefix(String.format("Fetching artifact [%s] from [%s]", getSrc(), jobLocatorForDisplay())),
+                    handler.toDownloadCommand(artifactLocator(), checksumUrl, checksumFileHandler.getChecksumFile()));
     }
 }

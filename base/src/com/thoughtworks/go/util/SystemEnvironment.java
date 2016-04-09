@@ -184,6 +184,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
 
+    public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
+
+
     private volatile static Integer agentConnectionTimeout;
     private volatile static Integer cruiseSSlPort;
     private volatile static String cruiseConfigDir;

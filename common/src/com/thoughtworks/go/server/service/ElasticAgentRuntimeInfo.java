@@ -16,14 +16,16 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 
 import java.io.Serializable;
 
 public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Serializable {
-
+    @Expose
     private volatile String elasticAgentId;
+    @Expose
     private volatile String elasticPluginId;
 
     private ElasticAgentRuntimeInfo(AgentRuntimeInfo runtimeInfo, String elasticAgentId, String elasticPluginId) {
@@ -39,7 +41,7 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
     }
 
     public ElasticAgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String agentLauncherVersion, String elasticAgentId, String elasticPluginId) {
-        super(identifier, runtimeStatus, location, cookie, agentLauncherVersion);
+        super(identifier, runtimeStatus, location, cookie, agentLauncherVersion, false);
         this.elasticAgentId = elasticAgentId;
         this.elasticPluginId = elasticPluginId;
     }

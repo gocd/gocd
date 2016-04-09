@@ -28,8 +28,8 @@
                 <li class="last"><h1 id="page-title" class="entity_title" style="float: left;">$_page_title</h1></li>
             </ul>
             <span class="pipeline-buttons" style="float:left;">
-                {if pipelineHistoryPage.isPipelinePaused(data)}
-                    {if pipelineHistoryPage.canPause(data)}
+                {if pipelineHistoryPage.canPause(data)}
+                    {if pipelineHistoryPage.isPipelinePaused(data)}
                         <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
                            onclick="pipelineActions.unpausePipeline('${%data.pipelineName%}', this);"
                            class="link_as_button" title="Resume scheduling">
@@ -37,25 +37,11 @@
                         </a>
                     {else}
                         <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
-                           class="link_as_button disabled">
-                            <span>Unpause</span>
+                           onclick="pipelineActions.pausePipeline('${%data.pipelineName%}', this);"
+                           class="link_as_button"
+                           title="Stop scheduling">
+                            <span>Pause</span>
                         </a>
-                    {/if}
-                {else}
-                    {if pipelineHistoryPage.canPause(data)}
-                    <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
-                       onclick="pipelineActions.pausePipeline('${%data.pipelineName%}', this);"
-                       class="link_as_button"
-                       title="Stop scheduling">
-                        <span>Pause</span>
-                       </a>
-                    {else}
-                    <a href="javascript:void(0)" id="pause-${%data.pipelineName%}"
-                       onclick="pipelineActions.pausePipeline('${%data.pipelineName%}', this);"
-                       class="link_as_button disabled"
-                       title="Stop scheduling">
-                        <span>Pause</span>
-                       </a>
                     {/if}
                 {/if}
             </span>

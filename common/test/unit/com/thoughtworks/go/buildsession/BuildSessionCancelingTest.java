@@ -76,7 +76,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
             @Override
             public void run() {
                 buildSession.build(compose(
-                        echo("after sleep").setTest(execSleepScript(50))));
+                        cond(or(execSleepScript(50), execSleepScript(50)), echo("after sleep"))));
             }
         });
         buildingThread.start();

@@ -20,9 +20,11 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.GoConstants;
-import org.apache.commons.lang.ArrayUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.MapBuilder.map;
 
@@ -63,6 +65,22 @@ public class BuildCommand {
         return new BuildCommand("compose").setSubCommands(subCommands);
     }
 
+    public static BuildCommand cond(BuildCommand...branches) {
+        if(branches.length < 2) {
+            throw new IllegalArgumentException("cond command need at least two subcommands");
+        }
+        return new BuildCommand("cond").setSubCommands(Arrays.asList(branches));
+    }
+
+    public static BuildCommand or(BuildCommand... test) {
+        return new BuildCommand("or").setSubCommands(Arrays.asList(test));
+    }
+
+    public static BuildCommand and(BuildCommand... test) {
+        return new BuildCommand("and").setSubCommands(Arrays.asList(test));
+    }
+
+
     public static BuildCommand echo(String format, Object...args) {
         return new BuildCommand("echo", map("line", String.format(format, args)));
     }
@@ -81,6 +99,10 @@ public class BuildCommand {
 
     public static BuildCommand fail(String format, String... args) {
         return new BuildCommand("fail", map("message", String.format(format, args)));
+    }
+
+    public static BuildCommand fail() {
+        return new BuildCommand("fail");
     }
 
     // set environment variable with displaying it
@@ -138,8 +160,6 @@ public class BuildCommand {
     private List<BuildCommand> subCommands;
     @Expose
     private String workingDirectory;
-    @Expose
-    private BuildCommand test;
     @Expose
     private String runIfConfig = "passed";
     @Expose
@@ -203,7 +223,6 @@ public class BuildCommand {
         if (subCommands != null ? !subCommands.equals(that.subCommands) : that.subCommands != null) return false;
         if (workingDirectory != null ? !workingDirectory.equals(that.workingDirectory) : that.workingDirectory != null)
             return false;
-        if (test != null ? !test.equals(that.test) : that.test != null) return false;
         if (runIfConfig != null ? !runIfConfig.equals(that.runIfConfig) : that.runIfConfig != null) return false;
         return onCancel != null ? onCancel.equals(that.onCancel) : that.onCancel == null;
 
@@ -215,7 +234,6 @@ public class BuildCommand {
         result = 31 * result + (args != null ? args.hashCode() : 0);
         result = 31 * result + (subCommands != null ? subCommands.hashCode() : 0);
         result = 31 * result + (workingDirectory != null ? workingDirectory.hashCode() : 0);
-        result = 31 * result + (test != null ? test.hashCode() : 0);
         result = 31 * result + (runIfConfig != null ? runIfConfig.hashCode() : 0);
         result = 31 * result + (onCancel != null ? onCancel.hashCode() : 0);
         return result;
@@ -228,7 +246,6 @@ public class BuildCommand {
                 ", args=" + args +
                 ", subCommands=" + subCommands +
                 ", workingDirectory='" + workingDirectory + '\'' +
-                ", test=" + test +
                 ", runIfConfig='" + runIfConfig + '\'' +
                 ", onCancel=" + onCancel +
                 '}';
@@ -239,25 +256,8 @@ public class BuildCommand {
         return this;
     }
 
-    public BuildCommand setWorkingDirectoryRecursively(String workingDirectory) {
-        this.setWorkingDirectory(workingDirectory);
-        for (BuildCommand subCommand : subCommands) {
-            subCommand.setWorkingDirectoryRecursively(workingDirectory);
-        }
-        return this;
-    }
-
     public String getWorkingDirectory() {
         return workingDirectory == null ? "" : workingDirectory;
-    }
-
-    public BuildCommand getTest() {
-        return test;
-    }
-
-    public BuildCommand setTest(BuildCommand test) {
-        this.test = test;
-        return this;
     }
 
     public List<BuildCommand> getSubCommands() {

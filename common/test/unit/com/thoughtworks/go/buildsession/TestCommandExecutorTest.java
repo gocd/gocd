@@ -95,19 +95,19 @@ public class TestCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
     public void shouldNotFailBuildWhenTestCommandFail() {
-        runBuild(echo("foo").setTest(fail("")), Passed);
+        runBuild(cond(fail(), echo("foo")), Passed);
         assertThat(statusReporter.singleResult(), is(Passed));
     }
 
     @Test
     public void shouldNotFailBuildWhenComposedTestCommandFail() {
-        runBuild(echo("foo").setTest(compose(echo(""), fail(""))), Passed);
+        runBuild(cond(compose(echo(""), fail("")), echo("foo")), Passed);
         assertThat(statusReporter.singleResult(), is(JobResult.Passed));
     }
 
     @Test
     public void shouldNotFailBuildWhenTestEqWithComposedCommandOutputFail() {
-        runBuild(echo("foo").setTest(test("-eq", "42", compose(fail("42")))), Passed);
+        runBuild(cond(test("-eq", "42", compose(fail("42"))), echo("foo")), Passed);
         assertThat(statusReporter.singleResult(), is(Passed));
         assertThat(console.output(), containsString("foo"));
     }

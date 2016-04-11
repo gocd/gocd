@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static com.thoughtworks.go.domain.BuildCommand.cond;
 import static com.thoughtworks.go.domain.BuildCommand.mkdirs;
 import static com.thoughtworks.go.domain.BuildCommand.test;
 import static com.thoughtworks.go.domain.JobResult.Failed;
@@ -44,7 +45,7 @@ public class MkdirsCommandExecutorTest extends BuildSessionBasedTestCase {
     public void testDirectoryExistsBeforeMkdir() {
         File dir = new File(sandbox, "foo");
         runBuild(mkdirs("foo"), Passed);
-        runBuild(mkdirs("foo").setTest(test("-nd", dir.getPath())), Passed);
+        runBuild(cond(test("-nd", dir.getPath()), mkdirs("foo")), Passed);
         assertThat(new File(sandbox, "foo").isDirectory(), is(true));
     }
 }

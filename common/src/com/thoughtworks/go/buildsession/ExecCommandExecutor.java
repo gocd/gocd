@@ -48,6 +48,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
 
         String cmd = command.getStringArg("command");
         String[] args = command.getArrayArg("args");
+        boolean verbose = command.getBooleanArg("verbose");
 
         Map<String, String> secrets = buildSession.getSecretSubstitutions();
         Set<String> leftSecrets = new HashSet<>(secrets.keySet());
@@ -70,7 +71,12 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         commandLine.withWorkingDir(workingDir);
         commandLine.withEnv(buildSession.getEnvs());
 
-        return executeCommandLine(buildSession, commandLine) == 0;
+        int exitCode = executeCommandLine(buildSession, commandLine, verbose);
+        if(verbose && exitCode != 0) {
+            buildSession.printlnWithPrefix("Failed to run " + commandLine.toStringForDisplay());
+        }
+
+        return exitCode == 0;
     }
 
     private CommandLine createCommandLine(String cmd) {
@@ -85,7 +91,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         return commandLine;
     }
 
-    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
+    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine, boolean verbose) {
         final AtomicInteger exitCode = new AtomicInteger(-1);
         final CountDownLatch canceledOrDone = new CountDownLatch(1);
         buildSession.submitRunnable(new Runnable() {

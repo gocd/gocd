@@ -16,6 +16,19 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
+import com.thoughtworks.go.domain.materials.SCMCommand;
+import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.util.SvnLogXmlParser;
+import com.thoughtworks.go.util.command.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -25,24 +38,6 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
-import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.SCMCommand;
-import com.thoughtworks.go.domain.materials.ValidationBean;
-import com.thoughtworks.go.util.SvnLogXmlParser;
-import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.PasswordArgument;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.StringArgument;
-import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
@@ -303,6 +298,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         private String encodedUrl = "";
         private String root = "";
         private static final String ENCODING = "UTF-8";
+        private String revision = "";
 
 
         public void parse(String xmlOutput, SAXBuilder builder) {
@@ -326,6 +322,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             this.path = URLDecoder.decode(encodedPath, ENCODING);
             this.root = root;
             this.encodedUrl = encodedUrl;
+            this.revision = entryElement.getAttribute("revision").getValue();
         }
 
         public String getPath() {
@@ -337,5 +334,9 @@ public class SvnCommand extends SCMCommand implements Subversion {
         }
 
         public String getRoot() { return root; }
+
+        public String getRevision() {
+            return revision;
+        }
     }
 }

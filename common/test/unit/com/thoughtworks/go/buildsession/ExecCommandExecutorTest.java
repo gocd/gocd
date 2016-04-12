@@ -109,6 +109,7 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
         assertThat(console.output(), printedAppsMissingInfoOnWindows("not-not-not-exist"));
     }
 
+    @Test
     public void shouldNotLeakSecretsToConsoleLog() {
         runBuild(compose(secret("topsecret"),
                 exec("not-not-not-exist", "topsecret")), Failed);
@@ -131,6 +132,12 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
         } finally {
             logFixture.stopListening();
         }
+    }
+
+    @Test
+    public void shouldReportErrorWhenFailExecWithVerbose() {
+        runBuild(exec("not-not-not-exist", true, "-a", "-bb"), Failed);
+        System.out.println("console = " + console);
     }
 
 

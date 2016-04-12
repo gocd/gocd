@@ -111,4 +111,21 @@ public class TestCommandExecutorTest extends BuildSessionBasedTestCase {
         assertThat(statusReporter.singleResult(), is(Passed));
         assertThat(console.output(), containsString("foo"));
     }
+
+    @Test
+    public void containsInCommandOutput() {
+        runBuild(test("-contains", "42", echo("2424")), Passed);
+        runBuild(test("-contains", "42", echo("2\n42\n4")), Passed);
+        runBuild(test("-contains", "42\n", echo("2\n42\n4")), Passed);
+        runBuild(test("-contains", "43", echo("2\n42\n4")), Failed);
+    }
+
+    @Test
+    public void notContainsInCommandOutput() {
+        runBuild(test("-ncontains", "42", echo("2424")), Failed);
+        runBuild(test("-ncontains", "42", echo("2\n42\n4")), Failed);
+        runBuild(test("-ncontains", "42\n", echo("2\n42\n4")), Failed);
+        runBuild(test("-ncontains", "43", echo("2\n42\n4")), Passed);
+    }
+
 }

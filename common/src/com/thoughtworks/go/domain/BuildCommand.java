@@ -37,7 +37,14 @@ public class BuildCommand {
     }
 
     public static BuildCommand exec(String command, String...args) {
-        return new BuildCommand("exec", map("command", command, "args", GSON.toJson(args)));
+        return exec(command, false, args);
+    }
+
+    public static BuildCommand exec(String command, boolean verbose, String... args) {
+        return new BuildCommand("exec", map(
+                "command", command,
+                "args", GSON.toJson(args),
+                "verbose",  String.valueOf(verbose)));
     }
 
     public static BuildCommand test(String flag, String left) {

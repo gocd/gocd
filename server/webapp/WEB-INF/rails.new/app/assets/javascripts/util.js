@@ -59,7 +59,7 @@ Util = function() {
                 var shower = new MicroContentPopup.ClickShower(microContentPopup, {cleanup: true});
                 Util.namespace('build_cause').set(popup_panel_id, shower);
             };
-        },
+        },       
         set_value: function(field, value) {
             return function() {
                 $(field).value = value;
@@ -168,7 +168,7 @@ Util = function() {
                 }
             });
         },
-
+        
         server_timestamp: function() {
             var client_server_timestamp_delta = null;
 
@@ -223,49 +223,37 @@ Util.on_load(function() {
 });
 
 ViewportPredicate = function() {
-    var _y, _x, _dy, _dx;
+    var y, x, dy, dx;
 
     jQuery(window).resize(reset_caches);
     jQuery(window).scroll(reset_offsets);
-    reset_caches();
+    jQuery(reset_caches);
 
     function reset_caches() {
-        _dy = null;
-        _dx = null;
+        dy = jQuery(window).height();
+        dx = jQuery(window).width();
         reset_offsets();
     }
 
     function reset_offsets() {
-        _y = null;
-        _x = null;
+        y = jQuery(document).scrollTop();
+        x = jQuery(document).scrollLeft();
     }
 
     function port_y() {
-        if(_y === null) {
-            _y = jQuery(document).scrollTop();
-        }
-        return _y;
+        return y;
     }
 
     function port_x() {
-        if(_x === null) {
-            _x = jQuery(document).scrollLeft();
-        }
-        return _x;
+        return x;
     }
 
     function port_dy() {
-        if(_dy === null) {
-            _dy = jQuery(window).height();
-        }
-        return _dy;
+        return dy;
     }
 
     function port_dx() {
-        if(_dx === null) {
-            _dx = jQuery(window).width();
-        }
-        return _dx;
+        return dx;
     }
 
     function is_in_viewport(elem) {

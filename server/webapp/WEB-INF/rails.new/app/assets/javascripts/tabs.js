@@ -81,10 +81,7 @@ var SubTabs = Class.create({
             this.before_open_callback();
         }
         if(this.content){
-            this._hideProggressiveContents();
             this.content.show();
-            this._recoverProgressiveContents();
-
             var init_method_name = this.content.id+ "_callback";
             if(window[init_method_name]){
                 window[init_method_name]();
@@ -93,31 +90,6 @@ var SubTabs = Class.create({
         this.storeCurrentTabNameInCookie(this.tab_name);
         TabsManager.prototype.updateLinkToThisPage(this.tab_name);
     },
-
-    _hideProggressiveContents: function() {
-        this._progressiveContents().each(function(node) {
-                node._html = node.innerHTML;
-                node.innerHTML = "";
-        });
-    },
-
-    _recoverProgressiveContents: function() {
-        var needsToBeRecovered = this._progressiveContents().filter(function(node) {
-            return node._html !== null;
-        });
-        if(!needsToBeRecovered.length) {
-            return;
-        }
-        var first = needsToBeRecovered.first();
-        first.innerHTML = first._html;
-        first._html = null;
-        setTimeout(this._recoverProgressiveContents.bind(this), 20)
-    },
-
-    _progressiveContents: function() {
-        return this.content.select(".progressive-display");
-    },
-
     storeCurrentTabNameInCookie: function(tabName){
         var type = this.container.tab_type;
         var id = this.container.tab_id;
@@ -192,7 +164,7 @@ var TabsManager = Class.create({
     },
     getCurrentTabFromUrl: function() {
         var url = window.location.href;
-
+        
         try {
             if(url.lastIndexOf('#tab-') > -1) {
                 var tabName = url.substring(url.lastIndexOf('#tab-') + 5, url.length);

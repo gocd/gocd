@@ -331,7 +331,7 @@ public class GoCacheTest {
         goCache.put(parentKey, "child1", "value");
         assertThat(goCache.get(parentKey), is(not(nullValue())));
         assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(not(nullValue())));
-        Thread.sleep(1000);// wait for cache elements to expire
+        Thread.sleep(2000);// wait for cache elements to expire
 
         goCache.put(parentKey, "child2", "value");
         assertThat(goCache.get(parentKey), is(not(nullValue())));

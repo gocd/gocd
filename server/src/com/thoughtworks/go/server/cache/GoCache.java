@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.cache;
 
@@ -28,6 +28,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -40,7 +41,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class GoCache {
     private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<Boolean>();
 
-    private final String SUB_KEY_DELIMITER = "!_#$#_!";
+    static final String SUB_KEY_DELIMITER = "!_#$#_!";
 
     private Cache ehCache;
 
@@ -65,8 +66,9 @@ public class GoCache {
 
     private GoCache(Cache cache, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.ehCache = cache;
+        cache.getCacheEventNotificationService().registerListener(new CacheEvictionListener(this));
         this.transactionSynchronizationManager = transactionSynchronizationManager;
-        this.nullObjectClasses = new HashSet<Class<? extends PersistentObject>>();
+        this.nullObjectClasses = new HashSet<>();
         nullObjectClasses.add(NullUser.class);
     }
 
@@ -193,6 +195,23 @@ public class GoCache {
             remove(key);
         }
     }
+
+    public void removeCompositeKeyFromParentCache(String key) {
+        if (key.contains(SUB_KEY_DELIMITER)) {
+            String[] parts = StringUtils.splitByWholeSeparator(key, SUB_KEY_DELIMITER);
+            String parentKey = parts[0];
+            String childKey = parts[1];
+            synchronized (parentKey.intern()) {
+                Element parent = ehCache.get(parentKey);
+                if(parent == null){
+                    return;
+                }
+                GoCache.KeyList subKeys = (GoCache.KeyList) parent.getValue();
+                subKeys.remove(childKey);
+            }
+        }
+    }
+
 
     public boolean isKeyInCache(Object key) {
         return ehCache.isKeyInCache(key);

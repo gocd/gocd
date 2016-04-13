@@ -66,10 +66,14 @@ public class GoCache {
 
     private GoCache(Cache cache, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.ehCache = cache;
-        cache.getCacheEventNotificationService().registerListener(new CacheEvictionListener(this));
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.nullObjectClasses = new HashSet<>();
         nullObjectClasses.add(NullUser.class);
+        registerAsCacheEvictionListener();
+    }
+
+    protected void registerAsCacheEvictionListener() {
+        ehCache.getCacheEventNotificationService().registerListener(new CacheEvictionListener(this));
     }
 
     public void stopServingForTransaction() {

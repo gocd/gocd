@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.MqlCriteria;
 import org.apache.commons.collections.map.SingletonMap;
-import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -38,7 +37,7 @@ public class MingleConfigTest {
     }
 
     @Test
-    public void shouldBuildUrlGivenPath() throws URIException {
+    public void shouldBuildUrlGivenPath() throws Exception {
         MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz", "go-project");
         assertThat(mingleConfig.urlFor("/gadgets/card_activity.xml"), is("http://foo.bar:7019/baz/gadgets/card_activity.xml"));
         assertThat(mingleConfig.urlFor("gadgets/card_activity.xml"), is("http://foo.bar:7019/bazgadgets/card_activity.xml"));

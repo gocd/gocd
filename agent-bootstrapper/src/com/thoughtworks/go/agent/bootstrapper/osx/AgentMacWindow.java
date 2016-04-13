@@ -1,43 +1,41 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.bootstrapper.osx;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
-import javax.swing.JFrame;
-
 import com.apple.eawt.Application;
+import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.bootstrapper.BootstrapperLoggingHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import static java.lang.Integer.parseInt;
-import static org.apache.commons.io.IOUtils.closeQuietly;
+import javax.swing.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
 
 public class AgentMacWindow extends JFrame {
-    private static final File PREFS_FILE = new File(System.getProperty("user.home"),
-            "/Library/Preferences/com.thoughtworks.studios.cruise.agent.properties");
+    private static final File PREFS_FILE = new File(System.getProperty("user.home"), "/Library/Preferences/com.thoughtworks.go.agent.properties");
     private static final Log LOG = LogFactory.getLog(AgentMacWindow.class);
 
-    private final Properties properties;
+    private AgentBootstrapperArgs bootstrapperArgs;
     private final boolean firstRun;
     private final MacBootstrapperApplicationAdapter macBootstrapperAppAdapter;
     private MacBootstrapperThread bootstrapLauncher;
@@ -54,20 +52,30 @@ public class AgentMacWindow extends JFrame {
         launchBootStrapper();
     }
 
-    private AgentMacWindow() throws IOException {
+    private AgentMacWindow() {
         firstRun = !PREFS_FILE.exists();
 
         if (firstRun) {
             saveDefaultPrefs();
         }
 
-        properties = loadPrefs();
+        bootstrapperArgs = loadPrefs();
         macBootstrapperAppAdapter = initializeApplicationAdapter();
     }
 
-    private static void saveDefaultPrefs() {
+    private void saveDefaultPrefs() {
         LOG.info("Initializing preferences in " + PREFS_FILE);
-        savePrefs(defaultProperties());
+        savePrefs(defaultArgs());
+    }
+
+    private void savePrefs(AgentBootstrapperArgs args) {
+        try {
+            try (FileOutputStream fos = new FileOutputStream(PREFS_FILE)) {
+                args.toProperties().store(fos, null);
+            }
+        } catch (IOException e) {
+            LOG.error("IO error on " + PREFS_FILE, e);
+        }
     }
 
     private MacBootstrapperApplicationAdapter initializeApplicationAdapter() {
@@ -86,47 +94,29 @@ public class AgentMacWindow extends JFrame {
         return applicationAdapter;
     }
 
-    private static Properties defaultProperties() {
-        Properties props = new Properties();
-        props.setProperty("server", "127.0.0.1");
-        props.setProperty("port", "8153");
-        return props;
+    private AgentBootstrapperArgs defaultArgs() {
+        try {
+            return new AgentBootstrapperArgs(new URL("https://127.0.0.1:8154/go"), null, AgentBootstrapperArgs.SslMode.NONE);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static Properties loadPrefs() throws IOException {
-        FileInputStream stream = null;
-        try {
-            stream = new FileInputStream(PREFS_FILE);
-            Properties myProps = defaultProperties();
+    private AgentBootstrapperArgs loadPrefs() {
+        try (FileInputStream stream = new FileInputStream(PREFS_FILE)) {
+            Properties myProps = new Properties();
             myProps.load(stream);
             LOG.info("Loaded preferences from " + PREFS_FILE);
-            return myProps;
+            return AgentBootstrapperArgs.fromProperties(myProps);
         } catch (Exception e) {
-            LOG.error("File not found for " + PREFS_FILE, e);
-        } finally {
-            closeQuietly(stream);
+            LOG.error("Error for " + PREFS_FILE, e);
         }
-
-        return new Properties();
-    }
-
-    private static void savePrefs(Properties prefs) {
-        FileOutputStream stream = null;
-        try {
-            stream = new FileOutputStream(PREFS_FILE, false);
-            prefs.store(stream, null);
-        } catch (FileNotFoundException e) {
-            LOG.error("File not found for " + PREFS_FILE, e);
-        } catch (IOException e) {
-            LOG.error("IO exception on " + PREFS_FILE, e);
-        } finally {
-            closeQuietly(stream);
-        }
+        return defaultArgs();
     }
 
     void launchBootStrapper() {
         if (bootstrapLauncher == null) {
-            bootstrapLauncher = new MacBootstrapperThread(getHost(), getPort());
+            bootstrapLauncher = new MacBootstrapperThread(bootstrapperArgs);
             bootstrapLauncher.start();
         }
     }
@@ -144,23 +134,19 @@ public class AgentMacWindow extends JFrame {
         }
     }
 
-    public String getHost() {
-        return properties.getProperty("server");
+    public AgentBootstrapperArgs getBootstrapperArgs() {
+        return bootstrapperArgs;
     }
 
-    public void setHost(String newHost) {
-        properties.setProperty("server", newHost);
-        savePrefs(properties);
+    public void setBootstrapperArgs(AgentBootstrapperArgs bootstrapperArgs) {
+        this.bootstrapperArgs = bootstrapperArgs;
+        savePrefs(this.bootstrapperArgs);
         restartBootstrapper();
     }
 
     private void restartBootstrapper() {
         stopBootStrapper();
         launchBootStrapper();
-    }
-
-    private int getPort() {
-        return parseInt(properties.getProperty("port"));
     }
 
 }

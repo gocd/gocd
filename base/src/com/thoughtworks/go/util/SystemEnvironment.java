@@ -98,7 +98,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String CONFIG_FILE_PROPERTY = "cruise.config.file";
     public static final String INTERVAL = "cruise.console.publish.interval";
-    private static final String SERVICE_URL = "serviceUrl";
+    public static final String SERVICE_URL = "serviceUrl";
+    public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
+    public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String CONFIG_CIPHER = "cipher";
     public static final String HOSTNAME_SHINE_USES = "localhost";
@@ -187,6 +189,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
     public static GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);
     public static GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
+    public static GoSystemProperty<String> GO_AGENT_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.agent.keystore.password", "agent5s0repa55w0rd");
 
     public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
 
@@ -513,6 +516,21 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public String getServiceUrl() {
         return getPropertyImpl(SERVICE_URL, defaultRemotingUrl());
     }
+
+    public File getRootCertFile() {
+        if (getPropertyImpl(AGENT_ROOT_CERT_FILE) == null) {
+            return null;
+        }
+        return new File(getPropertyImpl(AGENT_ROOT_CERT_FILE));
+    }
+
+    public SslVerificationMode getAgentSslVerificationMode() {
+        if (getPropertyImpl(AGENT_SSL_VERIFICATION_MODE) == null) {
+            return SslVerificationMode.NONE;
+        }
+        return SslVerificationMode.valueOf(getPropertyImpl(AGENT_SSL_VERIFICATION_MODE));
+    }
+
 
     private String defaultRemotingUrl() {
         return "https://localhost:8443" + getWebappContextPath();

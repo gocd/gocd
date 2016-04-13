@@ -29,9 +29,9 @@ public class AgentBootstrapperArgs {
         FULL, NONE, NO_VERIFY_HOST
     }
 
-    private static String SERVER_URL = "serverUrl";
-    private static String SSL_MODE = "sslVerificationMode";
-    private static String ROOT_CERT_FILE = "rootCertFile";
+    public static String SERVER_URL = "serverUrl";
+    public static String SSL_VERIFICATION_MODE = "sslVerificationMode";
+    public static String ROOT_CERT_FILE = "rootCertFile";
 
     @Parameter(names = "-serverUrl", description = "The GoCD server URL. Must begin with `https://`, and end with `/go`", required = true, validateWith = ServerUrlValidator.class)
     private URL serverUrl;
@@ -57,7 +57,7 @@ public class AgentBootstrapperArgs {
     public Properties toProperties() {
         Properties properties = new Properties();
         properties.put(SERVER_URL, serverUrl.toString());
-        properties.put(SSL_MODE, sslVerificationMode.name());
+        properties.put(SSL_VERIFICATION_MODE, sslVerificationMode.name());
 
         if (rootCertFile != null) {
             properties.put(ROOT_CERT_FILE, rootCertFile.getAbsoluteFile().toString());
@@ -71,7 +71,7 @@ public class AgentBootstrapperArgs {
             URL serverUrl = new URL(properties.getProperty(SERVER_URL));
             File rootCertFile = null;
 
-            SslMode sslVerificationMode = SslMode.valueOf(properties.getProperty(SSL_MODE));
+            SslMode sslVerificationMode = SslMode.valueOf(properties.getProperty(SSL_VERIFICATION_MODE));
 
             if (properties.containsKey(ROOT_CERT_FILE)) {
                 rootCertFile = new File(properties.getProperty(ROOT_CERT_FILE));

@@ -1,23 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.testhelper;
 
-import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
@@ -61,8 +63,32 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
     }
 
     public void start() throws Exception {
-        server = new Server(9090);
+        server = new Server();
+        ServerConnector connector = new ServerConnector(server);
+        connector.setPort(9090);
+        server.addConnector(connector);
+
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setCertAlias("cruise");
+        sslContextFactory.setKeyStorePath("testdata/keystore");
+        sslContextFactory.setKeyStorePassword("serverKeystorepa55w0rd");
+
+        ServerConnector secureConnnector = new ServerConnector(server,
+                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+                new HttpConnectionFactory(new HttpConfiguration())
+        );
+        secureConnnector.setPort(9091);
+        server.addConnector(secureConnnector);
+
         WebAppContext wac = new WebAppContext(".", "/go");
+        ServletHolder holder = new ServletHolder();
+        holder.setServlet(new HttpServlet(){
+            @Override
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                resp.getOutputStream().println("Hello");
+            }
+        });
+        wac.addServlet(holder, "/hello");
         addFakeAgentBinaryServlet(wac, "/admin/agent", new File("testdata/test-agent.jar"));
         addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", new File("testdata/agent-launcher.jar"));
         addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", new File("testdata/agent-plugins.zip"));
@@ -77,7 +103,8 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
         public static String status = "disabled";
         public static Properties pluginProps = new Properties();
 
-        @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             resp.setHeader("Plugins-Status", status);
             pluginProps.setProperty("Active Mock Bundle 1", "1.1.1");
             pluginProps.setProperty("Active Mock Bundle 2", "2.2.2");

@@ -1,28 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.bootstrapper;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-
 import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import com.thoughtworks.go.util.FileUtil;
@@ -34,13 +29,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.hamcrest.core.Is.is;
+import java.io.*;
+import java.net.URL;
+
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.*;
 
 @RunWith(FakeBootstrapperServer.class)
 public class AgentBootstrapperFunctionalTest {
@@ -70,7 +64,7 @@ public class AgentBootstrapperFunctionalTest {
     }
 
     @Test
-    public void shouldLoadAndBootstrapJarUsingAgentBootstrapCode_specifiedInAgentManifestFile() {
+    public void shouldLoadAndBootstrapJarUsingAgentBootstrapCode_specifiedInAgentManifestFile() throws Exception {
         if (!OS_CHECKER.satisfy()) {
             PrintStream err = System.err;
             try {
@@ -79,11 +73,11 @@ public class AgentBootstrapperFunctionalTest {
                 File agentJar = new File("agent.jar");
                 agentJar.delete();
                 new AgentBootstrapper(){
-                    @Override void jvmExit(int returnValue) {
-                    }
-                }.go(false, "localhost", 9090);
+                            @Override void jvmExit(int returnValue) {
+                            }
+                        }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
                 agentJar.delete();
-                assertThat(new String(os.toByteArray()), is("Hello World Fellas!"));
+                assertThat(new String(os.toByteArray()), containsString("Hello World Fellas!"));
             } finally {
                 System.setErr(err);
             }
@@ -96,9 +90,9 @@ public class AgentBootstrapperFunctionalTest {
             File agentJar = new File("agent.jar");
             agentJar.delete();
             new AgentBootstrapper(){
-                    @Override void jvmExit(int returnValue) {
-                    }
-                }.go(false, "localhost", 9090);
+                        @Override void jvmExit(int returnValue) {
+                        }
+                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             assertTrue("No agent downloaded", agentJar.exists());
             agentJar.delete();
         }
@@ -112,9 +106,9 @@ public class AgentBootstrapperFunctionalTest {
             createRandomFile(agentJar);
             long original = agentJar.length();
             new AgentBootstrapper(){
-                    @Override void jvmExit(int returnValue) {
-                    }
-                }.go(false, "localhost", 9090);
+                        @Override void jvmExit(int returnValue) {
+                        }
+                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             assertThat(agentJar.length(), not(original));
             agentJar.delete();
         }
@@ -125,9 +119,9 @@ public class AgentBootstrapperFunctionalTest {
         new File("agent.jar").delete();
         try {
             new AgentBootstrapper(){
-                    @Override void jvmExit(int returnValue) {
-                    }
-                }.go(false, "IShouldNotResolveAtAll", 9090);
+                        @Override void jvmExit(int returnValue) {
+                        }
+                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "IShouldNotResolveAtAll" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             fail("Shouldn't work if wrong URL provided");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Please check the URL"));

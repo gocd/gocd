@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,18 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.domain.CommentRenderer;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.DefaultCommentRenderer;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.XmlUtils;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.http.client.utils.URIBuilder;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @understands mingle project for pipeline
@@ -72,6 +73,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         validate(validationContext);
         return errors().isEmpty();
     }
+
     public void validate(ValidationContext validationContext) {
         if (isDefined() && XmlUtils.doesNotMatchUsingXsdRegex(MINGLE_URL_PATTERN_REGEX, baseUrl)) {
             configErrors.add(BASE_URL, "Should be a URL starting with https://");
@@ -93,17 +95,18 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         configErrors.add(fieldName, message);
     }
 
-    public String urlFor(String path) throws URIException {
-        URI baseUri = new URI(baseUrl, false, "UTF-8");
+    public String urlFor(String path) throws MalformedURLException, URISyntaxException {
+        URIBuilder baseUri = new URIBuilder(baseUrl);
         String originalPath = baseUri.getPath();
         if (originalPath == null) {
             originalPath = "";
         }
+
         if (originalPath.endsWith(DELIMITER) && path.startsWith(DELIMITER)) {
             path = path.replaceFirst(DELIMITER, "");
         }
-        baseUri.setPath(originalPath + path);
-        return baseUri.toString();
+
+        return baseUri.setPath(originalPath + path).toString();
     }
 
     public String getProjectIdentifier() {
@@ -171,7 +174,8 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         return result;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return new ToStringBuilder(this).
                 append("baseUrl", baseUrl).
                 append("projectName", projectIdentifier).
@@ -216,7 +220,7 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
         try {
             String urlPart = urlFor(String.format("/projects/%s/cards/", projectIdentifier));
             return new DefaultCommentRenderer(urlPart + "${ID}", "#(\\d+)").render(text);
-        } catch (URIException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new RuntimeException("Could not construct the URL to generate the link.", e);
         }
     }

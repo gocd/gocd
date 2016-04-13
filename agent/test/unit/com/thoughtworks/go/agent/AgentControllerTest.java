@@ -40,10 +40,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.methods.HttpPut;
+import org.eclipse.jetty.util.IO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,12 +52,13 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import java.io.IOException;
+import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -96,8 +95,6 @@ public class AgentControllerTest {
     private AgentWebsocketService agentWebsocketService;
     @Mock
     private HttpService httpService;
-    @Mock
-    private HttpClient httpClient;
 
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
@@ -280,9 +277,8 @@ public class AgentControllerTest {
 
 
     @Test
-    public void processBuildCommand() throws IOException, InterruptedException {
+    public void processBuildCommand() throws Exception {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(httpService.httpClient()).thenReturn(httpClient);
         agentController = createAgentController();
         agentController.init();
         BuildSettings build = new BuildSettings();
@@ -304,10 +300,10 @@ public class AgentControllerTest {
         verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
 
 
-        ArgumentCaptor<PutMethod> putMethodArg = ArgumentCaptor.forClass(PutMethod.class);
-        verify(httpClient).executeMethod(putMethodArg.capture());
-        assertThat(putMethodArg.getValue().getURI(), is(new URI("http://foo.bar/console", false)));
-        assertThat(((StringRequestEntity)putMethodArg.getValue().getRequestEntity()).getContent(), containsString("building"));
+        ArgumentCaptor<HttpPut> putMethodArg = ArgumentCaptor.forClass(HttpPut.class);
+        verify(httpService).execute(putMethodArg.capture());
+        assertThat(putMethodArg.getValue().getURI(), is(new URI("http://foo.bar/console")));
+        assertThat(IO.toString(putMethodArg.getValue().getEntity().getContent()), containsString("building"));
     }
 
     private AgentRuntimeInfo cloneAgentRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
@@ -317,7 +313,6 @@ public class AgentControllerTest {
     @Test
     public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(httpService.httpClient()).thenReturn(httpClient);
 
         agentController = createAgentController();
         agentController.init();

@@ -18,17 +18,9 @@ package com.thoughtworks.go.agent.common;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
+import com.thoughtworks.go.agent.common.ssl.CertificateFileParser;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class CertificateFileValidator implements IParameterValidator {
 
@@ -43,13 +35,12 @@ public class CertificateFileValidator implements IParameterValidator {
         }
 
         try {
-            if (certificates(new File(value)).isEmpty()) {
+            if (new CertificateFileParser().certificates(new File(value)).isEmpty()) {
                 throw badCertfile(name);
             }
         } catch (Exception e) {
             throw badCertfile(name);
         }
-
     }
 
     private ParameterException badCertfile(String name) {
@@ -57,23 +48,4 @@ public class CertificateFileValidator implements IParameterValidator {
                 "and may be supplied in binary or Base64 encoding");
     }
 
-    public List<X509Certificate> certificates(File certFile) throws IOException, CertificateException {
-        ArrayList<X509Certificate> certs = new ArrayList<>();
-
-        if (certFile != null && certFile.exists() && certFile.canRead()) {
-            try (FileInputStream fis = new FileInputStream(certFile)) {
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
-
-                Collection<? extends Certificate> certificates = cf.generateCertificates(fis);
-
-                for (Certificate cert : certificates) {
-                    if (cert instanceof X509Certificate) {
-                        certs.add((X509Certificate) cert);
-                    }
-                }
-            }
-        }
-
-        return certs;
-    }
 }

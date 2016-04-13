@@ -33,5 +33,22 @@ public class ServerUrlValidatorTest {
         new ServerUrlValidator().validate("foo", "bad-url");
     }
 
+    @Test
+    public void shouldNotAllowUrlEndingWithoutGo() throws Exception {
+        expectedEx.expect(ParameterException.class);
+        expectedEx.expectMessage("must end with '/go' (https://localhost:8154/go)");
+        new ServerUrlValidator().validate("foo", "https://example.com");
+    }
 
+    @Test
+    public void shouldAllowSslUrlEndingWithGo() throws Exception {
+        new ServerUrlValidator().validate("foo", "https://example.com/go");
+    }
+
+    @Test
+    public void shouldNotAllowPlainTextUrlEndingWithGo() throws Exception {
+        expectedEx.expect(ParameterException.class);
+        expectedEx.expectMessage("must be an HTTPS url and must begin with https://");
+        new ServerUrlValidator().validate("foo", "http://example.com/go");
+    }
 }

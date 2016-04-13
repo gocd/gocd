@@ -1,24 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.cruise.agent.launcher;
 
-import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
+import com.thoughtworks.go.agent.ServerUrlGenerator;
+import com.thoughtworks.go.agent.common.AgentBootstrapperBackwardCompatibility;
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
@@ -26,16 +27,13 @@ import com.thoughtworks.go.agent.common.util.LoggingHelper;
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
 import com.thoughtworks.go.agent.launcher.Lockfile;
 import com.thoughtworks.go.agent.launcher.ServerBinaryDownloader;
-import com.thoughtworks.go.agent.launcher.UrlConstructor;
+import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
-import static com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptorKeys.HOSTNAME;
-import static com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptorKeys.PORT;
 
 public class AgentLauncherImpl implements AgentLauncher {
 
@@ -72,19 +70,22 @@ public class AgentLauncherImpl implements AgentLauncher {
 
             shutdownHook = registerShutdownHook();
 
-            ServerUrlGenerator urlGenerator = getUrlGenerator(descriptor);
+            Map context = descriptor.context();
 
-            ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.LAUNCHER);
-            ServerBinaryDownloader.DownloadResult downloadResult = launcherDownloader.downloadIfNecessary();
+            AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
+            ServerUrlGenerator urlGenerator = backwardCompatibility.getUrlGenerator();
+            File rootCertFile = backwardCompatibility.rootCertFile();
+            SslVerificationMode sslVerificationMode = backwardCompatibility.sslVerificationMode();
 
-            if (downloadResult.performedDownload) {
+            ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.LAUNCHER, rootCertFile, sslVerificationMode);
+            if (launcherDownloader.downloadIfNecessary()) {
                 return LAUNCHER_NOT_UP_TO_DATE;
             }
 
-            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT);
+            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT, rootCertFile, sslVerificationMode);
             agentDownloader.downloadIfNecessary();
 
-            returnValue = agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.md5(), urlGenerator, System.getenv());
+            returnValue = agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.md5(), urlGenerator, System.getenv(), context);
 
             try {
                 // Sleep a bit so that if there are problems we don't spin
@@ -103,6 +104,10 @@ public class AgentLauncherImpl implements AgentLauncher {
         }
     }
 
+    private AgentBootstrapperBackwardCompatibility backwardCompatibility(Map context) {
+        return new AgentBootstrapperBackwardCompatibility(context);
+    }
+
     private void removeShutDownHook(Thread shutdownHook) {
         if (shutdownHook != null) {
             try {
@@ -114,40 +119,27 @@ public class AgentLauncherImpl implements AgentLauncher {
 
     private Thread registerShutdownHook() {
         Thread shutdownHook = new Thread() {
-            @Override public void run() {
-                    lockFile.delete();
+            @Override
+            public void run() {
+                lockFile.delete();
             }
         };
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         return shutdownHook;
     }
 
-    private ServerUrlGenerator getUrlGenerator(AgentLaunchDescriptor descriptor) {
-        String hostName = getHostName(descriptor);
-        int port = getPort(descriptor);
-        return new UrlConstructor(hostName, port);
-    }
-
     private String getLauncherVersion() throws IOException {
         return JarUtil.getGoVersion(Downloader.AGENT_LAUNCHER);
     }
 
-    private int getPort(AgentLaunchDescriptor descriptor) {
-        return ((Integer) descriptor.context().get(PORT)).intValue();
-    }
-
-    private String getHostName(AgentLaunchDescriptor descriptor) {
-        return (String) descriptor.context().get(HOSTNAME);
-    }
-
     public static interface AgentProcessParentRunner {
-        int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables);
+        int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map context);
     }
 
     private static class AgentJarBasedAgentParentRunner implements AgentProcessParentRunner {
-        public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables) {
+        public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map context) {
             AgentProcessParent agentProcessParent = (AgentProcessParent) JarUtil.objectFromJar(Downloader.AGENT_BINARY, GO_AGENT_BOOTSTRAP_CLASS);
-            return agentProcessParent.run(launcherVersion, launcherMd5, urlGenerator, environmentVariables);
+            return agentProcessParent.run(launcherVersion, launcherMd5, urlGenerator, environmentVariables, context);
         }
     }
 

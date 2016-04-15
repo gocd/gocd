@@ -16,7 +16,7 @@
   ~
   -->
 
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="81">
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="85">
     <server artifactsdir="logs" commandRepositoryLocation="default" serverId="dev-id">
         <security>
             <ldap uri="ldap://ldap-server" managerDn="manager-dn" encryptedManagerPassword="ruRUF0mi2ia/BWpWMISbjQ==" searchFilter="(sAMAccountName={0})">

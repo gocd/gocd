@@ -1182,6 +1182,32 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedXml, not(containsString("<authorization>")));
     }
 
+    @Test
+    public void ShouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
+        String configXml =
+                "<cruise schemaVersion='84'>"
+                        +"  <pipelines group='first'>"
+                        +"    <authorization>"
+                        +"       <view>"
+                        +"         <user></user>"
+                        +"       </view>"
+                        +"    </authorization>"
+                        +"    <pipeline name='up42'>"
+                        +"      <environmentvariables>"
+                        +"        <variable name=\"test  \">"
+                        +"          <value>abcd</value>"
+                        +"        </variable>"
+                        +"      </environmentvariables>"
+                        +"      <materials>"
+                        +"        <hg url='../manual-testing/ant_hg/dummy' />"
+                        +"      </materials>"
+                        +"     </pipeline>"
+                        +"  </pipelines>"
+                        +"</cruise>";
+        String migratedXml = migrateXmlString(configXml, 84);
+        assertThat(migratedXml, not(containsString("test  ")));
+        assertThat(migratedXml, containsString("test"));
+    }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));

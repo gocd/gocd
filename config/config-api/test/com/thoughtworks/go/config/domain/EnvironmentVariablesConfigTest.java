@@ -99,6 +99,30 @@ public class EnvironmentVariablesConfigTest {
     }
 
     @Test
+    public void shouldPopulateErrorWhenVariableNameStartsWithSpace() {
+        environmentVariablesConfig = new EnvironmentVariablesConfig();
+        EnvironmentVariableConfig one = new EnvironmentVariableConfig(" foo", "BAR");
+        environmentVariablesConfig.add(one);
+
+        environmentVariablesConfig.validate(context);
+
+        assertThat(one.errors().isEmpty(), is(false));
+        assertThat(one.errors().on(EnvironmentVariableConfig.NAME), contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'."));
+    }
+
+    @Test
+    public void shouldPopulateErrorWhenVariableNameEndsWithSpace() {
+        environmentVariablesConfig = new EnvironmentVariablesConfig();
+        EnvironmentVariableConfig one = new EnvironmentVariableConfig("FOO  ", "BAR");
+        environmentVariablesConfig.add(one);
+
+        environmentVariablesConfig.validate(context);
+
+        assertThat(one.errors().isEmpty(), is(false));
+        assertThat(one.errors().on(EnvironmentVariableConfig.NAME), contains("Environment Variable cannot start or end with spaces for pipeline 'some-pipeline'."));
+    }
+
+    @Test
     public void shouldClearEnvironmentVariablesWhenTheMapIsNull() {
         environmentVariablesConfig = new EnvironmentVariablesConfig();
         EnvironmentVariableConfig one = new EnvironmentVariableConfig("FOO", "BAR");

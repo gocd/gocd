@@ -341,4 +341,18 @@ public class GoCacheTest {
         assertThat(list.size(), is(1));
         assertThat(list.contains("child2"), is(true));
     }
+
+    @Test
+    public void shouldEvictAllSubkeyCacheEntriesCacheWhenTheParentEntryGetsEvicted() throws InterruptedException {
+        goCache.configuration().setMaxElementsInMemory(3);
+        String parentKey = "parent";
+        goCache.put(parentKey, new GoCache.KeyList());
+        Thread.sleep(1);//so that the timestamps on the cache entries are different
+        assertThat(goCache.get(parentKey), is(not(nullValue())));
+        goCache.put(parentKey, "child1", "value");
+        goCache.put(parentKey, "child2", "value");
+        goCache.put(parentKey, "child3", "value");
+        assertThat(goCache.getKeys().size(), is(0));
+    }
+
 }

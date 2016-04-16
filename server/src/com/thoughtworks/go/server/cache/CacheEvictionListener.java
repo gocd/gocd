@@ -54,7 +54,7 @@ public class CacheEvictionListener implements CacheEventListener {
     }
 
     private void removeCompositeKeyFromParentCache(Element element) {
-        goCache.removeCompositeKeyFromParentCache((String) element.getKey());
+        goCache.removeAssociations((String) element.getKey(), element);
     }
 
     @Override

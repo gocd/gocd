@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -32,6 +27,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -200,14 +200,20 @@ public class GoCache {
         }
     }
 
-    public void removeCompositeKeyFromParentCache(String key) {
-        if (key.contains(SUB_KEY_DELIMITER)) {
+    public void removeAssociations(String key, Element element) {
+        if (element.getValue() instanceof KeyList) {
+            synchronized (key.intern()) {
+                for (String subkey : (KeyList) element.getValue()) {
+                    remove(compositeKey(key, subkey));
+                }
+            }
+        } else if (key.contains(SUB_KEY_DELIMITER)) {
             String[] parts = StringUtils.splitByWholeSeparator(key, SUB_KEY_DELIMITER);
             String parentKey = parts[0];
             String childKey = parts[1];
             synchronized (parentKey.intern()) {
                 Element parent = ehCache.get(parentKey);
-                if(parent == null){
+                if (parent == null) {
                     return;
                 }
                 GoCache.KeyList subKeys = (GoCache.KeyList) parent.getValue();

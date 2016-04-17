@@ -351,8 +351,9 @@ public class GoCacheTest {
         assertThat(goCache.get(parentKey), is(not(nullValue())));
         goCache.put(parentKey, "child1", "value");
         goCache.put(parentKey, "child2", "value");
-        goCache.put(parentKey, "child3", "value");
-        assertThat(goCache.getKeys().size(), is(0));
+        goCache.put("unrelatedkey", "value");
+        assertThat(goCache.getKeys().size(), is(1));
+        assertThat(((String) goCache.get("unrelatedkey")), is("value"));
     }
 
 }

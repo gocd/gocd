@@ -232,6 +232,8 @@ Go::Application.routes.draw do
         resources :pipelines, param: :name, only: [:show, :update, :create], constraints: {name: PIPELINE_NAME_FORMAT}
         resources :command_snippets, only: [:index]
         get 'command_snippets/show', controller: :command_snippets, action: :show, as: :command_snippet
+        get 'materials/scms', controller: :pluggable_scms, action: :index, as: :list_scms_api
+        get 'materials/scms/:material_name', controller: :pluggable_scms, action: :show, as: :scm_api
       end
 
       get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api

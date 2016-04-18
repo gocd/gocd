@@ -65,6 +65,7 @@ module JavaImports
   java_import com.thoughtworks.go.domain.materials.Modification unless defined? Modification
   java_import com.thoughtworks.go.domain.materials.ModifiedAction unless defined? ModifiedAction
   java_import com.thoughtworks.go.domain.materials.ModifiedFile unless defined? ModifiedFile
+  java_import com.thoughtworks.go.domain.scm.SCM unless defined? SCM
   java_import com.thoughtworks.go.config.materials.ScmMaterial unless defined? ScmMaterial
   java_import com.thoughtworks.go.config.materials.ScmMaterialConfig unless defined? ScmMaterialConfig
   java_import com.thoughtworks.go.config.materials.PackageMaterial unless defined? PackageMaterial

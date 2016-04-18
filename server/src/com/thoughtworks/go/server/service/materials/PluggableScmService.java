@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
@@ -24,19 +24,24 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class PluggableScmService {
     private SCMExtension scmExtension;
     private Localizer localizer;
+    private GoConfigService goConfigService;
 
     @Autowired
-    public PluggableScmService(SCMExtension scmExtension, Localizer localizer) {
+    public PluggableScmService(SCMExtension scmExtension, Localizer localizer, GoConfigService goConfigService) {
         this.scmExtension = scmExtension;
         this.localizer = localizer;
+        this.goConfigService = goConfigService;
     }
 
     public void validate(final SCM scmConfig) {
@@ -69,6 +74,20 @@ public class PluggableScmService {
         final String pluginId = scmConfig.getPluginConfiguration().getId();
         final SCMPropertyConfiguration configuration = getScmPropertyConfiguration(scmConfig);
         return scmExtension.checkConnectionToSCM(pluginId, configuration);
+    }
+
+    public ArrayList<SCM> listAllScms() {
+        return goConfigService.getSCMs();
+    }
+
+    public SCM findPluggableScmMaterial(String materialName) {
+        ArrayList<SCM> scms = listAllScms();
+        for(SCM scm : scms){
+            if(materialName.equals(scm.getName()))  {
+                return scm;
+            }
+        }
+        return null;
     }
 
     private SCMPropertyConfiguration getScmPropertyConfiguration(SCM scmConfig) {

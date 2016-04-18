@@ -87,7 +87,7 @@ public class GoCacheTest {
 
     @Before
     public void setUp() throws Exception {
-        if(originalMaxElementsInMemory == 0 ){
+        if (originalMaxElementsInMemory == 0) {
             originalMaxElementsInMemory = goCache.configuration().getMaxElementsInMemory();
             originalTimeToLiveSeconds = goCache.configuration().getTimeToLiveSeconds();
         }
@@ -343,7 +343,7 @@ public class GoCacheTest {
     }
 
     @Test
-    public void shouldEvictAllSubkeyCacheEntriesCacheWhenTheParentEntryGetsEvicted() throws InterruptedException {
+    public void shouldEvictAllSubkeyCacheEntriesWhenTheParentEntryGetsEvicted() throws InterruptedException {
         goCache.configuration().setMaxElementsInMemory(3);
         String parentKey = "parent";
         goCache.put(parentKey, new GoCache.KeyList());
@@ -356,4 +356,17 @@ public class GoCacheTest {
         assertThat(((String) goCache.get("unrelatedkey")), is("value"));
     }
 
+    @Test
+    public void shouldHandleNonSerializableValuesDuringEviction() throws InterruptedException {
+        goCache.configuration().setMaxElementsInMemory(1);
+        NonSerializableClass value = new NonSerializableClass();
+        String key = "key";
+        goCache.put(key, value);
+        Thread.sleep(1);//so that the timestamps on the cache entries are different
+        goCache.put("another_entry", "value");
+        assertThat(goCache.get(key), is(nullValue()));
+    }
+
+    private class NonSerializableClass {
+    }
 }

@@ -201,9 +201,9 @@ public class GoCache {
     }
 
     public void removeAssociations(String key, Element element) {
-        if (element.getValue() instanceof KeyList) {
+        if (element.getObjectValue() instanceof KeyList) {
             synchronized (key.intern()) {
-                for (String subkey : (KeyList) element.getValue()) {
+                for (String subkey : (KeyList) element.getObjectValue()) {
                     remove(compositeKey(key, subkey));
                 }
             }
@@ -216,7 +216,7 @@ public class GoCache {
                 if (parent == null) {
                     return;
                 }
-                GoCache.KeyList subKeys = (GoCache.KeyList) parent.getValue();
+                GoCache.KeyList subKeys = (GoCache.KeyList) parent.getObjectValue();
                 subKeys.remove(childKey);
             }
         }

@@ -331,7 +331,7 @@ public class GoCacheTest {
         goCache.put(parentKey, "child1", "value");
         assertThat(goCache.get(parentKey), is(not(nullValue())));
         assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(not(nullValue())));
-        Thread.sleep(2000);// wait for cache elements to expire
+        waitForCacheElementsToExpire();
 
         goCache.put(parentKey, "child2", "value");
         assertThat(goCache.get(parentKey), is(not(nullValue())));
@@ -352,6 +352,7 @@ public class GoCacheTest {
         goCache.put(parentKey, "child1", "value");
         goCache.put(parentKey, "child2", "value");
         goCache.put("unrelatedkey", "value");
+        waitForCacheElementsToExpire();
         assertThat(goCache.getKeys().size(), is(1));
         assertThat(((String) goCache.get("unrelatedkey")), is("value"));
     }
@@ -368,5 +369,9 @@ public class GoCacheTest {
     }
 
     private class NonSerializableClass {
+    }
+
+    private void waitForCacheElementsToExpire() throws InterruptedException {
+        Thread.sleep(2000);
     }
 }

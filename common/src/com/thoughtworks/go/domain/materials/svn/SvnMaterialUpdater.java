@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
+import static com.thoughtworks.go.util.MapBuilder.map;
 
 public class SvnMaterialUpdater {
     private SvnMaterial material;
@@ -80,6 +81,6 @@ public class SvnMaterialUpdater {
     }
 
     private BuildCommand svn(String... args) {
-        return exec("svn", true, args);
+        return exec("svn", map("verbose", "true"), args);
     }
 }

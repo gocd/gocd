@@ -16,13 +16,15 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+
+import static com.thoughtworks.go.util.MapBuilder.map;
 
 public class CommandBuilderWithArgList extends BaseCommandBuilder {
     private String[] args;
@@ -34,7 +36,7 @@ public class CommandBuilderWithArgList extends BaseCommandBuilder {
     }
 
     protected CommandLine buildCommandLine() {
-        CommandLine command = null;
+        CommandLine command;
         if (SystemUtil.isWindows()) {
             command = CommandLine.createCommandLine("cmd").withWorkingDir(workingDir);
             command.withArg("/c");
@@ -55,7 +57,7 @@ public class CommandBuilderWithArgList extends BaseCommandBuilder {
 
     @Override
     public BuildCommand buildCommand() {
-        BuildCommand exec = BuildCommand.exec(this.command, args);
+        BuildCommand exec = BuildCommand.exec(this.command, map("script", "true"), args);
         if (workingDir != null) {
             exec.setWorkingDirectory(workingDir.getPath());
         }

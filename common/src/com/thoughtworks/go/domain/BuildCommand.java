@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.MapBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,14 +38,15 @@ public class BuildCommand {
     }
 
     public static BuildCommand exec(String command, String...args) {
-        return exec(command, false, args);
+        return exec(command, MapBuilder.<String, String>map(), args);
     }
 
-    public static BuildCommand exec(String command, boolean verbose, String... args) {
-        return new BuildCommand("exec", map(
+    public static BuildCommand exec(String command, Map<String, String> options, String... args) {
+        Map<String, String> arguments = map(
                 "command", command,
-                "args", GSON.toJson(args),
-                "verbose",  String.valueOf(verbose)));
+                "args", GSON.toJson(args));
+        arguments.putAll(options);
+        return new BuildCommand("exec", arguments);
     }
 
     public static BuildCommand test(String flag, String left) {

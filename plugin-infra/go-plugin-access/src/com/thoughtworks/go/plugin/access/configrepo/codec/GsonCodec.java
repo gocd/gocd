@@ -24,8 +24,4 @@ public class GsonCodec {
     public Gson getGson() {
         return gson;
     }
-
-    public ParseDirectoryResponseMessage parseDirectoryResponseMessageFromJson(String json) {
-        return this.gson.fromJson(json,ParseDirectoryResponseMessage.class);
-    }
 }

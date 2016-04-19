@@ -30,9 +30,9 @@ import java.io.IOException;
 public class XmlPartialConfigProvider implements PartialConfigProvider {
     private static final Logger LOGGER = Logger.getLogger(XmlPartialConfigProvider.class);
 
-    public static final String ProviderName = "gocd-xml";
+    public static final String providerName = "gocd-xml";
 
-    private final String defaultPatter = "**/*.gocd.xml";
+    private final String defaultPattern = "**/*.gocd.xml";
 
     private MagicalGoConfigXmlLoader loader;
 
@@ -64,7 +64,7 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
     }
 
     public File[] getFiles(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
-        String pattern = defaultPatter;
+        String pattern = defaultPattern;
 
         Configuration configuration = context.configuration();
         if(configuration != null)

@@ -71,7 +71,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         commandLine.withWorkingDir(workingDir);
         commandLine.withEnv(buildSession.getEnvs());
 
-        int exitCode = executeCommandLine(buildSession, commandLine, verbose);
+        int exitCode = executeCommandLine(buildSession, commandLine);
         if(verbose && exitCode != 0) {
             buildSession.printlnWithPrefix("Failed to run " + commandLine.toStringForDisplay());
         }
@@ -91,7 +91,7 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
         return commandLine;
     }
 
-    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine, boolean verbose) {
+    private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {
         final AtomicInteger exitCode = new AtomicInteger(-1);
         final CountDownLatch canceledOrDone = new CountDownLatch(1);
         buildSession.submitRunnable(new Runnable() {

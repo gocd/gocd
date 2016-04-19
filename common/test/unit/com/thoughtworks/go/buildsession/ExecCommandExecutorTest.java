@@ -137,9 +137,8 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
     @Test
     public void shouldReportErrorWhenFailExecWithVerbose() {
         runBuild(exec("not-not-not-exist", true, "-a", "-bb"), Failed);
-        System.out.println("console = " + console);
+        assertThat(console.output(), containsString("[go] Failed to run not-not-not-exist -a -bb"));
     }
-
 
     private BuildCommand execEchoEnv(final String envname) {
         if (SystemUtil.isWindows()) {

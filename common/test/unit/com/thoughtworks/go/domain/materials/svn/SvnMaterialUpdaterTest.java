@@ -9,6 +9,7 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +52,11 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     private BuildCommand buildCommand(String revision) {
-        SvnMaterialUpdater materialUpdater = new SvnMaterialUpdater(new SvnMaterial(testRepo.projectRepositoryUrl(), svnUserName, svnPassword, false));
+        return buildCommand(revision, testRepo.projectRepositoryUrl());
+    }
+
+    private BuildCommand buildCommand(String revision, String repositoryUrl) {
+        SvnMaterialUpdater materialUpdater = new SvnMaterialUpdater(new SvnMaterial(repositoryUrl, svnUserName, svnPassword, false));
         return materialUpdater.updateTo(baseDir, new RevisionContext(new SubversionRevision(revision)));
     }
 
@@ -177,5 +182,19 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
         updateMaterial("-1", JobResult.Failed);
         assertThat(console.lastLine(), not(containsString("--username ")));
         assertThat(console.lastLine(), not(containsString("--password")));
+    }
+
+    @Test
+    public void shouldCheckoutIfSvnRepositoryChangesToAParentRepo() throws IOException {
+        String  initialRepo = testRepo.projectRepositoryUrl();
+        runBuild(buildCommand("3", initialRepo), JobResult.Passed);
+        assertThat(console.output(), containsString("Checked out revision 3"));
+
+        String changedRepo = FileUtil.toFileURI(testRepo.projectRepositoryRoot());
+
+        runBuild(buildCommand("4", changedRepo), JobResult.Passed);
+        assertThat(console.output(), containsString("Checked out revision 4"));
+
+        assertThat(getWorkingDirInfo(workingCopy).getUrl() + "/", is(changedRepo));
     }
 }

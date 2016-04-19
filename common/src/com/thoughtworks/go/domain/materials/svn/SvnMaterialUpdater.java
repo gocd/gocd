@@ -48,7 +48,7 @@ public class SvnMaterialUpdater {
 
     private BuildCommand isRepositoryChanged(String workingDir) {
         return test("-ncontains",
-                "URL: " + StringUtil.removeTrailingSlash(material.getUrl()),
+                "URL: " + StringUtil.removeTrailingSlash(material.getUrl()) + "\n",
                 svn("info", "--non-interactive", workingDir));
     }
 

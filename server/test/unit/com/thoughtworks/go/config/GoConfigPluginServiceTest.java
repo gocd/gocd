@@ -1,6 +1,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
@@ -26,7 +27,7 @@ public class GoConfigPluginServiceTest {
     private CRParseResult parseResult;
     private Collection<CREnvironment> environments = new ArrayList<>();
     private Collection<CRPipeline> pipelines = new ArrayList<>();
-    private String errors = "";
+    private ErrorCollection errors = new ErrorCollection();
 
     @Before
     public void SetUp()

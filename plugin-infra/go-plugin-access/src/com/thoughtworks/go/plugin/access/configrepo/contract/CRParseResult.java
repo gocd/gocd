@@ -12,16 +12,16 @@ import java.util.List;
 public class CRParseResult {
     private Collection<CREnvironment> environments = new ArrayList<>();
     private Collection<CRPipeline> pipelines = new ArrayList<>();
-    private String errors;
+    private ErrorCollection errors;
 
     public CRParseResult(){}
-    public CRParseResult(Collection<CREnvironment> environments,Collection<CRPipeline> pipelines,String errors){
+    public CRParseResult(Collection<CREnvironment> environments,Collection<CRPipeline> pipelines,ErrorCollection errors){
         this.environments = environments;
         this.pipelines = pipelines;
         this.errors = errors;
     }
 
-    public CRParseResult(String errors) {
+    public CRParseResult(ErrorCollection errors) {
         this.errors = errors;
     }
 
@@ -41,15 +41,15 @@ public class CRParseResult {
         this.pipelines = pipelines;
     }
 
-    public String getErrors() {
+    public ErrorCollection getErrors() {
         return errors;
     }
 
-    public void setErrors(String errors) {
+    public void setErrors(ErrorCollection errors) {
         this.errors = errors;
     }
 
     public boolean hasErrors() {
-        return !StringUtil.isBlank(errors);
+        return !errors.isEmpty();
     }
 }

@@ -44,16 +44,15 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public CRParseResult responseMessageForParseDirectory(String responseBody) {
+        ErrorCollection errors = new ErrorCollection();
         try {
             ResponseScratch responseMap = parseResponseForMigration(responseBody);
-            ErrorCollection errors = new ErrorCollection();
             ParseDirectoryResponseMessage parseDirectoryResponseMessage;
 
             if(responseMap.target_version == null)
             {
                 errors.addError("Plugin response message","missing 'target_version' field");
-                String errorsText = errors.getErrorsAsText();
-                return new CRParseResult(errorsText);
+                return new CRParseResult(errors);
             }
             else {
                 int version = responseMap.target_version;
@@ -68,8 +67,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
                 errors.addErrors(parseDirectoryResponseMessage.getPluginErrors());
 
-                String errorsText = errors.getErrorsAsText();
-                return new CRParseResult(parseDirectoryResponseMessage.getEnvironments(), parseDirectoryResponseMessage.getPipelines(), errorsText);
+                return new CRParseResult(parseDirectoryResponseMessage.getEnvironments(), parseDirectoryResponseMessage.getPipelines(), errors);
             }
         }
         catch (Exception ex)
@@ -77,7 +75,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             StringBuilder builder = new StringBuilder();
             builder.append("Unexpected error when handling plugin response").append('\n');
             builder.append(ex);
-            return new CRParseResult(builder.toString());
+            // "location" of error is runtime. This is what user will see in config repo errors list.
+            errors.addError("runtime",builder.toString());
+            return new CRParseResult(errors);
         }
     }
 

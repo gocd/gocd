@@ -29,7 +29,7 @@ public class JsonMessageHandler1_0Test {
                 "}";
 
         CRParseResult result = handler.responseMessageForParseDirectory(json);
-        assertThat(result.getErrors(),contains("missing 'target_version' field"));
+        assertThat(result.getErrors().getErrorsAsText(),contains("missing 'target_version' field"));
     }
 
     @Test

@@ -25,11 +25,6 @@ public class ErrorCollection {
         return builder.toString();
     }
 
-    public List<String> getErrorsFor(CRBase item) {
-        return errors.get(item);
-    }
-
-
     public boolean isEmpty() {
         return errors.isEmpty();
     }

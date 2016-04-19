@@ -326,7 +326,7 @@ public class ConfigConverter {
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
             return new GitMaterialConfig(new UrlArgument(git.getUrl()), gitBranch,
                     null,git.isAutoUpdate(), filter,crScmMaterial.getDirectory(),
-                    toMaterialName(materialName));
+                    toMaterialName(materialName),git.shallowClone());
         }
         else if(crScmMaterial instanceof CRHgMaterial)
         {

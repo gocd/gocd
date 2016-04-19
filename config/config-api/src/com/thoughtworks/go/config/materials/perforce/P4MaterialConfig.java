@@ -346,12 +346,4 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public String getFolder() {
         return folder;
     }
-
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 }

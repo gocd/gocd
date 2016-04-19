@@ -27,9 +27,9 @@ public class CRGitMaterialTest extends CRBaseTest<CRGitMaterial> {
         simpleGitBranch.setUrl(url2);
         simpleGitBranch.setBranch("develop");
 
-        veryCustomGit = new CRGitMaterial("gitMaterial1","dir1",false,url1,"feature12","externals","tools");
+        veryCustomGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12","externals","tools");
 
-        invalidNoUrl = new CRGitMaterial("gitMaterial1","dir1",false,null,"feature12","externals","tools");
+        invalidNoUrl = new CRGitMaterial("gitMaterial1","dir1",false,true,null,"feature12","externals","tools");
     }
 
     @Override

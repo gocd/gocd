@@ -114,7 +114,7 @@ public class ConfigConverterTest {
         crStage = new CRStage("stageName",true,true,true, approval,environmentVariables,jobs);
         stages.add(crStage);
 
-        git = new CRGitMaterial("name", "folder", true, filter, "url", "branch");
+        git = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch");
         materials.add(git);
 
         trackingTool = new CRTrackingTool("link","regex");
@@ -285,7 +285,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertGitMaterial() {
-        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, filter, "url", "branch");
+        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch");
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
@@ -308,6 +308,7 @@ public class ConfigConverterTest {
         assertNull(crGitMaterial.getName());
         assertNull(crGitMaterial.getDirectory());
         assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(gitMaterialConfig.isShallowClone(), is(false));
         assertThat(gitMaterialConfig.filter(), is(new Filter()));
         assertThat(gitMaterialConfig.getUrl(), is("url"));
         assertThat(gitMaterialConfig.getBranch(), is("master"));

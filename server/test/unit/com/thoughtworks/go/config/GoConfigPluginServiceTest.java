@@ -1,6 +1,5 @@
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.metrics.service.MetricsProbeService;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
@@ -34,7 +33,7 @@ public class GoConfigPluginServiceTest {
     {
         extension = mock(ConfigRepoExtension.class);
         service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                mock(MetricsProbeService.class),mock(CachedFileGoConfig.class));
+                mock(CachedFileGoConfig.class));
         parseResult = new CRParseResult(environments,pipelines,errors);
 
         when(extension.parseDirectory(any(String.class), any(String.class), any(Collection.class)))

@@ -29,7 +29,7 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
     {
         CRBuildTask rakeTask = CRBuildTask.rake();
         CRJob buildRake = new CRJob("build", rakeTask);
-        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, "gitrepo", "feature12", "externals", "tools");
+        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false,true, "gitrepo", "feature12", "externals", "tools");
 
         buildStage = new CRStage("build", buildRake);
         pipe1 = new CRPipeline("pipe1","group1",veryCustomGit,buildStage);
@@ -85,7 +85,7 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         CRPipeline p = new CRPipeline();
         p.setName("pipe4");
 
-        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false, null, "feature12", "externals", "tools");
+        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false,true, null, "feature12", "externals", "tools");
         p.addMaterial(invalidGit);
         // plugin may voluntarily set this
         p.setLocation("pipe4.json");

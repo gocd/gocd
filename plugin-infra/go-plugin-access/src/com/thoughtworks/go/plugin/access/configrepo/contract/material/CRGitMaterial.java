@@ -11,23 +11,31 @@ public class CRGitMaterial extends CRScmMaterial {
 
     private String url;
     private String branch;
+    private Boolean shallow_clone;
 
     public CRGitMaterial()
     {
         type = TYPE_NAME;
     }
 
-    public CRGitMaterial(String materialName, String folder, boolean autoUpdate,String url,String branch, String... filters) {
+    public CRGitMaterial(String materialName, String folder, boolean autoUpdate,Boolean shallow_clone,String url,String branch, String... filters) {
         super(TYPE_NAME, materialName, folder, autoUpdate, filters);
         this.url = url;
         this.branch = branch;
+        this.shallow_clone = shallow_clone;
     }
-    public CRGitMaterial(String name, String folder, boolean autoUpdate, List<String> filter,String url,String branch) {
+    public CRGitMaterial(String name, String folder, boolean autoUpdate,Boolean shallow_clone, List<String> filter,String url,String branch) {
         super(name, folder, autoUpdate, filter);
         this.url = url;
         this.branch = branch;
+        this.shallow_clone = shallow_clone;
     }
 
+    public boolean shallowClone() {
+        if(shallow_clone == null)
+            return false;//when nothing was specified then no shallow clone
+        return shallow_clone;
+    }
 
     @Override
     public String typeName() {
@@ -95,4 +103,5 @@ public class CRGitMaterial extends CRScmMaterial {
         String url = getUrl() != null ? getUrl() : "unknown";
         return String.format("%s; Git material %s URL: %s",myLocation,name,url);
     }
+
 }

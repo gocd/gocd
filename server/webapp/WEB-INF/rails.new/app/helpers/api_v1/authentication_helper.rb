@@ -56,6 +56,15 @@ module ApiV1
       end
     end
 
+    def check_pipeline_group_admin_user_and_401
+      groupName = params[:group] || go_config_service.findGroupNameByPipeline(com.thoughtworks.go.config.CaseInsensitiveString.new(params[:name]))
+      return unless security_service.isSecurityEnabled()
+        unless is_user_a_group_admin?(current_user, groupName)
+            Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+            render_unauthorized_error
+        end
+    end
+
     def verify_content_type_on_post
       if [:put, :post, :patch].include?(request.request_method_symbol) && !request.raw_post.blank? && request.content_mime_type != :json
         render ApiV1::BaseController::DEFAULT_FORMAT => { message: "You must specify a 'Content-Type' of 'application/json'" }, status: :unsupported_media_type
@@ -72,6 +81,16 @@ module ApiV1
 
     def render_unauthorized_error
       render ApiV1::BaseController::DEFAULT_FORMAT => { :message => 'You are not authorized to perform this action.' }, :status => 401
+    end
+
+    private
+    def is_user_a_group_admin?(current_user, group_name)
+      is_group_present = !group_name.blank? && go_config_service.getCurrentConfig().getGroups().hasGroup(group_name)
+      if is_group_present
+        return security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
+      else
+        return security_service.isUserAdmin(current_user)
+      end
     end
 
   end

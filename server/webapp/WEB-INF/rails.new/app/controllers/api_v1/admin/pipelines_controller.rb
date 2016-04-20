@@ -17,7 +17,7 @@
 module ApiV1
   module Admin
     class PipelinesController < ApiV1::BaseController
-      before_action :check_admin_user_and_401
+      before_action :check_pipeline_group_admin_user_and_401
       before_action :load_pipeline, only: [:show]
       before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]

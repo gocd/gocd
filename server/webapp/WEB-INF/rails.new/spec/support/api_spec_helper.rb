@@ -37,6 +37,20 @@ module ApiSpecHelper
     EOS
   end
 
+  def login_as_pipeline_group_Non_Admin_user
+    enable_security
+    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    @security_service.stub(:isUserAdminOfGroup).and_return(false)
+    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+  end
+
+  def login_as_pipeline_group_admin_user(group_name)
+    enable_security
+    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    @security_service.stub(:isUserAdminOfGroup).with(@user.getUsername, group_name).and_return(true)
+    @security_service.stub(:isUserAdmin).with(@user).and_return(true)
+  end
+
   def login_as_user
     enable_security
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))

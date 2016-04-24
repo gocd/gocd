@@ -42,6 +42,9 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     @ConfigSubtag
     private Filter filter;
 
+    @ConfigAttribute(value = "invertFilter", optional = true)
+    private boolean invertFilter = false;
+
     @ConfigAttribute(value = "dest", allowNull = true)
     protected String folder;
 
@@ -55,6 +58,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public static final String FOLDER = "folder";
     public static final String FILTER = "filterAsString";
+    public static final String INVERT_FILTER = "invertFilter";
 
     public ScmMaterialConfig(String typeName) {
         super(typeName);
@@ -120,6 +124,18 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public void setFilter(Filter filter) {
         this.filter = filter;
+    }
+
+    public boolean isInvertFilter() {
+        return invertFilter;
+    }
+
+    public boolean geInvertFilter() {
+        return invertFilter;
+    }
+
+    public void setInvertFilter(boolean value) {
+        invertFilter = value;
     }
 
     public String getDescription() {

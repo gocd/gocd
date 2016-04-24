@@ -140,6 +140,11 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
+    public boolean isInvertFilter() {
+        return false;
+    }
+
+    @Override
     public boolean matches(String name, String regex) {
         return false;
     }

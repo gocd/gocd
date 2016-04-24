@@ -32,6 +32,8 @@ public interface MaterialConfig extends Serializable, Validatable {
 
     Filter filter();
 
+    boolean isInvertFilter();
+
     boolean matches(String name, String regex);
 
     Map<String, Object> getSqlCriteria();

@@ -141,7 +141,8 @@ public class Modifications extends BaseCollection<Modification> {
             LOG.debug("Changed files : " + CollectionUtils.subtract(allFiles, ignoredFiles) + "");
         }
 
-        return ignoredFiles.containsAll(allFiles);
+        // EXOR with invert filter flag
+        return materialConfig.isInvertFilter() != ignoredFiles.containsAll(allFiles);
     }
 
     private void appyIgnoreFilter(MaterialConfig materialConfig, ModifiedFile file, Set<ModifiedFile> ignoredFiles) {

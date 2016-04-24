@@ -376,6 +376,7 @@
     <entry key="OPTIONS">Options</entry>
     <entry key="BLACKLIST">Blacklist</entry>
     <entry key="BLACKLIST_DESCRIPTION">Enter the paths to be excluded. Separate multiple entries with a comma.</entry>
+    <entry key="INVERT_FILTER">Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.</entry>
     <entry key="BRANCH">Branch</entry>
     <entry key="SHALLOW_CLONE">Shallow clone (recommended for large repositories)</entry>
     <entry key="P4_SERVER_AND_PORT">Server and Port</entry>

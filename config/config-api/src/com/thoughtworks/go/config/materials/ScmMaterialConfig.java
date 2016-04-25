@@ -223,6 +223,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             this.folder = folder;
         }
         this.setAutoUpdate("true".equals(map.get(AUTO_UPDATE)));
+        this.setInvertFilter("true".equals(map.get(INVERT_FILTER)));
         if (map.containsKey(FILTER)) {
             String pattern = (String) map.get(FILTER);
             if (!StringUtil.isBlank(pattern)) {

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -34,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.server.service.GoConfigService.INVALID_CRUISE_CONFIG_XML;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
@@ -50,8 +50,9 @@ public class MergedGoConfig implements CachedGoConfig {
     private volatile GoConfigHolder configHolder;
     private volatile Exception lastException;
 
-    @Autowired public MergedGoConfig(ServerHealthService serverHealthService,
-                                     CachedFileGoConfig fileService) {
+    @Autowired
+    public MergedGoConfig(ServerHealthService serverHealthService,
+                          CachedFileGoConfig fileService) {
         this.serverHealthService = serverHealthService;
         this.fileService = fileService;
     }
@@ -78,11 +79,22 @@ public class MergedGoConfig implements CachedGoConfig {
         LOGGER.debug("Config file (on disk) update check is in queue");
         synchronized (GoConfigWriteLock.class) {
             LOGGER.debug("Config file (on disk) update check is in progress");
-            GoConfigHolder configHolder = this.fileService.loadFromDisk();
-            if (configHolder != null) {
-                saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+            try {
+                GoConfigHolder configHolder = this.fileService.loadFromDisk();
+                if (configHolder != null) {
+                    saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Error loading cruise-config.xml from disk, keeping previous one", e);
+                saveConfigError(e);
             }
         }
+    }
+
+    private synchronized void saveConfigError(Exception e) {
+        this.lastException = e;
+        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_XML, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfig());
+        serverHealthService.update(state);
     }
 
     public CruiseConfig loadForEditing() {
@@ -98,10 +110,7 @@ public class MergedGoConfig implements CachedGoConfig {
 
     public void loadConfigIfNull() {
         if (currentConfig == null || currentConfigForEdit == null || configHolder == null) {
-            GoConfigHolder configHolder = this.fileService.loadFromDisk();
-            if (configHolder != null) {
-                saveValidConfigToCacheAndNotifyConfigChangeListeners(configHolder);
-            }
+            forceReload();
         }
     }
 
@@ -122,7 +131,7 @@ public class MergedGoConfig implements CachedGoConfig {
         LOGGER.info("About to notify pipeline config listeners");
 
         for (ConfigChangedListener listener : listeners) {
-            if(listener instanceof PipelineConfigChangedListener){
+            if (listener instanceof PipelineConfigChangedListener) {
                 try {
                     long startTime = System.currentTimeMillis();
                     ((PipelineConfigChangedListener) listener).onPipelineConfigChange(saveResult.getPipelineConfig(), saveResult.getGroup());
@@ -143,19 +152,15 @@ public class MergedGoConfig implements CachedGoConfig {
             this.configHolder = configHolder;
             this.currentConfig = this.configHolder.config;
             this.currentConfigForEdit = this.configHolder.configForEdit;
-            serverHealthService.update(ServerHealthState.success(invalidConfigType()));
+            serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfig()));
         }
     }
 
     private synchronized void saveValidConfigToCacheAndNotifyConfigChangeListeners(GoConfigHolder configHolder) {
         saveValidConfigToCache(configHolder);
-        if(configHolder!=null) {
+        if (configHolder != null) {
             notifyListeners(currentConfig);
         }
-    }
-
-    private static HealthStateType invalidConfigType() {
-        return HealthStateType.invalidConfigMerge();
     }
 
     public String getFileLocation() {
@@ -163,12 +168,16 @@ public class MergedGoConfig implements CachedGoConfig {
     }
 
     public void save(String configFileContent, boolean shouldMigrate) throws Exception {
-        GoConfigHolder newConfigHolder = this.fileService.saveNew(configFileContent, shouldMigrate);
+        GoConfigHolder newConfigHolder = this.fileService.save(configFileContent, shouldMigrate);
         saveValidConfigToCacheAndNotifyConfigChangeListeners(newConfigHolder);
     }
 
     public GoConfigValidity checkConfigFileValid() {
-        return  this.fileService.checkConfigFileValid();
+        Exception ex = lastException;
+        if (ex != null) {
+            return GoConfigValidity.invalid(ex);
+        }
+        return GoConfigValidity.valid();
     }
 
     public synchronized void registerListener(ConfigChangedListener listener) {

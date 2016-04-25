@@ -42,8 +42,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.CONFIG_WITH_1CONFIGREPO;
@@ -79,7 +77,7 @@ public class MergedGoConfigTest {
                 new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 serverHealthService, mock(CachedGoPartials.class));
         serverHealthService = new ServerHealthService();
-        cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService);
+        cachedFileGoConfig = new CachedFileGoConfig(dataSource);
         mergedGoConfig.loadConfigIfNull();
 
         configPluginService = mock(GoConfigPluginService.class);
@@ -527,14 +525,14 @@ public class MergedGoConfigTest {
     @Test
     public void shouldReturnDefaultCruiseConfigIfLoadingTheConfigFailsForTheFirstTime() throws Exception {
         configHelper.writeXmlToConfigFile("invalid-xml");
-        mergedGoConfig = new MergedGoConfig(new ServerHealthService(), new CachedFileGoConfig(dataSource, new ServerHealthService()));
+        mergedGoConfig = new MergedGoConfig(new ServerHealthService(), new CachedFileGoConfig(dataSource));
         Assert.assertThat(mergedGoConfig.currentConfig(), Matchers.<CruiseConfig>is(new BasicCruiseConfig()));
     }
 
     @Test
     public void shouldLoadConfigHolderIfNotAvailable() throws Exception {
         configHelper.addPipeline("foo", "bar");
-        mergedGoConfig = new MergedGoConfig(new ServerHealthService(), new CachedFileGoConfig(dataSource, new ServerHealthService()));
+        mergedGoConfig = new MergedGoConfig(new ServerHealthService(), new CachedFileGoConfig(dataSource));
         dataSource.reloadIfModified();
         mergedGoConfig.forceReload();
         GoConfigHolder loaded = mergedGoConfig.loadConfigHolder();
@@ -547,7 +545,7 @@ public class MergedGoConfigTest {
         CruiseConfig cruiseConfig = configHelper.load();
         addPipelineWithParams(cruiseConfig);
         configHelper.writeConfigFile(cruiseConfig);
-        mergedGoConfig = new MergedGoConfig(new ServerHealthService(), new CachedFileGoConfig(dataSource, new ServerHealthService()));
+        mergedGoConfig = new MergedGoConfig(new ServerHealthService(), new CachedFileGoConfig(dataSource));
         dataSource.reloadIfModified();
 
         mergedGoConfig.forceReload();
@@ -640,7 +638,7 @@ public class MergedGoConfigTest {
     public void shouldNotNotifyWhenConfigIsNullDuringRegistration() throws Exception {
         configHelper.deleteConfigFile();
         ServerHealthService serverHealthService = new ServerHealthService();
-        mergedGoConfig = new MergedGoConfig(serverHealthService, new CachedFileGoConfig(dataSource, serverHealthService));
+        mergedGoConfig = new MergedGoConfig(serverHealthService, new CachedFileGoConfig(dataSource));
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         mergedGoConfig.registerListener(listener);
         verifyNoMoreInteractions(listener);
@@ -653,7 +651,7 @@ public class MergedGoConfigTest {
         CruiseConfig currentConfig = GoConfigMother.configWithPipelines("p1");
         GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = new GoFileConfigDataSource.GoConfigSaveResult(new GoConfigHolder(currentConfig, currentConfig), ConfigSaveState.MERGED);
         when(goFileConfigDataSource.writeWithLock(argThat(Matchers.is(updateConfigCommand)), any(GoConfigHolder.class))).thenReturn(goConfigSaveResult);
-        mergedGoConfig = new MergedGoConfig(serverHealthService, new CachedFileGoConfig(dataSource, serverHealthService));
+        mergedGoConfig = new MergedGoConfig(serverHealthService, new CachedFileGoConfig(dataSource));
 
         ConfigSaveState configSaveState = mergedGoConfig.writeWithLock(updateConfigCommand);
         Assert.assertThat(configSaveState, Matchers.is(ConfigSaveState.MERGED));
@@ -666,7 +664,7 @@ public class MergedGoConfigTest {
         CruiseConfig currentConfig = GoConfigMother.configWithPipelines("p1");
         GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = new GoFileConfigDataSource.GoConfigSaveResult(new GoConfigHolder(currentConfig, currentConfig), ConfigSaveState.UPDATED);
         when(goFileConfigDataSource.writeWithLock(argThat(Matchers.is(updateConfigCommand)), any(GoConfigHolder.class))).thenReturn(goConfigSaveResult);
-        mergedGoConfig = new MergedGoConfig(serverHealthService, new CachedFileGoConfig(dataSource, serverHealthService));
+        mergedGoConfig = new MergedGoConfig(serverHealthService, new CachedFileGoConfig(dataSource));
 
         ConfigSaveState configSaveState = mergedGoConfig.writeWithLock(updateConfigCommand);
         Assert.assertThat(configSaveState, Matchers.is(ConfigSaveState.UPDATED));

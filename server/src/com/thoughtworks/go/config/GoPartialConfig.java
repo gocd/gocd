@@ -20,8 +20,8 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.listener.AsyncConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -40,10 +39,10 @@ import java.util.List;
  * Provides partial configurations.
  */
 @Component
-public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener, PartialsProvider, AsyncConfigChangedListener {
+public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener, PartialsProvider{
 
     private static final Logger LOGGER = Logger.getLogger(GoPartialConfig.class);
-    private static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
+    public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
 
     private GoRepoConfigDataSource repoConfigDataSource;
     private GoConfigWatchList configWatchList;
@@ -80,42 +79,68 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             //TODO maybe validate new part without context of other partials or main config
 
-            // put latest valid
+            // put latest known
             cachedGoPartials.addOrUpdate(fingerprint, newPart);
-            if (updateConfig()) {
+            if (updateConfig(newPart, fingerprint)) {
                 cachedGoPartials.markAsValid(fingerprint, newPart);
             }
         }
     }
 
-    private boolean updateConfig() {
-        final List<PartialConfig> partials = new Cloner().deepClone(cachedGoPartials.lastKnownPartials());
+    private boolean updateConfig(final PartialConfig newPart, final String fingerprint) {
         try {
             goConfigService.updateConfig(new UpdateConfigCommand() {
                 @Override
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    for (PartialConfig partial : partials) {
-                        for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
-                            if (!cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentConfig.name())) {
-                                cruiseConfig.addEnvironment(new BasicEnvironmentConfig(environmentConfig.name()));
+                    if (newPart != null && fingerprint != null) {
+                        cruiseConfig.getPartials().remove(findMatchingPartial(cruiseConfig, fingerprint));
+                        cruiseConfig.getPartials().add(new Cloner().deepClone(newPart));
+
+                        for (PartialConfig partial : cruiseConfig.getPartials()) {
+                            for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
+                                if (!cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentConfig.name())) {
+                                    cruiseConfig.addEnvironment(new BasicEnvironmentConfig(environmentConfig.name()));
+                                }
                             }
-                        }
-                        for (PipelineConfigs pipelineConfigs : partial.getGroups()) {
-                            if (!cruiseConfig.getGroups().hasGroup(pipelineConfigs.getGroup())) {
-                                cruiseConfig.getGroups().add(new BasicPipelineConfigs(pipelineConfigs.getGroup(), new Authorization()));
+                            for (PipelineConfigs pipelineConfigs : partial.getGroups()) {
+                                if (!cruiseConfig.getGroups().hasGroup(pipelineConfigs.getGroup())) {
+                                    cruiseConfig.getGroups().add(new BasicPipelineConfigs(pipelineConfigs.getGroup(), new Authorization()));
+                                }
                             }
                         }
                     }
-                    cruiseConfig.setPartials(partials);
                     return cruiseConfig;
                 }
             });
+            serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             return true;
         } catch (Exception e) {
-            ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge());
+            String description = String.format("%s -  Config-Repo: %s", GoConfigValidity.invalid(e).errorMessage(), newPart.getOrigin().displayName());
+            ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.invalidConfigMerge());
             serverHealthService.update(state);
             return false;
         }
+    }
+
+    private PartialConfig findMatchingPartial(CruiseConfig cruiseConfig, String fingerprint) {
+        PartialConfig matchingPartial = findMatchingPartial(cruiseConfig, fingerprint, cachedGoPartials.getValid(fingerprint));
+        if (matchingPartial == null) {
+            matchingPartial = findMatchingPartial(cruiseConfig, fingerprint, cachedGoPartials.getKnown(fingerprint));
+        }
+        return matchingPartial;
+    }
+
+    private PartialConfig findMatchingPartial(CruiseConfig cruiseConfig, String fingerprint, PartialConfig partial) {
+        PartialConfig matching = null;
+        if (partial != null) {
+            for (PartialConfig partialConfig : cruiseConfig.getPartials()) {
+                if (partialConfig.getOrigin() instanceof RepoConfigOrigin && (((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(fingerprint))) {
+                    matching = partialConfig;
+                    break;
+                }
+            }
+        }
+        return matching;
     }
 
     @Override
@@ -129,21 +154,11 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
             }
         }
         if (!toRemove.isEmpty()) {
-            if (updateConfig()) {
+            if (updateConfig(null, null)) {
                 for (String fingerprint : toRemove) {
                     this.cachedGoPartials.removeValid(fingerprint);
                 }
             }
         }
-    }
-
-    public void onTimer() {
-        if (!cachedGoPartials.areAllKnownPartialsValid()) {
-            updateConfig();
-        }
-    }
-
-    @Override
-    public void onConfigChange(CruiseConfig newCruiseConfig) {
     }
 }

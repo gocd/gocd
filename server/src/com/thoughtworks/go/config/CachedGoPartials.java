@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
@@ -52,8 +53,16 @@ public class CachedGoPartials {
     }
 
     public PartialConfig getValid(String fingerprint) {
-        if (fingerprintToLatestValidConfigMap.containsKey(fingerprint)) {
-            return fingerprintToLatestValidConfigMap.get(fingerprint).partialConfig;
+        return getPartialConfig(fingerprint, fingerprintToLatestValidConfigMap);
+    }
+
+    public PartialConfig getKnown(String fingerprint) {
+        return getPartialConfig(fingerprint, fingerprintToLatestKnownConfigMap);
+    }
+
+    private PartialConfig getPartialConfig(String fingerprint, Map<String, UpdatedPartial> map) {
+        if (map.containsKey(fingerprint)) {
+            return map.get(fingerprint).partialConfig;
         }
         return null;
     }
@@ -74,6 +83,15 @@ public class CachedGoPartials {
         fingerprintToLatestValidConfigMap.put(fingerprint, new UpdatedPartial(newPart, lastUpdated));
     }
 
+    public void markAsValid(List<PartialConfig> partials) {
+        for (PartialConfig partial : partials) {
+            if (partial.getOrigin() instanceof RepoConfigOrigin) {
+                String fingerprint = ((RepoConfigOrigin) partial.getOrigin()).getMaterial().getFingerprint();
+                markAsValid(fingerprint, partial);
+            }
+        }
+    }
+
 
     private class UpdatedPartial {
         private PartialConfig partialConfig;
@@ -90,10 +108,6 @@ public class CachedGoPartials {
 
     public Map<String, UpdatedPartial> getFingerprintToLatestKnownConfigMap() {
         return fingerprintToLatestKnownConfigMap;
-    }
-
-    public boolean areAllKnownPartialsValid() {
-        return fingerprintToLatestValidConfigMap.equals(fingerprintToLatestKnownConfigMap);
     }
 
     public void markAllKnownAsValid() {

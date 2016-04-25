@@ -140,7 +140,7 @@ public class ServerHealthService {
     public boolean containsError(HealthStateType type, HealthStateLevel level) {
         ServerHealthStates allLogs = getAllLogs();
         for (ServerHealthState log : allLogs) {
-            if (log.getType() == type && log.getLogLevel() == level) {
+            if (log.getType().equals(type) && log.getLogLevel() == level) {
                 return true;
             }
         }

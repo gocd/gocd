@@ -30,19 +30,25 @@ public class PartialConfigMother {
         return  new PartialConfig();
     }
     public static PartialConfig withPipeline(String name) {
+        return withPipeline(name, createRepoOrigin());
+    }
+    public static PartialConfig withPipeline(String name, RepoConfigOrigin repoOrigin) {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
         BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
         pipes.setGroup("group");
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
-        partialConfig.setOrigin(createRepoOrigin());
+        partialConfig.setOrigin(repoOrigin);
         return partialConfig;
     }
 
     public static PartialConfig invalidPartial(String name) {
+        return invalidPartial(name, createRepoOrigin());
+    }
+    public static PartialConfig invalidPartial(String name, RepoConfigOrigin repoOrigin) {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
         BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
-        partialConfig.setOrigin(createRepoOrigin());
+        partialConfig.setOrigin(repoOrigin);
         return partialConfig;
     }
 

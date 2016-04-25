@@ -21,10 +21,13 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.File;
 
@@ -47,6 +50,11 @@ public class GoPartialConfigTest {
     private GoPartialConfig partialConfig;
 
     File folder = new File("dir");
+    private MergedGoConfig mergedGoConfig;
+    private ConfigRepoConfig configRepoConfig;
+    private CachedGoPartials cachedGoPartials;
+    private GoConfigService goConfigService;
+    private ServerHealthService serverHealthService;
 
     @Before
     public void setUp() {
@@ -55,12 +63,17 @@ public class GoPartialConfigTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
         cruiseConfig = new BasicCruiseConfig();
-        MergedGoConfig mergedGoConfig = mock(MergedGoConfig.class);
+        configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
+        mergedGoConfig = mock(MergedGoConfig.class);
         when(mergedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         configWatchList = new GoConfigWatchList(mergedGoConfig);
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService);
-        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, mock(GoConfigService.class), mock(CachedGoPartials.class), mock(ServerHealthService.class));
+        cachedGoPartials = new CachedGoPartials();
+        goConfigService = mock(GoConfigService.class);
+        serverHealthService = mock(ServerHealthService.class);
+        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService);
     }
 
     @Test
@@ -171,5 +184,35 @@ public class GoPartialConfigTest {
 
         repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
         verify(listener, times(1)).onSuccessPartialConfig(any(ConfigRepoConfig.class), any(PartialConfig.class));
+    }
+
+    @Test
+    public void shouldMergeRemoteGroupToMain() {
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+                command.update(cruiseConfig);
+                return cruiseConfig;
+            }
+        });
+        partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("p1"));
+        assertThat(cruiseConfig.getPartials().size(), is(1));
+        assertThat(cruiseConfig.getPartials().get(0).getGroups().first().getGroup(), is("group"));
+    }
+
+    @Test
+    public void shouldMergeRemoteEnvironmentToMain() {
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+                command.update(cruiseConfig);
+                return cruiseConfig;
+            }
+        });
+        partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withEnvironment("env1"));
+        assertThat(cruiseConfig.getPartials().size(), is(1));
+        assertThat(cruiseConfig.getPartials().get(0).getEnvironments().first().name(), is(new CaseInsensitiveString("env1")));
     }
 }

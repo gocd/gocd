@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.PipelineConfigService;
@@ -45,6 +46,7 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -250,12 +252,10 @@ public class GoFileConfigDataSource {
             GoConfigHolder validatedConfigHolder;
             try {
                 String configAsXml = trySavingConfig(updatingCommand, configHolder, cachedGoPartials.lastKnownPartials());
-                cachedGoPartials.markAllKnownAsValid();
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
+                serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
-                if (cachedGoPartials.lastValidPartials().isEmpty()) {
-                    throw e;
-                }
+                serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
                 String configAsXml = trySavingConfig(updatingCommand, configHolder, cachedGoPartials.lastValidPartials());
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
             }
@@ -298,7 +298,9 @@ public class GoFileConfigDataSource {
         cruiseConfig.setPartials(partials);
         CruiseConfig config = updatingCommand.update(cruiseConfig);
         LOGGER.debug("[Config Save] ==-- Done getting modified config");
-        return configAsXml(config, false);
+        String configAsXml = configAsXml(config, false);
+        cachedGoPartials.markAsValid(cruiseConfig.getPartials());
+        return configAsXml;
     }
 
     private boolean shouldMergeConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {

@@ -16,28 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import javax.annotation.PostConstruct;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.remote.*;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.JobConfigVisitor;
-import com.thoughtworks.go.domain.NullTask;
-import com.thoughtworks.go.domain.PipelineGroupVisitor;
-import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
-import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.domain.TaskConfigVisitor;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -47,6 +34,11 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
+
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;

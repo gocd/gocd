@@ -105,7 +105,7 @@ public class GoFileConfigDataSourceTest {
                 configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class), cachedGoPartials);
         dataSource.upgradeIfNecessary();
         ServerHealthService serverHealthService = new ServerHealthService();
-        CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource, serverHealthService);
+        CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource);
         MergedGoConfig mergedGoConfig = new MergedGoConfig(serverHealthService, fileService);
         mergedGoConfig.loadConfigIfNull();
         goConfigDao = new GoConfigDao(mergedGoConfig);

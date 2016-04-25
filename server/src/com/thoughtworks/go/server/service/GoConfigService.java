@@ -1074,15 +1074,14 @@ public class GoConfigService implements Initializer {
 
         }
 
-        protected ConfigSaveState saveConfig(String xmlString, final String md5) throws Exception {
+        protected ConfigSaveState saveConfig(final String xmlString, final String md5) throws Exception {
             LOGGER.debug("[Config Save] Started saving XML");
-            MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
-            final CruiseConfig config = configXmlLoader.loadConfigHolder(xmlString).configForEdit;
+            final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
 
             LOGGER.debug("[Config Save] Updating config");
             ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    return config;
+                    return configXmlLoader.deserializeConfig(xmlString);
                 }
 
                 public String unmodifiedMd5() {

@@ -76,16 +76,21 @@ public class MagicalGoConfigXmlLoader {
         CruiseConfig configForEdit;
         CruiseConfig config;
         LOGGER.debug("[Config Save] Loading config holder");
+        configForEdit = deserializeConfig(content);
+        config = preprocessAndValidate(configForEdit);
+
+        return new GoConfigHolder(config, configForEdit);
+    }
+
+    public CruiseConfig deserializeConfig(String content) throws Exception {
         String md5 = CachedDigestUtils.md5Hex(content);
         Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
         LOGGER.debug("[Config Save] Updating config cache with new XML");
 
-        configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
+        CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
         setMd5(configForEdit, md5);
         configForEdit.setOrigins(new FileConfigOrigin());
-        config = preprocessAndValidate(configForEdit);
-
-        return new GoConfigHolder(config, configForEdit);
+        return configForEdit;
     }
 
     public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {

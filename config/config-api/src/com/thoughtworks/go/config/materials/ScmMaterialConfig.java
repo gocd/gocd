@@ -130,7 +130,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         return invertFilter;
     }
 
-    public boolean geInvertFilter() {
+    public boolean getInvertFilter() {
         return invertFilter;
     }
 

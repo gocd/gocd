@@ -50,16 +50,23 @@ public class CachedGoPartials {
             fingerprintToLatestKnownConfigMap.remove(fingerprint);
         }
     }
+
+    public PartialConfig getValid(String fingerprint) {
+        if (fingerprintToLatestValidConfigMap.containsKey(fingerprint)) {
+            return fingerprintToLatestValidConfigMap.get(fingerprint).partialConfig;
+        }
+        return null;
+    }
+
     public void removeValid(String fingerprint) {
         if (fingerprintToLatestValidConfigMap.containsKey(fingerprint)) {
             fingerprintToLatestValidConfigMap.remove(fingerprint);
         }
-
     }
 
 
     public void addOrUpdate(String fingerprint, PartialConfig newPart) {
-        fingerprintToLatestKnownConfigMap.put(fingerprint, new UpdatedPartial(newPart, DateTime.now()));
+        fingerprintToLatestKnownConfigMap.put(fingerprint, new UpdatedPartial(newPart, new DateTime()));
     }
 
     public void markAsValid(String fingerprint, PartialConfig newPart) {
@@ -87,5 +94,11 @@ public class CachedGoPartials {
 
     public boolean areAllKnownPartialsValid() {
         return fingerprintToLatestValidConfigMap.equals(fingerprintToLatestKnownConfigMap);
+    }
+
+    public void markAllKnownAsValid() {
+        for (Map.Entry<String, UpdatedPartial> entry : fingerprintToLatestKnownConfigMap.entrySet()) {
+            fingerprintToLatestValidConfigMap.put(entry.getKey(), entry.getValue());
+        }
     }
 }

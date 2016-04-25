@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.annotation.PostConstruct;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -306,6 +307,9 @@ public class BasicCruiseConfig implements CruiseConfig {
             for (PartialConfig part : this.parts) {
                 for(PipelineConfigs partPipesConf : part.getGroups())
                 {
+                    for (PipelineConfig pipelineConfig : partPipesConf) {
+                        main.getAllPipelineConfigs().add(pipelineConfig);
+                    }
                     allPipelineConfigs.add(partPipesConf);
                 }
             }
@@ -889,7 +893,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PipelineConfig> getAllPipelineConfigs() {
         if (allPipelineConfigs == null) {
-            List<PipelineConfig> configs = new ArrayList<PipelineConfig>();
+            List<PipelineConfig> configs = new ArrayList<>();
             PipelineGroups groups = getGroups();
             for (PipelineConfigs group : groups) {
                 for(PipelineConfig pipelineConfig : group)
@@ -904,7 +908,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public List<CaseInsensitiveString> getAllPipelineNames() {
-        List<CaseInsensitiveString> names = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> names = new ArrayList<>();
         for (PipelineConfig config : getAllPipelineConfigs()) {
             names.add(config.name());
         }
@@ -1381,7 +1385,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void setPartials(List<PartialConfig> partials) {
-        this.partials = partials;
+        this.partials = new Cloner().deepClone(partials);
     }
 
     @Override

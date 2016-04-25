@@ -18,13 +18,22 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.registry.NoPluginsInstalled;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.ConfigFileFixture;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.InstanceFactory;
+import com.thoughtworks.go.server.service.StubGoCache;
+import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -36,7 +45,9 @@ import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
@@ -48,10 +59,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.Vector;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -70,6 +83,7 @@ public class GoFileConfigDataSourceTest {
     private TimeProvider timeProvider;
     private ConfigCache configCache = new ConfigCache();
     private GoConfigDao goConfigDao;
+    private CachedGoPartials cachedGoPartials;
 
     @Before
     public void setup() throws Exception {
@@ -82,12 +96,13 @@ public class GoFileConfigDataSourceTest {
         when(timeProvider.currentTime()).thenReturn(new Date());
         ServerVersion serverVersion = new ServerVersion();
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
+        cachedGoPartials = new CachedGoPartials();
         dataSource = new GoFileConfigDataSource(new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
             public void handle(Exception e) {
                 throw new RuntimeException(e);
             }
         }, configRepository, new TimeProvider(), configCache, registry),
-                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class));
+                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class), cachedGoPartials);
         dataSource.upgradeIfNecessary();
         ServerHealthService serverHealthService = new ServerHealthService();
         CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource, serverHealthService);
@@ -96,6 +111,15 @@ public class GoFileConfigDataSourceTest {
         goConfigDao = new GoConfigDao(mergedGoConfig);
         configHelper.load();
         configHelper.usingCruiseConfigDao(goConfigDao);
+        ConfigRepoPartialPreprocessor preprocessor = (ConfigRepoPartialPreprocessor) ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
+            @Override
+            public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {
+                return item instanceof ConfigRepoPartialPreprocessor;
+            }
+        });
+        GoConfigWatchList configWatchList = new GoConfigWatchList(mergedGoConfig);
+        ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+        preprocessor.init(new GoPartialConfig(new GoRepoConfigDataSource(configWatchList, new GoConfigPluginService(new ConfigCache(), configElementImplementationRegistry)), configWatchList, new GoConfigService(goConfigDao, null, new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry), new StubGoCache(new TestTransactionSynchronizationManager()), configRepository, configCache, configElementImplementationRegistry, new InstanceFactory(), cachedGoPartials), cachedGoPartials, serverHealthService));
     }
 
     @After
@@ -421,5 +445,74 @@ public class GoFileConfigDataSourceTest {
 
         GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p1", "s", "b"), goConfigHolder);
         assertThat(goConfigSaveResult.getConfigSaveState(), is(ConfigSaveState.UPDATED));
+    }
+
+    @Test
+    public void shouldValidateConfigRepoLastKnownPartialsWithMainConfigAndUpdateConfigToIncludePipelinesFromPartials() {
+        String pipelineFromConfigRepo = "pipeline_from_config_repo";
+        final String pipelineInMain = "pipeline_in_main";
+        PartialConfig partialConfig = PartialConfigMother.withPipeline(pipelineFromConfigRepo);
+        cachedGoPartials.addOrUpdate(UUID.randomUUID().toString(), partialConfig);
+        assertThat(cachedGoPartials.lastValidPartials().isEmpty(), is(true));
+
+        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
+                return cruiseConfig;
+            }
+        }, new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineFromConfigRepo)), is(true));
+        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineInMain)), is(true));
+        assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
+        assertThat(cachedGoPartials.lastValidPartials().get(0), is(partialConfig));
+    }
+
+    @Test
+    public void shouldFallbackToLastKnownValidPartialsForValidationWhenConfigSaveWithLastKnownPartialsWithMainConfigFails() {
+        String pipelineOneFromConfigRepo = "pipeline_one_from_config_repo";
+        String invalidPartial = "invalidPartial";
+        final String pipelineInMain = "pipeline_in_main";
+        PartialConfig validPartialConfig = PartialConfigMother.withPipeline(pipelineOneFromConfigRepo);
+        PartialConfig invalidPartialConfig = PartialConfigMother.invalidPartial(invalidPartial);
+        cachedGoPartials.addOrUpdate(UUID.randomUUID().toString(), validPartialConfig);
+        cachedGoPartials.markAllKnownAsValid();
+        cachedGoPartials.addOrUpdate(UUID.randomUUID().toString(), invalidPartialConfig);
+
+        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
+                return cruiseConfig;
+            }
+        }, new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPartial)), is(false));
+        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineOneFromConfigRepo)), is(true));
+        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineInMain)), is(true));
+        assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
+        assertThat(cachedGoPartials.lastValidPartials().get(0), is(validPartialConfig));
+    }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test()
+    public void shouldNotSaveConfigIfValidationOfLastKnownValidPartialsMergedWithMainConfigFails() {
+        String invalidPartial = "invalidPartial";
+        final String pipelineInMain = "pipeline_in_main";
+        PartialConfig invalidPartialConfig = PartialConfigMother.invalidPartial(invalidPartial);
+        cachedGoPartials.addOrUpdate(UUID.randomUUID().toString(), invalidPartialConfig);
+
+        thrown.expect(RuntimeException.class);
+        thrown.expectCause(any(GoConfigInvalidException.class));
+        thrown.expectMessage("Invalid group name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+
+        dataSource.writeWithLock(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
+                return cruiseConfig;
+            }
+        }, new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
     }
 }

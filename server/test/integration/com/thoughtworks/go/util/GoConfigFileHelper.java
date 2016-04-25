@@ -88,7 +88,7 @@ public class GoConfigFileHelper {
              sysEnv = new SystemEnvironment();
              sysEnv.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
              initializeConfigFile();
-        } catch (IOException e) {
+         } catch (IOException e) {
             throw bomb("Error creating config file", e);
         }
     }
@@ -115,8 +115,9 @@ public class GoConfigFileHelper {
             configRepository.initialize();
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
+            CachedGoPartials cachedGoPartials = new CachedGoPartials();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService);
+                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials);
             dataSource.upgradeIfNecessary();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService);
@@ -136,7 +137,7 @@ public class GoConfigFileHelper {
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService);
+                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService, new CachedGoPartials());
             dataSource.upgradeIfNecessary();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
             MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService);

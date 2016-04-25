@@ -32,6 +32,15 @@ public class PartialConfigMother {
     public static PartialConfig withPipeline(String name) {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
         BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
+        pipes.setGroup("group");
+        PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
+        partialConfig.setOrigin(createRepoOrigin());
+        return partialConfig;
+    }
+
+    public static PartialConfig invalidPartial(String name) {
+        PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
+        BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
         partialConfig.setOrigin(createRepoOrigin());
         return partialConfig;

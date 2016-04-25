@@ -83,11 +83,12 @@ public class GoConfigService implements Initializer {
     public static final String INVALID_CRUISE_CONFIG_XML = "Invalid Configuration";
     private final ConfigElementImplementationRegistry registry;
     private InstanceFactory instanceFactory;
+    private final CachedGoPartials cachedGoPartials;
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigCache configCache, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory) {
+                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials) {
         this.goConfigDao = goConfigDao;
         this.pipelineRepository = pipelineRepository;
         this.goCache = goCache;
@@ -96,13 +97,14 @@ public class GoConfigService implements Initializer {
         this.registry = registry;
         this.upgrader = upgrader;
         this.instanceFactory = instanceFactory;
+        this.cachedGoPartials = cachedGoPartials;
     }
 
     //for testing
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, Clock clock, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory) {
-        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory);
+                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials) {
+        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials);
         this.clock = clock;
     }
 
@@ -278,7 +280,7 @@ public class GoConfigService implements Initializer {
     }
 
     public ConfigUpdateResponse updateConfigFromUI(final UpdateConfigFromUI command, final String md5, Username username, final LocalizedOperationResult result) {
-        UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result);
+        UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result, cachedGoPartials);
         UpdatedNodeSubjectResolver updatedConfigResolver = new UpdatedNodeSubjectResolver();
         try {
             ConfigSaveState configSaveState = updateConfig(updateCommand);

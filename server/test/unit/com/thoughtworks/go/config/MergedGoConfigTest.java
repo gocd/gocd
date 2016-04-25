@@ -77,7 +77,7 @@ public class MergedGoConfigTest {
         configRepository.initialize();
         dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, env, new TimeProvider(),
                 new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                serverHealthService);
+                serverHealthService, mock(CachedGoPartials.class));
         serverHealthService = new ServerHealthService();
         cachedFileGoConfig = new CachedFileGoConfig(dataSource, serverHealthService);
         mergedGoConfig.loadConfigIfNull();

@@ -118,7 +118,7 @@ public class GoConfigServiceTest {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
                 registry), goCache, configRepo, registry,
-                instanceFactory);
+                instanceFactory, mock(CachedGoPartials.class));
     }
 
     @Test
@@ -881,7 +881,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void uiBasedUpdateCommandShouldReturnTheConfigPassedByUpdateOperation() {
-        UiBasedConfigUpdateCommand command = new UiBasedConfigUpdateCommand("md5", null, null) {
+        UiBasedConfigUpdateCommand command = new UiBasedConfigUpdateCommand("md5", null, null, null) {
             public boolean canContinue(CruiseConfig cruiseConfig) {
                 return true;
             }
@@ -1250,7 +1250,7 @@ public class GoConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
         return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory);
+                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null);
     }
 
     private CruiseConfig mockConfig() {

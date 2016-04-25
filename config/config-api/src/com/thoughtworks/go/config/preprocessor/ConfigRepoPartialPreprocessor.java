@@ -17,10 +17,9 @@
 package com.thoughtworks.go.config.preprocessor;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.remote.PartialConfig;
-
-import java.util.List;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigPreprocessor;
+import com.thoughtworks.go.config.PartialsProvider;
 
 public class ConfigRepoPartialPreprocessor implements GoConfigPreprocessor {
 
@@ -34,14 +33,10 @@ public class ConfigRepoPartialPreprocessor implements GoConfigPreprocessor {
     }
 
     public void process(CruiseConfig cruiseConfig) {
-        if (cruiseConfig.getPartials().isEmpty()) {
+        if (cruiseConfig.getPartials().isEmpty() && partialsProvider != null) {
             cruiseConfig.merge(new Cloner().deepClone(partialsProvider.lastPartials()));
         } else {
             cruiseConfig.merge(cruiseConfig.getPartials());
         }
-    }
-
-    public void process(PipelineConfig pipelineConfig) {
-
     }
 }

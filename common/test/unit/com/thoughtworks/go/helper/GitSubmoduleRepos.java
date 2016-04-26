@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 
@@ -104,7 +105,7 @@ public class GitSubmoduleRepos extends TestRepo {
     }
 
     public String projectRepositoryUrl() {
-        return remoteRepoDir.getAbsolutePath();
+        return FileUtil.toFileURI(remoteRepoDir.getAbsoluteFile());
     }
 
     public List<Modification> checkInOneFile(String fileName, String comment) throws Exception {

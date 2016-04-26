@@ -18,9 +18,11 @@ package com.thoughtworks.go.domain.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 import com.thoughtworks.go.server.valuestreammap.CrossingMinimization;
 import com.thoughtworks.go.server.valuestreammap.DummyNodeCreation;
@@ -49,7 +51,7 @@ public class ValueStreamMap {
 		currentMaterial = new SCMDependencyNode(material.getFingerprint(), material.getUriForDisplay(), material.getTypeForDisplay());
 		currentMaterialInstance = materialInstance;
 		nodeIdToNodeMap.put(currentMaterial.getId(), currentMaterial);
-		currentMaterial.addRevision(new SCMRevision(modification));
+        ((SCMDependencyNode)currentMaterial).addMaterialRevision(new MaterialRevision(material, false, modification));
 	}
 
     //used in rails
@@ -71,13 +73,10 @@ public class ValueStreamMap {
         return node;
     }
 
-    public Node addUpstreamMaterialNode(Node node, CaseInsensitiveString materialName, Modifications modifications, String dependentNodeId) {
-        List<Revision> revisions = new ArrayList<Revision>();
-        for (Modification modification : modifications) {
-            revisions.add(new SCMRevision(modification));
-        }
+    public Node addUpstreamMaterialNode(Node node, CaseInsensitiveString materialName, String dependentNodeId,
+                                        MaterialRevision materialRevision) {
         SCMDependencyNode scmNode = (SCMDependencyNode) addUpstreamNode(node, dependentNodeId);
-        scmNode.addRevisions(revisions);
+        scmNode.addMaterialRevision(materialRevision);
         if (materialName != null) {
             scmNode.addMaterialName(materialName.toString());
         }
@@ -153,7 +152,43 @@ public class ValueStreamMap {
         return false;
     }
 
-	@Override
+    public void addWarningIfBuiltFromInCompatibleRevisions() {
+        if (anyRootNodeWithInCompatibleRevisions()) {
+            addWarning(currentPipeline);
+        }
+    }
+
+    private boolean anyRootNodeWithInCompatibleRevisions() {
+        boolean anyRootNodeWithInCompatibleRevisions = false;
+
+        for (Node rootNode : getRootNodes()) {
+            if (hasMultipleLatestRevisionString(((SCMDependencyNode)rootNode).getMaterialRevisions())) {
+                addWarning(rootNode);
+                anyRootNodeWithInCompatibleRevisions = true;
+            }
+        }
+
+        return anyRootNodeWithInCompatibleRevisions;
+    }
+
+    private boolean hasMultipleLatestRevisionString(List<MaterialRevision> materialRevisions) {
+        int VALID_LATEST_REVISION_STRING_COUNT = 1;
+        if(materialRevisions.size() == VALID_LATEST_REVISION_STRING_COUNT) return false;
+
+        Set<String> latestRevisions = new HashSet<>();
+        for(MaterialRevision revision : materialRevisions) {
+            latestRevisions.add(revision.getLatestRevisionString());
+        }
+
+        return latestRevisions.size() > VALID_LATEST_REVISION_STRING_COUNT;
+    }
+
+    private void addWarning(Node node) {
+        node.setViewType(VSMViewType.WARNING);
+        node.setMessage(LocalizedMessage.string("VSM_WARNING"));
+    }
+
+    @Override
 	public String toString() {
 		String s = "graph:\n";
 		for (Node currentNode : allNodes()) {

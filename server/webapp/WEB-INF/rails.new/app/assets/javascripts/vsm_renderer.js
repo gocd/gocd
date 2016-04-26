@@ -65,7 +65,8 @@ Graph_Renderer = function (container) {
                 if (node.id != current) {
                     if (node.node_type != 'PIPELINE' && node.node_type != 'DUMMY') {
                         pipeline_gui = renderMaterialCommits(node);
-                        pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material ' + node.node_type.toLowerCase() + '" style="';
+                        var material_conflicts = node.view_type == 'WARNING' ? 'conflicts' : '';
+                        pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material ' + node.node_type.toLowerCase() + ' ' + material_conflicts + '" style="';
                         pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px';
                         pipeline_gui += '">';
                         pipeline_gui += renderScmEntity(node);
@@ -99,8 +100,9 @@ Graph_Renderer = function (container) {
 
     function renderScmEntity(node) {
         var gui = '', node_name = '';
+        var modification = firstModification(node);
 
-        if (node.instances != null && node.instances != undefined) {
+        if (modification) {
             nodeClassName = node.node_type.toLowerCase();
             gui += '<div class= "material_revisions ' + nodeClassName + '"></div>'
             if (node.node_type == 'PACKAGE' && typeof(node.material_names) !== "undefined") {
@@ -110,20 +112,26 @@ Graph_Renderer = function (container) {
             }
             gui += '<h3 class="material_type" title="' + nodeClassName + ': ' + node_name + '">' + node_name + '</h3>';
 
-            if (node.instances != undefined && node.instances.length > 0 && node.instances[0].revision) {
-                gui += '<div title="' + parseCommentForTooltip(node.instances[0].comment) + '" class= "material_revisions_label">'
-                gui += parseComment(node.instances[0].comment);
-                gui += '</div>'
+            if (modification && modification.revision) {
+                gui += '<div title="' + parseCommentForTooltip(modification.comment) + '" class= "material_revisions_label">'
+                gui += parseComment(modification.comment);
+                gui += '</div>';
 
-                gui += '<div class="more">...</div>'
+                gui += '<div class="more">...</div>';
                 //rendering dropdown of remaining instances
             }
 
-            gui += '<div class="actions">'
+            gui += '<div class="actions">';
             gui += '<button class="pin" title="Keep dependencies highlighted">pin</button>';
             gui += '</div>';
 
             return gui;
+        }
+    }
+
+    function firstModification(node) {
+        if (node.material_revisions != null && node.material_revisions != undefined && node.material_revisions.length != 0) {
+            return node.material_revisions[0].modifications[0];
         }
     }
 
@@ -132,8 +140,8 @@ Graph_Renderer = function (container) {
         var instancesCount;
         var material_name;
 
-        if (node.instances != null && node.instances != undefined) {
-            instancesCount = node.instances.length;
+        if (node.material_revisions != null && node.material_revisions != undefined && node.material_revisions.length != 0) {
+            instancesCount = node.material_revisions.length;
             var list_of_material_name = '';
             if (node.material_names != undefined) {
                 for (var i = 0; i < node.material_names.length; i++) {
@@ -141,12 +149,14 @@ Graph_Renderer = function (container) {
                     list_of_material_name += material_name + ', ';
                 }
             }
-
             gui += '<ul class="instances" data-materialname=' + node.id + '>';
             gui += '<li></li>';
-            gui += '<li><div title="' + node.name + '">' + node.name + '</div></li>'
             for (var i = 0; i < instancesCount; i++) {
-                gui += renderScmInstance(node.instances[i]);
+                gui += '<li class="material_revision_header"><div title="' + node.name + '">' + node.name + '</div></li>'
+                var modificationsCount = node.material_revisions[i].modifications.length;
+                for (var j = 0; j < modificationsCount; j++) {
+                    gui += renderScmInstance(node.material_revisions[i].modifications[j]);
+                }
             }
             gui += '</ul>';
         }
@@ -238,16 +248,17 @@ Graph_Renderer = function (container) {
     }
 
     function renderPipelineEntity(node) {
+        var gui = '';
         if (node.view_type != null && node.view_type != undefined) {
             if (node.view_type == 'NO_PERMISSION') {
                 return renderRestrictedPipeline(node);
-            }
-            else if (node.view_type == 'DELETED') {
+            } else if (node.view_type == 'DELETED') {
                 return renderDeletedPipeline(node);
+            } else if (node.view_type == 'WARNING') {
+                gui = renderWarning(node);
             }
         }
 
-        var gui = '';
         var instancesCount;
         if (node.instances != null && node.instances != undefined) {
             gui += '<h3 title="' + node.name + '"><a href="' + node.locator + '">' + node.name + '</a></h3>';
@@ -280,6 +291,14 @@ Graph_Renderer = function (container) {
             gui += '<div class="message restricted"><span>' + node.message + '</span></div>';
         }
         gui += '<div class="actions restricted"><button class="pin" title="Keep dependencies highlighted">pin</button></div>';
+        return gui;
+    }
+
+    function renderWarning(node) {
+        var gui = '';
+        if (node.message) {
+            gui += '<div class="warning"><span>' + node.message + '</span></div>';
+        }
         return gui;
     }
 

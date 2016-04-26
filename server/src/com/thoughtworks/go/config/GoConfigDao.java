@@ -49,11 +49,6 @@ public class GoConfigDao {
     private CachedGoConfig cachedConfigService;
     private Cloner cloner = new Cloner();
 
-    //used in tests
-    public GoConfigDao(CachedGoConfig cachedConfigService) {
-        this.cachedConfigService = cachedConfigService;
-    }
-
     @Autowired
     public GoConfigDao(MergedGoConfig cachedConfigService) {
         this.cachedConfigService = cachedConfigService;
@@ -184,6 +179,7 @@ public class GoConfigDao {
     }
 
     public ConfigSaveState updateConfig(UpdateConfigCommand command) {
+        ConfigSaveState configSaveState = null;
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
             try {
@@ -194,15 +190,16 @@ public class GoConfigDao {
                         throw new ConfigUpdateCheckFailedException();
                     }
                 }
-
-                return cachedConfigService.writeWithLock(command);
+                configSaveState = cachedConfigService.writeWithLock(command);
             } finally {
                 if (command instanceof ConfigAwareUpdate) {
                     ((ConfigAwareUpdate) command).afterUpdate(clonedConfig());
                 }
                 LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
             }
+            LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
         }
+        return configSaveState;
     }
 
     private CruiseConfig clonedConfig() {

@@ -93,6 +93,7 @@ public class GoConfigMigrationIntegrationTest {
     @Autowired private ConfigElementImplementationRegistry registry;
     @Autowired private GoConfigService goConfigService;
     @Autowired private ServerHealthService serverHealthService;
+    @Autowired private CachedGoPartials cachedGoPartials;
 
     private String currentGoServerVersion;
     private MagicalGoConfigXmlLoader loader;

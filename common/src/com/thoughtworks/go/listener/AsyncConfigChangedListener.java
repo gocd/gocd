@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
-package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.remote.PartialConfig;
+package com.thoughtworks.go.listener;
 
-import java.util.List;
+import com.thoughtworks.go.config.CruiseConfig;
 
-public interface PartialConfigChangedListener {
-    void onPartialConfigChanged(List<PartialConfig> partials);
+public interface AsyncConfigChangedListener {
+    void onConfigChange(CruiseConfig newCruiseConfig);
 }

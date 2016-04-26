@@ -1,9 +1,9 @@
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.core.Is;
@@ -108,6 +108,4 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         CruiseConfig config = new BasicCruiseConfig(group1, group2);
         assertThat("shouldReturnFalseForPipelineThatNotInFirstGroup", config.isInFirstGroup(new CaseInsensitiveString("pipeline2")), is(false));
     }
-
-
 }

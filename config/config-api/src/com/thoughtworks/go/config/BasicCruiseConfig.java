@@ -73,6 +73,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     private ConcurrentMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
     private List<PipelineConfig> allPipelineConfigs;
 
+    private List<PartialConfig> partials = new ArrayList<>();
+
     public BasicCruiseConfig() {
         strategy = new BasicStrategy();
     }
@@ -1375,6 +1377,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public boolean canDeletePluggableSCMMaterial(SCM scmConfig) {
         return groups.canDeletePluggableSCMMaterial(scmConfig);
+    }
+
+    @Override
+    public void setPartials(List<PartialConfig> partials) {
+        this.partials = partials;
+    }
+
+    @Override
+    public List<PartialConfig> getPartials() {
+        return partials;
     }
 
     @Override

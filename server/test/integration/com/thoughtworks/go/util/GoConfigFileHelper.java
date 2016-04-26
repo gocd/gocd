@@ -119,10 +119,7 @@ public class GoConfigFileHelper {
                     configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService);
             dataSource.upgradeIfNecessary();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
-            GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
-            GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
-                    new GoConfigPluginService(configCache,configElementImplementationRegistry));
-            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService, dataSource);
+            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -142,7 +139,7 @@ public class GoConfigFileHelper {
                     new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService);
             dataSource.upgradeIfNecessary();
             CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
-            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService, dataSource);
+            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {

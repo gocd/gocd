@@ -29,12 +29,16 @@ public class ConfigRepoPartialPreprocessor implements GoConfigPreprocessor {
     public ConfigRepoPartialPreprocessor() {
     }
 
-    public void init(PartialsProvider partialsProvider){
+    public void init(PartialsProvider partialsProvider) {
         this.partialsProvider = partialsProvider;
     }
 
     public void process(CruiseConfig cruiseConfig) {
-        cruiseConfig.merge(new Cloner().deepClone(partialsProvider.lastPartials()));
+        if (cruiseConfig.getPartials().isEmpty()) {
+            cruiseConfig.merge(new Cloner().deepClone(partialsProvider.lastPartials()));
+        } else {
+            cruiseConfig.merge(cruiseConfig.getPartials());
+        }
     }
 
     public void process(PipelineConfig pipelineConfig) {

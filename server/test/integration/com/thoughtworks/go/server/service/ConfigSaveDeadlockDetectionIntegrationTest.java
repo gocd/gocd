@@ -62,7 +62,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
-    private CachedFileGoConfig cachedFileGoConfig;
+    private MergedGoConfig mergedGoConfig;
     @Autowired
     private PipelineConfigService pipelineConfigService;
     @Autowired
@@ -130,7 +130,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                             e.printStackTrace();
                             fail("Failed with error: " + e.getMessage());
                         }
-                        cachedFileGoConfig.forceReload();
+                        mergedGoConfig.forceReload();
                     }
                 }, "timer-thread");
             } catch (InterruptedException e) {

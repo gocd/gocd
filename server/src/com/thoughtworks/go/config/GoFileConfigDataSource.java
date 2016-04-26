@@ -361,6 +361,10 @@ public class GoFileConfigDataSource {
         }
     }
 
+    public String getFileLocation() {
+        return fileLocation().getAbsolutePath();
+    }
+
     static class GoConfigSaveResult {
         private final GoConfigHolder configHolder;
         private final ConfigSaveState configSaveState;

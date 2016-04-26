@@ -1079,9 +1079,10 @@ public class GoConfigService implements Initializer {
             final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
 
             LOGGER.debug("[Config Save] Updating config");
+            final CruiseConfig deserializedConfig = configXmlLoader.deserializeConfig(xmlString);
             ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    return configXmlLoader.deserializeConfig(xmlString);
+                    return deserializedConfig;
                 }
 
                 public String unmodifiedMd5() {

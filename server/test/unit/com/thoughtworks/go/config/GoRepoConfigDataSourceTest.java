@@ -55,10 +55,10 @@ public class GoRepoConfigDataSourceTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
         cruiseConfig = new BasicCruiseConfig();
-        MergedGoConfig mergedGoConfig = mock(MergedGoConfig.class);
-        when(mergedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+        CachedGoConfig cachedGoConfig = mock(CachedGoConfig.class);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        configWatchList = new GoConfigWatchList(mergedGoConfig);
+        configWatchList = new GoConfigWatchList(cachedGoConfig);
 
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService);
     }

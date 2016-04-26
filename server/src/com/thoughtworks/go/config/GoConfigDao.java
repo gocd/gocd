@@ -50,7 +50,7 @@ public class GoConfigDao {
     private Cloner cloner = new Cloner();
 
     @Autowired
-    public GoConfigDao(MergedGoConfig cachedConfigService) {
+    public GoConfigDao(CachedGoConfig cachedConfigService) {
         this.cachedConfigService = cachedConfigService;
     }
 

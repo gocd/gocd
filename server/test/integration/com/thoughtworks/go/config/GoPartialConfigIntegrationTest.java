@@ -52,7 +52,7 @@ public class GoPartialConfigIntegrationTest {
     @Autowired
     private CachedGoPartials cachedGoPartials;
     @Autowired
-    private MergedGoConfig mergedGoConfig;
+    private CachedGoConfig cachedGoConfig;
     @Autowired
     private GoConfigService configService;
     @Autowired

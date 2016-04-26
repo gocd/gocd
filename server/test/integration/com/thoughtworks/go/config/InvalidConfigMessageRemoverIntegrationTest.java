@@ -50,7 +50,7 @@ public class InvalidConfigMessageRemoverIntegrationTest {
     GoConfigService goConfigService;
     @Autowired ServerHealthService serverHealthService;
     @Autowired
-    MergedGoConfig mergedGoConfig;
+    CachedGoConfig cachedGoConfig;
 
     private File configFile;
     private GoConfigFileHelper configHelper;
@@ -82,7 +82,7 @@ public class InvalidConfigMessageRemoverIntegrationTest {
         remover.initialize();
         assertThat(serverHealthService.getAllLogs().isEmpty(), is(false));
         configHelper.addAgent("hostname", "uuid"); //Any change to the config file
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
         assertThat(serverHealthService.filterByScope(HealthStateScope.forInvalidConfig()).isEmpty(), is(true));
     }
 }

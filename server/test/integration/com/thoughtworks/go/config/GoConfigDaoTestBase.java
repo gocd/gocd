@@ -570,11 +570,11 @@ public abstract class GoConfigDaoTestBase {
         PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
         when(saveCommand.hasWritePermissions()).thenReturn(false);
 
-        MergedGoConfig mergedGoConfig = mock(MergedGoConfig.class);
-        goConfigDao = new GoConfigDao(mergedGoConfig);
+        CachedGoConfig cachedGoConfig = mock(CachedGoConfig.class);
+        goConfigDao = new GoConfigDao(cachedGoConfig);
         goConfigDao.updatePipeline(pipelineConfig, result, new Username(new CaseInsensitiveString("user")), saveCommand);
 
-        verifyZeroInteractions(mergedGoConfig);
+        verifyZeroInteractions(cachedGoConfig);
     }
 
     @Test
@@ -585,9 +585,9 @@ public abstract class GoConfigDaoTestBase {
         PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
         when(saveCommand.hasWritePermissions()).thenReturn(true);
 
-        MergedGoConfig mergedGoConfig = mock(MergedGoConfig.class);
-        doThrow(new ConfigUpdateCheckFailedException()).when(mergedGoConfig).writePipelineWithLock(pipelineConfig, saveCommand, username);
-        goConfigDao = new GoConfigDao(mergedGoConfig);
+        CachedGoConfig cachedGoConfig = mock(CachedGoConfig.class);
+        doThrow(new ConfigUpdateCheckFailedException()).when(cachedGoConfig).writePipelineWithLock(pipelineConfig, saveCommand, username);
+        goConfigDao = new GoConfigDao(cachedGoConfig);
         goConfigDao.updatePipeline(pipelineConfig, result, username, saveCommand);
 
         verify(result).unprocessableEntity(Matchers.<Localizable>any());
@@ -601,7 +601,7 @@ public abstract class GoConfigDaoTestBase {
         PipelineConfigService.SaveCommand saveCommand = mock(PipelineConfigService.SaveCommand.class);
         when(saveCommand.hasWritePermissions()).thenReturn(true);
 
-        MergedGoConfig cachedConfigService = mock(MergedGoConfig.class);
+        CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
         goConfigDao = new GoConfigDao(cachedConfigService);
         Username currentUser = new Username(new CaseInsensitiveString("user"));
         goConfigDao.updatePipeline(pipelineConfig, result, currentUser, saveCommand);

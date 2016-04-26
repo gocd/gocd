@@ -110,6 +110,11 @@ public class CachedGoPartials {
         return fingerprintToLatestKnownConfigMap;
     }
 
+    public void clear(){
+        fingerprintToLatestKnownConfigMap.clear();
+        fingerprintToLatestValidConfigMap.clear();
+    }
+
     public void markAllKnownAsValid() {
         for (Map.Entry<String, UpdatedPartial> entry : fingerprintToLatestKnownConfigMap.entrySet()) {
             fingerprintToLatestValidConfigMap.put(entry.getKey(), entry.getValue());

@@ -298,36 +298,6 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void addPipelineWithoutValidation_shouldFailToAddPipelineWhenItExistsInPartialConfig() {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
-        pipelines.setOrigin(new FileConfigOrigin());
-        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
-        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
-                PartialConfigMother.withPipeline("pipe2"));
-        try {
-            cruiseConfig.addPipelineWithoutValidation("group_main", PipelineConfigMother.pipelineConfig("pipe2"));
-            fail("should have thrown when trying to add pipe2 when it already exists in partial config");
-        } catch (Exception ex) {
-            assertThat(ex.getMessage(), containsString("Pipeline called 'pipe2' is already defined in configuration repository"));
-        }
-    }
-
-    @Test
-    public void addPipeline_shouldFailToAddPipelineToMainWhenItExistsInPartialConfig() {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
-        pipelines.setOrigin(new FileConfigOrigin());
-        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
-        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
-                PartialConfigMother.withPipeline("pipe2"));
-        try {
-            cruiseConfig.addPipeline("group_main", PipelineConfigMother.pipelineConfig("pipe2"));
-            fail("should have thrown when trying to add pipe2 when it already exists in partial config");
-        } catch (Exception ex) {
-            assertThat(ex.getMessage(), containsString("Pipeline called 'pipe2' is already defined in configuration repository"));
-        }
-    }
-
-    @Test
     public void shouldgetAllPipelineNamesFromAllParts() {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
@@ -349,86 +319,6 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
                 PartialConfigMother.withPipelineInGroup("pipe2", "existing_group"));
         assertThat(cruiseConfig.getGroups().get(0) instanceof MergePipelineConfigs, is(true));
 
-    }
-
-    @Test
-    public void shouldReturnOriginAsASumOfAllOrigins() {
-        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
-        FileConfigOrigin fileOrigin = new FileConfigOrigin();
-        mainCruiseConfig.setOrigins(fileOrigin);
-
-        PartialConfig part = PartialConfigMother.withPipeline("pipe2");
-        RepoConfigOrigin repoOrigin = new RepoConfigOrigin();
-        part.setOrigin(repoOrigin);
-        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig, part);
-
-        ConfigOrigin allOrigins = cruiseConfig.getOrigin();
-        assertThat(allOrigins instanceof MergeConfigOrigin, is(true));
-
-        MergeConfigOrigin mergeConfigOrigin = (MergeConfigOrigin) allOrigins;
-        assertThat(mergeConfigOrigin.size(), is(2));
-        assertThat(mergeConfigOrigin.contains(fileOrigin), is(true));
-        assertThat(mergeConfigOrigin.contains(repoOrigin), is(true));
-    }
-
-    @Test
-    public void shouldAddPipelineToNewGroup_InMergeAndLocalScope() {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
-        BasicCruiseConfig localCruiseConfig = new BasicCruiseConfig(pipelines);
-        cruiseConfig = new BasicCruiseConfig(localCruiseConfig,
-                PartialConfigMother.withPipelineInGroup("pipe2", "remote_group"));
-
-        PipelineConfig pipe3 = PipelineConfigMother.pipelineConfig("pipe3");
-        cruiseConfig.addPipeline("newGroup", pipe3);
-
-        assertThat(cruiseConfig.allPipelines().size(), is(3));
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
-
-        assertThat(localCruiseConfig.allPipelines().size(), is(2));
-        assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
-        assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
-        assertThat(localCruiseConfig.pipelines("newGroup").contains(pipe3), is(true));
-    }
-
-    @Test
-    public void shouldAddPipelineToExistingGroup_InMergeAndLocalScope() {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
-        BasicCruiseConfig localCruiseConfig = new BasicCruiseConfig(pipelines);
-        cruiseConfig = new BasicCruiseConfig(localCruiseConfig,
-                PartialConfigMother.withPipelineInGroup("pipe2", "remote_group"));
-
-        PipelineConfig pipe3 = PipelineConfigMother.pipelineConfig("pipe3");
-        cruiseConfig.addPipeline("remote_group", pipe3);
-
-        assertThat(cruiseConfig.allPipelines().size(), is(3));
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
-
-        assertThat(localCruiseConfig.allPipelines().size(), is(2));
-        assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
-        assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
-        assertThat(localCruiseConfig.pipelines("remote_group").contains(pipe3), is(true));
-    }
-
-    @Test
-    public void shouldFailToAddDuplicatePipelineAlreadyDefinedInConfigRepo() {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
-        BasicCruiseConfig localCruiseConfig = new BasicCruiseConfig(pipelines);
-        cruiseConfig = new BasicCruiseConfig(localCruiseConfig,
-                PartialConfigMother.withPipelineInGroup("pipe2", "remote_group"));
-
-        PipelineConfig pipe2Dup = PipelineConfigMother.pipelineConfig("pipe2");
-        try {
-            cruiseConfig.addPipeline("doesNotMatterWhichGroup", pipe2Dup);
-        } catch (Exception ex) {
-            assertThat(ex.getMessage(), is("Pipeline called 'pipe2' is already defined in configuration repository http://some.git at 1234fed"));
-        }
-
-        assertThat(cruiseConfig.allPipelines().size(), is(2));
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe2")), is(true));
-
-        assertThat(localCruiseConfig.allPipelines().size(), is(1));
-        assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
-        assertThat(localCruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe2")), is(false));
     }
 
     @Test

@@ -50,7 +50,7 @@ public class GoPartialConfigTest {
     private GoPartialConfig partialConfig;
 
     File folder = new File("dir");
-    private MergedGoConfig mergedGoConfig;
+    private CachedGoConfig cachedGoConfig;
     private ConfigRepoConfig configRepoConfig;
     private CachedGoPartials cachedGoPartials;
     private GoConfigService goConfigService;
@@ -65,10 +65,10 @@ public class GoPartialConfigTest {
         cruiseConfig = new BasicCruiseConfig();
         configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
-        mergedGoConfig = mock(MergedGoConfig.class);
-        when(mergedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+        cachedGoConfig = mock(CachedGoConfig.class);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        configWatchList = new GoConfigWatchList(mergedGoConfig);
+        configWatchList = new GoConfigWatchList(cachedGoConfig);
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService);
         cachedGoPartials = new CachedGoPartials();
         goConfigService = mock(GoConfigService.class);

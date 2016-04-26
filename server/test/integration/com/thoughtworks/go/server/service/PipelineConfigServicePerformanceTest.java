@@ -115,6 +115,7 @@ public class PipelineConfigServicePerformanceTest {
     }
 
     @Test
+    @Ignore
     public void performanceTestForUpdatePipeline() throws Exception {
         setupPipelines(numberOfRequests);
         final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();

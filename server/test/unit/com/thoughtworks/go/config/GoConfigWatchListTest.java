@@ -29,13 +29,13 @@ import static org.mockito.Mockito.*;
 
 public class GoConfigWatchListTest {
 
-    private MergedGoConfig cachedGoConfig;
+    private CachedGoConfig cachedGoConfig;
     private GoConfigWatchList watchList;
     private CruiseConfig cruiseConfig;
 
     @Before
     public void setUp() throws Exception {
-        cachedGoConfig = mock(MergedGoConfig.class);
+        cachedGoConfig = mock(CachedGoConfig.class);
         cruiseConfig = mock(CruiseConfig.class);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
         watchList = new GoConfigWatchList(cachedGoConfig);

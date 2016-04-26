@@ -46,7 +46,6 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -218,7 +217,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-    public synchronized CachedFileGoConfig.PipelineConfigSaveResult writePipelineWithLock(PipelineConfig pipelineConfig, GoConfigHolder serverCopy, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
+    public synchronized CachedGoConfig.PipelineConfigSaveResult writePipelineWithLock(PipelineConfig pipelineConfig, GoConfigHolder serverCopy, PipelineConfigService.SaveCommand saveCommand, Username currentUser) {
         CruiseConfig modifiedConfig = cloner.deepClone(serverCopy.configForEdit);
         saveCommand.updateConfig(modifiedConfig, pipelineConfig);
         CruiseConfig preprocessedConfig = cloner.deepClone(modifiedConfig);
@@ -235,7 +234,7 @@ public class GoFileConfigDataSource {
                 configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser.getUsername().toString(), serverVersion.version(), timeProvider));
                 LOGGER.debug("[Config Save] Done writing with lock");
                 reloadStrategy.latestState(preprocessedConfig);
-                return new CachedFileGoConfig.PipelineConfigSaveResult(preprocessedPipelineConfig, saveCommand.getPipelineGroup(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
+                return new CachedGoConfig.PipelineConfigSaveResult(preprocessedPipelineConfig, saveCommand.getPipelineGroup(), new GoConfigHolder(preprocessedConfig, modifiedConfig));
             } catch (Exception e) {
                 throw new RuntimeException("failed to save : " + e.getMessage());
             }
@@ -255,9 +254,13 @@ public class GoFileConfigDataSource {
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
                 serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
-                serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
-                String configAsXml = trySavingConfig(updatingCommand, configHolder, cachedGoPartials.lastValidPartials());
-                validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
+                if (cachedGoPartials.lastValidPartials().isEmpty()) {
+                    throw e;
+                } else {
+                    serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
+                    String configAsXml = trySavingConfig(updatingCommand, configHolder, cachedGoPartials.lastValidPartials());
+                    validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
+                }
             }
             ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
             return new GoConfigSaveResult(validatedConfigHolder, configSaveState);

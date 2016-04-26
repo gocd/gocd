@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.dependency.NewGoConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -45,12 +46,14 @@ public class DependencyMaterialConfigTest {
     private MagicalGoConfigXmlWriter writer;
     private MagicalGoConfigXmlLoader loader;
     private CruiseConfig config;
+    private PipelineConfig pipelineConfig;
 
     @Before
     public void setUp() throws Exception {
         writer = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
+        pipelineConfig = config.getAllPipelineConfigs().get(0);
         PipelineConfigurationCache.getInstance().onConfigChange(config);
     }
 
@@ -108,7 +111,7 @@ public class DependencyMaterialConfigTest {
     @Test
     public void shouldAddErrorForInvalidMaterialName() {
         DependencyMaterialConfig materialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("wrong name"), new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
-        materialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+        materialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), pipelineConfig));
         assertThat(materialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME), is("Invalid material name 'wrong name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
@@ -128,14 +131,14 @@ public class DependencyMaterialConfigTest {
     @Test
     public void shouldNotBombValidationWhenMaterialNameIsNotSet() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
-        dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+        dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), pipelineConfig));
         assertThat(dependencyMaterialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME), is(nullValue()));
     }
 
     @Test
     public void shouldNOTBeValidIfThePipelineExistsButTheStageDoesNot() throws Exception {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage-not-existing does not exist!"));
-        dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config));
+        dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
         ConfigErrors configErrors = dependencyMaterialConfig.errors();
         assertThat(configErrors.isEmpty(), is(false));
         assertThat(configErrors.on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), containsString("Stage with name 'stage-not-existing does not exist!' does not exist on pipeline 'pipeline2'"));
@@ -147,7 +150,7 @@ public class DependencyMaterialConfigTest {
         PipelineConfigurationCache.getInstance().onConfigChange(config);
 
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-not-exist"), new CaseInsensitiveString("stage"));
-        dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config));
+        dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
         ConfigErrors configErrors = dependencyMaterialConfig.errors();
         assertThat(configErrors.isEmpty(), is(false));
         assertThat(configErrors.on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), containsString("Pipeline with name 'pipeline-not-exist' does not exist"));
@@ -186,7 +189,8 @@ public class DependencyMaterialConfigTest {
 
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        pipeline.setOrigin(new FileConfigOrigin());
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipeline));
-        assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), is("Pipeline with name 'upstream_pipeline' does not exist"));
+        assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), is("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"));
     }
 }

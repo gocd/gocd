@@ -61,6 +61,7 @@ import java.io.File;
 import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -245,7 +246,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteConfigWithTemplates() throws Exception {
-        String content = "<cruise schemaVersion='17'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' >"
                 + "</server>"
                 + "<pipelines>\n"
@@ -416,11 +417,14 @@ public class MagicalGoConfigXmlWriterTest {
         File cipherFile = new SystemEnvironment().getCipherFile();
         FileUtils.deleteQuietly(cipherFile);
         FileUtils.writeStringToFile(cipherFile, "269298bc31c44620");
-        String content = "<cruise schemaVersion='30'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' >"
                 + "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" password=\"password\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"
                 + "<security>"
-                + "<ldap uri=\"ldap://blah.blah.somewhere.com\" managerDn=\"cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com\" managerPassword=\"password\" searchBase=\"ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com\" searchFilter=\"(sAMAccountName={0})\" />"
+                + "<ldap uri=\"ldap://blah.blah.somewhere.com\" managerDn=\"cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com\" "
+                + "managerPassword=\"password\" searchFilter=\"(sAMAccountName={0})\">"
+                + "<bases><base value=\"ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com\"/></bases>"
+                + "</ldap>"
                 + "</security>"
                 + "</server>"
                 + "<pipelines>\n"
@@ -505,7 +509,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "      <svn url =\"svnurl\"/>"
                 + "    </materials>\n<stage name='stage'><jobs><job name='job'></job></jobs></stage>"
                 + "</pipeline>\n"
-                + "</pipelines>\n", 19);
+                + "</pipelines>\n", CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         xmlWriter.write(cruiseConfig, out, false);
@@ -532,7 +536,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldAllowParamsInsidePipeline() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"22\">\n"
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' />"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
@@ -570,7 +574,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteFetchMaterialsFlagToStage() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"20\">\n"
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' />"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
@@ -599,7 +603,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteCleanWorkingDirFlagToStage() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"21\">\n"
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' />"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
@@ -628,7 +632,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteArtifactPurgeSettings() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
+                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir'/>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"

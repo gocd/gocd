@@ -46,6 +46,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
     protected Filter filter;
     protected String folder;
     protected boolean autoUpdate = true;
+    protected boolean invertFilter = false;
 
     public ScmMaterial(String typeName) {
         super(typeName);
@@ -171,6 +172,18 @@ public abstract class ScmMaterial extends AbstractMaterial {
 
     public void setAutoUpdate(boolean value) {
         autoUpdate = value;
+    }
+
+    public boolean isInvertFilter() {
+        return invertFilter;
+    }
+
+    public boolean getInvertFilter() {
+        return invertFilter;
+    }
+
+    public void setInvertFilter(boolean value) {
+        invertFilter = value;
     }
 
     public final MatchedRevision createMatchedRevision(Modification modification, String searchString) {

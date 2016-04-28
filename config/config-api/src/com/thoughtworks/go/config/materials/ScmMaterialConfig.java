@@ -64,9 +64,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         super(typeName);
     }
 
-    public ScmMaterialConfig(CaseInsensitiveString name, Filter filter, String folder, boolean autoUpdate, String typeName, ConfigErrors errors) {
+    public ScmMaterialConfig(CaseInsensitiveString name, Filter filter, boolean invertFilter, String folder, boolean autoUpdate, String typeName, ConfigErrors errors) {
         super(typeName, name, errors);
         this.filter = filter;
+        this.invertFilter = invertFilter;
         this.folder = folder;
         this.autoUpdate = autoUpdate;
     }

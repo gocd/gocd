@@ -75,12 +75,13 @@ public class HgMaterial extends ScmMaterial {
         this(config.getUrl(), config.getFolder());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
+        this.invertFilter = config.getInvertFilter();
         this.name = config.getName();
     }
 
     @Override
     public MaterialConfig config() {
-        return new HgMaterialConfig(url, autoUpdate, filter, folder, name);
+        return new HgMaterialConfig(url, autoUpdate, filter, invertFilter, folder, name);
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {

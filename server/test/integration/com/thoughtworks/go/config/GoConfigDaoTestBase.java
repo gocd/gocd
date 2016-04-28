@@ -545,7 +545,7 @@ public abstract class GoConfigDaoTestBase {
         try {
             useConfigString(INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS);
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("One of '{materials}' is expected"));
+            assertThat(e.getMessage(), containsString("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}"));
         }
     }
 

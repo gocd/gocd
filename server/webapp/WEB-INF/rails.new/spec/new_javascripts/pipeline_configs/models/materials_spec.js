@@ -26,7 +26,8 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
       destination: "projectA",
       name:        "git-repo",
       autoUpdate:  true,
-      filter:      new Materials.Filter({ignore: ['*.doc']})
+      filter:      new Materials.Filter({ignore: ['*.doc']}),
+      shallowClone: true
     });
 
     svnMaterial = materials.createMaterial({
@@ -282,6 +283,10 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
         expect(gitMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
+      it("should initialize material model with shallow clone", function () {
+        expect(gitMaterial.shallowClone()).toBe(true);
+      });
+
       describe("validation", function () {
         it("should add error when url is blank", function () {
           gitMaterial.url("");
@@ -303,6 +308,7 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
           expect(gitMaterial.name()).toBe("materialA");
           expect(gitMaterial.autoUpdate()).toBe(true);
           expect(gitMaterial.filter().ignore()).toEqual(['*.doc'])
+          expect(gitMaterial.shallowClone()).toBe(true);
         });
 
         function sampleJSON() {
@@ -316,7 +322,8 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
               auto_update: true,
               filter:      {
                 ignore: ['*.doc']
-              }
+              },
+              shallow_clone: true
             }
           };
         }

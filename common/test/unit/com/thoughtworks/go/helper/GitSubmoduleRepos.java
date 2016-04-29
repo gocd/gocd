@@ -110,9 +110,7 @@ public class GitSubmoduleRepos extends TestRepo {
 
     public List<Modification> checkInOneFile(String fileName, String comment) throws Exception {
         addAndCommitNewFile(remoteRepoDir, fileName, comment);
-        List<Modification> list = new ArrayList<Modification>();
-        list.add(latestModification());
-        return list;
+        return latestModification();
     }
 
     public List<Modification> modifyOneFileInSubmoduleAndUpdateMainRepo(File remoteSubmoduleRepoLocation,
@@ -125,9 +123,7 @@ public class GitSubmoduleRepos extends TestRepo {
         git(new File(remoteRepoDir, submoduleNameInRepo)).pull();
         checkInOneFile(remoteRepoDir, new File(submoduleNameInRepo), comment);
 
-        List<Modification> list = new ArrayList<Modification>();
-        list.add(latestModification());
-        return list;
+        return latestModification();
     }
 
     private void changeFile(File parentDir, String fileName, String newFileContent) throws IOException {
@@ -135,9 +131,9 @@ public class GitSubmoduleRepos extends TestRepo {
         FileUtils.writeStringToFile(fileToChange, newFileContent);
     }
 
-    public Modification latestModification() {
+    public List<Modification> latestModification() {
         File dir = workingCopy("local-working-copy");
-        return mainRepo().latestModification(dir, new TestSubprocessExecutionContext()).get(0);
+        return mainRepo().latestModification(dir, new TestSubprocessExecutionContext());
     }
 
     @Override public GitMaterial material() {

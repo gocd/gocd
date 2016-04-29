@@ -98,9 +98,9 @@ public class P4TestRepo extends TestRepo {
         return p4Material1;
     }
 
-    public Modification latestModification() {
+    public List<Modification> latestModification() {
         File workingDir = TestFileUtil.createTempFolder("p4-working-dir-" + UUID.randomUUID());
-        return createMaterial().latestModification(workingDir, new TestSubprocessExecutionContext()).get(0);
+        return createMaterial().latestModification(workingDir, new TestSubprocessExecutionContext());
     }
 
     public void stop() {

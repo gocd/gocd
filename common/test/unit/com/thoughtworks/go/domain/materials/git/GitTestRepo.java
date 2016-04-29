@@ -25,13 +25,14 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -46,6 +47,7 @@ public class GitTestRepo extends TestRepo {
     public static final StringRevision REVISION_2 = new StringRevision("4ab7833f55024c975cf5b918af640954c108825e");
     public static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
     public static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
+    public static final StringRevision NON_EXISTENT_REVISION = new StringRevision("4ffef3cb33d98b28858743a53b6ee77bfe9d21bb");
     private File gitRepo;
 
     public GitTestRepo(String path) throws IOException {
@@ -62,7 +64,7 @@ public class GitTestRepo extends TestRepo {
     public GitTestRepo() throws IOException {
         this(GIT_3_REVISIONS_BUNDLE);
     }
-    
+
     public GitMaterial createMaterial(String dest) {
         GitMaterial gitMaterial = new GitMaterial(this.projectRepositoryUrl());
         gitMaterial.setFolder(dest);
@@ -83,7 +85,7 @@ public class GitTestRepo extends TestRepo {
         return addFileAndPush(fileName ,comment);
     }
 
-    @Override public Modification latestModification() {
+    @Override public List<Modification> latestModification() {
         return git(gitRepo).latestModification();
     }
 
@@ -118,9 +120,7 @@ public class GitTestRepo extends TestRepo {
     }
 
     public List<Modification> latestModifications() {
-        ArrayList<Modification> list = new ArrayList<Modification>();
-        list.add(latestModification());
-        return list;
+        return latestModification();
     }
 
     private void checkoutRemoteBranchToLocal(String branch) {
@@ -134,4 +134,27 @@ public class GitTestRepo extends TestRepo {
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).commit(message);
         return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
     }
+
+    public List<Modification> addFileAndAmend(String fileName, String message) throws IOException {
+        File newFile = new File(gitRepo, fileName);
+        newFile.createNewFile();
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).add(newFile);
+        new GitCommandWithAmend(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).commitWithAmend(message, gitRepo);
+        return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
+    }
+
+    private static class GitCommandWithAmend extends GitCommand {
+
+        public GitCommandWithAmend(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String, String> environment) {
+            super(materialFingerprint, workingDir, branch, isSubmodule, environment);
+        }
+
+        public void commitWithAmend(String message, File gitRepo) {
+            String[] args = new String[]{"commit", "--amend", "-m", message};
+            CommandLine gitCommit = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArgs(args).withWorkingDir(gitRepo);
+            runOrBomb(gitCommit);
+        }
+
+    }
+
 }

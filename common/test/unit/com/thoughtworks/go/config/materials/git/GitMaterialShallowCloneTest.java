@@ -80,7 +80,7 @@ public class GitMaterialShallowCloneTest {
         assertThat(mods.size(), is(1));
         assertThat(mods.get(0).getComment(), Matchers.is("Added 'run-till-file-exists' ant target"));
         assertThat(localRepoFor(material).isShallow(), is(true));
-        assertThat(localRepoFor(material).hasRevision(REVISION_0), is(false));
+        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_0), is(false));
         assertThat(localRepoFor(material).currentRevision(), is(REVISION_4.getRevision()));
     }
 
@@ -108,8 +108,8 @@ public class GitMaterialShallowCloneTest {
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(REVISION_3, REVISION_2, 2), context());
 
         assertThat(localRepoFor(material).currentRevision(), is(REVISION_3.getRevision()));
-        assertThat(localRepoFor(material).hasRevision(REVISION_2), is(true));
-        assertThat(localRepoFor(material).hasRevision(REVISION_3), is(true));
+        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_2), is(true));
+        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_3), is(true));
     }
 
     @Test

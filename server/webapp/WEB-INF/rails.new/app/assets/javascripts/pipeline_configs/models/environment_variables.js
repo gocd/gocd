@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value'], function (m, _, s, Mixins, EncryptedValue) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value', './errors'], function (m, _, s, Mixins, EncryptedValue, Errors) {
 
   var EnvironmentVariables = function (data) {
     Mixins.HasMany.call(this, {
@@ -50,9 +50,10 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     Mixins.HasUUID.call(this);
 
     this.parent = Mixins.GetterSetter();
+    this.name   = m.prop(s.defaultToIfBlank(data.name, ''));
+    var _value  = m.prop(plainOrCipherValue(data));
+    this.errors = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
 
-    this.name  = m.prop(s.defaultToIfBlank(data.name, ''));
-    var _value = m.prop(plainOrCipherValue(data));
     Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
 
     this.toJSON = function () {
@@ -60,20 +61,23 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         return {
           name:   this.name(),
           secure: false,
-          value:  this.value()
+          value:  this.value(),
+          errors: this.errors().errors()
         };
       } else {
         if (this.isDirtyValue()) {
           return {
             name:   this.name(),
             secure: true,
-            value:  this.value()
+            value:  this.value(),
+            errors: this.errors().errors()
           };
         } else {
           return {
             name:           this.name(),
             secure:         true,
-            encryptedValue: this.value()
+            encryptedValue: this.value(),
+            errors:         this.errors().errors()
           };
         }
       }
@@ -84,7 +88,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     };
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       if (this.isBlank()) {
         return errors;
@@ -117,7 +121,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
       name:           data.name,
       value:          data.value,
       secure:         data.secure,
-      encryptedValue: data.encrypted_value
+      encryptedValue: data.encrypted_value,
+      errors:         Errors.fromJson(data)
     });
   };
 

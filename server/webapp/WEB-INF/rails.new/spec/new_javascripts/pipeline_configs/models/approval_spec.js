@@ -42,7 +42,15 @@ define(['lodash', "pipeline_configs/models/approval", "string-plus"], function (
         expect(approval.authorization().users()).toEqual(['bob']);
       });
 
+      it("should de-serialize and map errors on plain variables", function(){
+        approval = Approval.fromJSON(sampleJSON());
+        expect(approval.authorization().errors().errorsForDisplay('authorization')).toBe('error message for authorization.');
+        expect(approval.authorization().errors().errorsForDisplay('users')).toBe('error message for users.');
+        expect(approval.authorization().errors().errorsForDisplay('roles')).toBe('error message for roles.');
+      })
+
       it("should serialize to json", function () {
+        approval = Approval.fromJSON(sampleJSON());
         expect(JSON.parse(JSON.stringify(approval, s.snakeCaser))).toEqual(sampleJSON());
       });
 
@@ -52,7 +60,8 @@ define(['lodash', "pipeline_configs/models/approval", "string-plus"], function (
 
         expect(JSON.parse(JSON.stringify(approval, s.snakeCaser))['authorization']).toEqual({
           roles: ['Admins', 'Deployers'],
-          users: ['bob', 'alice']
+          users: ['bob', 'alice'],
+          errors: {}
         });
       });
 
@@ -60,8 +69,13 @@ define(['lodash', "pipeline_configs/models/approval", "string-plus"], function (
         return {
           type:          'manual',
           authorization: {
-            users: ['bob'],
-            roles: ['Administrators']
+            users:  ['bob'],
+            roles:  ['Administrators'],
+            errors: {
+              users: ["error message for users"],
+              roles: ["error message for roles"],
+              name:  ["error message for authorization"]
+            }
           }
         };
       }

@@ -27,7 +27,8 @@ public class AdminUserTest {
     public void shouldNotValidateBlankUsers() {
         AdminUser adminUser = new AdminUser(null);
         adminUser.validate(null);
-        assertThat(adminUser.errors().on(AdminUser.NAME), is("User cannot be blank."));
+        String error = adminUser.errors().on(AdminUser.NAME);
+        assertThat(error, is("User cannot be blank."));
     }
 
     @Test

@@ -35,6 +35,24 @@ define(['mithril', 'lodash', 'string-plus', '../models/model_mixins'], function 
     };
   };
 
+  var setErrors = function (model, attrName) {
+    var propertyError;
+    if (model.validate) {
+      var errors = model.validate();
+      if (errors.errors(attrName)) {
+        propertyError = (<span class='form-error is-visible'>{errors.errorsForDisplay(attrName)}</span>);
+      }
+    }
+
+    if (model.errors && model.errors().errors(attrName)) {
+      var errors = model.errors();
+      if (errors.errors(attrName)) {
+        propertyError = (<span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>);
+      }
+    }
+    return propertyError;
+  }
+
   var f = {
     row: {
       view: function (ctrl, args, children) {
@@ -61,6 +79,18 @@ define(['mithril', 'lodash', 'string-plus', '../models/model_mixins'], function 
             {children}
           </div>
         );
+      }
+    },
+
+    error: {
+      view: function (ctrl, args) {
+        var model    = deleteKeyAndReturnValue(args, 'model'),
+            attrName = deleteKeyAndReturnValue(args, 'attrName')
+        var propertyError = setErrors(model, attrName);
+        if (propertyError == null)
+          return (<span ></span>);
+        else
+          return propertyError;
       }
     },
 
@@ -91,15 +121,7 @@ define(['mithril', 'lodash', 'string-plus', '../models/model_mixins'], function 
           args.largeSize = 4;
         }
 
-        var propertyError;
-
-        if (model.validate) {
-          var errors = model.validate();
-          if (errors.errors(attrName)) {
-            propertyError = (<span class='form-error is-visible'>{errors.errorsForDisplay(attrName)}</span>);
-          }
-        }
-
+        var propertyError = setErrors(model, attrName);
         return (
           <f.column {...args}>
             <input
@@ -160,13 +182,8 @@ define(['mithril', 'lodash', 'string-plus', '../models/model_mixins'], function 
           }
         };
 
-        var propertyError;
-        if (model.validate) {
-          var errors = model.validate();
-          if (errors.errors(attrName)) {
-            propertyError = (<span class='form-error is-visible'>{errors.errorsForDisplay(attrName)}</span>);
-          }
-        }
+        var propertyError = setErrors(model, attrName);
+
 
         return (
           <f.column {...args} class={_.compact([propertyError ? 'is-invalid-label' : null, args.class]).join(' ')}>
@@ -221,13 +238,7 @@ define(['mithril', 'lodash', 'string-plus', '../models/model_mixins'], function 
           args.size = 3;
         }
 
-        var propertyError;
-        if (model.validate) {
-          var errors = model.validate();
-          if (errors.errors(attrName)) {
-            propertyError = (<small class='error'>{errors.errorsForDisplay(attrName)}</small>);
-          }
-        }
+        var propertyError = setErrors(model, attrName);
 
         return (
           <f.column {...args} class={propertyError ? 'error' : null}>

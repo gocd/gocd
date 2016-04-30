@@ -260,6 +260,9 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
                 throw new RuntimeException(String.format("Could not decrypt secure environment variable value for name %s", getName()), e);
             }
         } else {
+            if (!value.errors().isEmpty()) {
+                addError("value", value.errors().firstError());
+            }
             return value.getValue();
         }
     }

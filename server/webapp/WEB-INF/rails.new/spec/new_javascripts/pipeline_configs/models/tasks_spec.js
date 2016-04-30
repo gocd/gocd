@@ -57,6 +57,12 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.workingDirectory()).toBe("moduleA");
         });
 
+        it("should de-serialize and map errors on plain variables", function () {
+          expect(task.errors().errorsForDisplay('buildFile')).toBe('error message for build file.');
+          expect(task.errors().errorsForDisplay('target')).toBe('error message for target.');
+          expect(task.errors().errorsForDisplay('workingDirectory')).toBe('error message for working directory.');
+        });
+
         it("should serialize to JSON", function () {
           expect(JSON.parse(JSON.stringify(task, s.snakeCaser))).toEqual(sampleTaskJSON());
         });
@@ -68,6 +74,11 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
               build_file:        'build-moduleA.xml',
               target:            'clean',
               working_directory: "moduleA"
+            },
+            errors:     {
+              target:            ["error message for target"],
+              build_file:        ["error message for build file"],
+              working_directory: ["error message for working directory"]
             }
           };
         }
@@ -119,6 +130,13 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.nantPath()).toBe("C:\\NAnt");
         });
 
+        it("should de-serialize and map errors on plain variables", function () {
+          expect(task.errors().errorsForDisplay('buildFile')).toBe('error message for build file.');
+          expect(task.errors().errorsForDisplay('target')).toBe('error message for target.');
+          expect(task.errors().errorsForDisplay('workingDirectory')).toBe('error message for working directory.');
+          expect(task.errors().errorsForDisplay('nantPath')).toBe('error message for working nant_path.');
+        });
+
         it("should serialize to JSON", function () {
           expect(JSON.parse(JSON.stringify(task, s.snakeCaser))).toEqual(sampleTaskJSON());
         })
@@ -131,6 +149,12 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
               target:            'clean',
               working_directory: "moduleA",
               nant_path:         "C:\\NAnt"
+            },
+            errors:     {
+              target:            ["error message for target"],
+              build_file:        ["error message for build file"],
+              working_directory: ["error message for working directory"],
+              nant_path:         ["error message for working nant_path"]
             }
           };
         }
@@ -193,6 +217,12 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.args().data()).toEqual(['-c', 'ls -al /']);
         });
 
+        it("should de-serialize and map errors on plain variables", function () {
+          expect(task.errors().errorsForDisplay('command')).toBe('error message for command.');
+          expect(task.errors().errorsForDisplay('workingDirectory')).toBe('error message for working directory.');
+        });
+
+
         it("should serialize to JSON", function () {
           expect(JSON.parse(JSON.stringify(task, s.snakeCaser))).toEqual(sampleTaskJSON());
         });
@@ -204,7 +234,12 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
               command:           'bash',
               arguments:         ['-c', 'ls -al /'],
               working_directory: "moduleA"
+            },
+            errors:     {
+              command:           ["error message for command"],
+              working_directory: ["error message for working directory"]
             }
+
           };
         }
       });
@@ -250,6 +285,13 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.workingDirectory()).toBe("moduleA");
         });
 
+        it("should de-serialize and map errors on plain variables", function () {
+          expect(task.errors().errorsForDisplay('buildFile')).toBe('error message for build file.');
+          expect(task.errors().errorsForDisplay('target')).toBe('error message for target.');
+          expect(task.errors().errorsForDisplay('workingDirectory')).toBe('error message for working directory.');
+        });
+
+
         it("should serialize to JSON", function () {
           expect(JSON.parse(JSON.stringify(task, s.snakeCaser))).toEqual(sampleTaskJSON());
         });
@@ -261,6 +303,11 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
               build_file:        'foo.rake',
               target:            'clean',
               working_directory: "moduleA"
+            },
+            errors:     {
+              target:            ["error message for target"],
+              build_file:        ["error message for build file"],
+              working_directory: ["error message for working directory"]
             }
           };
         }

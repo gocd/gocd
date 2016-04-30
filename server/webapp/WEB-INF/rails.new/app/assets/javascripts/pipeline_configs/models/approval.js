@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './errors'], function (m, _, s, Mixins, Errors) {
 
   var Approval = function (data) {
     this.constructor.modelType = 'approval';
@@ -44,12 +44,30 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
     this.constructor.modelType = 'approvalAuthorization';
     Mixins.HasUUID.call(this);
 
-    this.roles = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.roles, '')), s.stringToArray);
-    this.users = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.users, '')), s.stringToArray);
+    this.roles  = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.roles, '')), s.stringToArray);
+    this.users  = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.users, '')), s.stringToArray);
+    this.errors = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
+    this.errors.toJSON = function () {
+      var errors = this();
+      return {
+        name:  errors.errors('name'),
+        roles: errors.errors('roles'),
+        users: errors.errors('users')
+      }
+    };
   };
 
   Approval.AuthConfig.fromJSON = function (data) {
-    return new Approval.AuthConfig({roles: data.roles, users: data.users});
+    var errors = Errors.fromJson(data);
+    if (_.has(data, 'errors.name')) {
+      errors.add('authorization', data.errors.name);
+    }
+
+    return new Approval.AuthConfig({
+      roles:  data.roles,
+      users:  data.users,
+      errors: errors
+    });
   };
 
   Approval.fromJSON = function (data) {

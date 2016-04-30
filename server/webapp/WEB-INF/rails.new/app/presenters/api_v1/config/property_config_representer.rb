@@ -19,6 +19,8 @@ module ApiV1
     class PropertyConfigRepresenter < ApiV1::BaseRepresenter
       alias_method :property, :represented
 
+      error_representer({'src' => 'source'})
+
       property :name
       property :src, as: :source
       property :xpath

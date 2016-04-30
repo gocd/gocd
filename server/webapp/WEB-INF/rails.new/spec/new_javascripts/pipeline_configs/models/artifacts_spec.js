@@ -68,11 +68,21 @@ define(["pipeline_configs/models/artifacts"], function (Artifacts) {
         expect(artifact.destination()).toBe("pkg");
       });
 
+      it("should de-serialize and map errors on plain variables", function () {
+        expect(artifact.errors().errorsForDisplay('source')).toBe('error message for source.');
+        expect(artifact.errors().errorsForDisplay('destination')).toBe('error message for destination.');
+      });
+
+
       function sampleArtifactJSON() {
         return {
           type:        "test",
           source:      'dist/pkg',
-          destination: 'pkg'
+          destination: 'pkg',
+          errors:      {
+            source:      ["error message for source"],
+            destination: ["error message for destination"]
+          }
         };
       }
     });

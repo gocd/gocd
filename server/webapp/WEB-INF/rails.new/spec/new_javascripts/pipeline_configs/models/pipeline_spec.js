@@ -112,15 +112,30 @@ define(['lodash', "pipeline_configs/models/pipeline", 'pipeline_configs/models/t
         expect(expectedMaterialNames).toEqual(['materialA']);
       });
 
+      it("should de-serialize and map errors", function () {
+        expect(pipeline.errors().errorsForDisplay('labelTemplate')).toBe('error message for label_template.');
+        expect(pipeline.timer().errors().errorsForDisplay('spec')).toBe('error message for timer.');
+      });
+
       function samplePipelineJSON() {
         return {
+          errors:                  {
+            label_template: [
+              "error message for label_template"
+            ]
+          },
           name:                    "yourproject",
           enable_pipeline_locking: true,
           template_name:           "",
           label_template:          "foo-1.0.${COUNT}-${svn}",
           timer:                   {
             spec:            "0 0 22 ? * MON-FRI",
-            only_on_changes: true
+            only_on_changes: true,
+            errors:          {
+              spec: [
+                "error message for timer"
+              ]
+            }
           },
           environment_variables:   [
             {
@@ -135,12 +150,14 @@ define(['lodash', "pipeline_configs/models/pipeline", 'pipeline_configs/models/t
           ],
           parameters:              [
             {
-              name:  "COMMAND",
-              value: "echo"
+              name:   "COMMAND",
+              value:  "echo",
+              errors: {}
             },
             {
-              name:  "WORKING_DIR",
-              value: "/repo/branch"
+              name:   "WORKING_DIR",
+              value:  "/repo/branch",
+              errors: {}
             }
           ],
           materials:               [{
@@ -159,7 +176,7 @@ define(['lodash', "pipeline_configs/models/pipeline", 'pipeline_configs/models/t
             type:       "generic",
             attributes: {
               url_pattern: "http://mingle.example.com",
-              regex:       "my_project",
+              regex:       "my_project"
             }
           },
           stages:                  []

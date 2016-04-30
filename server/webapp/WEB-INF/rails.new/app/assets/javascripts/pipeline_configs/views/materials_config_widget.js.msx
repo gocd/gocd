@@ -367,7 +367,7 @@ define([
       };
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
       return (
         <f.accordion accordionTitles={[
                         (
@@ -378,7 +378,7 @@ define([
                      class='materials'
                      selectedIndex={ctrl.vmState('materialsSelected', m.prop(-1))}>
           <div>
-            {ctrl.materials.mapMaterials(function (material, index) {
+            {args.materials.mapMaterials(function (material, index) {
               var materialView = MaterialViews[material.type()];
               return (m.component(materialView, {
                 material: material,

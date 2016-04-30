@@ -77,10 +77,19 @@ define(["pipeline_configs/models/parameters"], function (Parameters) {
         expect(parameter.value()).toBe('/var/foo');
       });
 
+      it("should de-serialize and map errors on plain variables", function(){
+        expect(parameter.errors().errorsForDisplay('name')).toBe('error message for name.');
+        expect(parameter.errors().errorsForDisplay('value')).toBe('error message for value.');
+      });
+
       function sampleJSON() {
         return {
-          name:  "WORKING_DIR",
-          value: "/var/foo"
+          name:   "WORKING_DIR",
+          value:  "/var/foo",
+          errors: {
+            name:  ["error message for name"],
+            value: ["error message for value"]
+          }
         };
       }
     })

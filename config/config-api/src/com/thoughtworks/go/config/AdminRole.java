@@ -16,16 +16,16 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
+
+import java.util.List;
 
 @ConfigTag("role")
 public class AdminRole implements Admin {
     @ConfigValue private CaseInsensitiveString name;
     private ConfigErrors configErrors = new ConfigErrors();
-    public static final String NAME = "name";
+    public static final String NAME = "role";
 
     public AdminRole() {
     }

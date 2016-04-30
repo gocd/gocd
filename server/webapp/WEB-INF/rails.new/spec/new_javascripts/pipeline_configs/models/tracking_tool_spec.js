@@ -52,12 +52,22 @@ define(['lodash', "pipeline_configs/models/tracking_tool", 'string-plus'], funct
           expect(JSON.parse(JSON.stringify(trackingTool, s.snakeCaser))).toEqual(sampleJSON());
         });
 
+        it("should de-serialize and map errors", function(){
+          expect(trackingTool.errors().errorsForDisplay('regex')).toBe('error message for regex.');
+          expect(trackingTool.errors().errorsForDisplay('urlPattern')).toBe('error message for url pattern.');
+        });
+
+
         function sampleJSON() {
           return {
             type:       "generic",
             attributes: {
               url_pattern: 'http://example.com/bugzilla?id=${ID}',
               regex:       "bug-(\\d+)"
+            },
+            errors:     {
+              regex:       ["error message for regex"],
+              url_pattern: ["error message for url pattern"]
             }
           };
         }
@@ -103,6 +113,12 @@ define(['lodash', "pipeline_configs/models/tracking_tool", 'string-plus'], funct
           expect(trackingTool.mqlGroupingConditions()).toBe("status > 'In Dev'");
         });
 
+        it("should de-serialize and map errors", function () {
+          expect(trackingTool.errors().errorsForDisplay('baseUrl')).toBe('error message for baseUrl.');
+          expect(trackingTool.errors().errorsForDisplay('projectIdentifier')).toBe('error message for projectIdentifier.');
+          expect(trackingTool.errors().errorsForDisplay('mqlGroupingConditions')).toBe('error message for mqlGroupingConditions.');
+        });
+
         function sampleJSON() {
           return {
             type:       "mingle",
@@ -110,6 +126,11 @@ define(['lodash', "pipeline_configs/models/tracking_tool", 'string-plus'], funct
               base_url:                'http://mingle.example.com',
               project_identifier:      "gocd",
               mql_grouping_conditions: "status > 'In Dev'"
+            },
+            errors:     {
+              base_url:                ['error message for baseUrl'],
+              project_identifier:      ["error message for projectIdentifier"],
+              mql_grouping_conditions: ["error message for mqlGroupingConditions"]
             }
           };
         }

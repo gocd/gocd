@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', './model_mixins', './errors'], function (m, _, s, Mixins, Errors) {
 
   var Properties = function (data) {
     Mixins.HasMany.call(this, {
@@ -35,13 +35,14 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
     this.name   = m.prop(s.defaultToIfBlank(data.name, ''));
     this.source = m.prop(s.defaultToIfBlank(data.source, ''));
     this.xpath  = m.prop(s.defaultToIfBlank(data.xpath, ''));
+    this.errors = m.prop(s.defaultToIfBlank(data.errors, new Errors()));
 
     this.isBlank = function () {
       return s.isBlank(this.name()) && s.isBlank(this.source()) && s.isBlank(this.xpath());
     };
 
     this.validate = function () {
-      var errors = new Mixins.Errors();
+      var errors = new Errors();
 
       if (this.isBlank()) {
         return errors;
@@ -79,7 +80,12 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins'], function (m, _, s
 
 
   Properties.Property.fromJSON = function (data) {
-    return new Properties.Property(_.pick(data, ['name', 'source', 'xpath']));
+    return new Properties.Property({
+      name:   data.name,
+      source: data.source,
+      xpath:  data.xpath,
+      errors: Errors.fromJson(data)
+    });
   };
 
   return Properties;

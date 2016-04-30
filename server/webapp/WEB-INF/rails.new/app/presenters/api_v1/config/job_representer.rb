@@ -19,7 +19,6 @@ module ApiV1
     class JobRepresenter < ApiV1::BaseRepresenter
       alias_method :job, :represented
 
-      error_representer({'runType' => 'run_instance_count'})
       property :name,
                case_insensitive_string: true
 
@@ -57,6 +56,8 @@ module ApiV1
 
       collection :properties, exec_context: :decorator, decorator: ApiV1::Config::PropertyConfigRepresenter, class: com.thoughtworks.go.config.ArtifactPropertiesGenerator, render_empty: false
 
+      error_representer({'runType' => 'run_instance_count'})
+
       def run_instance_count
         if job.getRunInstanceCount.present?
           job.getRunInstanceCount.to_i
@@ -91,8 +92,7 @@ module ApiV1
 
         if val.to_s.strip.downcase == 'never'
           job.timeout = '0'
-        elsif
-          job.timeout = nil
+        elsif job.timeout = nil
         else
           job.timeout = val.to_s
         end
@@ -115,7 +115,12 @@ module ApiV1
       end
 
       def resources
-        job.resources.collect(&:name)
+        job.resources.collect { |resource|
+          unless resource.errors.isEmpty
+            job.addError(JobConfig::RESOURCES, resource.errors().on(JobConfig::RESOURCES))
+          end
+          resource.name
+        }
       end
 
       def resources=(values)

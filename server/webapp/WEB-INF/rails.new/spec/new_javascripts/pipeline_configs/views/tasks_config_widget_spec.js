@@ -27,7 +27,17 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
           buildFile:        'build-moduleA.xml',
           target:           'clean',
           workingDirectory: 'moduleA',
-          runIf:            ['passed', 'failed']
+          runIf:            ['passed', 'failed'],
+          onCancelTask:     {
+            type: "nant",
+            attributes: {
+              build_file:        'build-moduleA.xml',
+              target:            'clean',
+              working_directory: "moduleA",
+              nant_path:         "C:\\NAnt",
+              run_if:            []
+            }
+          }
         });
         tasks().addTask(task);
 
@@ -55,6 +65,15 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+      });
+
+      it('should render onCancel task', function () {
+        expect($root.find("input[data-prop-name='target']").val()).toBe(task.onCancelTask.target());
+        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.onCancelTask.buildFile());
+        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.onCancelTask.workingDirectory());
+        expect($root.find("input[data-prop-name='nantPath']").val()).toBe(task.onCancelTask.nantPath());
+        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(true);
+        expect($root.find("select :checked").val()).toBe(task.onCancelTask.type());
       });
     });
 
@@ -101,6 +120,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
+
+      it('should not have onCancel task', function() {
+        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
+      });
     });
 
     describe('Exec Task View', function () {
@@ -142,6 +165,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
           expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
           expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
         });
+
+        it('should not have onCancel task', function() {
+          expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
+        });
       });
     });
 
@@ -182,6 +209,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+      });
+
+      it('should not have onCancel task', function() {
+        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
 
@@ -231,6 +262,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+      });
+
+      it('should not have onCancel task', function() {
+        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
 

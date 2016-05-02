@@ -46,12 +46,16 @@ define([
       };
 
       var dragDropConfig = function (elem, isInitialized) {
-        dragulaConfig(elem, isInitialized, function () {
-          var reorderedStages = _.map($(elem).find('.stage:not(.gu-mirror)'), function (eachStageElem) {
-            return ctrl.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
-          });
-          ctrl.pipeline().stages().setStages(reorderedStages);
-        });
+        if(!isInitialized) {
+          var onDrop = function () {
+            var reorderedStages = _.map($(elem).find('.stage:not(.gu-mirror)'), function (eachStageElem) {
+              return ctrl.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
+            });
+            ctrl.pipeline().stages().setStages(reorderedStages);
+          };
+
+          dragulaConfig(elem, {dragulaOptions: {}, onDropCallback: onDrop});
+        }
       };
 
       return (

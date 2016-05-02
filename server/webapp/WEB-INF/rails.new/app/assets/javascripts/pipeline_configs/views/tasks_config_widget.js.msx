@@ -19,10 +19,11 @@ define([
   '../helpers/form_helper', '../helpers/dragula_config',
   '../models/tasks', '../models/pluggable_tasks', 'js-routes',
   './lookup_command_widget', '../models/argument',
-  '../helpers/mithril_component_mixins'
-], function (m, _, $, angular,
-             f, dragulaConfig,
-             Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument, ComponentMixins) {
+  '../helpers/mithril_component_mixins',
+  './run_if_conditions_widget'
+], function (m, _, $, angular, f, dragulaConfig, Tasks, PluggableTasks, Routes,
+             LookupCommandWidget, Argument, ComponentMixins, RunIfConditionsWidget) {
+
 
   var TaskViews = {
     base: {
@@ -61,7 +62,10 @@ define([
                   <f.editButton class={ctrl.isEditing() ? 'done' : null}/>
                 </div>
               </div>
-              <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>{children}</div>
+              <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
+                {children}
+                <RunIfConditionsWidget task={args.task}/>
+              </div>
             </div>
           </div>
         );

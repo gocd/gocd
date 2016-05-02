@@ -17,103 +17,111 @@
 define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/views/tasks_config_widget"], function ($, m, Tasks, TasksConfigWidget) {
   describe("Tasks Widget", function () {
     var root, $root;
-    var tasks;
 
-    var antTask, nantTask, execTask, rakeTask, fetchArtifactTask;
-    beforeEach(function () {
-      antTask = new Tasks.Task.Ant({
-        buildFile:        'build-moduleA.xml',
-        target:           "clean",
-        workingDirectory: "moduleA"
-      });
-
-      nantTask = new Tasks.Task.NAnt({
-        buildFile:        'build-moduleA.xml',
-        target:           "clean",
-        workingDirectory: "moduleA",
-        nantPath:         'C:\\NAnt'
-      });
-
-      execTask = new Tasks.Task.Exec({
-        command:          'bash',
-        args:             ['-c', 'ls -al /'],
-        workingDirectory: "moduleA"
-      });
-
-      rakeTask = new Tasks.Task.Rake({
-        buildFile:        'foo.rake',
-        target:           "clean",
-        workingDirectory: "moduleA"
-      });
-
-      fetchArtifactTask = new Tasks.Task.FetchArtifact({
-        pipeline: 'Build',
-        stage:    "Dist",
-        job:      "RPM",
-        source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'})
-      });
-
-      tasks = m.prop(new Tasks());
-
-      _.each([
-        antTask,
-        nantTask,
-        execTask,
-        rakeTask,
-        fetchArtifactTask
-      ], function (task) {
-        tasks().addTask(task);
-      });
-
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-
-      m.mount(root,
-        m.component(TasksConfigWidget, {tasks: tasks})
-      );
-      m.redraw(true);
-    });
-
-    afterEach(function () {
-      root.parentNode.removeChild(root);
-    });
-
-    it("should add a new task", function () {
-      expect(tasks().countTask()).toBe(5);
-      expect($root.find('.task-definition').length).toBe(5);
-
-      var addTaskButton = $root.find('.add-task').get(0);
-      var evObj         = document.createEvent('MouseEvents');
-      evObj.initEvent('click', true, false);
-      addTaskButton.onclick(evObj);
-      m.redraw(true);
-
-      expect(tasks().countTask()).toBe(6);
-      expect($root.find('.task-definition').length).toBe(6);
-    });
-
-    describe('Exec Task View', function(){
-      var root, $root, task;
-
+    describe('Ant Task View', function () {
+      var task;
       beforeAll(function () {
-        root = document.createElement("div");
-        document.body.appendChild(root);
-        $root = $(root);
-        tasks = m.prop(new Tasks());
+        var tasks = m.prop(new Tasks());
+
+        task = new Tasks.Task.Ant({
+          buildFile:        'build-moduleA.xml',
+          target:           'clean',
+          workingDirectory: 'moduleA',
+          runIf:            ['passed', 'failed']
+        });
+        tasks().addTask(task);
+
+        createRootElement();
+        mount(tasks);
+      });
+
+      afterAll(function () {
+        removeRootElement();
+      });
+
+      it('should bind target', function () {
+        expect($root.find("input[data-prop-name='target']").val()).toBe(task.target());
+      });
+
+      it('should bind build file', function () {
+        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.buildFile());
+      });
+
+      it('should bind working directory', function () {
+        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+      });
+
+      it('should render run_if conditions', function () {
+        expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+      });
+    });
+
+    describe('Nant Task View', function () {
+      var task;
+      beforeAll(function () {
+        var tasks = m.prop(new Tasks());
+
+        task = new Tasks.Task.NAnt({
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
+          workingDirectory: "moduleA",
+          nantPath:         'C:\\NAnt',
+          runIf:            ['passed', 'failed']
+        });
+        tasks().addTask(task);
+
+        createRootElement();
+        mount(tasks);
+      });
+
+      afterAll(function () {
+        removeRootElement();
+      });
+
+      it('should bind target', function () {
+        expect($root.find("input[data-prop-name='target']").val()).toBe(task.target());
+      });
+
+      it('should bind working directory', function () {
+        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.buildFile());
+      });
+
+      it('should bind build file', function () {
+        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+      });
+
+      it('should bind nant path', function () {
+        expect($root.find("input[data-prop-name='nantPath']").val()).toBe(task.nantPath());
+      });
+
+      it('should render run_if conditions', function () {
+        expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+      });
+    });
+
+    describe('Exec Task View', function () {
+      var task;
+      beforeAll(function () {
+        var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Exec({
           command:          'bash',
           args:             ['-c', 'ls -al /'],
-          workingDirectory: 'moduleA'
+          workingDirectory: 'moduleA',
+          runIf:            ['passed', 'failed']
         });
-
         tasks().addTask(task);
-        mount(root, tasks);
+
+        createRootElement();
+        mount(tasks);
       });
 
       afterAll(function () {
-        root.parentNode.removeChild(root);
+        removeRootElement();
       });
 
       describe('render', function () {
@@ -128,14 +136,189 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         it('should bind the args', function () {
           expect($root.find("textarea[data-prop-name='data']").val()).toBe(task.args().data().join('\n'));
         });
+
+        it('should render run_if conditions', function () {
+          expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
+          expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
+          expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+        });
       });
     });
-  });
 
-  var mount = function(root, tasks) {
-    m.mount(root,
-      m.component(TasksConfigWidget, {tasks: tasks})
-    );
-    m.redraw(true);
-  }
+    describe('Rake Task View', function () {
+      var task;
+      beforeAll(function () {
+        var tasks = m.prop(new Tasks());
+
+        task = new Tasks.Task.Rake({
+          buildFile:        'foo.rake',
+          target:           "clean",
+          workingDirectory: "moduleA",
+          runIf:            ['passed', 'failed']
+        });
+        tasks().addTask(task);
+
+        createRootElement();
+        mount(tasks);
+      });
+
+      afterAll(function () {
+        removeRootElement();
+      });
+
+      it('should bind target', function () {
+        expect($root.find("input[data-prop-name='target']").val()).toBe(task.target());
+      });
+
+      it('should bind working directory', function () {
+        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.buildFile());
+      });
+
+      it('should bind build file', function () {
+        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+      });
+
+      it('should render run_if conditions', function () {
+        expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+      });
+    });
+
+    describe('FetchArtifact Task View', function () {
+      var task;
+      beforeAll(function () {
+        var tasks = m.prop(new Tasks());
+
+        task = new Tasks.Task.FetchArtifact({
+          pipeline: 'Build',
+          stage:    "Dist",
+          job:      "RPM",
+          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'}),
+          runIf:    ['passed', 'failed']
+        });
+        tasks().addTask(task);
+
+        createRootElement();
+        mount(tasks);
+      });
+
+      afterAll(function () {
+        removeRootElement();
+      });
+
+      it('should bind pipeline', function () {
+        expect($root.find("input[data-prop-name='pipeline']").val()).toBe(task.pipeline());
+      });
+
+      it('should bind stage', function () {
+        expect($root.find("input[data-prop-name='stage']").val()).toBe(task.stage());
+      });
+
+      it('should bind job', function () {
+        expect($root.find("input[data-prop-name='job']").val()).toBe(task.job());
+      });
+
+      it('should bind source type', function () {
+        expect($root.find("input[data-prop-name='type']").val()).toBe(task.source().type());
+      });
+
+      it('should bind source location', function () {
+        expect($root.find("input[data-prop-name='location']").val()).toBe(task.source().location());
+      });
+
+      it('should render run_if conditions', function () {
+        expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
+        expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
+      });
+    });
+
+    describe("Add Tasks", function() {
+      var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
+      beforeEach(function () {
+        antTask = new Tasks.Task.Ant({
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
+          workingDirectory: "moduleA"
+        });
+
+        nantTask = new Tasks.Task.NAnt({
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
+          workingDirectory: "moduleA",
+          nantPath:         'C:\\NAnt'
+        });
+
+        execTask = new Tasks.Task.Exec({
+          command:          'bash',
+          args:             ['-c', 'ls -al /'],
+          workingDirectory: "moduleA"
+        });
+
+        rakeTask = new Tasks.Task.Rake({
+          buildFile:        'foo.rake',
+          target:           "clean",
+          workingDirectory: "moduleA"
+        });
+
+        fetchArtifactTask = new Tasks.Task.FetchArtifact({
+          pipeline: 'Build',
+          stage:    "Dist",
+          job:      "RPM",
+          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'})
+        });
+
+        tasks = m.prop(new Tasks());
+
+        _.each([
+          antTask,
+          nantTask,
+          execTask,
+          rakeTask,
+          fetchArtifactTask
+        ], function (task) {
+          tasks().addTask(task);
+        });
+
+        createRootElement();
+        mount(tasks);
+      });
+
+      afterEach(function () {
+        root.parentNode.removeChild(root);
+      });
+
+      it("should add a new task", function () {
+        expect(tasks().countTask()).toBe(5);
+        expect($root.find('.task-definition').length).toBe(5);
+
+        var addTaskButton = $root.find('.add-task').get(0);
+        var evObj = document.createEvent('MouseEvents');
+        evObj.initEvent('click', true, false);
+        addTaskButton.onclick(evObj);
+        m.redraw(true);
+
+        expect(tasks().countTask()).toBe(6);
+        expect($root.find('.task-definition').length).toBe(6);
+      });
+    });
+
+    var mount = function (tasks) {
+      m.mount(root,
+        m.component(TasksConfigWidget, {tasks: tasks})
+      );
+      m.redraw(true);
+    };
+
+    function createRootElement() {
+      root = document.createElement("div");
+      document.body.appendChild(root);
+      $root = $(root);
+    }
+
+    function removeRootElement() {
+      root.parentNode.removeChild(root);
+    }
+  });
 });

@@ -293,6 +293,64 @@ define(['mithril', 'lodash', 'string-plus', '../models/model_mixins'], function 
       }
     },
 
+    multiSelectionBox: {
+      controller: function (args) {
+        this.attr = args.model[args.attrName];
+
+        this.onChange = function (e) {
+          var currentTarget = (e || event).currentTarget;
+
+          currentTarget.checked ? this.attr().push(currentTarget.value)
+                                : this.attr().pop(currentTarget.value)
+        };
+
+        this.isChecked = function(value) {
+          return _.includes(this.attr().data(), value);
+        }
+      },
+
+      view: function (ctrl, args) {
+        var model    = deleteKeyAndReturnValue(args, 'model'),
+          attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+          value      = deleteKeyAndReturnValue(args, 'value'),
+          labelText  = deleteKeyAndReturnValue(args, 'label'),
+          disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+          tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+          addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+          id         = s.uuid(),
+          modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+
+        if (!args.size) {
+          args.size = 3;
+        }
+
+        var padding;
+
+        if (addPadding) {
+          padding = (<label style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
+        }
+
+        return (
+          <f.column {...args}>
+            {padding}
+            <input type="checkbox"
+                   data-prop-name={attrName}
+                   data-model-type={modelType}
+                   id={id}
+                   disabled={disabled}
+                   value={value}
+                   checked={ctrl.isChecked(value)}
+                   onchange={ctrl.onChange.bind(ctrl)}/>
+            <label class={_.compact(['inline', tooltip ? 'has-tooltip' : null]).join(' ')} for={id}>
+              {labelText || s.humanize(attrName)}
+            </label>
+
+            <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+          </f.column>
+        );
+      }
+    },
+
     tabs: {
       controller: function (args) {
         this.selectedIndex = s.coerceToMprop(args.selectedIndex || 0);

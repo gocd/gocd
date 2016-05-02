@@ -14,6 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
+require 'json'
+
 class Api::PipelinesController < Api::ApiController
   include ComparisonHelper
   def url(params={})#FIXME: we should not have such common method names(we work with all helpers mixed in each response, which means we need to be have more specific method names to avoid conflicts)
@@ -114,8 +116,10 @@ class Api::PipelinesController < Api::ApiController
 
   def schedule
     pipeline_name = params[:pipeline_name]
+    variables = if params.key?(:variables) then JSON.parse(params[:variables]) else {} end
+    secure_variables = if params.key?(:secure_variables) then JSON.parse(params[:secure_variables]) else {} end
     revisions = merge_revisions(pipeline_name, params["materials"]||{}, params["original_fingerprint"]||{}, params['material_fingerprint']||{})
-    pipeline_scheduler.manualProduceBuildCauseAndSave(pipeline_name, @user, ScheduleOptions.new(revisions, params[:variables]||{}, params[:secure_variables]||{}), result = HttpOperationResult.new)
+    pipeline_scheduler.manualProduceBuildCauseAndSave(pipeline_name, @user, ScheduleOptions.new(revisions, variables secure_variables), result = HttpOperationResult.new)
     render_operation_result(result)
   end
 

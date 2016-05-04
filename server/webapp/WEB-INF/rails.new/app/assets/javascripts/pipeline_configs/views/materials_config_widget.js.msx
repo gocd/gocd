@@ -241,6 +241,11 @@ define([
             </f.row>
             <f.row>
               <BranchField material={material}/>
+              <f.checkBox model={args.material}
+                          attrName='shallowClone'
+                          label="Shallow clone (recommended for large repositories)"
+                          addPadding={true}
+                          end={true}/>
             </f.row>
           </MaterialViews.base>
         );

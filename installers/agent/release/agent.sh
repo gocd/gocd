@@ -1,6 +1,6 @@
 #!/bin/bash
-#*************************GO-LICENSE-START********************************
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,21 +13,59 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#*************************GO-LICENSE-END**********************************
-
+##########################################################################
 
 SERVICE_NAME=${1:-go-agent}
 PRODUCTION_MODE=${PRODUCTION_MODE:-"Y"}
 
 if [ "$PRODUCTION_MODE" == "Y" ]; then
     if [ -f /etc/default/${SERVICE_NAME} ]; then
-        echo "[`date`] using default settings from /etc/default/${SERVICE_NAME}"
+        echo "[$(date)] using default settings from /etc/default/${SERVICE_NAME}"
         . /etc/default/${SERVICE_NAME}
     fi
 fi
 
-CWD=`dirname "$0"`
-AGENT_DIR=`(cd "$CWD" && pwd)`
+yell() {
+  echo "$*" >&2;
+}
+
+die() {
+    yell "$1"
+    exit ${2:-1}
+}
+
+function autoDetectJavaExecutable() {
+  local java_cmd
+  # Prefer using GO_JAVA_HOME, over JAVA_HOME
+  GO_JAVA_HOME=${GO_JAVA_HOME:-"$JAVA_HOME"}
+
+  if [ -n "$GO_JAVA_HOME" ] ; then
+      if [ -x "$GO_JAVA_HOME/jre/sh/java" ] ; then
+          # IBM's JDK on AIX uses strange locations for the executables
+          java_cmd="$GO_JAVA_HOME/jre/sh/java"
+      else
+          java_cmd="$GO_JAVA_HOME/bin/java"
+      fi
+      if [ ! -x "$java_cmd" ] ; then
+          die "ERROR: GO_JAVA_HOME is set to an invalid directory: $GO_JAVA_HOME
+
+Please set the GO_JAVA_HOME variable in your environment to match the
+location of your Java installation."
+      fi
+  else
+      java_cmd="java"
+      which java >/dev/null 2>&1 || die "ERROR: GO_JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the GO_JAVA_HOME variable in your environment to match the
+location of your Java installation."
+  fi
+
+  echo "$java_cmd"
+}
+
+
+CWD="$(dirname "$0")"
+AGENT_DIR="$(cd "$CWD" && pwd)"
 
 AGENT_MEM=${AGENT_MEM:-"128m"}
 AGENT_MAX_MEM=${AGENT_MAX_MEM:-"256m"}
@@ -55,7 +93,7 @@ if [ "$PRODUCTION_MODE" == "Y" ]; then
     if [ -d /var/log/${SERVICE_NAME} ]; then
         LOG_DIR=/var/log/${SERVICE_NAME}
     else
-	LOG_DIR=$AGENT_WORK_DIR
+	    LOG_DIR=$AGENT_WORK_DIR
     fi
 else
     LOG_DIR=$AGENT_WORK_DIR
@@ -64,7 +102,7 @@ fi
 STDOUT_LOG_FILE=$LOG_DIR/${SERVICE_NAME}-bootstrapper.out.log
 
 if [ "$PID_FILE" ]; then
-    echo "[`date`] Use PID_FILE: $PID_FILE"
+    echo "[$(date)] Use PID_FILE: $PID_FILE"
 elif [ "$PRODUCTION_MODE" == "Y" ]; then
     if [ -d /var/run/go-agent ]; then
         PID_FILE=/var/run/go-agent/${SERVICE_NAME}.pid
@@ -76,7 +114,7 @@ else
 fi
 
 if [ "$VNC" == "Y" ]; then
-    echo "[`date`] Starting up VNC on :3"
+    echo "[$(date)] Starting up VNC on :3"
     /usr/bin/vncserver :3
     DISPLAY=:3
     export DISPLAY
@@ -105,21 +143,17 @@ export AGENT_STARTUP_ARGS
 export LOG_DIR
 export LOG_FILE
 
-CMD="$JAVA_HOME/bin/java -jar \"$AGENT_DIR/agent-bootstrapper.jar\" $GO_SERVER $GO_SERVER_PORT"
+RUN_CMD=("$(autoDetectJavaExecutable)" "-jar" "$AGENT_DIR/agent-bootstrapper.jar" "$GO_SERVER" "$GO_SERVER_PORT")
 
-echo "[`date`] Starting Go Agent Bootstrapper with command: $CMD" >>"$STDOUT_LOG_FILE"
-echo "[`date`] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$STDOUT_LOG_FILE"
-echo "[`date`] AGENT_STARTUP_ARGS=$AGENT_STARTUP_ARGS" >>"$STDOUT_LOG_FILE"
+echo "[$(date)] Starting Go Agent Bootstrapper with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
+echo "[$(date)] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$STDOUT_LOG_FILE"
+echo "[$(date)] AGENT_STARTUP_ARGS=$AGENT_STARTUP_ARGS" >>"$STDOUT_LOG_FILE"
 cd "$AGENT_WORK_DIR"
 
-if [ "$JAVA_HOME" == "" ]; then
-    echo "Please set JAVA_HOME to proceed."
-    exit 1
-fi
-
 if [ "$DAEMON" == "Y" ]; then
-    eval exec nohup "$CMD" >>"$STDOUT_LOG_FILE" 2>&1 &
+    exec nohup "${RUN_CMD[@]}" >> "$STDOUT_LOG_FILE" 2>&1 &
+    disown $!
     echo $! >"$PID_FILE"
 else
-    eval exec "$CMD"
+    exec "${RUN_CMD[@]}"
 fi

@@ -25,11 +25,11 @@ if [ "$MANUAL_SETTING" == "N" ]; then
 fi
 
 yell() {
-  echo "$*" >&2;
+  echo "WARN: $*" >&2;
 }
 
 die() {
-    yell "$1"
+    yell "FATAL: $1"
     exit ${2:-1}
 }
 

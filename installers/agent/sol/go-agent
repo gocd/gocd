@@ -22,14 +22,14 @@ log_success_msg() {
 }
 
 
-getproparg() { 
-    val=`svcprop -c -p $1 $SMF_FMRI` 
-    [ -n "$val" ] && echo $val 
-} 
+getproparg() {
+    val=`svcprop -c -p $1 $SMF_FMRI`
+    [ -n "$val" ] && echo $val
+}
 
-if [ -z "$SMF_FMRI" ]; then 
-    echo "SMF framework variables are not initialized." 
-    exit $SMF_EXIT_ERR 
+if [ -z "$SMF_FMRI" ]; then
+    echo "SMF framework variables are not initialized."
+    exit $SMF_EXIT_ERR
 fi
 
 
@@ -56,8 +56,8 @@ export DAEMON
 AGENT_WORK_DIR="/var/lib/go-agent"
 export AGENT_WORK_DIR
 
-GO_SERVER=`getproparg go-agent/server`
-export GO_SERVER
+GO_SERVER_URL=`getproparg go-agent/server`
+export GO_SERVER_URL
 
 export HOME="/var/go"
 
@@ -69,7 +69,7 @@ start_go_agent() {
     /usr/share/go-agent/agent.sh
 
     if [ $? -eq 0 ]; then
-        log_success_msg "Started Go Agent for server ${GO_SERVER}"
+        log_success_msg "Started Go Agent for server ${GO_SERVER_URL}"
     else
         log_failure_msg "Error starting Go Agent."
         exit $SMF_EXIT_ERR_FATAL

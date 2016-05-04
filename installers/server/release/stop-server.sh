@@ -23,12 +23,6 @@ fi
 CWD=`dirname "$0"`
 SERVER_DIR=`(cd "$CWD" && pwd)`
 
-[ ! -z $SERVER_MEM ] || SERVER_MEM="512m"
-[ ! -z $SERVER_MAX_MEM ] || SERVER_MAX_MEM="1024m"
-[ ! -z $GO_SERVER_PORT ] || GO_SERVER_PORT="8153"
-[ ! -z $GO_SERVER_SSL_PORT ] || GO_SERVER_SSL_PORT="8154"
-[ ! -z "$SERVER_WORK_DIR" ] || SERVER_WORK_DIR="$SERVER_DIR"
-
 if [ "$PID_FILE" ]; then
     echo "Overriding PID_FILE with $PID_FILE"
 elif [ -d /var/run/go-server ]; then

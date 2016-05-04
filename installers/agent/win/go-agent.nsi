@@ -14,7 +14,7 @@
 ; limitations under the License.
 ; *************************GO-LICENSE-END**********************************
 
-ReserveFile "ServerIP.ini"
+ReserveFile "ServerURL.ini"
 
 !include ..\..\..\..\build\windows-installer-base.nsi
 
@@ -22,27 +22,27 @@ Page custom CustomGetInput CustomUseInput
 
 Function CustomOnInit
     InitPluginsDir
-    File /oname=$PLUGINSDIR\ServerIP.ini ServerIP.ini
+    File /oname=$PLUGINSDIR\ServerURL.ini ServerURL.ini
     File /oname=$PLUGINSDIR\JavaHome.ini JavaHome.ini
 FunctionEnd
 
 Function CustomGetInput
     Push $R0
-    InstallOptions::dialog $PLUGINSDIR\ServerIP.ini
+    InstallOptions::dialog $PLUGINSDIR\ServerURL.ini
     Pop $R0
 FunctionEnd
 
 Var ARGS
-Var SERVER_IP
+Var SERVER_URL
 
 Function CustomUseInput
-    ReadINIStr $SERVER_IP "$PLUGINSDIR\ServerIP.ini" "Field 2" "State"
+    ReadINIStr $SERVER_URL "$PLUGINSDIR\ServerURL.ini" "Field 2" "State"
     Call CustomInstallBits
 FunctionEnd
 
 Function SilentCustomUseInput
     ${GetParameters} $ARGS
-    ${GetOptions} $ARGS /SERVERIP= $SERVER_IP
+    ${GetOptions} $ARGS /SERVERURL= $SERVER_URL
     ${GetOptions} $ARGS /GO_AGENT_JAVA_HOME= $GO_AGENT_JAVA_HOME
     Call CustomInstallBits
 FunctionEnd
@@ -52,11 +52,11 @@ Function CustomInstallBits
     StrCmp $GO_AGENT_JAVA_HOME "" 0 +2
         StrCpy $GO_AGENT_JAVA_HOME "$INSTDIR\jre"
 
-    StrCmp $SERVER_IP "" 0 +2
-        StrCpy $SERVER_IP "127.0.0.1"
+    StrCmp $SERVER_URL "" 0 +2
+        StrCpy $SERVER_URL "https://127.0.0.1:8154/go"
 
     ; Write the Environment Variables for Wrapper to use
-    WriteRegStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_SERVER" "$SERVER_IP"
+    WriteRegStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_SERVER_URL" "$SERVER_URL"
     WriteRegStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_AGENT_DIR" "$INSTDIR"
     WriteRegStr HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_AGENT_JAVA_HOME" "$GO_AGENT_JAVA_HOME"
 
@@ -107,7 +107,7 @@ Section "Uninstall"
     ; Remove Env Vars
     DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_AGENT_JAVA_HOME"
     DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_AGENT_DIR"
-    DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_SERVER"
+    DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "GO_SERVER_URL"
 
     ; Remove registry keys
     DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%"

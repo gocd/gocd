@@ -23,14 +23,7 @@ fi
 CWD=`dirname "$0"`
 AGENT_DIR=`(cd "$CWD" && pwd)`
 
-AGENT_MEM=${AGENT_MEM:-"128m"}
-AGENT_MAX_MEM=${AGENT_MAX_MEM:-"256m"}
-GO_SERVER=${GO_SERVER:-"127.0.0.1"}
-GO_SERVER_PORT=${GO_SERVER_PORT:-"8153"}
-JAVA_HOME=${JAVA_HOME:-"/usr"}
-ANT_HOME=${ANT_HOME:-"$AGENT_DIR/apache-ant-1.7.1"}
 AGENT_WORK_DIR=${AGENT_WORK_DIR:-"$AGENT_DIR"}
-VNC=${VNC:-"N"}
 
 if [ -d /var/log/go-agent ]; then
     LOG_FILE=/var/log/go-agent/agent-bootstrapper.log

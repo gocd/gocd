@@ -1134,19 +1134,6 @@ button:hover.rerun {
     width: 50%;
 }
 
-#vcsconnection-message {
-    margin-left: 1.5em;
-    display: block;
-    width: 30%;
-    float: left;
-    white-space: pre-wrap; /* css-3 should we be so lucky... */
-    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-    white-space: -pre-wrap; /* Opera 4-6 ?? */
-    white-space: -o-pre-wrap; /* Opera 7 ?? */
-    word-wrap: break-word; /* Internet Explorer 5.5+ */
-    _white-space: pre; /* IE only hack to re-specify in addition to word-wrap  */
-}
-
 #pipelineGroupDropdown .selected {
     background-color: lightblue;
 }

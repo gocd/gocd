@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
-import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
@@ -37,6 +36,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -209,18 +209,24 @@ public class GitMaterial extends ScmMaterial {
         }
     }
 
+    private boolean isRepository(GitCommand gitCommand, GitRepository gitRepository) {
+     return (gitCommand.isBare() || gitRepository.isWorkingCopy());
+    }
+
     private GitCommand git(ProcessOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
         if (isSubmoduleFolder()) {
             return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables());
         }
 
         GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables());
-        if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Invalid git working copy or repository changed. Delete folder: " + workingFolder);
-            }
-            deleteDirectoryNoisily(workingFolder);
+        GitRepository gitRepository = new GitRepository(workingFolder, gitCommand.workingRepositoryUrl(), gitCommand.getCurrentBranch(), shallowClone);
+
+        if(!isRepository(gitCommand, gitRepository)
+                || gitRepository.hasChanged(url, branchWithDefault())
+                || !isServerSideRepoBare(executionContext, gitCommand)) {
+            deleteWorkingFolder(workingFolder);
         }
+
         createParentFolderIfNotExist(workingFolder);
         if (!workingFolder.exists()) {
             TransactionSynchronizationManager txManager = new TransactionSynchronizationManager();
@@ -235,10 +241,28 @@ public class GitMaterial extends ScmMaterial {
                 });
             }
             int cloneDepth = shallowClone ? preferredCloneDepth : Integer.MAX_VALUE;
-            int returnValue = gitCommand.cloneFrom(outputStreamConsumer, url.forCommandline(), cloneDepth);
-            bombIfFailedToRunCommandLine(returnValue, "Failed to run git clone command");
+            if(executionContext.isServer()) {
+                bombIfFailedToRunCommandLine(gitCommand.bareClone(outputStreamConsumer, url.forCommandline(), cloneDepth), "Failed to run git clone command");
+                bombIfFailedToRunCommandLine(gitCommand.setupRefs(outputStreamConsumer), "Failed to set up the ref");
+            } else {
+                bombIfFailedToRunCommandLine(gitCommand.clone(outputStreamConsumer, url.forCommandline(), cloneDepth), "Failed to run git clone command");
+            }
         }
         return gitCommand;
+    }
+
+    private boolean isServerSideRepoBare(SubprocessExecutionContext executionContext, GitCommand gitCommand) {
+        if(executionContext.isServer()) {
+            return gitCommand.isBare();
+        }
+        return false;
+    }
+
+    private void deleteWorkingFolder(File workingFolder) throws IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Either Invalid git working copy or or invalid bare repository or repository changed. Delete folder: " + workingFolder);
+        }
+        deleteDirectoryNoisily(workingFolder);
     }
 
     // Unshallow local repo to include a revision operating on via two step process:
@@ -262,25 +286,6 @@ public class GitMaterial extends ScmMaterial {
 
     private boolean isSubmoduleFolder() {
         return getSubmoduleFolder() != null;
-    }
-
-    private boolean isGitRepository(File workingFolder) {
-        return new File(workingFolder, ".git").isDirectory();
-    }
-
-    private boolean isRepositoryChanged(GitCommand command, File workingDirectory) {
-        UrlArgument currentWorkingUrl = command.workingRepositoryUrl();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Current repository url of [" + workingDirectory + "]: " + currentWorkingUrl);
-            LOG.trace("Target repository url: " + url);
-        }
-        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline())
-                || !isBranchEqual(command)
-                || (!shallowClone && command.isShallow());
-    }
-
-    private boolean isBranchEqual(GitCommand command) {
-        return branchWithDefault().equals(command.getCurrentBranch());
     }
 
     /**

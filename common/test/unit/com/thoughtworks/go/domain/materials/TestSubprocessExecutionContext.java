@@ -25,17 +25,25 @@ import com.thoughtworks.go.util.SystemEnvironment;
 
 public class TestSubprocessExecutionContext implements SubprocessExecutionContext {
     private SystemEnvironment systemEnvironment;
-    public String getProcessNamespace(String fingerprint) {
-        return UUID.randomUUID().toString();
-    }
+    private boolean bare;
 
     public TestSubprocessExecutionContext() {
+        this(false);
         this.systemEnvironment = new SystemEnvironment();
     }
 
     public TestSubprocessExecutionContext(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
     }
+
+    public TestSubprocessExecutionContext(boolean bare) {
+        this.bare = bare;
+    }
+
+    public String getProcessNamespace(String fingerprint) {
+        return UUID.randomUUID().toString();
+    }
+
 
     @Override
     public Map<String, String> getDefaultEnvironmentVariables() {
@@ -45,5 +53,10 @@ public class TestSubprocessExecutionContext implements SubprocessExecutionContex
     @Override
     public Boolean isGitShallowClone() {
         return systemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE);
+    }
+
+    @Override
+    public boolean isServer() {
+        return bare;
     }
 }

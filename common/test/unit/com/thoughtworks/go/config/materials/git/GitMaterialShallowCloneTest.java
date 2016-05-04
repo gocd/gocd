@@ -187,6 +187,13 @@ public class GitMaterialShallowCloneTest {
         assertThat(localRepoFor(material).isShallow(), is(true));
     }
 
+    @Test
+    public void shouldCloneABareRepositoryWhenExecutionContextReturnsTrue() {
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
+        material.latestModification(workingDir, new TestSubprocessExecutionContext(true));
+        assertThat(localRepoFor(material).isBare(), is(true));
+    }
+
     private TestSubprocessExecutionContext context() {
         return new TestSubprocessExecutionContext();
     }

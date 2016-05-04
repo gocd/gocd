@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.UnhandledException;
 
 public class CheckConnectionSubprocessExecutionContext implements SubprocessExecutionContext {
     private SystemEnvironment systemEnvironment;
@@ -41,5 +42,10 @@ public class CheckConnectionSubprocessExecutionContext implements SubprocessExec
     @Override
     public Boolean isGitShallowClone() {
         throw new UnsupportedOperationException(" This is an unexpected call. Perform this action only on the server.");
+    }
+
+    @Override
+    public boolean isServer() {
+        throw new UnsupportedOperationException("This is an unexpected call.");
     }
 }

@@ -8,7 +8,7 @@ This is a Java/JRuby on Rails project. Here is the guide to setup your [developm
 
 All information to help you get started with GoCD can be found on the <a href="http://www.go.cd/">go.cd</a> website.
 
-See our [roadmap](https://www.go.cd/contribute/roadmap.html) for what's planned for upcoming releases.
+See our [roadmap](https://www.go.cd/roadmap/) for what's planned for upcoming releases.
 
 ## Contributing
 

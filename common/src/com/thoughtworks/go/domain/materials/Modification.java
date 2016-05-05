@@ -93,17 +93,23 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public Modification(Modification modification) {
-        this(modification.userName, modification.comment, modification.emailAddress, modification.modifiedTime, modification.getRevision());
-        this.id = modification.id;
-        this.files = modification.files;
-        this.pipelineLabel = modification.pipelineLabel;
-        this.pipelineId = modification.pipelineId;
-        this.materialInstance = modification.materialInstance;
+        this(modification, true);
     }
 
     public Modification(String user, String comment, String email, Date dateTime, String revision, String additionalData) {
         this(user, comment, email, dateTime, revision);
         setAdditionalData(additionalData);
+    }
+
+    public Modification(Modification modification, boolean shouldCopyModifiedFiles) {
+        this(modification.userName, modification.comment, modification.emailAddress, modification.modifiedTime, modification.getRevision());
+        this.id = modification.id;
+        if(shouldCopyModifiedFiles){
+            this.files = modification.files;
+        }
+        this.pipelineLabel = modification.pipelineLabel;
+        this.pipelineId = modification.pipelineId;
+        this.materialInstance = modification.materialInstance;
     }
 
     public final ModifiedFile createModifiedFile(String filename, String folder, ModifiedAction modifiedAction) {
@@ -161,7 +167,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
      * @deprecated used only in tests
      */
     public void setModifiedFiles(List<ModifiedFile> files) {
-        this.files = files == null ? new LinkedHashSet<ModifiedFile>() : new LinkedHashSet<ModifiedFile>(files);
+        this.files = files == null ? new LinkedHashSet<ModifiedFile>() : new LinkedHashSet<>(files);
     }
 
     /**
@@ -337,9 +343,9 @@ public class Modification extends PersistentObject implements Comparable, Serial
         materialInstance = (MaterialInstance) in.readObject();
         Set files = (Set) in.readObject();
         if (files == null) {
-            this.files = new LinkedHashSet<ModifiedFile>();
+            this.files = new LinkedHashSet<>();
         } else {
-            this.files = new LinkedHashSet<ModifiedFile>(files);
+            this.files = new LinkedHashSet<>(files);
         }
     }
 

@@ -1,47 +1,86 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.remote.work;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Test;
+
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 public class BuildAssignmentTest {
-    @Test public void shouldStartWithNoEnvironmentContext() throws Exception {
+    @Test
+    public void shouldStartWithNoEnvironmentContext() throws Exception {
         BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<Builder>(), null);
         assertThat(buildAssignment.initialEnvironmentVariableContext(), is(new EnvironmentVariableContext()));
     }
 
-    @Test public void shouldEnhanceInitialEnvironmentContext() throws Exception {
+    @Test
+    public void shouldEnhanceInitialEnvironmentContext() throws Exception {
         BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<Builder>(), null);
 
         buildAssignment.enhanceEnvironmentVariables(new EnvironmentVariableContext("foo", "bar"));
 
         assertThat(buildAssignment.initialEnvironmentVariableContext(), is(new EnvironmentVariableContext("foo", "bar")));
+    }
+
+    @Test
+    public void shouldNotHaveReferenceToModifiedFilesSinceLargeCommitsCouldCauseBothServerAndAgentsToRunOutOfMemory_MoreoverThisInformationIsNotRequiredOnAgentSide() {
+        List<Modification> modificationsForSvn = ModificationsMother.multipleModificationList();
+        List<Modification> modificationsForHg = ModificationsMother.multipleModificationList();
+        MaterialRevision svn = new MaterialRevision(MaterialsMother.svnMaterial(), modificationsForSvn);
+        MaterialRevision hg = new MaterialRevision(MaterialsMother.hgMaterial(), modificationsForHg);
+        MaterialRevisions materialRevisions = new MaterialRevisions(svn, hg);
+        BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
+
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<Builder>(), null);
+
+        assertThat(buildAssignment.getBuildApprover(), is("user1"));
+        assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
+        assertRevisions(buildAssignment, svn);
+        assertRevisions(buildAssignment, hg);
+    }
+
+    private void assertRevisions(BuildAssignment buildAssignment, MaterialRevision expectedRevision) {
+        MaterialRevision actualRevision = buildAssignment.materialRevisions().findRevisionFor(expectedRevision.getMaterial());
+        assertThat(actualRevision.getMaterial(), is(expectedRevision.getMaterial()));
+        assertThat(actualRevision.getModifications().size(), is(expectedRevision.getModifications().size()));
+        for (int i = 0; i < actualRevision.getModifications().size(); i++) {
+            final Modification actualModification = actualRevision.getModifications().get(i);
+            final Modification expectedModification = expectedRevision.getModifications().get(i);
+            assertThat(actualModification.getRevision(), is(expectedModification.getRevision()));
+            assertThat(actualModification.getModifiedFiles().isEmpty(), is(true));
+        }
     }
 
     private DefaultJobPlan jobForPipeline(String pipelineName) {

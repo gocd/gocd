@@ -18,16 +18,13 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
-import com.thoughtworks.go.server.service.ConsoleService;
-import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.web.ArtifactFolderViewFactory;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -39,6 +36,7 @@ import java.io.InputStream;
 import static com.thoughtworks.go.util.GoConstants.CHECKSUM_MULTIPART_FILENAME;
 import static com.thoughtworks.go.util.GoConstants.REGULAR_MULTIPART_FILENAME;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -55,6 +53,7 @@ public class ArtifactsControllerTest {
     private RestfulService restfulService;
     private ArtifactsService artifactService;
     private ConsoleService consoleService;
+    private GoDiskSpaceMonitor diskSpaceMonitor;
 
     @Before
     public void setUp() {
@@ -63,8 +62,8 @@ public class ArtifactsControllerTest {
         restfulService = mock(RestfulService.class);
         artifactService = mock(ArtifactsService.class);
         consoleService = mock(ConsoleService.class);
-
-        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService);
+        diskSpaceMonitor = mock(GoDiskSpaceMonitor.class);
+        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService, diskSpaceMonitor);
 
         request = new MockHttpServletRequest();
     }
@@ -87,8 +86,8 @@ public class ArtifactsControllerTest {
     public void shouldReturnHttpErrorCodeWhenChecksumFileSaveFails() throws Exception {
         File artifactFile = new File("junk");
         when(artifactService.findArtifact(any(JobIdentifier.class), eq("some-path"))).thenReturn(artifactFile);
-        when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1))).thenReturn(true);
-        when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class))).thenReturn(false);
+        when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1), any(GoDiskSpaceMonitor.class))).thenReturn(true);
+        when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class), any(GoDiskSpaceMonitor.class))).thenReturn(false);
 
         MockMultipartHttpServletRequest mockMultipartHttpServletRequest = new MockMultipartHttpServletRequest();
         mockMultipartHttpServletRequest.addFile(new MockMultipartFile(REGULAR_MULTIPART_FILENAME, "content".getBytes()));
@@ -103,11 +102,29 @@ public class ArtifactsControllerTest {
     }
 
     @Test
+    public void shouldReturnHttpErrorCodeWhenNotEnoughDiskSpace() throws Exception {
+        File artifactFile = new File("junk");
+        when(artifactService.findArtifact(any(JobIdentifier.class), eq("some-path"))).thenReturn(artifactFile);
+        when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1), any(GoDiskSpaceMonitor.class))).thenThrow(new ArtifactDiskSpaceFullException("disk full"));
+        when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class), any(GoDiskSpaceMonitor.class))).thenThrow(new ArtifactDiskSpaceFullException("disk full"));
+
+        MockMultipartHttpServletRequest mockMultipartHttpServletRequest = new MockMultipartHttpServletRequest();
+        mockMultipartHttpServletRequest.addFile(new MockMultipartFile(REGULAR_MULTIPART_FILENAME, "content".getBytes()));
+        mockMultipartHttpServletRequest.addFile(new MockMultipartFile(CHECKSUM_MULTIPART_FILENAME, "content".getBytes()));
+
+        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "2", "job-1", 122L, "some-path", 1, mockMultipartHttpServletRequest);
+        ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
+        assertThat(view.getStatusCode(), is(SC_REQUEST_ENTITY_TOO_LARGE));
+        assertThat(view.getContent(), is("Not enough disk space to save the artifact at path 'some-path'"));
+    }
+
+    @Test
     public void shouldFunnelAll_GET_calls() throws Exception {
         final ModelAndView returnVal = new ModelAndView();
-        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService) {
-            @Override ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
-                                               String buildName, String sha, String serverAlias) throws Exception {
+        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService, diskSpaceMonitor) {
+            @Override
+            ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
+                                     String buildName, String sha, String serverAlias) throws Exception {
                 return returnVal;
             }
         };

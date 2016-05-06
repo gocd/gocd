@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.domain.ConsoleOut;
+import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.Stage;
@@ -26,13 +26,13 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.LogFile;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,13 +51,11 @@ import java.util.zip.ZipInputStream;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
-import static java.lang.System.getProperty;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -72,17 +70,27 @@ public class ArtifactsServiceTest {
     private JobResolverService resolverService;
     private StageDao stageService;
     private LogFixture logFixture;
+    private GoDiskSpaceMonitor diskSpaceMonitor;
+    private GoConfigService goConfigService;
+    private ServerConfig serverConfig;
+    private ArtifactDirectoryChooser artifactDirectoryChooser;
+    private SystemDiskSpaceChecker systemDiskSpaceChecker;
 
     @Before
     public void setUp() {
         systemService = mock(SystemService.class);
         artifactsDirHolder = mock(ArtifactsDirHolder.class);
+        goConfigService = mock(GoConfigService.class);
+        serverConfig = mock(ServerConfig.class);
         zipUtil = mock(ZipUtil.class);
         resolverService = mock(JobResolverService.class);
         stageService = mock(StageDao.class);
-
+        diskSpaceMonitor = mock(GoDiskSpaceMonitor.class);
+        systemDiskSpaceChecker = mock(SystemDiskSpaceChecker.class);
         fakeRoot = TestFileUtil.createTempFolder("ArtifactsServiceTest");
         logFixture = LogFixture.startListening();
+        artifactDirectoryChooser = mock(ArtifactDirectoryChooser.class);
+        when(systemDiskSpaceChecker.getUsableSpace(any(File.class))).thenReturn(2 * GoConstants.GIGA_BYTE);
     }
 
     @After
@@ -102,7 +110,7 @@ public class ArtifactsServiceTest {
         FileUtils.writeStringToFile(logFile.getFile(), invalidXml);
 
         assumeArtifactsRoot(new File("logs"));
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         try {
             artifactsService.parseLogFile(logFile, true);
             fail();
@@ -113,15 +121,55 @@ public class ArtifactsServiceTest {
     }
 
     @Test
+    public void shouldThrowArtifactDiskSpaceFullExceptionWhenLowArtifactDiskSpace() throws Exception {
+
+        final File logsDir = new File("logs");
+        final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
+        String buildInstanceId = "1";
+        final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
+        assumeArtifactsRoot(logsDir);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        when(serverConfig.getPurgeStart()).thenReturn(new Double(3));
+        when(serverConfig.isArtifactPurgingAllowed()).thenReturn(true);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
+        try {
+            artifactsService.saveFile(destFile, stream, false, 1, diskSpaceMonitor);
+            fail();
+        } catch (ArtifactDiskSpaceFullException e) {
+            assertThat(e.getMessage(), containsString("Not enough disk space to save the artifact at path"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnSaveORAppendOperationWhenLowArtifactDiskSpace() throws Exception {
+        final File logsDir = new File("logs");
+        final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
+        String buildInstanceId = "1";
+        final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
+        assumeArtifactsRoot(logsDir);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        when(serverConfig.getPurgeStart()).thenReturn(new Double(3));
+        when(serverConfig.isArtifactPurgingAllowed()).thenReturn(true);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
+        try {
+            artifactsService.saveOrAppendFile(destFile, stream, diskSpaceMonitor);
+            fail();
+        } catch (ArtifactDiskSpaceFullException e) {
+            assertThat(e.getMessage(), containsString("Not enough disk space to save the artifact at path"));
+        }
+    }
+
+    @Test
     public void shouldUnzipWhenFileIsZip() throws Exception {
         final File logsDir = new File("logs");
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
         final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
-
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        when(serverConfig.getPurgeStart()).thenReturn(new Double(1));
         assumeArtifactsRoot(logsDir);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-        artifactsService.saveFile(destFile.getParentFile(), stream, true, 1);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
+        artifactsService.saveFile(destFile.getParentFile(), stream, true, 1, diskSpaceMonitor);
 
         Mockito.verify(zipUtil).unzip(any(ZipInputStream.class), eq(destFile.getParentFile()));
     }
@@ -134,8 +182,9 @@ public class ArtifactsServiceTest {
         String buildInstanceId = "1";
         final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
         assumeArtifactsRoot(logsDir);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, new ZipUtil(), systemService);
-        boolean saved = artifactsService.saveFile(destFile, stream, true, 1);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, new ZipUtil(), systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
+        boolean saved = artifactsService.saveFile(destFile, stream, true, 1, diskSpaceMonitor);
         assertThat(saved, is(false));
     }
 
@@ -146,8 +195,9 @@ public class ArtifactsServiceTest {
         String buildInstanceId = "1";
         final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
         assumeArtifactsRoot(logsDir);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-        artifactsService.saveFile(destFile, stream, false, 1);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
+        artifactsService.saveFile(destFile, stream, false, 1, diskSpaceMonitor);
 
         Mockito.verify(systemService).streamToFile(eq(stream), eq(destFile));
     }
@@ -162,8 +212,9 @@ public class ArtifactsServiceTest {
         assumeArtifactsRoot(logsDir);
 
         String fileName = "generated" + File.separator + LOG_XML_NAME;
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-        artifactsService.saveFile(destFile, stream, false, 1);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
+        artifactsService.saveFile(destFile, stream, false, 1, diskSpaceMonitor);
 
         Mockito.verify(systemService).streamToFile(eq(stream), eq(destFile));
     }
@@ -179,10 +230,10 @@ public class ArtifactsServiceTest {
 
         assumeArtifactsRoot(logsDir);
         doThrow(ioException).when(zipUtil).unzip(Mockito.any(ZipInputStream.class), Mockito.any(File.class));
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
 
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-
-        artifactsService.saveFile(destFile, stream, true, 1);
+        artifactsService.saveFile(destFile, stream, true, 1, diskSpaceMonitor);
 
         assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
     }
@@ -197,10 +248,10 @@ public class ArtifactsServiceTest {
         final IOException ioException = new IOException();
 
         Mockito.doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService, artifactDirectoryChooser, systemDiskSpaceChecker);
 
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-
-        artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES);
+        artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES, diskSpaceMonitor);
 
         assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
     }
@@ -208,7 +259,7 @@ public class ArtifactsServiceTest {
     @Test
     public void shouldConvertArtifactPathToFileSystemLocation() throws Exception {
         assumeArtifactsRoot(new File("artifact-root"));
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         File location = artifactsService.getArtifactLocation("foo/bar/baz");
         assertThat(location, is(new File("artifact-root/foo/bar/baz")));
     }
@@ -216,7 +267,7 @@ public class ArtifactsServiceTest {
     @Test
     public void shouldConvertArtifactPathToUrl() throws Exception {
         assumeArtifactsRoot(new File("artifact-root"));
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         JobIdentifier identifier = JobIdentifierMother.jobIdentifier("p", 1, "s", "2", "j");
         when(resolverService.actualJobIdentifier(identifier)).thenReturn(identifier);
 
@@ -227,7 +278,7 @@ public class ArtifactsServiceTest {
     @Test
     public void shouldConvertArtifactPathWithLocationToUrl() throws Exception {
         assumeArtifactsRoot(new File("artifact-root"));
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         JobIdentifier identifier = JobIdentifierMother.jobIdentifier("p", 1, "s", "2", "j");
         when(resolverService.actualJobIdentifier(identifier)).thenReturn(identifier);
 
@@ -238,7 +289,7 @@ public class ArtifactsServiceTest {
     @Test
     public void shouldUsePipelineCounterAsFolderName() throws IllegalArtifactLocationException, IOException {
         assumeArtifactsRoot(new File("artifact-root"));
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         artifactsService.initialize();
         File artifact = artifactsService.findArtifact(
                 new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null), "pkg.zip");
@@ -249,7 +300,7 @@ public class ArtifactsServiceTest {
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldProvideArtifactRootForAJobOnLinux() throws Exception {
         assumeArtifactsRoot(fakeRoot);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         artifactsService.initialize();
         JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null);
         when(resolverService.actualJobIdentifier(oldId)).thenReturn(new JobIdentifier("cruise", 2, "2.2", "functional", "3", "mac-safari"));
@@ -261,7 +312,7 @@ public class ArtifactsServiceTest {
     @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
     public void shouldProvideArtifactRootForAJobOnWindows() throws Exception {
         assumeArtifactsRoot(fakeRoot);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         artifactsService.initialize();
         JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null);
         when(resolverService.actualJobIdentifier(oldId)).thenReturn(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
@@ -272,7 +323,7 @@ public class ArtifactsServiceTest {
     @Test
     public void shouldProvideArtifactUrlForAJob() throws Exception {
         assumeArtifactsRoot(fakeRoot);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox");
         when(resolverService.actualJobIdentifier(oldId)).thenReturn(new JobIdentifier("cruise", 2, "2.2", "functional", "3", "windows-ie"));
         String artifactUrl = artifactsService.findArtifactUrl(oldId);
@@ -284,7 +335,7 @@ public class ArtifactsServiceTest {
         File artifactsRoot = new File("artifact-root");
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         artifactsService.initialize();
         File artifact = artifactsService.findArtifact(new JobIdentifier("cruise", -2, "1.1", "dev", "2", "linux-firefox", null), "pkg.zip");
         assertThat(artifact, is(new File("artifact-root/pipelines/cruise/1.1/dev/2/linux-firefox/pkg.zip")));
@@ -312,7 +363,7 @@ public class ArtifactsServiceTest {
         FileUtil.writeContentToFile("foo:25463254625346", checksumFile);
 
 
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         artifactsService.initialize();
         Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
         artifactsService.purgeArtifactsForStage(stage);
@@ -334,7 +385,7 @@ public class ArtifactsServiceTest {
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
 
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         artifactsService.initialize();
         Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job1", new Date());
         File job1Dir = createJobArtifactFolder("artifact-root/pipelines/pipeline/10/stage/20/job1");
@@ -367,13 +418,12 @@ public class ArtifactsServiceTest {
 
     @Test
     public void shouldLogAndIgnoreExceptionsWhenDeletingStageArtifacts() throws IllegalArtifactLocationException {
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService, goConfigService);
         Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
 
-        ArtifactDirectoryChooser chooser = mock(ArtifactDirectoryChooser.class);
-        ReflectionUtil.setField(artifactsService, "chooser", chooser);
+        ReflectionUtil.setField(artifactsService, "chooser", artifactDirectoryChooser);
 
-        when(chooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
+        when(artifactDirectoryChooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
 
         artifactsService.purgeArtifactsForStage(stage);
 

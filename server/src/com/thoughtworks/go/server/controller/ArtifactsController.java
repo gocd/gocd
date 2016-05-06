@@ -20,10 +20,8 @@ import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
-import com.thoughtworks.go.server.service.ConsoleService;
-import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.view.artifacts.ArtifactsView;
 import com.thoughtworks.go.server.view.artifacts.LocalArtifactsView;
@@ -67,14 +65,16 @@ public class ArtifactsController {
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
+    private final GoDiskSpaceMonitor diskSpaceMonitor;
 
     @Autowired
     ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache,
-                        ConsoleActivityMonitor consoleActivityMonitor, ConsoleService consoleService) {
+                        ConsoleActivityMonitor consoleActivityMonitor, ConsoleService consoleService, GoDiskSpaceMonitor diskSpaceMonitor) {
         this.artifactsService = artifactsService;
         this.restfulService = restfulService;
         this.consoleActivityMonitor = consoleActivityMonitor;
         this.consoleService = consoleService;
+        this.diskSpaceMonitor = diskSpaceMonitor;
 
         this.folderViewFactory = FileModelAndView.htmlViewFactory();
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
@@ -172,6 +172,8 @@ public class ArtifactsController {
 
         } catch (IllegalArtifactLocationException e) {
             return FileModelAndView.forbiddenUrl(filePath);
+        } catch (ArtifactDiskSpaceFullException e) {
+            return FileModelAndView.notEnoughDiskSpace(filePath);
         }
     }
 
@@ -181,7 +183,7 @@ public class ArtifactsController {
             String checksumFilePath = String.format("%s/%s/%s", artifactsService.findArtifactRoot(jobIdentifier), ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
             File checksumFile = artifactsService.getArtifactLocation(checksumFilePath);
             synchronized (checksumFilePath.intern()) {
-                return artifactsService.saveOrAppendFile(checksumFile, checksumMultipartFile.getInputStream());
+                return artifactsService.saveOrAppendFile(checksumFile, checksumMultipartFile.getInputStream(),diskSpaceMonitor );
             }
         } else {
             LOGGER.warn(String.format("[Artifacts Upload] Checksum file not uploaded for artifact at path '%s'", filePath));
@@ -194,7 +196,7 @@ public class ArtifactsController {
         boolean success;
         try {
             inputStream = multipartFile.getInputStream();
-            success = artifactsService.saveFile(artifact, inputStream, shouldUnzip, convertedAttempt);
+            success = artifactsService.saveFile(artifact, inputStream, shouldUnzip, convertedAttempt, diskSpaceMonitor);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
@@ -316,10 +318,14 @@ public class ArtifactsController {
     private ModelAndView putArtifact(JobIdentifier jobIdentifier, String filePath,
                                      InputStream inputStream) throws Exception {
         File artifact = artifactsService.findArtifact(jobIdentifier, filePath);
-        if (artifactsService.saveOrAppendFile(artifact, inputStream)) {
-            return FileModelAndView.fileAppended(filePath);
-        } else {
-            return FileModelAndView.errorSavingFile(filePath);
+        try {
+            if (artifactsService.saveOrAppendFile(artifact, inputStream, diskSpaceMonitor)) {
+                return FileModelAndView.fileAppended(filePath);
+            } else {
+                return FileModelAndView.errorSavingFile(filePath);
+            }
+        } catch (ArtifactDiskSpaceFullException e) {
+            return FileModelAndView.notEnoughDiskSpace(filePath);
         }
     }
 

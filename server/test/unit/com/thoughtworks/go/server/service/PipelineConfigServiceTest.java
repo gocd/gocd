@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import com.thoughtworks.go.config.*;
@@ -24,6 +25,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +42,7 @@ public class PipelineConfigServiceTest {
     private CruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
     private GoCache goCache;
+    private SecurityService securityService;
 
     @Before
     public void setUp() throws Exception {
@@ -53,7 +56,10 @@ public class PipelineConfigServiceTest {
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         goCache = mock(GoCache.class);
         PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
-        pipelineConfigService = new PipelineConfigService(goConfigService, goCache);
+        pipelineConfigService = new PipelineConfigService(goConfigService, goCache, null);
+
+        securityService = mock(SecurityService.class);
+
     }
 
     @Test
@@ -106,5 +112,31 @@ public class PipelineConfigServiceTest {
         PipelineConfig down = PipelineConfigMother.pipelineConfig("down");
         down.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("mingle")));
         configs.add(down);
+    }
+
+    @Test
+    public void shouldGetAllPipelines() throws Exception {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+
+        CaseInsensitiveString caseInsensitiveString = mock(CaseInsensitiveString.class);
+
+        Username username = mock(Username.class);
+
+        ArrayList<PipelineConfig> pipelineConfigs = new ArrayList<>();
+        pipelineConfigs.add(pipelineConfig);
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.allPipelines()).thenReturn(pipelineConfigs);
+
+        String pipelineName = "pipeline";
+
+        when(pipelineConfig.name()).thenReturn(caseInsensitiveString);
+        when(caseInsensitiveString.toString()).thenReturn(pipelineName);
+
+        when(securityService.hasViewOrOperatePermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+        pipelineConfigService.pipelinesFor(username);
+
     }
 }

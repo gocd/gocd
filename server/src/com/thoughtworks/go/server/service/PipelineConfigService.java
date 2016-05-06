@@ -19,6 +19,9 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.presentation.Job;
+import com.thoughtworks.go.presentation.Pipeline;
+import com.thoughtworks.go.presentation.Stage;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
@@ -30,10 +33,7 @@ import com.thoughtworks.go.util.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @understands providing services around a pipeline configuration
@@ -43,12 +43,14 @@ public class PipelineConfigService implements PipelineConfigChangedListener, Ini
     private final GoConfigService goConfigService;
     private static final String GO_PIPELINE_CONFIGS_ETAGS_CACHE = "GO_PIPELINE_CONFIGS_ETAGS_CACHE".intern();
     private GoCache goCache;
+    private SecurityService securityService;
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(PipelineConfigService.class);
 
     @Autowired
-    public PipelineConfigService(GoConfigService goConfigService, GoCache goCache) {
+    public PipelineConfigService(GoConfigService goConfigService, GoCache goCache, SecurityService securityService) {
         this.goConfigService = goConfigService;
         this.goCache = goCache;
+        this.securityService = securityService;
     }
 
     public void initialize() {
@@ -164,6 +166,17 @@ public class PipelineConfigService implements PipelineConfigChangedListener, Ini
             LOGGER.error(e.getMessage(), e);
             result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
         }
+    }
+
+    public List<Pipeline> pipelinesFor(Username username) {
+        ArrayList<Pipeline> pipelines = new ArrayList();
+        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
+        for (PipelineConfig pipelineConfig : cruiseConfig.allPipelines()) {
+            if(securityService.hasViewOrOperatePermissionForPipeline(username, pipelineConfig.name().toString())) {
+                pipelines.add(new Pipeline(pipelineConfig));
+            }
+        }
+        return pipelines;
     }
 
     public interface SaveCommand<T extends Validatable>{

@@ -22,6 +22,29 @@ module ApiV1
       before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
+      def index
+        render :json => pipelines_json
+      end
+
+      def pipelines_json
+        pipelines = pipeline_config_service.pipelinesFor(current_user)
+        pipelines.collect() do |pipeline|
+          hash = {}
+          hash[:name] = pipeline.name
+          hash[:stages] = stages_json(pipeline.stages)
+          hash
+        end
+      end
+
+      def stages_json stages
+        stages.collect() do |stage|
+          hash = {}
+          hash[:name] = stage.name
+          hash[:jobs] = stage.jobs.collect(&:name)
+          hash
+        end
+      end
+
       def show
         json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
         if stale?(etag: get_etag_for_pipeline(@pipeline_config.name.to_s, json))

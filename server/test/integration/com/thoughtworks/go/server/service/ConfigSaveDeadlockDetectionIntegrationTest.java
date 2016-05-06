@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
@@ -65,7 +66,8 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     private PipelineConfigService pipelineConfigService;
     @Autowired
     private ServerStatusService serverStatusService;
-
+    @Autowired
+    private Localizer localizer;
     private GoConfigFileHelper configHelper;
     private final int TWO_MINUTES = 2 * 60 * 1000;
 
@@ -87,7 +89,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             .outerRule(new TestWatcher() {
                 @Override
                 protected void failed(Throwable e, Description description) {
-                    if(e.getMessage().contains("test timed out") || e instanceof TimeoutException){
+                    if (e.getMessage().contains("test timed out") || e instanceof TimeoutException) {
                         try {
                             fail("Test timed out, possible deadlock. Thread Dump:" + serverStatusService.captureServerInfo(Username.ANONYMOUS, new HttpLocalizedOperationResult()));
                         } catch (IOException e1) {
@@ -154,7 +156,9 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             @Override
             public void run() {
                 PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
-                pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, new HttpLocalizedOperationResult(), "default");
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
+                assertThat(result.message(localizer), result.isSuccessful(), is(true));
             }
         }, "pipeline-config-save-thread" + counter);
     }
@@ -180,7 +184,8 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         Thread thread = new Thread(runnable, name);
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread t, Throwable e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage(), e);
             }
         });
         return thread;

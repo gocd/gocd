@@ -16,27 +16,29 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
 import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Test;
 
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class BuildAssignmentTest {
     @Test
@@ -69,6 +71,27 @@ public class BuildAssignmentTest {
         assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
         assertRevisions(buildAssignment, svn);
         assertRevisions(buildAssignment, hg);
+    }
+
+    @Test
+    public void shouldCopyAdditionalDataToBuildAssignment() {
+        MaterialRevision packageMaterialRevision = ModificationsMother.createPackageMaterialRevision("revision");
+        Map<String, String> additionalData = new HashMap<String, String>();
+        additionalData.put("a1", "v1");
+        additionalData.put("a2", "v2");
+        String additionalDataAsString = new Gson().toJson(additionalData);
+        packageMaterialRevision.getModifications().first().setAdditionalData(additionalDataAsString);
+        MaterialRevisions materialRevisions = new MaterialRevisions(packageMaterialRevision);
+        BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
+
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<Builder>(), null);
+
+        assertThat(buildAssignment.getBuildApprover(), is("user1"));
+        assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
+        assertRevisions(buildAssignment, packageMaterialRevision);
+        Modification actualModification = buildAssignment.materialRevisions().getRevisions().get(0).getModification(0);
+        assertThat(actualModification.getAdditionalData(), is(additionalDataAsString));
+        assertThat(actualModification.getAdditionalDataMap(), is(additionalData));
     }
 
     private void assertRevisions(BuildAssignment buildAssignment, MaterialRevision expectedRevision) {

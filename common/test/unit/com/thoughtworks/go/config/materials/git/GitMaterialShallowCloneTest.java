@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
@@ -43,6 +44,8 @@ import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(JunitExtRunner.class)
 
@@ -159,6 +162,28 @@ public class GitMaterialShallowCloneTest {
         StringRevision newRevision = new StringRevision(modifications.get(0).getRevision());
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(newRevision, newRevision, 1), context());
         assertThat(new File(workingDir, "newfile").exists(), is(true));
+        assertThat(localRepoFor(material).isShallow(), is(true));
+    }
+
+    @Test
+    public void shouldUnshallowServerSideRepoCompletelyOnRetrievingModificationsSincePreviousRevision() {
+        SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
+        when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(false);
+
+        material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment));
+
+        assertThat(localRepoFor(material).isShallow(), is(false));
+    }
+
+    @Test
+    public void shouldNotUnshallowOnServerSideIfShallowClonePropertyIsOn() {
+        SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
+        GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
+        when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(true);
+
+        material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment));
+
         assertThat(localRepoFor(material).isShallow(), is(true));
     }
 

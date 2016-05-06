@@ -116,11 +116,12 @@ public class GitMaterial extends ScmMaterial {
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
-        unshallowIfNeeded(gitCommand, ProcessOutputStreamConsumer.inMemoryConsumer(), revision, baseDir);
+        if(!execCtx.isGitShallowClone()) {
+            fullyUnshallow(gitCommand, ProcessOutputStreamConsumer.inMemoryConsumer());
+        }
         if (gitCommand.containsRevisionInBranch(revision)) {
             return gitCommand.modificationsSince(revision);
-        }
-        else {
+        } else {
             return latestModification(baseDir, execCtx);
         }
     }
@@ -249,8 +250,14 @@ public class GitMaterial extends ScmMaterial {
             gitCommand.unshallow(streamConsumer, UNSHALLOW_TRYOUT_STEP);
 
             if (gitCommand.isShallow() && !gitCommand.containsRevisionInBranch(revision)) {
-                gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
+                fullyUnshallow(gitCommand, streamConsumer);
             }
+        }
+    }
+
+    private void fullyUnshallow(GitCommand gitCommand, ProcessOutputStreamConsumer streamConsumer) {
+        if(gitCommand.isShallow()) {
+            gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
         }
     }
 

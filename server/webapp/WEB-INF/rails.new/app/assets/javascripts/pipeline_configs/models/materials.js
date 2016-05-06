@@ -72,7 +72,6 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.parent           = Mixins.GetterSetter();
     this.type             = m.prop(type);
     this.name             = m.prop(s.defaultToIfBlank(data.name, ''));
-    this.autoUpdate       = m.prop(data.autoUpdate);
 
     if (hasFilter) {
       this.filter = m.prop(s.defaultToIfBlank(data.filter, new Materials.Filter(s.defaultToIfBlank(data.filter, {}))));
@@ -86,8 +85,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
 
     this.toJSON = function () {
       var attrs = {
-        name:        this.name(),
-        auto_update: this.autoUpdate()
+        name: this.name()
       };
 
       if (hasFilter) {
@@ -155,6 +153,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.username       = m.prop(s.defaultToIfBlank(data.username, ''));
     var _password       = m.prop(plainOrCipherValue(data));
     this.checkExternals = m.prop(data.checkExternals);
+    this.autoUpdate     = m.prop(data.autoUpdate);
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
@@ -174,7 +173,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         destination:    this.destination(),
         url:            this.url(),
         username:       this.username(),
-        checkExternals: this.checkExternals()
+        checkExternals: this.checkExternals(),
+        auto_update:    this.autoUpdate()
       };
 
       return _.merge(attrs, this._passwordHash());
@@ -201,6 +201,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.url          = m.prop(s.defaultToIfBlank(data.url, ''));
     this.branch       = m.prop(s.defaultToIfBlank(data.branch, 'master'));
     this.shallowClone = m.prop(data.shallowClone);
+    this.autoUpdate   = m.prop(data.autoUpdate);
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -219,7 +220,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         destination:   this.destination(),
         url:           this.url(),
         branch:        this.branch(),
-        shallow_clone: this.shallowClone()
+        shallow_clone: this.shallowClone(),
+        auto_update:   this.autoUpdate()
       };
     };
   };
@@ -241,6 +243,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.url         = m.prop(s.defaultToIfBlank(data.url, ''));
     this.branch      = m.prop(s.defaultToIfBlank(data.branch, ''));
+    this.autoUpdate  = m.prop(data.autoUpdate);
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -282,6 +285,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     var _password    = m.prop(plainOrCipherValue(data));
     this.view        = m.prop(s.defaultToIfBlank(data.view, ''));
     this.useTickets  = m.prop(data.useTickets);
+    this.autoUpdate  = m.prop(data.autoUpdate);
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
@@ -306,7 +310,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         port:        this.port(),
         username:    this.username(),
         view:        this.view(),
-        useTickets:  this.useTickets()
+        useTickets:  this.useTickets(),
+        auto_update: this.autoUpdate()
       };
 
       return _.merge(attrs, this._passwordHash());
@@ -337,6 +342,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     this.username    = m.prop(s.defaultToIfBlank(data.username, ''));
     var _password    = m.prop(plainOrCipherValue(data));
     this.projectPath = m.prop(s.defaultToIfBlank(data.projectPath, ''));
+    this.autoUpdate  = m.prop(data.autoUpdate);
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validate = function () {
@@ -365,7 +371,8 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
         url:          this.url(),
         domain:       this.domain(),
         username:     this.username(),
-        project_path: this.projectPath()
+        project_path: this.projectPath(),
+        auto_update:  this.autoUpdate()
       };
 
       return _.merge(attrs, this._passwordHash());
@@ -387,12 +394,50 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     });
   };
 
+  Materials.Material.Dependency = function (data) {
+    Materials.Material.call(this, "dependency", false, data);
+    this.pipeline = m.prop(s.defaultToIfBlank(data.pipeline, ''));
+    this.stage    = m.prop(s.defaultToIfBlank(data.stage, ''));
+
+    this.validate = function () {
+      var errors = new Mixins.Errors();
+
+      this._validate(errors);
+
+      if (s.isBlank(this.pipeline())) {
+        errors.add('pipeline', Mixins.ErrorMessages.mustBePresent("pipeline"));
+      }
+
+      if (s.isBlank(this.stage())) {
+        errors.add('stage', Mixins.ErrorMessages.mustBePresent("stage"));
+      }
+
+      return errors;
+    };
+
+    this._attributesToJSON = function () {
+      return {
+        pipeline: this.pipeline(),
+        stage:    this.stage()
+      };
+    };
+  };
+
+  Materials.Material.Dependency.fromJSON = function (data) {
+    return new Materials.Material.Dependency({
+      pipeline:   data.pipeline,
+      stage:      data.stage,
+      name:       data.name
+    });
+  };
+
   Materials.Types = {
-    git: {type: Materials.Material.Git, description: "Git"},
-    svn: {type: Materials.Material.SVN, description: "SVN"},
-    hg:  {type: Materials.Material.Mercurial, description: "Mercurial"},
-    p4:  {type: Materials.Material.Perforce, description: "Perforce"},
-    tfs: {type: Materials.Material.TFS, description: "Team Foundation Server"}
+    git:        {type: Materials.Material.Git, description: "Git"},
+    svn:        {type: Materials.Material.SVN, description: "SVN"},
+    hg:         {type: Materials.Material.Mercurial, description: "Mercurial"},
+    p4:         {type: Materials.Material.Perforce, description: "Perforce"},
+    tfs:        {type: Materials.Material.TFS, description: "Team Foundation Server"},
+    dependency: {type: Materials.Material.Dependency, description: "Pipeline Dependency"}
   };
 
   Materials.Material.fromJSON = function (data) {

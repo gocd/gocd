@@ -165,16 +165,6 @@ public class SecurityService {
         return pipelines;
     }
 
-    public List<PipelineConfigs> viewableGroupsFor(Username username) {
-        ArrayList<PipelineConfigs> list = new ArrayList<>();
-        for (PipelineConfigs pipelineConfigs : goConfigService.getCurrentConfig().getGroups()) {
-            if (hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineConfigs.getGroup())) {
-                list.add(pipelineConfigs);
-            }
-        }
-        return list;
-    }
-
     public boolean isUserGroupAdmin(Username username) {
         return goConfigService.isGroupAdministrator(username.getUsername());
     }

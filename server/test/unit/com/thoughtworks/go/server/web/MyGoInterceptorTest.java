@@ -21,9 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.controller.MyGoController;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
+
 import static com.thoughtworks.go.server.web.MyGoInterceptor.SECURITY_IS_ENABLED;
 import static com.thoughtworks.go.server.web.MyGoInterceptor.SMTP_IS_ENABLED;
 import static org.hamcrest.core.Is.is;
@@ -61,7 +62,7 @@ public class MyGoInterceptorTest {
     @Test
     public void shouldReturnAccessIsDeniedWhenRoutingToMyCruiseWhileSecurityIsOff() throws Exception {
         securityIs(false);
-        boolean result = myGoInterceptor.preHandle(request, response, new MyGoController(mock(UserService.class), mock(SecurityService.class), mock(Localizer.class)));
+        boolean result = myGoInterceptor.preHandle(request, response, new MyGoController(mock(UserService.class), mock(PipelineConfigService.class), mock(Localizer.class)));
         assertThat(response.getStatus(), is(HttpServletResponse.SC_NOT_FOUND));
         assertThat(result, is(false));
     }

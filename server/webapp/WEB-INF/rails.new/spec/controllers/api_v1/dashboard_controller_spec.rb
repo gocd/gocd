@@ -38,6 +38,7 @@ describe ApiV1::DashboardController do
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(@pipeline_group_models, ApiV1::Dashboard::PipelineGroupsRepresenter))
     end
+
     it 'should get empty json when dashboard is empty' do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)

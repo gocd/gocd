@@ -233,6 +233,10 @@ Go::Application.routes.draw do
         resources :command_snippets, only: [:index]
         get 'command_snippets/show', controller: :command_snippets, action: :show, as: :command_snippet
         post :material_test, controller: :material_test, action: :test, as: :material_test
+
+        namespace :internal do
+          resources :pipelines, param: :name, only: [:index]
+        end
       end
 
       get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api

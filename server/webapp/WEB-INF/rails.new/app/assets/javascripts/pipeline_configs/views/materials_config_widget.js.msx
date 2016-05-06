@@ -17,10 +17,8 @@
 define([
   'mithril', 'lodash', 'jquery', 'string-plus',
   '../helpers/form_helper', '../helpers/tooltips', '../helpers/mithril_component_mixins',
-  '../models/materials', './test_connection_widget'
-], function (m, _, $, s,
-             f, tt, ComponentMixins,
-             Materials, TestConnectionWidget) {
+  '../models/materials', './test_connection_widget', './pipeline_stage_field_widget', '../models/pipelines'
+], function (m, _, $, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines) {
 
   var PasswordField = {
     view: function (ctrl, args, children) {
@@ -89,6 +87,7 @@ define([
     }
   };
 
+
   var NameField = {
     view: function (ctrl, args) {
       return (
@@ -133,21 +132,6 @@ define([
     }
   };
 
-  var DestinationField = {
-    view: function (ctrl, args) {
-      return (
-        <f.inputWithLabel attrName='destination'
-                          label="Destination"
-                          model={args.material}
-                          tooltip={{
-                                    content: tt.material.destination,
-                                    direction: 'bottom',
-                                    size: 'small'
-                                   }}/>
-      )
-    }
-  };
-
   var MaterialViews = {
     base: {
       controller: function (args) {
@@ -159,19 +143,38 @@ define([
       },
 
       view: function (ctrl, args, children) {
-        var filterField;
         var title = [ctrl.material.type(), '-', ctrl.material.name()].join(' ');
 
-        if (ctrl.material.filter) {
-          // TODO: make this an 'intelligent' text component that maps to an array.
-          filterField = (
-            <f.inputWithLabel attrName='ignore'
-                              label="Ignore pattern"
-                              model={ctrl.material.filter()}
-                              size={12}
-                              largeSize={12}/>
-          );
-        }
+        var filterField = function() {
+          if (ctrl.material.filter) {
+            // TODO: make this an 'intelligent' text component that maps to an array.
+            return (
+              <div class='ignore-pattern'>
+                <f.row>
+                  <f.inputWithLabel attrName='ignore'
+                                    label="Ignore pattern"
+                                    model={ctrl.material.filter()}
+                                    size={12}
+                                    largeSize={12}/>
+                </f.row>
+              </div>
+            );
+          }
+        };
+
+        var testConnection = function () {
+          if (ctrl.material.type() !== 'dependency') {
+            return (
+              <f.row>
+                <f.column size={12} largeSize={12}>
+                  <TestConnectionWidget material={ctrl.material}
+                                        pipelineName={ctrl.pipelineName}
+                                        vm={ctrl.vmState('testConnection')}/>
+                </f.column>
+              </f.row>
+            )
+          }
+        };
 
         return (
           <f.accordion class="material-definitions accordion-inner"
@@ -182,21 +185,8 @@ define([
             <div class="material-definition">
               <f.removeButton onclick={ctrl.onRemove} class="remove-material"/>
               {children}
-              <f.row>
-                <DestinationField material={ctrl.material}/>
-              </f.row>
-              <f.row>
-                <f.column size={12} largeSize={12}>
-                  <TestConnectionWidget material={ctrl.material}
-                                        pipelineName={ctrl.pipelineName}
-                                        vm={ctrl.vmState('testConnection')}/>
-                </f.column>
-              </f.row>
-              <div class='ignore-pattern'>
-                <f.row>
-                  {filterField}
-                </f.row>
-              </div>
+              {testConnection()}
+              {filterField()}
             </div>
           </f.accordion>
         );
@@ -224,10 +214,14 @@ define([
                           addPadding={true}
                           end={true}/>
             </f.row>
+            <f.row>
+              <DestinationField material={material}/>
+            </f.row>
           </MaterialViews.base>
         );
       }
     },
+
     git: {
       view: function (controller, args) {
         var material = args.material;
@@ -247,6 +241,9 @@ define([
                           addPadding={true}
                           end={true}/>
             </f.row>
+            <f.row>
+              <DestinationField material={material}/>
+            </f.row>
           </MaterialViews.base>
         );
       }
@@ -261,6 +258,9 @@ define([
               <NameField material={material}/>
               <UrlField material={material}/>
               <AutoUpdateField material={material}/>
+            </f.row>
+            <f.row>
+              <DestinationField material={material}/>
             </f.row>
           </MaterialViews.base>
         );
@@ -294,6 +294,9 @@ define([
                           addPadding={true}
                           end={true}/>
             </f.row>
+            <f.row>
+              <DestinationField material={material}/>
+            </f.row>
           </MaterialViews.base>
         );
       }
@@ -321,6 +324,27 @@ define([
               <PasswordField model={material}
                              attrName='passwordValue'
                              end={true}/>
+            </f.row>
+            <f.row>
+              <DestinationField material={material}/>
+            </f.row>
+          </MaterialViews.base>
+        );
+      }
+    },
+
+
+    dependency: {
+      view: function (ctrl, args) {
+        var material = args.material;
+
+        return (
+          <MaterialViews.base {...args}>
+            <f.row>
+              <NameField material={material}/>
+              <f.column size={4} end='true'>
+                <PipelineStageField material={material} pipelines={args.pipelines}/>
+              </f.column>
             </f.row>
           </MaterialViews.base>
         );
@@ -356,9 +380,10 @@ define([
 
   var MaterialsConfigWidget = {
     controller: function (args) {
-      this.materials = args.materials;
-      this.args      = args;
+      this.materials    = args.materials;
+      this.args         = args;
       this.pipelineName = args.pipelineName;
+      this.pipelines    = Pipelines.init(this.pipelineName());
       ComponentMixins.HasViewModel.call(this);
 
       this.removeMaterial = function (material) {
@@ -390,6 +415,7 @@ define([
                 onRemove: ctrl.removeMaterial.bind(ctrl, material),
                 key: material.uuid(),
                 pipelineName: ctrl.pipelineName,
+                pipelines: ctrl.pipelines,
                 vm: ctrl.vmState('material-' + index)
               }));
             })}

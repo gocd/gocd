@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
+
 module ApiV1
-  class DashboardController < ApiV1::BaseController
+  module Admin
+    module Internal
+      class PipelinesController < ApiV1::BaseController
+        before_action :check_admin_user_or_group_admin_user_and_401
 
-    include ApplicationHelper
+        def index
+          pipelines = pipeline_config_service.viewableOrOperatableGroupsFor(current_user)
 
-    def dashboard
-      # TODO: What happens when there is no cookie!
-      pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
-      pipeline_groups     = pipeline_history_service.allActivePipelineInstances(current_user, pipeline_selections)
-      presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
+          json = ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter.new(pipelines).to_hash(url_builder: self)
 
-      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
+          render json_hal_v1: json
+        end
+      end
     end
-
   end
 end

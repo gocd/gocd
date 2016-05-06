@@ -617,5 +617,80 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
         }
       });
     });
+
+    describe('dependency', function() {
+      var dependencyMaterial;
+      beforeAll(function () {
+        dependencyMaterial = Materials.create({
+          "type":       "dependency",
+          "pipeline":   "p1",
+          "stage":      "first_stage",
+          "name":       "p1_first_stage",
+          "autoUpdate": true
+        });
+      });
+
+      it('it should initialize material with type', function() {
+        expect(dependencyMaterial.type()).toBe('dependency');
+      });
+
+      it('it should initialize material with pipeline', function() {
+        expect(dependencyMaterial.pipeline()).toBe('p1');
+      });
+
+      it('it should initialize material with stage', function() {
+        expect(dependencyMaterial.stage()).toBe('first_stage');
+      });
+
+      it('it should initialize material with name', function() {
+        expect(dependencyMaterial.name()).toBe('p1_first_stage');
+      });
+
+      describe("validation", function () {
+        var material, errors;
+        beforeAll(function() {
+          material = Materials.create({
+            "type":       "dependency"
+          });
+          errors = material.validate();
+        });
+
+        it("should check presence of pipeline", function () {
+          expect(errors.errors('pipeline')).toEqual(['Pipeline must be present']);
+        });
+
+        it("should check presence of stage", function () {
+          expect(errors.errors('stage')).toEqual(['Stage must be present']);
+        });
+      });
+
+      describe("Serialization/De-serialization to/from JSON", function () {
+        beforeEach(function () {
+          dependencyMaterial = Materials.Material.fromJSON(sampleTaskJSON());
+        });
+
+        it("should serialize to JSON", function () {
+          expect(dependencyMaterial.toJSON()).toEqual(sampleTaskJSON());
+        });
+
+        it("should de-serialize from JSON", function () {
+          expect(dependencyMaterial.type()).toBe("dependency");
+          expect(dependencyMaterial.name()).toBe("materialA");
+          expect(dependencyMaterial.pipeline()).toBe('p1');
+          expect(dependencyMaterial.stage()).toEqual('s1');
+        });
+
+        function sampleTaskJSON() {
+          return {
+            type:       'dependency',
+            attributes: {
+              name:         'materialA',
+              pipeline:     'p1',
+              stage:        's1'
+            }
+          };
+        }
+      });
+    })
   });
 });

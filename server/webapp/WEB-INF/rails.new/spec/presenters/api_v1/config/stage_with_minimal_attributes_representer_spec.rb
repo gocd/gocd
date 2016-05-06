@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-module ApiV1
-  class DashboardController < ApiV1::BaseController
 
-    include ApplicationHelper
+require 'spec_helper'
 
-    def dashboard
-      # TODO: What happens when there is no cookie!
-      pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
-      pipeline_groups     = pipeline_history_service.allActivePipelineInstances(current_user, pipeline_selections)
-      presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
+describe ApiV1::Config::StageWithMinimalAttributesRepresenter do
+  describe :serialize do
+    it 'should render basic stage with hal representation' do
+      stage = StageConfigMother.custom('build', 'junit', 'jasmine')
+      presenter   = ApiV1::Config::StageWithMinimalAttributesRepresenter.new(stage)
 
-      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+
+      expect(actual_json).to eq({name: 'build', jobs: ['junit', 'jasmine']})
     end
-
   end
 end

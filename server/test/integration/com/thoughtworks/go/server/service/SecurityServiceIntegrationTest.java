@@ -255,28 +255,6 @@ public class SecurityServiceIntegrationTest {
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("pavan"))), is(Arrays.asList(new CaseInsensitiveString("pipeline3"))));
     }
 
-    @Test
-    public void shouldReturnPipelineConfigsForAGivenUser() throws Exception {
-        configHelper.onTearDown();
-        mergedGoConfig.save(CONFIG_WITH_2_GROUPS, true);
-        configHelper.setViewPermissionForGroup("first","foo");
-        configHelper.setViewPermissionForGroup("second","foo");
-        PipelineConfigs first = configService.getCurrentConfig().findGroup("first");
-        PipelineConfigs second = configService.getCurrentConfig().findGroup("second");
-        assertUserCanView("admin", first);
-        assertUserCanView("pavan", second);
-        assertUserCanView("foo", first, second);
-        assertUserCanView("bar");
-    }
-
-    private void assertUserCanView(String username, PipelineConfigs... expected) {
-        List<PipelineConfigs> groups;
-        groups = securityService.viewableGroupsFor(new Username(new CaseInsensitiveString(username)));
-        assertThat(groups.size(),is(expected.length));
-        assertThat(groups, hasItems(expected));
-    }
-
-
     @Test public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
         configHelper.onTearDown();
         mergedGoConfig.save(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);

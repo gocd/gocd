@@ -221,7 +221,7 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         File unversionedFile = new File(new File(workingDir, submoduleDirectoryName), "unversioned_file.txt");
         FileUtils.writeStringToFile(unversionedFile, "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!");
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Passed);
-        assertThat(buildInfo(), unversionedFile.exists(), Matchers.is(false));
+        assertThat(unversionedFile.exists(), Matchers.is(false));
     }
 
     @Test

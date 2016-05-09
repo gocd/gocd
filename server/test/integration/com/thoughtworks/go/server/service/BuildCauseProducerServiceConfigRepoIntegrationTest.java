@@ -395,7 +395,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         // update of commited material happened during manual trigger
         MaterialRevisions modificationsInDb = materialRepository.findLatestModification(gitMaterial);
-        assertThat(modificationsInDb.latestRevision(),is(otherGitRepo.latestModification().getRevision()));
+        assertThat(modificationsInDb.latestRevision(),is(otherGitRepo.latestModification().get(0).getRevision()));
     }
 
 

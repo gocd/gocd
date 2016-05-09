@@ -39,10 +39,7 @@ import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.util.command.StreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrLookup;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -156,6 +153,12 @@ public class GitMaterialTest {
         assertThat(modifications.get(2).getComment(), is("Created second.txt from first.txt"));
         assertThat(modifications.get(3).getRevision(), is(REVISION_1.getRevision()));
         assertThat(modifications.get(3).getComment(), is("Added second line"));
+    }
+
+    @Test
+    public void shouldRetrieveLatestModificationIfRevisionIsNotFound() throws IOException {
+        List<Modification> modifications = git.modificationsSince(workingDir, NON_EXISTENT_REVISION, new TestSubprocessExecutionContext());
+        assertThat(modifications, is(git.latestModification(workingDir, new TestSubprocessExecutionContext())));
     }
 
     @Test

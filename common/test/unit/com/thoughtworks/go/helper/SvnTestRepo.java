@@ -135,9 +135,9 @@ public class SvnTestRepo extends TestRepo {
     }
 
     @Override
-    public Modification latestModification() {
+    public List<Modification> latestModification() {
         final File workingCopy = TestFileUtil.createTempFolder("foo" + System.currentTimeMillis());
-        return (Modification) material().latestModification(workingCopy, new TestSubprocessExecutionContext()).get(0);
+        return material().latestModification(workingCopy, new TestSubprocessExecutionContext());
     }
 
 

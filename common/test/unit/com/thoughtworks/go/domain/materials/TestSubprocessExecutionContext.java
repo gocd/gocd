@@ -21,14 +21,29 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.util.SystemEnvironment;
 
 public class TestSubprocessExecutionContext implements SubprocessExecutionContext {
+    private SystemEnvironment systemEnvironment;
     public String getProcessNamespace(String fingerprint) {
         return UUID.randomUUID().toString();
+    }
+
+    public TestSubprocessExecutionContext() {
+        this.systemEnvironment = new SystemEnvironment();
+    }
+
+    public TestSubprocessExecutionContext(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
     public Map<String, String> getDefaultEnvironmentVariables() {
         return new HashMap<>();
+    }
+
+    @Override
+    public Boolean isGitShallowClone() {
+        return systemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE);
     }
 }

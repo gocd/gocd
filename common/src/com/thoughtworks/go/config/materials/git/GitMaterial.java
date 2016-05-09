@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.materials.git;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
@@ -42,7 +41,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
@@ -113,15 +111,19 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
-        ArrayList<Modification> mods = new ArrayList<Modification>();
-        mods.add(getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx).latestModification());
-        return mods;
+        return getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx).latestModification();
     }
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
-        unshallowIfNeeded(gitCommand, ProcessOutputStreamConsumer.inMemoryConsumer(), revision, baseDir);
-        return gitCommand.modificationsSince(revision);
+        if(!execCtx.isGitShallowClone()) {
+            fullyUnshallow(gitCommand, ProcessOutputStreamConsumer.inMemoryConsumer());
+        }
+        if (gitCommand.containsRevisionInBranch(revision)) {
+            return gitCommand.modificationsSince(revision);
+        } else {
+            return latestModification(baseDir, execCtx);
+        }
     }
 
     public MaterialInstance createMaterialInstance() {
@@ -244,12 +246,18 @@ public class GitMaterial extends ScmMaterial {
     // First try to fetch forward 100 level with "git fetch -depth 100". If revision still missing,
     // unshallow the whole repo with "git fetch --2147483647".
     private void unshallowIfNeeded(GitCommand gitCommand, ProcessOutputStreamConsumer streamConsumer, Revision revision, File workingDir) {
-        if (gitCommand.isShallow() && !gitCommand.hasRevision(revision)) {
+        if (gitCommand.isShallow() && !gitCommand.containsRevisionInBranch(revision)) {
             gitCommand.unshallow(streamConsumer, UNSHALLOW_TRYOUT_STEP);
 
-            if (gitCommand.isShallow() && !gitCommand.hasRevision(revision)) {
-                gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
+            if (gitCommand.isShallow() && !gitCommand.containsRevisionInBranch(revision)) {
+                fullyUnshallow(gitCommand, streamConsumer);
             }
+        }
+    }
+
+    private void fullyUnshallow(GitCommand gitCommand, ProcessOutputStreamConsumer streamConsumer) {
+        if(gitCommand.isShallow()) {
+            gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
         }
     }
 

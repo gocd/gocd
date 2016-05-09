@@ -75,8 +75,8 @@ public class HgTestRepo extends TestRepo {
     }
 
     @Override
-    public Modification latestModification() {
-        return latestModifications().get(0);
+    public List<Modification> latestModification() {
+        return latestModifications();
     }
 
     @Override

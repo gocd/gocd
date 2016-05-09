@@ -1,27 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -72,14 +67,21 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 
-public class ChangesetServiceIntegrationTest  {
-    @Autowired MaterialRepository materialRepository;
-    @Autowired PipelineService pipelineService;
-    @Autowired ChangesetService changesetService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private Localizer localizer;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private TransactionTemplate transactionTemplate;
+public class ChangesetServiceIntegrationTest {
+    @Autowired
+    MaterialRepository materialRepository;
+    @Autowired
+    PipelineService pipelineService;
+    @Autowired
+    ChangesetService changesetService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private Localizer localizer;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     private PipelineConfig pipelineConfigWithTwoMaterials;
     private PipelineConfig pipelineConfig;
@@ -231,38 +233,38 @@ public class ChangesetServiceIntegrationTest  {
         assertThat(cardsInBetween, is(Arrays.asList("4200", "4521", "3750", "4520")));
     }
 
-   @Test
+    @Test
     public void shouldFilterOutCardNumbersWhenGivingTheCardNumbersWhenMingleConfigIsDifferentFromParent() {
         Username loser = new Username(new CaseInsensitiveString("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 
 
-       PipelineConfig upstream = configHelper.addPipeline("upstream", "up-stage", git.config(), new MingleConfig("https://upstream-mingle", "go"), "job");
+        PipelineConfig upstream = configHelper.addPipeline("upstream", "up-stage", git.config(), new MingleConfig("https://upstream-mingle", "go"), "job");
 
-       DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "up-stage");
-       PipelineConfig downstream = configHelper.addPipeline("downstream", "down-stage", dependencyMaterial.config(), new MingleConfig("https://downstream-mingle", "go"), "job");
+        DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "up-stage");
+        PipelineConfig downstream = configHelper.addPipeline("downstream", "down-stage", dependencyMaterial.config(), new MingleConfig("https://downstream-mingle", "go"), "job");
 
-       //Schedule upstream
-       Modification gitCommit1 = checkinWithComment("1234", "#3750, #3123 - agent index", checkinTime);
-       MaterialRevision materialRevision = dbHelper.addRevisionsWithModifications(git, gitCommit1);
-       Pipeline upInstance1 = dbHelper.checkinRevisionsToBuild(build, upstream, materialRevision);
+        //Schedule upstream
+        Modification gitCommit1 = checkinWithComment("1234", "#3750, #3123 - agent index", checkinTime);
+        MaterialRevision materialRevision = dbHelper.addRevisionsWithModifications(git, gitCommit1);
+        Pipeline upInstance1 = dbHelper.checkinRevisionsToBuild(build, upstream, materialRevision);
 
-       Modification gitCommit2 = checkinWithComment("1239", "#4150, #786 - agent index", checkinTime);
-       materialRevision = dbHelper.addRevisionsWithModifications(git, gitCommit2);
-       Pipeline upInstance2 = dbHelper.checkinRevisionsToBuild(build, upstream, materialRevision);
+        Modification gitCommit2 = checkinWithComment("1239", "#4150, #786 - agent index", checkinTime);
+        materialRevision = dbHelper.addRevisionsWithModifications(git, gitCommit2);
+        Pipeline upInstance2 = dbHelper.checkinRevisionsToBuild(build, upstream, materialRevision);
 
-       //Schedule downstream
-       ArrayList<MaterialRevision> materialRevisions = new ArrayList<MaterialRevision>();
-       dbHelper.addDependencyRevisionModification(materialRevisions, dependencyMaterial, upInstance1);
-       Pipeline downInstance1 = dbHelper.checkinRevisionsToBuild(build, downstream, materialRevisions);
+        //Schedule downstream
+        ArrayList<MaterialRevision> materialRevisions = new ArrayList<MaterialRevision>();
+        dbHelper.addDependencyRevisionModification(materialRevisions, dependencyMaterial, upInstance1);
+        Pipeline downInstance1 = dbHelper.checkinRevisionsToBuild(build, downstream, materialRevisions);
 
-       materialRevisions.clear();
-       dbHelper.addDependencyRevisionModification(materialRevisions, dependencyMaterial, upInstance2);
-       Pipeline downInstance2 = dbHelper.checkinRevisionsToBuild(build, downstream, materialRevisions);
+        materialRevisions.clear();
+        dbHelper.addDependencyRevisionModification(materialRevisions, dependencyMaterial, upInstance2);
+        Pipeline downInstance2 = dbHelper.checkinRevisionsToBuild(build, downstream, materialRevisions);
 
-       HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-       List<String> cardsInBetween = changesetService.getCardNumbersBetween("downstream", downInstance1.getCounter(), downInstance2.getCounter(), loser, result, false);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        List<String> cardsInBetween = changesetService.getCardNumbersBetween("downstream", downInstance1.getCounter(), downInstance2.getCounter(), loser, result, false);
 
         assertThat(result.isSuccessful(), is(true));
         assertThat(cardsInBetween.size(), is(0));
@@ -275,12 +277,13 @@ public class ChangesetServiceIntegrationTest  {
         Date checkinTime = new Date();
 
         Modification hgCommit1 = checkinWithComment("abcd", "#4518 - foo", checkinTime);
-        Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
+        MaterialRevision materialRevision = dbHelper.addRevisionsWithModifications(hg, hgCommit1);
+        Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, materialRevision);
 
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, materialRevision);
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, materialRevision);
 
-        Pipeline pipelineFour = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
+        Pipeline pipelineFour = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, materialRevision);
 
 
         List<MaterialRevision> expectedRevisions = Arrays.asList(new MaterialRevision(hg, hgCommit1));
@@ -304,13 +307,12 @@ public class ChangesetServiceIntegrationTest  {
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 
-        Modification hgCommit1 = checkinWithComment("abcd", "Commit made against no card number - foo", checkinTime);
-        Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
+        Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
 
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
 
-        Pipeline pipelineFour = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, hgCommit1));
+        Pipeline pipelineFour = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<String> cardsInBetween = changesetService.getCardNumbersBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineFour.getCounter(), loser, result,
@@ -319,13 +321,17 @@ public class ChangesetServiceIntegrationTest  {
         assertThat(cardsInBetween.size(), is(0));
     }
 
+    private Modification modificationWithNoCardNumberInComment(Date checkinTime) {
+        return checkinWithComment("abcd" + UUID.randomUUID(), "Commit made against no card number - foo", checkinTime);
+    }
+
     @Test
     public void shouldShowCardsWhenMaterialsChange() {
         Username loser = new Username(new CaseInsensitiveString("loser"));
         ManualBuild build = new ManualBuild(loser);
 
         Pipeline pipelineFrom = dbHelper.checkinRevisionsToBuild(build, pipelineConfig,
-                dbHelper.addRevisionsWithModifications(hg, checkinWithComment("abcd", "Commit made against no card number - foo", new Date())));
+                dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(new Date())));
         dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("8923", "hg commit for card #2750 and #3400", new Date())));
 
         CruiseConfig config = configHelper.load();
@@ -437,7 +443,7 @@ public class ChangesetServiceIntegrationTest  {
 
         dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", now.plusDays(5).toDate())));
 
-        Pipeline bisectPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, bisectModification));
+        Pipeline bisectPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, new MaterialRevision(hg, bisectModification));
 
         Pipeline nextPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("6", "#4150 - Rev 6", now.plusDays(7).toDate())));
 
@@ -458,40 +464,6 @@ public class ChangesetServiceIntegrationTest  {
     }
 
     @Test
-    public void shouldReturnResults_WhenUserWantsToViewCompareResultsForBisect_AndFromGtThanToPipelineCounter() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
-        ManualBuild build = new ManualBuild(loser);
-
-        DateTime now = new DateTime();
-        Pipeline firstPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("1", "#3518 - hg - foo", now.toDate())));
-
-        Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", now.plusDays(3).toDate());
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("2", "#3750 - Rev 2", now.plusDays(2).toDate()), bisectModification,
-                checkinWithComment("4", "#4750 - Rev 4", now.plus(4).toDate())));
-
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", now.plusDays(5).toDate())));
-
-        Pipeline bisectPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, bisectModification));
-
-        Pipeline nextPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("6", "#4150 - Rev 6", now.plusDays(7).toDate())));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        //when to counter is a bisect
-        List<MaterialRevision> revisionList = changesetService.
-                revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, true);
-        assertThat(stringRevisions(revisionList), is(Arrays.asList("5", "2", "3", "4")));
-        List<String> cardList = changesetService.getCardNumbersBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(),
-                new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(cardList, is(Arrays.asList("5750", "3750", "4750")));
-
-        //When from counter is a bisect
-        revisionList = changesetService.revisionsBetween("foo-bar", nextPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, true);
-        assertThat(stringRevisions(revisionList), is(Arrays.asList("6", "5", "2")));
-        cardList = changesetService.getCardNumbersBetween("foo-bar", nextPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(cardList, is(Arrays.asList("4150", "5750", "3750")));
-    }
-
-    @Test
     public void shouldReturnAnEmptyListWhenEitherOfThePipelineCounterIsABisect() {
         Username loser = new Username(new CaseInsensitiveString("loser"));
         ManualBuild build = new ManualBuild(loser);
@@ -505,7 +477,7 @@ public class ChangesetServiceIntegrationTest  {
 
         dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", now.plusDays(5).toDate())));
 
-        Pipeline bisectPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, bisectModification));
+        Pipeline bisectPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, new MaterialRevision(hg, bisectModification));
 
         Pipeline nextPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("6", "#4150 - Rev 6", now.plusDays(7).toDate())));
 
@@ -513,16 +485,16 @@ public class ChangesetServiceIntegrationTest  {
         //when to counter is a bisect
         List<MaterialRevision> revisionList = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true,
                 false);
-        assertThat(revisionList.isEmpty(), is(true) );
+        assertThat(revisionList.isEmpty(), is(true));
         List<String> cardList = changesetService.getCardNumbersBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
                 false);
-        assertThat(cardList.isEmpty(), is(true) );
+        assertThat(cardList.isEmpty(), is(true));
 
         //When from counter is a bisect
         revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, false);
-        assertThat(revisionList.isEmpty(), is(true) );
+        assertThat(revisionList.isEmpty(), is(true));
         cardList = changesetService.getCardNumbersBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, false);
-        assertThat(cardList.isEmpty(), is(true) );
+        assertThat(cardList.isEmpty(), is(true));
     }
 
     @Test
@@ -536,14 +508,13 @@ public class ChangesetServiceIntegrationTest  {
 
         Modification bisectModification = checkinWithComment("3", "#4750 - Rev 3", now.plusDays(3).toDate());
         dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg,
-                        checkinWithComment("2", "#3750 - Rev 2", now.plusDays(2).toDate()),
-                        bisectModification,
-                        checkinWithComment("4", "#4750 - Rev 4", now.plusDays(4).toDate())));
+                checkinWithComment("2", "#3750 - Rev 2", now.plusDays(2).toDate()),
+                bisectModification,
+                checkinWithComment("4", "#4750 - Rev 4", now.plusDays(4).toDate())));
 
         dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("5", "#5750 - Rev 5", now.plusDays(5).toDate())));
 
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg,
-                        bisectModification));
+        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, new MaterialRevision(hg, bisectModification));
 
         Pipeline lastPipeline = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg,
                 checkinWithComment("6", "#6760 - Rev 6", now.plusDays(6).toDate())));
@@ -557,7 +528,8 @@ public class ChangesetServiceIntegrationTest  {
         assertThat(actualMods.size(), is(5));
     }
 
-    @Test public void shouldPopulateActualFromRevisionId() {
+    @Test
+    public void shouldPopulateActualFromRevisionId() {
         PipelineConfig upstreamPipeline = configHelper.addPipeline("upstream", "stage", git.config(), "job");
 
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "stage");
@@ -613,7 +585,8 @@ public class ChangesetServiceIntegrationTest  {
 
     private void saveRev(final Modification expectedMod, final MaterialInstance dep) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 materialRepository.saveModification(dep, expectedMod);
             }
         });
@@ -1097,7 +1070,7 @@ public class ChangesetServiceIntegrationTest  {
         Modification mod2 = new Modification("user1", "comment", "email", new Date(), "revision");
         mod2.setMaterialInstance(new SvnMaterialInstance("url", "user1", "flyweight1", false));
 
-        Map<Material,Modifications> map = changesetService.groupModsByMaterial(Arrays.asList(mod1, mod2));
+        Map<Material, Modifications> map = changesetService.groupModsByMaterial(Arrays.asList(mod1, mod2));
         assertThat(map.size(), is(1));
         assertThat(map.get(first), is(new Modifications(mod1, mod2)));
     }

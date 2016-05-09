@@ -36,6 +36,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -124,11 +125,12 @@ public class PipelineServiceIntegrationTest {
         File file3 = new File("file3");
         File file4 = new File("file4");
         Material hg1 = new HgMaterial("url1", "Dest1");
-        String[] hgRevs = new String[]{"h1"};
+        String[] hgRevs = new String[]{"hg1_2"};
 
         Date latestModification = new Date();
-        u.checkinFiles(hg1, "h1", a(file1, file2, file3, file4), ModifiedAction.added, org.apache.commons.lang.time.DateUtils.addDays(latestModification, -1));
-        u.checkinFiles(hg1, "h1", a(file1, file2, file3, file4), ModifiedAction.added, latestModification);
+        Date older = DateUtils.addDays(latestModification, -1);
+        u.checkinFiles(hg1, "hg1_1", a(file1, file2, file3, file4), ModifiedAction.added, older);
+        u.checkinFiles(hg1, "hg1_2", a(file1, file2, file3, file4), ModifiedAction.modified, latestModification);
 
 
         ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1));

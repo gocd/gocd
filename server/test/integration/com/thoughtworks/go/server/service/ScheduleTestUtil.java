@@ -217,13 +217,13 @@ public class ScheduleTestUtil {
     private Pipeline scheduleWith(AddedPipeline pipeline, RevisionsForMaterial... revisions) {
         Pipeline oldInstance = triggeredPipelines.get(pipeline.config.name());
 
-        Map<Material, List<Modification>> modMap = new HashMap<Material, List<Modification>>();
-        Map<Modification, Modification> identityMap = new HashMap<Modification, Modification>();
+        Map<Material, List<Modification>> modMap = new HashMap<>();
+        Map<Modification, Modification> identityMap = new HashMap<>();
 
         MaterialRevisions buildCause = new MaterialRevisions();
         int i = 0;
         for (Material material : MaterialsMother.createMaterialsFromMaterialConfigs(pipeline.config.materialConfigs())) {
-            List<Modification> modifications = new ArrayList<Modification>();
+            List<Modification> modifications = new ArrayList<>();
             for (Modification modification : modForRev(revisions[i++])) {
                 if (!identityMap.containsKey(modification)) {
                     identityMap.put(modification, modification);

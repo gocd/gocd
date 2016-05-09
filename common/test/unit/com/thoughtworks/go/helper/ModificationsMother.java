@@ -16,11 +16,7 @@
 
 package com.thoughtworks.go.helper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -314,7 +310,7 @@ public class ModificationsMother {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         for (Material material : MaterialsMother.createMaterialsFromMaterialConfigs(config.materialConfigs())) {
             ArrayList<Modification> list = new ArrayList<Modification>();
-            list.add(new Modification("no-user", "comment", "dummy-email", new Date(), "Dummy Modification"));
+            list.add(new Modification("no-user", "comment", "dummy-email", new Date(), "Dummy Modification"+ UUID.randomUUID().toString()));
             materialRevisions.addRevision(material, list);
         }
         return BuildCause.createWithModifications(materialRevisions, "");

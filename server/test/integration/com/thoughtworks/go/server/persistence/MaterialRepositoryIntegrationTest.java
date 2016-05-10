@@ -131,6 +131,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
+        goCache.clear();
         repo.setHibernateTemplate(originalTemplate);
         dbHelper.onTearDown();
     }
@@ -1258,6 +1259,21 @@ public class MaterialRepositoryIntegrationTest {
         for (Modification modification : modificationsForSecondMaterial) {
             assertThat(modificationsFromDb.containsRevisionFor(modification), is(true));
         }
+    }
+
+    @Test
+    public void shouldNotSaveAndClearCacheWhenThereAreNoNewModifications() {
+        final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
+        String key = repo.materialModificationsWithPaginationKey(materialInstance);
+        String subKey = repo.materialModificationsWithPaginationSubKey(Pagination.ONE_ITEM);
+        goCache.put(key, subKey, new Modifications(new Modification()));
+        transactionTemplate.execute(new TransactionCallback() {
+            public Object doInTransaction(TransactionStatus status) {
+                repo.saveModifications(materialInstance, new ArrayList<Modification>());
+                return null;
+            }
+        });
+        assertThat(goCache.get(key, subKey), is(notNullValue()));
     }
 
     //Slow test - takes ~1 min to run. Will remove if it causes issues. - Jyoti

@@ -803,6 +803,9 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public void saveModifications(MaterialInstance materialInstance, List<Modification> newChanges) {
+        if (newChanges.isEmpty()){
+            return;
+        }
         ArrayList<Modification> list = new ArrayList<>(newChanges);
         Collections.reverse(list);
         for (Modification modification : list) {

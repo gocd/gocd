@@ -304,7 +304,9 @@ public class GitMaterialTest {
         git = new GitMaterial(badHost);
         validationBean = git.checkConnection(new TestSubprocessExecutionContext());
         assertThat("Connection should not be valid", validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("Repository " + badHost + " not found!"));
+        assertThat(validationBean.getError(), containsString("Error performing command"));
+        assertThat(validationBean.getError(), containsString("git ls-remote http://nonExistantHost/git refs/heads/master"));
+        assertThat(validationBean.getError(), containsString("unable to access"));
     }
 
     @Test
@@ -376,7 +378,7 @@ public class GitMaterialTest {
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnLinux()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_6_0_2);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }
@@ -384,7 +386,7 @@ public class GitMaterialTest {
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnWindows()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_6_0_2_ON_WINDOWS);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2_ON_WINDOWS);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }
@@ -392,7 +394,7 @@ public class GitMaterialTest {
 
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_NODE_ON_WINDOWS);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_NODE_ON_WINDOWS);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }

@@ -306,7 +306,6 @@ public class GitMaterialTest {
         assertThat("Connection should not be valid", validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("Error performing command"));
         assertThat(validationBean.getError(), containsString("git ls-remote http://nonExistantHost/git refs/heads/master"));
-        assertThat(validationBean.getError(), containsString("unable to access"));
     }
 
     @Test

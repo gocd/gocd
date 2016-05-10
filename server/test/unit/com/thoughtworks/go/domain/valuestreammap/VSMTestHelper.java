@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 
@@ -98,6 +99,13 @@ public class VSMTestHelper {
         List<Revision> revisions = node.revisions();
         assertThat(revisions.toString(), revisions.size(), is(expectedRevisions.length));
         assertThat(revisions, hasItems(expectedRevisions));
+    }
+
+    public static void assertSCMNodeHasMaterialRevisions(ValueStreamMapPresentationModel graph, String nodeId, MaterialRevision... expectedMaterialRevisions) {
+        SCMDependencyNode node = (SCMDependencyNode)graph.findNode(nodeId);
+        List<MaterialRevision> materialRevisions = node.getMaterialRevisions();
+        assertThat(materialRevisions.toString(), materialRevisions.size(), is(expectedMaterialRevisions.length));
+        assertThat(materialRevisions, hasItems(expectedMaterialRevisions));
     }
 
     public static void assertStageDetailsOf(ValueStreamMap graph, String nodeId, String counter, Stages expectedStages) {

@@ -22,15 +22,14 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
 import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
 import com.thoughtworks.go.domain.valuestreammap.Revision;
 import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
 import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
-import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -101,7 +100,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
         Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p3");
         valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p2");
 
-        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),new CaseInsensitiveString("git"), new Modifications(ModificationsMother.multipleModificationList()), "p");
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),new CaseInsensitiveString("git"), "p", new MaterialRevision(null));
 
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1,"g_1");
@@ -137,7 +136,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
         Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p3", "p3"), "p2");
         Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p3");
         valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p2");
-        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),new CaseInsensitiveString("git"), new Modifications(ModificationsMother.multipleModificationList()), "p");
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),new CaseInsensitiveString("git"), "p", new MaterialRevision(null));
 
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1,"g_1");
@@ -176,7 +175,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
         Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p2");
         valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p4", "p4"), "p3");
         Node nodep5 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode("p5", "p5"), "p4");
-        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),new CaseInsensitiveString("git"), new Modifications(ModificationsMother.multipleModificationList()), "p");
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),new CaseInsensitiveString("git"), "p", new MaterialRevision(null));
 
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1,"g_1");

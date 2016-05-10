@@ -40,8 +40,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class ValueStreamMapService {
@@ -109,8 +111,12 @@ public class ValueStreamMapService {
         }
         addInstanceInformationToTheGraph(valueStreamMap);
         removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
+
+        valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
+
         return valueStreamMap;
     }
+
 
 	public ValueStreamMapPresentationModel getValueStreamMap(String materialFingerprint, String revision, Username username, LocalizedOperationResult result) {
 		try {
@@ -207,7 +213,7 @@ public class ValueStreamMapService {
                 String upstreamPipeline = ((DependencyMaterial) material).getPipelineName().toString();
                 DependencyMaterialRevision revision = (DependencyMaterialRevision) materialRevision.getRevision();
 
-                graph.addUpstreamNode(new PipelineDependencyNode(upstreamPipeline, upstreamPipeline),new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
+                graph.addUpstreamNode(new PipelineDependencyNode(upstreamPipeline, upstreamPipeline), new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
                         pipelineName);
 
                 if (visitedNodes.contains(materialRevision)) {
@@ -219,7 +225,7 @@ public class ValueStreamMapService {
                 traverseUpstream(upstreamPipeline, buildCauseForUpstreamPipeline, graph, visitedNodes);
             } else {
                 graph.addUpstreamMaterialNode(new SCMDependencyNode(material.getFingerprint(), material.getUriForDisplay(), materialRevision.getMaterialType()), material.getName(),
-                        materialRevision.getModifications(), pipelineName);
+                        pipelineName, materialRevision);
             }
         }
     }

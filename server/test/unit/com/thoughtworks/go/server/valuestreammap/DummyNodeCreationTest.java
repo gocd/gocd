@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.valuestreammap;
 
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.valuestreammap.DependencyNodeType;
 import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
 import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
@@ -48,8 +49,8 @@ public class DummyNodeCreationTest {
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, "d2");
-        graph.addUpstreamNode(new SCMDependencyNode("g", "g", "git"), null, "d1");
-        graph.addUpstreamNode(new SCMDependencyNode("g", "g", "git"), null, currentPipeline);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, "d1", new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, currentPipeline, new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
@@ -102,8 +103,8 @@ public class DummyNodeCreationTest {
         graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, "d2");
-        graph.addUpstreamNode(new SCMDependencyNode("g", "g", "git"), null, "d1");
-        graph.addUpstreamNode(new SCMDependencyNode("g", "g", "git"), null, "d2");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, "d1", new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, "d2", new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
@@ -146,6 +147,7 @@ public class DummyNodeCreationTest {
         assertThat(nodeLevelMap.get(-1).size(), is(3));
         assertThat(nodeLevelMap.get(-2).size(), is(2));
     }
+
     @Test
     public void shouldMoveNodeAndIntroduceDummyNodesToCorrectLayer_crossMaterialPipelineDependency() {
         /*
@@ -161,12 +163,12 @@ public class DummyNodeCreationTest {
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamNode(new PipelineDependencyNode("d2", "d2"), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode("d1", "d1"), null, "d2");
-        graph.addUpstreamNode(new SCMDependencyNode("g1", "g1", "git"), null, "d1");
-        graph.addUpstreamNode(new SCMDependencyNode("g1", "g1", "git"), null, "d2");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), null, "d1", new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), null, "d2", new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode("d4", "d4"), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode("d3", "d3"), null, "d4");
-        graph.addUpstreamNode(new SCMDependencyNode("g2", "g2", "git"), null, "d3");
-        graph.addUpstreamNode(new SCMDependencyNode("g2", "g2", "git"), null, "d4");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g2", "g2", "git"), null, "d3", new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g2", "g2", "git"), null, "d4", new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);
@@ -192,19 +194,19 @@ public class DummyNodeCreationTest {
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamNode(new PipelineDependencyNode("p4", "p4"), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode("p1", "p1"), null, "p4");
-        graph.addUpstreamNode(new SCMDependencyNode("git", "git", "git"), null, "p1");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p1", new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode("p2", "p2"), null, "p4");
-        graph.addUpstreamNode(new SCMDependencyNode("git", "git", "git"), null, "p2");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p2", new MaterialRevision(null));
 
         graph.addUpstreamNode(new PipelineDependencyNode("p5", "p5"), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode("p3", "p3"), null, "p5");
-        graph.addUpstreamNode(new SCMDependencyNode("git", "git", "git"), null, "p3");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p3", new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode("p4", "p4"), null, "p5");
 
         graph.addUpstreamNode(new PipelineDependencyNode("p1", "p1"), null, "p4");
-        graph.addUpstreamNode(new SCMDependencyNode("git", "git", "git"), null, "p1");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p1", new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode("p2", "p2"), null, "p4");
-        graph.addUpstreamNode(new SCMDependencyNode("git", "git", "git"), null, "p2");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git", "git", "git"), null, "p2", new MaterialRevision(null));
 
         NodeLevelMap nodeLevelMap = new LevelAssignment().apply(graph);
         dummyNodeCreation.apply(graph, nodeLevelMap);

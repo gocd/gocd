@@ -17,7 +17,7 @@
 define(['mithril', 'lodash', 'string-plus'], function (m, _, s) {
 
   var RunIfConditions = function (data) {
-    this.data = m.prop(s.defaultToIfBlank(data, []));
+    this.data = m.prop(s.defaultToIfBlank(data, ['passed']));
 
     this.clear = function () {
       this.data([]);

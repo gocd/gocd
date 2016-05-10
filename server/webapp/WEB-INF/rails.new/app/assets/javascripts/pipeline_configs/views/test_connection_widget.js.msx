@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helpers/mithril_component_mixins', 'js-routes'],
-  function (m, _, s, f, ComponentMixins, Routes) {
+define(['mithril', 'lodash', 'string-plus', '../helpers/form_helper',
+  '../helpers/mithril_component_mixins'],
+  function (m, _, s, f, ComponentMixins) {
   var TestConnectionWidget = {
     Connection: {
       State: function () {

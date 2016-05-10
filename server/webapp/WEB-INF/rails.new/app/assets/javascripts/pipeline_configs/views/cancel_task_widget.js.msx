@@ -1,0 +1,99 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'lodash', 'jquery', 'angular',
+  '../helpers/form_helper','../models/tasks', '../models/pluggable_tasks', './task_basic_views_widget'
+], function (m, _, $, angular, f, Tasks, PluggableTasks, TaskBasicViews ) {
+  var CancelTaskWidget = {
+    controller: function (args) {
+      var self = this;
+      self.task = args.task;
+      const DEFAULT_TASK_TYPE = 'exec';
+
+
+      this.selected = function (val) {
+        if (val === undefined) {
+          return self.task.onCancelTask.type();
+        }
+        self.addCancelTask(val);
+      };
+
+      this.addCancelTask = function (type) {
+        self.task.onCancelTask = Tasks.taskByType(type);
+      };
+
+      this.removeCancelTask = function () {
+        self.task.onCancelTask = null;
+      };
+
+      this.checked = function (val) {
+        if (val === undefined) {
+          return self.task.hasOnCancelTask();
+        }
+        val ? self.addCancelTask(DEFAULT_TASK_TYPE) : self.removeCancelTask();
+      };
+    },
+
+    view: function (ctrl) {
+      var task = ctrl.task;
+      var cancelTask = function () {
+        if (task.hasOnCancelTask()) {
+          var taskView = TaskBasicViews[task.onCancelTask.type()];
+          return (m.component(taskView, {
+            task: task.onCancelTask,
+            key: task.onCancelTask.uuid(),
+            basicView: true
+          }));
+        }
+      };
+
+      var taskSelector = function () {
+        if (task.hasOnCancelTask()) {
+          var items = _.transform(_.merge({}, Tasks.Types, PluggableTasks.Types), function (result, value, key) {
+            if (key != 'fetchartifact') {
+              result[key] = value.description;
+            }
+          });
+
+          return (
+            <f.row class='task-selector'>
+              <f.select value={ctrl.selected}
+                        items={items}
+                        size={6}/>
+            </f.row>
+          )
+        }
+      };
+
+      return (
+        <f.row class='on-cancel'>
+          <f.row>
+            <f.checkBox model={ctrl}
+                        attrName='checked'
+                        label='On Cancel Task'
+                        size={4}/>
+            <f.column end={true}>
+              {taskSelector()}
+            </f.column>
+          </f.row>
+          {cancelTask()}
+        </f.row>
+      );
+    }
+  };
+  return CancelTaskWidget;
+});

@@ -23,6 +23,12 @@ define(['lodash', 'pipeline_configs/models/run_if_conditions'], function (_, Run
 
       expect(runIfConditions.data()).toEqual(runIf);
     });
+
+    it('should create runIfConditions with default as "passed"', function () {
+      var runIfConditions = RunIfConditions.create();
+
+      expect(runIfConditions.data()).toEqual(['passed']);
+    });
   });
 
   describe('RunIfConditions push', function () {

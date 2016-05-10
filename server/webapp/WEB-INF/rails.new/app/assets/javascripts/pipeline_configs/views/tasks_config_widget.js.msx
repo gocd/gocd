@@ -15,296 +15,11 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery', 'angular',
-  '../helpers/form_helper', '../helpers/dragula_config',
-  '../models/tasks', '../models/pluggable_tasks', 'js-routes',
-  './lookup_command_widget', '../models/argument',
-  '../helpers/mithril_component_mixins',
-  './run_if_conditions_widget'
-], function (m, _, $, angular, f, dragulaConfig, Tasks, PluggableTasks, Routes,
-             LookupCommandWidget, Argument, ComponentMixins, RunIfConditionsWidget) {
-
-
-  var TaskViews = {
-    base: {
-      controller: function (args) {
-        var self = this;
-        self.args = args;
-        self.task = args.task;
-        var vmStateKey = 'taskEdit' + self.task.uuid();
-
-        ComponentMixins.HasViewModel.call(this);
-        self.vmState(vmStateKey, m.prop(self.task.isEmpty() ? true : false));
-
-        this.isEditing = function () {
-          return self.vmState(vmStateKey)();
-        };
-
-        this.toggleIsEditing = function () {
-          var isEditing = self.vmState(vmStateKey)();
-          self.vmState('taskEdit' + self.task.uuid())(!isEditing);
-        };
-      },
-
-      view: function (ctrl, args, children) {
-        var classNameForTaskBody = function () {
-          return ctrl.isEditing() ? 'show' : 'hide';
-        };
-
-        return (
-          <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
-            <div>
-              <div class="task-header" onclick={ctrl.toggleIsEditing.bind(ctrl)}>
-                <strong>{args.task.type()}</strong>
-                <span class='task-type'>{args.task.toString()}</span>
-                <div class='actions'>
-                  <f.removeButton onclick={args.onRemove} class="remove-task"/>
-                  <f.editButton class={ctrl.isEditing() ? 'done' : null}/>
-                </div>
-              </div>
-              <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
-                {children}
-                <RunIfConditionsWidget task={args.task}/>
-              </div>
-            </div>
-          </div>
-        );
-      }
-    },
-
-    ant:  {
-      view: function (ctrl, args) {
-        var task = args.task;
-        return (
-          <TaskViews.base {...args}>
-            <f.row>
-              <f.inputWithLabel attrName='target'
-                                model={task}/>
-              <f.inputWithLabel attrName='buildFile'
-                                model={task}/>
-              <f.inputWithLabel attrName='workingDirectory'
-                                model={task}
-                                end={true}/>
-            </f.row>
-          </TaskViews.base>
-        );
-      }
-    },
-    nant: {
-      view: function (ctrl, args) {
-        var task = args.task;
-        return (
-          <TaskViews.base {...args}>
-            <f.row>
-              <f.inputWithLabel attrName='target'
-                                model={task}/>
-              <f.inputWithLabel attrName='workingDirectory'
-                                model={task}/>
-              <f.inputWithLabel attrName='buildFile'
-                                model={task}
-                                end={true}/>
-            </f.row>
-
-            <f.row>
-              <f.inputWithLabel attrName='nantPath'
-                                model={task}
-                                end={true}/>
-            </f.row>
-
-          </TaskViews.base>
-        );
-      }
-    },
-
-    exec: {
-      view: function (ctrl, args) {
-        var task = args.task;
-        var vm = Argument.vm(task.args());
-        var arguments = function () {
-          if (task.args().isList()) {
-            return (
-              <f.column size={8}>
-                <f.textareaWithLabel attrName="data"
-                                     model={vm}
-                                     label="Args"
-                                     size={12}/>
-              </f.column>)
-          }
-          return (
-            <f.column size={8}>
-              <f.inputWithLabel attrName='data'
-                                model={vm}
-                                label="Args"
-                                size={12}
-                                largeSize={12}/>
-            </f.column>)
-        };
-
-        return (
-          <TaskViews.base {...args}>
-            <f.row>
-              <f.column size={4}>
-                <f.row>
-                  <f.inputWithLabel attrName='command'
-                                    model={task}
-                                    size={12}
-                                    largeSize={12}/>
-                  <f.inputWithLabel attrName='workingDirectory'
-                                    model={task}
-                                    end={true}
-                                    size={12}
-                                    largeSize={12}/>
-                </f.row>
-              </f.column>
-              {arguments()}
-            </f.row>
-            <LookupCommandWidget model={task}/>
-          </TaskViews.base>
-        );
-      }
-    },
-
-    rake: {
-      view: function (ctrl, args) {
-        var task = args.task;
-        return (
-          <TaskViews.base {...args}>
-            <f.row>
-              <f.inputWithLabel attrName='target'
-                                model={task}/>
-              <f.inputWithLabel attrName='buildFile'
-                                model={task}/>
-              <f.inputWithLabel attrName='workingDirectory'
-                                model={task}
-                                end={true}/>
-            </f.row>
-          </TaskViews.base>
-        );
-      }
-    },
-
-    fetchartifact: {
-      view: function (ctrl, args) {
-        var task = args.task;
-        return (
-          <TaskViews.base {...args}>
-            <f.row>
-              <f.inputWithLabel attrName='pipeline'
-                                model={task}/>
-              <f.inputWithLabel attrName='stage'
-                                model={task}/>
-              <f.inputWithLabel attrName='job'
-                                model={task}
-                                end={true}/>
-            </f.row>
-
-            <f.row>
-              <f.inputWithLabel attrName='type'
-                                model={task.source()}/>
-              <f.inputWithLabel attrName='location'
-                                model={task.source()}
-                                end={true}/>
-            </f.row>
-          </TaskViews.base>
-        );
-      }
-    },
-
-    plugin: {
-      controller: function (args) {
-        this.task              = args.task;
-        this.templateHTML      = PluggableTasks.Types[this.task.pluginId()].templateHTML;
-        this.defaultTaskConfig = PluggableTasks.Types[this.task.pluginId()].configuration;
-        this.ngControllerName  = 'controller-' + this.task.uuid();
-        this.appName           = 'app-' + this.task.uuid();
-        this.ngModule          = angular.module(this.appName, []);
-
-        this.hasBootstrapped = false;
-
-        var ctrl = this;
-
-        this.ngController = angular.module(this.appName).controller(this.ngControllerName, ['$scope', '$http', function ($scope, $http) {
-          $scope.addError = function (field) {
-            this.GOINPUTNAME[field.name] = {
-              $error: {
-                server: field.errors.join()
-              }
-            };
-          };
-
-          $scope.clearErrors = function () {
-            this.GOINPUTNAME               = {};
-            this.pluggableTaskGenericError = null;
-          };
-
-          $scope.clearErrors();
-
-          var ajaxValidator = _.debounce(function (configuration, config, newValue) {
-            configuration.setConfiguration(config.name, newValue);
-            var req = {
-              url:     Routes.apiInternalPluggableTaskValidationPath({plugin_id: ctrl.task.pluginId()}),
-              method:  'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
-              },
-              data:    JSON.stringify(configuration)
-            };
-
-            $http(req).then(
-              $scope.clearErrors.bind($scope),
-              function (response) {
-                if (response.status === 422) {
-                  _.each(response.data, $scope.addError, $scope);
-                } else if (response.status === 520) {
-                  $scope.pluggableTaskGenericError = response.data.error;
-                } else {
-                  console.log('Something went wrong, we do not know what!');
-                }
-              });
-          }, 250);
-
-          _.map(ctrl.defaultTaskConfig, function (config) {
-            var configuration = ctrl.task.configuration();
-            var value         = configuration.valueFor(config.name);
-
-            if (!value) {
-              value = config.value;
-            }
-
-            $scope[config.name] = value;
-
-            $scope.$watch(config.name, function (newValue, oldValue) {
-              ajaxValidator(configuration, config, newValue);
-            });
-          });
-        }]);
-      },
-
-      view: function (ctrl, args) {
-        var config = function (elem, isInitialized) {
-          if (!isInitialized) {
-            var pluginTaskElem            = $('#pluggable-task-' + ctrl.task.uuid());
-            var pluginTaskTemplateElement = $('#pluggable-task-template-' + ctrl.task.uuid());
-            angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
-            pluginTaskElem.show();
-          }
-        };
-
-        return (
-          <div id={'pluggable-task-' + ctrl.task.uuid()} style='display:none' config={config}>
-            <TaskViews.base {...args}>
-              <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName}>
-                <div class="alert-box alert"
-                     ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
-                {m.trust(ctrl.templateHTML)}
-              </div>
-            </TaskViews.base>
-          </div>
-        );
-      }
-    }
-  };
+  'mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../helpers/dragula_config', '../models/tasks',
+  '../models/pluggable_tasks', 'js-routes', './lookup_command_widget', '../models/argument',
+  '../helpers/mithril_component_mixins', './task_views_widget'],
+  function (m, _, $, angular, f, dragulaConfig, Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument,
+            ComponentMixins, TaskViews) {
 
   var TaskTypeSelector = {
     controller: function (args) {
@@ -353,12 +68,27 @@ define([
     view: function (ctrl, args) {
 
       var dragDropConfig = function (elem, isInitialized) {
-        dragulaConfig(elem, isInitialized, function () {
-          var reorderedTasks = _.map($(elem).find('.task-definition:not(.gu-mirror)'), function (eachTaskElem) {
-            return args.tasks().taskAtIndex($(eachTaskElem).attr('data-task-index'));
-          });
-          args.tasks().setTasks(reorderedTasks);
-        });
+        if (!isInitialized) {
+          var onDrop = function () {
+            var reorderedTasks = _.map($(elem).find('.task-definition:not(.gu-mirror)'), function (eachTaskElem) {
+              return args.tasks().taskAtIndex($(eachTaskElem).attr('data-task-index'));
+            });
+            args.tasks().setTasks(reorderedTasks);
+          };
+
+          var disableDrag = function (el, h) {
+            return !($(h).is('.task-header') || $(h).is('.task-type'));
+          };
+
+          var options = {
+            dragulaOptions: {
+              invalid: disableDrag
+            },
+            onDropCallback: onDrop
+          };
+
+          dragulaConfig(elem, options);
+        }
       };
 
       return (

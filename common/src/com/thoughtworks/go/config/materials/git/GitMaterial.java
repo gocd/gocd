@@ -159,7 +159,7 @@ public class GitMaterial extends ScmMaterial {
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         try {
-            GitCommand.checkConnection(url, execCtx.getDefaultEnvironmentVariables());
+            GitCommand.checkConnection(url, branch, execCtx.getDefaultEnvironmentVariables());
             return ValidationBean.valid();
         } catch (Exception e) {
             try {
@@ -171,8 +171,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public ValidationBean handleException(Exception e, String gitVersionConsoleOut) {
-        ValidationBean defaultResponse = ValidationBean.notValid(
-                "Repository " + url + " not found!" + " : \n" + e.getMessage());
+        ValidationBean defaultResponse = ValidationBean.notValid(e.getMessage());
         try {
             if (!isVersionOnedotSixOrHigher(gitVersionConsoleOut)) {
                 return ValidationBean.notValid(ERR_GIT_OLD_VERSION + gitVersionConsoleOut);

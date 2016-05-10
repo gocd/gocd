@@ -40,13 +40,13 @@ module ApiV1
     def create
       result = HttpLocalizedOperationResult.new
 
-      user, created = user_service.withEnableUserMutex do
+      user = nil
+      created = false
+      user_service.withEnableUserMutex do
         user = user_service.findUserByName(params[:login_name])
         if user.instance_of?(com.thoughtworks.go.domain.NullUser)
           user = save_user(result, com.thoughtworks.go.domain.User.new(params[:login_name]))
-          [user, true]
-        else
-          [user, false]
+          created = true
         end
       end
 

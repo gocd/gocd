@@ -235,8 +235,16 @@ public class GitCommand extends SCMCommand {
         return new UrlArgument(runOrBomb(gitConfig).outputForDisplay().get(0));
     }
 
-    public static void checkConnection(UrlArgument repoUrl, Map<String, String> environment) {
-        commandToCheckConnection(repoUrl, environment).runOrBomb(repoUrl.forDisplay());
+    public static void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
+        CommandLine commandLine = git(environment).withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
+        ConsoleResult result = commandLine.runOrBomb(repoUrl.forDisplay());
+        if(!hasOnlyOneMatchingBranch(result)){
+            throw new CommandLineException(String.format("The branch %s could not be found.", branch));
+        }
+    }
+
+    private static boolean hasOnlyOneMatchingBranch(ConsoleResult branchList) {
+        return (branchList.output().size() == 1);
     }
 
     public static CommandLine commandToCheckConnection(UrlArgument url, Map<String, String> environment) {

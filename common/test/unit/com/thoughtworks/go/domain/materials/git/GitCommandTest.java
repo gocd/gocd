@@ -32,6 +32,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
@@ -236,7 +237,11 @@ public class GitCommandTest {
             gitWithSubmodule.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("HEAD"));
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())));
+            assertThat(e.getMessage(), CoreMatchers.anyOf(
+                    containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())),
+                    containsString(String.format("clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath()))
+                    )
+            );
         }
     }
 
@@ -426,18 +431,14 @@ public class GitCommandTest {
     }
 
     @Test public void shouldCheckIfRemoteRepoExists() throws Exception {
-        try {
-            final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
-            GitCommand.checkConnection(git.workingRepositoryUrl(), executionContext.getDefaultEnvironmentVariables());
-        } catch (Exception e) {
-            fail();
-        }
+        final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
+        GitCommand.checkConnection(git.workingRepositoryUrl(), "master", executionContext.getDefaultEnvironmentVariables());
     }
 
     @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenRepoNotExist() throws Exception {
         final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
-        GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), executionContext.getDefaultEnvironmentVariables());
+        GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master", executionContext.getDefaultEnvironmentVariables());
     }
 
     @Test(expected = Exception.class)
@@ -447,7 +448,7 @@ public class GitCommandTest {
         whiteListWhichDoesNotContainFileProtocol.put("GIT_ALLOW_PROTOCOL", "git");
 
         when(testSubprocessExecutionContext.getDefaultEnvironmentVariables()).thenReturn(whiteListWhichDoesNotContainFileProtocol);
-        GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), testSubprocessExecutionContext.getDefaultEnvironmentVariables());
+        GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "master", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
     }
 
     @Test(expected = Exception.class)
@@ -461,6 +462,12 @@ public class GitCommandTest {
         GitCommand gitCommand = new GitCommand("unique-material", null, "master", false, executionContext.getDefaultEnvironmentVariables());
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitCommand.cloneFrom(outputStreamConsumer, gitRepo.projectRepositoryUrl());
+        GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
+    }
+
+    @Test(expected = Exception.class)
+    public void shouldThrowExceptionWhenRemoteBranchDoesNotExist() throws Exception {
+        GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "Invalid_Branch", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
     }
 
     @Test

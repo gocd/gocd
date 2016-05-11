@@ -16,14 +16,22 @@
 
 package com.thoughtworks.go.server.persistence;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
+import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
+import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.util.Pagination;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -32,16 +40,15 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MaterialRepositoryTest {
 
@@ -113,4 +120,13 @@ public class MaterialRepositoryTest {
         verify(goCache, times(3)).get(key);
         verify(goCache, times(1)).put(key, modification);
     }
+
+    @Test
+    public void shouldNotSaveAndClearCacheWhenThereAreNoModifications() {
+        GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", null, UUID.randomUUID().toString());
+        materialRepository.saveModifications(materialInstance, new ArrayList<Modification>());
+        verifyZeroInteractions(mockHibernateTemplate);
+        verifyZeroInteractions(goCache);
+    }
+
 }

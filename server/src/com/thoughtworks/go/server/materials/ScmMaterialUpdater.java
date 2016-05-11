@@ -65,8 +65,8 @@ class ScmMaterialUpdater implements MaterialUpdater {
             LOGGER.info(String.format("[Material Update] Found '%s' modifications for material '%s' with flyweight '%s' using working directory '%s'", newChanges.size(), material,
                     material.getFingerprint(), folder.getAbsolutePath()));
 
+            materialRepository.saveModifications(materialInstance, newChanges);
         }
-        materialRepository.saveModifications(materialInstance, newChanges);
     }
 
     public void addNewMaterialWithModifications(Material material, File folder) {

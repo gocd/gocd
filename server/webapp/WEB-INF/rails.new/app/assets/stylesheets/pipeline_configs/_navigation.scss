@@ -44,6 +44,10 @@
     }
   }
 
+  .no-js .top-bar {
+    display: none;
+  }
+
   .menu-text {
     color: #fff;
 
@@ -59,6 +63,14 @@
 
     .menu:first-child {
       border-left: none;
+    }
+
+    .top-bar {
+      display: block;
+    }
+
+    .title-bar {
+      display: none;
     }
   }
 
@@ -94,25 +106,7 @@
   .is-dropdown-submenu {
     border: none;
   }
-  //
-  //.current-user {
-  //  //@extend .right;
-  //}
-  //
-  //.header-tabs {
-  //  //@extend .left;
-  //  a {
-  //    text-transform: uppercase;
-  //  }
-  //}
-  //
-  //.admin-dropdown {
-  //  @extend .dropdown;
-  //  a {
-  //    text-transform: capitalize;
-  //  }
-  //}
-  //
+
   .user {
     @include icon-before($type: user, $margin: auto);
   }

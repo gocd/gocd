@@ -199,7 +199,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
     Materials.Material.call(this, "git", true, data);
     this.destination  = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.url          = m.prop(s.defaultToIfBlank(data.url, ''));
-    this.branch       = m.prop(s.defaultToIfBlank(data.branch, ''));
+    this.branch       = m.prop(s.defaultToIfBlank(data.branch, 'master'));
     this.shallowClone = m.prop(data.shallowClone);
 
     this.validate = function () {

@@ -295,6 +295,26 @@ define(['lodash', "pipeline_configs/models/materials"], function (_, Materials) 
         });
       });
 
+      describe("Default Value", function(){
+        beforeEach(function () {
+          gitMaterial = Materials.Material.fromJSON(sampleJSON());
+        });
+
+        it("should use the default branch value when not provided", function () {
+          expect(gitMaterial.branch()).toBe('master');
+        });
+
+        function sampleJSON() {
+          return {
+            type:       "git",
+            attributes: {
+              url:         "http://git.example.com/git/myProject",
+              branch:      null,
+            }
+          };
+        }
+      });
+
       describe("Deserialization from JSON", function () {
         beforeEach(function () {
           gitMaterial = Materials.Material.fromJSON(sampleJSON());

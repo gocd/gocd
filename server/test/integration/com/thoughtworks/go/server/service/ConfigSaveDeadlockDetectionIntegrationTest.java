@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
@@ -124,15 +125,12 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                     @Override
                     public void run() {
                         try {
-                            File configFile = new File(goConfigDao.fileLocation());
-                            String currentConfig = FileUtil.readContentFromFile(configFile);
-                            String updatedConfig = currentConfig.replaceFirst("artifactsdir=\".*\"", "artifactsdir=\"" + UUID.randomUUID().toString() + "\"");
-                            FileUtil.writeContentToFile(updatedConfig, configFile);
-                        } catch (IOException e) {
+                            writeConfigToFile(new File(goConfigDao.fileLocation()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
                             fail("Failed with error: " + e.getMessage());
                         }
                         cachedFileGoConfig.forceReload();
-
                     }
                 }, "timer-thread");
             } catch (InterruptedException e) {
@@ -149,6 +147,36 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             }
         }
         assertThat(goConfigService.getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount));
+    }
+
+    private void writeConfigToFile(File configFile) throws IOException {
+        if (!SystemUtil.isWindows()) {
+            update(configFile);
+            return;
+        }
+        int retries = 1;
+        while (retries <= 5) {
+            try {
+                update(configFile);
+                return;
+            } catch (IOException e) {
+                try {
+                    System.out.println(String.format("Retry attempt - %s. Error: %s", retries, e.getMessage()));
+                    e.printStackTrace();
+                    Thread.sleep(10);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                retries = retries + 1;
+            }
+        }
+        throw new RuntimeException(String.format("Could not write to config file after %s attempts", retries));
+    }
+
+    private void update(File configFile) throws IOException {
+        String currentConfig = FileUtil.readContentFromFile(configFile);
+        String updatedConfig = currentConfig.replaceFirst("artifactsdir=\".*\"", "artifactsdir=\"" + UUID.randomUUID().toString() + "\"");
+        FileUtil.writeContentToFile(updatedConfig, configFile);
     }
 
     private Thread pipelineSaveThread(int counter) throws InterruptedException {

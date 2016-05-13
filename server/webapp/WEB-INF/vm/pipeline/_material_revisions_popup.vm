@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
         {for modification in material.modifications}
         {if material.shouldRenderModifications()}
         <tr>
-            <td class="highlight-${%material.changed%} user">${% modification.user %}</td>
+            <td class="highlight-${%material.changed%} user">${% modification.user.escapeHTML() %}</td>
             <td class="highlight-${%material.changed%} comment">
                 {if material.isPackage()}
                 #parse('shared/_package_material_revision_comment.vm')

@@ -1,35 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.util;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.X509AuthoritiesPopulator;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
@@ -39,7 +32,28 @@ import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+
 public class UserHelperTest {
+
+    private SecurityContext originalSecurityContext;
+
+    @Before
+    public void setUp() throws Exception {
+        originalSecurityContext = SecurityContextHolder.getContext();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (originalSecurityContext != null) {
+            SecurityContextHolder.setContext(originalSecurityContext);
+        }
+    }
 
     @Test
     public void shouldUnderstandByACEGIRoleWetherAgent() {

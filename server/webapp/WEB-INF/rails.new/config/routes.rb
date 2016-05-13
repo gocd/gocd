@@ -229,7 +229,7 @@ Go::Application.routes.draw do
       end
 
       namespace :admin do
-        resources :pipelines, param: :name, only: [:show, :update, :create], constraints: {name: PIPELINE_NAME_FORMAT}
+        resources :pipelines, param: :name, only: [:show, :update, :create, :index], constraints: {name: PIPELINE_NAME_FORMAT}
         resources :command_snippets, only: [:index]
         get 'command_snippets/show', controller: :command_snippets, action: :show, as: :command_snippet
         post :material_test, controller: :material_test, action: :test, as: :material_test

@@ -130,6 +130,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
         response = new MockHttpServletResponse();
         configHelper.addSecurityWithPasswordFile();
         configHelper.addAdmins("admin");
+        originalSecurityContext = SecurityContextHolder.getContext();
         setCurrentUser("admin");
     }
 
@@ -161,7 +162,6 @@ public class GoConfigAdministrationControllerIntegrationTest {
     }
 
     private void setCurrentUser(String username) {
-        originalSecurityContext = SecurityContextHolder.getContext();
         SecurityContextImpl context = new SecurityContextImpl();
         context.setAuthentication(new UsernamePasswordAuthenticationToken(new User(username, "", true, new GrantedAuthority[]{}), null));
         SecurityContextHolder.setContext(context);

@@ -79,9 +79,16 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public void syncConfig(AgentConfig agentConfig) {
         this.agentConfig = agentConfig;
+
+        if (agentConfig.isElastic()){
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
+        }
+
         if (agentRuntimeInfo.getRuntimeStatus()== AgentRuntimeStatus.Unknown) {
             agentRuntimeInfo.idle();
         }
+
+
         agentConfigStatus = agentConfig.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
     }
 

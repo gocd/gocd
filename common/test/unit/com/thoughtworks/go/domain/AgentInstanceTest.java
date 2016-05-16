@@ -514,6 +514,21 @@ public class AgentInstanceTest {
         assertThat(status, is(AgentStatus.Idle));
     }
 
+    @Test public void syncConfigShouldUpdateElasticAgentRuntimeInfo() {
+        AgentInstance agent = AgentInstanceMother.idle();
+
+        AgentConfig agentConfig = new AgentConfig(agent.getUuid(), agent.getHostname(), agent.getIpAddress());
+        agentConfig.setElasticAgentId("i-123456");
+        agentConfig.setElasticPluginId("com.example.aws");
+
+        assertFalse(agent.isElastic());
+        agent.syncConfig(agentConfig);
+        assertTrue(agent.isElastic());
+
+        assertEquals("i-123456", agent.elasticAgentMetadata().elasticAgentId());
+        assertEquals("com.example.aws", agent.elasticAgentMetadata().elasticPluginId());
+    }
+
     @Test
     public void shouldReturnFreeDiskSpace() throws Exception {
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), 1024L), AgentRuntimeStatus.Missing).freeDiskSpace(), is(DiskSpace.unknownDiskSpace()));

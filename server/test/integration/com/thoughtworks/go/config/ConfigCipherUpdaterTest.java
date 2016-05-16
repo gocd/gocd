@@ -25,8 +25,10 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.plugins.FakePluginManager;
+import com.thoughtworks.go.security.CipherProvider;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
@@ -58,7 +60,6 @@ public class ConfigCipherUpdaterTest {
     private final String passwordEncryptedWithFlawedCipher = "ruRUF0mi2ia/BWpWMISbjQ==";
     private MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
     private final String password = "password";
-    private File configFileEncryptedWithFlawedCipher;
     private File originalConfigFile;
 
     @Before
@@ -87,10 +88,12 @@ public class ConfigCipherUpdaterTest {
         }, registry);
         registrar.initialize();
         magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
-        configFileEncryptedWithFlawedCipher = new ClassPathResource("cruise-config-with-encrypted-with-flawed-cipher.xml").getFile();
+        File configFileEncryptedWithFlawedCipher = new ClassPathResource("cruise-config-with-encrypted-with-flawed-cipher.xml").getFile();
         FileUtil.writeContentToFile(ConfigCipherUpdater.FLAWED_VALUE, systemEnvironment.getCipherFile());
+        ReflectionUtil.setStaticField(CipherProvider.class, "cachedKey", null);
+        String xml = ConfigMigrator.migrate(FileUtil.readContentFromFile(configFileEncryptedWithFlawedCipher));
         originalConfigFile = new File(systemEnvironment.getCruiseConfigFile());
-        FileUtils.copyFile(configFileEncryptedWithFlawedCipher, originalConfigFile);
+        FileUtils.writeStringToFile(originalConfigFile, xml);
     }
 
     @After

@@ -44,11 +44,12 @@ module ApiV2
       }
 
       response.status = status
-      render json_hal_v2: json, location: url
+      render DEFAULT_FORMAT => json, location: url
     end
 
     rescue_from RecordNotFound, with: :render_not_found_error
     rescue_from BadRequest,     with: :render_bad_request
+    rescue_from UnprocessableEntity, with: :render_unprocessable_entity_error
 
     class << self
       def default_accepts_header
@@ -64,12 +65,21 @@ module ApiV2
       raise BadRequest.new(e.message)
     end
 
-    def render_http_operation_result(result)
+    def render_http_operation_result(result, data = {})
+      status = result.httpCode()
       if result.instance_of?(HttpOperationResult)
-        render json_hal_v2: { message: result.detailedMessage().strip }, status: result.httpCode()
+        render_message(result.detailedMessage(), status, data)
       else
-        render json_hal_v2: { message: result.message(Spring.bean('localizer')).strip }, status: result.httpCode()
+        render_message(result.message(Spring.bean('localizer')), status, data)
       end
+    end
+
+    def render_message(message, status = :ok, data = {})
+      render DEFAULT_FORMAT => { message: message.strip }.merge(data), status: status
+    end
+
+    def render_unprocessable_entity_error(exception)
+      render_message("Your request could not be processed. #{exception.message}", :unprocessable_entity)
     end
   end
 end

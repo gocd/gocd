@@ -25,7 +25,7 @@ module ApiV1
       def show
         json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
         if stale?(etag: get_etag_for_pipeline(@pipeline_config.name.to_s, json))
-          render json_hal_v1: json
+          render DEFAULT_FORMAT => json
         end
       end
 
@@ -59,7 +59,7 @@ module ApiV1
           load_pipeline(pipeline_name)
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           response.etag = [get_etag_for_pipeline(@pipeline_config.name.to_s, json)]
-          render json_hal_v1: json
+          render DEFAULT_FORMAT => json
         else
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
           render_http_operation_result(result, {data: json})

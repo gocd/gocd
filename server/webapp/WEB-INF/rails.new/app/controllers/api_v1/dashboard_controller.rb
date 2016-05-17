@@ -25,7 +25,7 @@ module ApiV1
       @pipeline_configs   = security_service.viewableGroupsFor(current_user)
       presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
 
-      render json_hal_v1: presenters.to_hash(url_builder: self)
+      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
     end
 
   end

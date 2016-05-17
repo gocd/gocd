@@ -24,7 +24,7 @@ module ApiV1
       backup = backup_service.startBackup(current_user, result)
 
       if result.isSuccessful
-        render :json_hal_v1 => BackupRepresenter.new(backup).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => BackupRepresenter.new(backup).to_hash(url_builder: self)
       else
         render_http_operation_result(result)
       end

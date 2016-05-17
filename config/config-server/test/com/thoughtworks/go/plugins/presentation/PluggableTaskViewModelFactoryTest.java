@@ -61,7 +61,7 @@ public class PluggableTaskViewModelFactoryTest {
 
     @Test
     public void typeForDisplayAndTemplateOfViewModelShouldBeGotFromThePlugin() throws Exception {
-        PluggableTask pluggableTask = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), new Configuration());
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration("plugin-1", "2"), new Configuration());
         PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
         PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(pluggableTask, "new");
 
@@ -96,7 +96,7 @@ public class PluggableTaskViewModelFactoryTest {
     @Test
     public void dataForViewShouldBeGotFromTheTaskInJSONFormat() throws Exception {
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("KEY2", false, "value2"));
-        PluggableTask taskConfig = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), configuration);
+        PluggableTask taskConfig = new PluggableTask(new PluginConfiguration("plugin-1", "2"), configuration);
 
         PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
         PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(taskConfig, "new");
@@ -116,7 +116,7 @@ public class PluggableTaskViewModelFactoryTest {
         property1.addError("key1", "error msg");
         ConfigurationProperty property2 = create("KEY2", false, "value2");
         Configuration configuration = new Configuration(property1, property2);
-        PluggableTask taskConfig = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), configuration);
+        PluggableTask taskConfig = new PluggableTask(new PluginConfiguration("plugin-1", "2"), configuration);
 
         PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
         PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(taskConfig, "new");
@@ -148,14 +148,14 @@ public class PluggableTaskViewModelFactoryTest {
     public void shouldReturnMissingPluginTaskViewIfPluginIsMissing() {
         String pluginId = "pluginId";
         PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
-        PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(new PluggableTask("", new PluginConfiguration(pluginId, "1"), new Configuration()), "edit");
+        PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(new PluggableTask(new PluginConfiguration(pluginId, "1"), new Configuration()), "edit");
         assertThat((String) viewModel.getParameters().get("template"), is(String.format("Associated plugin '%s' not found. Please contact the Go admin to install the plugin.", pluginId)));
         assertThat(viewModel.getTypeForDisplay(), is(pluginId));
         assertThat(viewModel instanceof MissingPluggableTaskViewModel, is(true));
     }
 
     private void assertPluggableViewModel(String actionName, String expectedTemplatePath) {
-        PluggableTask pluggableTask = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), new Configuration());
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration("plugin-1", "2"), new Configuration());
         PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
 
         PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(pluggableTask, actionName);
@@ -189,7 +189,7 @@ public class PluggableTaskViewModelFactoryTest {
             }
         });
 
-        PluggableTask pluggableTask = new PluggableTask("", new PluginConfiguration("plugin-1", "2"), new Configuration());
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration("plugin-1", "2"), new Configuration());
         PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
         return factory.viewModelFor(pluggableTask, "new");
     }

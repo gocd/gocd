@@ -115,8 +115,8 @@ public class TaskViewServiceTest {
         storeTaskPreferences(plugin2, "key_3", "key_4");
         when(registry.implementersOf(Task.class)).thenReturn(Arrays.<Class<? extends Task>>asList(ExecTask.class, PluggableTask.class));
 
-        PluggableTask expectedPluggableTaskForPlugin1 = new PluggableTask("", new PluginConfiguration(plugin1, "1"), new Configuration(create("key_1"), create("key_2")));
-        PluggableTask expectedPluggableTaskForPlugin2 = new PluggableTask("", new PluginConfiguration(plugin2, "1"), new Configuration(create("key_3"), create("key_4")));
+        PluggableTask expectedPluggableTaskForPlugin1 = new PluggableTask(new PluginConfiguration(plugin1, "1"), new Configuration(create("key_1"), create("key_2")));
+        PluggableTask expectedPluggableTaskForPlugin2 = new PluggableTask(new PluginConfiguration(plugin2, "1"), new Configuration(create("key_3"), create("key_4")));
 
         when(registry.getViewModelFor(new ExecTask(), "new")).thenReturn(viewModel(new ExecTask()));
         when(registry.getViewModelFor(expectedPluggableTaskForPlugin1, "new")).thenReturn(viewModel(expectedPluggableTaskForPlugin1));
@@ -146,7 +146,7 @@ public class TaskViewServiceTest {
         storeTaskPreferences(plugin, taskConfigProperty1.withDefault("default1"), taskConfigProperty2.withDefault("default2"), taskConfigProperty3);
         when(registry.implementersOf(Task.class)).thenReturn(Arrays.<Class<? extends Task>>asList(PluggableTask.class));
 
-        PluggableTask pluggableTask = (PluggableTask) taskViewService.taskInstanceFor(new PluggableTask("", new PluginConfiguration(plugin, "1"), new Configuration()).getTaskType());
+        PluggableTask pluggableTask = (PluggableTask) taskViewService.taskInstanceFor(new PluggableTask(new PluginConfiguration(plugin, "1"), new Configuration()).getTaskType());
         assertThat(pluggableTask.getConfiguration().getProperty("key1").getValue(), is("default1"));
         assertThat(pluggableTask.getConfiguration().getProperty("key2").getValue(), is("default2"));
         assertNull(pluggableTask.getConfiguration().getProperty("key3").getValue());

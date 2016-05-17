@@ -47,7 +47,7 @@ public class PluggableTaskBuilderCreatorTest {
 
     @Before
     public void setup() throws Exception {
-        pluggableTask = new PluggableTask("test-task", new PluginConfiguration("test-plugin-id", "13.4"), new Configuration());
+        pluggableTask = new PluggableTask(new PluginConfiguration("test-plugin-id", "13.4"), new Configuration());
         pluggableTaskBuilderCreator = new PluggableTaskBuilderCreator(mock(TaskExtension.class));
         execTaskBuilder = new ExecTaskBuilder();
         builderFactory = mock(BuilderFactory.class);

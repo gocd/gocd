@@ -1017,7 +1017,7 @@ public class GoConfigMigrationIntegrationTest {
 
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size(),is(1));
-        assertThat((PluggableTask) tasks.get(0), is(new PluggableTask(null, new PluginConfiguration("plugin-id", "1.0"), configuration)));
+        assertThat((PluggableTask) tasks.get(0), is(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration)));
     }
 
     @Test

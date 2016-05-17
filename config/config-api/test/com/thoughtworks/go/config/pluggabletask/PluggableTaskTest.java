@@ -58,7 +58,7 @@ public class PluggableTaskTest {
                 new ConfigurationProperty(new ConfigurationKey(keys.get(3)), new ConfigurationValue(values.get(3)),
                         new EncryptedConfigurationValue(cipher.encrypt(values.get(3))), cipher));
 
-        PluggableTask task = new PluggableTask("test-task", pluginConfiguration, configuration);
+        PluggableTask task = new PluggableTask(pluginConfiguration, configuration);
 
         Map<String, Map<String, String>> configMap = task.configAsMap();
         assertThat(configMap.keySet().size(), is(keys.size()));
@@ -72,8 +72,8 @@ public class PluggableTaskTest {
     @Test
     public void shouldReturnTrueWhenPluginConfigurationForTwoPluggableTasksIsExactlyTheSame() {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("test-plugin-1", "1.0");
-        PluggableTask pluggableTask1 = new PluggableTask("test-task-1", pluginConfiguration, new Configuration());
-        PluggableTask pluggableTask2 = new PluggableTask("test-task-2", pluginConfiguration, new Configuration());
+        PluggableTask pluggableTask1 = new PluggableTask(pluginConfiguration, new Configuration());
+        PluggableTask pluggableTask2 = new PluggableTask(pluginConfiguration, new Configuration());
         assertTrue(pluggableTask1.hasSameTypeAs(pluggableTask2));
     }
 
@@ -81,28 +81,28 @@ public class PluggableTaskTest {
     public void shouldReturnFalseWhenPluginConfigurationForTwoPluggableTasksIsDifferent() {
         PluginConfiguration pluginConfiguration1 = new PluginConfiguration("test-plugin-1", "1.0");
         PluginConfiguration pluginConfiguration2 = new PluginConfiguration("test-plugin-2", "1.0");
-        PluggableTask pluggableTask1 = new PluggableTask("test-task-1", pluginConfiguration1, new Configuration());
-        PluggableTask pluggableTask2 = new PluggableTask("test-task-2", pluginConfiguration2, new Configuration());
+        PluggableTask pluggableTask1 = new PluggableTask(pluginConfiguration1, new Configuration());
+        PluggableTask pluggableTask2 = new PluggableTask(pluginConfiguration2, new Configuration());
         assertFalse(pluggableTask1.hasSameTypeAs(pluggableTask2));
     }
 
     @Test
     public void shouldReturnFalseWhenPluggableTaskIsComparedWithAnyOtherTask() {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("test-plugin-1", "1.0");
-        PluggableTask pluggableTask = new PluggableTask("test-task-1", pluginConfiguration, new Configuration());
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, new Configuration());
         AntTask antTask = new AntTask();
         assertFalse(pluggableTask.hasSameTypeAs(antTask));
     }
 
     @Test
     public void taskTypeShouldBeSanitizedToHaveNoSpecialCharacters() throws Exception {
-        assertThat(new PluggableTask("", new PluginConfiguration("abc.def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc_def"));
-        assertThat(new PluggableTask("", new PluginConfiguration("abc_def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc_def"));
-        assertThat(new PluggableTask("", new PluginConfiguration("abcdef", "1"), new Configuration()).getTaskType(), is("pluggable_task_abcdef"));
-        assertThat(new PluggableTask("", new PluginConfiguration("abc#def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc_def"));
-        assertThat(new PluggableTask("", new PluginConfiguration("abc#__def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc___def"));
-        assertThat(new PluggableTask("", new PluginConfiguration("Abc#dEF", "1"), new Configuration()).getTaskType(), is("pluggable_task_Abc_dEF"));
-        assertThat(new PluggableTask("", new PluginConfiguration("1234567890#ABCDEF", "1"), new Configuration()).getTaskType(), is("pluggable_task_1234567890_ABCDEF"));
+        assertThat(new PluggableTask(new PluginConfiguration("abc.def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc_def"));
+        assertThat(new PluggableTask(new PluginConfiguration("abc_def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc_def"));
+        assertThat(new PluggableTask(new PluginConfiguration("abcdef", "1"), new Configuration()).getTaskType(), is("pluggable_task_abcdef"));
+        assertThat(new PluggableTask(new PluginConfiguration("abc#def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc_def"));
+        assertThat(new PluggableTask(new PluginConfiguration("abc#__def", "1"), new Configuration()).getTaskType(), is("pluggable_task_abc___def"));
+        assertThat(new PluggableTask(new PluginConfiguration("Abc#dEF", "1"), new Configuration()).getTaskType(), is("pluggable_task_Abc_dEF"));
+        assertThat(new PluggableTask(new PluginConfiguration("1234567890#ABCDEF", "1"), new Configuration()).getTaskType(), is("pluggable_task_1234567890_ABCDEF"));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class PluggableTaskTest {
                 ConfigurationPropertyMother.create("Key2", false, "value2"),
                 ConfigurationPropertyMother.create("key3", true, "encryptedValue1"));
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
 
         List<TaskProperty> propertiesForDisplay = task.getPropertiesForDisplay();
 
@@ -148,7 +148,7 @@ public class PluggableTaskTest {
                 ConfigurationPropertyMother.create("KEY2", false, "value2")
         );
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
 
         List<TaskProperty> propertiesForDisplay = task.getPropertiesForDisplay();
 
@@ -176,7 +176,7 @@ public class PluggableTaskTest {
                 ConfigurationPropertyMother.create("KEY2", false, "value2")
         );
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
 
         List<TaskProperty> propertiesForDisplay = task.getPropertiesForDisplay();
 
@@ -197,7 +197,7 @@ public class PluggableTaskTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
 
         TaskConfig taskConfig = new TaskConfig();
@@ -220,7 +220,7 @@ public class PluggableTaskTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
 
         TaskConfig taskConfig = new TaskConfig();
@@ -243,7 +243,7 @@ public class PluggableTaskTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
 
         TaskConfig taskConfig = new TaskConfig();
@@ -264,7 +264,7 @@ public class PluggableTaskTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
 
         TaskConfig taskConfig = new TaskConfig();
@@ -287,7 +287,7 @@ public class PluggableTaskTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
         ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1", false, "value1");
 
         TaskConfig taskConfig = new TaskConfig();
@@ -303,7 +303,7 @@ public class PluggableTaskTest {
         TaskPreference taskPreference = mock(TaskPreference.class);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
         ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1", false, "value1");
 
         TaskConfig taskConfig = new TaskConfig();
@@ -321,7 +321,7 @@ public class PluggableTaskTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("secureKey"));
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
-        PluggableTask task = new PluggableTask("abc", new PluginConfiguration("abc.def", "1"), configuration);
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
         ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("secureKey"), new ConfigurationValue("secureValue"), new EncryptedConfigurationValue("old-encrypted-text"),
                 new GoCipher());
 

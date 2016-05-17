@@ -55,11 +55,6 @@ public class PluggableTask extends AbstractTask {
     public PluggableTask() {
     }
 
-    @Deprecated
-    public PluggableTask(String name, PluginConfiguration pluginConfiguration, Configuration configuration) {
-        this.pluginConfiguration = pluginConfiguration;
-        this.configuration = configuration;
-    }
     public PluggableTask(PluginConfiguration pluginConfiguration, Configuration configuration) {
         this.pluginConfiguration = pluginConfiguration;
         this.configuration = configuration;

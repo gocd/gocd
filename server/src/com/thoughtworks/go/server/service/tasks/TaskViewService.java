@@ -144,7 +144,7 @@ public class TaskViewService implements TaskFactory {
             GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(pluginId);
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
             if (pluginDescriptor != null && taskPreference != null) {
-                tasks.add(new PluggableTask("", new PluginConfiguration(pluginId, pluginDescriptor.version()), getConfiguration(taskPreference.getConfig())));
+                tasks.add(new PluggableTask(new PluginConfiguration(pluginId, pluginDescriptor.version()), getConfiguration(taskPreference.getConfig())));
             }
         }
         return tasks;

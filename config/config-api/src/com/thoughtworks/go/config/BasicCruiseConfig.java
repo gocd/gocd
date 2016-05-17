@@ -140,6 +140,10 @@ public class BasicCruiseConfig implements CruiseConfig {
         CruiseConfig getLocal();
 
         List<PipelineConfig> getAllLocalPipelineConfigs();
+
+        List<PartialConfig> getMergedPartials();
+
+        boolean isLocal();
     }
 
     private class BasicStrategy implements CruiseStrategy {
@@ -166,6 +170,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
 
         @Override
+        public List<PartialConfig> getMergedPartials() {
+            return new ArrayList<>();
+        }
+
+        @Override
         public CruiseConfig getLocal() {
             return BasicCruiseConfig.this;
         }
@@ -174,6 +183,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public List<PipelineConfig> getAllLocalPipelineConfigs() {
             return getAllPipelineConfigs();
+        }
+
+        @Override
+        public boolean isLocal() {
+            return true;
         }
     }
 
@@ -399,10 +413,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
             }
 
-            //TODO: tomzo replace by cheaper operation, we only need groups and environments to be different
+            // we only need groups and environments to be different
             Cloner cloner = new Cloner();
             BasicCruiseConfig configForSave = cloner.deepClone(this.main);
-
+            // returned strategy "should" be basic, although is has no effect if it isn't
+            configForSave.strategy = new BasicStrategy();
             configForSave.setEnvironments(configsForSave);
             configForSave.groups = localGroups;
 
@@ -424,6 +439,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
             }
             return locals;
+        }
+
+        @Override
+        public boolean isLocal() {
+            return false;
         }
     }
 
@@ -1381,6 +1401,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PartialConfig> getPartials() {
         return partials;
+    }
+
+    @Override
+    public List<PartialConfig> getMergedPartials() {
+        return strategy.getMergedPartials();
+    }
+
+    @Override
+    public boolean isLocal() {
+        return this.strategy.isLocal();
     }
 
     @Override

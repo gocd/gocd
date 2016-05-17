@@ -143,6 +143,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         void update(String groupName, String pipelineName, PipelineConfig pipeline);
 
         List<PipelineConfig> getAllLocalPipelineConfigs();
+
+        boolean isLocal();
     }
 
     private class BasicStrategy implements CruiseStrategy {
@@ -202,6 +204,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public List<PipelineConfig> getAllLocalPipelineConfigs() {
             return getAllPipelineConfigs();
+        }
+
+        @Override
+        public boolean isLocal() {
+            return true;
         }
     }
 
@@ -424,10 +431,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
             }
 
-            //TODO: tomzo replace by cheaper operation, we only need groups and environments to be different
+            // we only need groups and environments to be different
             Cloner cloner = new Cloner();
             BasicCruiseConfig configForSave = cloner.deepClone(this.main);
-
+            // returned strategy "should" be basic, although is has no effect if it isn't
+            configForSave.strategy = new BasicStrategy();
             configForSave.setEnvironments(configsForSave);
             configForSave.groups = localGroups;
 
@@ -469,6 +477,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
             }
             return locals;
+        }
+
+        @Override
+        public boolean isLocal() {
+            return false;
         }
     }
 
@@ -1437,6 +1450,11 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     public List<PipelineConfig> getAllLocalPipelineConfigs() {
         return strategy.getAllLocalPipelineConfigs();
+    }
+
+    @Override
+    public boolean isLocal() {
+        return this.strategy.isLocal();
     }
 
     @Override

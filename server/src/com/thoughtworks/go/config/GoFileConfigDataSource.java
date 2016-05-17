@@ -249,9 +249,11 @@ public class GoFileConfigDataSource {
             // Need to convert to xml before we try to write it to the config file.
             // If our cruiseConfig fails XSD validation, we don't want to write it incorrectly.
             GoConfigHolder validatedConfigHolder;
+            List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
             try {
-                String configAsXml = trySavingConfig(updatingCommand, configHolder, cachedGoPartials.lastKnownPartials());
+                String configAsXml = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
+                validatedConfigHolder.configForEdit.merge(lastKnownPartials,true);
                 serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
                 if (cachedGoPartials.lastValidPartials().isEmpty()) {
@@ -260,6 +262,7 @@ public class GoFileConfigDataSource {
                     serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
                     String configAsXml = trySavingConfig(updatingCommand, configHolder, cachedGoPartials.lastValidPartials());
                     validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
+                    validatedConfigHolder.configForEdit.merge(lastKnownPartials,true);
                 }
             }
             ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
@@ -297,7 +300,14 @@ public class GoFileConfigDataSource {
             }
             return getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
         }
-        CruiseConfig cruiseConfig = cloner.deepClone(configHolder.configForEdit);
+        CruiseConfig cruiseConfig;
+        if(configHolder.configForEdit.isLocal())
+            cruiseConfig = cloner.deepClone(configHolder.configForEdit);
+        else {
+            // strip remote configurations from edited config for edit
+            cruiseConfig = configHolder.configForEdit.getLocal();
+        }
+
         cruiseConfig.setPartials(partials);
         CruiseConfig config = updatingCommand.update(cruiseConfig);
         LOGGER.debug("[Config Save] ==-- Done getting modified config");

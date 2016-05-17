@@ -15,9 +15,9 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery', 'angular',
-  '../helpers/form_helper','../models/tasks', '../models/pluggable_tasks', './task_basic_views_widget'
-], function (m, _, $, angular, f, Tasks, PluggableTasks, TaskBasicViews ) {
+  'mithril', 'lodash', 'string-plus', '../helpers/form_helper', '../helpers/tooltips',
+  '../models/tasks', '../models/pluggable_tasks', './task_basic_views_widget'
+], function (m, _, s, f, tt, Tasks, PluggableTasks, TaskBasicViews ) {
   var CancelTaskWidget = {
     controller: function (args) {
       var self = this;
@@ -50,14 +50,28 @@ define([
 
     view: function (ctrl) {
       var task = ctrl.task;
+      var id = s.uuid();
+
       var cancelTask = function () {
         if (task.hasOnCancelTask()) {
-          var taskView = TaskBasicViews[task.onCancelTask.type()];
-          return (m.component(taskView, {
-            task: task.onCancelTask,
-            key: task.onCancelTask.uuid(),
-            basicView: true
-          }));
+          var cancelTask = task.onCancelTask;
+          return (
+            <f.row>
+              <div class="cancel-task-container">
+                <div class="task-header">
+                  <strong>{cancelTask.type()}</strong>
+                  <span class='task-type'>{cancelTask.toString()}</span>
+                </div>
+                {
+                  m.component(TaskBasicViews[cancelTask.type()], {
+                    task: cancelTask,
+                    key: cancelTask.uuid(),
+                    basicView: true
+                  })
+                }
+              </div>
+            </f.row>
+          )
         }
       };
 
@@ -70,11 +84,10 @@ define([
           });
 
           return (
-            <f.row class='task-selector'>
               <f.select value={ctrl.selected}
                         items={items}
-                        size={6}/>
-            </f.row>
+                        size={2}
+                        end="true"/>
           )
         }
       };
@@ -84,11 +97,14 @@ define([
           <f.row>
             <f.checkBox model={ctrl}
                         attrName='checked'
-                        label='On Cancel Task'
-                        size={4}/>
-            <f.column end={true}>
-              {taskSelector()}
-            </f.column>
+                        label='On cancel task'
+                        class="check"
+                        size={2}
+                        tooltip={{content: tt.onCancelTask,
+                            direction: 'bottom',
+                            size: 'small'
+                           }}/>
+            {taskSelector()}
           </f.row>
           {cancelTask()}
         </f.row>

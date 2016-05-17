@@ -16,8 +16,8 @@
 
 define([
   'mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../models/pluggable_tasks', 'js-routes',
-  '../models/argument'
-], function (m, _, $, angular, f, PluggableTasks, Routes, Argument) {
+  '../models/argument', './lookup_command_widget'
+], function (m, _, $, angular, f, PluggableTasks, Routes, Argument, LookupCommandWidget) {
 
   var TaskBasicViews = {
     ant: {
@@ -25,9 +25,9 @@ define([
         var task = args.task;
         return (
           <f.row>
-            <f.inputWithLabel attrName='target'
-                              model={task}/>
             <f.inputWithLabel attrName='buildFile'
+                              model={task}/>
+            <f.inputWithLabel attrName='target'
                               model={task}/>
             <f.inputWithLabel attrName='workingDirectory'
                               model={task}
@@ -41,22 +41,23 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <f.row>
+          <div class="task-basic">
             <f.row>
+              <f.inputWithLabel attrName='buildFile'
+                                model={task}/>
               <f.inputWithLabel attrName='target'
                                 model={task}/>
               <f.inputWithLabel attrName='workingDirectory'
-                                model={task}/>
-              <f.inputWithLabel attrName='buildFile'
                                 model={task}
                                 end={true}/>
+
             </f.row>
             <f.row>
               <f.inputWithLabel attrName='nantPath'
                                 model={task}
                                 end={true}/>
             </f.row>
-          </f.row>
+          </div>
         );
       }
     },
@@ -86,22 +87,25 @@ define([
         };
 
         return (
-          <f.row>
-            <f.column size={4}>
-              <f.row>
-                <f.inputWithLabel attrName='command'
-                                  model={task}
-                                  size={12}
-                                  largeSize={12}/>
-                <f.inputWithLabel attrName='workingDirectory'
-                                  model={task}
-                                  end={true}
-                                  size={12}
-                                  largeSize={12}/>
-              </f.row>
-            </f.column>
-            {arguments()}
-          </f.row>
+          <div class="task-basic">
+            <f.row>
+              <f.column size={4}>
+                <f.row>
+                  <f.inputWithLabel attrName='command'
+                                    model={task}
+                                    size={12}
+                                    largeSize={12}/>
+                  <f.inputWithLabel attrName='workingDirectory'
+                                    model={task}
+                                    end={true}
+                                    size={12}
+                                    largeSize={12}/>
+                </f.row>
+              </f.column>
+              {arguments()}
+            </f.row>
+            <LookupCommandWidget model={args.task}/>
+          </div>
         );
       }
     },
@@ -111,9 +115,9 @@ define([
         var task = args.task;
         return (
           <f.row>
-            <f.inputWithLabel attrName='target'
-                              model={task}/>
             <f.inputWithLabel attrName='buildFile'
+                              model={task}/>
+            <f.inputWithLabel attrName='target'
                               model={task}/>
             <f.inputWithLabel attrName='workingDirectory'
                               model={task}
@@ -127,7 +131,7 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <f.row>
+          <div class="task-basic">
             <f.row>
               <f.inputWithLabel attrName='pipeline'
                                 model={task}/>
@@ -144,7 +148,7 @@ define([
                                 model={task.source()}
                                 end={true}/>
             </f.row>
-          </f.row>
+          </div>
         );
       }
     },

@@ -16,11 +16,10 @@
 
 define([
   'mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../models/tasks',
-  '../models/pluggable_tasks', 'js-routes', './lookup_command_widget', '../models/argument',
-  '../helpers/mithril_component_mixins', './run_if_conditions_widget', './task_basic_views_widget',
-  './cancel_task_widget'
-], function (m, _, $, angular, f, Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument,
-             ComponentMixins, RunIfConditionsWidget, TaskBasicViews, CancelTaskWidget) {
+  '../models/pluggable_tasks', 'js-routes',  '../models/argument', '../helpers/mithril_component_mixins',
+  './run_if_conditions_widget', './task_basic_views_widget', './cancel_task_widget'
+], function (m, _, $, angular, f, Tasks, PluggableTasks, Routes, Argument, ComponentMixins,
+             RunIfConditionsWidget, TaskBasicViews, CancelTaskWidget) {
 
   var TaskViews = {
     base: {
@@ -95,7 +94,6 @@ define([
         return (
           <TaskViews.base {...args}>
             <TaskBasicViews.exec {...args}/>
-            <LookupCommandWidget model={args.task}/>
           </TaskViews.base>
         );
       }

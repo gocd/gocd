@@ -484,7 +484,15 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
       Lookup sample command snippets from your local
       <a class="" href="http://www.go.cd/documentation/user/current/advanced_usage/command_repository.html" target="_blank"> command repository</a>.
     </div>
-  )
+  );
+
+  var onCancelTask = (
+    <div>
+      <p>
+        Define clean up task which would run if the current task is killed upon stage cancel.
+      </p>
+    </div>
+  );
 
   return {
     pipeline: {
@@ -542,6 +550,8 @@ define(['mithril', 'lodash', './form_helper'], function (m, _, f) {
 
     task: {
       lookup: lookupCommand
-    }
+    },
+
+    onCancelTask: onCancelTask
   };
 });

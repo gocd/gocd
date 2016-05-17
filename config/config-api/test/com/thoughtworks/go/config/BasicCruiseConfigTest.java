@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,6 +38,17 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     @Override
     protected BasicCruiseConfig createCruiseConfig() {
         return new BasicCruiseConfig();
+    }
+
+    @Test
+    public void getAllLocalPipelineConfigs_shouldReturnOnlyLocalPipelinesWhenNoRemotes()
+    {
+        PipelineConfig pipeline1 = createPipelineConfig("local-pipe-1", "stage1");
+        cruiseConfig.getGroups().addPipeline("existing_group", pipeline1);
+
+        List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
+        assertThat(localPipelines.size(),is(1));
+        assertThat(localPipelines,hasItem(pipeline1));
     }
 
     @Test

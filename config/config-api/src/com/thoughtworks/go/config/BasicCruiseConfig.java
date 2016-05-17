@@ -139,7 +139,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         CruiseConfig getLocal();
 
-        List<PipelineConfig> getAllLocalPipelineConfigs();
+        List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
 
         List<PartialConfig> getMergedPartials();
 
@@ -181,7 +181,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
 
         @Override
-        public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
             return getAllPipelineConfigs();
         }
 
@@ -420,22 +420,56 @@ public class BasicCruiseConfig implements CruiseConfig {
             configForSave.strategy = new BasicStrategy();
             configForSave.setEnvironments(configsForSave);
             configForSave.groups = localGroups;
+            // and it should not contain partials
+            configForSave.partials = null;
 
             return configForSave;
         }
 
-        @Override
-        public List<PipelineConfig> getAllLocalPipelineConfigs() {
-            List<PipelineConfig> locals = new ArrayList<>();
-            for(PipelineConfigs group : this.main.groups)
-            {
-                for(PipelineConfigs pipelineConfigs : groups)
-                {
-                    for(PipelineConfig pipeline : pipelineConfigs)
-                    {
-                        if(pipeline.isLocal())
-                            locals.add(pipeline);
+        private void verifyUniqueNameInParts(PipelineConfig pipelineConfig) {
+            for (PartialConfig part : this.parts) {
+                for (PipelineConfigs partGroup : part.getGroups()) {
+                    if (partGroup.hasPipeline(pipelineConfig.name())) {
+                        throw bomb("Pipeline called '" + pipelineConfig.name() +
+                                "' is already defined in configuration repository " +
+                                part.getOrigin().displayName());
                     }
+
+                }
+            }
+        }
+
+        @Override
+        public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
+            List<PipelineConfig> locals = new ArrayList<>();
+
+            PipelineGroups localGroups = this.main.groups.getLocal();
+            for(PipelineConfigs pipelineConfigs : localGroups)
+            {
+                if(pipelineConfigs.getOrigin() instanceof UIConfigOrigin)
+                {
+                    //then we have injected this so that UI has a piece to edit
+                    // we want to keep it only if there is something added
+                    if(!pipelineConfigs.isEmpty())
+                    {
+                        for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
+                            if(excludeMembersOfRemoteEnvironments && this.main.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                                continue;
+                            locals.add(pipelineConfig);
+                        }
+
+                    }
+                }
+                else
+                {
+                    //origin is local file
+
+                    for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
+                        if(excludeMembersOfRemoteEnvironments && this.main.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                            continue;
+                        locals.add(pipelineConfig);
+                    }
+
                 }
             }
             return locals;
@@ -1390,7 +1424,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     public List<PipelineConfig> getAllLocalPipelineConfigs() {
-        return strategy.getAllLocalPipelineConfigs();
+        return strategy.getAllLocalPipelineConfigs(false);
     }
 
     @Override
@@ -1406,6 +1440,10 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PartialConfig> getMergedPartials() {
         return strategy.getMergedPartials();
+    }
+
+    public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
+        return  strategy.getAllLocalPipelineConfigs(excludeMembersOfRemoteEnvironments);
     }
 
     @Override

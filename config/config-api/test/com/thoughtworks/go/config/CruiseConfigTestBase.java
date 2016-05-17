@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.TaskConfigVisitor;
-import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
@@ -53,7 +52,6 @@ import java.util.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.Is.isA;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
@@ -830,16 +828,15 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
-    public void getAllLocalPipelines_shouldReturnPipelinesOnlyFromMainPart()
-    {
+    public void getAllLocalPipelines_shouldReturnPipelinesOnlyFromMainPart() {
         PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipe1");
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), pipe1);
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
                 PartialConfigMother.withPipeline("pipe2"));
 
-        assertThat(cruiseConfig.getAllLocalPipelineConfigs().size(), is(1));
-        assertThat(cruiseConfig.getAllLocalPipelineConfigs(),hasItem(pipe1));
+        assertThat(cruiseConfig.getAllLocalPipelineConfigs(false).size(), is(1));
+        assertThat(cruiseConfig.getAllLocalPipelineConfigs(false), hasItem(pipe1));
     }
 
     @Test

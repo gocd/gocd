@@ -382,6 +382,16 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     @Override
+    public boolean containsPipelineRemotely(CaseInsensitiveString pipelineName) {
+        for(EnvironmentConfig part : this)
+        {
+            if(part.containsPipelineRemotely(pipelineName))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

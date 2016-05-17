@@ -142,7 +142,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         void update(String groupName, String pipelineName, PipelineConfig pipeline);
 
-        List<PipelineConfig> getAllLocalPipelineConfigs();
+        List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
 
         boolean isLocal();
     }
@@ -202,7 +202,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
 
         @Override
-        public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
             return getAllPipelineConfigs();
         }
 
@@ -438,6 +438,8 @@ public class BasicCruiseConfig implements CruiseConfig {
             configForSave.strategy = new BasicStrategy();
             configForSave.setEnvironments(configsForSave);
             configForSave.groups = localGroups;
+            // and it should not contain partials
+            configForSave.partials = null;
 
             return configForSave;
         }
@@ -463,17 +465,36 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
 
         @Override
-        public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
             List<PipelineConfig> locals = new ArrayList<>();
-            for(PipelineConfigs group : this.main.groups)
+
+            PipelineGroups localGroups = this.main.groups.getLocal();
+            for(PipelineConfigs pipelineConfigs : localGroups)
             {
-                for(PipelineConfigs pipelineConfigs : groups)
+                if(pipelineConfigs.getOrigin() instanceof UIConfigOrigin)
                 {
-                    for(PipelineConfig pipeline : pipelineConfigs)
+                    //then we have injected this so that UI has a piece to edit
+                    // we want to keep it only if there is something added
+                    if(!pipelineConfigs.isEmpty())
                     {
-                        if(pipeline.isLocal())
-                            locals.add(pipeline);
+                        for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
+                            if(excludeMembersOfRemoteEnvironments && this.main.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                                continue;
+                            locals.add(pipelineConfig);
+                        }
+
                     }
+                }
+                else
+                {
+                    //origin is local file
+
+                    for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
+                        if(excludeMembersOfRemoteEnvironments && this.main.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                            continue;
+                        locals.add(pipelineConfig);
+                    }
+
                 }
             }
             return locals;
@@ -1448,8 +1469,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         return strategy.getMergedPartials();
     }
 
-    public List<PipelineConfig> getAllLocalPipelineConfigs() {
-        return strategy.getAllLocalPipelineConfigs();
+    public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
+        return  strategy.getAllLocalPipelineConfigs(excludeMembersOfRemoteEnvironments);
     }
 
     @Override

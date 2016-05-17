@@ -329,4 +329,14 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
             return new EnvironmentAgentsConfig();
     }
 
+    @Override
+    public boolean containsPipelineRemotely(CaseInsensitiveString pipelineName) {
+        if(this.isLocal())
+            return false;
+        if(!this.containsPipeline(pipelineName))
+            return false;
+
+        return true;
+    }
+
 }

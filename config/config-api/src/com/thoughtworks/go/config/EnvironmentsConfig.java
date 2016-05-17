@@ -143,6 +143,15 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return false;
     }
 
+    public boolean isPipelineAssociatedWithRemoteEnvironment(final CaseInsensitiveString pipelineName) {
+        for (EnvironmentConfig environment : this) {
+            if (environment.containsPipelineRemotely(pipelineName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isAgentUnderEnvironment(String agentUuid) {
         for (EnvironmentConfig environment : this) {
             if (environment.hasAgent(agentUuid)) {

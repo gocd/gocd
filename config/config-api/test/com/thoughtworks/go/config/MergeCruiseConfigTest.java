@@ -3,6 +3,7 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -44,6 +45,90 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Override
     protected BasicCruiseConfig createCruiseConfig() {
         return new BasicCruiseConfig(new BasicCruiseConfig(), new PartialConfig());
+    }
+
+    @Test
+    public void getAllLocalPipelineConfigs_shouldReturnOnlyLocalPipelinesWhenRemoteExist()
+    {
+        PipelineConfig pipeline1 = createPipelineConfig("local-pipe-1", "stage1");
+        cruiseConfig.getGroups().addPipeline("existing_group", pipeline1);
+
+        List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
+        assertThat(localPipelines.size(),is(1));
+        assertThat(localPipelines,hasItem(pipeline1));
+    }
+
+    @Test
+    public void getLocal_shouldNotReturnMergeEnvironmentConfig()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
+        partialConfig.getGroups().get(0).setOrigins(new RepoConfigOrigin());
+        BasicEnvironmentConfig localEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        localEnvironment.addPipeline(new CaseInsensitiveString("local-pipeline-1"));
+        mainCruiseConfig.addEnvironment(localEnvironment);
+
+        BasicEnvironmentConfig remoteEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        remoteEnvironment.setOrigins(new RepoConfigOrigin());
+        remoteEnvironment.addPipeline(new CaseInsensitiveString("remote-pipeline-1"));
+        partialConfig.getEnvironments().add(remoteEnvironment);
+
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig);
+        cruiseConfig.merge(Arrays.asList(partialConfig),true);
+
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        EnvironmentConfig mergedEnvironment = cruiseConfig.getEnvironments().get(0);
+        assertThat(mergedEnvironment, instanceOf(MergeEnvironmentConfig.class));
+
+        CruiseConfig localPartForSave = cruiseConfig.getLocal();
+        assertThat(localPartForSave.getEnvironments().size(),is(1));
+        assertThat(localPartForSave.getEnvironments().get(0), instanceOf(BasicEnvironmentConfig.class));
+    }
+
+    @Test
+    public void getAllLocalPipelineConfigs_shouldReturnEmptyListWhenNoLocalPipelines()
+    {
+        List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
+        assertThat(localPipelines.size(),is(0));
+    }
+
+    @Test
+    public void getLocal_shouldReturnOnlyLocalPipelines()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
+        cruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
+        partialConfig.getGroups().get(0).setOrigins(new RepoConfigOrigin());
+
+        cruiseConfig.merge(Arrays.asList(partialConfig),true);
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")),is(true));
+
+        CruiseConfig localExtracted = cruiseConfig.getLocal();
+
+        assertThat(localExtracted.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")),is(true));
+        assertThat(localExtracted.hasPipelineNamed(new CaseInsensitiveString("remote-pipeline-1")),is(false));
+    }
+
+    @Test
+    public void getAllLocalPipelineConfigs_shouldExcludePipelinesReferencedByRemoteEnvironmentWhenRequested()
+    {
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
+        cruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
+        partialConfig.getGroups().get(0).setOrigins(new RepoConfigOrigin());
+
+        BasicEnvironmentConfig remoteEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        remoteEnvironment.setOrigins(new RepoConfigOrigin());
+        // remote environment declares a local pipeline as member
+        remoteEnvironment.addPipeline(new CaseInsensitiveString("local-pipeline-1"));
+        partialConfig.getEnvironments().add(remoteEnvironment);
+
+        cruiseConfig.merge(Arrays.asList(partialConfig),true);
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")),is(true));
+
+        List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(true);
+        assertThat(localPipelines.size(),is(0));
     }
 
     @Test

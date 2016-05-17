@@ -230,6 +230,8 @@ public class MagicalGoConfigXmlWriter {
 
     private static Element elementFor(Class<?> aClass, ConfigCache configCache) {
         ConfigTag configTag = annotationFor(aClass, ConfigTag.class);
+        if(configTag == null)
+            throw bomb(format("Cannot get config tag for {0}",aClass));
         return new Element(configTag.value(), namespaceFor(configTag));
     }
 

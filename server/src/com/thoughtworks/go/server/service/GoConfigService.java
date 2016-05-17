@@ -525,8 +525,12 @@ public class GoConfigService implements Initializer {
     public List<PipelineConfig> getAllPipelineConfigs() {
         return getCurrentConfig().getAllPipelineConfigs();
     }
+
+    /* NOTE: this is called from rails environments controller to build a list of pipelines which user can assign in environment.
+       We don't want user to select or unselect any pipeline which is already selected in a remote configuration repository.
+     */
     public List<PipelineConfig> getAllLocalPipelineConfigs() {
-        return getCurrentConfig().getAllLocalPipelineConfigs();
+        return getCurrentConfig().getAllLocalPipelineConfigs(true);
     }
 
     public List<PipelineConfig> getAllPipelineConfigsForEdit() {

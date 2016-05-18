@@ -1469,6 +1469,11 @@ public class BasicCruiseConfig implements CruiseConfig {
         return strategy.getMergedPartials();
     }
 
+    @Override
+    public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        return getAllLocalPipelineConfigs(false);
+    }
+
     public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
         return  strategy.getAllLocalPipelineConfigs(excludeMembersOfRemoteEnvironments);
     }

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-module ApiV2
+module ApiV3
   class BaseController < ::ApplicationController
 
     class BadRequest < StandardError
@@ -22,7 +22,7 @@ module ApiV2
 
     include AuthenticationHelper
 
-    FORMATS                = [:json_hal_v2]
+    FORMATS                = [:json_hal_v3]
     DEFAULT_FORMAT         = FORMATS.last
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
 

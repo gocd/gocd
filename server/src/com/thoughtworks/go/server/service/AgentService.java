@@ -50,8 +50,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -118,8 +117,17 @@ public class AgentService {
         return new ArrayList<>(agentInstances.getAllOperatingSystems());
     }
 
+    @Deprecated // used by old code, stop using AgentViewModel
     public AgentsViewModel agents() {
         return toAgentViewModels(agentInstances.allAgents());
+    }
+
+    public Map<AgentInstance, Collection<String>> agentEnvironmentMap() {
+        Map<AgentInstance, Collection<String>> allAgents = new LinkedHashMap<>();
+        for (AgentInstance agentInstance : agentInstances.allAgents()) {
+            allAgents.put(agentInstance, environmentConfigService.environmentsFor(agentInstance.getUuid()));
+        }
+        return allAgents;
     }
 
     public AgentsViewModel registeredAgents() {
@@ -171,8 +179,9 @@ public class AgentService {
         }
 
         AgentConfig agentConfig = agentConfigService.updateAgentAttributes(uuid, username, newHostname, resources, environments, enable, agentInstances, result);
-        if (agentConfig != null)
+        if (agentConfig != null) {
             return AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        }
         return null;
     }
 
@@ -228,7 +237,7 @@ public class AgentService {
             return;
         }
         List<AgentInstance> agents = new ArrayList<>();
-        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)){
+        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
             return;
         }
 

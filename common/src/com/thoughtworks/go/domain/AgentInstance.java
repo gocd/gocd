@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -48,6 +49,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private volatile Date lastHeardTime;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
+    private ConfigErrors errors;
 
     protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
@@ -347,6 +349,12 @@ public class AgentInstance implements Comparable<AgentInstance> {
         AgentType type = agentInConfig.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
         AgentInstance result = new AgentInstance(agentInConfig, type, systemEnvironment);
         result.agentConfigStatus = agentInConfig.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
+
+        result.errors = new ConfigErrors();
+        result.errors.addAll(agentInConfig.errors());
+        for (Resource resource : agentInConfig.getResources()) {
+            result.errors.addAll(resource.errors());
+        }
         return result;
     }
 
@@ -366,6 +374,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
             instance.update(agentRuntimeInfo);
         }
         return instance;
+    }
+
+    public ConfigErrors errors() {
+        return errors;
     }
 
     public boolean equals(Object that) {

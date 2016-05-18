@@ -58,46 +58,11 @@ module AgentMother
   private
 
   def handle_options(agent, options)
-    options.each do |option|
-      value = option[1]
-      key   = option[0]
-      respond_to?(key.to_s) && send(key, agent, value)
+    options.each do |key, value|
+      AgentInstanceMother.send("update_#{key}", agent, value)
     end
+
     AgentViewModel.new(agent, options[:environments] || [])
-  end
-
-  public
-
-  def ip_address(agent, ip_address)
-    AgentInstanceMother.updateIpAddress(agent, ip_address)
-  end
-
-  def resources(agent, resources)
-    AgentInstanceMother.updateResources(agent, resources)
-  end
-
-  def hostname(agent,host)
-    AgentInstanceMother.updateHostname(agent,host)
-  end
-
-  def uuid(agent,uuid)
-    AgentInstanceMother.updateUuid(agent,uuid)
-  end
-
-  def space(agent,space)
-    AgentInstanceMother.updateUsableSpace(agent,space)
-  end
-
-  def location(agent,location)
-    AgentInstanceMother.updateLocation(agent,location)
-  end
-
-  def operating_system(agent,os)
-    AgentInstanceMother.updateOS(agent,os)
-  end
-
-  def agent_launcher_version(agent,launcher_version)
-    AgentInstanceMother.updateAgentLauncherVersion(agent,launcher_version)
   end
 
 end

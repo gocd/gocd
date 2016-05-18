@@ -118,12 +118,19 @@ public class AgentInstanceMother {
         return agentInstance;
     }
 
+    public static AgentInstance updateSpace(AgentInstance agentInstance, Long freespace) {
+        return updateUsableSpace(agentInstance, freespace);
+    }
+
     public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freespace) {
         AgentConfig agentConfig = agentInstance.agentConfig();
         agentInstance.update(AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), freespace, "linux", false));
         return agentInstance;
     }
 
+    public static AgentInstance updateOperatingSystem(AgentInstance agentInstance, String operatingSystem){
+        return updateOS(agentInstance, operatingSystem);
+    }
 
     public static AgentInstance updateOS(AgentInstance agentInstance, String operatingSystem) {
         AgentConfig agentConfig = agentInstance.agentConfig();

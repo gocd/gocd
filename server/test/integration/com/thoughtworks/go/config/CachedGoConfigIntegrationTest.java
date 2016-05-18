@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -51,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -58,6 +60,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -104,6 +107,25 @@ public class CachedGoConfigIntegrationTest {
     @After
     public void tearDown() throws Exception {
         cachedGoPartials.clear();
+    }
+
+    @Test
+    public void shouldFailWhenTryingToAddPipelineDefinedRemotely() throws Exception {
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+        assertThat(cachedGoConfig.loadForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+
+        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
+                "www.spring.com");
+        try {
+            goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
+        }
+        catch (RuntimeException ex)
+        {
+            assertThat(ex.getMessage(),containsString("Pipeline named 'pipe1' is already defined in configuration repository"));
+            return;
+        }
+        fail("Should have thrown");
     }
 
     @Test

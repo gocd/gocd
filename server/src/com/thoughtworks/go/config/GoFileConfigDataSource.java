@@ -300,19 +300,15 @@ public class GoFileConfigDataSource {
             }
             return getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
         }
-        CruiseConfig cruiseConfig;
-        if(configHolder.configForEdit.isLocal())
-            cruiseConfig = cloner.deepClone(configHolder.configForEdit);
-        else {
-            // strip remote configurations from edited config for edit
-            cruiseConfig = configHolder.configForEdit.getLocal();
-        }
+        //TODO tomzo: may need more picky clone
+        CruiseConfig deepClone = cloner.deepClone(configHolder.configForEdit);
+        deepClone.setPartials(partials);
+        CruiseConfig updatedDeepClone = updatingCommand.update(deepClone);
 
-        cruiseConfig.setPartials(partials);
-        CruiseConfig config = updatingCommand.update(cruiseConfig);
         LOGGER.debug("[Config Save] ==-- Done getting modified config");
-        String configAsXml = configAsXml(config, false);
-        cachedGoPartials.markAsValid(cruiseConfig.getPartials());
+        // here we _may_ send config for edit with remote elements, which looks like horror, but these elements are removed further
+        String configAsXml = configAsXml(updatedDeepClone, false);
+        cachedGoPartials.markAsValid(deepClone.getPartials());
         return configAsXml;
     }
 

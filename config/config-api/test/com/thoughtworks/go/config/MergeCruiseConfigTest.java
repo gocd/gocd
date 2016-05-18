@@ -9,6 +9,7 @@ import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Before;
@@ -272,16 +273,32 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldCollectPipelineNameConflictErrorsInTheChildren_InMergedConfig_WhenPipelinesIn2Groups() {
-        BasicCruiseConfig mainCruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
+    public void shouldCollectPipelineNameConflictErrorsInTheChildren_InMergedConfig_WhenPipelinesInOneSource() {
+        BasicCruiseConfig mainCruiseConfig = GoConfigMother.configWithPipelines("pipeline-unique");
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipeline-1", "g2");
-        partialConfig.setOrigin(new RepoConfigOrigin());
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline-1");
+        partialConfig.getGroups().addPipeline("g1", pipeline);
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), "plugin"), "abc");
+        partialConfig.setOrigins(repoConfigOrigin);
         CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors.size(), is(2));
-        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
-        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
+        assertThat(allErrors.get(0).on("name"), is("Multiple pipelines named 'pipeline-1' are defined in url at abc. Pipeline names must be unique."));
+        assertThat(allErrors.get(1).on("name"), is("Multiple pipelines named 'pipeline-1' are defined in url at abc. Pipeline names must be unique."));
+    }
+
+    @Test
+    public void shouldCollectPipelineNameConflictErrorsInTheChildren_InMergedConfig_WhenPipelinesIn2Groups() {
+        BasicCruiseConfig mainCruiseConfig = GoConfigMother.configWithPipelines("pipeline-1");
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipeline-1", "g2");
+        partialConfig.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"),"plugin"),"abc"));
+        CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
+
+        List<ConfigErrors> allErrors = config.validateAfterPreprocess();
+        assertThat(allErrors.size(), is(2));
+        assertThat(allErrors.get(0).on("name"), is("Pipelines named 'pipeline-1' are defined in cruise-config.xml and in url at abc. Pipeline names must be unique."));
+        assertThat(allErrors.get(1).on("name"), is("Pipelines named 'pipeline-1' are defined in cruise-config.xml and in url at abc. Pipeline names must be unique."));
     }
 
     @Test

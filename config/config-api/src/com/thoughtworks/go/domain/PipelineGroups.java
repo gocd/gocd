@@ -28,6 +28,8 @@ import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -136,8 +138,40 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
             for (PipelineConfig pipeline : group) {
                 for (PipelineConfig visitedPipeline : visited) {
                     if (visitedPipeline.name().equals(pipeline.name())) {
-                        pipeline.addError(PipelineConfig.NAME, String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", pipeline.name()));
-                        visitedPipeline.addError(PipelineConfig.NAME, String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", pipeline.name()));
+                        // here we leverage having merged config for edit, we can validate at global scope, together with remote elements
+                        if(visitedPipeline.isLocal() && pipeline.isLocal()) {
+                            String errorMessage = String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", pipeline.name());
+                            pipeline.addError(PipelineConfig.NAME, errorMessage);
+                            visitedPipeline.addError(PipelineConfig.NAME, errorMessage);
+                        }
+                        else
+                        {
+                            ConfigOrigin visitedOrigin = visitedPipeline.getOrigin();
+                            ConfigOrigin otherOrigin = pipeline.getOrigin();
+                            if(visitedOrigin != null && otherOrigin != null) {
+                                if(visitedOrigin.equals(otherOrigin)) {
+                                    String errorMessage = String.format("Multiple pipelines named '%s' are defined in %s. Pipeline names must be unique.",
+                                            pipeline.name(),visitedOrigin.displayName());
+                                    pipeline.addError(PipelineConfig.NAME, errorMessage);
+                                    visitedPipeline.addError(PipelineConfig.NAME, errorMessage);
+                                }
+                                else {
+                                    String errorMessage = String.format("Pipelines named '%s' are defined in %s and in %s. Pipeline names must be unique.",
+                                            pipeline.name(),visitedOrigin.displayName(),otherOrigin.displayName());
+                                    pipeline.addError(PipelineConfig.NAME, errorMessage);
+                                    visitedPipeline.addError(PipelineConfig.NAME, errorMessage);
+                                }
+                            }
+                            else {
+                                // one of the pipelines is remote, other is in cruise-config.xml or just added via UI
+                                ConfigOrigin remoteOrigin = (visitedOrigin != null && !visitedOrigin.isLocal()) ?
+                                        visitedOrigin : otherOrigin;
+                                String errorMessage = String.format("Pipeline named '%s' is already defined in configuration repository %s",
+                                        pipeline.name(),remoteOrigin.displayName());
+                                pipeline.addError(PipelineConfig.NAME, errorMessage);
+                                visitedPipeline.addError(PipelineConfig.NAME, errorMessage);
+                            }
+                        }
                     }
                 }
                 visited.add(pipeline);

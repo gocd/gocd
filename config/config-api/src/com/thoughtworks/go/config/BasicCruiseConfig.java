@@ -439,7 +439,11 @@ public class BasicCruiseConfig implements CruiseConfig {
             configForSave.setEnvironments(configsForSave);
             configForSave.groups = localGroups;
             // and it should not contain partials
-            configForSave.partials = null;
+            configForSave.partials = new ArrayList<>();
+            // and this must be initialized again, we don't want _same_ instances in groups and in allPipelineConfigs
+            configForSave.allPipelineConfigs = null;
+            configForSave.pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+            //TODO: tomzo actually don't clone entire main, but only parts of it and assign to new instance
 
             return configForSave;
         }

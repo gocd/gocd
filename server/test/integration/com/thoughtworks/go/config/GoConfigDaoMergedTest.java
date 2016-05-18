@@ -84,21 +84,4 @@ public class GoConfigDaoMergedTest extends GoConfigDaoTestBase {
         assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(2));
         assertNotNull(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("framework")));
     }
-
-    // TODO: jyoti
-    @Ignore("rewrite this test as integration test")
-    @Test
-    public void shouldFailWhenTryingToAddPipelineDefinedRemotely() throws Exception {
-        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("remote-pipe", "ut",
-                "www.spring.com");
-        try {
-            goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
-        }
-        catch (RuntimeException ex)
-        {
-            assertThat(ex.getMessage(),is("Pipeline called 'remote-pipe' is already defined in configuration repository http://config-repo.git at 3213455"));
-            return;
-        }
-        fail("Should have thrown");
-    }
 }

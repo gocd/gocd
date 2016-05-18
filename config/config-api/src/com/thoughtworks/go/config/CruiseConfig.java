@@ -50,6 +50,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     int schemaVersion();
 
+    Set<MaterialConfig> getAllUniquePostCommitSchedulableMaterials();
+
     ConfigReposConfig getConfigRepos();
 
     void setConfigRepos(ConfigReposConfig repos);

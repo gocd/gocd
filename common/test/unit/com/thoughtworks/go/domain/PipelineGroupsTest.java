@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +49,7 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -192,41 +194,6 @@ public class PipelineGroupsTest {
         PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup);
 
         pipelineGroups.findGroup("NonExistantGroup");
-    }
-
-    @Test
-    public void shouldReturnAllUniqueSchedulableScmMaterials() {
-        final MaterialConfig svnMaterialConfig = new SvnMaterialConfig("http://svn_url_1", "username", "password", false);
-        ((ScmMaterialConfig) svnMaterialConfig).setAutoUpdate(false);
-        final MaterialConfig svnMaterialConfigWithAutoUpdate = new SvnMaterialConfig("http://svn_url_2", "username", "password", false);
-        ((ScmMaterialConfig) svnMaterialConfigWithAutoUpdate).setAutoUpdate(true);
-        final MaterialConfig hgMaterialConfig = new HgMaterialConfig("http://hg_url", null);
-        ((ScmMaterialConfig) hgMaterialConfig).setAutoUpdate(false);
-        final MaterialConfig gitMaterialConfig = new GitMaterialConfig("http://git_url");
-        ((ScmMaterialConfig) gitMaterialConfig).setAutoUpdate(false);
-        final MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
-        ((ScmMaterialConfig) tfsMaterialConfig).setAutoUpdate(false);
-        final MaterialConfig p4MaterialConfig = new P4MaterialConfig("http://p4_url", "view", "username");
-        ((ScmMaterialConfig) p4MaterialConfig).setAutoUpdate(false);
-        final MaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
-        final PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig("scm-id-1", null, null);
-        pluggableSCMMaterialConfig.getSCMConfig().setAutoUpdate(false);
-
-        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(svnMaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(svnMaterialConfig, gitMaterialConfig),
-                new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p3 = PipelineConfigMother.pipelineConfig("pipeline3", new MaterialConfigs(hgMaterialConfig, dependencyMaterialConfig),
-                new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p4 = PipelineConfigMother.pipelineConfig("pipeline4", new MaterialConfigs(p4MaterialConfig, pluggableSCMMaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p5 = PipelineConfigMother.pipelineConfig("pipeline5", new MaterialConfigs(svnMaterialConfigWithAutoUpdate, tfsMaterialConfig),
-                new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineGroups groups = new PipelineGroups(new BasicPipelineConfigs(p1, p2, p3, p4, p5));
-
-        final Set<MaterialConfig> materials = groups.getAllUniquePostCommitSchedulableMaterials();
-
-        assertThat(materials.size(), is(6));
-        assertThat(materials, hasItems(svnMaterialConfig, hgMaterialConfig, gitMaterialConfig, tfsMaterialConfig, p4MaterialConfig, pluggableSCMMaterialConfig));
-        assertThat(materials, not(hasItem(svnMaterialConfigWithAutoUpdate)));
     }
 
     @Test

@@ -71,11 +71,16 @@ public class MagicalGoConfigXmlWriter {
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
             if (!skipPreprocessingAndValidation) {
-                // lets validate merged config first, it will show more sensible errors
+                // preprocess and validate at merge scope first
+                LOGGER.debug("[Serializing Config] Validating at merged scope.");
                 loader.preprocessAndValidate(configForEdit);
             }
-            configForEdit = configForEdit.getLocal();
+            // strip remote configurations from edited config for edit
+            configForEdit.stripRemotes();
+            LOGGER.debug("[Serializing Config] Removed remote elements");
         }
+        // if stripRemotes is perfect, then this second validation can be removed.
+        // but we cannot be sure yet.
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);
             LOGGER.debug("[Serializing Config] Done with cruise config validators.");

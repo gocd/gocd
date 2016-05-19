@@ -53,7 +53,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     /**
      * Gets only elements of CruiseConfig which are defined locally.
      */
-    CruiseConfig getLocal();
+    void stripRemotes();
 
     ConfigReposConfig getConfigRepos();
 
@@ -263,9 +263,15 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<PartialConfig> getPartials();
 
-    List<PartialConfig> getMergedPartials();
-
     List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
 
     boolean isLocal();
+
+    /**
+     * Gets remote config parts currently active in this configuration.
+     * Note: It does NOT guarantee that these partials are valid.
+     */
+    List<PartialConfig> getMergedPartials();
+
+    CruiseConfig cloneForValidation();
 }

@@ -25,6 +25,10 @@ public class GoConfigInvalidException extends RuntimeException {
         super(error);
         this.cruiseConfig = cruiseConfig;
     }
+    protected GoConfigInvalidException(CruiseConfig cruiseConfig, String message,Throwable e) {
+        super(message,e);
+        this.cruiseConfig = cruiseConfig;
+    }
 
     public CruiseConfig getCruiseConfig() {
         return cruiseConfig;

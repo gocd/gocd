@@ -259,13 +259,33 @@ public class GoFileConfigDataSource {
                 validatedConfigHolder.configForEdit.merge(lastKnownPartials,true);
                 serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
-                if (cachedGoPartials.lastValidPartials().isEmpty() && !(updatingCommand instanceof GoPartialConfig.GoPartialUpdateCommand)) {
+                List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
+                //TODO if last known partials are all equal to last valid partials, then fallback is just a waste of resources,
+                // It would attempt config update with the same set of partials
+                if (lastValidPartials.isEmpty() && !(updatingCommand instanceof GoPartialConfig.GoPartialUpdateCommand)) {
                     throw e;
                 } else {
+                    LOGGER.warn(String.format(
+                            "Merged config update operation failed on LATEST %s partials. Falling back to using LAST VALID %s partials. Exception message was: %s",
+                            lastKnownPartials.size(),lastValidPartials.size(),e.getMessage()),e);
                     serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
-                    String configAsXml = trySavingConfig(updatingCommand, configHolder, cachedGoPartials.lastValidPartials());
-                    validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
-                    validatedConfigHolder.configForEdit.merge(lastKnownPartials,true);
+                    try {
+                        String configAsXml = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
+                        validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
+                        // These have changed now
+                        int previousValidPartialsCount = lastValidPartials.size();
+                        lastValidPartials = cachedGoPartials.lastValidPartials();
+                        validatedConfigHolder.configForEdit.merge(lastValidPartials, true);
+                        LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials. Now there are %s LAST VALID partials",
+                                previousValidPartialsCount, lastValidPartials.size()));
+                    }
+                    catch (GoConfigInvalidException fallbackFailed)
+                    {
+                        LOGGER.warn(String.format(
+                                "Merged config update operation failed using fallback LAST VALID %s partials. Exception message was: %s",
+                                lastValidPartials.size(),fallbackFailed.getMessage()),fallbackFailed);
+                        throw new GoConfigInvalidMergeException("Fallback merge failed",lastValidPartials, fallbackFailed);
+                    }
                 }
             }
             ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
@@ -304,19 +324,13 @@ public class GoFileConfigDataSource {
             }
             return getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
         }
-        CruiseConfig cruiseConfig;
-        if(configHolder.configForEdit.isLocal())
-            cruiseConfig = cloner.deepClone(configHolder.configForEdit);
-        else {
-            // strip remote configurations from edited config for edit
-            cruiseConfig = configHolder.configForEdit.getLocal();
-        }
-
-        cruiseConfig.setPartials(partials);
-        CruiseConfig config = updatingCommand.update(cruiseConfig);
-        LOGGER.debug("[Config Save] ==-- Done getting modified config");
+        CruiseConfig deepCloneForEdit = configHolder.configForEdit.cloneForValidation();
+        deepCloneForEdit.setPartials(partials);
+        CruiseConfig config = updatingCommand.update(deepCloneForEdit);
         String configAsXml = configAsXml(config, false);
-        cachedGoPartials.markAsValid(cruiseConfig.getPartials());
+        if(deepCloneForEdit.getPartials().size() < partials.size())
+            throw new RuntimeException("should never be called");
+        cachedGoPartials.markAsValid(deepCloneForEdit.getPartials());
         return configAsXml;
     }
 

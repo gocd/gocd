@@ -31,13 +31,13 @@ module AgentMother
   end
 
   def cancelled_agent(options={})
-    agent = options[:locator] ? AgentInstanceMother.cancelled(options[:locator]) : AgentInstanceMother.cancelled()
+    agent = options[:locator] ? AgentInstanceMother.cancelled(options.delete(:locator)) : AgentInstanceMother.cancelled()
     handle_options(agent, options)
   end
 
   def disabled_agent(options={})
-    if options[:locator]
-      agent = AgentInstanceMother.building(options[:locator])
+    if locator = options.delete(:locator)
+      agent = AgentInstanceMother.building(locator)
       agent.deny()
     else
       agent = AgentInstanceMother.disabled()
@@ -46,23 +46,25 @@ module AgentMother
   end
 
   def building_agent(options={})
-    agent = options[:locator] ? AgentInstanceMother.building(options[:locator]) : AgentInstanceMother.building()
+    agent = options[:locator] ? AgentInstanceMother.building(options.delete(:locator)) : AgentInstanceMother.building()
     handle_options(agent, options)
   end
 
   def lost_contact_agent(options={})
-    agent = options[:locator] ? AgentInstanceMother.lostContact(options[:locator]) : AgentInstanceMother.lostContact()
+    agent = options[:locator] ? AgentInstanceMother.lostContact(options.delete(:locator)) : AgentInstanceMother.lostContact()
     handle_options(agent, options)
   end
 
   private
 
   def handle_options(agent, options)
+    environments = options.delete(:environments) || []
+
     options.each do |key, value|
-      AgentInstanceMother.send("update_#{key}", agent, value)
+      AgentInstanceMother.send("update_#{key}", agent, value) #if AgentInstanceMother.respond_to?("update_#{key}")
     end
 
-    AgentViewModel.new(agent, options[:environments] || [])
+    AgentViewModel.new(agent, environments)
   end
 
 end

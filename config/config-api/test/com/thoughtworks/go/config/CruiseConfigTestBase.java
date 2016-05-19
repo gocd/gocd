@@ -910,6 +910,13 @@ public abstract class CruiseConfigTestBase {
 
     @Test
     public void shouldCheckCyclicDependency() throws Exception {
+        PipelineConfig p1 = createPipelineConfig("p1", "s1", "j1");
+        PipelineConfig p2 = createPipelineConfig("p2", "s2", "j1");
+        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
+        PipelineConfig p3 = createPipelineConfig("p3", "s3", "j1");
+        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
+        p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("s3")));
+        pipelines.addAll(Arrays.asList(p1,p2,p3));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
@@ -918,13 +925,7 @@ public abstract class CruiseConfigTestBase {
 
         PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,  partialConfig);
-        PipelineConfig p1 = createPipelineConfig("p1", "s1", "j1");
-        PipelineConfig p2 = createPipelineConfig("p2", "s2", "j1");
-        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
-        PipelineConfig p3 = createPipelineConfig("p3", "s3", "j1");
-        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
-        p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("s3")));
-        pipelines.addAll(Arrays.asList(p1,p2,p3));
+
         cruiseConfig.validate(mock(ValidationContext.class));
         List<ConfigErrors> allErrors = cruiseConfig.getAllErrors();
         assertThat((allErrors.get(0).on("base")),is("Circular dependency: p1 <- p2 <- p3 <- p1"));
@@ -1035,8 +1036,8 @@ public abstract class CruiseConfigTestBase {
 
         cruiseConfig.getEnvironments().get(0).addPipeline(new CaseInsensitiveString("pipeUI"));
 
-        CruiseConfig onlyLocalConfig = cruiseConfig.getLocal();
-        assertThat(onlyLocalConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("remoteEnv")),is(true));
+        cruiseConfig.stripRemotes();
+        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("remoteEnv")),is(true));
     }
 
     @Test
@@ -1049,8 +1050,8 @@ public abstract class CruiseConfigTestBase {
 
         // nothing added, no need to have remoteEnv in xml
 
-        CruiseConfig onlyLocalConfig = cruiseConfig.getLocal();
-        assertThat(onlyLocalConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("remoteEnv")),is(false));
+        cruiseConfig.stripRemotes();
+        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("remoteEnv")),is(false));
     }
 
     @Test

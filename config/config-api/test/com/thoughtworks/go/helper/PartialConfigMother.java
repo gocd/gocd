@@ -60,7 +60,7 @@ public class PartialConfigMother {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
         BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
-        partialConfig.setOrigin(repoOrigin);
+        partialConfig.setOrigins(repoOrigin);
         return partialConfig;
     }
 
@@ -68,11 +68,11 @@ public class PartialConfigMother {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(pipelineName);
         BasicPipelineConfigs pipes = new BasicPipelineConfigs(groupName, new Authorization(), pipe);
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
-        partialConfig.setOrigin(createRepoOrigin());
+        partialConfig.setOrigins(createRepoOrigin());
         return partialConfig;
     }
 
-    private static RepoConfigOrigin createRepoOrigin() {
+    public static RepoConfigOrigin createRepoOrigin() {
         return new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://some.git"), "myplugin"), "1234fed");
     }
 
@@ -80,7 +80,7 @@ public class PartialConfigMother {
         BasicEnvironmentConfig env = EnvironmentConfigMother.environment(name);
         PartialConfig partialConfig = new PartialConfig();
         partialConfig.getEnvironments().add(env);
-        partialConfig.setOrigin(createRepoOrigin());
+        partialConfig.setOrigins(createRepoOrigin());
         return partialConfig;
     }
 }

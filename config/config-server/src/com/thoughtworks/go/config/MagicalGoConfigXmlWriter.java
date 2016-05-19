@@ -20,10 +20,8 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.*;
-import org.jdom.input.SAXBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,11 +70,15 @@ public class MagicalGoConfigXmlWriter {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
-            if(!configForEdit.isLocal()) {
-                // strip remote configurations from edited config for edit
-                configForEdit = configForEdit.getLocal();
-                LOGGER.debug("[Serializing Config] Removed remote elements");
+            //throw new RuntimeException("Tried to save remote config");
+            // strip remote configurations from edited config for edit
+            configForEdit.stripRemotes();
+            LOGGER.debug("[Serializing Config] Removed remote elements");
+            /*if (!skipPreprocessingAndValidation) {
+                loader.preprocessAndValidate(configForEdit);
             }
+            configForEdit = configForEdit.getLocal();
+            LOGGER.debug("[Serializing Config] Removed remote elements");*/
         }
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);

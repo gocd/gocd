@@ -96,6 +96,9 @@ public class BasicCruiseConfig implements CruiseConfig {
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
         environments = mergeStrategy.mergeEnvironmentConfigs();
+        //TODO temporary to check if this causes #1901
+        pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+        allPipelineConfigs = null;
     }
 
     private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList,boolean forEdit) {

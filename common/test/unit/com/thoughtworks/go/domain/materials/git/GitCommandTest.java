@@ -1,22 +1,21 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.git;
 
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
@@ -37,11 +36,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.Is;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -67,7 +63,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(JunitExtRunner.class)
 public class GitCommandTest {
     private static final String BRANCH = "foo";
     private static final String SUBMODULE = "submodule-1";
@@ -82,6 +77,9 @@ public class GitCommandTest {
 
     @Mock
     private TestSubprocessExecutionContext testSubprocessExecutionContext;
+
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Before public void setup() throws Exception {
         gitRepo = new GitTestRepo();
@@ -320,6 +318,18 @@ public class GitCommandTest {
         Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").get(0);
 
         command.modificationsSince(new StringRevision(modification.getRevision()));
+    }
+
+    @Test
+    public void shouldBombWhileRetrievingLatestModificationFromANonExistentRef() throws IOException {
+        expectedException.expect(CommandLineException.class);
+        expectedException.expectMessage("ambiguous argument 'origin/non-existent-branch': unknown revision or path not in the working tree.");
+        GitTestRepo remoteRepo = new GitTestRepo();
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "non-existent-branch", false, new HashMap<String, String>());
+
+        command.latestModification();
     }
 
     @Test

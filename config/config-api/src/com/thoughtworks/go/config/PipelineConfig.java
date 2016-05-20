@@ -152,6 +152,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
     }
 
+    @Override
+    public String toString() {
+        return String.format("PipelineConfig: %s",name);
+    }
+
     public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
         return new PipelineConfigTreeValidator(this).validate(validationContext);
     }

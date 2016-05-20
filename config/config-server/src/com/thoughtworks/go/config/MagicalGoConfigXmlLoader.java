@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidMergeException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
@@ -125,7 +126,10 @@ public class MagicalGoConfigXmlLoader {
         LOGGER.debug("[Config Save] In validateCruiseConfig: Starting.");
         List<ConfigErrors> allErrors = validate(config);
         if (!allErrors.isEmpty()) {
-            throw new GoConfigInvalidException(config, allErrors);
+            if(config.isLocal())
+                throw new GoConfigInvalidException(config, allErrors);
+            else
+                throw new GoConfigInvalidMergeException("Merged validation failed",config,config.getMergedPartials(),allErrors);
         }
 
         LOGGER.debug("[Config Save] In validateCruiseConfig: Running validate.");

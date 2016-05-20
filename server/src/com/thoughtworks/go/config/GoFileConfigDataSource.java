@@ -257,6 +257,8 @@ public class GoFileConfigDataSource {
                 serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
                 List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
+                //TODO if last known partials are all equal to last valid partials, then fallback is just a waste of resource,
+                // It would attempt config update with the same set of partials
                 if (lastValidPartials.isEmpty()) {
                     throw e;
                 } else {
@@ -267,8 +269,12 @@ public class GoFileConfigDataSource {
                     try {
                         String configAsXml = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
                         validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
+                        // These have changed now
+                        int previousValidPartialsCount = lastValidPartials.size();
+                        lastValidPartials = cachedGoPartials.lastValidPartials();
                         validatedConfigHolder.configForEdit.merge(lastValidPartials, true);
-                        LOGGER.info("Update operation on merged configuration succeeded with old " + lastValidPartials.size() + "valid partials");
+                        LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials. Now there are %s LAST VALID partials",
+                                previousValidPartialsCount, lastValidPartials.size()));
                     }
                     catch (GoConfigInvalidException fallbackFailed)
                     {
@@ -318,6 +324,8 @@ public class GoFileConfigDataSource {
         deepCloneForEdit.setPartials(partials);
         CruiseConfig config = updatingCommand.update(deepCloneForEdit);
         String configAsXml = configAsXml(config, false);
+        if(deepCloneForEdit.getPartials().size() < partials.size())
+            throw new RuntimeException("should never be called");
         cachedGoPartials.markAsValid(deepCloneForEdit.getPartials());
         return configAsXml;
     }

@@ -33,8 +33,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Before
     public void setup() throws Exception {
         pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
-        cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines),
-                PartialConfigMother.withPipelineInGroup("remote-pipe-1", "remote_group"));
+        cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), createPartial());
         goConfigMother = new GoConfigMother();
     }
 
@@ -48,6 +47,40 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Override
     protected BasicCruiseConfig createCruiseConfig() {
         return new BasicCruiseConfig(new BasicCruiseConfig(), new PartialConfig());
+    }
+
+    @Test
+    public void merge_shouldNotMergePipelinesAlreadyMerged(){
+        assertThat(cruiseConfig.allPipelines().size(),is(1));
+        cruiseConfig.merge(Arrays.asList(createPartial()),false);
+        assertThat(cruiseConfig.allPipelines().size(),is(1));
+        cruiseConfig.validateAfterPreprocess();
+    }
+
+    @Test
+    public void merge_shouldNotMergePipelinesAlreadyMergedWhenForEdit(){
+        assertThat(cruiseConfig.allPipelines().size(),is(1));
+        cruiseConfig.merge(Arrays.asList(createPartial()),true);
+        assertThat(cruiseConfig.allPipelines().size(),is(1));
+        cruiseConfig.validateAfterPreprocess();
+    }
+
+    @Test
+    public void merge_shouldNotMergeEnvironmentsAlreadyMerged() {
+        cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), PartialConfigMother.withEnvironment("remote-env"));
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        cruiseConfig.merge(Arrays.asList(PartialConfigMother.withEnvironment("remote-env")),false);
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        cruiseConfig.validateAfterPreprocess();
+    }
+
+    @Test
+    public void merge_shouldNotMergeEnvironmentsAlreadyMergedWhenForEdit() {
+        cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), PartialConfigMother.withEnvironment("remote-env"));
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        cruiseConfig.merge(Arrays.asList(PartialConfigMother.withEnvironment("remote-env")),true);
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        cruiseConfig.validateAfterPreprocess();
     }
 
     @Test

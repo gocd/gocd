@@ -69,6 +69,26 @@ public abstract class CruiseConfigTestBase {
 
     protected abstract BasicCruiseConfig createCruiseConfig();
 
+    protected PartialConfig createPartial() {
+        return PartialConfigMother.withPipelineInGroup("remote-pipe-1", "remote_group");
+    }
+
+    @Test
+    public void stripRemotesShouldKeepProposedPartials(){
+        cruiseConfig.setPartials(Arrays.asList(createPartial()));
+        assertThat(cruiseConfig.getPartials().size(),is(1));
+        cruiseConfig.stripRemotes();
+        assertThat(cruiseConfig.getPartials().size(),is(1));
+    }
+
+    @Test
+    public void cloneForValidationShouldKeepProposedPartials(){
+        cruiseConfig.setPartials(Arrays.asList(createPartial()));
+        assertThat(cruiseConfig.getPartials().size(),is(1));
+        cruiseConfig = cruiseConfig.cloneForValidation();
+        assertThat(cruiseConfig.getPartials().size(),is(1));
+    }
+
     @Test
     public void shouldLoadPasswordForGivenMaterialFingerprint() {
         MaterialConfig svnConfig = new SvnMaterialConfig("url", "loser", "boozer", true);

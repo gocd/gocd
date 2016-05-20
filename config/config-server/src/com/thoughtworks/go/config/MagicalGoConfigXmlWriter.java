@@ -70,16 +70,17 @@ public class MagicalGoConfigXmlWriter {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
-            //throw new RuntimeException("Tried to save remote config");
+            if (!skipPreprocessingAndValidation) {
+                // preprocess and validate at merge scope first
+                LOGGER.debug("[Serializing Config] Validating at merged scope.");
+                loader.preprocessAndValidate(configForEdit);
+            }
             // strip remote configurations from edited config for edit
             configForEdit.stripRemotes();
             LOGGER.debug("[Serializing Config] Removed remote elements");
-            /*if (!skipPreprocessingAndValidation) {
-                loader.preprocessAndValidate(configForEdit);
-            }
-            configForEdit = configForEdit.getLocal();
-            LOGGER.debug("[Serializing Config] Removed remote elements");*/
         }
+        // if stripRemotes is perfect, then this second validation can be removed.
+        // but we cannot be sure yet.
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);
             LOGGER.debug("[Serializing Config] Done with cruise config validators.");

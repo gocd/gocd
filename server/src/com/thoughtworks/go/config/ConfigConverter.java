@@ -168,7 +168,7 @@ public class ConfigConverter {
 
     public FetchTask toFetchTask(CRFetchArtifactTask crTask) {
         FetchTask fetchTask = new FetchTask(
-                new CaseInsensitiveString(crTask.getPipelineName()),
+                new CaseInsensitiveString(crTask.getPipelineName() == null ? "" : crTask.getPipelineName()),
                 new CaseInsensitiveString(crTask.getStage()),
                 new CaseInsensitiveString(crTask.getJob()),
                 crTask.getSource(),

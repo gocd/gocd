@@ -225,6 +225,22 @@ public class ConfigConverterTest {
     }
 
     @Test
+    public void shouldConvertFetchArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
+        // if not then null causes errors in parameter expansion
+        CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.passed, null,
+                null, "stage", "job", "src", null, false);
+
+        FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
+
+        assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
+        assertThat(result.getDest(),is(""));
+        assertThat(result.getJob().toLower(), is("job"));
+        assertThat(result.getPipelineName().toLower(), is(""));
+        assertThat(result.getSrc(), is("src"));
+        assertThat(result.isSourceAFile(), is(true));
+    }
+
+    @Test
     public void shouldConvertFetchArtifactTaskWhenDestinationIsNotSpecified() {
         CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.passed, null,
                 "upstream", "stage", "job", "src", null, false);

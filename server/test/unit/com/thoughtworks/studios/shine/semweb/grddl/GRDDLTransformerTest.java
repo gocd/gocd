@@ -29,8 +29,6 @@ import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
 import static org.junit.Assert.assertTrue;
-
-import org.apache.xml.utils.DefaultErrorHandler;
 import org.junit.Test;
 
 public class GRDDLTransformerTest {
@@ -153,15 +151,12 @@ public class GRDDLTransformerTest {
 
     @Test(expected = InvalidGrddlTransformationException.class)
     public void allHellBreaksLooseWhenGrddlTransformerIsGivenAnInvalidXsl() {
-        Transformer xsltTransformer = transformerForXSLStream(new ByteArrayInputStream("invalid xml".getBytes()));
-        new GRDDLTransformer(xsltTransformer);
+        new GRDDLTransformer(transformerForXSLStream(new ByteArrayInputStream("invalid xml".getBytes())));
     }
 
 
     private Transformer transformerForXSLStream(InputStream xsl) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        transformerFactory.setErrorListener(new DefaultErrorHandler(true));
-
         try {
             return transformerFactory.newTransformer(new StreamSource(xsl));
         } catch (TransformerConfigurationException e) {

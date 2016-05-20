@@ -1377,7 +1377,7 @@ public final class ConfigFileFixture {
     private static String xml() {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='50'>\n"
+                + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='20'>\n"
                 + "<server artifactsdir=\"artifactsDir\">\n"
                 + "</server>"
                 + "</cruise>";

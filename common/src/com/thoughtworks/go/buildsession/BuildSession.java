@@ -60,13 +60,16 @@ public class BuildSession {
     private static Map<String, BuildCommandExecutor> executors = new HashMap<>();
 
     static {
+        executors.put("compose", new ComposeCommandExecutor());
+        executors.put("cond", new CondCommandExecutor());
+        executors.put("and", new AndCommandExecutor());
+        executors.put("or", new OrCommandExecutor());
         executors.put("echo", new EchoCommandExecutor());
         executors.put("downloadDir", new DownloadDirCommandExecutor());
         executors.put("downloadFile", new DownloadFileCommandExecutor());
         executors.put("uploadArtifact", new UploadArtifactCommandExecutor());
         executors.put("secret", new SecretCommandExecutor());
         executors.put("export", new ExportCommandExecutor());
-        executors.put("compose", new ComposeCommandExecutor());
         executors.put("fail", new FailCommandExecutor());
         executors.put("mkdirs", new MkdirsCommandExecutor());
         executors.put("cleandir", new CleandirCommandExecutor());
@@ -188,19 +191,7 @@ public class BuildSession {
                 return true;
             }
 
-            BuildCommand test = command.getTest();
-            if (test != null) {
-                if (newTestingSession(console).build(test) != JobResult.Passed) {
-                    return true;
-                }
-            }
-
-            if (isCanceled()) {
-                return false;
-            }
-
             return executor.execute(command, this);
-
         } catch (Exception e) {
             reportException(e);
             return false;
@@ -286,6 +277,11 @@ public class BuildSession {
         buildSession.cancelLatch = this.cancelLatch;
         return buildSession;
     }
+
+    BuildSession newTestingSession() {
+        return newTestingSession(this.console);
+    }
+
 
 
     void download(FetchHandler handler, String url, ChecksumFileHandler checksumFileHandler, String checksumUrl) {

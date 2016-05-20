@@ -48,14 +48,24 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
 
         String cmd = command.getStringArg("command");
         String[] args = command.getArrayArg("args");
+        boolean verbose = command.getBooleanArg("verbose");
+        boolean script = command.getBooleanArg("script");
 
-        Map<String, String> secrets = buildSession.getSecretSubstitutions();
+        CommandLine commandLine = createCommandLine(cmd, script);
+        commandLine.withWorkingDir(workingDir);
+        commandLine.withEnv(buildSession.getEnvs());
+        setupCommandLineArgs(commandLine, args, buildSession.getSecretSubstitutions());
+        int exitCode = executeCommandLine(buildSession, commandLine);
+        if(verbose && exitCode != 0) {
+            buildSession.printlnWithPrefix("Failed to run " + commandLine.toStringForDisplay());
+        }
+        return exitCode == 0;
+    }
+
+    private void setupCommandLineArgs(CommandLine commandLine, String[] args, Map<String, String> secrets) {
         Set<String> leftSecrets = new HashSet<>(secrets.keySet());
-
-        CommandLine commandLine = createCommandLine(cmd);
-
         for (String arg : args) {
-            if(secrets.containsKey(arg)) {
+            if (secrets.containsKey(arg)) {
                 leftSecrets.remove(arg);
                 commandLine.withArg(new SubstitutableCommandArgument(arg, secrets.get(arg)));
             } else {
@@ -63,26 +73,19 @@ public class ExecCommandExecutor implements BuildCommandExecutor {
             }
         }
 
-        for (String secret: leftSecrets) {
+        for (String secret : leftSecrets) {
             commandLine.withNonArgSecret(new SecretSubstitution(secret, secrets.get(secret)));
         }
-
-        commandLine.withWorkingDir(workingDir);
-        commandLine.withEnv(buildSession.getEnvs());
-
-        return executeCommandLine(buildSession, commandLine) == 0;
     }
 
-    private CommandLine createCommandLine(String cmd) {
-        CommandLine commandLine;
-        if (SystemUtil.isWindows()) {
-            commandLine = CommandLine.createCommandLine("cmd");
-            commandLine.withArg("/c");
-            commandLine.withArg(StringUtils.replace(cmd, "/", "\\"));
-        } else {
-            commandLine = CommandLine.createCommandLine(cmd);
+    private CommandLine createCommandLine(String cmd, boolean script) {
+        if (script && SystemUtil.isWindows()) {
+            return CommandLine.createCommandLine("cmd")
+                    .withArg("/c")
+                    .withArg(StringUtils.replace(cmd, "/", "\\"));
         }
-        return commandLine;
+
+        return CommandLine.createCommandLine(cmd);
     }
 
     private int executeCommandLine(final BuildSession buildSession, final CommandLine commandLine) {

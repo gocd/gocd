@@ -30,10 +30,8 @@ import java.io.IOException;
 import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnUnix;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnWindows;
+import static com.thoughtworks.go.util.MapBuilder.map;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
@@ -94,21 +92,20 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
         assertThat(console.lastLine(), is("/foo/bar"));
     }
 
-
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void execExecuteNotExistExternalCommandOnUnix() {
         runBuild(exec("not-not-not-exist"), Failed);
-        assertThat(console.output(), printedAppsMissingInfoOnUnix("not-not-not-exist"));
+        assertThat(console.output(), containsString("Please make sure [not-not-not-exist] can be executed on this agent"));
     }
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void execExecuteNotExistExternalCommandOnWindows() {
-        runBuild(exec("not-not-not-exist"), Failed);
+    public void execExecuteNotExistExternalCommandOnWindowsWithScriptFlag() {
+        runBuild(exec("not-not-not-exist", map("script", "true")), Failed);
         assertThat(console.output(), printedAppsMissingInfoOnWindows("not-not-not-exist"));
     }
 
+    @Test
     public void shouldNotLeakSecretsToConsoleLog() {
         runBuild(compose(secret("topsecret"),
                 exec("not-not-not-exist", "topsecret")), Failed);
@@ -133,10 +130,22 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
         }
     }
 
+    @Test
+    public void shouldReportErrorWhenFailExecWithVerbose() {
+        runBuild(exec("not-not-not-exist", map("verbose", "true"), "-a", "-bb"), Failed);
+        assertThat(console.output(), containsString("[go] Failed to run not-not-not-exist -a -bb"));
+    }
+
+    @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
+    public void execWithScriptFlagRunCmdAsScriptOnWindows() {
+        runBuild(exec("echo hello world", map("script", "true")), Passed);
+        assertThat(console.output(), containsString("hello world"));
+    }
 
     private BuildCommand execEchoEnv(final String envname) {
         if (SystemUtil.isWindows()) {
-            return exec("echo", "%" + envname + "%");
+            return exec("echo %" + envname + "%", map("script", "true"));
         } else {
             return exec("/bin/sh", "-c", String.format("echo ${%s}", envname));
         }

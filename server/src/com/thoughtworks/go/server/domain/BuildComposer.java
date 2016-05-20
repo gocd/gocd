@@ -178,17 +178,17 @@ public class BuildComposer {
     private BuildCommand refreshWorkingDir() {
         return BuildCommand.compose(
                 cleanWorkingDir(),
-                mkdirs(workingDirectory()).setTest(test("-nd", workingDirectory())));
+                cond(test("-nd", workingDirectory()), mkdirs(workingDirectory())));
     }
 
     private BuildCommand cleanWorkingDir() {
         if (!assignment.getPlan().shouldCleanWorkingDir()) {
             return noop();
         }
-        return BuildCommand.compose(
-                cleandir(workingDirectory()),
-                echoWithPrefix("Cleaning working directory \"$%s\" since stage is configured to clean working directory", workingDirectory())
-        ).setTest(test("-d", workingDirectory()));
+        return cond(test("-d", workingDirectory()),
+                BuildCommand.compose(
+                        cleandir(workingDirectory()),
+                        echoWithPrefix("Cleaning working directory \"$%s\" since stage is configured to clean working directory", workingDirectory())));
     }
 
     private String workingDirectory() {

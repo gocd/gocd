@@ -69,8 +69,7 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
     public void setup() throws Exception {
         workingDir = new File(sandbox, "working");
     }
-
-
+    
     @After
     public void teardown() throws Exception {
         TestRepo.internalTearDown();

@@ -71,6 +71,11 @@ public class ConfigRepository {
         git = new Git(gitRepo);
     }
 
+
+    public Repository getGitRepo() {
+        return gitRepo;
+    }
+
     public void initialize() throws IOException {
         if (!gitRepo.getDirectory().exists()) {
             gitRepo.create();

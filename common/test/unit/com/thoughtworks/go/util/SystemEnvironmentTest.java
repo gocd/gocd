@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import java.util.Properties;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
@@ -179,13 +178,6 @@ public class SystemEnvironmentTest {
         assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(128 * 1024)));
         System.setProperty(SystemEnvironment.CRUISE_DB_CACHE_SIZE, String.valueOf(512 * 1024));
         assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(512 * 1024)));
-    }
-
-    @Test
-    public void shouldUnderstandLazyLoadXslTransformerRegistryCacheSize() {
-        assertThat(systemEnvironment.getShineXslTransformerRegistryCacheSize(), is(20));
-        systemEnvironment.setProperty(SystemEnvironment.SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE, "50");
-        assertThat(systemEnvironment.getShineXslTransformerRegistryCacheSize(), is(50));
     }
 
     @Test

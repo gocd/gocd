@@ -16,6 +16,7 @@
 
 package com.thoughtworks.studios.shine.semweb.grddl;
 
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -27,11 +28,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
-/**
- * IMPORTANT: This is completely thread unsafe
- */
 public class XSLTTransformerRegistry {
-    private final Map<String, Transformer> transformerMap;
+    private final Map<String, Templates> transformerMap;
 
     public XSLTTransformerRegistry() {
         transformerMap = new HashMap<>();
@@ -53,21 +51,20 @@ public class XSLTTransformerRegistry {
     }
 
     public Transformer getTransformer(String xsltPath) {
-        return transformerMap.get(xsltPath);
+        try {
+            return transformerMap.get(xsltPath).newTransformer();
+        } catch (TransformerConfigurationException e) {
+            throw bomb(e);
+        }
     }
 
-    private Transformer transformerForXSLStream(InputStream xsl) {
+    private Templates transformerForXSLStream(InputStream xsl) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         try {
-            return transformerFactory.newTransformer(new StreamSource(xsl));
+            return transformerFactory.newTemplates(new StreamSource(xsl));
         } catch (TransformerConfigurationException e) {
             throw new InvalidGrddlTransformationException(e);
         }
     }
 
-    public void reset() {
-        for (Transformer transformer : transformerMap.values()) {
-            transformer.reset();
-        }
-    }
 }

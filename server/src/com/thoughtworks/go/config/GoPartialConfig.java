@@ -74,7 +74,7 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
     }
 
     @Override
-    public synchronized void onSuccessPartialConfig(ConfigRepoConfig repoConfig, PartialConfig newPart) {
+    public void onSuccessPartialConfig(ConfigRepoConfig repoConfig, PartialConfig newPart) {
         String fingerprint = repoConfig.getMaterialConfig().getFingerprint();
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             //TODO maybe validate new part without context of other partials or main config
@@ -144,21 +144,23 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
     }
 
     @Override
-    public synchronized void onChangedRepoConfigWatchList(ConfigReposConfig newConfigRepos) {
-        List<String> toRemove = new ArrayList<>();
+    public void onChangedRepoConfigWatchList(ConfigReposConfig newConfigRepos) {
+        boolean removed = false;
         // remove partial configs from map which are no longer on the list
         for (String fingerprint : cachedGoPartials.getFingerprintToLatestKnownConfigMap().keySet()) {
             if (!newConfigRepos.hasMaterialWithFingerprint(fingerprint)) {
+                removed = true;
                 cachedGoPartials.removeKnown(fingerprint);
-                toRemove.add(fingerprint);
             }
         }
-        if (!toRemove.isEmpty()) {
-            if (updateConfig(null, null)) {
-                for (String fingerprint : toRemove) {
-                    this.cachedGoPartials.removeValid(fingerprint);
-                }
+        for (String fingerprint : cachedGoPartials.getFingerprintToLatestValidConfigMap().keySet()) {
+            if (!newConfigRepos.hasMaterialWithFingerprint(fingerprint)) {
+                removed = true;
+                cachedGoPartials.removeValid(fingerprint);
             }
+        }
+        if(removed){
+            updateConfig(null, null);
         }
     }
 }

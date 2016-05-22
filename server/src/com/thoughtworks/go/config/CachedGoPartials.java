@@ -110,6 +110,10 @@ public class CachedGoPartials {
         return fingerprintToLatestKnownConfigMap;
     }
 
+    public Map<String, UpdatedPartial> getFingerprintToLatestValidConfigMap() {
+        return fingerprintToLatestValidConfigMap;
+    }
+
     public void clear(){
         fingerprintToLatestKnownConfigMap.clear();
         fingerprintToLatestValidConfigMap.clear();

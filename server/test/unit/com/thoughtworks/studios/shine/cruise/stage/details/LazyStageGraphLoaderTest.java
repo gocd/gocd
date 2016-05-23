@@ -1,24 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
 import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.studios.shine.cruise.GoIntegrationException;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.Graph;
@@ -26,7 +24,6 @@ import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
 import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
 import com.thoughtworks.studios.shine.xunit.XUnitOntology;
-import org.apache.commons.pool.impl.GenericObjectPool;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,13 +31,7 @@ import java.io.File;
 import java.util.concurrent.Semaphore;
 
 import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
 public class LazyStageGraphLoaderTest {
     private StageStorage stageStorage;
@@ -73,7 +64,7 @@ public class LazyStageGraphLoaderTest {
 
 
         stageStorage.save(stageGraph);
-        LazyStageGraphLoader loader = new LazyStageGraphLoader(null, stageStorage, new SystemEnvironment());
+        LazyStageGraphLoader loader = new LazyStageGraphLoader(null, stageStorage);
         Graph loadedStageGraph = loader.load(new StageIdentifier("pipeline-foo", 23, "stage-1", "1"));
         assertTrue(loadedStageGraph.containsResourceWithURI("http://stage/1"));
     }
@@ -84,7 +75,7 @@ public class LazyStageGraphLoaderTest {
 
         DummyStageResourceImporter realLoader = new DummyStageResourceImporter(realGraph(), stageId);
 
-        LazyStageGraphLoader loader = new LazyStageGraphLoader(realLoader, stageStorage, new SystemEnvironment());
+        LazyStageGraphLoader loader = new LazyStageGraphLoader(realLoader, stageStorage);
 
         Graph stageGraph = loader.load(stageId);
         assertTrue(stageGraph.containsResourceWithURI("http://stage/1"));
@@ -117,7 +108,7 @@ public class LazyStageGraphLoaderTest {
 
         DummyStageResourceImporter realLoader = new DummyStageResourceImporter(realGraph(), stageId, new Semaphore(2));
 
-        LazyStageGraphLoader loader = new LazyStageGraphLoader(realLoader, stageStorage, 1);
+        LazyStageGraphLoader loader = new LazyStageGraphLoader(realLoader, stageStorage);
 
         loader.load(stageId);
         XSLTTransformerRegistry transformerRegistryFromFirstLoad = realLoader.transformerRegistry;
@@ -127,75 +118,6 @@ public class LazyStageGraphLoaderTest {
         XSLTTransformerRegistry transformerRegistryFromSecondLoad = realLoader.transformerRegistry;
 
         assertThat(transformerRegistryFromFirstLoad, sameInstance(transformerRegistryFromSecondLoad));
-    }
-
-    @Test
-    public void shouldUserConfiguredMaxPoolSizeForXslTransformerRegistries() {
-        StageIdentifier stageId = new StageIdentifier("pipeline-foo", 23, "stage-1", "1");
-        DummyStageResourceImporter realLoader = new DummyStageResourceImporter(realGraph(), stageId);
-        SystemEnvironment env = mock(SystemEnvironment.class);
-
-        when(env.getShineXslTransformerRegistryCacheSize()).thenReturn(5);
-        LazyStageGraphLoader loader = new LazyStageGraphLoader(realLoader, stageStorage, env);
-        assertPoolSize(loader, 5);
-
-        when(env.getShineXslTransformerRegistryCacheSize()).thenReturn(100);
-        loader = new LazyStageGraphLoader(realLoader, stageStorage, env);
-        assertPoolSize(loader, 100);
-    }
-
-    private void assertPoolSize(LazyStageGraphLoader loader, final int expectedSize) {
-        GenericObjectPool transformerRegistryPool = (GenericObjectPool) ReflectionUtil.getField(loader, "transformerRegistryPool");
-        assertThat(transformerRegistryPool.getMaxActive(), is(expectedSize));
-    }
-
-    @Test
-    public void shouldNotReuseTransformerAcrossConcurrentInvocations() throws InterruptedException {
-        final StageIdentifier stageId = new StageIdentifier("pipeline-foo", 23, "stage-1", "1");
-
-        final Semaphore invocationBlocker = new Semaphore(1);
-        final DummyStageResourceImporter realLoader = new DummyStageResourceImporter(realGraph(), stageId, invocationBlocker);
-
-        final LazyStageGraphLoader loader = new LazyStageGraphLoader(realLoader, stageStorage, 2);
-
-        final XSLTTransformerRegistry[] transformerRegistryUsed = new XSLTTransformerRegistry[2];
-
-        invocationBlocker.acquire();
-
-        Thread firstThd = new Thread(new Runnable() {
-            public void run() {
-                loader.load(stageId);
-                invocationBlocker.release();
-            }
-        });
-
-        firstThd.start();
-
-        while(invocationBlocker.getQueueLength() == 0) {
-            Thread.sleep(10);
-        }
-        transformerRegistryUsed[0] = realLoader.transformerRegistry;
-
-        Thread secondThd = new Thread(new Runnable() {
-            public void run() {
-                stageStorage.clear();
-                loader.load(stageId);
-            }
-        });
-
-        secondThd.start();
-
-        while(invocationBlocker.getQueueLength() == 1) {
-            Thread.sleep(10);
-        }
-        transformerRegistryUsed[1] = realLoader.transformerRegistry;
-
-        invocationBlocker.release();
-
-        firstThd.join();
-        secondThd.join();
-
-        assertThat(transformerRegistryUsed[0], not(sameInstance(transformerRegistryUsed[1])));
     }
 
     class DummyStageResourceImporter extends StageResourceImporter {

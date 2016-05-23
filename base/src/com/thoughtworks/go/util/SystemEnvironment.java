@@ -102,8 +102,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String CONFIG_CIPHER = "cipher";
     public static final String HOSTNAME_SHINE_USES = "localhost";
-    public static final String SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE = "shine.xsl.transformer.registry.cache.size";
-    private static final String DEFAULT_SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE = "20";
     public static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
@@ -581,10 +579,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getCruiseDbCacheSize() {
         return getPropertyImpl(CRUISE_DB_CACHE_SIZE, CRUISE_DB_CACHE_SIZE_DEFAULT);
-    }
-
-    public int getShineXslTransformerRegistryCacheSize() {
-        return Integer.parseInt(getPropertyImpl(SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE, DEFAULT_SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE));
     }
 
     public long getUnresponsiveJobWarningThreshold() {

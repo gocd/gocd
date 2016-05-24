@@ -828,6 +828,8 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void checkAndRemoveDuplicates(MaterialInstance materialInstance, List<Modification> newChanges, ArrayList<Modification> list) {
+        if (!new SystemEnvironment().get(SystemEnvironment.CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS))
+            return;
         DetachedCriteria criteria = DetachedCriteria.forClass(Modification.class);
         criteria.setProjection(Projections.projectionList().add(Projections.property("revision")));
         criteria.add(Restrictions.eq("materialInstance.id", materialInstance.getId()));

@@ -50,6 +50,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -402,6 +403,25 @@ Above scenario allowed
 
         assertThat(pipelineOne.materialConfigs().get(0).errors().on(ScmMaterialConfig.AUTO_UPDATE),
                 is("Material of type Mercurial (http://url1) is specified more than once in the configuration with different values for the autoUpdate attribute. All copies of the a material should have the same value for this attribute."));
+    }
+
+    @Test
+    public void shouldAllowModifyingTheAutoUpdateFieldOfMaterials() throws Exception {
+        GitMaterialConfig gitMaterial = new GitMaterialConfig("https://url", "master");
+        gitMaterial.setAutoUpdate(true);
+
+        GitMaterialConfig modifiedGitMaterial = new GitMaterialConfig("https://url", "master");
+        modifiedGitMaterial.setAutoUpdate(false);
+
+        MaterialConfigs configs = new MaterialConfigs();
+        configs.add(gitMaterial);
+
+        CruiseConfig config = GoConfigMother.configWithPipelines("one");
+        PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
+        pipelineOne.setMaterialConfigs(new MaterialConfigs(modifiedGitMaterial));
+
+        configs.validate(ConfigSaveValidationContext.forChain(config));
+        assertTrue(gitMaterial.errors().isEmpty());
     }
 
     @Test

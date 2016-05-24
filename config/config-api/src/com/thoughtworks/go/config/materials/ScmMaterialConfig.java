@@ -218,9 +218,11 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     }
 
     public boolean isAutoUpdateStateMismatch(MaterialConfigs materialAutoUpdateMap) {
-        for (MaterialConfig otherMaterial : materialAutoUpdateMap) {
-            if (otherMaterial.isAutoUpdate() != this.autoUpdate) {
-                return true;
+        if(materialAutoUpdateMap.size() > 1){
+            for (MaterialConfig otherMaterial : materialAutoUpdateMap) {
+                if (otherMaterial.isAutoUpdate() != this.autoUpdate) {
+                    return true;
+                }
             }
         }
         return false;

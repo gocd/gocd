@@ -24,6 +24,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class NotificationPluginRegistryTest {
     public static final String PLUGIN_ID_1 = "plugin-id-1";
@@ -82,5 +83,32 @@ public class NotificationPluginRegistryTest {
     public void should_isAnyPluginInterestedIn_Correctly() {
         assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(PIPELINE_STATUS), is(true));
         assertThat(notificationPluginRegistry.isAnyPluginInterestedIn(UNKNOWN_NOTIFICATION), is(false));
+    }
+
+    @Test
+    public void shouldListRegisteredPlugins() {
+        notificationPluginRegistry.registerPlugin("plugin_id_1");
+        notificationPluginRegistry.registerPlugin("plugin_id_2");
+
+        assertThat(notificationPluginRegistry.getNotificationPlugins().size(), is(2));
+        assertTrue(notificationPluginRegistry.getNotificationPlugins().contains("plugin_id_1"));
+        assertTrue(notificationPluginRegistry.getNotificationPlugins().contains("plugin_id_2"));
+    }
+
+    @Test
+    public void shouldNotRegisterDuplicatePlugins() {
+        notificationPluginRegistry.registerPlugin("plugin_id_1");
+        notificationPluginRegistry.registerPlugin("plugin_id_1");
+
+        assertThat(notificationPluginRegistry.getNotificationPlugins().size(), is(1));
+        assertTrue(notificationPluginRegistry.getNotificationPlugins().contains("plugin_id_1"));
+    }
+
+    @Test
+    public void shouldNotListDeRegisteredPlugins() {
+        notificationPluginRegistry.registerPlugin("plugin_id_1");
+        notificationPluginRegistry.deregisterPlugin("plugin_id_1");
+
+        assertTrue(notificationPluginRegistry.getNotificationPlugins().isEmpty());
     }
 }

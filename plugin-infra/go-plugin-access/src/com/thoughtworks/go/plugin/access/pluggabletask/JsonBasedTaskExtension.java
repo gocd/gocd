@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class JsonBasedTaskExtension extends AbstractExtension implements TaskExtensionContract {
+public class JsonBasedTaskExtension extends AbstractExtension implements TaskExtensionContract {
     public final static String TASK_EXTENSION = "task";
     private final static List<String> supportedVersions = Arrays.asList(JsonBasedTaskExtensionHandler_V1.VERSION);
 

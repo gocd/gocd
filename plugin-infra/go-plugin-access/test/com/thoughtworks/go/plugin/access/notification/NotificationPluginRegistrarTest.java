@@ -25,6 +25,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -108,5 +111,23 @@ public class NotificationPluginRegistrarTest {
 
         verify(logger).warn("Plugin 'plugin-id-1' is trying to register for 'pipeline-status' which is not a valid notification type. Valid notification types are: [stage-status]");
         verify(logger).warn("Plugin 'plugin-id-1' is trying to register for 'job-status' which is not a valid notification type. Valid notification types are: [stage-status]");
+    }
+
+    @Test
+    public void shouldRegisterPluginOnPluginLoad() {
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
+
+        notificationPluginRegistrar.pluginLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
+
+        verify(notificationPluginRegistry).registerPlugin(PLUGIN_ID_1);
+    }
+
+    @Test
+    public void shouldUnregisterPluginOnPluginUnLoad() {
+        NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
+
+        notificationPluginRegistrar.pluginUnLoaded(new GoPluginDescriptor(PLUGIN_ID_1, null, null, null, null, true));
+
+        verify(notificationPluginRegistry).deregisterPlugin(PLUGIN_ID_1);
     }
 }

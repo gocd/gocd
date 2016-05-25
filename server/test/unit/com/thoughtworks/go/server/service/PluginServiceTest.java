@@ -33,17 +33,28 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.service.plugins.builder.PluginInfoBuilder;
+import com.thoughtworks.go.server.ui.plugins.PluginInfo;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginServiceTest {
@@ -61,6 +72,8 @@ public class PluginServiceTest {
     private ConfigRepoExtension configRepoExtension;
     @Mock
     private PluginSqlMapDao pluginDao;
+    @Mock
+    private PluginInfoBuilder builder;
 
     private PluginService pluginService;
     private List<GoPluginExtension> extensions;
@@ -94,7 +107,7 @@ public class PluginServiceTest {
         PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
 
         extensions = Arrays.asList(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension, authenticationExtension);
-        pluginService = new PluginService(extensions, pluginDao);
+        pluginService = new PluginService(extensions, pluginDao, builder);
     }
 
     @After
@@ -232,6 +245,31 @@ public class PluginServiceTest {
         plugin.setId(1L);
         verify(pluginDao).saveOrUpdate(plugin);
     }
+
+    @Test
+    public void shouldFetchAllPluginInfos() {
+        ArrayList<PluginInfo> pluginInfos = new ArrayList<>();
+
+        when(builder.allPluginInfos(null)).thenReturn(pluginInfos);
+
+        assertThat(pluginService.pluginInfos(null), Is.<List<PluginInfo>>is(pluginInfos));
+    }
+
+    @Test
+    public void pluginInfosShouldApplyFilterIfTypeSpecified() {
+        pluginService.pluginInfos("scm");
+
+        verify(builder).allPluginInfos("scm");
+    }
+
+    @Test
+    public void shouldFetchPluginInfoForTheSpecifiedId() {
+        PluginInfo pluginInfo = new PluginInfo("id", "name", "ver", "type", null, null);
+        when(builder.pluginInfoFor("github.pr")).thenReturn(pluginInfo);
+
+        assertThat(pluginService.pluginInfo("github.pr"), is(pluginInfo));
+    }
+
 
     private String toJSON(Map<String, String> configuration) {
         return new GsonBuilder().serializeNulls().create().toJson(configuration);

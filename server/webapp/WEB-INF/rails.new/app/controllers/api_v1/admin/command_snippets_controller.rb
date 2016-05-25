@@ -22,7 +22,7 @@ module ApiV1
       def index
         command_snippets = command_repository_service.lookupCommand(params[:prefix])
 
-        render json_hal_v1: CommandSnippetsRepresenter.new(command_snippets.to_a).to_hash(url_builder: self, prefix: params[:prefix])
+        render DEFAULT_FORMAT => CommandSnippetsRepresenter.new(command_snippets.to_a).to_hash(url_builder: self, prefix: params[:prefix])
       end
 
       def show
@@ -30,7 +30,7 @@ module ApiV1
 
         raise RecordNotFound if command_snippet.nil?
 
-        render json_hal_v1: CommandSnippetRepresenter.new(command_snippet).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => CommandSnippetRepresenter.new(command_snippet).to_hash(url_builder: self)
       end
     end
   end

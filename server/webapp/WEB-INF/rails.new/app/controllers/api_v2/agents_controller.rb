@@ -24,11 +24,11 @@ module ApiV2
 
     def index
       presenters = AgentsRepresenter.new(agent_service.agents.to_a)
-      render json_hal_v2: presenters.to_hash(url_builder: self)
+      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
     end
 
     def show
-      render json_hal_v2: agent_presenter.to_hash(url_builder: self)
+      render DEFAULT_FORMAT => agent_presenter.to_hash(url_builder: self)
     end
 
     def update
@@ -37,7 +37,7 @@ module ApiV2
 
       if result.isSuccess
         load_agent
-        render json_hal_v2: agent_presenter.to_hash(url_builder: self)
+        render DEFAULT_FORMAT => agent_presenter.to_hash(url_builder: self)
       else
         render_http_operation_result(result)
       end

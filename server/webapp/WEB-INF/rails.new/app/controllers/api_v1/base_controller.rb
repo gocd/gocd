@@ -44,7 +44,7 @@ module ApiV1
       }
 
       response.status = status
-      render json_hal_v1: json, location: url
+      render DEFAULT_FORMAT => json, location: url
     end
 
     rescue_from RecordNotFound, with: :render_not_found_error
@@ -75,7 +75,7 @@ module ApiV1
     end
 
     def render_message(message, status = :ok, data = {})
-      render json_hal_v1: { message: message.strip }.merge(data), status: status
+      render DEFAULT_FORMAT => { message: message.strip }.merge(data), status: status
     end
 
     def render_unprocessable_entity_error(exception)

@@ -31,4 +31,6 @@ $GO_ROOT/tools/bin/jruby -S bundle install --path vendor/bundle --binstubs --cle
 $GO_ROOT/tools/bin/jruby -S gem install bundler --install-dir vendor/bundle/jruby/1.9 --version 1.9.9 --bindir bin
 
 cd $GO_ROOT
-yes | $GO_ROOT/tools/bin/jruby -S rake --rakefile server/run_rspec_tests.rake exec command='bundle exec rake rails:update:bin' --trace
+git checkout server/webapp/WEB-INF/rails.new/bin/bundle
+git checkout server/webapp/WEB-INF/rails.new/bin/rails
+git checkout server/webapp/WEB-INF/rails.new/bin/rake

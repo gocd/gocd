@@ -28,11 +28,18 @@ import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
+import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.ui.PluginViewModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +47,8 @@ import org.mockito.Mock;
 
 import java.util.*;
 
+import static java.util.Arrays.asList;
+import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -61,6 +70,8 @@ public class PluginServiceTest {
     private ConfigRepoExtension configRepoExtension;
     @Mock
     private PluginSqlMapDao pluginDao;
+    @Mock
+    private DefaultPluginManager pluginManager;
 
     private PluginService pluginService;
     private List<GoPluginExtension> extensions;
@@ -93,8 +104,9 @@ public class PluginServiceTest {
         configuration2.add(new PluginSettingsProperty("p2-k3"));
         PluginSettingsMetadataStore.getInstance().addMetadataFor("plugin-id-2", configuration2, "template-2");
 
+
         extensions = Arrays.asList(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, configRepoExtension, authenticationExtension);
-        pluginService = new PluginService(extensions, pluginDao);
+        pluginService = new PluginService(extensions, pluginDao, pluginManager);
     }
 
     @After
@@ -231,6 +243,87 @@ public class PluginServiceTest {
         Plugin plugin = new Plugin("plugin-id-1", toJSON(parameterMap));
         plugin.setId(1L);
         verify(pluginDao).saveOrUpdate(plugin);
+    }
+
+    @Test
+    public void pluginsShouldFetchAllPlugins() {
+        GoPluginIdentifier taskPluginIdentifier = new GoPluginIdentifier("task", asList("1.0"));
+        GoPluginIdentifier authPluginIdentifier = new GoPluginIdentifier("authentication", asList("1.0"));
+
+        GoPluginDescriptor.About taskPluginAbout = new GoPluginDescriptor.About("name", "1.2.3", "target", "desc", null, null);
+        GoPluginDescriptor taskDescriptor = new GoPluginDescriptor("task_plugin_id", "do_not_use_version", taskPluginAbout, null, null, false);
+
+        GoPluginDescriptor.About authPluginAbout = new GoPluginDescriptor.About("name", "1.5.8", "target", "desc", null, null);
+        GoPluginDescriptor authDescriptor = new GoPluginDescriptor("auth_plugin_id", "do_not_use_version", authPluginAbout, null, null, false);
+
+        when(pluginManager.plugins()).thenReturn(Arrays.asList(taskDescriptor, authDescriptor));
+        when(pluginManager.pluginFor("task_plugin_id")).thenReturn(taskPluginIdentifier);
+        when(pluginManager.pluginFor("auth_plugin_id")).thenReturn(authPluginIdentifier);
+
+        ArrayList<PluginViewModel> pluginViewModels = pluginService.plugins(null);
+
+        assertThat(pluginViewModels.size(), is(2));
+        assertThat(pluginViewModels.get(0), is(new PluginViewModel("task_plugin_id", "name", "1.2.3", "task")));
+        assertThat(pluginViewModels.get(1), is(new PluginViewModel("auth_plugin_id", "name", "1.5.8", "authentication")));
+    }
+
+    @Test
+    public void pluginsShouldApplyFilterIfTypeSpecified() {
+        GoPluginIdentifier taskPluginIdentifier = new GoPluginIdentifier("task", asList("1.0"));
+
+        GoPluginDescriptor.About taskPluginAbout = new GoPluginDescriptor.About("name", "1.2.3", "target", "desc", null, null);
+        GoPluginDescriptor taskDescriptor = new GoPluginDescriptor("task_plugin_id", "do_not_use_version", taskPluginAbout, null, null, false);
+
+        GoPluginDescriptor.About authPluginAbout = new GoPluginDescriptor.About("name", "1.5.8", "target", "desc", null, null);
+        GoPluginDescriptor authDescriptor = new GoPluginDescriptor("auth_plugin_id", "do_not_use_version", authPluginAbout, null, null, false);
+
+        when(pluginManager.plugins()).thenReturn(Arrays.asList(taskDescriptor, authDescriptor));
+        when(pluginManager.pluginFor("task_plugin_id")).thenReturn(taskPluginIdentifier);
+        when(pluginManager.isPluginOfType("task", "task_plugin_id")).thenReturn(true);
+        when(pluginManager.isPluginOfType("task", "auth_plugin_id")).thenReturn(false);
+
+
+        ArrayList<PluginViewModel> pluginViewModels = pluginService.plugins("task");
+
+        assertThat(pluginViewModels.size(), is(1));
+        assertThat(pluginViewModels.get(0), is(new PluginViewModel("task_plugin_id", "name", "1.2.3", "task")));
+    }
+
+    @Test
+    public void pluginShouldFetchPluginForTheSpecifiedId() {
+        SCMConfigurations scmConfigurations = new SCMConfigurations();
+        scmConfigurations.add(new SCMConfiguration("key1"));
+        SCMMetadataStore.getInstance().addMetadataFor("scm_plugin_id", scmConfigurations, null);
+
+
+        GoPluginIdentifier taskPluginIdentifier = new GoPluginIdentifier("scm", asList("1.0"));
+        GoPluginDescriptor.About taskPluginAbout = new GoPluginDescriptor.About("name", "1.2.3", "target", "desc", null, null);
+        GoPluginDescriptor taskDescriptor = new GoPluginDescriptor("scm_plugin_id", "do_not_use_version", taskPluginAbout, null, null, false);
+
+        when(pluginManager.getPluginDescriptorFor("scm_plugin_id")).thenReturn(taskDescriptor);
+        when(pluginManager.pluginFor("scm_plugin_id")).thenReturn(taskPluginIdentifier);
+
+        PluginViewModel taskPlugin = pluginService.plugin("scm_plugin_id");
+
+        assertThat(taskPlugin.getId(), is("scm_plugin_id"));
+        assertThat(taskPlugin.getConfigurations().size(), is(1));
+    }
+
+    @Test
+    public void pluginShouldBeNullInAbsenceOfDescriptor() {
+        when(pluginManager.getPluginDescriptorFor("id")).thenReturn(null);
+
+        assertNull(pluginService.plugin("id"));
+    }
+
+    @Test
+    public void pluginShouldBeNullInAbsenceOfIdentifier() {
+        GoPluginDescriptor taskDescriptor = new GoPluginDescriptor("id", "version", null, null, null, false);
+
+        when(pluginManager.getPluginDescriptorFor("id")).thenReturn(taskDescriptor);
+        when(pluginManager.pluginFor("id")).thenReturn(null);
+
+        assertNull(pluginService.plugin("id"));
     }
 
     private String toJSON(Map<String, String> configuration) {

@@ -281,7 +281,7 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         assertThat(console.output(),
                 // different versions of git use different messages
                 // git on windows prints full submodule paths
-                new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)/)?sub1' failed", submoduleFolder.getAbsolutePath()))
+                new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath())))
         );
     }
 

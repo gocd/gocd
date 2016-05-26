@@ -236,7 +236,7 @@ public class GitCommandTest {
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
             assertThat(e.getMessage(),
-                    new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)/)?sub1' failed", submoduleFolder.getAbsolutePath())));
+                    new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath()))));
         }
     }
 

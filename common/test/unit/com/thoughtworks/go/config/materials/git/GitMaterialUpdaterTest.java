@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -52,10 +53,9 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
-import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JunitExtRunner.class)
@@ -278,13 +278,12 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         FileUtils.deleteDirectory(submoduleFolder);
         assertThat(submoduleFolder.exists(), Matchers.is(false));
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Failed);
-        assertThat(console.output(), anyOf(
-                containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())),
-                containsString(String.format("clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath()))
-                )
+        assertThat(console.output(),
+                // different versions of git use different messages
+                // git on windows prints full submodule paths
+                new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)/)?sub1' failed", submoduleFolder.getAbsolutePath()))
         );
     }
-
 
     private void updateTo(GitMaterial material, RevisionContext revisionContext, JobResult expectedResult) {
         BuildSession buildSession = newBuildSession();

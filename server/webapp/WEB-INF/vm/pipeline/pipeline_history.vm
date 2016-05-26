@@ -26,31 +26,49 @@
 #parse("shared/_header.vm")
 
 <style type="text/css">
-.pipeline-history-group .wrapper .onHover .detail,
-.pipeline-history-group .wrapper .onHover .rerun,
-.pipeline-history-group .wrapper .onHover .disabled-rerun
-{
-    display:block;
-    zoom: 1;
-}
+    .pipeline-history-group .wrapper .onHover .detail,
+    .pipeline-history-group .wrapper .onHover .rerun,
+    .pipeline-history-group .wrapper .onHover .disabled-rerun {
+        display: block;
+        zoom: 1;
+    }
+
+    input[readonly] {
+        background: gray;
+        color: white;
+    }
+
 </style>
 <![endif]-->
 <textarea rows="0" cols="0" id='pipeline-history-list-template' style="display: none;">
-#parse('pipeline/_pipeline_history_list_jstemplate.vm')
+    #parse('pipeline/_pipeline_history_list_jstemplate.vm')
 </textarea>
 <div id="yui-main">
+
+    <!-- Pipeline Label Search -->
+            <div style="padding: 5px">
+                <input type="text" id="labelSearchField">
+                <button id="filterLabelsButton" type="button" style="border: 2px #555555 outset" onclick="filterLabels()">Search</button>
+                <button id="removeFilterButton" type="button" style="border: 2px #FC3535 outset; background: #E4B7B7; display: none" onclick="removeFilter()">Remove Filter</button>
+            </div>
+
     <div class="yui-b">
         <!-- breadcrumbs -->
         #set($current_page="pipeline_history")
         <!-- /breadcrumbs -->
 
         #parse("shared/_page_intro_top.vm")
+
+
         <p>This view shows you all build activity that has occured in your pipeline over time.
             Click on a stage in the configuration panel to view activity only within that stage.
             You can also manually approve stages from this screen to force the next stage to run.
-            <a class="more" target="_blank" title="Learn more from help documentation" href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
+            <a class="more" target="_blank" title="Learn more from help documentation"
+               href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
         </p>
         #parse("shared/_page_intro_bottom.vm")
+
+
         <!-- pipeline start -->
 
         <div id="pipeline-history">
@@ -82,9 +100,70 @@
 
     dashboard_periodical_executer.start();
 
-    #if($pipeline_comment_feature_toggle_key)
-    var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
-    #end
+        #if($pipeline_comment_feature_toggle_key)
+        var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
+        #end
+</script>
+
+<!-- Code for searching through labels -->
+<script>
+
+    // Gets all the histories of the pipeline and calls filterHistory
+    // Needs improvement since it is inefficient with a large number of histories (loads all of them)
+    function filterLabels() {
+        var inputVal = jQuery("#labelSearchField").val().trim();
+        if (inputVal.length == 0) {
+            removeFilter();
+            return;
+        }
+
+        var numHistory = paginator.count;
+
+        jQuery.get("/go/pipelineHistory.json?pipelineName=${pipelineName}&start=0&perPage=" + numHistory, function (data) {
+            filterHistories(data, inputVal);
+        });
+    }
+
+    // Filters histories that match the search text. Rerenders the view with histories that match the text
+    function filterHistories(pipelineHistory, filter) {
+        //Need to stop periodic executor to show only the pipelines matching the filter
+        dashboard_periodical_executer.stop();
+        var filtered = [];
+        var histories = pipelineHistory.groups[0].history;
+        for(var i in histories) {
+            var label = histories[i].label;
+            if(label && label.indexOf(filter) != -1)
+                    filtered.push(histories[i]);
+        }
+
+        pipelineHistory.groups[0].history = filtered;
+        pipelineHistory.perPage = filtered.length;
+
+        $('pipeline-history').innerHTML = pipelineHistoryObserver.getTemplate().process(
+                { data : pipelineHistory});
+        $('page_links').innerHTML = "";
+
+        jQuery("#labelSearchField").prop("readonly", true);
+        jQuery('#filterLabelsButton').hide();
+        jQuery('#removeFilterButton').show();
+    }
+
+    // Removes the applied filter (if there is one) and resumes the periodic executer
+    function removeFilter() {
+        jQuery("#labelSearchField").prop("readonly", false);
+        jQuery("#labelSearchField").val("");
+        jQuery('#filterLabelsButton').show();
+        jQuery('#removeFilterButton').hide();
+
+        if(!dashboard_periodical_executer.is_execution_start)
+            dashboard_periodical_executer.start();
+    }
+
+    jQuery('#labelSearchField').keypress(function(e){
+        if(e.keyCode==13)
+            filterLabels();
+    });
+
 </script>
 
 #parse("shared/_footer.vm")

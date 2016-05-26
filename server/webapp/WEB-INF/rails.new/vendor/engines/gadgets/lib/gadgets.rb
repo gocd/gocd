@@ -1,3 +1,6 @@
+org.slf4j.bridge.SLF4JBridgeHandler.removeHandlersForRootLogger()
+org.slf4j.bridge.SLF4JBridgeHandler.install()
+
 require "gadgets/engine"
 require 'gadgets/a_r_datasource'
 require 'gadgets/cache_control'

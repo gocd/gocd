@@ -21,6 +21,9 @@ import java.util.Map;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -47,6 +50,9 @@ public class PipelineConfigServiceTest {
         downstream(configs);
         cruiseConfig = new BasicCruiseConfig(configs);
         cruiseConfig.addEnvironment(environment("foo", "in_env"));
+        PipelineConfig remotePipeline = PipelineConfigMother.pipelineConfig("remote");
+        remotePipeline.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("url"),"plugin"),"1234"));
+        cruiseConfig.addPipeline("group",remotePipeline);
 
         goConfigService = mock(GoConfigService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
@@ -61,10 +67,11 @@ public class PipelineConfigServiceTest {
 
         Map<CaseInsensitiveString, CanDeleteResult> pipelineToCanDeleteIt = pipelineConfigService.canDeletePipelines();
 
-        assertThat(pipelineToCanDeleteIt.size(), is(3));
+        assertThat(pipelineToCanDeleteIt.size(), is(4));
         assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("down")), is(new CanDeleteResult(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))));
         assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("in_env")), is(new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", new CaseInsensitiveString("in_env"), new CaseInsensitiveString("foo")))));
         assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("pipeline")), is(new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("down")))));
+        assertThat(pipelineToCanDeleteIt.get(new CaseInsensitiveString("remote")), is(new CanDeleteResult(false, LocalizedMessage.string("CANNOT_DELETE_REMOTE_PIPELINE", new CaseInsensitiveString("remote"), "url at 1234"))));
     }
 
     @Test

@@ -143,6 +143,15 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return false;
     }
 
+    public boolean isPipelineAssociatedWithRemoteEnvironment(final CaseInsensitiveString pipelineName) {
+        for (EnvironmentConfig environment : this) {
+            if (environment.containsPipelineRemotely(pipelineName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isAgentUnderEnvironment(String agentUuid) {
         for (EnvironmentConfig environment : this) {
             if (environment.hasAgent(agentUuid)) {
@@ -193,5 +202,16 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         for (EnvironmentConfig environmentConfig : this) {
             environmentConfig.removeAgent(uuid);
         }
+    }
+
+    public EnvironmentsConfig getLocal() {
+        EnvironmentsConfig locals = new EnvironmentsConfig();
+        for(EnvironmentConfig environmentConfig : this)
+        {
+            EnvironmentConfig local = environmentConfig.getLocal();
+            if(local != null)
+                locals.add(local);
+        }
+        return locals;
     }
 }

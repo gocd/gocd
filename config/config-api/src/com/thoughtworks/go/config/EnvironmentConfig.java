@@ -85,4 +85,15 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     EnvironmentVariablesConfig getSecureVariables();
 
+    EnvironmentConfig getLocal();
+
+    boolean isLocal();
+
+    boolean isEnvironmentEmpty();
+
+    EnvironmentPipelinesConfig getRemotePipelines();
+
+    EnvironmentAgentsConfig getLocalAgents();
+
+    boolean containsPipelineRemotely(CaseInsensitiveString pipelineName);
 }

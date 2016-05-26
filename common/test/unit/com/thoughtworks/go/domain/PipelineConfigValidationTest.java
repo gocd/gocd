@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -280,7 +281,7 @@ public class PipelineConfigValidationTest {
 
         ConfigErrors materialErrors = pipelineConfig.materialConfigs().first().errors();
         assertThat(materialErrors.isEmpty(), is(false));
-        assertThat(materialErrors.firstError(), is("Pipeline with name 'non-existant' does not exist"));
+        assertThat(materialErrors.firstError(), is("Pipeline with name 'non-existant' does not exist, it is defined as a dependency for pipeline 'pipeline' (cruise-config.xml)"));
     }
 
     @Test
@@ -296,7 +297,7 @@ public class PipelineConfigValidationTest {
         assertThat(isValid, is(false));
         ConfigErrors materialErrors = pipelineConfig.materialConfigs().first().errors();
         assertThat(materialErrors.isEmpty(), is(false));
-        assertThat(materialErrors.firstError(), is("Stage with name 'non-existant' does not exist on pipeline 'upstream'"));
+        assertThat(materialErrors.firstError(), is("Stage with name 'non-existant' does not exist on pipeline 'upstream', it is being referred to from pipeline 'downstream' (cruise-config.xml)"));
     }
 
     @Test
@@ -441,7 +442,7 @@ public class PipelineConfigValidationTest {
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, pipelineConfig);
 
         pipelineConfig.validateTree(validationContext);
-        assertThat(pipelineConfig.errors().on("base"), is("Stage with name 'stage' does not exist on pipeline 'p1', it is being referred to from pipeline 'p2'"));
+        assertThat(pipelineConfig.errors().on("base"), is("Stage with name 'stage' does not exist on pipeline 'p1', it is being referred to from pipeline 'p2' (cruise-config.xml)"));
         p2 = PipelineConfigurationCache.getInstance().getPipelineConfig("p2");
         assertThat(p2.materialConfigs().getDependencyMaterial().errors().isEmpty(), is(true));
     }

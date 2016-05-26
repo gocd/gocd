@@ -20,10 +20,8 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.*;
-import org.jdom.input.SAXBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -73,11 +71,16 @@ public class MagicalGoConfigXmlWriter {
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
             if (!skipPreprocessingAndValidation) {
-                // lets validate merged config first, it will show more sensible errors
+                // preprocess and validate at merge scope first
+                LOGGER.debug("[Serializing Config] Validating at merged scope.");
                 loader.preprocessAndValidate(configForEdit);
             }
-            configForEdit = configForEdit.getLocal();
+            // strip remote configurations from edited config for edit
+            configForEdit.stripRemotes();
+            LOGGER.debug("[Serializing Config] Removed remote elements");
         }
+        // if stripRemotes is perfect, then this second validation can be removed.
+        // but we cannot be sure yet.
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);
             LOGGER.debug("[Serializing Config] Done with cruise config validators.");
@@ -230,6 +233,8 @@ public class MagicalGoConfigXmlWriter {
 
     private static Element elementFor(Class<?> aClass, ConfigCache configCache) {
         ConfigTag configTag = annotationFor(aClass, ConfigTag.class);
+        if(configTag == null)
+            throw bomb(format("Cannot get config tag for {0}",aClass));
         return new Element(configTag.value(), namespaceFor(configTag));
     }
 

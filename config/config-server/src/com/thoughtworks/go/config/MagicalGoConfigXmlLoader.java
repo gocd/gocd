@@ -18,10 +18,13 @@ package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidMergeException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
+import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
@@ -48,7 +51,8 @@ public class MagicalGoConfigXmlLoader {
 
     public static final List<GoConfigPreprocessor> PREPROCESSORS = Arrays.asList(
             new TemplateExpansionPreprocessor(),
-            new ConfigParamPreprocessor());
+            new ConfigParamPreprocessor(),
+            new ConfigRepoPartialPreprocessor());
 
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
             new ArtifactDirValidator(),
@@ -73,18 +77,22 @@ public class MagicalGoConfigXmlLoader {
         CruiseConfig configForEdit;
         CruiseConfig config;
         LOGGER.debug("[Config Save] Loading config holder");
-        String md5 = CachedDigestUtils.md5Hex(content);
-        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
-        LOGGER.debug("[Config Save] Updating config cache with new XML");
-
-        configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
-        setMd5(configForEdit, md5);
-        configForEdit.setOrigins(new FileConfigOrigin());
+        configForEdit = deserializeConfig(content);
         config = preprocessAndValidate(configForEdit);
 
         return new GoConfigHolder(config, configForEdit);
     }
 
+    public CruiseConfig deserializeConfig(String content) throws Exception {
+        String md5 = CachedDigestUtils.md5Hex(content);
+        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
+        LOGGER.debug("[Config Save] Updating config cache with new XML");
+
+        CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
+        setMd5(configForEdit, md5);
+        configForEdit.setOrigins(new FileConfigOrigin());
+        return configForEdit;
+    }
 
     public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {
         Field field = BasicCruiseConfig.class.getDeclaredField("md5");
@@ -118,7 +126,10 @@ public class MagicalGoConfigXmlLoader {
         LOGGER.debug("[Config Save] In validateCruiseConfig: Starting.");
         List<ConfigErrors> allErrors = validate(config);
         if (!allErrors.isEmpty()) {
-            throw new GoConfigInvalidException(config, allErrors);
+            if(config.isLocal())
+                throw new GoConfigInvalidException(config, allErrors);
+            else
+                throw new GoConfigInvalidMergeException("Merged validation failed",config,config.getMergedPartials(),allErrors);
         }
 
         LOGGER.debug("[Config Save] In validateCruiseConfig: Running validate.");

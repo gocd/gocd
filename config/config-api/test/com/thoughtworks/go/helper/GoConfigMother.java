@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -140,6 +141,7 @@ public class GoConfigMother {
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans(buildNames));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), PipelineLabel.COUNT_TEMPLATE, cronSpec, shouldTriggerOnlyOnMaterialChanges, materialConfigs,
                 asList(stageConfig));
+        pipelineConfig.setOrigin(new FileConfigOrigin());
         cruiseConfig.addPipeline(groupName, pipelineConfig);
         return pipelineConfig;
     }
@@ -147,6 +149,7 @@ public class GoConfigMother {
     public PipelineConfig addPipeline(CruiseConfig cruiseConfig, String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) {
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans(buildNames));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stageConfig);
+        pipelineConfig.setOrigin(new FileConfigOrigin());
         cruiseConfig.addPipeline(DEFAULT_GROUP, pipelineConfig);
         return pipelineConfig;
     }

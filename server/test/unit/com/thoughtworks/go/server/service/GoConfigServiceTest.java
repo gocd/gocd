@@ -24,6 +24,9 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
@@ -61,6 +64,8 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.File;
 import java.util.*;
@@ -74,6 +79,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.apache.commons.httpclient.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.commons.httpclient.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -118,7 +124,7 @@ public class GoConfigServiceTest {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
                 registry), goCache, configRepo, registry,
-                instanceFactory);
+                instanceFactory, mock(CachedGoPartials.class));
     }
 
     @Test
@@ -881,7 +887,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void uiBasedUpdateCommandShouldReturnTheConfigPassedByUpdateOperation() {
-        UiBasedConfigUpdateCommand command = new UiBasedConfigUpdateCommand("md5", null, null) {
+        UiBasedConfigUpdateCommand command = new UiBasedConfigUpdateCommand("md5", null, null, null) {
             public boolean canContinue(CruiseConfig cruiseConfig) {
                 return true;
             }
@@ -1232,6 +1238,27 @@ public class GoConfigServiceTest {
         verify(pipelineRepository, times(1)).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipeline1", "pipeline2", "pipelineNew")));
     }
 
+
+    @Test
+    public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() throws Exception
+    {
+        PipelineConfigs group = new BasicPipelineConfigs();
+        PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
+        pipelineConfig.setOrigin(new RepoConfigOrigin());
+        group.add(pipelineConfig);
+        expectLoad(new BasicCruiseConfig(group));
+        assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(false));
+    }
+    @Test
+    public void pipelineEditableViaUI_shouldReturnTrueWhenPipelineIsLocal() throws Exception
+    {
+        PipelineConfigs group = new BasicPipelineConfigs();
+        PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
+        group.add(pipelineConfig);
+        expectLoad(new BasicCruiseConfig(group));
+        assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(true));
+    }
+
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));
@@ -1250,7 +1277,7 @@ public class GoConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
         return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory);
+                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null);
     }
 
     private CruiseConfig mockConfig() {

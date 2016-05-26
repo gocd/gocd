@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.*;
@@ -83,11 +84,12 @@ public class GoConfigService implements Initializer {
     public static final String INVALID_CRUISE_CONFIG_XML = "Invalid Configuration";
     private final ConfigElementImplementationRegistry registry;
     private InstanceFactory instanceFactory;
+    private final CachedGoPartials cachedGoPartials;
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigCache configCache, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory) {
+                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials) {
         this.goConfigDao = goConfigDao;
         this.pipelineRepository = pipelineRepository;
         this.goCache = goCache;
@@ -96,13 +98,14 @@ public class GoConfigService implements Initializer {
         this.registry = registry;
         this.upgrader = upgrader;
         this.instanceFactory = instanceFactory;
+        this.cachedGoPartials = cachedGoPartials;
     }
 
     //for testing
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, Clock clock, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory) {
-        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory);
+                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials) {
+        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials);
         this.clock = clock;
     }
 
@@ -278,7 +281,7 @@ public class GoConfigService implements Initializer {
     }
 
     public ConfigUpdateResponse updateConfigFromUI(final UpdateConfigFromUI command, final String md5, Username username, final LocalizedOperationResult result) {
-        UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result);
+        UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result, cachedGoPartials);
         UpdatedNodeSubjectResolver updatedConfigResolver = new UpdatedNodeSubjectResolver();
         try {
             ConfigSaveState configSaveState = updateConfig(updateCommand);
@@ -521,6 +524,13 @@ public class GoConfigService implements Initializer {
 
     public List<PipelineConfig> getAllPipelineConfigs() {
         return getCurrentConfig().getAllPipelineConfigs();
+    }
+
+    /* NOTE: this is called from rails environments controller to build a list of pipelines which user can assign in environment.
+       We don't want user to select or unselect any pipeline which is already selected in a remote configuration repository.
+     */
+    public List<PipelineConfig> getAllLocalPipelineConfigs() {
+        return getCurrentConfig().getAllLocalPipelineConfigs(true);
     }
 
     public List<PipelineConfig> getAllPipelineConfigsForEdit() {
@@ -1044,6 +1054,18 @@ public class GoConfigService implements Initializer {
         }
     }
 
+    public boolean isPipelineEditableViaUI(String pipelineName) {
+        PipelineConfig pipelineConfig = this.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        if(pipelineConfig == null)
+            return false;
+        return isOriginLocal(pipelineConfig.getOrigin());
+    }
+
+    private boolean isOriginLocal(ConfigOrigin origin) {
+        // when null we assume that it comes from file or UI
+        return origin == null || origin.isLocal();
+    }
+
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;
@@ -1072,15 +1094,15 @@ public class GoConfigService implements Initializer {
 
         }
 
-        protected ConfigSaveState saveConfig(String xmlString, final String md5) throws Exception {
+        protected ConfigSaveState saveConfig(final String xmlString, final String md5) throws Exception {
             LOGGER.debug("[Config Save] Started saving XML");
-            MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
-            final CruiseConfig config = configXmlLoader.loadConfigHolder(xmlString).configForEdit;
+            final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
 
             LOGGER.debug("[Config Save] Updating config");
+            final CruiseConfig deserializedConfig = configXmlLoader.deserializeConfig(xmlString);
             ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    return config;
+                    return deserializedConfig;
                 }
 
                 public String unmodifiedMd5() {

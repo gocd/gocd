@@ -1,9 +1,9 @@
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.core.Is;
@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,6 +38,17 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     @Override
     protected BasicCruiseConfig createCruiseConfig() {
         return new BasicCruiseConfig();
+    }
+
+    @Test
+    public void getAllLocalPipelineConfigs_shouldReturnOnlyLocalPipelinesWhenNoRemotes()
+    {
+        PipelineConfig pipeline1 = createPipelineConfig("local-pipe-1", "stage1");
+        cruiseConfig.getGroups().addPipeline("existing_group", pipeline1);
+
+        List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
+        assertThat(localPipelines.size(),is(1));
+        assertThat(localPipelines,hasItem(pipeline1));
     }
 
     @Test
@@ -108,6 +120,4 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         CruiseConfig config = new BasicCruiseConfig(group1, group2);
         assertThat("shouldReturnFalseForPipelineThatNotInFirstGroup", config.isInFirstGroup(new CaseInsensitiveString("pipeline2")), is(false));
     }
-
-
 }

@@ -17,7 +17,7 @@
 /**
  * Action Icons.css
  */
- 
+
 
 /**
  * TABLE OF CONTENTS
@@ -26,7 +26,7 @@
  * =ACTION_STATES
  * =DISABLED_ACTION_STATES
  */
- 
+
 
 /**
  * =BASE
@@ -80,8 +80,8 @@
 .delete_icon_disabled,
 .lock_icon_disabled,
 .edit_icon_disabled,
-.move_icon_disable,
-.clone_icon_disable {
+.move_icon_disabled,
+.clone_icon_disabled {
     color: #999999;
     cursor: default;
     display: inline-block;
@@ -106,11 +106,15 @@
 .delete_icon_disabled {
   background: image_url('g9/icons/icon_delete_disabled_16.png') no-repeat left 50%;
 }
+
 .edit_icon_disabled {
+  background: image_url('g9/icons/icon_edit_16_disabled.png') no-repeat left 50%;
 }
 .move_icon_disabled {
+  background: image_url('g9/icons/icon_move_16_disabled.png') no-repeat left 50%;
 }
 .clone_icon_disabled {
+  background: image_url('g9/icons/icon_clone_16_disabled.png') no-repeat left 50%;
 }
 
 /**
@@ -139,4 +143,3 @@
   width: 18px;
   cursor: inherit;
 }
-

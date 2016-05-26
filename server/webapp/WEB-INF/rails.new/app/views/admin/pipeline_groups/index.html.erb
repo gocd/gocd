@@ -46,13 +46,25 @@
                     <tbody>
                     <% group.each do |pipeline| %>
                         <tr class="pipeline">
-                            <td class="name"><%= link_to pipeline.name(), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => 'wrapped_word' %></td>
+                            <td class="name">
+															<% if pipeline.isLocal() %>
+															  <%= link_to pipeline.name(), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => 'wrapped_word' %>
+															<% else %>
+																<%= pipeline.name() %>
+															<% end %>
+														</td>
                             <td class="actions">
                                 <ul>
                                     <li>
-                                        <%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class=> "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
-                                    </li>
-                                    <%- if @groups.size() > 1 -%>
+																			<% if pipeline.isLocal() %>
+                                      	<%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class=> "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
+																			<% else %>
+																				<span class="edit_pipeline action_icon edit_icon_disabled edit_for_pipeline_<%=pipeline.name()-%> action_icon" title="<%= l.string("CANNOT_EDIT_REMOTE_PIPELINE") -%>">
+																					<%= l.string("EDIT") -%>
+																				</span>
+																			<% end %>
+																		</li>
+                                    <%- if pipeline.isLocal() && @groups.size() > 1 -%>
                                         <li>
                                                 <a id="a_move_<%=pipeline.name()-%>" href="<%= possible_groups_path(with_md5_param(:pipeline_name => pipeline.name())) -%>" class="move_pipeline move_icon action_icon"><%= l.string("MOVE_TO") -%>
                                                     <span class="for_down_arrow">&nbsp;</span>
@@ -60,6 +72,7 @@
                                         </li>
                                     <%- end -%>
                                     <li>
+																			<% if pipeline.isLocal() %>
                                         <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
                                         <a href="#" class="clone_pipeline clone_icon action_icon clone_button_for_<%= pipeline.name() -%>" id="<%= pipeline_random_id_for_clone -%>">
                                             <%= l.string("CLONE") -%>
@@ -72,6 +85,11 @@
                                                 });
                                             });
                                         </script>
+																			<% else %>
+																				<span class="action_icon clone_icon_disabled clone_button_for_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_CLONE_REMOTE_PIPELINE") -%>">
+																					<%= l.string("CLONE") -%>
+																				</span>
+																			<% end %>
                                     </li>
                                     <li>
                                         <%= render :partial => "delete_pipeline", :locals => {:scope => {:pipeline => pipeline, :pipeline_to_can_delete => @pipeline_to_can_delete}} %>
@@ -82,6 +100,10 @@
                                                <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE") -%>">
                                                    <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
                                                </span>
+																						<% elsif !pipeline.isLocal() %>
+	                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE_FROM_REMOTE") -%>">
+	                                                   <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
+	                                               </span>
                                             <% else %>
                                                 <span class="title_secondary_info extract_template_for_pipeline_<%=pipeline.name()-%>">
                                                 <a href="#" class="add_link" onclick="Util.ajax_modal('<%= template_new_path(:pipelineToExtractFrom => pipeline.name()) -%>', {overlayClose: false, title: '<%= l.string("EXTRACT_NEW_TEMPLATE")-%>'}, function(text){return text})">
@@ -102,7 +124,7 @@
         </div>
     <% end %>
 
-    
+
 </div>
 
 <script type="text/javascript">
@@ -130,4 +152,3 @@
     });
 
 </script>
-

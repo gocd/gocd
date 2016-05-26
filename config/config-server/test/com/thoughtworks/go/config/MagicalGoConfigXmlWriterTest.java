@@ -167,7 +167,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(merged, output, false);
             fail("Should not be able to save config when there are errors in merged config");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+            assertThat(e.getMessage(), containsString("Pipelines named 'pipeline1' are defined in cruise-config.xml and in http://some.git at 1234fed. Pipeline names must be unique."));
         }
     }
 

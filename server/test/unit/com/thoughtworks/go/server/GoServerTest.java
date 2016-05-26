@@ -191,6 +191,12 @@ public class GoServerTest {
         assertExtraClasspath(appServer, "");
     }
 
+    @Test
+    public void shouldTurnOffJrubyObjectProxyCacheByDefault(){
+        new GoServer();
+        assertThat(new SystemEnvironment().getPropertyImpl("jruby.ji.objectProxyCache"), is("false"));
+    }
+
     private void assertExtraClasspath(AppServerStub appServer, String... expectedClassPathJars) {
         String extraJars = (String) appServer.calls.get("addExtraJarsToClasspath");
         List<String> actualExtraClassPath = Arrays.asList(extraJars.split(","));

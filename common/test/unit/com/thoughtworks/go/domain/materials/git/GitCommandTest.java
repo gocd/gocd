@@ -25,13 +25,13 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
+import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
@@ -235,11 +235,8 @@ public class GitCommandTest {
             gitWithSubmodule.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("HEAD"));
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
-            assertThat(e.getMessage(), CoreMatchers.anyOf(
-                    containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())),
-                    containsString(String.format("clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath()))
-                    )
-            );
+            assertThat(e.getMessage(),
+                    new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)/)?sub1' failed", submoduleFolder.getAbsolutePath())));
         }
     }
 

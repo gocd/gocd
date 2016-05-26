@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;

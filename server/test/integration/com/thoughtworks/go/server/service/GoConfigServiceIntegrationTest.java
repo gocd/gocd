@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.MergedGoConfig;
+import com.thoughtworks.go.config.CachedGoConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
@@ -71,7 +71,7 @@ public class GoConfigServiceIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private Localizer localizer;
     @Autowired private ConfigRepository configRepo;
-    @Autowired private MergedGoConfig mergedGoConfig;
+    @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private ServerConfigService serverConfigService;
 
     private GoConfigFileHelper configHelper;
@@ -184,7 +184,7 @@ public class GoConfigServiceIntegrationTest {
 
         configHelper.addTemplate("pipeline", "stage");
 
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("loser")), result);
@@ -202,7 +202,7 @@ public class GoConfigServiceIntegrationTest {
 
         configHelper.addTemplate("pipeline", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("template-admin")))), "stage");
 
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("template-admin")), result);
@@ -219,7 +219,7 @@ public class GoConfigServiceIntegrationTest {
 
         configHelper.addTemplate("pipeline", "stage");
 
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = goConfigService.loadCruiseConfigForEdit(new Username(new CaseInsensitiveString("hero")), result);
@@ -508,7 +508,7 @@ public class GoConfigServiceIntegrationTest {
 
     @Test
     public void shouldLoadConfigFileOnlyWhenModifiedOnDisk() throws InterruptedException {
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
         Thread.sleep(1000);
         goConfigService.updateConfig(new UpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -516,9 +516,9 @@ public class GoConfigServiceIntegrationTest {
                 return cruiseConfig;
             }
         });
-        CruiseConfig cruiseConfig = mergedGoConfig.loadForEditing();
-        mergedGoConfig.forceReload();
-        assertThat(cruiseConfig, sameInstance(mergedGoConfig.loadForEditing()));
+        CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
+        cachedGoConfig.forceReload();
+        assertThat(cruiseConfig, sameInstance(cachedGoConfig.loadForEditing()));
     }
 
     @Test

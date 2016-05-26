@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.config.CachedGoPartials;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.GoConfigMigration;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -53,7 +54,7 @@ public class IsSecurityEnabledVoterTest {
         configHelper.addSecurityWithBogusLdapConfig(false);
         GoConfigService configService = new GoConfigService(goConfigDao, null, new SystemTimeClock(), mock(GoConfigMigration.class), null, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(),
-                new InstanceFactory());
+                new InstanceFactory(), mock(CachedGoPartials.class));
         IsSecurityEnabledVoter voter = new IsSecurityEnabledVoter(configService);
         int accessStatus = voter.vote(null, null, null);
         assertThat(accessStatus, Is.is(AccessDecisionVoter.ACCESS_ABSTAIN));

@@ -75,7 +75,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private String hsqlPath = null;
 
     public static final String ENABLE_CONFIG_MERGE_PROPERTY = "enable.config.merge";
-    public static final GoSystemProperty<Boolean> ENABLE_CONFIG_MERGE_FEATURE = new CachedProperty<Boolean>(new GoBooleanSystemProperty(ENABLE_CONFIG_MERGE_PROPERTY, Boolean.TRUE));
+    public static final GoSystemProperty<Boolean> ENABLE_CONFIG_MERGE_FEATURE = new CachedProperty<>(new GoBooleanSystemProperty(ENABLE_CONFIG_MERGE_PROPERTY, Boolean.TRUE));
 
     private String defaultDbPort = "9153";
     private static final String DB_UPGRADE_H2_DELTAS_FOLDER = "h2deltas";
@@ -105,8 +105,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
-    public static GoSystemProperty<Integer> RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT = new CachedProperty<Integer>(new GoIntSystemProperty("resolve.fanin.max.backtrack.limit", 100));
-    public static GoSystemProperty<Integer> MATERIAL_UPDATE_INACTIVE_TIMEOUT = new CachedProperty<Integer>(new GoIntSystemProperty("material.update.inactive.timeout", 15));
+    public static GoSystemProperty<Integer> RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT = new CachedProperty<>(new GoIntSystemProperty("resolve.fanin.max.backtrack.limit", 100));
+    public static GoSystemProperty<Integer> MATERIAL_UPDATE_INACTIVE_TIMEOUT = new CachedProperty<>(new GoIntSystemProperty("material.update.inactive.timeout", 15));
 
     public static GoSystemProperty<Integer> H2_DB_TRACE_LEVEL = new GoIntSystemProperty("h2.trace.level", 1);
     public static GoSystemProperty<Integer> H2_DB_TRACE_FILE_SIZE_MB = new GoIntSystemProperty("h2.trace.file.size.mb", 16);
@@ -119,27 +119,27 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String PLUGINS_PATH = "plugins";
     public static GoSystemProperty<String> PLUGIN_GO_PROVIDED_PATH = new GoStringSystemProperty("plugins.go.provided.path", PLUGINS_PATH + System.getProperty("file.separator") + "bundled");
     public static GoSystemProperty<String> PLUGIN_EXTERNAL_PROVIDED_PATH = new GoStringSystemProperty("plugins.external.provided.path", PLUGINS_PATH + System.getProperty("file.separator") + "external");
-    public static GoSystemProperty<String> PLUGIN_BUNDLE_PATH = new CachedProperty<String>(new GoStringSystemProperty("plugins.work.path", "plugins_work"));
-    public static GoSystemProperty<String> PLUGIN_ACTIVATOR_JAR_PATH = new CachedProperty<String>(new GoStringSystemProperty("plugins.activator.jar.path", "lib/go-plugin-activator.jar"));
+    public static GoSystemProperty<String> PLUGIN_BUNDLE_PATH = new CachedProperty<>(new GoStringSystemProperty("plugins.work.path", "plugins_work"));
+    public static GoSystemProperty<String> PLUGIN_ACTIVATOR_JAR_PATH = new CachedProperty<>(new GoStringSystemProperty("plugins.activator.jar.path", "lib/go-plugin-activator.jar"));
     public static GoSystemProperty<Boolean> PLUGIN_FRAMEWORK_ENABLED = new GoBooleanSystemProperty("plugins.framework.enabled", Boolean.TRUE);
     public static GoSystemProperty<String> ALL_PLUGINS_ZIP_PATH = new GoStringSystemProperty("plugins.all.zip.path", new File(PLUGINS_PATH, "go-plugins-all.zip").getAbsolutePath());
     public static GoSystemProperty<String> ADDONS_PATH = new GoStringSystemProperty("addons.path", "addons");
     public static GoSystemProperty<String> AVAILABLE_FEATURE_TOGGLES_FILE_PATH = new GoStringSystemProperty("available.toggles.path", "/available.toggles");
     public static GoSystemProperty<String> USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR = new GoStringSystemProperty("user.toggles.path", "go.feature.toggles");
 
-    public static GoSystemProperty<String> DEFAULT_COMMAND_SNIPPETS_ZIP = new CachedProperty<String>(
+    public static GoSystemProperty<String> DEFAULT_COMMAND_SNIPPETS_ZIP = new CachedProperty<>(
             new GoStringSystemProperty("default.command.snippets.zip.location", "/defaultFiles/defaultCommandSnippets.zip"));
-    public static GoSystemProperty<String> DEFAULT_PLUGINS_ZIP = new CachedProperty<String>(
+    public static GoSystemProperty<String> DEFAULT_PLUGINS_ZIP = new CachedProperty<>(
             new GoStringSystemProperty("default.plugins.zip.location", "/defaultFiles/plugins.zip"));
-    public static final GoSystemProperty<String> AGENT_PLUGINS_PATH = new CachedProperty<String>(new GoStringSystemProperty("agent.plugins.path", PLUGINS_PATH));
-    public static GoSystemProperty<String> VERSION_FILE_IN_DEFAULT_COMMAND_REPOSITORY = new CachedProperty<String>(new GoStringSystemProperty("version.file.in.command.repository", "version.txt"));
-    public static GoSystemProperty<Integer> COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS = new CachedProperty<Integer>(new GoIntSystemProperty("command.repo.cache.timeout.in.secs", 30 * 60));
-    public static GoSystemProperty<String> COMMAND_REPOSITORY_DIRECTORY = new CachedProperty<String>(new GoStringSystemProperty("command.repo.dir", DB_BASE_DIR + "command_repository"));
+    public static final GoSystemProperty<String> AGENT_PLUGINS_PATH = new CachedProperty<>(new GoStringSystemProperty("agent.plugins.path", PLUGINS_PATH));
+    public static GoSystemProperty<String> VERSION_FILE_IN_DEFAULT_COMMAND_REPOSITORY = new CachedProperty<>(new GoStringSystemProperty("version.file.in.command.repository", "version.txt"));
+    public static GoSystemProperty<Integer> COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS = new CachedProperty<>(new GoIntSystemProperty("command.repo.cache.timeout.in.secs", 30 * 60));
+    public static GoSystemProperty<String> COMMAND_REPOSITORY_DIRECTORY = new CachedProperty<>(new GoStringSystemProperty("command.repo.dir", DB_BASE_DIR + "command_repository"));
     public static GoSystemProperty<Integer> IDLE_TIMEOUT = new GoIntSystemProperty("idle.timeout", 30000);
     public static GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32768);
     public static final GoSystemProperty<Integer> API_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("api.request.idle.timeout.seconds", 300);
 
-    public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<Integer>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
+    public static GoSystemProperty<Integer> PLUGIN_NOTIFICATION_LISTENER_COUNT = new CachedProperty<>(new GoIntSystemProperty("plugin.notification.listener.count", 1));
 
     /* DATABASE CONFIGURATION - Defaults are of H2 */
     public static GoSystemProperty<String> GO_DATABASE_HOST = new GoStringSystemProperty("db.host", "localhost");
@@ -155,7 +155,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
-    public static GoSystemProperty<String> APP_SERVER = new CachedProperty<String>(new GoStringSystemProperty("app.server", JETTY9));
+    public static GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY9));
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 

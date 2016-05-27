@@ -66,7 +66,7 @@ public final class ListUtil {
     }
 
     public static List<List<String>> split(List<String> list, String splitOn) {
-        ArrayList<List<String>> splittedStrings = new ArrayList<List<String>>();
+        ArrayList<List<String>> splittedStrings = new ArrayList<>();
         if (list.isEmpty()) {
             return splittedStrings;
         }

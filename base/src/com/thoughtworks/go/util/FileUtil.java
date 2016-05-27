@@ -195,7 +195,7 @@ public class FileUtil {
     }
 
     private static List<String> flatten(File folder1) {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         flatten(list, folder1.getAbsolutePath(), folder1);
         return list;
     }

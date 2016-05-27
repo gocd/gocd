@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SafeOutputStreamConsumer implements ConsoleOutputStreamConsumer {
-    private List<CommandArgument> arguments = new ArrayList<CommandArgument>();
-    private List<SecretString> secrets = new ArrayList<SecretString>();
+    private List<CommandArgument> arguments = new ArrayList<>();
+    private List<SecretString> secrets = new ArrayList<>();
     private final ConsoleOutputStreamConsumer consumer;
 
     public SafeOutputStreamConsumer(ConsoleOutputStreamConsumer consumer) {

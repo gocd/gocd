@@ -100,9 +100,9 @@ public class JobRunnerTest {
     public void setUp() throws Exception {
         runner = new JobRunner();
         work = new FakeWork();
-        consoleOut = new ArrayList<String>();
-        statesAndResult = new ArrayList<Enum>();
-        properties = new ArrayList<Property>();
+        consoleOut = new ArrayList<>();
+        statesAndResult = new ArrayList<>();
+        properties = new ArrayList<>();
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
 
         new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);

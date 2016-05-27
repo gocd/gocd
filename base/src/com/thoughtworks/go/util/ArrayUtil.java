@@ -58,15 +58,15 @@ public class ArrayUtil {
      * Much like Arrays.asList, except the list is not fixed size.
      */
     public static <T> List<T> asList(T... a) {
-        if (a == null) { return new ArrayList<T>(); }
+        if (a == null) { return new ArrayList<>(); }
 
-        ArrayList<T> list = new ArrayList<T>(a.length);
+        ArrayList<T> list = new ArrayList<>(a.length);
         list.addAll(Arrays.asList(a));
         return list;
     }
 
     public static <T> Object[] capitalizeContents(T[] array) {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         for (T t : array) {
             list.add(StringUtils.capitalize(t.toString()));
         }

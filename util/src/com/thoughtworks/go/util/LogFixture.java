@@ -55,8 +55,8 @@ public class LogFixture extends AppenderSkeleton {
         Logger.getRootLogger().setLevel(level);
     }
 
-    private List<String> messages = new ArrayList<String>();
-    private List<LoggingEvent> events = new ArrayList<LoggingEvent>();
+    private List<String> messages = new ArrayList<>();
+    private List<LoggingEvent> events = new ArrayList<>();
 
     private LogFixture() {
     }

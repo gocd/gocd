@@ -22,7 +22,7 @@ public class Pair<A,B> {
     private final B b;
 
     public static <U, V> Pair<U, V> pair(U a, V b) {
-        return new Pair<U, V>(a, b);
+        return new Pair<>(a, b);
     }
 
     public Pair(A a, B b){
@@ -31,7 +31,7 @@ public class Pair<A,B> {
     }
 
     public static<T> Pair<T,T> twins(T value){
-       return new Pair<T,T>(value,value);   
+       return new Pair<>(value, value);
     }
 
     public A first(){

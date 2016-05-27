@@ -25,7 +25,7 @@ import java.util.Set;
 import static com.thoughtworks.go.util.ListUtil.join;
 
 public class Csv {
-    private final List<CsvRow> data = new ArrayList<CsvRow>();
+    private final List<CsvRow> data = new ArrayList<>();
 
     public static Csv fromString(String csvContent) {
         Csv csv = new Csv();
@@ -64,7 +64,7 @@ public class Csv {
     }
 
     private Set<String> fields() {
-        Set<String> fields = new LinkedHashSet<String>();
+        Set<String> fields = new LinkedHashSet<>();
         for (CsvRow row : data) {
             fields.addAll(row.fields());
         }

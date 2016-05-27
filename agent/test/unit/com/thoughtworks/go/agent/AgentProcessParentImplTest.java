@@ -74,7 +74,7 @@ public class AgentProcessParentImplTest {
 
     @Test
     public void shouldStartSubprocessWithCommandLine() throws InterruptedException, IOException {
-        final List<String> cmd = new ArrayList<String>();
+        final List<String> cmd = new ArrayList<>();
         String expectedAgentMd5 = FileDigester.md5DigestOfFile(new File("testdata/test-agent.jar"));
         String expectedAgentPluginsMd5 = FileDigester.md5DigestOfFile(new File("testdata/agent-plugins.zip"));
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
@@ -105,7 +105,7 @@ public class AgentProcessParentImplTest {
 
     @Test
     public void shouldStartSubprocess_withOverriddenArgs() throws InterruptedException, IOException {
-        final List<String> cmd = new ArrayList<String>();
+        final List<String> cmd = new ArrayList<>();
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
         int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"));
         String expectedAgentMd5 = FileDigester.md5DigestOfFile(new File("testdata/test-agent.jar"));
@@ -142,7 +142,7 @@ public class AgentProcessParentImplTest {
 
     @Test
     public void shouldLogIntrruptOnAgentProcess() throws InterruptedException {
-        final List<String> cmd = new ArrayList<String>();
+        final List<String> cmd = new ArrayList<>();
         LogFixture logFixture = LogFixture.startListening();
         try {
             Process subProcess = mockProcess();
@@ -159,7 +159,7 @@ public class AgentProcessParentImplTest {
 
     @Test(timeout = 10 * 1000)//if it fails with timeout, that means stderr was not flushed -jj
     public void shouldLogErrorStreamOfSubprocess() throws InterruptedException, IOException {
-        final List<String> cmd = new ArrayList<String>();
+        final List<String> cmd = new ArrayList<>();
         Process subProcess = mockProcess();
         String stdErrMsg = "Mr. Agent writes to stderr!";
         when(subProcess.getErrorStream()).thenReturn(new ByteArrayInputStream(stdErrMsg.getBytes()));
@@ -179,7 +179,7 @@ public class AgentProcessParentImplTest {
 
     @Test
     public void shouldLogFailureToStartSubprocess() throws InterruptedException {
-        final List<String> cmd = new ArrayList<String>();
+        final List<String> cmd = new ArrayList<>();
         LogFixture logFixture = LogFixture.startListening();
         try {
             AgentProcessParentImpl bootstrapper = new AgentProcessParentImpl() {
@@ -199,7 +199,7 @@ public class AgentProcessParentImplTest {
 
     @Test
     public void shouldClose_STDIN_and_STDOUT_ofSubprocess() throws InterruptedException {
-        final List<String> cmd = new ArrayList<String>();
+        final List<String> cmd = new ArrayList<>();
         LogFixture logFixture = LogFixture.startListening();
         try {
             final OutputStream stdin = mock(OutputStream.class);

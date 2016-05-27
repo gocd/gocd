@@ -38,7 +38,7 @@ public class StringArgument extends CommandArgument {
     }
 
     public static CommandArgument[] toArgs(Object... inputs) {
-        List<CommandArgument> args = new ArrayList<CommandArgument>();
+        List<CommandArgument> args = new ArrayList<>();
         for (int i = 0; i < inputs.length; i++) {
             if (inputs[i] instanceof CommandArgument) {
                 args.add((CommandArgument) inputs[i]);

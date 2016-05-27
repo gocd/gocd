@@ -67,7 +67,7 @@ public class SystemUtil {
     }
 
     public static String getFirstLocalNonLoopbackIpAddress() {
-        SortedSet<String> addresses = new TreeSet<String>();
+        SortedSet<String> addresses = new TreeSet<>();
         Iterator<NetworkInterface> iterator = localInterfaces.iterator();
         while (iterator.hasNext()) {
             NetworkInterface networkInterface = iterator.next();

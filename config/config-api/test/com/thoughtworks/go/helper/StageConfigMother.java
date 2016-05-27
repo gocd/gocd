@@ -21,7 +21,6 @@ import java.util.HashMap;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 
 public class StageConfigMother {

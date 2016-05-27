@@ -28,8 +28,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.server.web.JsonView;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,7 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonByValidity;
-import static org.apache.commons.lang.StringUtils.defaultString;
 
 @Controller
 public class GoConfigAdministrationController {

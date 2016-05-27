@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(org.jmock.integration.junit4.JMock.class)
 public class AuthSSLProtocolSocketFactoryTest {

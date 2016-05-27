@@ -34,7 +34,6 @@ import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;

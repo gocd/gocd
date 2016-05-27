@@ -22,7 +22,6 @@ import java.util.Map;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.util.StringUtil;
 
 @ConfigTag("tabs")

@@ -19,7 +19,6 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.config.GoConfigSchema;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
-import org.jdom.Document;
 import org.jdom.input.JDOMParseException;
 import org.junit.Before;
 import org.junit.Rule;

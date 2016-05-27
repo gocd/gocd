@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.GoConstants;
-import org.apache.commons.lang.ArrayUtils;
 
 import java.util.*;
 

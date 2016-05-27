@@ -22,12 +22,10 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 import org.junit.After;

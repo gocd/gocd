@@ -17,14 +17,11 @@
 package com.thoughtworks.go.domain.valuestreammap;
 
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
 
-import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.scmRevision;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;

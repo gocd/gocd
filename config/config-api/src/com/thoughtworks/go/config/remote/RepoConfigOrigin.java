@@ -15,9 +15,7 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.util.StringUtil;
 
 /**
  * @understands that configuration is defined in versioned source code repository at particular revision.

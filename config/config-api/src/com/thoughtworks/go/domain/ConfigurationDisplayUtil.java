@@ -22,10 +22,7 @@ import java.util.List;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
-import com.thoughtworks.go.plugin.access.packagematerial.AbstractMetaDataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
-import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 
 import static com.thoughtworks.go.util.StringUtil.isBlank;
 

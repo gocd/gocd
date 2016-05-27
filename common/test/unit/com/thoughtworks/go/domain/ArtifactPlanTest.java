@@ -20,7 +20,6 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.ArtifactPlan;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.jmock.Expectations;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
-import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

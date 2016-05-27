@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.server.controller.MyGoController;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.HandlerInterceptor;

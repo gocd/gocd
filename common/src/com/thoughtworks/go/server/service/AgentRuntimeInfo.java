@@ -30,8 +30,6 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import static java.lang.String.format;
 

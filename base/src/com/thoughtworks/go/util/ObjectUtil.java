@@ -29,8 +29,6 @@ import java.io.ByteArrayInputStream;
 
 import org.apache.commons.io.IOUtils;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 public final class ObjectUtil {
     private ObjectUtil() {
     }

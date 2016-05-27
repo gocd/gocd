@@ -18,7 +18,6 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
-import com.thoughtworks.go.util.GoConstants;
 
 import java.util.Arrays;
 

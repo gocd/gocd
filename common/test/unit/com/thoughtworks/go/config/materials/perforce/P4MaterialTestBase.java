@@ -25,8 +25,6 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.helper.P4TestRepo;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.StringUtil;

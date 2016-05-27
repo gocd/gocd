@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.plugin.api.material.packagerepository;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.thoughtworks.go.plugin.api.config.Configuration;

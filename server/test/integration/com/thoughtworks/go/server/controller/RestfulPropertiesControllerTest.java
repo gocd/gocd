@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.functional.helpers.CSVResponse;
-import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;

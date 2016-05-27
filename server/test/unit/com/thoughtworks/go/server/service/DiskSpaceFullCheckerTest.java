@@ -35,7 +35,6 @@ import java.net.URISyntaxException;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class DiskSpaceFullCheckerTest {
@@ -88,7 +87,7 @@ public class DiskSpaceFullCheckerTest {
         assertThat(result.canContinue(), is(false));
 
         simulateEmptyDisk();
-        
+
         result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
         assertThat(result.canContinue(), is(true));

@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.collections.map.SingletonMap;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItem;

@@ -24,7 +24,7 @@ import static com.thoughtworks.go.server.service.CompositeCheckerTest.StubChecke
 import static com.thoughtworks.go.server.service.CompositeCheckerTest.StubCheckerFactory.successful;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import static org.hamcrest.core.Is.is;
+
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.core.Is;

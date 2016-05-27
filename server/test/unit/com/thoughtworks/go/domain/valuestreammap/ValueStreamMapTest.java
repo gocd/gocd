@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.hamcrest.MatcherAssert;

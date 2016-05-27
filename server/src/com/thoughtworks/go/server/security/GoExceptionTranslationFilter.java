@@ -34,7 +34,6 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.ui.AbstractProcessingFilter;
 import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.springframework.security.ui.ExceptionTranslationFilter;
-import org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint;
 import org.springframework.security.ui.savedrequest.SavedRequest;
 
 public class GoExceptionTranslationFilter extends ExceptionTranslationFilter {

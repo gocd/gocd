@@ -19,8 +19,6 @@ package com.thoughtworks.go.remote;
 import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AgentIdentifier implements Serializable {
     @Expose

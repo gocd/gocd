@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
@@ -70,7 +69,7 @@ public class TimeReportingTest {
         configHelper.onTearDown();
         dbHelper.onTearDown();
     }
-    
+
     @Test
     @Ignore("Not really testing anything.")
     public void shouldBeAbleToShortlistPipelinesQuicklyWithPipelineSelections() throws Exception {

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.studios.shine.util;
 
-import java.util.List;
 import java.util.Collection;
 
 public abstract class ArgumentUtil {

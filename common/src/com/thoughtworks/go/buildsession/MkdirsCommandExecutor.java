@@ -19,8 +19,6 @@ import com.thoughtworks.go.domain.BuildCommand;
 
 import java.io.File;
 
-import static com.thoughtworks.go.util.FileUtil.applyBaseDirIfRelative;
-
 public class MkdirsCommandExecutor implements BuildCommandExecutor {
     @Override
     public boolean execute(BuildCommand command, BuildSession buildSession) {

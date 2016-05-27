@@ -22,8 +22,6 @@ import com.thoughtworks.go.agent.ChecksumValidationPublisher;
 import com.thoughtworks.go.domain.ArtifactMd5Checksums;
 import com.thoughtworks.go.util.StringUtil;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
-
 public class ChecksumValidator {
 
     private final ArtifactMd5Checksums artifactMd5Checksums;

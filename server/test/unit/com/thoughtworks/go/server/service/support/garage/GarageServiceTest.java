@@ -23,13 +23,10 @@ import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 

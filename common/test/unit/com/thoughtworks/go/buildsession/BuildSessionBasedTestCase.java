@@ -24,7 +24,6 @@ import com.thoughtworks.go.remote.work.HttpServiceStub;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.util.command.InMemoryConsumer;
 import org.apache.commons.lang.text.StrLookup;
 import org.junit.After;
 import org.junit.Before;
@@ -33,7 +32,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.domain.BuildCommand.exec;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
-import static com.thoughtworks.go.domain.BuildCommand.compose;
-import static com.thoughtworks.go.domain.BuildCommand.fail;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static org.hamcrest.CoreMatchers.containsString;

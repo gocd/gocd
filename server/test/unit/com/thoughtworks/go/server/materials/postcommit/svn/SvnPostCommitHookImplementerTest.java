@@ -39,7 +39,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -170,7 +169,7 @@ public class SvnPostCommitHookImplementerTest {
         spy.createUrlToRemoteUUIDMap(allMaterials);
         verify(svnCommand).createUrlToRemoteUUIDMap(new HashSet<SvnMaterial>(Arrays.asList((SvnMaterial) svnMaterial1)));
     }
-    
+
     @Test
     public void shouldReturnEmptySvnCommand() {
         final SvnCommand svnCommand = implementer.getEmptySvnCommand();

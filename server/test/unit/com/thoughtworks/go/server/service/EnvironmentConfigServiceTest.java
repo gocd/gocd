@@ -25,7 +25,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;

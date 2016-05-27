@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import java.util.List;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;

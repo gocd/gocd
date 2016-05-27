@@ -21,7 +21,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.ui.AuthenticationEntryPoint;
-import org.springframework.util.Assert;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;

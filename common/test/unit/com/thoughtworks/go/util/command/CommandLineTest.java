@@ -21,14 +21,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.ProcessWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +34,6 @@ import org.junit.runner.RunWith;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -183,7 +179,7 @@ public class CommandLineTest {
         assertThat(output.getAllOutput(), containsString("secret"));
         assertThat(displayOutputStreamConsumer.getAllOutput(), not(containsString("secret")));
     }
-    
+
     @Test
     @RunIf(value = OSChecker.class, arguments = OSChecker.WINDOWS)
     public void shouldLogPasswordsOnOutputAsStarsUnderWindows() throws IOException {

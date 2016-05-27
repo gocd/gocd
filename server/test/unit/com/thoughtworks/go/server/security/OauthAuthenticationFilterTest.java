@@ -24,10 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.util.LogFixture;
 
-import static org.hamcrest.core.Is.is;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

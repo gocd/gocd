@@ -17,7 +17,6 @@ package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.WildcardScanner;
-import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -25,7 +24,6 @@ import java.io.File;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.FileUtil.subtractPath;
 import static com.thoughtworks.go.util.SelectorUtils.rtrimStandardrizedWildcardTokens;
-import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.removeStart;
 
 public class UploadArtifactCommandExecutor implements BuildCommandExecutor {

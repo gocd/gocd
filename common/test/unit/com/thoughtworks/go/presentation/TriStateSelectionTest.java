@@ -32,7 +32,6 @@ import org.hamcrest.Matchers;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
 
 public class TriStateSelectionTest {
     private Set<Resource> resources;
@@ -132,7 +131,7 @@ public class TriStateSelectionTest {
         selections = TriStateSelection.convert(assignables, Arrays.asList("quux", "bar"), disableWhenEql);
         assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.add, false)));
         assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.add, true)));
-        
+
         associate[0] = false;
         selections = TriStateSelection.convert(assignables, Arrays.asList("bar", "baz"), disableWhenEql);
         assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.remove, true)));

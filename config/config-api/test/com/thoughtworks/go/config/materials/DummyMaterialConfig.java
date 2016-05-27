@@ -17,7 +17,7 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.util.command.UrlArgument;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.apache.commons.lang.NotImplementedException;
 
 import java.util.Map;
 

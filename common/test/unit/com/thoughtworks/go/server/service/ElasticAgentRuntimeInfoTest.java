@@ -22,7 +22,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.junit.Test;
 
-import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

@@ -17,12 +17,9 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.cache.GoCacheFactory;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 
-import java.io.IOException;
 import java.util.*;
 
 /**

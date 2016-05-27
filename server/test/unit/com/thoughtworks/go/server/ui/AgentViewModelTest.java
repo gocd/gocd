@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.ui;
 
@@ -22,11 +22,15 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Resource;
+import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.DiskSpace;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.building;
@@ -43,6 +47,8 @@ import static com.thoughtworks.go.helper.AgentInstanceMother.updateRuntimeStatus
 import static com.thoughtworks.go.helper.AgentInstanceMother.updateUsableSpace;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.mock;
 
 public class AgentViewModelTest {
 
@@ -244,6 +250,21 @@ public class AgentViewModelTest {
     public void shouldIndicateThatAgentDoesNOTNeedUpgrade_WhenMissing() {
         AgentViewModel model = new AgentViewModel(AgentInstanceMother.missing());
         assertThat(model.needsUpgrade(), is(false));
+    }
+
+    @Test
+    public void shouldMapErrors(){
+        Resource resource1 = new Resource("foo");
+        Resource resource2 = new Resource("bar");
+        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new Resources(resource1, resource2));
+        agentConfig.addError(AgentConfig.IP_ADDRESS, "bad ip");
+        resource1.addError(Resource.NAME, "bad name for resource1");
+        resource2.addError(Resource.NAME, "bad name for resource2");
+        AgentViewModel model = new AgentViewModel(AgentInstance.createFromConfig(agentConfig, mock(SystemEnvironment.class)));
+        assertThat(model.errors().isEmpty(), is(false));
+        assertThat(model.errors().on(AgentConfig.IP_ADDRESS), is("bad ip"));
+        assertThat(model.errors().getAllOn(Resource.NAME).contains("bad name for resource1"), is(true));
+        assertThat(model.errors().getAllOn(Resource.NAME).contains("bad name for resource2"), is(true));
     }
 
     private List<AgentViewModel> sort(Comparator<AgentViewModel> comparator, AgentViewModel... agentViewModels) {

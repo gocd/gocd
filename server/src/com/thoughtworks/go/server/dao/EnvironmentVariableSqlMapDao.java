@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -56,7 +56,6 @@ public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
     }
 
     public EnvironmentVariablesConfig load(final Long entityId, final EnvironmentVariableType type) {
-
         List<EnvironmentVariableConfig> result = (List<EnvironmentVariableConfig>) transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus transactionStatus) {

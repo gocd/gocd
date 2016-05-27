@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,20 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
-import com.thoughtworks.go.util.ListUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * @understands how/whether to lock/unlock a pipeline instance
  */
 @Service
-public class PipelineLockService implements PipelineConfigChangedListener {
+public class PipelineLockService implements ConfigChangedListener {
     private final GoConfigService goConfigService;
     private final PipelineSqlMapDao pipelineDao;
 
@@ -46,6 +44,21 @@ public class PipelineLockService implements PipelineConfigChangedListener {
 
     public void initialize() {
         goConfigService.register(this);
+        goConfigService.register(pipelineConfigChangedListener());
+    }
+
+    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                for (String lockedPipeline : pipelineDao.lockedPipelines()) {
+                    if (pipelineConfig.name().equals(new CaseInsensitiveString(lockedPipeline)) && !pipelineConfig.isLock()) {
+                        pipelineDao.unlockPipeline(lockedPipeline);
+                        break;
+                    }
+                }
+            }
+        };
     }
 
     public void lockIfNeeded(Pipeline pipeline) {
@@ -78,16 +91,6 @@ public class PipelineLockService implements PipelineConfigChangedListener {
         for (String lockedPipeline : pipelineDao.lockedPipelines()) {
             if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(lockedPipeline)) || !newCruiseConfig.isPipelineLocked(lockedPipeline)) {
                 pipelineDao.unlockPipeline(lockedPipeline);
-            }
-        }
-    }
-
-    @Override
-    public void onPipelineConfigChange(final PipelineConfig pipelineConfig, String group) {
-        for (String lockedPipeline : pipelineDao.lockedPipelines()) {
-            if (pipelineConfig.name().equals(new CaseInsensitiveString(lockedPipeline)) && !pipelineConfig.isLock()) {
-                pipelineDao.unlockPipeline(lockedPipeline);
-                break;
             }
         }
     }

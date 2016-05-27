@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +19,11 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -60,10 +62,12 @@ public class AgentRegistrationControllerTest {
     private AgentRegistrationController controller;
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
+    private AgentConfigService agentConfigService;
 
     @Before
     public void setUp() throws Exception {
         agentService = mock(AgentService.class);
+        agentConfigService = mock(AgentConfigService.class);
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
 
@@ -72,7 +76,7 @@ public class AgentRegistrationControllerTest {
 
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         pluginsZip = mock(PluginsZip.class);
-        controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip);
+        controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, agentConfigService);
     }
 
     @Test
@@ -97,7 +101,7 @@ public class AgentRegistrationControllerTest {
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", false, request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx", false));
-        verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
+        verify(agentConfigService).updateAgent(any(UpdateConfigCommand.class), eq(uuid), any(HttpOperationResult.class), eq(Username.ANONYMOUS));
     }
 
     @Test
@@ -110,7 +114,7 @@ public class AgentRegistrationControllerTest {
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "autoregister-hostname", "", "", false, request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx", false));
-        verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
+        verify(agentConfigService).updateAgent(any(UpdateConfigCommand.class), eq(uuid), any(HttpOperationResult.class), eq(Username.ANONYMOUS));
     }
 
     @Test

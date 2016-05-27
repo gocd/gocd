@@ -16,10 +16,13 @@
 
 module ApiV2
   class AgentRepresenter < ApiV2::BaseRepresenter
-
     java_import com.thoughtworks.go.domain.AgentRuntimeStatus
 
     alias_method :agent, :represented
+
+    error_representer({
+                          'ipAddress' => 'ip_address'
+                      })
 
     link :self do |opts|
       opts[:url_builder].apiv2_agent_url(agent.getUuid())
@@ -44,6 +47,7 @@ module ApiV2
     property :build_state, exec_context: :decorator
     property :resources, exec_context: :decorator
     property :environments, exec_context: :decorator
+    property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
     def agent_config_state
       agent.getAgentConfigStatus()

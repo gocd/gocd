@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.exceptions;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.domain.ConfigErrors;
 
 public class GoConfigInvalidException extends RuntimeException {
     private final CruiseConfig cruiseConfig;
 
-    public GoConfigInvalidException(CruiseConfig cruiseConfig, List<ConfigErrors> allErrors) {
-        super(allErrors.get(0).firstError());
+    public GoConfigInvalidException(CruiseConfig cruiseConfig, String error) {
+        super(error);
         this.cruiseConfig = cruiseConfig;
     }
 

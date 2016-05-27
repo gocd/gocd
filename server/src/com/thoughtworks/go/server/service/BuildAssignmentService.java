@@ -20,7 +20,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.domain.BuildComposer;
@@ -52,9 +53,8 @@ import static org.apache.commons.collections.CollectionUtils.forAllDo;
  * @understands how to assign work to agents
  */
 @Service
-public class BuildAssignmentService implements PipelineConfigChangedListener {
+public class BuildAssignmentService implements ConfigChangedListener {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BuildAssignmentService.class.getName());
-
     public static final NoWork NO_WORK = new NoWork();
 
     private GoConfigService goConfigService;
@@ -89,6 +89,39 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
 
     public void initialize() {
         goConfigService.register(this);
+        goConfigService.register(pipelineConfigChangedListener());
+    }
+
+    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                LOGGER.info(String.format("[Configuration Changed] Removing deleted jobs for pipeline %s.", pipelineConfig.name()));
+
+                synchronized (BuildAssignmentService.this) {
+                    List<JobPlan> jobsToRemove = new ArrayList<JobPlan>();
+                    for (JobPlan jobPlan : jobPlans) {
+                        if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
+                            StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
+                            if (stageConfig != null) {
+                                JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
+                                if(jobConfig == null){
+                                    jobsToRemove.add(jobPlan);
+                                }
+                            } else {
+                                jobsToRemove.add(jobPlan);
+                            }
+                        }
+                    }
+                    forAllDo(jobsToRemove, new Closure() {
+                        @Override
+                        public void execute(Object o) {
+                            removeJob((JobPlan) o);
+                        }
+                    });
+                }
+            }
+        };
     }
 
     public Work assignWorkToAgent(AgentIdentifier agent) {
@@ -198,34 +231,6 @@ public class BuildAssignmentService implements PipelineConfigChangedListener {
             for (JobPlan jobPlan : jobPlans) {
                 if (!newCruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
                     jobsToRemove.add(jobPlan);
-                }
-            }
-            forAllDo(jobsToRemove, new Closure() {
-                @Override
-                public void execute(Object o) {
-                    removeJob((JobPlan) o);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-        LOGGER.info("[Configuration Changed] Removing deleted jobs for pipeline {}.", pipelineConfig.name());
-
-        synchronized (this) {
-            List<JobPlan> jobsToRemove = new ArrayList<>();
-            for (JobPlan jobPlan : jobPlans) {
-                if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
-                    StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
-                    if (stageConfig != null) {
-                        JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
-                        if(jobConfig == null){
-                            jobsToRemove.add(jobPlan);
-                        }
-                    } else {
-                        jobsToRemove.add(jobPlan);
-                    }
                 }
             }
             forAllDo(jobsToRemove, new Closure() {

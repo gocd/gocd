@@ -17,15 +17,19 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
+import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +43,7 @@ import java.util.Map;
  * @understands providing services around a pipeline configuration
  */
 @Service
-public class PipelineConfigService implements PipelineConfigChangedListener, Initializer {
+public class PipelineConfigService implements ConfigChangedListener, Initializer {
     private final GoConfigService goConfigService;
     private static final String GO_PIPELINE_CONFIGS_ETAGS_CACHE = "GO_PIPELINE_CONFIGS_ETAGS_CACHE".intern();
     private GoCache goCache;
@@ -53,6 +57,20 @@ public class PipelineConfigService implements PipelineConfigChangedListener, Ini
 
     public void initialize() {
         goConfigService.register(this);
+        goConfigService.register(pipelineConfigChangedListener());
+    }
+
+    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                PipelineConfigurationCache.getInstance().onPipelineConfigChange(pipelineConfig);
+                PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
+                if (goCache.get(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower()) != null) {
+                    goCache.remove(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower());
+                }
+            }
+        };
     }
 
     public Map<CaseInsensitiveString, CanDeleteResult> canDeletePipelines() {
@@ -94,93 +112,29 @@ public class PipelineConfigService implements PipelineConfigChangedListener, Ini
         return goConfigService.getConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
     }
 
+    private void update(Username currentUser, PipelineConfig pipelineConfig, LocalizedOperationResult result, EntityConfigUpdateCommand command) {
+        try {
+            goConfigService.updateConfig(command, currentUser);
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class), CaseInsensitiveString.str(pipelineConfig.name())));
+            } else if (e instanceof ConfigUpdateCheckFailedException) {
+                return;
+            } else {
+                LOGGER.error(e.getMessage(), e);
+                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+            }
+        }
+    }
+
     public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result) {
-        try {
-            goConfigService.updatePipeline(pipelineConfig, currentUser, result, new SaveCommand<PipelineConfig>() {
-                public String group;
-
-                @Override
-                public boolean isValid(CruiseConfig modifiedConfig, PipelineConfig preprocessedConfig) {
-                    boolean isValid = preprocessedConfig.validateTree(PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), modifiedConfig, preprocessedConfig));
-                    if (!isValid) BasicCruiseConfig.copyErrors(preprocessedConfig, pipelineConfig);
-                    return isValid;
-                }
-
-                @Override
-                public boolean hasWritePermissions() {
-                    return goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getPipelineGroup());
-                }
-
-                @Override
-                public String getPipelineGroup() {
-                    if(group == null){
-                        this.group = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
-                    }
-                    return group;
-                }
-
-                @Override
-                public void updateConfig(CruiseConfig configForEdit, PipelineConfig pipelineConfig) {
-                    configForEdit.update(getPipelineGroup(), pipelineConfig.name().toString(), pipelineConfig);
-                }
-
-            });
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
-        }
+        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
+        update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
 
-    public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final HttpLocalizedOperationResult result, final String groupName) {
-        try {
-            goConfigService.updatePipeline(pipelineConfig, currentUser, result, new SaveCommand<PipelineConfig>() {
-                @Override
-                public boolean isValid(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig) {
-                    boolean isValid = preprocessedPipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig));
-                    if (!isValid) BasicCruiseConfig.copyErrors(preprocessedPipelineConfig, pipelineConfig);
-                    return isValid;
-                }
-
-                @Override
-                public boolean hasWritePermissions() {
-                    if (goConfigService.groups().hasGroup(groupName) && !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), groupName)) {
-                        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_GROUP", groupName), HealthStateType.unauthorised());
-                        return false;
-                    }
-                    return true;
-                }
-
-                @Override
-                public String getPipelineGroup() {
-                    return groupName;
-                }
-
-                @Override
-                public void updateConfig(CruiseConfig configForEdit, PipelineConfig pipelineConfig) {
-                    configForEdit.addPipelineWithoutValidation(groupName, pipelineConfig);
-                }
-            });
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
-        }
-    }
-
-    public interface SaveCommand<T extends Validatable>{
-        boolean isValid(CruiseConfig modifiedConfig, T object);
-        boolean hasWritePermissions();
-        String getPipelineGroup();
-        void updateConfig(CruiseConfig configForEdit, T configItemBeingSaved);
-    }
-
-
-    @Override
-    public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-        PipelineConfigurationCache.getInstance().onPipelineConfigChange(pipelineConfig);
-        PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
-        if (goCache.get(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower()) != null) {
-            goCache.remove(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower());
-        }
+    public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
+        CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
+        update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
     }
 
     @Override
@@ -190,4 +144,6 @@ public class PipelineConfigService implements PipelineConfigChangedListener, Ini
             goCache.remove(GO_PIPELINE_CONFIGS_ETAGS_CACHE);
         }
     }
+
+
 }

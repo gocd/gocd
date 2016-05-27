@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,10 +99,12 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     }
 
     @Override
-    public void validateContainsOnlyUuids(Set<String> uuids) {
+    public boolean validateContainsOnlyUuids(Set<String> uuids) {
+        boolean isValid = true;
         for (EnvironmentAgentConfig agent : agents) {
-            agent.validateUuidPresent(name, uuids);
+            isValid = agent.validateUuidPresent(name, uuids) && isValid;
         }
+        return isValid;
     }
 
     @Override

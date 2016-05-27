@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 public class EnvironmentAgentConfig implements Validatable{
     @ConfigAttribute(value = "uuid", optional = false) private String uuid;
     private ConfigErrors configErrors = new ConfigErrors();
+    public static final String UUID = "uuid";
 
     public EnvironmentAgentConfig() { }
 
@@ -39,10 +40,11 @@ public class EnvironmentAgentConfig implements Validatable{
         return this.uuid.equals(uuid);
     }
 
-    public void validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
+    public boolean validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
         if (!uuids.contains(uuid)) {
-            throw new RuntimeException(format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
+            this.addError(UUID, format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
         }
+        return errors().isEmpty();
     }
 
     public String getUuid() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,36 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.List;
-
-import com.thoughtworks.go.config.Agents;
+import com.google.caja.util.Sets;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.AgentsUpdateCommand;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.TriState;
+import com.thoughtworks.go.validation.AgentConfigsUpdateValidator;
+import com.thoughtworks.go.validation.ConfigUpdateValidator;
+import com.thoughtworks.go.validation.DoNothingValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.util.Arrays.asList;
 
 /**
  * @understands how to convert persistant Agent configuration to useful objects and back
@@ -33,6 +53,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AgentConfigService {
     private GoConfigService goConfigService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentConfigService.class.getName());
 
     @Autowired
     public AgentConfigService(GoConfigService goConfigService) {
@@ -47,45 +68,446 @@ public class AgentConfigService {
         goConfigService.register(agentChangeListener);
     }
 
-    public void disableAgents(AgentInstance... agentInstance) {
-        goConfigService.disableAgents(true, agentInstance);
+    public void disableAgents(Username currentUser, AgentInstance... agentInstance) {
+        disableAgents(true, currentUser, agentInstance);
     }
 
-    public void enableAgents(AgentInstance... agentInstance) {
-        goConfigService.disableAgents(false, agentInstance);
+    public void enableAgents(Username currentUser, AgentInstance... agentInstance) {
+        disableAgents(false, currentUser, agentInstance);
     }
 
-    public void deleteAgents(AgentInstance... agentInstances) {
-        goConfigService.deleteAgents(agentInstances);
+    private void disableAgents(boolean disabled, Username currentUser, AgentInstance... instances) {
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
+        ArrayList<String> uuids = new ArrayList<String>();
+        for (AgentInstance agentInstance : instances) {
+            String uuid = agentInstance.getUuid();
+            uuids.add(uuid);
+            if (goConfigService.hasAgent(uuid)) {
+                command.addCommand(updateApprovalStatus(uuid, disabled));
+            } else {
+                AgentConfig agentConfig = agentInstance.agentConfig();
+                agentConfig.disable(disabled);
+                command.addCommand(createAddAgentCommand(agentConfig));
+            }
+        }
+        updateAgentWithoutValidations(command, currentUser);
     }
 
-    public void updateAgentIpByUuid(String uuid, String ipAdress, String userName) {
-        goConfigService.updateAgentIpByUuid(uuid, ipAdress, userName);
+    protected static UpdateConfigCommand updateApprovalStatus(final String uuid, final Boolean isDenied) {
+        return new UpdateAgentApprovalStatus(uuid, isDenied);
     }
 
-    public void updateAgentAttributes(String uuid, String userName, String hostname, String resources, String environments, TriState enable, AgentInstances agentInstances) {
-        goConfigService.updateAgentAttributes(uuid, userName, hostname, resources, environments, enable, agentInstances);
+    public void deleteAgents(Username currentUser, AgentInstance... agentInstances) {
+        GoConfigDao.CompositeConfigCommand commandForDeletingAgents = commandForDeletingAgents(agentInstances);
+        ArrayList<String> uuids = new ArrayList<>();
+        for (AgentInstance agentInstance : agentInstances) {
+            uuids.add(agentInstance.getUuid());
+        }
+        updateAgentWithoutValidations(commandForDeletingAgents, currentUser);
     }
 
-    public void saveOrUpdateAgent(AgentInstance agentInstance) {
-        goConfigService.saveOrUpdateAgent(agentInstance);
+    protected GoConfigDao.CompositeConfigCommand commandForDeletingAgents(AgentInstance... agentInstances) {
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
+        for (AgentInstance agentInstance : agentInstances) {
+            command.addCommand(deleteAgentCommand(agentInstance.getUuid()));
+        }
+        return command;
     }
 
+    public static DeleteAgent deleteAgentCommand(String uuid) {
+        return new DeleteAgent(uuid);
+    }
+
+    private void updateAgents(final UpdateConfigCommand command, final ConfigUpdateValidator validator, Username currentUser) {
+        AgentsUpdateCommand updateCommand = new AgentsUpdateCommand(command, validator);
+        goConfigService.updateConfig(updateCommand, currentUser);
+    }
+
+    public void updateAgent(UpdateConfigCommand command, String uuid, Username currentUser) {
+        updateAgents(command, new AgentConfigsUpdateValidator(asList(uuid)), currentUser);
+    }
+
+    public AgentConfig updateAgent(UpdateConfigCommand command, String uuid, HttpOperationResult result, Username currentUser) {
+        AgentConfigsUpdateValidator validator = new AgentConfigsUpdateValidator(asList(uuid));
+        try {
+            updateAgents(command, validator, currentUser);
+            result.ok(String.format("Updated agent with uuid %s.", uuid));
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessibleEntity("Updating agent failed:", e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+                GoConfigInvalidException goConfigInvalidException = (GoConfigInvalidException) e;
+                return goConfigInvalidException.getCruiseConfig().agents().getAgentByUuid(uuid);
+            } else {
+                result.internalServerError("Updating agent failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+                return null;
+            }
+        }
+        return goConfigService.agents().getAgentByUuid(uuid);
+    }
+
+    private void updateAgentWithoutValidations(UpdateConfigCommand command, Username currentUser) {
+        updateAgents(command, new DoNothingValidator(), currentUser);
+    }
+
+    /**
+     * @understands how to delete agent
+     */
+    private static class DeleteAgent implements UpdateConfigCommand {
+        private final String uuid;
+
+        public DeleteAgent(String uuid) {
+            this.uuid = uuid;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
+            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
+            if (agentConfig.isNull()) {
+                bomb("Unable to delete agent; Agent [" + uuid + "] not found.");
+            }
+            cruiseConfig.getEnvironments().removeAgentFromAllEnvironments(uuid);
+            cruiseConfig.agents().remove(agentConfig);
+            return cruiseConfig;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            DeleteAgent that = (DeleteAgent) o;
+
+            if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return uuid != null ? uuid.hashCode() : 0;
+        }
+
+        @Override
+        public String toString() {
+            return "DeleteAgent{" +
+                    "uuid='" + uuid + '\'' +
+                    '}';
+        }
+    }
+
+    public void updateAgentIpByUuid(String uuid, String ipAddress, String userName) {
+        updateAgents(new UpdateAgentIp(uuid, ipAddress, userName), new AgentConfigsUpdateValidator(asList(uuid)), new Username(new CaseInsensitiveString(userName)));
+    }
+
+    private static class UpdateAgentIp implements UpdateConfigCommand, UserAware {
+        private final String uuid;
+        private final String ipAddress;
+        private final String userName;
+
+        private UpdateAgentIp(String uuid, String ipAddress, String userName) {
+            this.uuid = uuid;
+            this.ipAddress = ipAddress;
+            this.userName = userName;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
+            bombIfNull(agentConfig, "Unable to set agent ipAddress; Agent [" + uuid + "] not found.");
+            agentConfig.setIpAddress(ipAddress);
+            return cruiseConfig;
+        }
+
+        public ConfigModifyingUser user() {
+            return new ConfigModifyingUser(userName);
+        }
+    }
+
+
+    public AgentConfig updateAgentAttributes(final String uuid, Username username, String hostname, String resources, String environments, TriState enable, AgentInstances agentInstances, HttpOperationResult result) {
+        final GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
+        if (!goConfigService.hasAgent(uuid) && enable.isTrue()) {
+            AgentInstance agentInstance = agentInstances.findAgent(uuid);
+            AgentConfig agentConfig = agentInstance.agentConfig();
+            command.addCommand(createAddAgentCommand(agentConfig));
+        }
+
+        if (enable.isTrue()) {
+            command.addCommand(updateApprovalStatus(uuid, false));
+        }
+
+        if (enable.isFalse()) {
+            command.addCommand(updateApprovalStatus(uuid, true));
+        }
+
+        if (hostname != null) {
+            command.addCommand(new UpdateAgentHostname(uuid, hostname, username.getUsername().toString()));
+        }
+
+        if (resources != null) {
+            command.addCommand(new UpdateResourcesCommand(uuid, new Resources(resources)));
+        }
+
+        if (environments != null) {
+            Set<String> existingEnvironments = goConfigService.getCurrentConfig().getEnvironments().environmentsForAgent(uuid);
+            Set<String> newEnvironments = new HashSet<>(asList(environments.split(",")));
+
+            Set<String> environmentsToRemove = Sets.difference(existingEnvironments, newEnvironments);
+            Set<String> environmentsToAdd = Sets.difference(newEnvironments, existingEnvironments);
+
+            for (String environmentToRemove : environmentsToRemove) {
+                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToRemove, TriStateSelection.Action.remove));
+            }
+
+            for (String environmentToAdd : environmentsToAdd) {
+                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToAdd, TriStateSelection.Action.add));
+            }
+        }
+
+        return updateAgent(command, uuid, result, username);
+    }
+
+    public void saveOrUpdateAgent(AgentInstance agentInstance, Username currentUser) {
+        AgentConfig agentConfig = agentInstance.agentConfig();
+        if (goConfigService.hasAgent(agentConfig.getUuid())) {
+            this.updateAgentApprovalStatus(agentConfig.getUuid(), agentConfig.isDisabled(), currentUser);
+        } else {
+            this.addAgent(agentConfig, currentUser);
+        }
+    }
+
+    @Deprecated
     public void approvePendingAgent(AgentInstance agentInstance) {
-        goConfigService.approvePendingAgent(agentInstance);
+        agentInstance.enable();
+        if (goConfigService.hasAgent(agentInstance.getUuid())) {
+            LOGGER.warn("Registered agent with the same uuid [" + agentInstance + "] already approved.");
+        } else {
+            updateAgent(createAddAgentCommand(agentInstance.agentConfig()), agentInstance.getUuid(), new HttpOperationResult(), Username.ANONYMOUS);
+        }
     }
 
-    // For tests
-    public void updateAgentApprovalStatus(String uuid, boolean isDenied) {
-        goConfigService.updateAgentApprovalStatus(uuid, isDenied);
+    protected static UpdateConfigCommand createAddAgentCommand(final AgentConfig agentConfig) {
+        return new AddAgentCommand(agentConfig);
     }
 
+    /**
+     * @understands how to add an agent to the config file
+     */
+    private static class AddAgentCommand implements UpdateConfigCommand {
+        private final AgentConfig agentConfig;
 
-    public void modifyResources(AgentInstance[] agentInstances, List<TriStateSelection> selections) {
-        goConfigService.modifyResources(agentInstances, selections);
+        public AddAgentCommand(AgentConfig agentConfig) {
+            this.agentConfig = agentConfig;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            cruiseConfig.agents().add(agentConfig);
+            return cruiseConfig;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            AddAgentCommand that = (AddAgentCommand) o;
+
+            if (agentConfig != null ? !agentConfig.equals(that.agentConfig) : that.agentConfig != null) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return agentConfig != null ? agentConfig.hashCode() : 0;
+        }
+
+        @Override
+        public String toString() {
+            return "AddAgentcommand{" +
+                    "agentConfig=" + agentConfig +
+                    '}';
+        }
+
     }
+
+    @Deprecated
+    public void updateAgentResources(final String uuid, final Resources resources) {
+        updateAgent(new UpdateResourcesCommand(uuid, resources), uuid, Username.ANONYMOUS);
+    }
+
+    public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
+        updateAgentWithoutValidations(updateApprovalStatus(uuid, isDenied), currentUser);
+    }
+
+    public void addAgent(AgentConfig agentConfig, Username currentUser) {
+        updateAgent(createAddAgentCommand(agentConfig), agentConfig.getUuid(), currentUser);
+    }
+
+    public void modifyResources(AgentInstance[] agentInstances, List<TriStateSelection> selections, Username currentUser) {
+        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
+        ArrayList<String> uuids = new ArrayList<>();
+        for (AgentInstance agentInstance : agentInstances) {
+            String uuid = agentInstance.getUuid();
+            uuids.add(uuid);
+            if (goConfigService.hasAgent(uuid)) {
+                for (TriStateSelection selection : selections) {
+                    command.addCommand(new ModifyResourcesCommand(uuid, new Resource(selection.getValue()), selection.getAction()));
+                }
+            }
+        }
+        AgentConfigsUpdateValidator validator = new AgentConfigsUpdateValidator(uuids);
+        updateAgents(command, validator, currentUser);
+    }
+
+    private List<ConfigErrors> getAllErrors(Validatable v) {
+        final List<ConfigErrors> allErrors = new ArrayList<ConfigErrors>();
+        new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {
+            @Override
+            public void handleValidation(Validatable validatable, ValidationContext context) {
+                // do nothing here
+            }
+        });
+        return allErrors;
+    }
+
 
     public Agents findAgents(List<String> uuids) {
         return agents().filter(uuids);
     }
+
+    /**
+     * @understands how to update the agent approval status
+     */
+    private static class UpdateAgentApprovalStatus implements UpdateConfigCommand {
+        private final String uuid;
+        private final Boolean denied;
+
+        public UpdateAgentApprovalStatus(String uuid, Boolean denied) {
+            this.uuid = uuid;
+            this.denied = denied;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
+            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
+            bombIfNull(agentConfig, "Unable to set agent approval status; Agent [" + uuid + "] not found.");
+            agentConfig.setDisabled(denied);
+            return cruiseConfig;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            UpdateAgentApprovalStatus that = (UpdateAgentApprovalStatus) o;
+
+            if (denied != null ? !denied.equals(that.denied) : that.denied != null) {
+                return false;
+            }
+            if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = uuid != null ? uuid.hashCode() : 0;
+            result = 31 * result + (denied != null ? denied.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "UpdateAgentApprovalStatus{" +
+                    "uuid='" + uuid + '\'' +
+                    ", denied=" + denied +
+                    '}';
+        }
+    }
+
+    public static class UpdateResourcesCommand implements UpdateConfigCommand {
+        private final String uuid;
+        private final Resources resources;
+
+        public UpdateResourcesCommand(String uuid, Resources resources) {
+            this.uuid = uuid;
+            this.resources = resources;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
+            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
+            bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
+            agentConfig.setResources(resources);
+            return cruiseConfig;
+        }
+    }
+
+    public static class ModifyResourcesCommand implements UpdateConfigCommand {
+        private final String uuid;
+        private final Resource resource;
+        private final TriStateSelection.Action action;
+
+        public ModifyResourcesCommand(String uuid, Resource resource, TriStateSelection.Action action) {
+            this.uuid = uuid;
+            this.resource = resource;
+            this.action = action;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
+            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
+            bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
+            if (action.equals(TriStateSelection.Action.add)) {
+                agentConfig.addResource(resource);
+            } else if (action.equals(TriStateSelection.Action.remove)) {
+                agentConfig.removeResource(resource);
+            } else if (action.equals(TriStateSelection.Action.nochange)) {
+                //do nothing
+            } else {
+                bomb(String.format("unsupported action '%s'", action));
+            }
+            return cruiseConfig;
+        }
+    }
+
+    public static class UpdateAgentHostname implements UpdateConfigCommand, UserAware {
+        private final String uuid;
+        private final String hostname;
+        private final String userName;
+
+        public UpdateAgentHostname(String uuid, String hostname, String userName) {
+            this.uuid = uuid;
+            this.hostname = hostname;
+            this.userName = userName;
+        }
+
+        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
+            bombIfNull(agentConfig, "Unable to set agent hostname; Agent [" + uuid + "] not found.");
+            agentConfig.setHostName(hostname);
+            return cruiseConfig;
+        }
+
+        public ConfigModifyingUser user() {
+            return new ConfigModifyingUser(userName);
+        }
+    }
+
+
 }

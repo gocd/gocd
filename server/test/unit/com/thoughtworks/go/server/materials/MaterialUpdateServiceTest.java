@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,8 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialType;
@@ -319,13 +321,20 @@ public class MaterialUpdateServiceTest {
 
     @Test
     public void shouldClearSchedulableMaterialCacheOnPipelineConfigChange() {
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
+        service.initialize();
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+
         when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
         when(goConfigService.getCurrentConfig()).thenReturn(mock(CruiseConfig.class));
         service.onTimer();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         when(pipelineConfig.materialConfigs()).thenReturn(new MaterialConfigs(new GitMaterialConfig("url")));
 
-        service.onPipelineConfigChange(pipelineConfig, "g1");
+        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
         service.onTimer();
         verify(goConfigService, times(2)).getSchedulableMaterials();
     }

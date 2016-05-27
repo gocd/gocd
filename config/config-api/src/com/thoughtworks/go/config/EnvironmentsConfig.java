@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -49,10 +49,12 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         configErrors.add(fieldName, message);
     }
 
-    public void validateContainOnlyUuids(Set<String> uuids) {
+    public boolean validateContainOnlyUuids(Set<String> uuids) {
+        boolean isValid = true;
         for (EnvironmentConfig environmentConfig : this) {
-            environmentConfig.validateContainsOnlyUuids(uuids);
+            isValid = environmentConfig.validateContainsOnlyUuids(uuids) && isValid;
         }
+        return isValid;
     }
 
     public void validateContainOnlyPiplines(List<CaseInsensitiveString> pipelineNames) {
@@ -153,12 +155,18 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public EnvironmentConfig named(final CaseInsensitiveString envName) throws NoSuchEnvironmentException {
+        EnvironmentConfig environmentConfig = find(envName);
+        if (environmentConfig != null) return environmentConfig;
+        throw new NoSuchEnvironmentException(envName);
+    }
+
+    public EnvironmentConfig find(CaseInsensitiveString envName) {
         for (EnvironmentConfig environmentConfig : this) {
             if(environmentConfig.name().equals(envName)) {
                 return environmentConfig;
             }
         }
-        throw new NoSuchEnvironmentException(envName);
+        return null;
     }
 
     public List<CaseInsensitiveString> names() {
@@ -180,12 +188,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {
-        for (EnvironmentConfig environmentConfig : this) {
-            if(environmentConfig.name().equals(environmentName)) {
-                return true;
-            }
-        }
-        return false;
+        return find(environmentName) != null;
     }
 
 

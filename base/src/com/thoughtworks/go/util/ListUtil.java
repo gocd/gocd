@@ -33,7 +33,7 @@ public final class ListUtil {
     }
 
     public static String join(Collection c, String join) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Iterator<Object> iter = c.iterator(); iter.hasNext(); ) {
             sb.append(iter.next());
             if (iter.hasNext()) {

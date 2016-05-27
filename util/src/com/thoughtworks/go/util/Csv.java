@@ -55,7 +55,7 @@ public class Csv {
 
     public String toString() {
         Set<String> allFields = fields();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(join(allFields, ",")).append("\n");
         for (CsvRow row : data) {
             sb.append(row.toString(allFields)).append("\n");

@@ -557,7 +557,7 @@ public final class SelectorUtils {
      * @return a String that has had all whitespace removed.
      */
     public static String removeWhitespace(String input) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if (input != null) {
             StringTokenizer st = new StringTokenizer(input);
             while (st.hasMoreTokens()) {
@@ -583,7 +583,7 @@ public final class SelectorUtils {
      */
     public static String rtrimWildcardTokens(String input) {
         String[] tokens = tokenizePathAsArray(input);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < tokens.length; i++) {
             if (hasWildcards(tokens[i])) {
                 break;

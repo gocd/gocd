@@ -159,31 +159,6 @@ $active-job: $lighter-gray;
     top: 8px;
   }
 
-  .task-definition {
-    position: relative;
-    border: 1px solid #cccccc;
-    margin-bottom: 10px;
-
-    textarea {
-      min-height: 98px
-    }
-
-    .lookup {
-      background: #f5f5f5;
-      padding: 10px 20px;
-    }
-
-    .runif {
-      padding-left: 20px;
-    }
-
-    .on-cancel {
-      padding-left: 20px;
-      background: #f5f5f5;
-      padding-top: 10px;
-    }
-  }
-
   .snippet {
     padding: 10px 20px;
     margin: 23px 6px 20px 10px;
@@ -218,6 +193,42 @@ $active-job: $lighter-gray;
         padding-right: 5px;
       }
     }
+  }
+}
+
+.task-definition {
+  position: relative;
+  border: 1px solid #cccccc;
+  margin-bottom: 10px;
+
+  textarea {
+    min-height: 98px
+  }
+
+  .lookup {
+    background: #f5f5f5;
+    padding: 10px 20px;
+    margin:0 30px 30px;
+  }
+
+  .runif {
+    padding-left: 20px;
+    margin-bottom:20px;
+  }
+
+  .on-cancel {
+    padding-left: 20px;
+    background: #f5f5f5;
+    padding-top: 10px;
+    .check {
+      padding-top: 9px;
+    }
+  }
+
+  .cancel-task-container {
+    border: 1px solid #ccc;
+    margin: 0 30px 30px 15px;
+    background: #fff;
   }
 }
 
@@ -286,6 +297,10 @@ $active-job: $lighter-gray;
   .remove-task {
     float: right;
   }
+}
+
+.task-basic{
+  margin-top:20px;
 }
 
 //jobs

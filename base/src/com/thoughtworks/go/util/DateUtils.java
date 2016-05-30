@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.util;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -108,7 +108,7 @@ public class DateUtils {
         long minutes = (seconds % 3600) / 60;
         seconds = seconds % 60;
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (hours != 0) {
             sb.append(hours).append(" hours ");
         }

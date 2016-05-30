@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.DeleteTemplateCommand;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
@@ -172,7 +171,7 @@ public class TemplateConfigServiceTest {
     public void shouldReturnAListOfAllPipelineConfigsThatAreNotUsedInTemplates() {
         Username user = new Username(new CaseInsensitiveString("user"));
         when(securityService.isUserAdmin(user)).thenReturn(true);
-        
+
         PipelineTemplateConfig template = template("first_template");
         PipelineTemplateConfig another = template("another_template");
         PipelineConfig pipelineWithoutTemplateOne = pipelineConfig("first_without_template");

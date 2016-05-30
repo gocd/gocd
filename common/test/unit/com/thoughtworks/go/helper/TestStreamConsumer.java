@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.TimeUnit;
 
 public class TestStreamConsumer implements StreamConsumer {
     private ConcurrentLinkedDeque<String> lines = new ConcurrentLinkedDeque<>();

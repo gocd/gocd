@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.Stage;
@@ -32,7 +31,6 @@ import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,15 +49,11 @@ import java.util.zip.ZipInputStream;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
-import static java.lang.System.getProperty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)

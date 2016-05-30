@@ -23,8 +23,6 @@ import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Report implements Serializable {
     @Expose

@@ -17,11 +17,9 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.*;
 import org.junit.After;
 import org.junit.Before;
@@ -37,22 +35,12 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH;
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.apache.commons.lang.StringEscapeUtils.unescapeJavaScript;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)

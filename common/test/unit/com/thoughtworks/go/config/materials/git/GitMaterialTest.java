@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -36,8 +35,6 @@ import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
@@ -52,12 +49,10 @@ import org.junit.runner.RunWith;
 import java.nio.channels.FileLock;
 import java.util.*;
 
-import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;

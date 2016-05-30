@@ -27,8 +27,6 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 @ConfigTag(value = "package")

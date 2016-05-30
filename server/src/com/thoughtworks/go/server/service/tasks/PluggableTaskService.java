@@ -19,25 +19,17 @@ package com.thoughtworks.go.server.service.tasks;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Service
 public class PluggableTaskService {

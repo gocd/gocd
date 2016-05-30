@@ -21,7 +21,6 @@ import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -55,7 +54,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)

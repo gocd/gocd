@@ -17,14 +17,11 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.TestFileUtil;
-import org.bouncycastle.asn1.x509.X509Name;
 import org.junit.Test;
 
-import javax.security.auth.x500.X500Principal;
 import java.io.File;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class RegistrationTest {

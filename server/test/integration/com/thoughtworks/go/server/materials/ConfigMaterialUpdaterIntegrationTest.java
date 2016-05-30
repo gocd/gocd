@@ -47,10 +47,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;

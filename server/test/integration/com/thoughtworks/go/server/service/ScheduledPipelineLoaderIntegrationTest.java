@@ -49,7 +49,6 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.After;

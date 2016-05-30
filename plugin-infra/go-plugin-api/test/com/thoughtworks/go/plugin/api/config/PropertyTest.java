@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.plugin.api.config;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

@@ -31,8 +31,6 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 
 public class MergePipelineConfigsTest extends PipelineConfigsTestBase {

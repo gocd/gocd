@@ -25,10 +25,6 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 public class FetchArtifactBuilder extends Builder {
     public static Logger LOG = Logger.getLogger(FetchArtifactBuilder.class);
 

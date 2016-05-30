@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.JobResult;
@@ -231,7 +230,7 @@ public class ScheduleServiceIntegrationTest {
                 materialRepository.save(pipeline.getBuildCause().getMaterialRevisions());
             }
         });
-        
+
         pipelineService.save(pipeline);
         assertThat(pipelineLockService.isLocked(pipelineName), is(true));
         scheduleService.automaticallyTriggerRelevantStagesFollowingCompletionOf(pipeline.getStages().last());
@@ -292,7 +291,7 @@ public class ScheduleServiceIntegrationTest {
         assertThat(stageDao.stageById(instance.getStageId()).getCompletedByTransitionId(), is(nullValue()));
 
         JobInstance secondJob = pipeline.findStage(firstStageName).getJobInstances().get(1);
-        
+
         scheduleService.failJob(secondJob);
 
         instance = jobInstanceService.buildByIdWithTransitions(secondJob.getId());

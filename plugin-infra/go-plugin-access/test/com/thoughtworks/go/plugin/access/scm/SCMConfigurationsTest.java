@@ -1,6 +1,5 @@
 package com.thoughtworks.go.plugin.access.scm;
 
-import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import org.junit.Test;
 

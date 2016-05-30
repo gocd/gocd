@@ -17,17 +17,14 @@
 package com.thoughtworks.go.server.materials.postcommit.git;
 
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 
-import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

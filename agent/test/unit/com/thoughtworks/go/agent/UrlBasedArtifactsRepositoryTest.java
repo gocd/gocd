@@ -19,7 +19,6 @@ import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.helper.TestStreamConsumer;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.command.InMemoryConsumer;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -35,9 +34,6 @@ import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedUploadingFai
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class UrlBasedArtifactsRepositoryTest {

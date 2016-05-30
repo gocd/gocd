@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 /**
  * Parses partial configurations and exposes latest configurations as soon as possible.
  */

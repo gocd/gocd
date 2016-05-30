@@ -33,7 +33,7 @@ public final class ListUtil {
     }
 
     public static String join(Collection c, String join) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Iterator<Object> iter = c.iterator(); iter.hasNext(); ) {
             sb.append(iter.next());
             if (iter.hasNext()) {
@@ -66,7 +66,7 @@ public final class ListUtil {
     }
 
     public static List<List<String>> split(List<String> list, String splitOn) {
-        ArrayList<List<String>> splittedStrings = new ArrayList<List<String>>();
+        ArrayList<List<String>> splittedStrings = new ArrayList<>();
         if (list.isEmpty()) {
             return splittedStrings;
         }

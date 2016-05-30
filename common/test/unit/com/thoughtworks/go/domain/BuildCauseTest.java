@@ -17,7 +17,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -49,7 +48,7 @@ public class BuildCauseTest {
         assertThat(BuildCause.createWithEmptyModifications().isSameAs(BuildCause.createManualForced()), is(false));
         assertThat(BuildCause.createManualForced().isSameAs(BuildCause.createWithEmptyModifications()), is(false));
     }
-    
+
     @Test
     public void sameBuildCausesShouldBeSame() {
         MaterialRevisions first = new MaterialRevisions(

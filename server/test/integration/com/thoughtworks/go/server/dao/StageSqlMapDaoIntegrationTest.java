@@ -72,7 +72,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -676,7 +675,7 @@ public class StageSqlMapDaoIntegrationTest {
         String stageName = CaseInsensitiveString.str(mingleConfig.get(0).name());
         String key = stageDao.cacheKeyForMostRecentId(pipelineName, stageName);
 
-        // should query and cache value 
+        // should query and cache value
         stageDao.mostRecentId(pipelineName, stageName);
         Long id = stageDao.mostRecentId(pipelineName, stageName);
         assertThat(id, is(20L));

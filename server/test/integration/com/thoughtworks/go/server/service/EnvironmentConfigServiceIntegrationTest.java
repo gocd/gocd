@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
@@ -62,7 +61,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Autowired private EnvironmentConfigService service;
     @Autowired private Localizer localizer;
     @Autowired private AgentService agentService;
-    
+
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
 
@@ -103,7 +102,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to add environment."));
     }
-    
+
     @Test
     public void shouldUpdateExistingEnvironment() throws Exception{
         BasicEnvironmentConfig uat = environmentConfig("uat");
@@ -136,7 +135,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertThat(currentEnvironments.indexOf(updatedEnv), is(2));
         assertThat(currentEnvironments.size(), is(5));
     }
-    
+
     @Test
     public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToUpdate() throws IOException {
         configHelper.addEnvironments("foo");
@@ -161,7 +160,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));
     }
-    
+
     @Test
     public void shouldReturnAClonedInstanceOfEnvironmentConfig() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -170,7 +169,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertThat(service.named("foo-env"), not(sameInstance(service.forEdit("foo-env", result).getConfigElement())));
         assertThat(result.isSuccessful(), is(true));
     }
-    
+
     @Test
     public void shouldPopulateResultWithErrorIfEnvNotFound() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -178,7 +177,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertThat(result.message(localizer), is("Environment named 'foo-env' not found."));
         assertThat(edit, is(nullValue()));
     }
-    
+
     @Test
     public void shouldNotUpdateEnvironmentIfEditingOverAStaleCopy() throws Exception{
         configHelper.addEnvironments("prod");

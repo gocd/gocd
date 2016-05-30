@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.hamcrest.Matchers;

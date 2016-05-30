@@ -23,7 +23,6 @@ import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.buildsession.BuildSessionTest;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -63,8 +62,6 @@ import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 

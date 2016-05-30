@@ -16,13 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Date;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -60,8 +54,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 

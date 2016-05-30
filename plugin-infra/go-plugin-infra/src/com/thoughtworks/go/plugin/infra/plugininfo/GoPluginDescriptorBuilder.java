@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
-import static org.apache.commons.io.IOUtils.closeQuietly;
 
 @Component
 public class GoPluginDescriptorBuilder {

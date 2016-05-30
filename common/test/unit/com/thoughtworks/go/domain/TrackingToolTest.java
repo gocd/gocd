@@ -20,14 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.config.ValidationContext;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class TrackingToolTest {
     private TrackingTool trackingTool;

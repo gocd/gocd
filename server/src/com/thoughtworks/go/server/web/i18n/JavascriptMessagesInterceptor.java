@@ -19,9 +19,6 @@ package com.thoughtworks.go.server.web.i18n;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.thoughtworks.go.domain.JobState;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import com.thoughtworks.go.server.web.JsonView;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;

@@ -40,10 +40,10 @@ public class AlphaAsciiCollectionComparatorTest {
             return value.compareTo(other.value);
         }
     }
-    
+
     @Test
     public void shouldCompareSortedCollections() {
-        AlphaAsciiCollectionComparator<Foo> comparator = new AlphaAsciiCollectionComparator<Foo>();
+        AlphaAsciiCollectionComparator<Foo> comparator = new AlphaAsciiCollectionComparator<>();
         assertThat(comparator.compare(Arrays.asList(new Foo("foo"), new Foo("quux")), Arrays.asList(new Foo("foo"), new Foo("bar"))), greaterThan(0));
         assertThat(comparator.compare(Arrays.asList(new Foo("foo"), new Foo("abc")), Arrays.asList(new Foo("foo"), new Foo("bar"))), lessThan(0));
         assertThat(comparator.compare(Arrays.asList(new Foo("foo"), new Foo("bar")), Arrays.asList(new Foo("bar"), new Foo("foo"))), is(0));

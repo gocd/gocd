@@ -21,17 +21,11 @@ import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
-import sun.security.x509.X509CertImpl;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.security.*;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
@@ -55,7 +49,7 @@ public class Registration implements Serializable {
                 if (obj == null) {
                     break;
                 }
-                chain.add(new X509CertImpl(obj.getContent()));
+                chain.add(CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(obj.getContent())));
             }
             return new Registration(privateKey, chain.toArray(new Certificate[chain.size()]));
         } catch (IOException | NoSuchAlgorithmException | CertificateException | InvalidKeySpecException e) {

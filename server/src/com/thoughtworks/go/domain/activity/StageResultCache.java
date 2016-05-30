@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.messaging.*;
-import com.thoughtworks.go.server.messaging.GoMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

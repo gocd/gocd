@@ -37,7 +37,6 @@ import com.thoughtworks.go.server.service.builders.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemUtil;
-import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -66,8 +65,6 @@ import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static com.thoughtworks.go.util.SystemUtil.isWindows;
 import static com.thoughtworks.go.util.TestUtils.copyAndClose;
-import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
-import static com.thoughtworks.go.utils.Assertions.waitUntil;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -362,7 +359,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
         assertThat(console.output(), printedAppsMissingInfoOnWindows(SOMETHING_NOT_EXIST));
         assertThat(statusReporter.results(), containsResult(Failed));
     }
-    
+
     @Test
     public void shouldReportBuildStatusToConsoleout() throws Exception {
         build(WILL_FAIL, PIPELINE_NAME, true, false);

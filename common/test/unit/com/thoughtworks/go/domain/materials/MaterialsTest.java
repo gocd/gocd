@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.google.gson.Gson;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.*;
@@ -39,9 +38,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static com.thoughtworks.go.domain.BuildCommand.noop;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;

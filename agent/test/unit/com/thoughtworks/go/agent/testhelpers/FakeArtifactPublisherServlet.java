@@ -32,7 +32,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 public class FakeArtifactPublisherServlet extends HttpServlet {
 
-    private static HashSet<String> receivedFiles = new HashSet<String>();
+    private static HashSet<String> receivedFiles = new HashSet<>();
     private static StringBuilder consoleOutput = new StringBuilder();
 
     public static Set<String> receivedFiles() throws InterruptedException {

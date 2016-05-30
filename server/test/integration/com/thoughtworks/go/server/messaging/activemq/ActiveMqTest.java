@@ -21,7 +21,6 @@ import java.util.List;
 import javax.jms.JMSException;
 
 import com.thoughtworks.go.server.messaging.*;
-import com.thoughtworks.go.server.messaging.GoMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

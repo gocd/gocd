@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.MergedGoConfig;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;

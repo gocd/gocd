@@ -17,7 +17,6 @@
 package com.thoughtworks.go.plugin.api.config;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

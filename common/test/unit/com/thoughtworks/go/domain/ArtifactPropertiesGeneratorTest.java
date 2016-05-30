@@ -27,7 +27,6 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,7 +35,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;

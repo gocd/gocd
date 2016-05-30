@@ -97,7 +97,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     private String[] agentInvocationCommand(String serverBaseUrl, String md5, String launcherMd5, Map<String, String> env, String launcherVersion, String agentPluginsZipMd5) {
         String startupArgsString = env.get(AGENT_STARTUP_ARGS);
 
-        List<String> commandSnippets = new ArrayList<String>();
+        List<String> commandSnippets = new ArrayList<>();
         commandSnippets.add(javaCmd());
         if (!isEmpty(startupArgsString)) {
             String[] startupArgs = startupArgsString.split(" ");

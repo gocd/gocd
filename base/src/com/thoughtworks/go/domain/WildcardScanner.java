@@ -36,7 +36,7 @@ public class WildcardScanner  {
         DirectoryScanner scanner = new DirectoryScanner();
         scanner.setBasedir(rootPath).setIncludes(new String[]{pattern}).scan();
         String[] allPaths = scanner.getIncludedFiles();
-        List<File> allFiles = new ArrayList<File>();
+        List<File> allFiles = new ArrayList<>();
         String[] directories = scanner.getIncludedDirectories();
         for (String directory : directories) {
             allFiles.add(new File(rootPath, directory));

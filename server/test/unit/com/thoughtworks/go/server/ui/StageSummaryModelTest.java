@@ -26,7 +26,7 @@ import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import static com.thoughtworks.go.helper.StageMother.completedFailedStageInstance;
 import static com.thoughtworks.go.helper.StageMother.custom;
-import static com.thoughtworks.go.helper.StageMother.passedStageInstance;
+
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import static org.hamcrest.core.Is.is;
 
@@ -46,7 +46,7 @@ public class StageSummaryModelTest {
     @Test public void shouldReturn0ForAFailedStage0() throws Exception {
         Stage stage = completedFailedStageInstance("pipeline-name", "stage", "job");
         StageSummaryModel stageSummaryModel = new StageSummaryModel(stage, new Stages(), JOB_DURATION_STRATEGY, null);
-        assertThat(stageSummaryModel.getDuration(), is("00:00:00"));        
+        assertThat(stageSummaryModel.getDuration(), is("00:00:00"));
     }
 
     @Test public void shouldReturnTotalRuns() throws Exception {
@@ -59,7 +59,7 @@ public class StageSummaryModelTest {
         assertThat(stageSummaryModel.getStateForRun(1),is(StageState.Failed));
         assertThat(stageSummaryModel.getStateForRun(2),is(StageState.Passed));
     }
-    
+
     @Test
     public void shouldReturnJobsForAGivenResult() throws Exception {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);

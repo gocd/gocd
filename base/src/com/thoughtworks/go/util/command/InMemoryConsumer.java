@@ -22,12 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.ListUtil.join;
 
 public class InMemoryConsumer implements StreamConsumer {
-    private Queue<String> lines = new ConcurrentLinkedQueue<String>();
+    private Queue<String> lines = new ConcurrentLinkedQueue<>();
     private static final Logger LOG = Logger.getLogger(InMemoryConsumer.class);
 
     public void consumeLine(String line) {
@@ -39,7 +38,7 @@ public class InMemoryConsumer implements StreamConsumer {
     }
 
     public List<String> asList() {
-        return new ArrayList<String>(lines);
+        return new ArrayList<>(lines);
     }
 
     public boolean contains(String message) {

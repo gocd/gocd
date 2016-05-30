@@ -24,10 +24,9 @@ import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class ViewCacheKey {
-    private static final String DELIMITER = "|"; 
+    private static final String DELIMITER = "|";
 
     public String forFbhOfStagesUnderPipeline(PipelineIdentifier pipelineIdentifier) {
         return key("fbhOfStagesUnderPipeline_%s", pipelineIdentifier.pipelineLocator());

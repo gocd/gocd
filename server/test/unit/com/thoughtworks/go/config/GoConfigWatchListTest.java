@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.*;
 
 public class GoConfigWatchListTest {

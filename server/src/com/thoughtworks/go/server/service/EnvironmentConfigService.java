@@ -24,7 +24,6 @@ import java.util.Set;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.ConfigElementForEdit;

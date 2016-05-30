@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;

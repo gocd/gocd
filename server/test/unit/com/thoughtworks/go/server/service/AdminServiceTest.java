@@ -27,7 +27,6 @@ import java.util.Map;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.*;
 
 public class AdminServiceTest {

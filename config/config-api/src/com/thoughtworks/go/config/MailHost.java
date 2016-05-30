@@ -19,8 +19,7 @@ package com.thoughtworks.go.config;
 import javax.annotation.PostConstruct;
 
 import com.thoughtworks.go.domain.ConfigErrors;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;

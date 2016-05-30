@@ -38,8 +38,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
@@ -53,7 +52,6 @@ import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;

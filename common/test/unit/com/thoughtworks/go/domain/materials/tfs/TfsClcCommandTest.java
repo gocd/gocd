@@ -25,7 +25,6 @@ import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;

@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.DISABLED;
@@ -38,7 +37,6 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 public abstract class PipelineConfigsTestBase {

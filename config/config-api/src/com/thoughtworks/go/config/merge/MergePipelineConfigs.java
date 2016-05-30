@@ -17,8 +17,6 @@ package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
-import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import org.apache.commons.lang.StringUtils;

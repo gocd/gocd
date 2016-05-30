@@ -32,7 +32,7 @@ public class ZipBuilder {
     private ZipUtil zipUtil;
     private OutputStream destinationStream;
     private boolean excludeRootDir;
-    private Map<String, File> toAdd = new HashMap<String, File>();
+    private Map<String, File> toAdd = new HashMap<>();
 
     public ZipBuilder(ZipUtil zipUtil, int level, OutputStream destinationStream, boolean excludeRootDir) {
         this.zipUtil = zipUtil;

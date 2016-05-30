@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.PipelineConfigMother;

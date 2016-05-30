@@ -50,7 +50,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

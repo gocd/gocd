@@ -29,7 +29,6 @@ import java.io.IOException;
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsFalse;
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
 import static org.apache.commons.io.IOUtils.toInputStream;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class XMLArtifactImporterTest {

@@ -57,11 +57,6 @@ import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMater
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anySet;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class MaterialUpdateServiceTest {

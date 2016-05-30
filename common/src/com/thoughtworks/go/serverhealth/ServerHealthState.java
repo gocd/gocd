@@ -19,7 +19,6 @@ package com.thoughtworks.go.serverhealth;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.utils.Timeout;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 
@@ -136,7 +135,7 @@ public class ServerHealthState {
         int result = healthStateLevel.compareTo(otherServerHealthState.healthStateLevel);
         return result > 0 ? this : otherServerHealthState;
     }
-    
+
     public boolean equals(Object that) {
         if (this == that) {
             return true;

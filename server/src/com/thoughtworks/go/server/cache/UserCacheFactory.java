@@ -23,7 +23,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.stereotype.Component;

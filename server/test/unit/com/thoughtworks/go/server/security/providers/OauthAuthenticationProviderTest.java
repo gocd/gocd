@@ -26,8 +26,7 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.OauthAuthenticationToken;
 import org.junit.Test;
 import org.junit.Before;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.springframework.security.GrantedAuthority;
@@ -70,7 +69,7 @@ public class OauthAuthenticationProviderTest {
             assertThat(e.getMessage(), is("No match for OAuth token: token-string"));
         }
     }
-    
+
     private OauthDataSource.OauthTokenDTO oauthTokenDto(String userId) {
         OauthDataSource.OauthTokenDTO dto = new OauthDataSource.OauthTokenDTO();
         dto.setUserId(userId);

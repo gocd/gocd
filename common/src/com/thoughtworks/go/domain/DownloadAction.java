@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.log4j.Logger;
 

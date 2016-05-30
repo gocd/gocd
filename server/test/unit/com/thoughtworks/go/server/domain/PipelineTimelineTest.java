@@ -37,7 +37,6 @@ import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
-import static com.thoughtworks.go.helper.PipelineMaterialModificationMother.modification;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;

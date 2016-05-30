@@ -50,7 +50,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;

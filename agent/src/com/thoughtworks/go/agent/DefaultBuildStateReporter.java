@@ -25,8 +25,6 @@ import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import com.thoughtworks.go.websocket.Report;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 public class DefaultBuildStateReporter implements BuildStateReporter {
     private final AgentWebsocketService websocketService;
     private final AgentRuntimeInfo agentRuntimeInfo;

@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedExceptio
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

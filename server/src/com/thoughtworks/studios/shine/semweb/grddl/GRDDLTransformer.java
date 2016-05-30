@@ -19,10 +19,7 @@ package com.thoughtworks.studios.shine.semweb.grddl;
 import java.io.InputStream;
 import java.io.StringReader;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
 
 import com.thoughtworks.studios.shine.ShineRuntimeException;
 import com.thoughtworks.studios.shine.semweb.Graph;

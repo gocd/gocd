@@ -28,11 +28,8 @@ import org.bouncycastle.util.encoders.Hex;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.UUID;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class CipherProvider implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(CipherProvider.class);

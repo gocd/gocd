@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.zip.Deflater;
 
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.TestingClock;
@@ -133,7 +132,7 @@ public class FetchArtifactBuilderTest {
 
         java.util.Properties properties = new java.util.Properties();
         when(checksumFileHandler.getArtifactMd5Checksums()).thenReturn(new ArtifactMd5Checksums(properties));
-                
+
         builder.fetch(downloadAction, urlService);
 
         verify(downloadAction).perform(Mockito.eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), any(FetchHandler.class));

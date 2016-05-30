@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public class TempFiles {
 
-    private List<File> createdFiles = new ArrayList<File>();
+    private List<File> createdFiles = new ArrayList<>();
     private Clock clock;
 
     private Runnable cleanupHook = new Runnable() {

@@ -42,9 +42,6 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class GoArtifactsManipulatorTest {

@@ -33,8 +33,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;

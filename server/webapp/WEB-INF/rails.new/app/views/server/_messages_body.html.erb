@@ -1,9 +1,11 @@
 <% if !@current_server_health_states.isRealSuccess()
         cruise_config = go_config_service.getCurrentConfig()
+        should_show_dashboard_errors = com.thoughtworks.go.server.service.support.toggle.Toggles.isToggleOn(com.thoughtworks.go.server.service.support.toggle.Toggles.BETTER_DASHBOARD_ERRORS)
 %>
         <% @current_server_health_states.each do |state_in_messages_body| %>
+            <% pipeline_error_mappings =  should_show_dashboard_errors ? state_in_messages_body.getPipelineNames(cruise_config) : '' %>
             <% if !state_in_messages_body.isRealSuccess() %>
-                <div class="<%=state_in_messages_body.getLogLevel().name().downcase%>" data-pipelines="<%= state_in_messages_body.getPipelineNames(cruise_config) %>">
+                <div class="<%=state_in_messages_body.getLogLevel().name().downcase%>" data-pipelines="<%= pipeline_error_mappings %>">
                     <div class="message"><%==state_in_messages_body.getMessageWithTimestamp()%></div>
                     <div class="description"><%==state_in_messages_body.getDescription()%></div>
                 </div>

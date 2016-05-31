@@ -120,15 +120,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
     public PipelineInstanceModels load(String pipelineName, Pagination pagination, String username, boolean populateCanRun) {
         PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset());
-        return processHistory(pipelineName, pagination, username, populateCanRun, history);
-    }
-
-    public PipelineInstanceModels load(String pipelineName, Pagination pagination, String username, boolean populateCanRun, String labelFilter) {
-        PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset(), labelFilter);
-        return processHistory(pipelineName, pagination, username, populateCanRun, history);
-    }
-
-    private PipelineInstanceModels processHistory(String pipelineName, Pagination pagination, String username, boolean populateCanRun, PipelineInstanceModels history) {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         for (PipelineInstanceModel pipelineInstanceModel : history) {
             populatePipelineInstanceModel(new Username(new CaseInsensitiveString(username)), populateCanRun, pipelineConfig, pipelineInstanceModel);

@@ -287,15 +287,6 @@
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 
-    <select id="getPipelineHistoryByNameFiltered" resultMap="select-pipeline-history">
-        <include refid="getPipelineHistory" />
-        WHERE pipelines.id &gt;= #from#
-        AND pipelines.id &lt;= #to#
-        AND pipelines.name = #pipelineName#
-        AND label LIKE '%' || #filter# || '%'
-        ORDER BY pipelines.id DESC, stages.orderId ASC
-    </select>
-
 
     <select id="getPipelineHistoryForIds" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />

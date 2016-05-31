@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
@@ -49,7 +50,7 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -63,12 +64,14 @@ public class EnvironmentConfigServiceTest {
     private BuildAssignment mockBuildAssignment;
     private SecurityService securityService;
     private AgentService agentService;
+    private GoConfigDao goConfigDao;
 
 
     @Before
     public void setUp() throws Exception {
-        mockGoConfigService = Mockito.mock(GoConfigService.class);
-        mockBuildAssignment = Mockito.mock(BuildAssignment.class);
+        mockGoConfigService = mock(GoConfigService.class);
+        mockBuildAssignment = mock(BuildAssignment.class);
+        goConfigDao = mock(GoConfigDao.class);
         securityService = mock(SecurityService.class);
         agentService = mock(AgentService.class);
         environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService);
@@ -224,7 +227,6 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), new ArrayList<Map<String, String>>(), selectedAgents), user, result);
 
         assertThat(result.isSuccessful(), is(true));
-        verify(mockGoConfigService).addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
     }
 
     @Test
@@ -240,7 +242,6 @@ public class EnvironmentConfigServiceTest {
         assertThat(result.isSuccessful(), is(true));
         BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         envConfig.addAgent("agent-guid-1");
-        verify(mockGoConfigService).addEnvironment(envConfig);
     }
 
     @Test
@@ -259,7 +260,6 @@ public class EnvironmentConfigServiceTest {
         BasicEnvironmentConfig expectedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         expectedConfig.addEnvironmentVariable("SHELL", "/bin/zsh");
         expectedConfig.addEnvironmentVariable("HOME", "/home/cruise");
-        verify(mockGoConfigService).addEnvironment(expectedConfig);
     }
 
     private Map<String, String> envVar(String name, String value) {
@@ -283,7 +283,6 @@ public class EnvironmentConfigServiceTest {
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         config.addPipeline(new CaseInsensitiveString("first"));
         config.addPipeline(new CaseInsensitiveString("second"));
-        verify(mockGoConfigService).addEnvironment(config);
     }
 
     @Test
@@ -407,7 +406,7 @@ public class EnvironmentConfigServiceTest {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateEnvironment(environmentName, environmentConfig, md5)).thenReturn(ConfigSaveState.MERGED);
+        when(mockGoConfigService.updateEnvironment(environmentName, environmentConfig, user, md5)).thenReturn(ConfigSaveState.MERGED);
 
         HttpLocalizedOperationResult result = environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, md5);
 
@@ -423,11 +422,59 @@ public class EnvironmentConfigServiceTest {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateEnvironment(environmentName, environmentConfig, md5)).thenReturn(ConfigSaveState.UPDATED);
+        when(mockGoConfigService.updateEnvironment(environmentName, environmentConfig, user, md5)).thenReturn(ConfigSaveState.UPDATED);
 
         HttpLocalizedOperationResult result = environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, md5);
 
         assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName)));
+    }
+
+    @Test
+    public void shouldReturnResultWithMessageThatConfigWasMerged_WhenMergingEnvironmentChanges_NewUpdateEnvironmentMethod() {
+        String environmentName = "env_name";
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+        Username user = new Username(new CaseInsensitiveString("user"));
+
+        when(securityService.isUserAdmin(user)).thenReturn(true);
+        when(mockGoConfigService.updateConfig(any(UpdateEnvironmentCommand.class))).thenReturn(ConfigSaveState.MERGED);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, result);
+
+        assertThat(result.localizable(),
+                is(LocalizedMessage.composite(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName), LocalizedMessage.string("CONFIG_MERGED"))));
+    }
+
+    @Test
+    public void shouldReturnResultWithMessageThatConfigisUpdated_WhenUpdatingLatestConfiguration_NewUpdateEnvironmentMethod() {
+        String environmentName = "env_name";
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+        Username user = new Username(new CaseInsensitiveString("user"));
+
+        when(securityService.isUserAdmin(user)).thenReturn(true);
+        when(mockGoConfigService.updateConfig(any(UpdateEnvironmentCommand.class))).thenReturn(ConfigSaveState.UPDATED);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, result);
+
+        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName)));
+    }
+    
+    @Test
+    public void shouldReturnEnvironmentConfig() throws Exception {
+        String environmentName = "foo-environment";
+        String pipelineName = "up42";
+        environmentConfigService.sync(environmentsConfig(environmentName, pipelineName));
+        EnvironmentConfig expectedEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+        expectedEnvironmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
+        assertThat(environmentConfigService.getEnvironmentConfig(environmentName), is(expectedEnvironmentConfig));
+    }
+
+    @Test(expected = NoSuchEnvironmentException.class)
+    public void shouldThrowExceptionWhenEnvironmentIsAbsent() throws Exception {
+        String environmentName = "foo-environment";
+        String pipelineName = "up42";
+        environmentConfigService.sync(environmentsConfig(environmentName, pipelineName));
+        environmentConfigService.getEnvironmentConfig("invalid-environment-name");
     }
 
     private EnvironmentsConfig environmentsConfig(String envName, String pipelineName) {

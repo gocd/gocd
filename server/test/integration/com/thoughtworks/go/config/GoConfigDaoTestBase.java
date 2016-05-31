@@ -50,8 +50,8 @@ import static org.mockito.Mockito.*;
 
 
 public abstract class GoConfigDaoTestBase {
-    protected GoConfigFileHelper configHelper ;
-    protected GoConfigDao goConfigDao ;
+    protected GoConfigFileHelper configHelper;
+    protected GoConfigDao goConfigDao;
     protected CachedGoConfig cachedGoConfig;
     protected LogFixture logger;
 
@@ -122,6 +122,7 @@ public abstract class GoConfigDaoTestBase {
         assertThat(cruiseConfig.numberOfPipelines(), is(oldsize + 1));
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("spring")), is(pipelineConfig));
     }
+
     @Test
     public void shouldFailToAddDuplicatePipelineToConfigFile() throws Exception {
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -138,10 +139,8 @@ public abstract class GoConfigDaoTestBase {
                 "www.spring.com");
         try {
             goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
-        }
-        catch (RuntimeException ex)
-        {
-            assertThat(ex.getMessage(),is("You have defined multiple pipelines called 'spring'. Pipeline names must be unique."));
+        } catch (RuntimeException ex) {
+            assertThat(ex.getMessage(), is("You have defined multiple pipelines called 'spring'. Pipeline names must be unique."));
             return;
         }
         fail("Should have thrown");
@@ -265,7 +264,7 @@ public abstract class GoConfigDaoTestBase {
     public void shouldAddEnvironmentToConfigFile() throws Exception {
         CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.getEnvironments().size();
-        goConfigDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")));
+        goConfigDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")), Username.ANONYMOUS);
 
         cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.getEnvironments().size(), is(oldsize + 1));
@@ -390,7 +389,6 @@ public abstract class GoConfigDaoTestBase {
     }
 
 
-
     @Test
     public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {
         try {
@@ -452,7 +450,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldNotUpdatePipelineConfigIfUserDoesNotHaveRequiredPermissionsToDoSo(){
+    public void shouldNotUpdatePipelineConfigIfUserDoesNotHaveRequiredPermissionsToDoSo() {
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
@@ -462,7 +460,7 @@ public abstract class GoConfigDaoTestBase {
         try {
             goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user")));
             fail("Expected to throw exception of type:" + ConfigUpdateCheckFailedException.class.getName());
-        }catch (Exception e) {
+        } catch (Exception e) {
             assertTrue(e instanceof ConfigUpdateCheckFailedException);
         }
         verify(cachedConfigService).currentConfig();
@@ -470,7 +468,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldUpdateValidEntity(){
+    public void shouldUpdateValidEntity() {
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
@@ -501,6 +499,7 @@ public abstract class GoConfigDaoTestBase {
         private final boolean canContinue;
         private boolean wasUpdated;
         private CruiseConfig after;
+
         CheckedTestUpdateCommand(String md5, boolean canContinue) {
             this.md5 = md5;
             this.canContinue = canContinue;
@@ -528,6 +527,7 @@ public abstract class GoConfigDaoTestBase {
         }
 
     }
+
     private MailHost getMailhost(String hostname) {
         return new MailHost(hostname, 9999, "user", "password", true, false, "from@local", "admin@local");
     }

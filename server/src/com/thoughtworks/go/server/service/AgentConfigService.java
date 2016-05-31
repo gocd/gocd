@@ -20,6 +20,7 @@ import com.google.caja.util.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AgentsUpdateCommand;
+import com.thoughtworks.go.config.update.ModifyEnvironmentCommand;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -260,11 +261,11 @@ public class AgentConfigService {
             Set<String> environmentsToAdd = Sets.difference(newEnvironments, existingEnvironments);
 
             for (String environmentToRemove : environmentsToRemove) {
-                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToRemove, TriStateSelection.Action.remove));
+                command.addCommand(new ModifyEnvironmentCommand(uuid, environmentToRemove, TriStateSelection.Action.remove));
             }
 
             for (String environmentToAdd : environmentsToAdd) {
-                command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, environmentToAdd, TriStateSelection.Action.add));
+                command.addCommand(new ModifyEnvironmentCommand(uuid, environmentToAdd, TriStateSelection.Action.add));
             }
         }
 

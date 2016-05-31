@@ -18,13 +18,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TriState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,7 +127,7 @@ public class AgentConfigServiceIntegrationTest {
         BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString(UUID.randomUUID().toString()));
         env.addAgent(agentConfig1.getUuid());
         env.addAgent(agentConfig2.getUuid());
-        goConfigDao.addEnvironment(env);
+        goConfigDao.addEnvironment(env, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
 
         assertThat(cruiseConfig.getEnvironments().named(env.name()).getAgents().size(), is(2));

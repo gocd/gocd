@@ -302,9 +302,9 @@ RSpec::Matchers.define :have_link do |link_name|
               else
                 @match = true
               end
-              @failure_message_for_should_not = "expected json to not have a #{link_name.inspect} link with href #{@link_url.inspect}\n got #{link['href'].inspect} instead"
+              @failure_message_for_should_not = "expected json to not have a #{link_name.inspect} link with href #{@link_url.inspect}\n got #{link[:href].inspect} instead"
             else
-              @failure_message_for_should = "expected json to have a #{link_name.inspect} link with href #{@link_url.inspect}\n got #{link['href'].inspect} instead"
+              @failure_message_for_should = "expected json to have a #{link_name.inspect} link with href #{@link_url.inspect}\n got #{link[:href].inspect} instead"
             end
           end
         else

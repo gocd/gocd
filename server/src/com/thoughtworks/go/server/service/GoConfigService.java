@@ -401,8 +401,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         };
     }
 
-    public void addEnvironment(BasicEnvironmentConfig environmentConfig) {
-        goConfigDao.addEnvironment(environmentConfig);
+    public void addEnvironment(BasicEnvironmentConfig environmentConfig, Username user) {
+        goConfigDao.addEnvironment(environmentConfig, user);
     }
 
     public void addPipeline(PipelineConfig pipeline, String groupName) {
@@ -609,7 +609,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             String uuid = agentInstance.getUuid();
             if (hasAgent(uuid)) {
                 for (TriStateSelection selection : selections) {
-                    command.addCommand(new GoConfigDao.ModifyEnvironmentCommand(uuid, selection.getValue(), selection.getAction()));
+                    command.addCommand(new ModifyEnvironmentCommand(uuid, selection.getValue(), selection.getAction()));
                 }
             }
         }
@@ -831,15 +831,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return serverConfig().security().passwordFileConfig();
     }
 
-    public ConfigSaveState updateEnvironment(final String named, final EnvironmentConfig newEnvDefinition, final String md5) {
+    @Deprecated
+    public ConfigSaveState updateEnvironment(final String named, final EnvironmentConfig newEnvDefinition, final Username username, final String md5) {
         return goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                EnvironmentsConfig environments = cruiseConfig.getEnvironments();
-                EnvironmentConfig oldConfig = environments.named(new CaseInsensitiveString(named));
-                int index = environments.indexOf(oldConfig);
-                environments.remove(index);
-                environments.add(index, newEnvDefinition);
-                return cruiseConfig;
+                return new UpdateEnvironmentCommand(named, newEnvDefinition, username).update(cruiseConfig);
             }
 
             public String unmodifiedMd5() {

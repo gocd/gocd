@@ -230,3 +230,4 @@ app-server/target/*
 jetty6/target/*
 jetty9/target/*
 
+.generators

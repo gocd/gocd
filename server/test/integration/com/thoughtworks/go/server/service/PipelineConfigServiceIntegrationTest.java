@@ -451,7 +451,7 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig pipeline = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "stage");
         goConfigService.addPipeline(pipeline, "default");
         env.addPipeline(pipeline.name());
-        goConfigService.addEnvironment(env);
+        goConfigService.addEnvironment(env, Username.ANONYMOUS);
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
         assertTrue(goConfigService.hasPipelineNamed(pipeline.name()));

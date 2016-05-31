@@ -574,33 +574,33 @@ a.xlink_as_button {
     padding:6px 10px 6px 30px;
 }
 
-#cruise_message_body{
+.cruise_message_body{
     max-height: 400px;
     padding: 10px;
     overflow: auto;
 }
 
-*+html #cruise_message_body{
+*+html .cruise_message_body{
     height: expression(this.scrollHeight >  400 ? "400px" : "auto");
     overflow: auto;
 }
-#cruise_message_body .error {
+.cruise_message_body .error {
   margin-bottom: 10px;
   border-bottom: 1px dotted #CCC;
   padding-bottom: 10px;
 }
-#cruise_message_body .message {
+.cruise_message_body .message {
     font-weight: bold;
     font-size: 12px;
 
 }
 
-#cruise_message_body .warning {
+.cruise_message_body .warning {
     margin-bottom: 10px;
     border-bottom: 1px dotted #CCC;
     padding-bottom: 10px;
 }
-#cruise_message_body .warning .description {
+.cruise_message_body .warning .description {
     border-left: 5px solid #FFF0C0;
     padding-left: 10px;
     margin-top: 5px;
@@ -609,14 +609,14 @@ a.xlink_as_button {
 }
 
 
-#cruise_message_body .error .description {
+.cruise_message_body .error .description {
     border-left: 5px solid #f7d4d4;
     padding-left: 10px;
     margin-top: 5px;
     font-size: 11px;
     color: #555;
 }
-#cruise_message_body .messages {
+.cruise_message_body .messages {
     overflow: scroll;
 }
 

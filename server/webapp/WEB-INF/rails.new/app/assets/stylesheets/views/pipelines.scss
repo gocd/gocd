@@ -46,6 +46,17 @@
 **/
 
 
+.pipeline-error {
+  background: image_url('g9/icons/icon_error_16.png') no-repeat;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  float: right;
+  margin-top: 2px;
+  margin-right: 4px;
+  cursor: pointer;
+}
+
 /**
  * =MATERIAL_SEARCH
 **/

@@ -21,11 +21,11 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
-import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.PluginViewModel;
@@ -43,18 +43,19 @@ public enum PluginBuilder {
             }
 
             ArrayList<PluginConfigurationViewModel> configurations = new ArrayList<>();
-            SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(pluginId);
+            SCMPreference scmPreference = SCMMetadataStore.getInstance().preferenceFor(pluginId);
 
-            for(SCMConfiguration configuration : scmConfigurations.list()) {
+            for(SCMConfiguration configuration : scmPreference.getScmConfigurations().list()) {
                 Map<String, Object> metaData = new HashMap<>();
                 metaData.put("required", configuration.getOption(Property.REQUIRED));
                 metaData.put("secure", configuration.getOption(Property.SECURE));
                 metaData.put("part_of_identity", configuration.getOption(Property.PART_OF_IDENTITY));
 
-                configurations.add(new PluginConfigurationViewModel(configuration.getKey(), metaData, null));
+                configurations.add(new PluginConfigurationViewModel(configuration.getKey(), metaData));
             }
 
-            return new PluginViewModel(pluginId, about.name(), about.version(), PluginBuilder.SCM.pluginExtension, configurations);
+            return new PluginViewModel(pluginId, about.name(), about.version(), PluginBuilder.SCM.pluginExtension,
+                                       scmPreference.getScmView().template(), configurations);
         }
     },
 
@@ -65,15 +66,17 @@ public enum PluginBuilder {
             }
 
             ArrayList<PluginConfigurationViewModel> configurations = new ArrayList<>();
-            TaskConfig taskConfig = PluggableTaskConfigStore.store().preferenceFor(pluginId).getConfig();
-            for(Property property: taskConfig.list()) {
+            TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
+
+            for(Property property: taskPreference.getConfig().list()) {
                 Map<String, Object> metaData = new HashMap<>();
                 metaData.put("required", property.getOption(Property.REQUIRED));
                 metaData.put("secure", property.getOption(Property.SECURE));
 
-                configurations.add(new PluginConfigurationViewModel(property.getKey(), metaData, null));
+                configurations.add(new PluginConfigurationViewModel(property.getKey(), metaData));
             }
-            return new PluginViewModel(pluginId, about.name(), about.version(), PluginBuilder.TASK.pluginExtension, configurations);
+            return new PluginViewModel(pluginId, about.name(), about.version(), PluginBuilder.TASK.pluginExtension,
+                                       taskPreference.getView().template(), configurations);
         }
     },
 

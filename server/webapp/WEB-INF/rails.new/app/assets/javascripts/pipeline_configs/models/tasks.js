@@ -24,7 +24,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './r
     if (Tasks.isBuiltInTaskType(data.type)) {
       return new Tasks.Types[data.type].type({});
     } else {
-      return new Tasks.Task.PluginTask(data);
+      return new Tasks.Task.PluginTask.fromPlugin(data.plugin);
     }
   };
 
@@ -274,7 +274,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './r
   };
 
   Tasks.Task.PluginTask = function (data) {
-    Tasks.Task.call(this, "plugin");
+    Tasks.Task.call(this, 'pluggable_task');
 
     this.pluginId      = m.prop(s.defaultToIfBlank(data.pluginId, ''));
     this.version       = m.prop(s.defaultToIfBlank(data.version, ''));
@@ -282,10 +282,22 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './r
     this.runIf         = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask  = Tasks.Task.onCancelTask(data.onCancelTask);
 
+    this.isEmpty = function() {
+      return this.configuration().isEmptyConfiguration();
+    };
+
+    this.toString = function() {
+      return _.join(this.configuration().mapConfigurations(function(configuration) {
+        return _.join([configuration.key(), ':', ' ', configuration.value()], '');
+      }), ' ');
+    };
+
     this._attributesToJSON = function () {
       return {
-        pluginId:      this.pluginId,
-        version:       this.version,
+        plugin_configuration: {
+          id:      this.pluginId,
+          version: this.version
+        },
         configuration: this.configuration,
         run_if:        this.runIf().data(),
         on_cancel:     this.onCancelTaskToJSON()
@@ -295,11 +307,19 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './r
 
   Tasks.Task.PluginTask.fromJSON = function (data) {
     return new Tasks.Task.PluginTask({
-      pluginId:      data.plugin_id,
-      version:       data.version,
+      pluginId:      data.plugin_configuration.id,
+      version:       data.plugin_configuration.version,
       configuration: Tasks.Task.PluginTask.Configurations.fromJSON(data.configuration),
       runIf:         data.run_if,
       onCancelTask:  data.on_cancel
+    });
+  };
+
+  Tasks.Task.PluginTask.fromPlugin = function (plugin) {
+    return new Tasks.Task.PluginTask({
+      pluginId:      plugin.id(),
+      version:       plugin.version(),
+      configuration: Tasks.Task.PluginTask.Configurations.fromJSON(plugin.configurations())
     });
   };
 
@@ -312,7 +332,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './r
 
     function configForKey(key) {
       return this.findConfiguration(function (config) {
-        return config.name() === key;
+        return config.key() === key;
       });
     }
 
@@ -327,7 +347,7 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './r
       var existingConfig = configForKey.call(this, key);
 
       if (!existingConfig) {
-        this.createConfiguration({name: key, value: value});
+        this.createConfiguration({key: key, value: value});
       } else {
         existingConfig.value(value);
       }
@@ -341,12 +361,12 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './argument', './r
   Tasks.Task.PluginTask.Configurations.Configuration = function (data) {
     this.parent = Mixins.GetterSetter();
 
-    this.name  = m.prop(s.defaultToIfBlank(data.name, ''));
+    this.key  = m.prop(s.defaultToIfBlank(data.key, ''));
     this.value = m.prop(s.defaultToIfBlank(data.value, ''));
   };
 
   Tasks.Task.PluginTask.Configurations.Configuration.fromJSON = function (data) {
-    return new Tasks.Task.PluginTask.Configurations.Configuration(_.pick(data, ['name', 'value']));
+    return new Tasks.Task.PluginTask.Configurations.Configuration(data);
   };
 
   Mixins.fromJSONCollection({

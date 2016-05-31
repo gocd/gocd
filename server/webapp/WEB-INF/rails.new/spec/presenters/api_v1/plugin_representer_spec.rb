@@ -19,9 +19,9 @@ require 'spec_helper'
 describe ApiV1::PluginRepresenter do
   it 'renders plugin with hal representation' do
 
-    url_configuration = PluginConfigurationViewModel.new('url', HashMap.new({:required => :true, :secure => false}), nil)
+    url_configuration = PluginConfigurationViewModel.new('url', HashMap.new({:required => :true, :secure => false}))
     username_configuration = PluginConfigurationViewModel.new('username', HashMap.new({:required => :true, :secure => false}), 'package')
-    plugin = PluginViewModel.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', [url_configuration, username_configuration])
+    plugin = PluginViewModel.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', 'plugin_view_template', [url_configuration, username_configuration])
 
     actual_json = ApiV1::PluginRepresenter.new(plugin).to_hash(url_builder: UrlBuilder.new)
 
@@ -35,6 +35,7 @@ describe ApiV1::PluginRepresenter do
                                name:           'plugin_name',
                                version:        'plugin_version',
                                type:           'plugin_type',
+                               viewTemplate:   'plugin_view_template',
                                configurations: [
                                    {
                                        key:      'url',
@@ -49,14 +50,15 @@ describe ApiV1::PluginRepresenter do
   end
 
   it 'should render plugin in absence of configurations' do
-    plugin = PluginViewModel.new('plugin_id', 'plugin_version', 'plugin_type')
+    plugin = PluginViewModel.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type')
 
     actual_json = ApiV1::PluginRepresenter.new(plugin).to_hash(url_builder: UrlBuilder.new)
 
     actual_json.delete(:_links)
-    expect(actual_json).to eq({id:             'plugin_id',
-                               version:        'plugin_version',
-                               type:           'plugin_type',
+    expect(actual_json).to eq({id:      'plugin_id',
+                               name:    'plugin_name',
+                               version: 'plugin_version',
+                               type:    'plugin_type',
                               })
   end
 end

@@ -24,7 +24,7 @@ class Api::Internal::PluggableTaskController < ApplicationController
 
   def validate
     task_configuration = params[:_json].inject({}) do |memo, prop|
-      memo[prop[:name]] = prop[:value]
+      memo[prop[:key]] = prop[:value]
       memo
     end
 
@@ -41,7 +41,7 @@ class Api::Internal::PluggableTaskController < ApplicationController
 
     errors = pluggable_task.getConfiguration.select(&:hasErrors).collect do |configuration_property|
       {
-        name:   configuration_property.getConfigKeyName(),
+        key:   configuration_property.getConfigKeyName(),
         errors: configuration_property.errors().getAll().to_a
       }
     end

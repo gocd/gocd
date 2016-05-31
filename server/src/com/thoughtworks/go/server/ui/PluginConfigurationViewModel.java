@@ -20,13 +20,17 @@ import java.util.Map;
 
 public class PluginConfigurationViewModel {
     private final String key;
-    private final String type;
     private final Map<String, Object> metadata;
+    private String type;
+
+    public PluginConfigurationViewModel(String key, Map<String, Object> metadata) {
+        this.key = key;
+        this.metadata = metadata;
+    }
 
     public PluginConfigurationViewModel(String key, Map<String, Object> metadata, String type) {
-        this.key = key;
+        this(key, metadata);
         this.type = type;
-        this.metadata = metadata;
     }
 
     public String getKey() {

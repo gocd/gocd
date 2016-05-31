@@ -17,24 +17,20 @@
 define([
   'mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../helpers/dragula_config', '../models/tasks',
   '../models/pluggable_tasks', 'js-routes', './lookup_command_widget', '../models/argument',
-  '../helpers/mithril_component_mixins', './task_views_widget'],
+  '../helpers/mithril_component_mixins', './task_views_widget' , '../models/plugins'],
   function (m, _, $, angular, f, dragulaConfig, Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument,
-            ComponentMixins, TaskViews) {
+            ComponentMixins, TaskViews, Plugins) {
 
   var TaskTypeSelector = {
     controller: function (args) {
-      this.tasks    = args.tasks;
-      this.selected = m.prop('exec');
-      this.addTask  = function (type) {
+      var self      = this;
+      self.tasks    = args.tasks;
+      self.selected = m.prop('exec');
+      self.addTask  = function (type) {
         if (Tasks.isBuiltInTaskType(type())) {
-          this.tasks().createTask({type: type()});
+          self.tasks().createTask({type: type()});
         } else {
-          var pluggableTaskDescriptor = PluggableTasks.Types[type()];
-          this.tasks().createTask({
-            type:     type(),
-            pluginId: type(),
-            version:  pluggableTaskDescriptor.version
-          });
+          self.tasks().createTask({type: type(), plugin: Plugins.findById(type())});
         }
       };
     },

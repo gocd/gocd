@@ -34,13 +34,12 @@ module ApiV1
     property :name
     property :version
     property :type
+    property :viewTemplate, skip_nil: true
     collection :configurations,
                skip_nil: true,
                expect_hash: true,
                inherit: false,
                class: PluginConfigurationViewModel,
                decorator: ApiV1::PluginConfigurationRepresenter
-
-
   end
 end

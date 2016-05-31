@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PluginViewModel {
@@ -25,6 +24,7 @@ public class PluginViewModel {
     private final String name;
     private final String version;
     private final String type;
+    private String viewTemplate;
     private List<PluginConfigurationViewModel> configurations;
 
     public PluginViewModel(String id, String name, String version, String type) {
@@ -37,6 +37,13 @@ public class PluginViewModel {
     public PluginViewModel(String id, String name, String version, String type, List<PluginConfigurationViewModel> pluginConfigurationViewModels) {
         this(id, name, version, type);
 
+        this.configurations = pluginConfigurationViewModels;
+    }
+
+    public PluginViewModel(String id, String name, String version, String type, String viewTemplate, List<PluginConfigurationViewModel> pluginConfigurationViewModels) {
+        this(id, name, version, type);
+
+        this.viewTemplate = viewTemplate;
         this.configurations = pluginConfigurationViewModels;
     }
 
@@ -56,6 +63,10 @@ public class PluginViewModel {
         return type;
     }
 
+    public String getViewTemplate() {
+        return viewTemplate;
+    }
+
     public List<PluginConfigurationViewModel> getConfigurations() {
         return configurations;
     }
@@ -65,18 +76,19 @@ public class PluginViewModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PluginViewModel pluginViewModel = (PluginViewModel) o;
+        PluginViewModel that = (PluginViewModel) o;
 
-        if (id != null ? !id.equals(pluginViewModel.id) : pluginViewModel.id != null) return false;
-        if (version != null ? !version.equals(pluginViewModel.version) : pluginViewModel.version != null) return false;
-        if (type != null ? !type.equals(pluginViewModel.type) : pluginViewModel.type != null) return false;
-        return configurations != null ? configurations.equals(pluginViewModel.configurations) : pluginViewModel.configurations == null;
-
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (version != null ? !version.equals(that.version) : that.version != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        return configurations != null ? configurations.equals(that.configurations) : that.configurations == null;
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (configurations != null ? configurations.hashCode() : 0);

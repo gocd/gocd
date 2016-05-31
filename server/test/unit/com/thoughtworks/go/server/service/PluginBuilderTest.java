@@ -24,9 +24,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore
 import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedPluggableTask;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
-import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
-import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
-import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
+import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskView;
@@ -64,7 +62,17 @@ public class PluginBuilderTest {
         scmConfigurations.add(new SCMConfiguration("key1"));
         scmConfigurations.add(new SCMConfiguration("key2"));
 
-        SCMMetadataStore.getInstance().addMetadataFor("scm-plugin-id", scmConfigurations, null);
+        SCMMetadataStore.getInstance().setPreferenceFor("scm-plugin-id", new SCMPreference(scmConfigurations, new SCMView() {
+            @Override
+            public String displayValue() {
+                return null;
+            }
+
+            @Override
+            public String template() {
+                return "scm view template";
+            }
+        }));
 
         PluginViewModel model = PluginBuilder.getByExtension("scm").build("scm-plugin-id", about, true);
 
@@ -84,6 +92,27 @@ public class PluginBuilderTest {
         assertThat(configuration2.getKey(), is("key2"));
         assertNull(configuration2.getType());
         assertThat(configuration1.getMetadata(), Is.<Map<String, Object>>is(expectedMetadata));
+    }
+
+    @Test
+    public void shouldBuildPluginViewModelForSCMPluginWithViewTemplate() {
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About("plugin_name", "plugin_version", null, null, null, null);
+
+        SCMMetadataStore.getInstance().setPreferenceFor("scm-plugin-id", new SCMPreference(new SCMConfigurations(), new SCMView() {
+            @Override
+            public String displayValue() {
+                return null;
+            }
+
+            @Override
+            public String template() {
+                return "scm view template";
+            }
+        }));
+
+        PluginViewModel model = PluginBuilder.getByExtension("scm").build("scm-plugin-id", about, true);
+
+        assertThat(model.getViewTemplate(), is("scm view template"));
     }
 
     @Test
@@ -120,6 +149,26 @@ public class PluginBuilderTest {
         assertThat(configuration2.getKey(), is("key2"));
         assertNull(configuration2.getType());
         assertThat(configuration1.getMetadata(), Is.<Map<String, Object>>is(expectedMetadata));
+    }
+
+    @Test
+    public void shouldBuildPluginViewModelForTaskPluginWithViewTemplate() {
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About("plugin_name", "plugin_version", null, null, null, null);
+
+        JsonBasedPluggableTask jsonBasedPluggableTask = mock(JsonBasedPluggableTask.class);
+        TaskView taskView = mock(TaskView.class);
+        TaskConfig taskConfig = new TaskConfig();
+
+        when(jsonBasedPluggableTask.config()).thenReturn(taskConfig);
+        when(jsonBasedPluggableTask.view()).thenReturn(taskView);
+        when(taskView.template()).thenReturn("task view template");
+
+        TaskPreference taskPreference = new TaskPreference(jsonBasedPluggableTask);
+        PluggableTaskConfigStore.store().setPreferenceFor("task_plugin_id", taskPreference);
+
+        PluginViewModel model = PluginBuilder.getByExtension("task").build("task_plugin_id", about, true);
+
+        assertThat(model.getViewTemplate(), is("task view template"));
     }
 
     @Test

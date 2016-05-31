@@ -16,6 +16,7 @@
 
 require 'securerandom'
 require 'rubygems'
+require 'json'
 
 GO_ROOT = File.expand_path('../../', __FILE__)
 SERVER_MODULE_ROOT = File.join(GO_ROOT, 'server')
@@ -23,6 +24,10 @@ SERVER_MODULE_ROOT = File.join(GO_ROOT, 'server')
 # prepare webapp
 VERSION_NUMBER = ENV["VERSION_NUMBER"]
 RELEASE_COMMIT = ENV["RELEASE_COMMIT"]
+
+RELEASE_REVISION = ENV["RELEASE_REVISION"]
+GO_VERSION = ENV["GO_VERSION"]
+GIT_SHA = ENV["GIT_SHA"]
 
 task :prepare_webapp do
   if ENV['SKIP_WAR'] == 'Y'
@@ -107,6 +112,14 @@ task :write_revision_number do
 
   {ADMIN_VERSION_FILE => "%s(%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
     File.open(path, "w") { |h| h.write(template % [VERSION_NUMBER, RELEASE_COMMIT]) }
+  end
+
+  File.open('target/webapp/WEB-INF/server_version.json', 'w') do |f|
+    f.puts(JSON.pretty_generate({
+                                  version: GO_VERSION,
+                                  build_number: RELEASE_REVISION,
+                                  git_sha: GIT_SHA,
+                                }))
   end
 end
 

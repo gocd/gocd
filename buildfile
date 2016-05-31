@@ -74,6 +74,10 @@ define "cruise" do |project|
   ENV["VERSION_NUMBER"] = VERSION_NUMBER
   ENV["RELEASE_COMMIT"] = RELEASE_COMMIT
 
+  ENV["GO_VERSION"] = GO_VERSION
+  ENV["RELEASE_REVISION"] = RELEASE_REVISION.to_s
+  ENV["GIT_SHA"] = GIT_SHA
+
   require './cruise-modules'
 
   desc "generate a version file"

@@ -120,9 +120,16 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
     public PipelineInstanceModels load(String pipelineName, Pagination pagination, String username, boolean populateCanRun) {
         PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset());
+        return processHistory(pipelineName, pagination, username, populateCanRun, history);
+    }
 
+    public PipelineInstanceModels load(String pipelineName, Pagination pagination, String username, boolean populateCanRun, String labelFilter) {
+        PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset(), labelFilter);
+        return processHistory(pipelineName, pagination, username, populateCanRun, history);
+    }
+
+    private PipelineInstanceModels processHistory(String pipelineName, Pagination pagination, String username, boolean populateCanRun, PipelineInstanceModels history) {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-
         for (PipelineInstanceModel pipelineInstanceModel : history) {
             populatePipelineInstanceModel(new Username(new CaseInsensitiveString(username)), populateCanRun, pipelineConfig, pipelineInstanceModel);
         }
@@ -130,7 +137,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return history;
     }
 
-	/*
+    /*
 	 * Load just enough data for Pipeline History API. The API is complete enough to build Pipeline History Page. Does following:
 	 * Exists check, Authorized check, Loads paginated pipeline data, Populates build-cause,
 	 * Populates future stages as empty, Populates can run for pipeline & each stage, Populate stage run permission

@@ -174,7 +174,7 @@ public class PipelineHistoryControllerIntegrationTest {
     }
 
     private Map requestPipelineHistoryPage() throws Exception {
-        ModelAndView modelAndView = controller.list(fixture.pipelineName, 10, 0, response, request);
+        ModelAndView modelAndView = controller.list(fixture.pipelineName, 10, 0, null, response, request);
         return (Map) modelAndView.getModel().get("json");
     }
 

@@ -91,6 +91,7 @@ public class PipelineHistoryController {
     public ModelAndView list(@RequestParam("pipelineName")String pipelineName,
                              @RequestParam(value = "perPage", required = false)Integer perPageParam,
                              @RequestParam(value = "start", required = false)Integer startParam,
+                             @RequestParam(value = "labelFilter", required = false) String filter,
                              HttpServletResponse response, HttpServletRequest request) throws NamingException {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         String username = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
@@ -106,7 +107,11 @@ public class PipelineHistoryController {
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
         boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
-        PipelineInstanceModels pipelineHistory = pipelineHistoryService.load(pipelineName, pagination, username, true);
+
+        PipelineInstanceModels pipelineHistory = (filter == null || filter.trim().isEmpty()) ?
+                pipelineHistoryService.load(pipelineName, pagination, username, true) :
+                pipelineHistoryService.load(pipelineName, pagination, username, true, filter);
+
 
         boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineName);
 

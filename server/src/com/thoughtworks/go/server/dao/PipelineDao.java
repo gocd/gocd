@@ -42,6 +42,8 @@ public interface PipelineDao {
 
     PipelineInstanceModels loadHistory(String pipelineName, int resultsPerPage, int start);
 
+    PipelineInstanceModels loadHistory(String pipelineName, int resultsPerPage, int start, String labelFilter);
+
     int count(String pipelineName);
 
     Pipeline pipelineByBuildIdWithMods(long buildId);

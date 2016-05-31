@@ -118,30 +118,29 @@
         }
 
         var numHistory = paginator.count;
-
-        jQuery.get("/go/pipelineHistory.json?pipelineName=${pipelineName}&start=0&perPage=" + numHistory, function (data) {
+        jQuery.get("/go/pipelineHistory.json?pipelineName=${pipelineName}&start=0&perPage=" + numHistory+"&labelFilter="+inputVal, function (data) {
             filterHistories(data, inputVal);
         });
     }
 
     // Filters histories that match the search text. Rerenders the view with histories that match the text
-    function filterHistories(pipelineHistory, filter) {
+    function filterHistories(pipelineHistory) {
         //Need to stop periodic executor to show only the pipelines matching the filter
         dashboard_periodical_executer.stop();
         var filtered = [];
         var histories = pipelineHistory.groups[0].history;
         for(var i in histories) {
-            var label = histories[i].label;
-            if(label && label.indexOf(filter) != -1)
-                    filtered.push(histories[i]);
+            //Ignore the default history returned when the history list is empty
+            if(histories[i].pipelineId != -1)
+                filtered.push(histories[i]);
         }
 
         pipelineHistory.groups[0].history = filtered;
-        pipelineHistory.perPage = filtered.length;
+        //pipelineHistory.perPage = filtered.length;
 
         $('pipeline-history').innerHTML = pipelineHistoryObserver.getTemplate().process(
                 { data : pipelineHistory});
-        $('page_links').innerHTML = "";
+        //$('page_links').innerHTML = "";
 
         jQuery("#labelSearchField").prop("readonly", true);
         jQuery('#filterLabelsButton').hide();
@@ -159,11 +158,13 @@
             dashboard_periodical_executer.start();
     }
 
+    //Trigger search when enterkey is pressed from the search field
     jQuery('#labelSearchField').keypress(function(e){
         if(e.keyCode==13)
             filterLabels();
     });
 
 </script>
+
 
 #parse("shared/_footer.vm")

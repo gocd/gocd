@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 require 'securerandom'
 require 'rubygems'
@@ -110,7 +110,7 @@ end
 task :write_revision_number do
   mkdir_p "target/webapp/WEB-INF/classes/ui/navigation"
 
-  {ADMIN_VERSION_FILE => "%s(%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
+  {ADMIN_VERSION_FILE => "%s (%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
     File.open(path, "w") { |h| h.write(template % [VERSION_NUMBER, RELEASE_COMMIT]) }
   end
 

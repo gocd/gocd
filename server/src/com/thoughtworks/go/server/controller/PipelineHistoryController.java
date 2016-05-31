@@ -22,8 +22,10 @@ import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.UserHelper;
@@ -91,7 +93,7 @@ public class PipelineHistoryController {
     public ModelAndView list(@RequestParam("pipelineName")String pipelineName,
                              @RequestParam(value = "perPage", required = false)Integer perPageParam,
                              @RequestParam(value = "start", required = false)Integer startParam,
-                             @RequestParam(value = "labelFilter", required = false) String filter,
+                             @RequestParam(value = "labelFilter", required = false) String labelFilter,
                              HttpServletResponse response, HttpServletRequest request) throws NamingException {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         String username = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
@@ -108,9 +110,9 @@ public class PipelineHistoryController {
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
         boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
 
-        PipelineInstanceModels pipelineHistory = (filter == null || filter.trim().isEmpty()) ?
+        PipelineInstanceModels pipelineHistory = (labelFilter == null || labelFilter.trim().isEmpty()) ?
                 pipelineHistoryService.load(pipelineName, pagination, username, true) :
-                pipelineHistoryService.load(pipelineName, pagination, username, true, filter);
+                pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, UserHelper.getUserName(), new HttpLocalizedOperationResult());
 
 
         boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineName);

@@ -287,7 +287,6 @@
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 
-
     <select id="getPipelineHistoryForIds" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />
         WHERE pipelines.id IN ($pipelineIds$)

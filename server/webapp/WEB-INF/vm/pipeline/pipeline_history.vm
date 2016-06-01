@@ -41,7 +41,7 @@
 </style>
 <![endif]-->
 <textarea rows="0" cols="0" id='pipeline-history-list-template' style="display: none;">
-    #parse('pipeline/_pipeline_history_list_jstemplate.vm')
+#parse('pipeline/_pipeline_history_list_jstemplate.vm')
 </textarea>
 <div id="yui-main">
 
@@ -58,17 +58,12 @@
         <!-- /breadcrumbs -->
 
         #parse("shared/_page_intro_top.vm")
-
-
         <p>This view shows you all build activity that has occured in your pipeline over time.
             Click on a stage in the configuration panel to view activity only within that stage.
             You can also manually approve stages from this screen to force the next stage to run.
-            <a class="more" target="_blank" title="Learn more from help documentation"
-               href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
+            <a class="more" target="_blank" title="Learn more from help documentation" href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
         </p>
         #parse("shared/_page_intro_bottom.vm")
-
-
         <!-- pipeline start -->
 
         <div id="pipeline-history">
@@ -100,9 +95,9 @@
 
     dashboard_periodical_executer.start();
 
-        #if($pipeline_comment_feature_toggle_key)
-        var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
-        #end
+    #if($pipeline_comment_feature_toggle_key)
+    var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
+    #end
 </script>
 
 <!-- Code for searching through labels -->
@@ -165,6 +160,5 @@
     });
 
 </script>
-
 
 #parse("shared/_footer.vm")

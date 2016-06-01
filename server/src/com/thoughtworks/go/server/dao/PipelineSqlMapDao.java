@@ -666,7 +666,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
-
     public int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit) {
         Integer maxCounter = getCounterForPipeline(pipelineName);
         Pagination pagination = Pagination.pageStartingAt((maxCounter - pipelineCounter), maxCounter, limit);

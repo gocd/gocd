@@ -51,7 +51,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private final PluginRegistry registry;
     private Framework framework;
     private SystemEnvironment systemEnvironment;
-    private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<PluginChangeListener>();
+    private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
 
     @Autowired
     public FelixGoPluginOSGiFramework(PluginRegistry registry, SystemEnvironment systemEnvironment) {
@@ -177,7 +177,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         String orgXmlSaxPackages = "org.xml.sax, org.xml.sax.*";
         String orgW3cDomPackages = "org.w3c.dom, org.w3c.dom.*";
 
-        HashMap<String, String> config = new HashMap<String, String>();
+        HashMap<String, String> config = new HashMap<>();
         config.put(Constants.FRAMEWORK_BUNDLE_PARENT, Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
         config.put(Constants.FRAMEWORK_BOOTDELEGATION, osgiFrameworkPackage + ", " + goPluginApiPackage + ", " + subPackagesOfGoPluginApiPackage
                 + ", " + internalServicesPackage + ", " + javaxPackages + ", " + orgXmlSaxPackages + ", " + orgW3cDomPackages);

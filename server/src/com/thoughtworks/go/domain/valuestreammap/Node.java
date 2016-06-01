@@ -28,8 +28,8 @@ import java.util.Set;
 public abstract class Node implements Comparable<Node>{
     protected final String id;
     protected final String nodeName;
-    private final List<Node> parents = new ArrayList<Node>();
-    private final List<Node> children = new ArrayList<Node>();
+    private final List<Node> parents = new ArrayList<>();
+    private final List<Node> children = new ArrayList<>();
     protected int level = 0;
     protected Integer depth = 0;
     protected DependencyNodeType type;

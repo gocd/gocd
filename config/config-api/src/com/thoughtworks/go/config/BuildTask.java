@@ -131,7 +131,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
     }
 
     public List<TaskProperty> getPropertiesForDisplay() {
-        ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
+        ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         if (!StringUtil.isBlank(buildFile)) {
             taskProperties.add(new TaskProperty(BUILD_FILE, buildFile));
         }

@@ -76,7 +76,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     private void validateNameUniqueness() {
-        HashMap<String, SCMs> map = new HashMap<String, SCMs>();
+        HashMap<String, SCMs> map = new HashMap<>();
 
         for (SCM scm : this) {
             String name = scm.getName().toLowerCase();
@@ -97,7 +97,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     private void validateFingerprintUniqueness() {
-        HashMap<String, SCMs> map = new HashMap<String, SCMs>();
+        HashMap<String, SCMs> map = new HashMap<>();
 
         for (SCM scm : this) {
             String fingerprint = scm.getFingerprint();
@@ -110,7 +110,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
         for (String fingerprint : map.keySet()) {
             SCMs scmsWithSameFingerprint = map.get(fingerprint);
             if (scmsWithSameFingerprint.size() > 1) {
-                List<String> scmNames = new ArrayList<String>();
+                List<String> scmNames = new ArrayList<>();
                 for (SCM scm : scmsWithSameFingerprint) {
                     scmNames.add(scm.getName());
                 }

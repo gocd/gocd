@@ -28,7 +28,7 @@ public class IBatisUtil {
     }
 
     public static class IBatisArgument {
-        private Map<String, Object> map = new HashMap<String, Object>();
+        private Map<String, Object> map = new HashMap<>();
 
         private IBatisArgument(String key, Object value) {
             map.put(key, value);

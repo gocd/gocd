@@ -25,7 +25,7 @@ public class UrlMatchers {
     private final ArrayList<UrlMatcher> validators;
 
     public UrlMatchers() {
-        validators = new ArrayList<UrlMatcher>();
+        validators = new ArrayList<>();
         validators.add(new UrlExactMatcher());
         validators.add(new UrlWithFullAuthMatcher());
         validators.add(new UrlWithUserNameAndEmptyPasswordAuthMatcher());

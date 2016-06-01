@@ -44,7 +44,7 @@ public class CachedFileGoConfig implements CachedGoConfig {
 
     private final GoFileConfigDataSource dataSource;
     private final ServerHealthService serverHealthService;
-    private List<ConfigChangedListener> listeners = new ArrayList<ConfigChangedListener>();
+    private List<ConfigChangedListener> listeners = new ArrayList<>();
 
     private volatile CruiseConfig currentConfig;
     private volatile CruiseConfig currentConfigForEdit;

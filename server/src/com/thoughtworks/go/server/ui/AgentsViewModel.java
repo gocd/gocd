@@ -93,7 +93,7 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
 
     private Map<String, String> filters(String filterCriteria) {
         String[] filters = filterCriteria.split(",");
-        Map<String, String> filterMap = new HashMap<String, String>();
+        Map<String, String> filterMap = new HashMap<>();
         for (String filter : filters) {
             String[] keyValue = filter.split(":");
             if (keyValue.length == 2 && agentFiltersHas(keyValue[0].trim())) {

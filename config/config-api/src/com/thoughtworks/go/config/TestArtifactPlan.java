@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 public class TestArtifactPlan extends ArtifactPlan {
     private static final Logger LOG = Logger.getLogger(TestArtifactPlan.class);
     public static final String TEST_OUTPUT_FOLDER = "testoutput";
-    private final ArrayList<ArtifactPlan> plans = new ArrayList<ArtifactPlan>();
+    private final ArrayList<ArtifactPlan> plans = new ArrayList<>();
     static final String MERGED_RESULT_FOLDER = "result";
     public static final String TEST_PLAN_DISPLAY_NAME = "Test Artifact";
 
@@ -67,7 +67,7 @@ public class TestArtifactPlan extends ArtifactPlan {
     }
 
     private ArrayList<File> uploadTestResults(GoPublisher publisher, File rootPath) {
-        ArrayList<File> allFiles = new ArrayList<File>();
+        ArrayList<File> allFiles = new ArrayList<>();
         for (ArtifactPlan plan : plans) {
             final File source = plan.getSource(rootPath);
             WildcardScanner wildcardScanner = new WildcardScanner(rootPath, plan.getSrc());

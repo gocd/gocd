@@ -45,7 +45,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
     }
 
     public void validate(ValidationContext validationContext) {
-        Map<String, EnvironmentVariableConfig> map = new HashMap<String, EnvironmentVariableConfig>();
+        Map<String, EnvironmentVariableConfig> map = new HashMap<>();
         for (EnvironmentVariableConfig config : this) {
             config.validateName(map, validationContext);
         }

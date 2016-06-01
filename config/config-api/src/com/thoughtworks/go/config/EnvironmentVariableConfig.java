@@ -185,7 +185,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
      * We should remove this method when we move to Hibernate.
      */
     public Map<String, Object> getSqlCriteria() {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("variableName", name);
         map.put("variableValue", getValue());
         map.put("isSecure", isSecure);

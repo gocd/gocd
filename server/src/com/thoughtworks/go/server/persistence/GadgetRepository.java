@@ -71,7 +71,7 @@ public class GadgetRepository extends HibernateDaoSupport implements GadgetDataS
 
     public GadgetOauthAccessTokenDTO findOauthAccessTokensForClientAndUserId(long gadgetsOauthClientId, String userId) {
         Collection<GadgetOauthAccessTokenDTO> tokenDTOs = persistenceHelper.listByColumn(GadgetOauthAccessToken.class, "gadgetsOauthClientId", gadgetsOauthClientId, "userId", userId);
-        return tokenDTOs.isEmpty() ? null : new ArrayList<GadgetOauthAccessTokenDTO>(tokenDTOs).get(0);
+        return tokenDTOs.isEmpty() ? null : new ArrayList<>(tokenDTOs).get(0);
     }
 
     public Collection<GadgetOauthAccessTokenDTO> findAllOauthAccessTokenByGadgetsOauthClientId(long gadgetOauthClientId) {
@@ -84,7 +84,7 @@ public class GadgetRepository extends HibernateDaoSupport implements GadgetDataS
 
     public GadgetOauthAuthorizationCodeDTO findAuthorizationCodesForClientAndUserId(long gadgetOauthClientId, String userId) {
         Collection<GadgetOauthAuthorizationCodeDTO> codeDTOs = persistenceHelper.listByColumn(GadgetOauthAuthorizationCode.class, "gadgetsOauthClientId", gadgetOauthClientId, "userId", userId);
-        return codeDTOs.isEmpty() ? null : new ArrayList<GadgetOauthAuthorizationCodeDTO>(codeDTOs).get(0);
+        return codeDTOs.isEmpty() ? null : new ArrayList<>(codeDTOs).get(0);
     }
 
     public GadgetOauthClientDTO findGadgetsOauthClientByServiceName(String serviceName) {

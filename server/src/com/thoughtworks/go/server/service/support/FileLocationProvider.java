@@ -51,7 +51,7 @@ public class FileLocationProvider implements ServerInfoProvider {
     }
 
     private void populateLogFileInfo(InformationStringBuilder infoCollector) {
-        List<Logger> loggers = new ArrayList<Logger>();
+        List<Logger> loggers = new ArrayList<>();
         Logger rootLogger = Logger.getRootLogger();
         loggers.add(rootLogger);
         Enumeration currentLoggers = rootLogger.getLoggerRepository().getCurrentLoggers();

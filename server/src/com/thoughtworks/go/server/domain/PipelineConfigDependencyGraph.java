@@ -82,8 +82,8 @@ public class PipelineConfigDependencyGraph {
     }
 
     public Queue<PipelineConfigQueueEntry> buildQueue() {
-        Queue<PipelineConfigQueueEntry> configQueue = new LinkedList<PipelineConfigQueueEntry>();
-        Queue<PipelineConfigDependencyEntry> tmp = new LinkedList<PipelineConfigDependencyEntry>();
+        Queue<PipelineConfigQueueEntry> configQueue = new LinkedList<>();
+        Queue<PipelineConfigDependencyEntry> tmp = new LinkedList<>();
         tmp.add(new PipelineConfigDependencyEntry(this, new ArrayList<PipelineConfig>()));
         while (true) {
             PipelineConfigDependencyEntry currentHead = tmp.poll();
@@ -93,9 +93,9 @@ public class PipelineConfigDependencyGraph {
             PipelineConfigDependencyGraph current = currentHead.getNode();
             List<PipelineConfig> currentPath = currentHead.getPath();
             currentPath.add(current.getCurrent());
-            configQueue.add(new PipelineConfigQueueEntry(current.getCurrent(), new ArrayList<PipelineConfig>(currentPath)));
+            configQueue.add(new PipelineConfigQueueEntry(current.getCurrent(), new ArrayList<>(currentPath)));
             for (PipelineConfigDependencyGraph upstream : current.getUpstreamDependencies()) {
-                List<PipelineConfig> parentsPath = new ArrayList<PipelineConfig>(currentPath);
+                List<PipelineConfig> parentsPath = new ArrayList<>(currentPath);
                 tmp.add(new PipelineConfigDependencyEntry(upstream, parentsPath));
             }
         }
@@ -109,7 +109,7 @@ public class PipelineConfigDependencyGraph {
 
     public MaterialConfigs unsharedMaterialConfigs() {
         MaterialConfigs firstOrderMaterials = new MaterialConfigs();
-        List<PipelineConfigQueueEntry> queue = new ArrayList<PipelineConfigQueueEntry>(buildQueue());
+        List<PipelineConfigQueueEntry> queue = new ArrayList<>(buildQueue());
         for (MaterialConfig materialConfig : current.materialConfigs()) {
             if (!existsOnAnyOfPipelinesIn(queue, materialConfig)) {
                 firstOrderMaterials.add(materialConfig);
@@ -119,8 +119,8 @@ public class PipelineConfigDependencyGraph {
     }
 
     public Set<String> allMaterialFingerprints() {
-        Set<String> materialFingerPrints = new HashSet<String>();
-        List<PipelineConfigQueueEntry> queue = new ArrayList<PipelineConfigQueueEntry>(buildQueue());
+        Set<String> materialFingerPrints = new HashSet<>();
+        List<PipelineConfigQueueEntry> queue = new ArrayList<>(buildQueue());
         for (PipelineConfigQueueEntry pipelineConfigQueueEntry : queue) {
             addMaterialsForConfig(materialFingerPrints, Arrays.asList(pipelineConfigQueueEntry.node));
             addMaterialsForConfig(materialFingerPrints, pipelineConfigQueueEntry.path);
@@ -147,7 +147,7 @@ public class PipelineConfigDependencyGraph {
 
     public boolean isRevisionsOfSharedMaterialsIgnored(MaterialRevisions revisions) {
         MaterialConfigs unsharedScmMaterialConfigs = unsharedMaterialConfigs();
-        List<PipelineConfigQueueEntry> queue = new ArrayList<PipelineConfigQueueEntry>(buildQueue());
+        List<PipelineConfigQueueEntry> queue = new ArrayList<>(buildQueue());
         for (MaterialRevision revision : revisions) {
             Material material = revision.getMaterial();
             MaterialConfig materialConfig = material.config();
@@ -244,7 +244,7 @@ public class PipelineConfigDependencyGraph {
         }
 
         public List<PipelineConfig> pathWithoutHead() {
-            List<PipelineConfig> copy = new ArrayList<PipelineConfig>(path);
+            List<PipelineConfig> copy = new ArrayList<>(path);
             if (!copy.isEmpty()) {
                 copy.remove(0);
             }

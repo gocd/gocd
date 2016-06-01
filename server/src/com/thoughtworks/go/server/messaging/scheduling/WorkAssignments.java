@@ -39,7 +39,7 @@ public class WorkAssignments implements GoMessageListener<WorkAssignedMessage> {
                            WorkAssignedTopic assignedWorkTopic) {
         this.idleAgentsTopic = idleAgentsTopic;
         assignedWorkTopic.addListener(this);
-        this.assignments = new ConcurrentHashMap<AgentIdentifier, Work>();
+        this.assignments = new ConcurrentHashMap<>();
     }
 
     public Work getWork(AgentRuntimeInfo runtimeInfo) {

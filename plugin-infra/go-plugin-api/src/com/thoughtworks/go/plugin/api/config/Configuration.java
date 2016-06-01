@@ -25,7 +25,7 @@ import java.util.List;
 @Deprecated
 //Will be moved to internal scope
 public class Configuration implements PluginPreference {
-    private List<Property> properties = new ArrayList<Property>();
+    private List<Property> properties = new ArrayList<>();
 
     /**
      * Adds given property as configuration

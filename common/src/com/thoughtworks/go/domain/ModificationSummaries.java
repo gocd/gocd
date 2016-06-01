@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import org.apache.commons.lang.StringUtils;
 
 public class ModificationSummaries extends ModificationVisitorAdapter {
-    private final List<ModificationSummary> mods = new ArrayList<ModificationSummary>();
+    private final List<ModificationSummary> mods = new ArrayList<>();
 
     public ModificationSummaries() {
 

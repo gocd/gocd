@@ -32,7 +32,7 @@ public class XsdErrorTranslator extends DefaultHandler {
     private boolean validationError = false;
     private SAXParseException saxParseException = null;
 
-    static List<MappingEntry> errorMapping = new ArrayList<MappingEntry>();
+    static List<MappingEntry> errorMapping = new ArrayList<>();
 
     private static final int NONE = 0;
     private static final int CAPITALIZE = 1;

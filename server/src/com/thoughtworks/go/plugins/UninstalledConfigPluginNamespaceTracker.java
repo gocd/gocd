@@ -34,7 +34,7 @@ public class UninstalledConfigPluginNamespaceTracker implements BundleListener {
 
     public UninstalledConfigPluginNamespaceTracker() {
         synchronized (this){
-            namespacesOfUninstalledPlugins = new ArrayList<Namespace>();
+            namespacesOfUninstalledPlugins = new ArrayList<>();
         }
     }
 

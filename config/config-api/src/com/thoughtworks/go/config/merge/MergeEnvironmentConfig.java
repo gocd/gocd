@@ -188,7 +188,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
         if (variablesAttributes != null) {
             // these are all k=v that user wants to have set
             List<Map> variableAttributes = (List) variablesAttributes;
-            List<EnvironmentVariableConfig> newProposed = new ArrayList<EnvironmentVariableConfig>();
+            List<EnvironmentVariableConfig> newProposed = new ArrayList<>();
             for (Map attributeMap : variableAttributes) {
                 EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(new GoCipher());
                 try {
@@ -200,9 +200,9 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
             }
             // but we cannot remove or change assignment of any variable from non-editable sources
 
-            List<EnvironmentVariableConfig> removals = new ArrayList<EnvironmentVariableConfig>();
-            List<EnvironmentVariableConfig> changes = new ArrayList<EnvironmentVariableConfig>();
-            List<EnvironmentVariableConfig> nochanges = new ArrayList<EnvironmentVariableConfig>();
+            List<EnvironmentVariableConfig> removals = new ArrayList<>();
+            List<EnvironmentVariableConfig> changes = new ArrayList<>();
+            List<EnvironmentVariableConfig> nochanges = new ArrayList<>();
             for(EnvironmentConfig part : this) {
                 for (EnvironmentVariableConfig existingVariable : part.getVariables()) {
                     // lets check if user is trying to remove or change something unmodifiable
@@ -274,14 +274,14 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
         if (agentsAttributes != null) {
             // these are all agents that user wants to have set
             List<Map> agentAttributes = (List) agentsAttributes;
-            List<EnvironmentAgentConfig> newProposed = new ArrayList<EnvironmentAgentConfig>();
+            List<EnvironmentAgentConfig> newProposed = new ArrayList<>();
             for (Map attributeMap : agentAttributes) {
                 EnvironmentAgentConfig agentInEnv = new EnvironmentAgentConfig((String) attributeMap.get("uuid"));
                 newProposed.add(agentInEnv);
             }
             // but we cannot remove any agent from non-editable sources
 
-            List<EnvironmentAgentConfig> removals = new ArrayList<EnvironmentAgentConfig>();
+            List<EnvironmentAgentConfig> removals = new ArrayList<>();
             for(EnvironmentConfig part : this) {
                 for (EnvironmentAgentConfig existingAgent : part.getAgents()) {
                     // lets check if user is trying to remove something unmodifiable
@@ -317,14 +317,14 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
         if (pipelinesAttributes != null) {
             // these are all pipelines that user wants to have set
             List<Map> pipelineAttributes = (List) pipelinesAttributes;
-            List<EnvironmentPipelineConfig> newProposed = new ArrayList<EnvironmentPipelineConfig>();
+            List<EnvironmentPipelineConfig> newProposed = new ArrayList<>();
             for (Map attributeMap : pipelineAttributes) {
                 EnvironmentPipelineConfig pipeInEnv = new EnvironmentPipelineConfig(new CaseInsensitiveString((String) attributeMap.get("name")));
                 newProposed.add(pipeInEnv);
             }
             // but we cannot remove any pipelines from non-editable sources
 
-            List<EnvironmentPipelineConfig> removals = new ArrayList<EnvironmentPipelineConfig>();
+            List<EnvironmentPipelineConfig> removals = new ArrayList<>();
             for(EnvironmentConfig part : this) {
                 for (EnvironmentPipelineConfig existingPipeline : part.getPipelines()) {
                     // lets check if user is trying to remove something unmodifiable
@@ -457,7 +457,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public List<CaseInsensitiveString> getPipelineNames() {
-        List<CaseInsensitiveString> allNames = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> allNames = new ArrayList<>();
         for(EnvironmentConfig part : this)
         {
             for (CaseInsensitiveString pipe : part.getPipelineNames())

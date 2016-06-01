@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StageStatusCache implements StageStatusListener {
-    private Map<StageConfigIdentifier, Stage> stages = new Hashtable<StageConfigIdentifier, Stage>();
+    private Map<StageConfigIdentifier, Stage> stages = new Hashtable<>();
     private final StageDao stageDao;
 
     private static final Stage NEVER_BUILT = new NullStage("NEVER_BUILT");

@@ -85,9 +85,9 @@ public class MaterialRepository extends HibernateDaoSupport {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 final List<Long> fromInclusiveModificationList = fromInclusiveModificationsForPipelineRange(session, pipelineName, fromCounter, toCounter);
 
-                final Set<Long> fromModifications = new TreeSet<Long>(fromInclusiveModificationsForPipelineRange(session, pipelineName, fromCounter, fromCounter));
+                final Set<Long> fromModifications = new TreeSet<>(fromInclusiveModificationsForPipelineRange(session, pipelineName, fromCounter, fromCounter));
 
-                final Set<Long> fromExclusiveModificationList = new HashSet<Long>();
+                final Set<Long> fromExclusiveModificationList = new HashSet<>();
 
                 for (Long modification : fromInclusiveModificationList) {
                     if (fromModifications.contains(modification)) {
@@ -110,7 +110,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         SQLQuery pipelineIdsQuery = session.createSQLQuery(pipelineIdsSql);
         final List ids = pipelineIdsQuery.list();
         if (ids.isEmpty()) {
-            return new ArrayList<Long>();
+            return new ArrayList<>();
         }
 
         String minMaxQuery = " SELECT mods1.materialId as materialId, min(mods1.id) as min, max(mods1.id) as max"
@@ -160,7 +160,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                         setParameterList("ids", CollectionUtil.map(relevantToLookedUpMap.keySet(), PipelineId.MAP_ID)).
                         list();
 
-                Map<Long, List<ModificationForPipeline>> modificationsForPipeline = new HashMap<Long, List<ModificationForPipeline>>();
+                Map<Long, List<ModificationForPipeline>> modificationsForPipeline = new HashMap<>();
                 CollectionUtil.CollectionValueMap<Long, ModificationForPipeline> modsForPipeline = CollectionUtil.collectionValMap(modificationsForPipeline,
                         new CollectionUtil.ArrayList<ModificationForPipeline>());
                 for (Object[] modAndPmr : allModifications) {
@@ -192,7 +192,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         pipelineIdsQuery.addScalar("lookedUpId", new LongType());
         final List<Object[]> ids = pipelineIdsQuery.list();
 
-        Map<Long, List<PipelineId>> lookedUpToParentMap = new HashMap<Long, List<PipelineId>>();
+        Map<Long, List<PipelineId>> lookedUpToParentMap = new HashMap<>();
         CollectionUtil.CollectionValueMap<Long, PipelineId> lookedUpToRelevantMap = CollectionUtil.collectionValMap(lookedUpToParentMap, new CollectionUtil.ArrayList<PipelineId>());
         for (Object[] relevantAndLookedUpId : ids) {
             lookedUpToRelevantMap.put((Long) relevantAndLookedUpId[LOOKED_UP_PIPELINE_ID],
@@ -213,7 +213,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public void cacheMaterialRevisionsForPipelines(Set<Long> pipelineIds) {
-        List<Long> ids = new ArrayList<Long>(pipelineIds);
+        List<Long> ids = new ArrayList<>(pipelineIds);
 
         final int batchSize = 500;
         loadPMRsIntoCache(ids, batchSize);
@@ -231,7 +231,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private <T> List<T> batchIds(List<T> items, int batchSize) {
-        List<T> ids = new ArrayList<T>();
+        List<T> ids = new ArrayList<>();
         for (int i = 0; i < batchSize; ++i) {
             if (items.isEmpty()) {
                 break;
@@ -261,12 +261,12 @@ public class MaterialRepository extends HibernateDaoSupport {
     private void loadPMRByPipelineIds(List<Long> pipelineIds) {
         List<PipelineMaterialRevision> pmrs = getHibernateTemplate().findByCriteria(buildPMRDetachedQuery(pipelineIds));
         sortPersistentObjectsById(pmrs, true);
-        final Set<PipelineMaterialRevision> uniquePmrs = new HashSet<PipelineMaterialRevision>();
+        final Set<PipelineMaterialRevision> uniquePmrs = new HashSet<>();
         for (PipelineMaterialRevision pmr : pmrs) {
             String cacheKey = pipelinePmrsKey(pmr.getPipelineId());
             List<PipelineMaterialRevision> pmrsForId = (List<PipelineMaterialRevision>) goCache.get(cacheKey);
             if (pmrsForId == null) {
-                pmrsForId = new ArrayList<PipelineMaterialRevision>();
+                pmrsForId = new ArrayList<>();
                 goCache.put(cacheKey, pmrsForId);
             }
             pmrsForId.add(pmr);
@@ -306,7 +306,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void loadModificationsIntoCache(Set<PipelineMaterialRevision> pmrs) {
-        List<PipelineMaterialRevision> pmrList = new ArrayList<PipelineMaterialRevision>(pmrs);
+        List<PipelineMaterialRevision> pmrList = new ArrayList<>(pmrs);
         int batchSize = 100, total = pmrList.size(), remaining = total;
         while (!pmrList.isEmpty()) {
             LOGGER.info(String.format("Loading modifications, Remaining %s PMRs(Total: %s)...", remaining, total));
@@ -317,7 +317,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void loadModificationsForPMR(List<PipelineMaterialRevision> pmrs) {
-        List<Criterion> criterions = new ArrayList<Criterion>();
+        List<Criterion> criterions = new ArrayList<>();
         for (PipelineMaterialRevision pmr : pmrs) {
             if (goCache.get(pmrModificationsKey(pmr)) != null) {
                 continue;
@@ -333,7 +333,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             for (String cacheKey : cacheKeys) {
                 List<Modification> modificationList = (List<Modification>) goCache.get(cacheKey);
                 if (modificationList == null) {
-                    modificationList = new ArrayList<Modification>();
+                    modificationList = new ArrayList<>();
                     goCache.put(cacheKey, modificationList);
                 }
                 modificationList.add(modification);
@@ -380,7 +380,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private String pmrModificationsKey(PipelineMaterialRevision pmr) {
-        // we intern() it because we might synchronize on the returned String 
+        // we intern() it because we might synchronize on the returned String
         return (MaterialRepository.class.getName() + "_pmrModifications_" + pmr.getId()).intern();
     }
 
@@ -397,7 +397,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                 return from <= id && id <= to && materialInstance.equals(pmi);
             }
         });
-        List<String> keys = new ArrayList<String>(matchedPmrs.size());
+        List<String> keys = new ArrayList<>(matchedPmrs.size());
         for (PipelineMaterialRevision matchedPmr : matchedPmrs) {
             keys.add(pmrModificationsKey(matchedPmr));
         }
@@ -474,7 +474,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     final String materialKey(Material material) {
-        // we intern() it because we synchronize on the returned String 
+        // we intern() it because we synchronize on the returned String
         return materialKey(material.getFingerprint());
     }
 
@@ -682,7 +682,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         if (scmRevision == null) {
             return modificationsSince;
         }
-        ArrayList<Modification> modificationsUptil = new ArrayList<Modification>();
+        ArrayList<Modification> modificationsUptil = new ArrayList<>();
         for (Modification modification : modificationsSince) {
             if (modification.getId() <= scmRevision.id) {
                 modificationsUptil.add(modification);
@@ -961,7 +961,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                 Material material = materialConfigConverter.toMaterial(materialConfig);
                 query.setString("finger_print", material.getFingerprint());
                 query.setString("search_string", "%" + searchString + "%");
-                final List<MatchedRevision> list = new ArrayList<MatchedRevision>();
+                final List<MatchedRevision> list = new ArrayList<>();
                 for (Modification mod : (List<Modification>) query.list()) {
                     list.add(material.createMatchedRevision(mod, searchString));
                 }

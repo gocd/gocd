@@ -45,7 +45,7 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
     public static final String REQUEST_LATEST_REVISION_SINCE = "latest-revision-since";
     public static final String REQUEST_CHECK_REPOSITORY_CONNECTION = "check-repository-connection";
     public static final String REQUEST_CHECK_PACKAGE_CONNECTION = "check-package-connection";
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     public JsonBasedPackageRepositoryExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);

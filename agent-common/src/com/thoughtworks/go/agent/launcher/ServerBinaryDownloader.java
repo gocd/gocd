@@ -97,7 +97,7 @@ public class ServerBinaryDownloader implements Downloader {
 
     public DownloadResult downloadIfNecessary() {
         synchronized (downloadableFile.mutex()) {
-            Map<String, String> headers = new HashMap<String, String>();
+            Map<String, String> headers = new HashMap<>();
             boolean updated = false;
             boolean downloaded = false;
             while (!updated) {

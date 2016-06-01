@@ -106,12 +106,12 @@ public class CommandLine {
     private static final Logger LOG = Logger.getLogger(CommandLine.class);
 
     private final String executable;
-    private final List<CommandArgument> arguments = new ArrayList<CommandArgument>();
-    private List<SecretString> secrets = new ArrayList<SecretString>();
+    private final List<CommandArgument> arguments = new ArrayList<>();
+    private List<SecretString> secrets = new ArrayList<>();
 
     private File workingDir = null;
-    private Map<String, String> env = new HashMap<String, String>();
-    private List<String> inputs = new ArrayList<String>();
+    private Map<String, String> env = new HashMap<>();
+    private List<String> inputs = new ArrayList<>();
     private String encoding;
     public static final long NO_TIMEOUT = -1;
     private final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
@@ -153,7 +153,7 @@ public class CommandLine {
      * Returns the executable and all defined arguments.
      */
     String[] getCommandLine() {
-        List<String> args = new ArrayList<String>();
+        List<String> args = new ArrayList<>();
         if (executable != null) {
             args.add(executable);
         }
@@ -165,7 +165,7 @@ public class CommandLine {
     }
 
     private String[] getCommandLineForDisplay() {
-        List<String> args = new ArrayList<String>();
+        List<String> args = new ArrayList<>();
         if (executable != null) {
             args.add(executable);
         }

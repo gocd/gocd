@@ -42,7 +42,7 @@ class JsonBasedTaskExtension extends AbstractExtension implements TaskExtensionC
     public final static String EXECUTION_REQUEST = "execute";
     public final static String TASK_VIEW_REQUEST = "view";
 
-    private final HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<String, JsonBasedTaskExtensionHandler>();
+    private final HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
 
     JsonBasedTaskExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, supportedVersions, TASK_EXTENSION), TASK_EXTENSION);

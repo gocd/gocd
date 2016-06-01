@@ -58,7 +58,7 @@ public class FetchArtifactViewHelper {
 
     private static final class FetchSuggestionHirarchy extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> {
         private void addStagesToHirarchy(CaseInsensitiveString pipelineName, List<StageConfig> currentPipelineStages) {
-            Map<CaseInsensitiveString, List<CaseInsensitiveString>> stageMap = new HashMap<CaseInsensitiveString, List<CaseInsensitiveString>>();
+            Map<CaseInsensitiveString, List<CaseInsensitiveString>> stageMap = new HashMap<>();
             for (StageConfig stg : currentPipelineStages) {
                 stageMap.put(stg.name(), stg.getJobs().names());
             }
@@ -70,7 +70,7 @@ public class FetchArtifactViewHelper {
                 JobHirarchyQueueEntry entry = bfsQueue.remove();
                 CaseInsensitiveString pipelineName = entry.pipelineName;
                 PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(pipelineName);
-                List<StageConfig> fetchableStages = new ArrayList<StageConfig>();
+                List<StageConfig> fetchableStages = new ArrayList<>();
                 for (StageConfig stageConfig : pipelineConfig) {
                     fetchableStages.add(stageConfig);
                     if (entry.stageName.equals(stageConfig.name())) {
@@ -108,9 +108,9 @@ public class FetchArtifactViewHelper {
 
     private FetchSuggestionHirarchy fetchArtifactSuggestionsForPipeline(PipelineConfig pipelineConfig) {
         FetchSuggestionHirarchy hirarchy = new FetchSuggestionHirarchy();
-        Queue<JobHirarchyQueueEntry> bfsQueue = new ArrayDeque<JobHirarchyQueueEntry>();
+        Queue<JobHirarchyQueueEntry> bfsQueue = new ArrayDeque<>();
         addLocalUpstreamStages(hirarchy, pipelineConfig);
-        HashSet<DependencyMaterialConfig> handled = new HashSet<DependencyMaterialConfig>();
+        HashSet<DependencyMaterialConfig> handled = new HashSet<>();
         addMaterialsToQueue(bfsQueue, pipelineConfig, "");
         hirarchy.populateFetchableJobHirarchyFor(bfsQueue, cruiseConfig);
         return hirarchy;

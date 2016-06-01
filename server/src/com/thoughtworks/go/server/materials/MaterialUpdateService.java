@@ -69,8 +69,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     private final SystemEnvironment systemEnvironment;
     private ServerHealthService serverHealthService;
 
-    private ConcurrentMap<Material, Date> inProgress = new ConcurrentHashMap<Material, Date>();
-    private ConcurrentMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<Material, Long>();
+    private ConcurrentMap<Material, Date> inProgress = new ConcurrentHashMap<>();
+    private ConcurrentMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<>();
 
     private final PostCommitHookMaterialTypeResolver postCommitHookMaterialType;
     private final MDUPerformanceLogger mduPerformanceLogger;
@@ -229,7 +229,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     }
 
     private Set<HealthStateScope> toHealthStateScopes(Set<MaterialConfig> materialConfigs) {
-        Set<HealthStateScope> scopes = new HashSet<HealthStateScope>();
+        Set<HealthStateScope> scopes = new HashSet<>();
         for (MaterialConfig materialConfig : materialConfigs) {
             scopes.add(HealthStateScope.forMaterialConfig(materialConfig));
         }

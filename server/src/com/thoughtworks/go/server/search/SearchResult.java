@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 
 public class SearchResult {
-    public ArrayList<PipelineIdentifier> found = new ArrayList<PipelineIdentifier>();
+    public ArrayList<PipelineIdentifier> found = new ArrayList<>();
 
     public int size() {
         return found.size();

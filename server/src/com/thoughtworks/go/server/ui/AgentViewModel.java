@@ -40,7 +40,7 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
 
     public AgentViewModel(AgentInstance agentInstance, Collection<String> environments) {
         this.agentInstance = agentInstance;
-        this.environments = new TreeSet<String>(environments);
+        this.environments = new TreeSet<>(environments);
     }
 
     public AgentViewModel(AgentInstance agentInstance, String...  environments) {

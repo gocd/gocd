@@ -29,28 +29,28 @@ public class Property {
     /**
      * Option to specify if a property is a mandatory when configuration is captured
      */
-    public static final Option<Boolean> REQUIRED = new Option<Boolean>("REQUIRED", Boolean.TRUE);
+    public static final Option<Boolean> REQUIRED = new Option<>("REQUIRED", Boolean.TRUE);
 
     /**
      * Option to specify if a property is part of group of properties used to uniquely identify material
      */
-    public static final Option<Boolean> PART_OF_IDENTITY = new Option<Boolean>("PART_OF_IDENTITY", Boolean.TRUE);
+    public static final Option<Boolean> PART_OF_IDENTITY = new Option<>("PART_OF_IDENTITY", Boolean.TRUE);
 
     /**
      * Option to specify if a property is a secure property.
      * If the property is secure, property value will be always stored (in configuration) and displayed in encrypted text
      */
-    public static final Option<Boolean> SECURE = new Option<Boolean>("SECURE", Boolean.FALSE);
+    public static final Option<Boolean> SECURE = new Option<>("SECURE", Boolean.FALSE);
 
     /**
      * Option to specify the display name for the property
      */
-    public static final Option<String> DISPLAY_NAME = new Option<String>("DISPLAY_NAME", "");
+    public static final Option<String> DISPLAY_NAME = new Option<>("DISPLAY_NAME", "");
 
     /**
      * Option to specify order of display of property on screen
      */
-    public static final Option<Integer> DISPLAY_ORDER = new Option<Integer>("DISPLAY_ORDER", 0);
+    public static final Option<Integer> DISPLAY_ORDER = new Option<>("DISPLAY_ORDER", 0);
 
     private final Options options;
 

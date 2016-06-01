@@ -33,7 +33,7 @@ public class CompositeLocalizedKeyValueMessage implements Localizable {
 
     @Override
     public String localize(Localizer localizer) {
-        List<String> messages = new ArrayList<String>();
+        List<String> messages = new ArrayList<>();
         for (Localizable localizableMessage : localizableMessages) {
             messages.add(localizableMessage.localize(localizer));
         }

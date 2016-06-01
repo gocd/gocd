@@ -38,7 +38,7 @@ public class CcTrayViewAuthority {
     }
 
     public Map<String, Viewers> groupsAndTheirViewers() {
-        final Map<String, Viewers> pipelinesAndViewers = new HashMap<String, Viewers>();
+        final Map<String, Viewers> pipelinesAndViewers = new HashMap<>();
 
         SecurityConfig security = goConfigService.security();
         final Map<String, Set<String>> rolesToUsers = rolesToUsers(security);
@@ -55,7 +55,7 @@ public class CcTrayViewAuthority {
                 Set<String> pipelineGroupAdmins = namesOf(pipelineConfigs.getAuthorization().getAdminsConfig(), rolesToUsers);
                 Set<String> pipelineGroupViewers = namesOf(pipelineConfigs.getAuthorization().getViewConfig(), rolesToUsers);
 
-                Set<String> viewers = new HashSet<String>();
+                Set<String> viewers = new HashSet<>();
                 viewers.addAll(superAdmins);
                 viewers.addAll(pipelineGroupAdmins);
                 viewers.addAll(pipelineGroupViewers);
@@ -69,7 +69,7 @@ public class CcTrayViewAuthority {
 
     private Set<String> namesOf(AdminsConfig adminsConfig, Map<String, Set<String>> rolesToUsers) {
         List<AdminUser> superAdmins = adminsConfig.getUsers();
-        Set<String> superAdminNames = new HashSet<String>();
+        Set<String> superAdminNames = new HashSet<>();
 
         for (AdminUser superAdminUser : superAdmins) {
             superAdminNames.add(superAdminUser.getName().toString());
@@ -83,7 +83,7 @@ public class CcTrayViewAuthority {
     }
 
     private Map<String, Set<String>> rolesToUsers(SecurityConfig securityConfig) {
-        Map<String, Set<String>> rolesToUsers = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> rolesToUsers = new HashMap<>();
         for (Role role : securityConfig.getRoles()) {
             rolesToUsers.put(role.getName().toString(), role.usersOfRole());
         }

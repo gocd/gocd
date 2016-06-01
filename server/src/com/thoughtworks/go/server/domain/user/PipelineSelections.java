@@ -42,7 +42,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
     };
     private List<String> pipelines;
     private Long userId;
-    private List<CaseInsensitiveString> caseInsensitivePipelineList = new ArrayList<CaseInsensitiveString>();
+    private List<CaseInsensitiveString> caseInsensitivePipelineList = new ArrayList<>();
     private boolean isBlacklist;
 
     public PipelineSelections() {
@@ -105,7 +105,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
     private void setSelections(String unselectedPipelines) {
         this.pipelines = ListUtil.split(unselectedPipelines, ",");
-        List<CaseInsensitiveString> pipelineList = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> pipelineList = new ArrayList<>();
         for (String pipeline : pipelines) {
             pipelineList.add(new CaseInsensitiveString(pipeline));
         }
@@ -146,7 +146,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
     }
 
     public PipelineSelections addPipelineToSelections(CaseInsensitiveString pipelineToAdd) {
-        ArrayList<String> updatedListOfPipelines = new ArrayList<String>();
+        ArrayList<String> updatedListOfPipelines = new ArrayList<>();
         updatedListOfPipelines.addAll(pipelines);
         updatedListOfPipelines.add(CaseInsensitiveString.str(pipelineToAdd));
 

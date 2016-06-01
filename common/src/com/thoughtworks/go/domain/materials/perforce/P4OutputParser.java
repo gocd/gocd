@@ -66,7 +66,7 @@ public class P4OutputParser {
             Modification modification = new Modification();
             parseFistline(modification, matcher.group(1),result);
             parseComment(matcher, modification);
-            parseAffectedFiles(parts, modification);            
+            parseAffectedFiles(parts, modification);
             return modification;
         }
         throw new P4OutputParseException("Could not parse P4 description: " + output);
@@ -119,7 +119,7 @@ public class P4OutputParser {
     }
 
     public List<Modification> modifications(ConsoleResult result) {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         for (String change : result.output()) {
             if (!StringUtils.isBlank(change)) {
                 String description = "";

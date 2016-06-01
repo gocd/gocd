@@ -27,7 +27,7 @@ import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang.StringUtils;
 
 public class Matcher {
-    private LinkedHashSet<String> matchers = new LinkedHashSet<String>();
+    private LinkedHashSet<String> matchers = new LinkedHashSet<>();
     private static final String SEPARATOR = ",";
     private static final String[] SPECIAL_CHARS = new String[]{"\\", "[", "]", "^", "$", ".", "|", "?", "*", "+", "(", ")"};
 
@@ -68,7 +68,7 @@ public class Matcher {
     }
 
     public List<String> toCollection() {
-        return new ArrayList<String>(matchers);
+        return new ArrayList<>(matchers);
     }
 
     public void validateUsing(Validator<String> validator) throws ValidationException {
@@ -91,7 +91,7 @@ public class Matcher {
     }
 
     private List<String> escapeMatchers() {
-        List<String> escapedMatchers = new ArrayList<String>();
+        List<String> escapedMatchers = new ArrayList<>();
         for (String matcher : matchers) {
             for (String specialChar : SPECIAL_CHARS) {
                 matcher = StringUtils.replace(matcher, specialChar, "\\" + specialChar);

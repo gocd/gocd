@@ -37,8 +37,8 @@ public class StageFeedEntry implements FeedEntry {
     private long entryId;
     private Date updateDate;
     private StageResult stageResult;
-    private List<Author> authors = new ArrayList<Author>();
-    private List<MingleCard> mingleCards = new ArrayList<MingleCard>();
+    private List<Author> authors = new ArrayList<>();
+    private List<MingleCard> mingleCards = new ArrayList<>();
     private String approvedBy;
     private String approvalType;
 

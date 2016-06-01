@@ -40,8 +40,8 @@ public class CcTrayBreakersCalculator {
     }
 
     public Set<String> calculateFor(Stage stage) {
-        Set<String> breakersForChangedMaterials = new HashSet<String>();
-        Set<String> breakersForMaterialsWithNoChange = new HashSet<String>();
+        Set<String> breakersForChangedMaterials = new HashSet<>();
+        Set<String> breakersForMaterialsWithNoChange = new HashSet<>();
 
         if (stage.getResult() == StageResult.Failed) {
             MaterialRevisions materialRevisions = materialRepository.findMaterialRevisionsForPipeline(stage.getPipelineId());

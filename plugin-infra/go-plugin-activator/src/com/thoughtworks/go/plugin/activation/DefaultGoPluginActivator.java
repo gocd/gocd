@@ -48,8 +48,8 @@ import org.osgi.framework.Constants;
 /* Added as a part of the go-plugin-activator dependency JAR into each plugin.
  * Responsible for loading all classes in the plugin which are not in the dependency directory and registering services for the plugin extensions. */
 public class DefaultGoPluginActivator implements GoPluginActivator {
-    private List<String> errors = new ArrayList<String>();
-    private List<UnloadMethodInvoker> unloadMethodInvokers = new ArrayList<UnloadMethodInvoker>();
+    private List<String> errors = new ArrayList<>();
+    private List<UnloadMethodInvoker> unloadMethodInvokers = new ArrayList<>();
     private PluginHealthService pluginHealthService;
     private static String pluginId;
     private static PluginContext DUMMY_PLUGIN_CONTEXT = new PluginContext() {
@@ -101,7 +101,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     }
 
     void getImplementersAndRegister(BundleContext bundleContext, Bundle bundle) throws ClassNotFoundException {
-        List<HashMap<Class, List<Object>>> toRegister = new ArrayList<HashMap<Class, List<Object>>>();
+        List<HashMap<Class, List<Object>>> toRegister = new ArrayList<>();
         for (Class candidateGoExtensionClass : getCandidateGoExtensionClasses(bundle)) {
             HashMap<Class, List<Object>> interfaceToImplementations = getAllInterfaceToImplementationsMap(candidateGoExtensionClass);
             if (!interfaceToImplementations.isEmpty()) {
@@ -123,7 +123,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
             for (Map.Entry<Class, List<Object>> entry : classListHashMap.entrySet()) {
                 Class serviceInterface = entry.getKey();
                 for (Object serviceImplementation : entry.getValue()) {
-                    Hashtable<String, String> serviceProperties = new Hashtable<String, String>();
+                    Hashtable<String, String> serviceProperties = new Hashtable<>();
                     serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, pluginId);
                     bundleContext.registerService(serviceInterface, serviceImplementation, serviceProperties);
                 }
@@ -132,7 +132,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     }
 
     private HashMap<Class, List<Object>> getAllInterfaceToImplementationsMap(Class candidateGoExtensionClass) {
-        HashMap<Class, List<Object>> interfaceAndItsImplementations = new HashMap<Class, List<Object>>();
+        HashMap<Class, List<Object>> interfaceAndItsImplementations = new HashMap<>();
         Set<Class> interfaces = findAllInterfacesInHierarchy(candidateGoExtensionClass);
         Object implementation = createImplementationOf(candidateGoExtensionClass);
         if (implementation == null) {
@@ -142,7 +142,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
             if (isGoExtensionPointInterface(anInterface)) {
                 List<Object> implementations = interfaceAndItsImplementations.get(anInterface);
                 if (implementations == null) {
-                    implementations = new ArrayList<Object>();
+                    implementations = new ArrayList<>();
                     interfaceAndItsImplementations.put(anInterface, implementations);
                 }
                 implementations.add(implementation);
@@ -215,7 +215,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     private Method[] getMethodsWithAnnotation(Object extensionObject, Class<? extends Annotation> annotation) {
         // public,non-static,non-inherited zero-argument with @Load annotation
         Class<? extends Object> extnPointClass = extensionObject.getClass();
-        ArrayList<Method> methodsWithLoadAnnotation = new ArrayList<Method>();
+        ArrayList<Method> methodsWithLoadAnnotation = new ArrayList<>();
         for (Method method : extnPointClass.getDeclaredMethods()) {
             boolean annotated = hasAnnotation(annotation, method);
             if (annotated
@@ -268,7 +268,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     }
 
     private List<Class> getCandidateGoExtensionClasses(Bundle bundle) throws ClassNotFoundException {
-        List<Class> candidateClasses = new ArrayList<Class>();
+        List<Class> candidateClasses = new ArrayList<>();
         Enumeration<URL> entries = bundle.findEntries("/", "*.class", true);
 
         while (entries.hasMoreElements()) {
@@ -342,10 +342,10 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     }
 
     private Set<Class> findAllInterfacesInHierarchy(Class candidateGoExtensionClass) {
-        Stack<Class> classesInHierarchy = new Stack<Class>();
+        Stack<Class> classesInHierarchy = new Stack<>();
         classesInHierarchy.add(candidateGoExtensionClass);
 
-        Set<Class> interfaces = new HashSet<Class>();
+        Set<Class> interfaces = new HashSet<>();
         while (!classesInHierarchy.empty()) {
             Class classToCheckFor = classesInHierarchy.pop();
             if (classToCheckFor.isInterface()) {

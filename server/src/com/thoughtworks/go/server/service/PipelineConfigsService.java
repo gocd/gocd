@@ -52,18 +52,18 @@ public class PipelineConfigsService {
 
     public GoConfigOperationalResponse<PipelineConfigs> updateXml(String groupName, String xmlPartial, final String md5, Username username, HttpLocalizedOperationResult result) throws Exception {
         if (!userHasPermissions(username, groupName, result)) {
-            return new GoConfigOperationalResponse<PipelineConfigs>(GoConfigValidity.valid(), null);
+            return new GoConfigOperationalResponse<>(GoConfigValidity.valid(), null);
         }
         GoConfigValidity goConfigValidity = goConfigService.groupSaver(groupName).saveXml(xmlPartial, md5);
         if (!goConfigValidity.isValid()) {
             handleError(groupName, goConfigValidity, result);
-            return new GoConfigOperationalResponse<PipelineConfigs>(goConfigValidity, null);
+            return new GoConfigOperationalResponse<>(goConfigValidity, null);
         }
         Localizable savedSuccessMessage = LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY");
         Localizable localizableMessage = goConfigValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, LocalizedMessage.string("CONFIG_MERGED")) : savedSuccessMessage;
         result.setMessage(localizableMessage);
         PipelineConfigs pipelineConfigs = magicalGoConfigXmlLoader.fromXmlPartial(xmlPartial, BasicPipelineConfigs.class);
-        return new GoConfigOperationalResponse<PipelineConfigs>(goConfigValidity, pipelineConfigs);
+        return new GoConfigOperationalResponse<>(goConfigValidity, pipelineConfigs);
     }
 
     public String getXml(String groupName, Username username, HttpLocalizedOperationResult result) {
@@ -87,7 +87,7 @@ public class PipelineConfigsService {
     }
 
 	public List<PipelineConfigs> getGroupsForUser(String userName) {
-		List<PipelineConfigs> pipelineGroups = new ArrayList<PipelineConfigs>();
+		List<PipelineConfigs> pipelineGroups = new ArrayList<>();
 		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
 			if (securityService.hasViewPermissionForGroup(userName, pipelineGroup.getGroup())) {
 				pipelineGroups.add(pipelineGroup);

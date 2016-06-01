@@ -46,7 +46,7 @@ public class GoConfigRevision {
         }
 
         private static String string(String value, String delimiter) {
-            List<String> parts = new ArrayList<String>(0);
+            List<String> parts = new ArrayList<>(0);
             for (Fragment fragment : values()) {
                 parts.add(fragment.represent(value));
             }

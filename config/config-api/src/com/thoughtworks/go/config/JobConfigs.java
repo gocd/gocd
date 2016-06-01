@@ -121,7 +121,7 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
     }
 
     private void validateNameUniqueness() {
-        Map<String, JobConfig> nameToConfig = new HashMap<String, JobConfig>();
+        Map<String, JobConfig> nameToConfig = new HashMap<>();
         for (JobConfig jobConfig : this) {
             jobConfig.validateNameUniqueness(nameToConfig);
         }
@@ -136,7 +136,7 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
     }
 
     public List<CaseInsensitiveString> names() {
-        List<CaseInsensitiveString> names = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> names = new ArrayList<>();
         for (JobConfig jobConfig : this) {
             names.add(jobConfig.name());
         }

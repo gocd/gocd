@@ -43,7 +43,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
     private CommandSnippetXmlParser commandSnippetXmlParser;
 
     private static final Logger LOGGER = Logger.getLogger(CommandRepositoryDirectoryWalker.class);
-    private ThreadLocal<String> commandRepositoryBaseDirectory = new ThreadLocal<String>();
+    private ThreadLocal<String> commandRepositoryBaseDirectory = new ThreadLocal<>();
 
     @Autowired
     public CommandRepositoryDirectoryWalker(ServerHealthService serverHealthService, SystemEnvironment systemEnvironment) {
@@ -125,7 +125,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
 
     private List<CommandSnippet> walk(File commandRepositoryDirectory) throws IOException {
         this.commandRepositoryBaseDirectory.set(commandRepositoryDirectory.getAbsolutePath());
-        List<CommandSnippet> commandSnippets = new ArrayList<CommandSnippet>();
+        List<CommandSnippet> commandSnippets = new ArrayList<>();
         walk(commandRepositoryDirectory, commandSnippets);
         return commandSnippets;
     }

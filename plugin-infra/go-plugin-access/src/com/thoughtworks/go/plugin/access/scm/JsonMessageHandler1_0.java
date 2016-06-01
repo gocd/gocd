@@ -202,7 +202,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     private SCMProperty toSCMProperty(String key, Map configuration) {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         String defaultValue = null;
         try {
             defaultValue = (String) configuration.get("default-value");
@@ -320,7 +320,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     List<SCMRevision> toSCMRevisions(Map map) {
         try {
-            List<SCMRevision> scmRevisions = new ArrayList<SCMRevision>();
+            List<SCMRevision> scmRevisions = new ArrayList<>();
 
             if (map == null || map.get("revisions") == null) {
                 return scmRevisions;
@@ -391,7 +391,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
         Map data = (Map) map.get("data");
 
-        List<ModifiedFile> modifiedFiles = new ArrayList<ModifiedFile>();
+        List<ModifiedFile> modifiedFiles = new ArrayList<>();
         if (map.containsKey("modifiedFiles") && map.get("modifiedFiles") != null) {
             List modifiedFileMaps = null;
             try {

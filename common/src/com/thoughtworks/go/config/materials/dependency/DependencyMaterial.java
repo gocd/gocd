@@ -240,9 +240,9 @@ public class DependencyMaterial extends AbstractMaterial {
 
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
-        Map<String, Object> materialMap = new HashMap<String, Object>();
+        Map<String, Object> materialMap = new HashMap<>();
         materialMap.put("type", "pipeline");
-        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        Map<String, Object> configurationMap = new HashMap<>();
         configurationMap.put("pipeline-name", pipelineName.toString());
         configurationMap.put("stage-name", stageName.toString());
         materialMap.put("pipeline-configuration", configurationMap);

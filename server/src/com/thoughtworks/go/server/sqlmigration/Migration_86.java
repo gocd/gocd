@@ -72,7 +72,7 @@ public class Migration_86 implements Trigger {
         }
     }
 
-    Map<PMRRecord, Long> map =  new HashMap<PMRRecord, Long>();
+    Map<PMRRecord, Long> map = new HashMap<>();
 
     public void init(Connection connection, String schemaName, String triggerName, String tableName, boolean before, int type) throws SQLException {
         totalCount = executeScalar(connection, "SELECT COUNT(*) FROM pipelineMaterialRevisions");

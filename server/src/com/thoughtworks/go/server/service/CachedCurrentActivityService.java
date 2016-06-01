@@ -76,7 +76,7 @@ public class CachedCurrentActivityService implements CurrentActivityService {
     }
 
     private List<StageJsonPresentationModel> stagesModel(PipelineConfig pipelineConfig) {
-        List<StageJsonPresentationModel> presenters = new ArrayList<StageJsonPresentationModel>();
+        List<StageJsonPresentationModel> presenters = new ArrayList<>();
         for (StageConfig stageConfig : pipelineConfig) {
             Stage mostRecentStage = stageService.mostRecentStageWithBuilds(CaseInsensitiveString.str(pipelineConfig.name()), stageConfig);
             Pipeline pipeline = pipelineService.pipelineWithModsByStageId(CaseInsensitiveString.str(pipelineConfig.name()), mostRecentStage.getId());

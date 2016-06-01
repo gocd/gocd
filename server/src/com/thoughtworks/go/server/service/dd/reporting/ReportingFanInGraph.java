@@ -39,10 +39,10 @@ public class ReportingFanInGraph {
     private final CruiseConfig cruiseConfig;
     private CaseInsensitiveString rootName;
 
-    private final List<ReportingFanInNode> nodes = new ArrayList<ReportingFanInNode>();
-    private final Map<String, MaterialConfig> fingerprintScmMaterialMap = new HashMap<String, MaterialConfig>();
-    private final Map<String, DependencyMaterialConfig> fingerprintDepMaterialMap = new HashMap<String, DependencyMaterialConfig>();
-    private final Map<DependencyMaterialConfig, Set<String>> dependencyMaterialFingerprintMap = new HashMap<DependencyMaterialConfig, Set<String>>();
+    private final List<ReportingFanInNode> nodes = new ArrayList<>();
+    private final Map<String, MaterialConfig> fingerprintScmMaterialMap = new HashMap<>();
+    private final Map<String, DependencyMaterialConfig> fingerprintDepMaterialMap = new HashMap<>();
+    private final Map<DependencyMaterialConfig, Set<String>> dependencyMaterialFingerprintMap = new HashMap<>();
 
     private ReportingDependencyFanInNode root;
     private final PipelineDao pipelineDao;
@@ -60,7 +60,7 @@ public class ReportingFanInGraph {
 
     private void buildGraph(PipelineConfig target) {
         nodes.add(this.root);
-        final HashSet<String> scmMaterials = new HashSet<String>();
+        final HashSet<String> scmMaterials = new HashSet<>();
         buildRestOfTheGraph(this.root, target, scmMaterials);
         dependencyMaterialFingerprintMap.put((DependencyMaterialConfig) this.root.materialConfig, scmMaterials);
     }
@@ -87,7 +87,7 @@ public class ReportingFanInGraph {
     }
 
     private void handleDependencyMaterial(HashSet<String> scmMaterialSet, DependencyMaterialConfig depMaterial, ReportingDependencyFanInNode node) {
-        final HashSet<String> scmMaterialFingerprintSet = new HashSet<String>();
+        final HashSet<String> scmMaterialFingerprintSet = new HashSet<>();
         buildRestOfTheGraph(node, cruiseConfig.pipelineConfigByName(depMaterial.getPipelineName()), scmMaterialFingerprintSet);
         scmMaterialFingerprintSet.addAll(scmMaterialFingerprintSet);
         dependencyMaterialFingerprintMap.put(depMaterial, scmMaterialFingerprintSet);
@@ -109,10 +109,10 @@ public class ReportingFanInGraph {
     }
 
     public Map<DependencyMaterialConfig, Set<MaterialConfig>> getPipelineScmDepMap() {
-        Map<DependencyMaterialConfig, Set<MaterialConfig>> dependencyMaterialListMap = new HashMap<DependencyMaterialConfig, Set<MaterialConfig>>();
+        Map<DependencyMaterialConfig, Set<MaterialConfig>> dependencyMaterialListMap = new HashMap<>();
 
         for (Map.Entry<DependencyMaterialConfig, Set<String>> materialSetEntry : dependencyMaterialFingerprintMap.entrySet()) {
-            HashSet<MaterialConfig> scmMaterials = new HashSet<MaterialConfig>();
+            HashSet<MaterialConfig> scmMaterials = new HashSet<>();
             for (String fingerprint : materialSetEntry.getValue()) {
                 scmMaterials.add(fingerprintScmMaterialMap.get(fingerprint));
             }
@@ -142,8 +142,8 @@ public class ReportingFanInGraph {
 
 
     private Pair<List<ReportingRootFanInNode>, List<ReportingDependencyFanInNode>> getScmAndDepMaterialsChildren() {
-        List<ReportingRootFanInNode> scmMaterials = new ArrayList<ReportingRootFanInNode>();
-        List<ReportingDependencyFanInNode> depMaterials = new ArrayList<ReportingDependencyFanInNode>();
+        List<ReportingRootFanInNode> scmMaterials = new ArrayList<>();
+        List<ReportingDependencyFanInNode> depMaterials = new ArrayList<>();
         for (ReportingFanInNode child : root.children) {
             if (child instanceof ReportingRootFanInNode) {
                 scmMaterials.add((ReportingRootFanInNode) child);
@@ -151,7 +151,7 @@ public class ReportingFanInGraph {
                 depMaterials.add((ReportingDependencyFanInNode) child);
             }
         }
-        return new Pair<List<ReportingRootFanInNode>, List<ReportingDependencyFanInNode>>(scmMaterials, depMaterials);
+        return new Pair<>(scmMaterials, depMaterials);
     }
 
 

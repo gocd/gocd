@@ -33,7 +33,7 @@ public class ZipArtifactFolderViewFactory implements ArtifactFolderViewFactory {
 
     public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) throws Exception {
         if (zipArtifactCache.cacheCreated(artifactFolder)) {
-            Map<String, Object> data = new HashMap<String, Object>();
+            Map<String, Object> data = new HashMap<>();
             data.put("targetFile", zipArtifactCache.cachedFile(artifactFolder));
             return new ModelAndView("fileView", data);
         } else {

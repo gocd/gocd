@@ -169,7 +169,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public List<PrivilegeType> privilagesOfRole(final CaseInsensitiveString roleName){
-        List<PrivilegeType> result = new ArrayList<PrivilegeType>();
+        List<PrivilegeType> result = new ArrayList<>();
         if (isRoleAnAdmin(roleName)){
             result.add(PrivilegeType.ADMIN);
         }
@@ -330,7 +330,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public List<PresentationElement> getUserAuthorizations() {
-        ArrayList<PresentationElement> list = new ArrayList<PresentationElement>();
+        ArrayList<PresentationElement> list = new ArrayList<>();
         Class<AdminUser> allowOnly = AdminUser.class;
         addPrivilegesForView(list, operationConfig, PrivilegeType.OPERATE, allowOnly, UserType.USER);
         addPrivilegesForView(list, viewConfig, PrivilegeType.VIEW, allowOnly, UserType.USER);
@@ -340,7 +340,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public List<PresentationElement> getRoleAuthorizations() {
-        ArrayList<PresentationElement> list = new ArrayList<PresentationElement>();
+        ArrayList<PresentationElement> list = new ArrayList<>();
         Class<AdminRole> onlyOfType = AdminRole.class;
         addPrivilegesForView(list, operationConfig, PrivilegeType.OPERATE, onlyOfType, UserType.ROLE);
         addPrivilegesForView(list, viewConfig, PrivilegeType.VIEW, onlyOfType, UserType.ROLE);

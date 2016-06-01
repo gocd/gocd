@@ -57,11 +57,11 @@ public class TestingMaterial extends ScmMaterial {
     }
 
     private List<Modification> multipleModificationList() {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
 
         Date today = new Date();
         Date yesterday = new DateTime().minusDays(1).toDate();
-        
+
         Modification modification1 = new Modification("lgao", "Fixing the not checked in files", "foo@bar.com", yesterday, "99");
         modification1.createModifiedFile("build.xml", "\\build", ModifiedAction.added);
         modifications.add(modification1);

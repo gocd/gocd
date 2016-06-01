@@ -65,7 +65,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     private HashMap<String, String> additionalDataMap;
 
     private Date modifiedTime;
-    private Set<ModifiedFile> files = new LinkedHashSet<ModifiedFile>();
+    private Set<ModifiedFile> files = new LinkedHashSet<>();
     private MaterialInstance materialInstance;
     private String pipelineLabel;
     private Long pipelineId;
@@ -178,7 +178,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
      *         (<code>null</code> is never returned).
      */
     public List<ModifiedFile> getModifiedFiles() {
-        return Collections.unmodifiableList(new ArrayList<ModifiedFile>(files));
+        return Collections.unmodifiableList(new ArrayList<>(files));
     }
 
     public int compareTo(Object o) {
@@ -308,7 +308,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public static ArrayList<Modification> modifications(Modification modification) {
-        ArrayList<Modification> modifications = new ArrayList<Modification>();
+        ArrayList<Modification> modifications = new ArrayList<>();
         modifications.add(modification);
         return modifications;
     }
@@ -372,7 +372,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public Set<String> getCardNumbersFromComment() {
-        Set<String> cardNumbers = new TreeSet<String>();
+        Set<String> cardNumbers = new TreeSet<>();
         Pattern pattern = Pattern.compile("#(\\d+)");
         String comment = this.comment == null ? "" : this.comment;
         Matcher matcher = pattern.matcher(comment);

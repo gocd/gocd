@@ -91,7 +91,7 @@ public class ConsoleResult {
     }
 
     private ArrayList<String> forDisplay(List<String> from) {
-        ArrayList<String> forDisplay = new ArrayList<String>();
+        ArrayList<String> forDisplay = new ArrayList<>();
         for (String line : from) {
             forDisplay.add(replaceSecretInfo(line));
         }
@@ -107,11 +107,11 @@ public class ConsoleResult {
     public String describe() {
         return "--OUTPUT ---\n" + outputForDisplayAsString() + "\n"
                 + "--- ERROR ---\n" + errorForDisplayAsString() + "\n"
-                + "---\n"; 
+                + "---\n";
     }
 
     public static ConsoleResult unknownResult() {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("Unknown result.");
         return new ConsoleResult(-1, new ArrayList<String>(), list, new ArrayList<CommandArgument>(), new ArrayList<SecretString>());
     }

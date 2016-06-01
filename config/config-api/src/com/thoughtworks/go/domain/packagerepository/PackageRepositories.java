@@ -95,14 +95,14 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
     }
 
     private void validateNameUniqueness() {
-        HashMap<String, PackageRepository> nameMap = new HashMap<String, PackageRepository>();
+        HashMap<String, PackageRepository> nameMap = new HashMap<>();
         for (PackageRepository repository : this) {
             repository.validateNameUniqueness(nameMap);
         }
     }
 
     private void validateFingerprintUniqueness() {
-        HashMap<String, Packages> map = new HashMap<String, Packages>();
+        HashMap<String, Packages> map = new HashMap<>();
         for (PackageRepository repository : this) {
             for (PackageDefinition packageDefinition : repository.getPackages()) {
                 String fingerprint = packageDefinition.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER);

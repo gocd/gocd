@@ -191,9 +191,9 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
-        Map<String, Object> materialMap = new HashMap<String, Object>();
+        Map<String, Object> materialMap = new HashMap<>();
         materialMap.put("type", "tfs");
-        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
             configurationMap.put("url", url.forCommandline());
         } else {

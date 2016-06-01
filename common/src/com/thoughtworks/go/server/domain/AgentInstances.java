@@ -41,7 +41,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
 
     private SystemEnvironment systemEnvironment;
-    private Map<String, AgentInstance> agentInstances = new ConcurrentHashMap<String, AgentInstance>();
+    private Map<String, AgentInstance> agentInstances = new ConcurrentHashMap<>();
     private AgentRuntimeStatus.ChangeListener changeListener;
 
     public AgentInstances(AgentRuntimeStatus.ChangeListener changeListener) {
@@ -183,7 +183,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     private List<AgentInstance> agentsToRemove() {
-           List<AgentInstance> agentsToRemove = new ArrayList<AgentInstance>();
+           List<AgentInstance> agentsToRemove = new ArrayList<>();
            for (AgentInstance instance : this) {
                instance.checkForRemoval(agentsToRemove);
            }
@@ -192,7 +192,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
 
     private Collection<AgentInstance> currentInstances() {
-        return new TreeSet<AgentInstance>(agentInstances.values());
+        return new TreeSet<>(agentInstances.values());
     }
 
     public void sync(Agents agentsFromConfig) {
@@ -206,7 +206,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         }
 
         synchronized (agentInstances) {
-            List<String> uuids = new ArrayList<String>();
+            List<String> uuids = new ArrayList<>();
             for (String uuid : agentInstances.keySet()) {
                 AgentInstance instance = agentInstances.get(uuid);
                 if (!agentsFromConfig.hasAgent(uuid) && !(instance.getStatus() == AgentStatus.Pending)) {
@@ -277,7 +277,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
 
     public List<AgentInstance> filter(List<String> uuids) {
-        ArrayList<AgentInstance> filtered = new ArrayList<AgentInstance>();
+        ArrayList<AgentInstance> filtered = new ArrayList<>();
         for (AgentInstance agentInstance : this) {
             if (uuids.contains(agentInstance.getUuid())) {
                 filtered.add(agentInstance);
@@ -287,7 +287,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public Set<String> getAllHostNames() {
-        Set<String> names = new HashSet<String>();
+        Set<String> names = new HashSet<>();
         for (AgentInstance agentInstance : agentInstances.values()) {
             names.add(agentInstance.getHostname());
         }
@@ -295,7 +295,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public Set<String> getAllIpAddresses() {
-        Set<String> ips = new HashSet<String>();
+        Set<String> ips = new HashSet<>();
         for (AgentInstance agentInstance : agentInstances.values()) {
             ips.add(agentInstance.getIpAddress());
         }
@@ -303,7 +303,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public Set<String> getAllOperatingSystems() {
-        Set<String> osList = new HashSet<String>();
+        Set<String> osList = new HashSet<>();
         for (AgentInstance agentInstance : agentInstances.values()) {
             osList.add(agentInstance.getOperatingSystem());
         }

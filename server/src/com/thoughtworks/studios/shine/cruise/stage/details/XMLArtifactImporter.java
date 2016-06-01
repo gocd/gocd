@@ -40,7 +40,7 @@ public class XMLArtifactImporter {
 
     SystemEnvironment systemEnvironment;
 
-    private List<XMLRDFizer> handlers = new LinkedList<XMLRDFizer>();
+    private List<XMLRDFizer> handlers = new LinkedList<>();
 
     public XMLArtifactImporter(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;

@@ -104,7 +104,7 @@ public class GoConfigGraphWalker {
     }
 
     private List<Field> getAllFields(Class klass) {//TODO: if not com.thoughtworks.go don't bother
-        return new ArrayList<Field>(fieldCache.valuesFor(klass));
+        return new ArrayList<>(fieldCache.valuesFor(klass));
     }
 
     private boolean isAConstantField(Field field) {

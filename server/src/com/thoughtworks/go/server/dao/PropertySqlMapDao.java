@@ -67,7 +67,7 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
     }
 
     public String value(long instanceId, String propertyName) {
-        Map<String, Object> toGet = new HashMap<String, Object>();
+        Map<String, Object> toGet = new HashMap<>();
         toGet.put("instanceId", instanceId);
         toGet.put("propertyName", propertyName);
         return (String) getSqlMapClientTemplate().queryForObject("getProperty", toGet);
@@ -107,16 +107,16 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
 
 
     static List<Properties> groupByPipelineId(List<Map<String, Object>> flatHistory) {
-        LinkedHashMap<String, Properties> propHistory = new LinkedHashMap<String, Properties>();
+        LinkedHashMap<String, Properties> propHistory = new LinkedHashMap<>();
 
         for (Map<String, Object> flatMap : flatHistory) {
             addToHistory(propHistory, sanitize(flatMap));
         }
-        return new ArrayList<Properties>(propHistory.values());
+        return new ArrayList<>(propHistory.values());
     }
 
     private static Map<String, Object> sanitize(Map<String, Object> flatMap) {
-        HashMap<String, Object> santizedMap = new HashMap<String, Object>();
+        HashMap<String, Object> santizedMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : flatMap.entrySet()) {
             santizedMap.put(entry.getKey().toLowerCase(), entry.getValue());
         }

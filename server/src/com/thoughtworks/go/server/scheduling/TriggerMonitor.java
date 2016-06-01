@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TriggerMonitor {
-    ConcurrentSkipListSet<String> triggeredPipelines = new ConcurrentSkipListSet<String>();
+    ConcurrentSkipListSet<String> triggeredPipelines = new ConcurrentSkipListSet<>();
 
     public boolean isAlreadyTriggered(String pipelineName) {
         return triggeredPipelines.contains(pipelineName.toLowerCase());

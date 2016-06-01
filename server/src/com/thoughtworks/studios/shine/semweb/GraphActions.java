@@ -26,7 +26,7 @@ public class GraphActions {
     }
 
     private Graph graph;
-    private List<Action> actions = new ArrayList<Action>();
+    private List<Action> actions = new ArrayList<>();
 
     public GraphActions(Graph graph) {
         this.graph = graph;

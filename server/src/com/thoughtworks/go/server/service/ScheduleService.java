@@ -585,7 +585,7 @@ public class ScheduleService {
     }
 
     private List<String> getLiveAgentUuids(AgentInstances knownAgents) {
-        List<String> agents = new ArrayList<String>();
+        List<String> agents = new ArrayList<>();
         for (AgentInstance agent : knownAgents) {
             if (agent.getStatus() != AgentStatus.LostContact) {
                 agents.add(agent.agentConfig().getUuid());

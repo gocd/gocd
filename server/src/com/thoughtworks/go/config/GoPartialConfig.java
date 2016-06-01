@@ -40,9 +40,9 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
     private GoRepoConfigDataSource repoConfigDataSource;
     private GoConfigWatchList configWatchList;
 
-    private List<PartialConfigChangedListener> listeners = new ArrayList<PartialConfigChangedListener>();
+    private List<PartialConfigChangedListener> listeners = new ArrayList<>();
     // last, ready partial configs
-    private Map<String,PartialConfig> fingerprintToLatestValidConfigMap = new ConcurrentHashMap<String,PartialConfig>();
+    private Map<String,PartialConfig> fingerprintToLatestValidConfigMap = new ConcurrentHashMap<>();
 
     @Autowired public  GoPartialConfig(GoRepoConfigDataSource repoConfigDataSource,
                                        GoConfigWatchList configWatchList) {

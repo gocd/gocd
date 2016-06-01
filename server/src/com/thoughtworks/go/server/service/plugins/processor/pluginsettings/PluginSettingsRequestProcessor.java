@@ -43,7 +43,7 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
     private static final List<String> goSupportedVersions = asList("1.0");
 
     private PluginSqlMapDao pluginSqlMapDao;
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public PluginSettingsRequestProcessor(PluginSqlMapDao pluginSqlMapDao, DefaultGoApplicationAccessor goApplicationAccessor) {

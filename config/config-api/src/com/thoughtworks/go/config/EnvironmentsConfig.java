@@ -170,7 +170,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public List<CaseInsensitiveString> names() {
-        ArrayList<CaseInsensitiveString> names = new ArrayList<CaseInsensitiveString>();
+        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
         for (EnvironmentConfig environment : this) {
             names.add(environment.name());
         }
@@ -178,7 +178,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public TreeSet<String> environmentsForAgent(String agentUuid) {
-        TreeSet<String> environmentNames = new TreeSet<String>(new AlphaAsciiComparator());
+        TreeSet<String> environmentNames = new TreeSet<>(new AlphaAsciiComparator());
         for (EnvironmentConfig config : this) {
             if (config.hasAgent(agentUuid)) {
                 environmentNames.add(CaseInsensitiveString.str(config.name()));

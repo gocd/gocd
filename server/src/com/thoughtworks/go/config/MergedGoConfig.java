@@ -50,7 +50,7 @@ public class MergedGoConfig implements CachedGoConfig, ConfigChangedListener, Pa
     private GoPartialConfig partialConfig;
 
     private final ServerHealthService serverHealthService;
-    private List<ConfigChangedListener> listeners = new ArrayList<ConfigChangedListener>();
+    private List<ConfigChangedListener> listeners = new ArrayList<>();
 
     // this is merged config when possible
     private volatile CruiseConfig currentConfig;

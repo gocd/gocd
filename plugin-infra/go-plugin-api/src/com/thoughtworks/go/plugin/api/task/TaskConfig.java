@@ -60,7 +60,7 @@ public class TaskConfig extends Configuration {
     }
 
     public List<? extends  Property> list() {
-        ArrayList<TaskConfigProperty> list = new ArrayList<TaskConfigProperty>();
+        ArrayList<TaskConfigProperty> list = new ArrayList<>();
         for (Property property : super.list()) {
             list.add((TaskConfigProperty) property);
         }

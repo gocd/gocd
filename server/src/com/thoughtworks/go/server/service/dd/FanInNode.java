@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 public abstract class FanInNode {
     MaterialConfig materialConfig;
-    public Set<DependencyFanInNode> parents = new HashSet<DependencyFanInNode>();
+    public Set<DependencyFanInNode> parents = new HashSet<>();
 
     protected FanInNode(MaterialConfig materialConfig) {
         this.materialConfig = materialConfig;

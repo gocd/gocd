@@ -40,7 +40,7 @@ public class  User extends PersistentObject {
     private String email;
     private boolean emailMe;
     private boolean enabled;
-    private List<NotificationFilter> notificationFilters = new ArrayList<NotificationFilter>();
+    private List<NotificationFilter> notificationFilters = new ArrayList<>();
 
     public User() {
     }
@@ -279,7 +279,7 @@ public class  User extends PersistentObject {
     }
 
     public void removeNotificationFilter(final long filterId) {
-        ArrayList<NotificationFilter> toBeDeleted = new ArrayList<NotificationFilter>();
+        ArrayList<NotificationFilter> toBeDeleted = new ArrayList<>();
         ListUtil.filterInto(toBeDeleted,notificationFilters, new Filter<NotificationFilter>() {
             @Override
             public boolean matches(NotificationFilter filter) {

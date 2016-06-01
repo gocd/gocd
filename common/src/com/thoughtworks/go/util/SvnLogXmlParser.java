@@ -49,7 +49,7 @@ public class SvnLogXmlParser {
     }
 
     private List<Modification> parseDOMTree(Document document, String path) throws ParseException {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
 
         Element rootElement = document.getRootElement();
         List logEntries = rootElement.getChildren("logentry");
@@ -127,7 +127,7 @@ public class SvnLogXmlParser {
     }
 
     public HashMap<String, String> parseInfoToGetUUID(String output, String queryURL, SAXBuilder builder) {
-        HashMap<String, String> uidToUrlMap = new HashMap<String, String>();
+        HashMap<String, String> uidToUrlMap = new HashMap<>();
         try {
             Document document = builder.build(new StringReader(output));
             Element root = document.getRootElement();

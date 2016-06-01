@@ -32,7 +32,7 @@ public class PluginWriter {
             goFileSystem.copyFile(uploadedPlugin, addedExternalPluginLocation);
             return PluginUploadResponse.create(true, "Your file is saved!", null);
         } catch (Exception e) {
-            Map<Integer, String> errors = new HashMap<Integer, String>();
+            Map<Integer, String> errors = new HashMap<>();
             errors.put(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Your file is not saved. Please try again.");
             return PluginUploadResponse.create(false, null, errors);
         }

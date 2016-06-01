@@ -40,7 +40,7 @@ public class ConfigUtil {
     }
 
     public static List<String> allTasks(ConfigElementImplementationRegistry registry) {
-        List<String> allTasks = new ArrayList<String>();
+        List<String> allTasks = new ArrayList<>();
         for (Class<? extends Task> task : registry.implementersOf(Task.class)) {
             ConfigTag tag = task.getAnnotation(ConfigTag.class);
             allTasks.add(tag.value());

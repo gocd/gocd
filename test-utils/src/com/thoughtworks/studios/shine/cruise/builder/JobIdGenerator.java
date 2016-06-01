@@ -23,11 +23,11 @@ import java.util.Map;
 
 public class JobIdGenerator {
 
-  private static Map<List<String>, Integer> jobIds = new HashMap<List<String>, Integer>();
+  private static Map<List<String>, Integer> jobIds = new HashMap<>();
   private static int lastId = 10000;
 
   public static int idFor(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName) {
-    List<String> key = new ArrayList<String>();
+    List<String> key = new ArrayList<>();
     key.add(pipelineName);
     key.add(String.valueOf(pipelineCounter));
     key.add(stageName);

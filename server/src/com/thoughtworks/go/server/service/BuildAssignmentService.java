@@ -99,7 +99,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 LOGGER.info(String.format("[Configuration Changed] Removing deleted jobs for pipeline %s.", pipelineConfig.name()));
 
                 synchronized (BuildAssignmentService.this) {
-                    List<JobPlan> jobsToRemove = new ArrayList<JobPlan>();
+                    List<JobPlan> jobsToRemove = new ArrayList<>();
                     for (JobPlan jobPlan : jobPlans) {
                         if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
                             StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));

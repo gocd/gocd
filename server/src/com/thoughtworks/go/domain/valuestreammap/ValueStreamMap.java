@@ -33,8 +33,8 @@ public class ValueStreamMap {
     private Node currentPipeline;
     private Node currentMaterial;
 	private MaterialInstance currentMaterialInstance;
-    private LinkedHashMap<String, Node> nodeIdToNodeMap = new LinkedHashMap<String, Node>();
-	private List<Node> rootNodes = new ArrayList<Node>();
+    private LinkedHashMap<String, Node> nodeIdToNodeMap = new LinkedHashMap<>();
+	private List<Node> rootNodes = new ArrayList<>();
 
 	private LevelAssignment levelAssignment = new LevelAssignment();
     private DummyNodeCreation dummyNodeCreation = new DummyNodeCreation();
@@ -120,7 +120,7 @@ public class ValueStreamMap {
 	}
 
 	void populateRootNodes() {
-		rootNodes = new ArrayList<Node>();
+		rootNodes = new ArrayList<>();
 		for (Node currentNode : allNodes()) {
 			if (currentNode.getParents().isEmpty()) {
 				rootNodes.add(currentNode);
@@ -140,8 +140,8 @@ public class ValueStreamMap {
     }
 
     public boolean hasCycle() {
-        Set<Node> verifiedNodes = new HashSet<Node>();
-        Set<String> nodesInPath = new HashSet<String>();
+        Set<Node> verifiedNodes = new HashSet<>();
+        Set<String> nodesInPath = new HashSet<>();
 
         for (Node node : getRootNodes()) {
             if (node.hasCycleInSubGraph(nodesInPath, verifiedNodes)) {

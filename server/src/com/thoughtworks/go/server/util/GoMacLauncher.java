@@ -77,7 +77,7 @@ public class GoMacLauncher extends JFrame {
         String country = System.getProperty("cruise.server.country", "US");
         boolean dbDebugMode = System.getProperty("cruise.server.db_debug_mode") != null;
 
-        final java.util.List<String> arguments = new ArrayList<String>();
+        final java.util.List<String> arguments = new ArrayList<>();
         arguments.add(java);
         arguments.add("-Xms" + startMem + "m");
         arguments.add("-Xmx" + maxMem + "m");

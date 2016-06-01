@@ -122,7 +122,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     public void validate(ValidationContext validationContext) {
-        Map<String, PipelineConfigs> nameToConfig = new HashMap<String, PipelineConfigs>();
+        Map<String, PipelineConfigs> nameToConfig = new HashMap<>();
         List<PipelineConfigs> visited = new ArrayList();
         for (PipelineConfigs group : this) {
             group.validateNameUniqueness(nameToConfig);
@@ -131,7 +131,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     public void validatePipelineNameUniqueness() {
-        List<PipelineConfig> visited = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> visited = new ArrayList<>();
         for (PipelineConfigs group : this) {
             for (PipelineConfig pipeline : group) {
                 for (PipelineConfig visitedPipeline : visited) {
@@ -154,8 +154,8 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     public Set<MaterialConfig> getAllUniquePostCommitSchedulableMaterials() {
-        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
-        Set<String> uniqueMaterials = new HashSet<String>();
+        Set<MaterialConfig> materialConfigs = new HashSet<>();
+        Set<String> uniqueMaterials = new HashSet<>();
         for (PipelineConfigs pipelineConfigs : this) {
             for (PipelineConfig pipelineConfig : pipelineConfigs) {
                 for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
@@ -175,7 +175,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         if (packageToPipelineMap == null) {
             synchronized (this) {
                 if (packageToPipelineMap == null) {
-                    packageToPipelineMap = new HashMap<String, List<Pair<PipelineConfig, PipelineConfigs>>>();
+                    packageToPipelineMap = new HashMap<>();
                     for (PipelineConfigs pipelineConfigs : this) {
                         for (PipelineConfig pipelineConfig : pipelineConfigs) {
                             for (PackageMaterialConfig packageMaterialConfig : pipelineConfig.packageMaterialConfigs()) {
@@ -183,7 +183,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                                 if (!packageToPipelineMap.containsKey(packageId)) {
                                     packageToPipelineMap.put(packageId, new ArrayList<Pair<PipelineConfig, PipelineConfigs>>());
                                 }
-                                packageToPipelineMap.get(packageId).add(new Pair<PipelineConfig,PipelineConfigs>(pipelineConfig, pipelineConfigs));
+                                packageToPipelineMap.get(packageId).add(new Pair<>(pipelineConfig, pipelineConfigs));
                             }
                         }
                     }
@@ -207,7 +207,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         if (pluggableSCMMaterialToPipelineMap == null) {
             synchronized (this) {
                 if (pluggableSCMMaterialToPipelineMap == null) {
-                    pluggableSCMMaterialToPipelineMap = new HashMap<String, List<Pair<PipelineConfig, PipelineConfigs>>>();
+                    pluggableSCMMaterialToPipelineMap = new HashMap<>();
                     for (PipelineConfigs pipelineConfigs : this) {
                         for (PipelineConfig pipelineConfig : pipelineConfigs) {
                             for (PluggableSCMMaterialConfig pluggableSCMMaterialConfig : pipelineConfig.pluggableSCMMaterialConfigs()) {
@@ -215,7 +215,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                                 if (!pluggableSCMMaterialToPipelineMap.containsKey(scmId)) {
                                     pluggableSCMMaterialToPipelineMap.put(scmId, new ArrayList<Pair<PipelineConfig, PipelineConfigs>>());
                                 }
-                                pluggableSCMMaterialToPipelineMap.get(scmId).add(new Pair<PipelineConfig, PipelineConfigs>(pipelineConfig, pipelineConfigs));
+                                pluggableSCMMaterialToPipelineMap.get(scmId).add(new Pair<>(pipelineConfig, pipelineConfigs));
                             }
                         }
                     }

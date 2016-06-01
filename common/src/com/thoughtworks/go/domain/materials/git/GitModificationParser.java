@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.DateUtils;
 
 public class GitModificationParser {
-    private LinkedList<Modification> modifications = new LinkedList<Modification>();
+    private LinkedList<Modification> modifications = new LinkedList<>();
     private static final String SPACES = "\\s+";
     private static final String COMMENT_INDENT = "\\s{4}";
     private static final String COMMENT_TEXT = "(.*)";

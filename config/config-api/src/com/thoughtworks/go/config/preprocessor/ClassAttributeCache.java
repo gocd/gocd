@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public abstract class ClassAttributeCache<K, T> {
-    private ConcurrentMap<K, T> valueCache = new ConcurrentHashMap<K, T>();
+    private ConcurrentMap<K, T> valueCache = new ConcurrentHashMap<>();
 
     public T valuesFor(K key) {
         T value = valueCache.get(key);
@@ -40,7 +40,7 @@ public abstract class ClassAttributeCache<K, T> {
 
     public static class FieldCache extends ClassAttributeCache<Class, List<Field>> {
         List<Field> loadValues(Class klass) {
-            List<Field> fields = new ArrayList<Field>();
+            List<Field> fields = new ArrayList<>();
             populateValueInto(klass, fields);
             return fields;
         }

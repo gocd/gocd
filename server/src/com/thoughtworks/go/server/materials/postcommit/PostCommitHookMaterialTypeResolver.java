@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PostCommitHookMaterialTypeResolver {
-    private List<PostCommitHookMaterialType> allKnownMaterialTypes = new ArrayList<PostCommitHookMaterialType>();
+    private List<PostCommitHookMaterialType> allKnownMaterialTypes = new ArrayList<>();
 
     public PostCommitHookMaterialTypeResolver() {
         allKnownMaterialTypes.add(new UnknownPostCommitHookMaterialType());

@@ -52,7 +52,7 @@ public class Option<T> {
      * @return copy of this option
      */
     public Option<T> copy() {
-        return new Option<T>(name, value);
+        return new Option<>(name, value);
     }
 
     /**

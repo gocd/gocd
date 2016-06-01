@@ -30,8 +30,8 @@ import com.thoughtworks.go.server.service.ArtifactsDirHolder;
  */
 public abstract class ArtifactCache<T> {
     protected final ArtifactsDirHolder artifactsDirHolder;
-    protected ConcurrentSkipListSet<T> pendingCacheFiles = new ConcurrentSkipListSet<T>();
-    protected ConcurrentMap<T, Exception> pendingExceptions = new ConcurrentHashMap<T, Exception>();
+    protected ConcurrentSkipListSet<T> pendingCacheFiles = new ConcurrentSkipListSet<>();
+    protected ConcurrentMap<T, Exception> pendingExceptions = new ConcurrentHashMap<>();
     public static final String CACHE_ARTIFACTS_FOLDER = "cache/artifacts/";
 
     public ArtifactCache(ArtifactsDirHolder artifactsDirHolder) {

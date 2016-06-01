@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.PipelinePauseInfo;
  */
 public class PipelineGroupModel {
     private String name;
-    private List<PipelineModel> pipelineModels = new ArrayList<PipelineModel>();
+    private List<PipelineModel> pipelineModels = new ArrayList<>();
 
     public PipelineGroupModel(String name) {
         this.name = name;
@@ -44,7 +44,7 @@ public class PipelineGroupModel {
     }
 
     public List<PipelineModel> getPipelineModels() {
-        return new ArrayList<PipelineModel>(pipelineModels);
+        return new ArrayList<>(pipelineModels);
     }
 
     public PipelineModel pipelineModelForPipelineName(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {

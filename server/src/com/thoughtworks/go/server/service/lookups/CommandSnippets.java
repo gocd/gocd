@@ -33,7 +33,7 @@ public class CommandSnippets {
     }
 
     public List<CommandSnippet> invalidSnippets() {
-        ArrayList<CommandSnippet> invalidSnippets = new ArrayList<CommandSnippet>();
+        ArrayList<CommandSnippet> invalidSnippets = new ArrayList<>();
         for (CommandSnippet commandSnippet : snippets) {
             if (!commandSnippet.isValid()) {
                 invalidSnippets.add(commandSnippet);
@@ -45,9 +45,9 @@ public class CommandSnippets {
     public List<CommandSnippet> filterBy(String prefix) {
         String prefixToCheckAgainst = prefix.toLowerCase();
 
-        ArrayList<CommandSnippet> exactNameMatchingSnippets = new ArrayList<CommandSnippet>();
-        ArrayList<CommandSnippet> partialNameMatchingSnippets = new ArrayList<CommandSnippet>();
-        ArrayList<CommandSnippet> exactKeywordMatchingSnippets = new ArrayList<CommandSnippet>();
+        ArrayList<CommandSnippet> exactNameMatchingSnippets = new ArrayList<>();
+        ArrayList<CommandSnippet> partialNameMatchingSnippets = new ArrayList<>();
+        ArrayList<CommandSnippet> exactKeywordMatchingSnippets = new ArrayList<>();
         for (CommandSnippet snippet : snippets) {
             if (!snippet.isValid()) {
                 continue;
@@ -64,7 +64,7 @@ public class CommandSnippets {
                 exactKeywordMatchingSnippets.add(snippet);
             }
         }
-        ArrayList<CommandSnippet> matchedSnippets = new ArrayList<CommandSnippet>();
+        ArrayList<CommandSnippet> matchedSnippets = new ArrayList<>();
         matchedSnippets.addAll(exactNameMatchingSnippets);
         matchedSnippets.addAll(partialNameMatchingSnippets);
         matchedSnippets.addAll(exactKeywordMatchingSnippets);
@@ -105,7 +105,7 @@ public class CommandSnippets {
     }
 
     private List<CommandSnippet> sortByName(List<CommandSnippet> snippets) {
-        List<CommandSnippet> snippetsSortedByName = new ArrayList<CommandSnippet>(snippets);
+        List<CommandSnippet> snippetsSortedByName = new ArrayList<>(snippets);
         Collections.sort(snippetsSortedByName, new Comparator<CommandSnippet>() {
             @Override
             public int compare(CommandSnippet snippet1, CommandSnippet snippet2) {

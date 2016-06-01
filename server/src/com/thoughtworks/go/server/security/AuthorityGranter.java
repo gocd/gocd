@@ -37,7 +37,7 @@ public class AuthorityGranter {
     }
 
     public GrantedAuthority[] authorities(String username) {
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         checkAndAddSuperAdmin(username, authorities);
         checkAndAddGroupAdmin(username, authorities);
         checkAndAddTemplateAdmin(username, authorities);

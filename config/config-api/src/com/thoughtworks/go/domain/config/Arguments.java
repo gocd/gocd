@@ -48,7 +48,7 @@ public class Arguments extends BaseCollection<Argument> implements Validatable {
     }
 
     public String[] toStringArray() {
-        ArrayList<String> list = new ArrayList<String>(this.size());
+        ArrayList<String> list = new ArrayList<>(this.size());
         for (Argument arg : this) {
             list.add(arg.getValue());
         }

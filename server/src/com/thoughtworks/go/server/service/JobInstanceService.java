@@ -89,7 +89,7 @@ public class JobInstanceService implements JobPlanLoader {
         this.goConfigService = goConfigService;
 		this.securityService = securityService;
         this.pluginManager = pluginManager;
-        this.listeners = new ArrayList<JobStatusListener>(Arrays.asList(listener));
+        this.listeners = new ArrayList<>(Arrays.asList(listener));
     }
 
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName) {
@@ -176,7 +176,7 @@ public class JobInstanceService implements JobPlanLoader {
             public void afterCommit() {
                 List<JobStatusListener> listeners1;
                 synchronized (LISTENERS_MODIFICATION_MUTEX) {
-                    listeners1 = new ArrayList<JobStatusListener>(listeners);
+                    listeners1 = new ArrayList<>(listeners);
                 }
                 for (JobStatusListener jobStatusListener : listeners1) {
                     try {
@@ -214,7 +214,7 @@ public class JobInstanceService implements JobPlanLoader {
 
     public List<WaitingJobPlan> waitingJobPlans() {
         List<JobPlan> jobPlans = orderedScheduledBuilds();
-        List<WaitingJobPlan> waitingJobPlans = new ArrayList<WaitingJobPlan>();
+        List<WaitingJobPlan> waitingJobPlans = new ArrayList<>();
         for (JobPlan jobPlan : jobPlans) {
             String envForJob = environmentConfigService.envForJob(jobPlan.getPipelineName());
             waitingJobPlans.add(new WaitingJobPlan(jobPlan, envForJob));

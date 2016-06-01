@@ -65,7 +65,7 @@ public class Modifications extends BaseCollection<Modification> {
 
     public static List<Modification> filterOutRevision(List<Modification> modifications,
                                                        Revision withoutThisRevision) {
-        List<Modification> filtered = new ArrayList<Modification>();
+        List<Modification> filtered = new ArrayList<>();
         for (Modification modification : modifications) {
             if (!modification.getRevision().equals(withoutThisRevision.getRevision())) {
                 filtered.add(modification);
@@ -129,7 +129,7 @@ public class Modifications extends BaseCollection<Modification> {
             return false;
         }
         Set<ModifiedFile> allFiles = getAllFiles(this);
-        Set<ModifiedFile> ignoredFiles = new HashSet<ModifiedFile>();
+        Set<ModifiedFile> ignoredFiles = new HashSet<>();
 
         for (ModifiedFile file : allFiles) {
             appyIgnoreFilter(materialConfig, file, ignoredFiles);
@@ -153,7 +153,7 @@ public class Modifications extends BaseCollection<Modification> {
     }
 
     private Set<ModifiedFile> getAllFiles(List<Modification> modifications) {
-        Set<ModifiedFile> allFiles = new HashSet<ModifiedFile>();
+        Set<ModifiedFile> allFiles = new HashSet<>();
         for (Modification modification : modifications) {
             for (ModifiedFile modifiedFile : modification.getModifiedFiles()) {
                 allFiles.add(modifiedFile);

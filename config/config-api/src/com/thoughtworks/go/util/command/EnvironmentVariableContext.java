@@ -101,7 +101,7 @@ public class EnvironmentVariableContext implements Serializable {
 
     public static final String GO_ENVIRONMENT_NAME = "GO_ENVIRONMENT_NAME";
 
-    private final List<EnvironmentVariable> properties = new ArrayList<EnvironmentVariable>();
+    private final List<EnvironmentVariable> properties = new ArrayList<>();
 
     public EnvironmentVariableContext() {
     }
@@ -135,7 +135,7 @@ public class EnvironmentVariableContext implements Serializable {
     }
 
     public List<EnvironmentVariable> getSecureEnvironmentVariables() {
-        List<EnvironmentVariable> environmentVariables = new ArrayList<EnvironmentVariable>();
+        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
         for (EnvironmentVariable property : properties) {
             if(property.isSecure()) {
                 environmentVariables.add(property);
@@ -180,7 +180,7 @@ public class EnvironmentVariableContext implements Serializable {
     }
 
     public Map<String, String> getProperties() {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         for (EnvironmentVariable property : properties) {
             map.put(property.name(), property.value());
         }

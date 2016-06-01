@@ -492,7 +492,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     private void removeEmptyGroups(PipelineGroupModels groupModels) {
         for (PipelineGroupModel pipelineGroupModel : groupModels.asList()) {
             if(pipelineGroupModel.getPipelineModels().isEmpty()){
-                groupModels.remove(pipelineGroupModel);        
+                groupModels.remove(pipelineGroupModel);
             }
         }
     }
@@ -616,8 +616,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     }
 
     private static class PipelineGroupModels {
-        List<PipelineGroupModel> groupModels = new ArrayList<PipelineGroupModel>();
-        
+        List<PipelineGroupModel> groupModels = new ArrayList<>();
+
         public void addPipelineInstance(String groupName, PipelineInstanceModel pipelineInstanceModel, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
             PipelineModel pipelineModel = pipelineModelForPipelineName(groupName, pipelineInstanceModel.getName(), canForce, canOperate, pipelinePauseInfo);
             pipelineModel.addPipelineInstance(pipelineInstanceModel);
@@ -628,7 +628,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         }
 
         public List<PipelineGroupModel> asList() {
-            return new ArrayList<PipelineGroupModel>(groupModels);
+            return new ArrayList<>(groupModels);
         }
 
         private PipelineModel pipelineModelForPipelineName(String groupName, String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo){

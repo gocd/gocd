@@ -87,7 +87,7 @@ public class DefaultPluginManager implements PluginManager {
 
     public PluginUploadResponse addPlugin(File uploadedPlugin, String filename) {
         if (!pluginValidator.namecheckForJar(filename)) {
-            Map<Integer, String> errors = new HashMap<Integer, String>();
+            Map<Integer, String> errors = new HashMap<>();
             errors.put(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
             return PluginUploadResponse.create(false, null, errors);
         }
@@ -180,7 +180,7 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     public List<GoPluginIdentifier> allPluginsOfType(final String extension) {
-        final List<GoPluginIdentifier> list = new ArrayList<GoPluginIdentifier>();
+        final List<GoPluginIdentifier> list = new ArrayList<>();
         goPluginOSGiFramework.doOnAll(GoPlugin.class, new Action<GoPlugin>() {
             @Override
             public void execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {

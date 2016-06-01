@@ -159,7 +159,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     public List<TaskProperty> getPropertiesForDisplay() {
-        ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
+        ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         taskProperties.add(new TaskProperty("COMMAND", command));
         String arguments = arguments();
         if (!arguments.isEmpty()) {

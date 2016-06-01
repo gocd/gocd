@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 public abstract class ReportingFanInNode {
     MaterialConfig materialConfig;
-    public Set<ReportingDependencyFanInNode> parents = new HashSet<ReportingDependencyFanInNode>();
+    public Set<ReportingDependencyFanInNode> parents = new HashSet<>();
 
     public ReportingFanInNode(MaterialConfig materialConfig) {
         this.materialConfig = materialConfig;

@@ -48,7 +48,7 @@ public class CcTrayStageStatusLoader {
 
         Long stageId = findStageIdOf(pipelineConfig, stageConfig);
         if (stageId == null) {
-            return new ArrayList<ProjectStatus>();
+            return new ArrayList<>();
         }
 
         return stageChangeHandler.statusesOfStageAndItsJobsFor(stageDao.stageById(stageId));

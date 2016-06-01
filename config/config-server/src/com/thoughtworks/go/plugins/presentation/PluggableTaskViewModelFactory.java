@@ -39,7 +39,7 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
 
     private static final Logger LOG = Logger.getLogger(PluggableTaskViewModelFactory.class);
 
-    private Map<String, String> viewTemplates = new HashMap<String, String>();
+    private Map<String, String> viewTemplates = new HashMap<>();
     private static final Pattern CLASSPATH_MATCHER_PATTERN = Pattern.compile("^classpath:(.+)");
 
     public PluggableTaskViewModelFactory() {

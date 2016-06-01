@@ -73,7 +73,7 @@ public final class PluginSettingsMetadataStore extends PluginPreferenceStore<Plu
     }
 
     public List<String> getPlugins() {
-        return new ArrayList<String>(pluginIds());
+        return new ArrayList<>(pluginIds());
     }
 
     public boolean hasPlugin(String pluginId) {

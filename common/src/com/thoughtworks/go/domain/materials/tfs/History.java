@@ -26,10 +26,10 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 @XStreamAlias("history")
 public class History {
     @XStreamImplicit
-    private List<Changeset> changesets = new ArrayList<Changeset>();
+    private List<Changeset> changesets = new ArrayList<>();
 
     public List<Modification> getModifications() {
-        List<Modification> mods = new ArrayList<Modification>();
+        List<Modification> mods = new ArrayList<>();
         if (changesets != null) {
             for (Changeset changeset : changesets) {
                 mods.add(changeset.getModification());

@@ -21,7 +21,7 @@ import java.util.List;
 
 public class PluginStatus {
     private State state;
-    private List<String> messages = new ArrayList<String>();
+    private List<String> messages = new ArrayList<>();
     private Exception rootCauseIfInvalid;
 
     public enum State {

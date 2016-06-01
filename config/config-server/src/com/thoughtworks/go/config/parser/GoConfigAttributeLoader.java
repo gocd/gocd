@@ -29,7 +29,7 @@ public class GoConfigAttributeLoader {
     private final ConfigUtil configUtil = new ConfigUtil("magic");
     private final Element e;
     private final Field field;
-    private static Map<Field, ConfigAttribute> isAttributes = new HashMap<Field, ConfigAttribute>();
+    private static Map<Field, ConfigAttribute> isAttributes = new HashMap<>();
 
     public static boolean isAttribute(Field field) {
         return findAttribute(field) != null;

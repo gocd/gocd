@@ -54,7 +54,7 @@ public class GoConfigClassLoader<T> {
     @SuppressWarnings("unchecked")
     public static <T> GoConfigClassLoader<T> classParser(Element e, Class<T> aClass, ConfigCache configCache, GoCipher goCipher, final ConfigElementImplementationRegistry registry,
                                                              ConfigReferenceElements configReferenceElements) {
-        return new GoConfigClassLoader<T>(e, aClass, configCache, goCipher, registry, configReferenceElements);
+        return new GoConfigClassLoader<>(e, aClass, configCache, goCipher, registry, configReferenceElements);
     }
 
     private GoConfigClassLoader(Element e, Class<T> aClass, ConfigCache configCache, GoCipher goCipher, final ConfigElementImplementationRegistry registry,
@@ -128,7 +128,7 @@ public class GoConfigClassLoader<T> {
     }
 
     private <I> List<GoConfigFieldLoader> allFields(I o) {
-        List<GoConfigFieldLoader> fields = new ArrayList<GoConfigFieldLoader>();
+        List<GoConfigFieldLoader> fields = new ArrayList<>();
         List<Field> allFields = configCache.getFieldCache().valuesFor(o.getClass());
         for (Field field : allFields) {
             fields.add(fieldParser(e, o, field, configCache, registry, configReferenceElements));

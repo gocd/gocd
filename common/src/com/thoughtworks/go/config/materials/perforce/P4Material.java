@@ -230,9 +230,9 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
-        Map<String, Object> materialMap = new HashMap<String, Object>();
+        Map<String, Object> materialMap = new HashMap<>();
         materialMap.put("type", "perforce");
-        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        Map<String, Object> configurationMap = new HashMap<>();
         configurationMap.put("url", serverAndPort);
         configurationMap.put("username", userName);
         if (addSecureFields) {

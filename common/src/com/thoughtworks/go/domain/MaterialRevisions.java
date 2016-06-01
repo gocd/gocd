@@ -48,7 +48,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     private static final Logger LOGGER = Logger.getLogger(MaterialRevisions.class);
 
     public static final MaterialRevisions EMPTY = new MaterialRevisions();
-    private List<MaterialRevision> revisions = new ArrayList<MaterialRevision>();
+    private List<MaterialRevision> revisions = new ArrayList<>();
 
     public MaterialRevisions(MaterialRevision... revisions) {
         this.revisions.addAll(Arrays.asList(revisions));
@@ -272,7 +272,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     public Map<CaseInsensitiveString, String> getNamedRevisions() {
-        Map<CaseInsensitiveString, String> results = new HashMap<CaseInsensitiveString, String>();
+        Map<CaseInsensitiveString, String> results = new HashMap<>();
         for (MaterialRevision mr : revisions) {
             CaseInsensitiveString materialName = mr.getMaterial().getName();
             if (!CaseInsensitiveString.isBlank(materialName)) {
@@ -374,7 +374,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     public List<String> getCardNumbersFromComments() {
-        List<String> cardNumbers = new ArrayList<String>();
+        List<String> cardNumbers = new ArrayList<>();
         for (Modification modification : collectAllModifications()) {
             collectUniqueCardNumbers(modification, cardNumbers);
         }
@@ -390,11 +390,11 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     private Modifications collectAllModifications() {
-        Set<Modification> mods = new TreeSet<Modification>(Modifications.LATEST_MODIFICATION_FIRST);
+        Set<Modification> mods = new TreeSet<>(Modifications.LATEST_MODIFICATION_FIRST);
         for (MaterialRevision revision : revisions) {
             mods.addAll(revision.getModifications());
         }
-        return new Modifications(new ArrayList<Modification>(mods));
+        return new Modifications(new ArrayList<>(mods));
     }
 
     public BuildCommand updateToCommand(String baseDir) {

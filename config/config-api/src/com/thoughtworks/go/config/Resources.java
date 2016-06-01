@@ -63,11 +63,11 @@ public class Resources extends BaseCollection<Resource> implements Comparable<Re
     }
 
     public List<String> resourceNames() {
-        Set<String> names = new TreeSet<String>();
+        Set<String> names = new TreeSet<>();
         for (Resource resource : this) {
             names.add(resource.getName());
         }
-        return new ArrayList<String>(names);
+        return new ArrayList<>(names);
     }
 
     public String toString() {

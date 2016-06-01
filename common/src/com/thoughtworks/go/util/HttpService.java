@@ -166,7 +166,7 @@ public class HttpService {
         }
 
         public MultipartRequestEntity createMultipartRequestEntity(File artifact, Properties artifactChecksums, HttpMethodParams methodParams) throws IOException {
-            ArrayList<Part> parts = new ArrayList<Part>();
+            ArrayList<Part> parts = new ArrayList<>();
             parts.add(new FilePart(GoConstants.ZIP_MULTIPART_FILENAME, artifact));
             if (artifactChecksums != null) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -146,7 +146,7 @@ public class P4Client extends SCMCommand {
     }
 
     CommandLine p4(String command, String... params) {
-        Map<String, String> env = new HashMap<String, String>();
+        Map<String, String> env = new HashMap<>();
         env.put("P4PORT", p4Port);
         env.put("P4CLIENT", p4ClientName);
         if (hasUser()) {

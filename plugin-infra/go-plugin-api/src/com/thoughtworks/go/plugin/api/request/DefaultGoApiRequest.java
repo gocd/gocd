@@ -32,9 +32,9 @@ public class DefaultGoApiRequest extends GoApiRequest {
 
     private GoPluginIdentifier pluginIdentifier;
 
-    private Map<String, String> requestParameters = new HashMap<String, String>();
+    private Map<String, String> requestParameters = new HashMap<>();
 
-    private Map<String, String> requestHeaders = new HashMap<String, String>();
+    private Map<String, String> requestHeaders = new HashMap<>();
 
     private String requestBody;
 

@@ -31,7 +31,7 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
     static final String UUID = "uuid";
 
     @Override public Set<Material> prune(Set<Material> materials, Map params) {
-        final HashSet<Material> prunedMaterials = new HashSet<Material>();
+        final HashSet<Material> prunedMaterials = new HashSet<>();
         if (params.containsKey(UUID)) {
             final String targetUUID = (String) params.get(UUID);
             final HashMap<String, String> urlToRemoteUUIDMap = createUrlToRemoteUUIDMap(materials);
@@ -53,7 +53,7 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
     }
 
     HashMap<String, String> createUrlToRemoteUUIDMap(Set<Material> materials) {
-        final HashSet<SvnMaterial> setOfSvnMaterials = new HashSet<SvnMaterial>();
+        final HashSet<SvnMaterial> setOfSvnMaterials = new HashSet<>();
         for (Material material : materials) {
             if (material instanceof SvnMaterial) {
                 setOfSvnMaterials.add((SvnMaterial) material);

@@ -56,15 +56,15 @@ public class ConfigDbStateRepository extends HibernateDaoSupport {
 
     private Object flushArtifactCleanupProhibitions() {
         List<StageArtifactCleanupProhibited> existingEntries = getHibernateTemplate().find("from StageArtifactCleanupProhibited");
-        HashMap<Map.Entry<String, String>, StageArtifactCleanupProhibited> persistentStateMap = new HashMap<Map.Entry<String, String>, StageArtifactCleanupProhibited>();
+        HashMap<Map.Entry<String, String>, StageArtifactCleanupProhibited> persistentStateMap = new HashMap<>();
         for (StageArtifactCleanupProhibited persistentState : existingEntries) {
             persistentState.setProhibited(false);
-            persistentStateMap.put(new AbstractMap.SimpleEntry<String, String>(persistentState.getPipelineName(), persistentState.getStageName()), persistentState);
+            persistentStateMap.put(new AbstractMap.SimpleEntry<>(persistentState.getPipelineName(), persistentState.getStageName()), persistentState);
         }
         List<PipelineConfig> pipelineConfigs = goConfigService.currentCruiseConfig().allPipelines();
         for (PipelineConfig pipelineConfig : pipelineConfigs) {
             for (StageConfig stageConfig : pipelineConfig) {
-                StageArtifactCleanupProhibited stageArtifactCleanupProhibited = persistentStateMap.get(new AbstractMap.SimpleEntry<String, String>(CaseInsensitiveString.str(pipelineConfig.name()),
+                StageArtifactCleanupProhibited stageArtifactCleanupProhibited = persistentStateMap.get(new AbstractMap.SimpleEntry<>(CaseInsensitiveString.str(pipelineConfig.name()),
                         CaseInsensitiveString.str(stageConfig.name())));
                 if (stageArtifactCleanupProhibited == null) {
                     stageArtifactCleanupProhibited = new StageArtifactCleanupProhibited(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stageConfig.name()));

@@ -29,7 +29,7 @@ public class MissingPluggableTaskViewModelTest {
     @Test
     public void shouldReturnPluginIdAsDisplayValue() throws Exception {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("test-plugin-1", "1.0");
-        PluggableTask pluggableTask = new PluggableTask("test-task-1", pluginConfiguration, new Configuration());
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, new Configuration());
 
         MissingPluggableTaskViewModel viewModel = new MissingPluggableTaskViewModel(pluggableTask, null, null);
         assertThat((String) viewModel.getParameters().get("template"), is(String.format("Associated plugin '%s' not found. Please contact the Go admin to install the plugin.", pluginConfiguration.getId())));

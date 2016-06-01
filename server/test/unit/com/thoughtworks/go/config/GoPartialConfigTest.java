@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class GoPartialConfigTest {
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
     private PartialConfigProvider plugin;
-
+    private ServerHealthService serverHealthService;
     private GoRepoConfigDataSource repoConfigDataSource;
 
     private BasicCruiseConfig cruiseConfig ;
@@ -47,6 +48,7 @@ public class GoPartialConfigTest {
     @Before
     public void setUp()
     {
+        serverHealthService = mock(ServerHealthService.class);
         configPluginService = mock(GoConfigPluginService.class);
         plugin = mock(PartialConfigProvider.class);
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
@@ -57,7 +59,7 @@ public class GoPartialConfigTest {
 
         configWatchList = new GoConfigWatchList(fileMock);
 
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,configPluginService,serverHealthService);
 
         partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
     }

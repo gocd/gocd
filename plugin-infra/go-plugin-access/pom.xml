@@ -40,6 +40,16 @@
             <artifactId>go-plugin-infra</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.bazaarvoice.jolt</groupId>
+            <artifactId>jolt-core</artifactId>
+            <version>0.0.20</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bazaarvoice.jolt</groupId>
+            <artifactId>json-utils</artifactId>
+            <version>0.0.20</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>

@@ -23,13 +23,13 @@ describe ApiV1::VersionRepresenter do
                                                                 build_number: '235',
                                                                 git_sha: '69ef4921709a84831913d9fa7e750fbf840f213c',
                                                                 full_version: '16.6.0 (235-69ef4921709a84831913d9fa7e750fbf840f213c)',
-                                                                commit_url: 'https://github.com/gocd/gocd/commits/69ef4921709a84831913d9fa7e750fbf840f213c'
+                                                                commit_url: 'https://github.com/gocd/gocd/commit/69ef4921709a84831913d9fa7e750fbf840f213c'
                                                                })).to_hash(url_builder: UrlBuilder.new)
     expect(actual_json[:version]).to eq('16.6.0')
     expect(actual_json[:build_number]).to eq('235')
     expect(actual_json[:git_sha]).to eq('69ef4921709a84831913d9fa7e750fbf840f213c')
     expect(actual_json[:full_version]).to eq('16.6.0 (235-69ef4921709a84831913d9fa7e750fbf840f213c)')
-    expect(actual_json[:commit_url]).to eq('https://github.com/gocd/gocd/commits/69ef4921709a84831913d9fa7e750fbf840f213c')
+    expect(actual_json[:commit_url]).to eq('https://github.com/gocd/gocd/commit/69ef4921709a84831913d9fa7e750fbf840f213c')
 
     expect(actual_json).to have_links(:self, :doc)
 

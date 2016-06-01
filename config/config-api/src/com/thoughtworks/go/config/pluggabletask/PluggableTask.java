@@ -55,7 +55,7 @@ public class PluggableTask extends AbstractTask {
     public PluggableTask() {
     }
 
-    public PluggableTask(String name, PluginConfiguration pluginConfiguration, Configuration configuration) {
+    public PluggableTask(PluginConfiguration pluginConfiguration, Configuration configuration) {
         this.pluginConfiguration = pluginConfiguration;
         this.configuration = configuration;
     }

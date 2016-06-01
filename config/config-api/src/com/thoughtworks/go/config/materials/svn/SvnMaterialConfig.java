@@ -83,6 +83,13 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         setPassword(password);
         this.checkExternals = checkExternals;
     }
+    public SvnMaterialConfig(String url, String userName, boolean checkExternals, GoCipher goCipher) {
+        this(goCipher);
+        bombIfNull(url, "null url");
+        this.url = new UrlArgument(url);
+        this.userName = userName;
+        this.checkExternals = checkExternals;
+    }
 
     public SvnMaterialConfig(String url, String userName, String password, boolean checkExternals, String folder) {
         this(url, userName, password, checkExternals);

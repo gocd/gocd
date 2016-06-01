@@ -77,7 +77,7 @@ public class PluggableTaskServiceTest {
     @Test
     public void shouldValidateTask() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTask modifiedTask = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("KEY1", "error message"));
         when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
@@ -92,7 +92,7 @@ public class PluggableTaskServiceTest {
     @Test
     public void shouldValidateMandatoryFields() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTask modifiedTask = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
         when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("MANDATORY_CONFIGURATION_FIELD");
@@ -115,7 +115,7 @@ public class PluggableTaskServiceTest {
     public void shouldPassValidationIfAllRequiredFieldsHaveValues() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         configuration.getProperty("KEY1").setConfigurationValue(new ConfigurationValue("junk"));
-        PluggableTask modifiedTask = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
 

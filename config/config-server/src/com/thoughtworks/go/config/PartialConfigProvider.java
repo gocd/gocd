@@ -35,5 +35,7 @@ public interface PartialConfigProvider {
 
     PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context);
 
+    String displayName();
+
     // any further elements that could be obtained from config repo
 }

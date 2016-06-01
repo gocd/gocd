@@ -42,9 +42,9 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     private GoConfigWatchList configWatchList;
 
     // value is partial config instance or last exception
-    private Map<String,PartialConfigParseResult> fingerprintOfPartialToLatestParseResultMap = new ConcurrentHashMap<String,PartialConfigParseResult>();
+    private Map<String,PartialConfigParseResult> fingerprintOfPartialToLatestParseResultMap = new ConcurrentHashMap<>();
 
-    private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<PartialConfigUpdateCompletedListener>();
+    private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<>();
 
     @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService)
     {

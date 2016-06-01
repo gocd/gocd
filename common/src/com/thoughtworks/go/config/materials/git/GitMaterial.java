@@ -383,9 +383,9 @@ public class GitMaterial extends ScmMaterial {
 
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
-        Map<String, Object> materialMap = new HashMap<String, Object>();
+        Map<String, Object> materialMap = new HashMap<>();
         materialMap.put("type", "git");
-        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
             configurationMap.put("url", url.forCommandline());
         } else {

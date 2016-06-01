@@ -49,7 +49,7 @@ public class MacAboutBox extends JFrame implements ActionListener {
         getContentPane().setLayout(new BorderLayout(15, 15));
 
 
-        List<JLabel> aboutLabels = new ArrayList<JLabel>();
+        List<JLabel> aboutLabels = new ArrayList<>();
         aboutLabels.add(emptyLabel());
         aboutLabels.add(titleLabel("Go Agent"));
         aboutLabels.add(bodyLabel("Bootstrapper Version " + getBootstrapperVersion()));

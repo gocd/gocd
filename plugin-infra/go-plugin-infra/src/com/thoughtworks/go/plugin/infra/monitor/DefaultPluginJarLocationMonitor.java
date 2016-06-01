@@ -38,8 +38,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     private static final Logger LOGGER = Logger.getLogger(DefaultPluginJarLocationMonitor.class);
 
 
-    private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener = new CopyOnWriteArrayList<WeakReference<PluginJarChangeListener>>();
-    private List<WeakReference<PluginsFolderChangeListener>> pluginsFolderChangeListener = new CopyOnWriteArrayList<WeakReference<PluginsFolderChangeListener>>();
+    private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener = new CopyOnWriteArrayList<>();
+    private List<WeakReference<PluginsFolderChangeListener>> pluginsFolderChangeListener = new CopyOnWriteArrayList<>();
 
     private File bundledPluginDirectory;
     private final File externalPluginDirectory;
@@ -59,13 +59,13 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     public void addPluginsFolderChangeListener(PluginsFolderChangeListener pluginsFolderChangeListener) {
-        this.pluginsFolderChangeListener.add(new WeakReference<PluginsFolderChangeListener>(pluginsFolderChangeListener));
+        this.pluginsFolderChangeListener.add(new WeakReference<>(pluginsFolderChangeListener));
         removeClearedWeakReferencesForFolder();
     }
 
     @Override
     public void addPluginJarChangeListener(PluginJarChangeListener listener) {
-        pluginJarChangeListener.add(new WeakReference<PluginJarChangeListener>(listener));
+        pluginJarChangeListener.add(new WeakReference<>(listener));
         removeClearedWeakReferences();
     }
 
@@ -161,8 +161,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     private static class PluginLocationMonitorThread extends Thread {
-        private Set<PluginFileDetails> knownBundledPluginFileDetails = new HashSet<PluginFileDetails>();
-        private Set<PluginFileDetails> knownExternalPluginFileDetails = new HashSet<PluginFileDetails>();
+        private Set<PluginFileDetails> knownBundledPluginFileDetails = new HashSet<>();
+        private Set<PluginFileDetails> knownExternalPluginFileDetails = new HashSet<>();
         private File bundledPluginDirectory;
         private File externalPluginDirectory;
         private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener;
@@ -203,7 +203,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         }
 
         private boolean notifyListenersOfAddedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> previouslyKnownPluginFiles) {
-            HashSet<PluginFileDetails> currentPlugins = new HashSet<PluginFileDetails>(currentPluginFiles);
+            HashSet<PluginFileDetails> currentPlugins = new HashSet<>(currentPluginFiles);
             currentPlugins.removeAll(previouslyKnownPluginFiles);
 
             for (PluginFileDetails newlyAddedPluginFile : currentPlugins) {
@@ -213,7 +213,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         }
 
         private boolean notifyListenersOfRemovedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> previouslyKnownPluginFiles) {
-            HashSet<PluginFileDetails> previouslyKnownPlugins = new HashSet<PluginFileDetails>(previouslyKnownPluginFiles);
+            HashSet<PluginFileDetails> previouslyKnownPlugins = new HashSet<>(previouslyKnownPluginFiles);
             previouslyKnownPlugins.removeAll(currentPluginFiles);
 
             for (PluginFileDetails removedPluginFile : previouslyKnownPlugins) {
@@ -248,7 +248,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         }
 
         private Set<PluginFileDetails> getDetailsOfCurrentPluginFilesFrom(File directory, boolean isBundledPluginsLocation) {
-            Set<PluginFileDetails> currentPluginFileDetails = new HashSet<PluginFileDetails>();
+            Set<PluginFileDetails> currentPluginFileDetails = new HashSet<>();
             for (Object fileOfPlugin : FileUtils.listFiles(directory, new String[]{"jar"}, false)) {
                 currentPluginFileDetails.add(new PluginFileDetails((File) fileOfPlugin, isBundledPluginsLocation));
             }
@@ -256,8 +256,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         }
 
         private ArrayList<PluginFileDetails> findUpdatedPlugins(Set<PluginFileDetails> currentPluginFiles, Set<PluginFileDetails> knownPluginFileDetails) {
-            final ArrayList<PluginFileDetails> currentPlugins = new ArrayList<PluginFileDetails>(currentPluginFiles);
-            final ArrayList<PluginFileDetails> knownPlugins = new ArrayList<PluginFileDetails>(knownPluginFileDetails);
+            final ArrayList<PluginFileDetails> currentPlugins = new ArrayList<>(currentPluginFiles);
+            final ArrayList<PluginFileDetails> knownPlugins = new ArrayList<>(knownPluginFileDetails);
 
             CollectionUtils.filter(knownPlugins, new Predicate() {
                 @Override

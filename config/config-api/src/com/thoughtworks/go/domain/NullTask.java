@@ -47,7 +47,7 @@ public class NullTask implements Task {
     }
 
     public List<TaskProperty> getPropertiesForDisplay() {
-        return new ArrayList<TaskProperty>();
+        return new ArrayList<>();
     }
 
     public void setConfigAttributes(Object attributes) {

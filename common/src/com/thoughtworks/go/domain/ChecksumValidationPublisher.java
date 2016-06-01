@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ChecksumValidationPublisher implements com.thoughtworks.go.agent.ChecksumValidationPublisher, Serializable {
-    private Set<String> md5NotFoundPaths = new HashSet<String>();
-    private Set<String> md5MismatchPaths = new HashSet<String>();
+    private Set<String> md5NotFoundPaths = new HashSet<>();
+    private Set<String> md5MismatchPaths = new HashSet<>();
     private boolean md5ChecksumFileWasNotFound;
 
     public void md5Match(String filePath) {

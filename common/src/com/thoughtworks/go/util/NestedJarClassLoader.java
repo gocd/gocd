@@ -68,7 +68,7 @@ public class NestedJarClassLoader extends ClassLoader {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Enumerating jar: " + urlOfJar);
         }
-        List<URL> urls = new ArrayList<URL>();
+        List<URL> urls = new ArrayList<>();
         urls.add(urlOfJar);
         try {
             JarInputStream jarStream = new JarInputStream(urlOfJar.openStream());

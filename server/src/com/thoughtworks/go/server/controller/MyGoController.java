@@ -103,7 +103,7 @@ public class MyGoController {
             return new Redirection("/mycruise/user")
                     .addParameter(MESSAGE_KEY, "Successfully saved the notification filter.");
         } catch (Exception e) {
-            HashMap<String, Object> data = new HashMap<String, Object>();
+            HashMap<String, Object> data = new HashMap<>();
             data.put("pipeline", pipeline);
             data.put("stage", stage);
             data.put("event", event);
@@ -169,9 +169,9 @@ public class MyGoController {
     }
 
     private List<PipelineViewModel> getPipelineModelsSortedByNameFor(List<PipelineConfigs> groups) {
-        List<PipelineViewModel> pipelineModels = new ArrayList<PipelineViewModel>();
+        List<PipelineViewModel> pipelineModels = new ArrayList<>();
 
-        List<PipelineViewModel.StageViewModel> anyPipelineStageModels= new ArrayList<PipelineViewModel.StageViewModel>();
+        List<PipelineViewModel.StageViewModel> anyPipelineStageModels= new ArrayList<>();
         anyPipelineStageModels.add(new PipelineViewModel.StageViewModel(GoConstants.ANY_STAGE));
         pipelineModels.add(new PipelineViewModel(GoConstants.ANY_PIPELINE, anyPipelineStageModels));
 
@@ -185,7 +185,7 @@ public class MyGoController {
     }
 
     private List<PipelineViewModel.StageViewModel> getStagesModelsFor(PipelineConfig pipelineConfig) {
-        List<PipelineViewModel.StageViewModel> stageModels = new ArrayList<PipelineViewModel.StageViewModel>();
+        List<PipelineViewModel.StageViewModel> stageModels = new ArrayList<>();
         stageModels.add(new PipelineViewModel.StageViewModel(GoConstants.ANY_STAGE));
         for (StageConfig stageConfig : pipelineConfig) {
             stageModels.add(new PipelineViewModel.StageViewModel(CaseInsensitiveString.str(stageConfig.name())));

@@ -50,7 +50,7 @@ public class KillAllChildProcessTask implements Task, Serializable {
     }
 
     public List<TaskProperty> getPropertiesForDisplay() {
-        return new ArrayList<TaskProperty>();
+        return new ArrayList<>();
     }
 
     public void setConfigAttributes(Object attributes, TaskFactory taskFactory) {

@@ -61,7 +61,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
 
 
     private final SvnLogXmlParser svnLogXmlParser;
-    private transient final static ThreadLocal<SAXBuilder> saxBuilderThreadLocal = new ThreadLocal<SAXBuilder>();
+    private transient final static ThreadLocal<SAXBuilder> saxBuilderThreadLocal = new ThreadLocal<>();
 
     public SvnCommand(String materialFingerprint, String repositoryUrl) {
         this(materialFingerprint, repositoryUrl, null, null, false);
@@ -82,7 +82,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             executeCommand(command);
             return ValidationBean.valid();
         } catch (Exception e) {
-            try{    
+            try{
                 version();
                 LOG.error("failed to connect to " + getUrlForDisplay(), e);
                 return ValidationBean.notValid("svn: Malformed URL " + getUrlForDisplay() + " : \n" + e.getMessage());
@@ -281,7 +281,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     public HashMap<String, String> createUrlToRemoteUUIDMap(Set<SvnMaterial> svnMaterials) {
-        HashMap<String, String> urlToUUIDMap = new HashMap<String, String>();
+        HashMap<String, String> urlToUUIDMap = new HashMap<>();
         for (SvnMaterial svnMaterial : svnMaterials) {
             CommandLine command = svnExecutable().withArgs("info", "--xml");
             addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.getPassword()));

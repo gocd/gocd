@@ -170,7 +170,7 @@ public abstract class MaterialInstance extends PersistentObject {
 
     public boolean requiresUpdate(Map<String, String> additionalDataMap) {
         if (additionalDataMap == null) {
-            additionalDataMap = new HashMap<String, String>();
+            additionalDataMap = new HashMap<>();
         }
         return !this.getAdditionalDataMap().equals(additionalDataMap);
     }

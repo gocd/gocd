@@ -108,7 +108,7 @@ public class PluginSettingsJsonMessageHandler1_0 implements PluginSettingsJsonMe
     }
 
     private PluginSettingsProperty toPluginSettingsProperty(String key, Map configuration) {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         String defaultValue = null;
         try {
             defaultValue = (String) configuration.get("default-value");

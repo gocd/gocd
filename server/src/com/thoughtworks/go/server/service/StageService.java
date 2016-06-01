@@ -97,7 +97,7 @@ public class StageService implements StageRunFinder, StageFinder {
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.goCache = goCache;
-        this.stageStatusListeners = new ArrayList<StageStatusListener>(Arrays.asList(stageStatusListeners));
+        this.stageStatusListeners = new ArrayList<>(Arrays.asList(stageStatusListeners));
     }
 
     public void addStageStatusListener(StageStatusListener listener) {
@@ -347,7 +347,7 @@ public class StageService implements StageRunFinder, StageFinder {
     }
 
     private void populateAuthorsAndMingleCards(List<StageFeedEntry> stageEntries, String pipelineName, Username username) {
-        List<Long> pipelineIds = new ArrayList<Long>();
+        List<Long> pipelineIds = new ArrayList<>();
         for (StageFeedEntry stageEntry : stageEntries) {
             pipelineIds.add(stageEntry.getPipelineId());
         }
@@ -483,7 +483,7 @@ public class StageService implements StageRunFinder, StageFinder {
         Pipeline pipelineThatLastPassed = pipelineDao.findEarlierPipelineThatPassedForStage(pipelineName, stageName, toNaturalOrder);
         double fromNaturalOrder = pipelineThatLastPassed != null ? pipelineThatLastPassed.getNaturalOrder() : 0.0;
 
-        List<StageIdentifier> finalIds = new ArrayList<StageIdentifier>();
+        List<StageIdentifier> finalIds = new ArrayList<>();
         List<StageIdentifier> failedStages = stageDao.findFailedStagesBetween(pipelineName, stageName, fromNaturalOrder, toNaturalOrder);
         if (failedStages.isEmpty() || !failedStages.get(0).equals(stageIdentifier)) {
             return finalIds;

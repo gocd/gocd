@@ -61,7 +61,7 @@ public class PipelineTimelineEntry implements Comparable {
         }
 
         PipelineTimelineEntry that = (PipelineTimelineEntry) o;
-        Map<Date, TreeSet<Integer>> earlierMods = new HashMap<Date, TreeSet<Integer>>();
+        Map<Date, TreeSet<Integer>> earlierMods = new HashMap<>();
 
         for (String materialFlyweight : revisions.keySet()) {
             List<Revision> thisRevs = this.revisions.get(materialFlyweight);
@@ -84,7 +84,7 @@ public class PipelineTimelineEntry implements Comparable {
         if (earlierMods.isEmpty()) {
             return counter < that.counter ? -1 : 1;
         }
-        TreeSet<Date> sortedModDate = new TreeSet<Date>(earlierMods.keySet());
+        TreeSet<Date> sortedModDate = new TreeSet<>(earlierMods.keySet());
         if (hasContentionOnEarliestMod(earlierMods, sortedModDate.first())) {
             return counter < that.counter ? -1 : 1;
         }

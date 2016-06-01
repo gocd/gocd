@@ -33,7 +33,7 @@ public class ServerHealthService {
     private Map<HealthStateType, ServerHealthState> serverHealth;
 
     public ServerHealthService() {
-        this.serverHealth = new ConcurrentHashMap<HealthStateType, ServerHealthState>();
+        this.serverHealth = new ConcurrentHashMap<>();
     }
 
     public void removeByScope(HealthStateScope scope) {
@@ -45,11 +45,11 @@ public class ServerHealthService {
     }
 
     private Set<HealthStateType> entryKeys() {
-        return new HashSet<HealthStateType>(serverHealth.keySet());
+        return new HashSet<>(serverHealth.keySet());
     }
 
     public List<ServerHealthState> filterByScope(HealthStateScope scope) {
-        List<ServerHealthState> filtered = new ArrayList<ServerHealthState>();
+        List<ServerHealthState> filtered = new ArrayList<>();
         for (Map.Entry<HealthStateType, ServerHealthState> entry : sortedEntries()) {
             HealthStateType type = entry.getKey();
             if (type.isSameScope(scope)) {
@@ -96,7 +96,7 @@ public class ServerHealthService {
     }
 
     private void removeExpiredMessages() {
-        for (Map.Entry<HealthStateType, ServerHealthState> entry : new HashSet<Map.Entry<HealthStateType, ServerHealthState>>(serverHealth.entrySet())) {
+        for (Map.Entry<HealthStateType, ServerHealthState> entry : new HashSet<>(serverHealth.entrySet())) {
             ServerHealthState value = entry.getValue();
             if (value.hasExpired()) {
                 serverHealth.remove(entry.getKey());
@@ -109,7 +109,7 @@ public class ServerHealthService {
     }
 
     private ServerHealthStates logs() {
-        ArrayList<ServerHealthState> logs = new ArrayList<ServerHealthState>();
+        ArrayList<ServerHealthState> logs = new ArrayList<>();
         for (Map.Entry<HealthStateType, ServerHealthState> entry : sortedEntries()) {
             logs.add(entry.getValue());
         }
@@ -117,7 +117,7 @@ public class ServerHealthService {
     }
 
     private List<Map.Entry<HealthStateType, ServerHealthState>> sortedEntries() {
-        List<Map.Entry<HealthStateType, ServerHealthState>> entries = new ArrayList<Map.Entry<HealthStateType, ServerHealthState>>(serverHealth.entrySet());
+        List<Map.Entry<HealthStateType, ServerHealthState>> entries = new ArrayList<>(serverHealth.entrySet());
         Collections.sort(entries, new Comparator<Map.Entry<HealthStateType, ServerHealthState>>() {
             public int compare(Map.Entry<HealthStateType, ServerHealthState> one, Map.Entry<HealthStateType, ServerHealthState> other) {
                 return one.getKey().compareTo(other.getKey());

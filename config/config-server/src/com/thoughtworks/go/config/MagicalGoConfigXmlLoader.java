@@ -103,7 +103,7 @@ public class MagicalGoConfigXmlLoader {
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
         preprocess(config);
-        List<ConfigErrors> validationErrors = new ArrayList<ConfigErrors>();
+        List<ConfigErrors> validationErrors = new ArrayList<>();
         validationErrors.addAll(config.validateAfterPreprocess());
         return validationErrors;
     }

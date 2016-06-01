@@ -30,8 +30,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StageResultCache implements GoMessageListener<StageStatusMessage> {
-    private Map<StageConfigIdentifier, StageResult> currentResults = new HashMap<StageConfigIdentifier, StageResult>();
-    private Map<StageConfigIdentifier, StageResult> previousResults = new HashMap<StageConfigIdentifier, StageResult>();
+    private Map<StageConfigIdentifier, StageResult> currentResults = new HashMap<>();
+    private Map<StageConfigIdentifier, StageResult> previousResults = new HashMap<>();
 
     private final StageDao stageDao;
     private final StageResultTopic stageResultTopic;

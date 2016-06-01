@@ -53,7 +53,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     private ScheduleCheckQueue scheduleCheckQueue;
     private ScheduleCheckCompletedTopic scheduleCheckCompletedTopic;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
-    private final Map<String, ScheduleCheckState> pipelines = new HashMap<String, ScheduleCheckState>();
+    private final Map<String, ScheduleCheckState> pipelines = new HashMap<>();
 
     protected PipelineScheduler() {
     }
@@ -202,7 +202,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                 }
             });
 
-            List<String> deletedPipeline = new ArrayList<String>();
+            List<String> deletedPipeline = new ArrayList<>();
             for (String pipelineName : pipelines.keySet()) {
                 if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
                     deletedPipeline.add(pipelineName);

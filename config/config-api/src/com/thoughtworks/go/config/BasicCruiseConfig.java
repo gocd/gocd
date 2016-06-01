@@ -70,7 +70,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     private String md5;
     private ConfigErrors errors = new ConfigErrors();
 
-    private ConcurrentMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+    private ConcurrentMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<>();
     private List<PipelineConfig> allPipelineConfigs;
 
     public BasicCruiseConfig() {
@@ -237,7 +237,7 @@ public class BasicCruiseConfig implements CruiseConfig {
          But that is done higher in services.
          */
         @IgnoreTraversal private BasicCruiseConfig main;
-        private List<PartialConfig> parts = new ArrayList<PartialConfig>();
+        private List<PartialConfig> parts = new ArrayList<>();
 
         public MergeStrategy(BasicCruiseConfig main,List<PartialConfig> parts) {
             this.main = main;
@@ -248,7 +248,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             EnvironmentsConfig environments = new EnvironmentsConfig();
 
             //first add environment configs from main
-            List<EnvironmentConfig> allEnvConfigs = new ArrayList<EnvironmentConfig>();
+            List<EnvironmentConfig> allEnvConfigs = new ArrayList<>();
             for(EnvironmentConfig envConfig : this.main.getEnvironments())
             {
                 allEnvConfigs.add(envConfig);
@@ -262,7 +262,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             }
 
             // lets group them by environment name
-            Map<CaseInsensitiveString, List<EnvironmentConfig>> map = new HashMap<CaseInsensitiveString, List<EnvironmentConfig>>();
+            Map<CaseInsensitiveString, List<EnvironmentConfig>> map = new HashMap<>();
             for(EnvironmentConfig env : allEnvConfigs)
             {
                 CaseInsensitiveString key = env.name();
@@ -426,7 +426,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Hashtable<CaseInsensitiveString, Node> getDependencyTable() {
-        final Hashtable<CaseInsensitiveString, Node> hashtable = new Hashtable<CaseInsensitiveString, Node>();
+        final Hashtable<CaseInsensitiveString, Node> hashtable = new Hashtable<>();
         this.accept(new PiplineConfigVisitor() {
             public void visit(PipelineConfig pipelineConfig) {
                 hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode());
@@ -603,7 +603,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Map<String, List<Authorization.PrivilegeType>> groupsAffectedByDeletionOfRole(final String roleName) {
-        Map<String, List<Authorization.PrivilegeType>> result = new HashMap<String, List<Authorization.PrivilegeType>>();
+        Map<String, List<Authorization.PrivilegeType>> result = new HashMap<>();
         for (PipelineConfigs group : groups) {
             final List<Authorization.PrivilegeType> privileges = group.getAuthorization().privilagesOfRole(new CaseInsensitiveString(roleName));
             if (privileges.size() > 0) {
@@ -615,7 +615,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Set<Pair<PipelineConfig, StageConfig>> stagesWithPermissionForRole(final String roleName) {
-        Set<Pair<PipelineConfig, StageConfig>> result = new HashSet<Pair<PipelineConfig, StageConfig>>();
+        Set<Pair<PipelineConfig, StageConfig>> result = new HashSet<>();
         for (PipelineConfig pipelineConfig : allPipelines()) {
             result.addAll(pipelineConfig.stagesWithPermissionForRole(new CaseInsensitiveString(roleName)));
         }
@@ -645,7 +645,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public List<PipelineConfig> allPipelines() {
-        List<PipelineConfig> configs = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> configs = new ArrayList<>();
         for (PipelineConfigs group : groups) {
             for (PipelineConfig pipeline : group) {
                 configs.add(pipeline);
@@ -876,7 +876,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PipelineConfig> getAllPipelineConfigs() {
         if (allPipelineConfigs == null) {
-            List<PipelineConfig> configs = new ArrayList<PipelineConfig>();
+            List<PipelineConfig> configs = new ArrayList<>();
             PipelineGroups groups = getGroups();
             for (PipelineConfigs group : groups) {
                 for(PipelineConfig pipelineConfig : group)
@@ -891,7 +891,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public List<CaseInsensitiveString> getAllPipelineNames() {
-        List<CaseInsensitiveString> names = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> names = new ArrayList<>();
         for (PipelineConfig config : getAllPipelineConfigs()) {
             names.add(config.name());
         }
@@ -975,8 +975,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines,boolean ignoreConfigRepos) {
-        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
-        Set<Map> uniqueMaterials = new HashSet<Map>();
+        Set<MaterialConfig> materialConfigs = new HashSet<>();
+        Set<Map> uniqueMaterials = new HashSet<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
             for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
                 if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
@@ -1005,8 +1005,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     private Set<MaterialConfig> getUniqueMaterialConfigs(boolean ignoreManualPipelines) {
-        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
-        Set<Map> uniqueMaterials = new HashSet<Map>();
+        Set<MaterialConfig> materialConfigs = new HashSet<>();
+        Set<Map> uniqueMaterials = new HashSet<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
             for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
                 if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
@@ -1023,14 +1023,14 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig) {
-        Set<String> stagesUsedAsMaterials = new HashSet<String>();
+        Set<String> stagesUsedAsMaterials = new HashSet<>();
         for (MaterialConfig materialConfig : getAllUniqueMaterials()) {
             if (materialConfig instanceof DependencyMaterialConfig) {
                 DependencyMaterialConfig dep = (DependencyMaterialConfig) materialConfig;
                 stagesUsedAsMaterials.add(dep.getPipelineName() + "|" + dep.getStageName());
             }
         }
-        Set<StageConfig> stages = new HashSet<StageConfig>();
+        Set<StageConfig> stages = new HashSet<>();
         for (StageConfig stage : pipelineConfig) {
             if (stagesUsedAsMaterials.contains(pipelineConfig.name() + "|" + stage.name())) {
                 stages.add(stage);
@@ -1062,7 +1062,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Set<Resource> getAllResources() {
-        final HashSet<Resource> resources = new HashSet<Resource>();
+        final HashSet<Resource> resources = new HashSet<>();
         accept(new JobConfigVisitor() {
             public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
                 resources.addAll(jobConfig.resources());
@@ -1115,7 +1115,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName) {
-        ArrayList<PipelineConfig> configs = new ArrayList<PipelineConfig>();
+        ArrayList<PipelineConfig> configs = new ArrayList<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
             if (pipelineConfig.dependsOn(new CaseInsensitiveString(pipelineName))) {
                 configs.add(pipelineConfig);
@@ -1171,7 +1171,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public List<ConfigErrors> validateAfterPreprocess() {
-        final List<ConfigErrors> allErrors = new ArrayList<ConfigErrors>();
+        final List<ConfigErrors> allErrors = new ArrayList<>();
         new GoConfigGraphWalker(this).walk(new ErrorCollectingHandler(allErrors) {
             @Override
             public void handleValidation(Validatable validatable, ValidationContext context) {
@@ -1216,7 +1216,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public Map<String, List<PipelineConfig>> generatePipelineVsDownstreamMap() {
         List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs();
-        Map<String, List<PipelineConfig>> result = new HashMap<String, List<PipelineConfig>>();
+        Map<String, List<PipelineConfig>> result = new HashMap<>();
 
         for (PipelineConfig currentPipeline : pipelineConfigs) {
             String currentPipelineName = currentPipeline.name().toString();
@@ -1247,7 +1247,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username) {
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<CaseInsensitiveString, List<CaseInsensitiveString>>();
+        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<>();
         for (PipelineTemplateConfig template : getTemplates()) {
             if (isAdministrator(username) || template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(new CaseInsensitiveString(username)), null)) {
                 templateToPipelines.put(template.name(), new ArrayList<CaseInsensitiveString>());

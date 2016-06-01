@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class SCMConfigurations {
-    private List<SCMConfiguration> configurations = new ArrayList<SCMConfiguration>();
+    private List<SCMConfiguration> configurations = new ArrayList<>();
 
     public SCMConfigurations() {
     }

@@ -205,7 +205,7 @@ public class GoPluginDescriptor implements PluginDescriptor {
         private String targetGoVersion;
         private String description;
         private Vendor vendor;
-        private final List<String> targetOperatingSystems = new ArrayList<String>();
+        private final List<String> targetOperatingSystems = new ArrayList<>();
 
         public About(String name, String version, String targetGoVersion, String description, Vendor vendor, List<String> targetOperatingSystems) {
             this.name = name;

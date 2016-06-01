@@ -97,7 +97,7 @@ public class PropertiesService implements JobPropertiesReader {
     public List<Properties> loadHistory(String pipelineName, String stageName, String jobName,
                                         Long pipelineId, Integer limitCount) {
         if (limitCount <= 0) {
-            return new ArrayList<Properties>();
+            return new ArrayList<>();
         }
         return propertyDao.loadHistory(pipelineName, stageName, jobName, pipelineId, limitCount);
     }

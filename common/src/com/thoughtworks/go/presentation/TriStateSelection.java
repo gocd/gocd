@@ -103,7 +103,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
     }
 
     public static TriStateSelection forSystemAdmin(final AdminsConfig adminsConfig, final Set<Role> allRoles, final UserRoleMatcher userRoleMatcher, List<String> users) {
-        return convert(new HashSet<String>(Arrays.asList(Admin.GO_SYSTEM_ADMIN)), users, new Assigner<String, String>() {
+        return convert(new HashSet<>(Arrays.asList(Admin.GO_SYSTEM_ADMIN)), users, new Assigner<String, String>() {
             public boolean shouldAssociate(String userName, String ignore) {
                 return adminsConfig.hasUser(new CaseInsensitiveString(userName), userRoleMatcher);
             }
@@ -113,7 +113,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
             }
 
             public boolean shouldEnable(String userName, String ignore) {
-                List<Role> roles = new ArrayList<Role>();
+                List<Role> roles = new ArrayList<>();
                 for (Role role : allRoles) {
                     if (role.hasMember(new CaseInsensitiveString(userName))) {
                         roles.add(role);
@@ -141,7 +141,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
     }
 
     static <T,V> List<TriStateSelection> convert(Set<T> assignables, List<V> assignees, Assigner<T,V> associator) {
-        ArrayList<TriStateSelection> selections = new ArrayList<TriStateSelection>();
+        ArrayList<TriStateSelection> selections = new ArrayList<>();
         for (T t : assignables) {
             int count = 0;
             boolean enabled = true;

@@ -41,7 +41,7 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace[] queryWorkspaces(String workspaceName, String userName) {
-        ArrayList<GoTfsWorkspace> goTfsWorkspaces = new ArrayList<GoTfsWorkspace>();
+        ArrayList<GoTfsWorkspace> goTfsWorkspaces = new ArrayList<>();
         Workspace[] workspaces = client.queryWorkspaces(workspaceName, userName, null);
         for (Workspace workspace : workspaces) {
             goTfsWorkspaces.add(new GoTfsWorkspace(workspace));

@@ -193,7 +193,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
     }
 
     private Admin[] extractAdminUsers(List<Map<String, String>> map) {
-        List<Admin> result = new ArrayList<Admin>(map.size());
+        List<Admin> result = new ArrayList<>(map.size());
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
             if (!StringUtil.isBlank(value)) {
@@ -204,7 +204,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
     }
 
     private Admin[] extractAdminRole(List<Map<String, String>> map) {
-        List<Admin> result = new ArrayList<Admin>(map.size());
+        List<Admin> result = new ArrayList<>(map.size());
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
             if (!StringUtil.isBlank(value)) {

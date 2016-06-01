@@ -78,7 +78,7 @@ public class AgentConfigService {
 
     private void disableAgents(boolean disabled, Username currentUser, AgentInstance... instances) {
         GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();
-        ArrayList<String> uuids = new ArrayList<String>();
+        ArrayList<String> uuids = new ArrayList<>();
         for (AgentInstance agentInstance : instances) {
             String uuid = agentInstance.getUuid();
             uuids.add(uuid);
@@ -371,7 +371,7 @@ public class AgentConfigService {
     }
 
     private List<ConfigErrors> getAllErrors(Validatable v) {
-        final List<ConfigErrors> allErrors = new ArrayList<ConfigErrors>();
+        final List<ConfigErrors> allErrors = new ArrayList<>();
         new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {
             @Override
             public void handleValidation(Validatable validatable, ValidationContext context) {

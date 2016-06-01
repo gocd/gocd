@@ -187,7 +187,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private void validateStageNameUniqueness() {
-        Map<String, StageConfig> stageNameMap = new HashMap<String, StageConfig>();
+        Map<String, StageConfig> stageNameMap = new HashMap<>();
         for (StageConfig stageConfig : this) {
             stageConfig.validateNameUniqueness(stageNameMap);
         }
@@ -488,7 +488,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public Set<String> getTemplateVariables() {
         Pattern pattern = Pattern.compile(LABEL_TEMPLATE_VARIABLE_REGEX);
         Matcher matcher = pattern.matcher(this.labelTemplate);
-        LinkedHashSet<String> result = new LinkedHashSet<String>();
+        LinkedHashSet<String> result = new LinkedHashSet<>();
         while (matcher.find()) {
             result.add(matcher.group(1));
         }
@@ -496,7 +496,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<String> allowedTemplateVariables() {
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for (MaterialConfig material : materialConfigs) {
             if (!CaseInsensitiveString.isBlank(material.getName())) {
                 names.add(CaseInsensitiveString.str(material.getName()));
@@ -629,7 +629,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<DependencyMaterialConfig> dependencyMaterialConfigs() {
-        List<DependencyMaterialConfig> materialConfigs = new ArrayList<DependencyMaterialConfig>();
+        List<DependencyMaterialConfig> materialConfigs = new ArrayList<>();
         for (MaterialConfig material : this.materialConfigs) {
             if (material instanceof DependencyMaterialConfig) {
                 materialConfigs.add((DependencyMaterialConfig) material);
@@ -810,7 +810,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<StageConfig> allStagesBefore(CaseInsensitiveString stage) {
-        List<StageConfig> stages = new ArrayList<StageConfig>();
+        List<StageConfig> stages = new ArrayList<>();
         for (StageConfig stageConfig : this) {
             if (stage.equals(stageConfig.name())) {
                 break;
@@ -835,7 +835,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<PipelineConfig> allFirstLevelUpstreamPipelines(CruiseConfig cruiseConfig) {
-        List<PipelineConfig> pipelinesForFetchArtifact = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> pipelinesForFetchArtifact = new ArrayList<>();
         for (DependencyMaterialConfig dependencyMaterial : dependencyMaterialConfigs()) {
             pipelinesForFetchArtifact.add(cruiseConfig.pipelineConfigByName(dependencyMaterial.getPipelineName()));
         }
@@ -865,7 +865,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<FetchTask> getFetchTasks() {
-        List<FetchTask> fetchTasks = new ArrayList<FetchTask>();
+        List<FetchTask> fetchTasks = new ArrayList<>();
         for (StageConfig stage : this) {
             for (JobConfig job : stage.getJobs()) {
                 for (Task task : job.tasks()) {
@@ -890,7 +890,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public Set<Pair<PipelineConfig, StageConfig>> stagesWithPermissionForRole(CaseInsensitiveString roleName) {
-        Set<Pair<PipelineConfig, StageConfig>> result = new HashSet<Pair<PipelineConfig, StageConfig>>();
+        Set<Pair<PipelineConfig, StageConfig>> result = new HashSet<>();
         for (StageConfig stageConfig : this) {
             if (stageConfig.canBeOperatedBy(new Role(roleName))) {
                 result.add(pair(this, stageConfig));
@@ -910,7 +910,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<PackageMaterialConfig> packageMaterialConfigs() {
-        return new ArrayList<PackageMaterialConfig>(select(materialConfigs(), new Predicate() {
+        return new ArrayList<>(select(materialConfigs(), new Predicate() {
             @Override
             public boolean evaluate(Object materialConfig) {
                 return materialConfig instanceof PackageMaterialConfig;
@@ -919,7 +919,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs() {
-        return new ArrayList<PluggableSCMMaterialConfig>(select(materialConfigs(), new Predicate() {
+        return new ArrayList<>(select(materialConfigs(), new Predicate() {
             @Override
             public boolean evaluate(Object materialConfig) {
                 return materialConfig instanceof PluggableSCMMaterialConfig;

@@ -37,7 +37,7 @@ public class CachedDigestUtils {
 
     private static final int STREAM_BUFFER_LENGTH = 1024;
     private static DigestObjectPools objectPools = new DigestObjectPools();
-    private static ConcurrentMap<String, String> shaDigestCache = new ConcurrentHashMap<String, String>();
+    private static ConcurrentMap<String, String> shaDigestCache = new ConcurrentHashMap<>();
 
     public static String sha256Hex(String string) {
         if (shaDigestCache.containsKey(string)) {

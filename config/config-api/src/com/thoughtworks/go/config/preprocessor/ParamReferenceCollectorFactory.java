@@ -26,7 +26,7 @@ import com.thoughtworks.go.config.ParamsConfig;
  */
 public class ParamReferenceCollectorFactory implements ParamHandlerFactory {
 
-    private HashSet<String> params = new HashSet<String>();
+    private HashSet<String> params = new HashSet<>();
 
     public ParamHandler createHandler(Object resolvable, String fieldName, String stringToResolve) {
         return new ParamReferenceCollectorHandler(params);

@@ -45,7 +45,7 @@ public class MaterialConfigService {
 
 	public MaterialConfigs getMaterialConfigs(String username) {
 		MaterialConfigs materialConfigs = new MaterialConfigs();
-		Set<String> materialFingerprints = new HashSet<String>();
+		Set<String> materialFingerprints = new HashSet<>();
 		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
 			if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
 				for (PipelineConfig pipelineConfig : pipelineGroup) {

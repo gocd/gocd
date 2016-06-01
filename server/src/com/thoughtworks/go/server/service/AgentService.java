@@ -109,15 +109,15 @@ public class AgentService {
     }
 
     public List<String> getUniqueAgentNames() {
-        return new ArrayList<String>(agentInstances.getAllHostNames());
+        return new ArrayList<>(agentInstances.getAllHostNames());
     }
 
     public List<String> getUniqueIPAddresses() {
-        return new ArrayList<String>(agentInstances.getAllIpAddresses());
+        return new ArrayList<>(agentInstances.getAllIpAddresses());
     }
 
     public List<String> getUniqueAgentOperatingSystems() {
-        return new ArrayList<String>(agentInstances.getAllOperatingSystems());
+        return new ArrayList<>(agentInstances.getAllOperatingSystems());
     }
 
 
@@ -183,7 +183,7 @@ public class AgentService {
         if (!hasOperatePermission(username, operationResult)) {
             return;
         }
-        List<AgentInstance> agents = new ArrayList<AgentInstance>();
+        List<AgentInstance> agents = new ArrayList<>();
         if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
             return;
         }
@@ -199,7 +199,7 @@ public class AgentService {
         if (!hasOperatePermission(username, operationResult)) {
             return;
         }
-        List<AgentInstance> agents = new ArrayList<AgentInstance>();
+        List<AgentInstance> agents = new ArrayList<>();
         if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
             return;
         }
@@ -226,7 +226,7 @@ public class AgentService {
         if (!hasOperatePermission(username, operationResult)) {
             return;
         }
-        List<AgentInstance> agents = new ArrayList<AgentInstance>();
+        List<AgentInstance> agents = new ArrayList<>();
         for (String uuid : uuids) {
             AgentInstance agentInstance = findAgent(uuid);
             if (isUnknownAgent(agentInstance, operationResult)) {
@@ -235,7 +235,7 @@ public class AgentService {
             agents.add(agentInstance);
         }
 
-        List<AgentInstance> failedToDeleteAgents = new ArrayList<AgentInstance>();
+        List<AgentInstance> failedToDeleteAgents = new ArrayList<>();
         for (AgentInstance agentInstance : agents) {
             boolean isBuildingOrCancelled = agentInstance.isBuilding() || agentInstance.isCancelled();
             if (!agentInstance.isDisabled() || isBuildingOrCancelled) {
@@ -263,7 +263,7 @@ public class AgentService {
         if (!hasOperatePermission(username, operationResult)) {
             return;
         }
-        List<AgentInstance> agents = new ArrayList<AgentInstance>();
+        List<AgentInstance> agents = new ArrayList<>();
         if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
             return;
         }
@@ -279,7 +279,7 @@ public class AgentService {
         if (!hasOperatePermission(username, operationResult)) {
             return;
         }
-        List<AgentInstance> agents = new ArrayList<AgentInstance>();
+        List<AgentInstance> agents = new ArrayList<>();
         if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
             return;
         }

@@ -52,7 +52,7 @@ public class PluggableTaskViewModel implements PluggableViewModel<PluggableTask>
 
     @Override
     public Map<String, Object> getParameters() {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("data", gson.toJson(pluggableTask.configAsMap()));
         map.put("template", getTemplate());
         return map;

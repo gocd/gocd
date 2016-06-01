@@ -31,7 +31,7 @@ import static java.lang.Math.abs;
 public class DummyNodeCreation {
     public void apply(ValueStreamMap graph, NodeLevelMap nodeLevelMap) {
         List<Node> nodesWithNoParents = graph.getRootNodes();
-        Set<Node> visitedNodes = new HashSet<Node>();
+        Set<Node> visitedNodes = new HashSet<>();
         for (Node current : nodesWithNoParents) {
             addDummyNodesIfRequired(current, nodeLevelMap, visitedNodes);
         }

@@ -50,7 +50,7 @@ public class PasswordFileUserSearch {
     }
 
     private List<User> findUserNameContaining(String searchText, Properties properties) {
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
             String username = (String) iter.next();
             if (username.toLowerCase().contains(searchText.toLowerCase())) {

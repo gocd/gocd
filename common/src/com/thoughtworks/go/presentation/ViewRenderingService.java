@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ViewRenderingService implements Renderer {
-    final Map<String, Renderer> renderers = new HashMap<String, Renderer>();
+    final Map<String, Renderer> renderers = new HashMap<>();
 
     public ViewRenderingService() {
         renderers.put(Renderer.FREEMARKER, new FreemarkerRenderer());
@@ -50,7 +50,7 @@ public class ViewRenderingService implements Renderer {
     }
 
     private Map<String, Object> mixedContext(Map<String, Object> localContext, Map<String, Object> factoryContext) {
-        Map<String, Object> mixedContext = new HashMap<String, Object>();
+        Map<String, Object> mixedContext = new HashMap<>();
         mixedContext.putAll(factoryContext);
         mixedContext.putAll(localContext);
         mixedContext.put(PluggableViewModel.FACTORY_CONTEXT_KEY, factoryContext);

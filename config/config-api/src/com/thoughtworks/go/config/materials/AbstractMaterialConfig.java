@@ -80,7 +80,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     @Override
     public final Map<String, Object> getSqlCriteria() {
         if (sqlCriteria == null) {
-            Map<String, Object> map = new LinkedHashMap<String, Object>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("type", type);
             appendCriteria(map);
             sqlCriteria = Collections.unmodifiableMap(map);
@@ -99,7 +99,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     @Override
     public String getPipelineUniqueFingerprint() {
         if (pipelineUniqueFingerprint == null) {
-            Map<String, Object> basicCriteria = new LinkedHashMap<String, Object>(getSqlCriteria());
+            Map<String, Object> basicCriteria = new LinkedHashMap<>(getSqlCriteria());
             appendPipelineUniqueCriteria(basicCriteria);
             pipelineUniqueFingerprint = generateFingerprintFromCriteria(basicCriteria);
         }
@@ -107,7 +107,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     }
 
     private String generateFingerprintFromCriteria(Map<String, Object> sqlCriteria) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (Map.Entry<String, Object> criteria : sqlCriteria.entrySet()) {
             list.add(new StringBuilder().append(criteria.getKey()).append("=").append(criteria.getValue()).toString());
         }

@@ -57,7 +57,7 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
         this.validateMaterialUniqueness();
     }
     private void validateMaterialUniqueness() {
-        Map<String, ConfigRepoConfig> materialHashMap = new HashMap<String, ConfigRepoConfig>();
+        Map<String, ConfigRepoConfig> materialHashMap = new HashMap<>();
         for (ConfigRepoConfig material : this) {
             material.validateMaterialUniqueness(materialHashMap);
         }

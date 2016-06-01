@@ -43,7 +43,7 @@ public class EnvironmentService {
 
     public List<Environment> getEnvironments(Username username) throws NoSuchEnvironmentException {
         List<CaseInsensitiveString> environmentNames = environmentConfigService.environmentNames();
-        ArrayList<Environment> environments = new ArrayList<Environment>();
+        ArrayList<Environment> environments = new ArrayList<>();
         for (CaseInsensitiveString environmentName : environmentNames) {
             addEnvironmentFor(environmentName, username, environments);
         }
@@ -63,7 +63,7 @@ public class EnvironmentService {
     }
 
     private List<PipelineModel> getPipelinesInstanceForEnvironment(List<CaseInsensitiveString> pipelines, Username username) throws NoSuchEnvironmentException {
-        List<PipelineModel> pipelineList = new ArrayList<PipelineModel>();
+        List<PipelineModel> pipelineList = new ArrayList<>();
         for (CaseInsensitiveString pipelineName : pipelines) {
             PipelineModel pipelineModel = pipelineHistoryService.latestPipelineModel(username, CaseInsensitiveString.str(pipelineName));
             if (pipelineModel != null) {

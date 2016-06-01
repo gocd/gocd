@@ -147,7 +147,7 @@ public class LdapUserSearch implements org.springframework.security.ldap.LdapUse
     }
 
     private List<User> buildUserList(List ldapUserList) {
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
 
         for (Object ldapUser : ldapUserList) {
             try {

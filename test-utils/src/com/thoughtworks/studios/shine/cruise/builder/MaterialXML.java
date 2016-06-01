@@ -21,12 +21,12 @@ import java.util.List;
 
 public class MaterialXML {
   private String url;
-  private List<ChangeSetXML> changeSets = new ArrayList<ChangeSetXML>();
-  
+  private List<ChangeSetXML> changeSets = new ArrayList<>();
+
   public MaterialXML(String url) {
     this.url = url;
   }
-  
+
   public MaterialXML changeSets(ChangeSetXML... newChangeSets) {
     changeSets.clear();
     initChangeSets(newChangeSets);
@@ -38,15 +38,15 @@ public class MaterialXML {
       changeSets.add(newChangeSet);
     }
   }
-  
+
   public String toString(){
     String results = "" +
-      "<material type='HgMaterial' url='" + url + "' >" + 
+      "<material type='HgMaterial' url='" + url + "' >" +
       "<modifications>" +
-      changeSetXML()+ 
+      changeSetXML()+
       "</modifications>" +
       "</material>";
-    
+
     return results;
 
   }

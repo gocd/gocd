@@ -30,7 +30,7 @@ public class PluginSettings {
     public static final String ERRORS_KEY = "errors";
 
     private String pluginId;
-    private Map<String, Map<String, String>> settingsMap = new HashMap<String, Map<String, String>>();
+    private Map<String, Map<String, String>> settingsMap = new HashMap<>();
     private boolean hasErrors = false;
 
     public PluginSettings(String pluginId) {
@@ -50,7 +50,7 @@ public class PluginSettings {
     }
 
     public Map<String, String> getSettingsAsKeyValuePair() {
-        Map<String, String> settingsAsKeyValuePair = new HashMap<String, String>();
+        Map<String, String> settingsAsKeyValuePair = new HashMap<>();
         for (String settingsKey : settingsMap.keySet()) {
             Map<String, String> settingsValueMap = settingsMap.get(settingsKey);
             String settingsValue = settingsValueMap.get(VALUE_KEY);

@@ -120,7 +120,7 @@ public class UrlUtil {
         }
 
         static List<QueryTuple> parse(String query) {
-            List<QueryTuple> parsed = new ArrayList<QueryTuple>();
+            List<QueryTuple> parsed = new ArrayList<>();
             if (StringUtils.isEmpty(query)) {
                 return parsed;
             }

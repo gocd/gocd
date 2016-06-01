@@ -33,7 +33,7 @@ public class WeakSSLConfig implements SSLConfig {
     public String[] getCipherSuitesToBeIncluded() {
         String[] supportedCipherSuites = socketFactory.getSupportedCipherSuites();
 
-        ArrayList<String> suitesToBeIncluded = new ArrayList<String>();
+        ArrayList<String> suitesToBeIncluded = new ArrayList<>();
         for (String suite : supportedCipherSuites) {
             if (cipherSuitesSupportedByGo.contains(suite)) {
                 suitesToBeIncluded.add(suite);

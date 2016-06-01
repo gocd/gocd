@@ -59,7 +59,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
         this.stageStatusChangeHandler = stageStatusChangeHandler;
         this.configChangeHandler = configChangeHandler;
 
-        this.queue = new LinkedBlockingQueue<Action>();
+        this.queue = new LinkedBlockingQueue<>();
     }
 
     @Override

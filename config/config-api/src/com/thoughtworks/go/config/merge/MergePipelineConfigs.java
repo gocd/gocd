@@ -115,7 +115,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     private void verifyPipelineNameUniqueness() {
-        HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<CaseInsensitiveString, PipelineConfig>();
+        HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<>();
         for(PipelineConfig pipelineConfig : this){
             pipelineConfig.validateNameUniqueness(hashMap);
         }
@@ -505,7 +505,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public PipelineConfigs getCopyForEditing() {
-        List<PipelineConfigs> parts = new ArrayList<PipelineConfigs>();
+        List<PipelineConfigs> parts = new ArrayList<>();
         for(PipelineConfigs part : this.parts)
         {
             parts.add(part.getCopyForEditing());
@@ -525,7 +525,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public List<PipelineConfig> getPipelines() {
-        List<PipelineConfig> list = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> list = new ArrayList<>();
         for(PipelineConfig pipe : this)
         {
             list.add(pipe);

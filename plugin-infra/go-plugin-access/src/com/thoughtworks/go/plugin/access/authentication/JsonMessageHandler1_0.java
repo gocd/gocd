@@ -42,7 +42,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public String requestMessageForAuthenticateUser(String username, String password) {
-        Map<String, Object> requestMap = new HashMap<String, Object>();
+        Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("username", username);
         requestMap.put("password", password);
         return toJsonString(requestMap);
@@ -74,7 +74,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public String requestMessageForSearchUser(String searchTerm) {
-        Map<String, Object> requestMap = new HashMap<String, Object>();
+        Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("search-term", searchTerm);
         return toJsonString(requestMap);
     }
@@ -88,7 +88,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
             throw new RuntimeException("Search results should be returned as a list");
         }
 
-        List<User> searchResults = new ArrayList<User>();
+        List<User> searchResults = new ArrayList<>();
 
         if (list == null || list.isEmpty()) {
             return searchResults;

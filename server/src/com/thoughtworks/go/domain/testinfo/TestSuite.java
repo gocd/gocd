@@ -34,7 +34,7 @@ public class TestSuite {
 
     public TestSuite(String name) {
         this.name = name;
-        this.tests = new TreeSet<TestInformation>(new Comparator<TestInformation>() {
+        this.tests = new TreeSet<>(new Comparator<TestInformation>() {
             public int compare(TestInformation testInformation1, TestInformation testInformation2) {
                 return testInformation1.getName().compareTo(testInformation2.getName());
             }
@@ -42,13 +42,13 @@ public class TestSuite {
     }
 
     public List<TestInformation> tests() {
-        return new ArrayList<TestInformation>(tests);
+        return new ArrayList<>(tests);
     }
 
     public String fullName() {
         return name;
     }
-    
+
 
     public void addTest(String testName, TestStatus testStatus, JobIdentifier jobIdentifier) {
         TestInformation test = getTest(testName, testStatus);
@@ -96,7 +96,7 @@ public class TestSuite {
 
     public void removeDuplicateTestEntries(TestSuite anotherTestSuite) {
         for (TestInformation testInformation : anotherTestSuite.tests()) {
-            if(tests().contains(testInformation)){                
+            if(tests().contains(testInformation)){
                 tests.remove(testInformation);
             }
         }

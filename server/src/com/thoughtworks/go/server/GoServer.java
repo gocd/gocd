@@ -93,7 +93,7 @@ public class GoServer {
     }
 
     private String getExtraJarsToBeAddedToClasspath() {
-        ArrayList<File> extraClassPathFiles = new ArrayList<File>();
+        ArrayList<File> extraClassPathFiles = new ArrayList<>();
         extraClassPathFiles.addAll(getAddonJarFiles());
         String extraClasspath = convertToClasspath(extraClassPathFiles);
         LOG.info("Including addons: " + extraClasspath);
@@ -114,10 +114,10 @@ public class GoServer {
     private List<File> getAddonJarFiles() {
         File addonsPath = new File(systemEnvironment.get(SystemEnvironment.ADDONS_PATH));
         if (!addonsPath.exists() || !addonsPath.canRead()) {
-            return new ArrayList<File>();
+            return new ArrayList<>();
         }
 
-        return new ArrayList<File>(FileUtils.listFiles(addonsPath, new SuffixFileFilter("jar", IOCase.INSENSITIVE), FalseFileFilter.INSTANCE));
+        return new ArrayList<>(FileUtils.listFiles(addonsPath, new SuffixFileFilter("jar", IOCase.INSENSITIVE), FalseFileFilter.INSTANCE));
     }
 
     public void stop() throws Exception {
@@ -133,7 +133,7 @@ public class GoServer {
     }
 
     ArrayList<Validator> validators() {
-        ArrayList<Validator> validators = new ArrayList<Validator>();
+        ArrayList<Validator> validators = new ArrayList<>();
         validators.add(new ServerPortValidator(systemEnvironment.getServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getSslServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getDatabaseSeverPort()));

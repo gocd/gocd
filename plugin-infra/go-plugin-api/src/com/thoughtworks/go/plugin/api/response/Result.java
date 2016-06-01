@@ -28,7 +28,7 @@ import java.util.List;
 public class Result {
 
     private Status status = Status.SUCCESS;
-    private List<String> messages = new ArrayList<String>();
+    private List<String> messages = new ArrayList<>();
 
     /**
      * Checks if result is successful

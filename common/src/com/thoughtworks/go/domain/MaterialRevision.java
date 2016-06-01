@@ -169,7 +169,7 @@ public class MaterialRevision implements Serializable {
 
     public MaterialRevision latestChanges(Material newMaterial, List<Modification> oldModifications, List<Modification> newModifications) {
         if (newModifications.isEmpty()) {
-            List<Modification> result = new ArrayList<Modification>();
+            List<Modification> result = new ArrayList<>();
             if (!oldModifications.isEmpty()) {
                 result.add(new Modification(oldModifications.get(0)));
             }
@@ -271,7 +271,7 @@ public class MaterialRevision implements Serializable {
     }
 
     public MaterialRevision subtract(MaterialRevision other) {
-        List<Modification> newModifications = new ArrayList<Modification>();
+        List<Modification> newModifications = new ArrayList<>();
         for (Modification modification : modifications) {
             if (!other.hasModification(modification)) {
                 newModifications.add(modification);
@@ -311,7 +311,7 @@ public class MaterialRevision implements Serializable {
     }
 
     public Set<String> getCardNumbersFromComments() {
-        TreeSet<String> cardNumbers = new TreeSet<String>();
+        TreeSet<String> cardNumbers = new TreeSet<>();
         for (Modification modification : modifications) {
             cardNumbers.addAll(modification.getCardNumbersFromComment());
         }

@@ -28,7 +28,7 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
     public void add(String fieldName, String msg) {
         List<String> msgList = get(fieldName);
         if (msgList == null) {
-            msgList = new ArrayList<String>();
+            msgList = new ArrayList<>();
             put(fieldName, msgList);
         }
         if (!msgList.contains(msg)) {
@@ -37,7 +37,7 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
     }
 
     public List<String> getAll() {
-        ArrayList<String> allErrors = new ArrayList<String>();
+        ArrayList<String> allErrors = new ArrayList<>();
         for (List<String> errorOnAnAttribute : values()) {
             allErrors.addAll(errorOnAnAttribute);
         }

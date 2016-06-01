@@ -130,7 +130,7 @@ public class JobResourceImporter {
 
         List<BoundVariables> bvs = graph.select(selectArtifactPaths);
 
-        List<String> result = new ArrayList<String>(bvs.size());
+        List<String> result = new ArrayList<>(bvs.size());
         for (BoundVariables bv : bvs) {
             result.add(bv.getString("artifactPath"));
         }

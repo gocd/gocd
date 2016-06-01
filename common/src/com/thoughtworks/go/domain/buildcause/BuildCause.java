@@ -98,7 +98,7 @@ public class BuildCause implements Serializable {
     }
 
     public Materials materials() {
-        final List<Material> materials = new ArrayList<Material>();
+        final List<Material> materials = new ArrayList<>();
         materialRevisions.accept(new ModificationVisitorAdapter() {
             public void visit(Material material, Revision revision) {
                 materials.add(material);

@@ -33,7 +33,7 @@ public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
 
     @Override
     public Set<Material> prune(Set<Material> materials, Map params) {
-        HashSet<Material> prunedCollection = new HashSet<Material>();
+        HashSet<Material> prunedCollection = new HashSet<>();
         if (params.containsKey(REPO_URL_PARAM_KEY)) {
             String paramRepoUrl = (String) params.get(REPO_URL_PARAM_KEY);
             if (StringUtils.isNotBlank(paramRepoUrl)) {

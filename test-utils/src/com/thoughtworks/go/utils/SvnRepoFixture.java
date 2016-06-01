@@ -28,7 +28,7 @@ import com.thoughtworks.go.util.FileUtil;
 import static com.thoughtworks.go.utils.CommandUtils.exec;
 
 public class SvnRepoFixture extends TestRepoFixture {
-    private HashMap<String, File> workspaces = new HashMap<String, File>();
+    private HashMap<String, File> workspaces = new HashMap<>();
 
     public SvnRepoFixture(String svnRepoPath) {
         super(svnRepoPath);

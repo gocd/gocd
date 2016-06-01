@@ -50,7 +50,7 @@ public class JobStateTransitions extends BaseLinkedSet<JobStateTransition> {
         if (o == null) return false;
         if (o.getClass()!=this.getClass()) return false;
         JobStateTransitions that = (JobStateTransitions) o;
-        return new HashSet<JobStateTransition>(this).equals(new HashSet<JobStateTransition>(that));
+        return new HashSet<>(this).equals(new HashSet<>(that));
     }
 
     public Date latestTransitionDate() {

@@ -234,7 +234,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public List<CaseInsensitiveString> getPipelineNames() {
-        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<CaseInsensitiveString>();
+        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<>();
         for (EnvironmentPipelineConfig pipeline : pipelines) {
             pipelineNames.add(pipeline.getName());
         }

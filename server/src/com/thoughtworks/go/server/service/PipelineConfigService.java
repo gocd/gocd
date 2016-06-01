@@ -75,7 +75,7 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
 
     public Map<CaseInsensitiveString, CanDeleteResult> canDeletePipelines() {
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
-        Map<CaseInsensitiveString, CanDeleteResult> nameToCanDeleteIt = new HashMap<CaseInsensitiveString, CanDeleteResult>();
+        Map<CaseInsensitiveString, CanDeleteResult> nameToCanDeleteIt = new HashMap<>();
         Hashtable<CaseInsensitiveString, Node> hashtable = cruiseConfig.getDependencyTable();
         List<CaseInsensitiveString> pipelineNames = cruiseConfig.getAllPipelineNames();
 

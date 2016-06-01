@@ -39,7 +39,7 @@ public class SqlMapClientDaoSupport extends org.springframework.orm.ibatis.suppo
     public static class SqlMapClientTemplate extends org.springframework.orm.ibatis.SqlMapClientTemplate {
         private final GoCache goCache;
 
-        private final ThreadLocal<Boolean> internalCall = new ThreadLocal<Boolean>();
+        private final ThreadLocal<Boolean> internalCall = new ThreadLocal<>();
         private final SystemEnvironment systemEnvironment;
         private Database database;
 

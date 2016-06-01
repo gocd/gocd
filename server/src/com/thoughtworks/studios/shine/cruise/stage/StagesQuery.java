@@ -39,7 +39,7 @@ public class StagesQuery {
 
     public <T> List<T> select(String sparql, List<StageIdentifier> identifiers, RdfResultMapper<T> mapper) {
         long queryStartTime = System.currentTimeMillis();
-        List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<>();
         for (StageIdentifier failedStageIdentifier : identifiers) {
             List<T> resultForAStage = selectForSingleStage(sparql, failedStageIdentifier, mapper);
             result.addAll(resultForAStage);
@@ -63,7 +63,7 @@ public class StagesQuery {
             }
             Graph graph = stageGraphLoader.load(stageIdentifier);
             List<BoundVariables> boundVariableses = graph.select(sparql);
-            mappedResults = new ArrayList<T>();
+            mappedResults = new ArrayList<>();
             for (BoundVariables bv : boundVariableses) {
                 mappedResults.add(mapper.map(bv));
             }

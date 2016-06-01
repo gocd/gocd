@@ -35,7 +35,7 @@ public class GoConfigWatchList implements ConfigChangedListener {
 
     private CachedFileGoConfig fileGoConfig;
 
-    private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<ChangedRepoConfigWatchListListener>();
+    private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<>();
     private ConfigReposConfig reposConfig;
 
     @Autowired public GoConfigWatchList(CachedFileGoConfig fileGoConfig) {

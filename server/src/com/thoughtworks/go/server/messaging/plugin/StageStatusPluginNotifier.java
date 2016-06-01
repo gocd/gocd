@@ -70,7 +70,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     }
 
     Map createRequestDataMap(Stage stage) {
-        Map<String, Object> data = new LinkedHashMap<String, Object>();
+        Map<String, Object> data = new LinkedHashMap<>();
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = new Integer(stage.getIdentifier().getPipelineCounter());
 
@@ -81,7 +81,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     }
 
     private Map<String, Object> createPipelineDataMap(String pipelineName, Integer pipelineCounter, Stage stage) {
-        Map<String, Object> pipelineMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> pipelineMap = new LinkedHashMap<>();
         pipelineMap.put("name", pipelineName);
         pipelineMap.put("counter", pipelineCounter.toString());
 
@@ -100,14 +100,14 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     }
 
     private List<Map> createBuildCauseDataMap(MaterialRevisions materialRevisions) {
-        List<Map> materialRevisionList = new ArrayList<Map>();
+        List<Map> materialRevisionList = new ArrayList<>();
         for (MaterialRevision currentRevision : materialRevisions) {
-            Map<String, Object> materialRevisionMap = new LinkedHashMap<String, Object>();
+            Map<String, Object> materialRevisionMap = new LinkedHashMap<>();
 
             materialRevisionMap.put("material", currentRevision.getMaterial().getAttributes(false));
             materialRevisionMap.put("changed", currentRevision.isChanged());
 
-            List<Map> modificationList = new ArrayList<Map>();
+            List<Map> modificationList = new ArrayList<>();
             for (Modification modification : currentRevision.getModifications()) {
                 Map<String, Object> modificationMap = createModificationDataMap(modification);
                 modificationList.add(modificationMap);
@@ -120,7 +120,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     }
 
     private Map<String, Object> createModificationDataMap(Modification modification) {
-        Map<String, Object> modificationMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> modificationMap = new LinkedHashMap<>();
         modificationMap.put("revision", modification.getRevision());
         modificationMap.put("modified-time", dateToString(modification.getModifiedTime()));
         modificationMap.put("data", modification.getAdditionalDataMap());
@@ -128,7 +128,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     }
 
     private Map<String, Object> createStageDataMap(Stage stage) {
-        Map<String, Object> stageMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> stageMap = new LinkedHashMap<>();
         stageMap.put("name", stage.getName());
         stageMap.put("counter", new Integer(stage.getCounter()).toString());
         stageMap.put("approval-type", stage.getApprovalType());
@@ -138,7 +138,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         stageMap.put("create-time", timestampToString(stage.getCreatedTime()));
         stageMap.put("last-transition-time", timestampToString(stage.getLastTransitionedTime()));
 
-        List<Map> jobsList = new ArrayList<Map>();
+        List<Map> jobsList = new ArrayList<>();
         for (JobInstance currentJob : stage.getJobInstances()) {
             Map<String, Object> jobMap = createJobDataMap(currentJob);
             jobsList.add(jobMap);
@@ -149,7 +149,7 @@ public class StageStatusPluginNotifier implements StageStatusListener {
     }
 
     private Map<String, Object> createJobDataMap(JobInstance job) {
-        Map<String, Object> jobMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> jobMap = new LinkedHashMap<>();
         jobMap.put("name", job.getName());
         jobMap.put("schedule-time", dateToString(job.getScheduledDate()));
         jobMap.put("complete-time", dateToString(job.getCompletedDate()));

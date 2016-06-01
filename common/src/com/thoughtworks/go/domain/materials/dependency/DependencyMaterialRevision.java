@@ -128,7 +128,7 @@ public class DependencyMaterialRevision implements Revision {
      * @deprecated used only in tests
      */
     public MaterialRevision convert(Material material, Date modifiedTime) {
-        ArrayList<Modification> modifications = new ArrayList<Modification>();
+        ArrayList<Modification> modifications = new ArrayList<>();
         modifications.add(new Modification(modifiedTime, getRevision(), getPipelineLabel(), null
         ));
         return new MaterialRevision(material, modifications);

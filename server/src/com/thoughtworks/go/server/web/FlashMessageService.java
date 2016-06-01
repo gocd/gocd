@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FlashMessageService {
-    private static ThreadLocal<Flash> requestFlash = new ThreadLocal<Flash>();
+    private static ThreadLocal<Flash> requestFlash = new ThreadLocal<>();
 
     public String add(FlashMessageModel message) {
         String key = UUID.randomUUID().toString();
@@ -53,7 +53,7 @@ public class FlashMessageService {
     }
 
     public static final class Flash {
-        Map<String, FlashMessageModel> messages = new HashMap<String, FlashMessageModel>();
+        Map<String, FlashMessageModel> messages = new HashMap<>();
 
         public void put(String key, FlashMessageModel message) {
             messages.put(key, message);

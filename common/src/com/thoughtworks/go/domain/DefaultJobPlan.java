@@ -99,7 +99,7 @@ public class DefaultJobPlan implements JobPlan {
     public void publishArtifacts(DefaultGoPublisher goPublisher, File workingDirectory) {
         ArtifactPlans mergedPlans = mergePlansForTest();
 
-        List<ArtifactPlan> failedArtifact = new ArrayList<ArtifactPlan>();
+        List<ArtifactPlan> failedArtifact = new ArrayList<>();
         for (ArtifactPlan artifactPlan : mergedPlans) {
             try {
                 artifactPlan.publish(goPublisher, workingDirectory);
@@ -263,6 +263,6 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public boolean shouldCleanWorkingDir() {
-        return cleanWorkingDir;  
+        return cleanWorkingDir;
     }
 }

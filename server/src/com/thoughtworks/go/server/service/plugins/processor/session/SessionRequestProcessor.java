@@ -44,7 +44,7 @@ public class SessionRequestProcessor implements GoPluginApiRequestProcessor {
     public static final String REMOVE_FROM_SESSION = "go.processor.session.remove";
     private static final List<String> goSupportedVersions = asList("1.0");
 
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public SessionRequestProcessor(DefaultGoApplicationAccessor goApplicationAccessor) {

@@ -44,7 +44,7 @@ public class UnrunStagesPopulator {
 			getUnrunStagesForDownstreamGraphStartingFrom(currentPipeline, new HashSet<Node>());
 		} else {
 			List<Node> downstreamPipelines = valueStreamMap.getCurrentMaterial().getChildren();
-			HashSet<Node> visitedNodes = new HashSet<Node>();
+			HashSet<Node> visitedNodes = new HashSet<>();
 			for (Node downstreamPipeline : downstreamPipelines) {
 				getUnrunStagesForDownstreamGraphStartingFrom(downstreamPipeline, visitedNodes);
 			}

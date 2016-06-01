@@ -86,7 +86,7 @@ public class PipelineTemplateConfigViewModel implements ParamsAttributeAware {
     }
 
     public List<String> pipelineNames() {
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for (PipelineConfig config : pipelineConfigs) {
             names.add(config.name().toString());
         }

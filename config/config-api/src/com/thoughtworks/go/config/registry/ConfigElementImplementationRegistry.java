@@ -45,15 +45,15 @@ public class ConfigElementImplementationRegistry implements ConfigElementRegistr
 
     @Autowired
     public ConfigElementImplementationRegistry(PluginExtensions pluginExtns) {
-        this.registry = new ConcurrentHashMap<Class,List<Class>>();
-        this.viewRegistry = new ConcurrentHashMap<Class, PluggableViewModelFactory>();
-        this.xsdsFor = new ConcurrentHashMap<String, PluginNamespace>();
+        this.registry = new ConcurrentHashMap<>();
+        this.viewRegistry = new ConcurrentHashMap<>();
+        this.xsdsFor = new ConcurrentHashMap<>();
 
         registerPluginExtensions(pluginExtns);
     }
 
     public <T> List<Class<? extends T>> implementersOf(Class<T> type) {
-        List<Class<? extends T>> toReturn = new ArrayList<Class<? extends T>>();
+        List<Class<? extends T>> toReturn = new ArrayList<>();
         //noinspection unchecked
         for (Class<? extends T> impl : registry.get(type)) {
             toReturn.add(impl);

@@ -25,7 +25,7 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 
 public class PackageConfigurations implements PluginPreference {
-    private List<PackageConfiguration> packageConfigurations = new ArrayList<PackageConfiguration>();
+    private List<PackageConfiguration> packageConfigurations = new ArrayList<>();
     private RepositoryConfiguration repositoryConfiguration;
     private com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration;
 

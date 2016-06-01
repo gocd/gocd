@@ -147,8 +147,8 @@ public class BuildCauseProducerService {
     }
 
     ServerHealthState newProduceBuildCause(PipelineConfig pipelineConfig, BuildType buildType, ServerHealthStateOperationResult result, long trackingId) {
-        final HashMap<String, String> stringStringHashMap = new HashMap<String, String>();
-        final HashMap<String, String> stringStringHashMap1 = new HashMap<String, String>();
+        final HashMap<String, String> stringStringHashMap = new HashMap<>();
+        final HashMap<String, String> stringStringHashMap1 = new HashMap<>();
         return newProduceBuildCause(pipelineConfig, buildType, new ScheduleOptions(stringStringHashMap, stringStringHashMap1, new HashMap<String, String>()), result, trackingId);
     }
 
@@ -296,7 +296,7 @@ public class BuildCauseProducerService {
             this.pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);
             this.buildType = buildType;
             this.scheduleOptions = scheduleOptions;
-            pendingMaterials = new ConcurrentHashMap<String, Material>();
+            pendingMaterials = new ConcurrentHashMap<>();
 
             if(isConfigurationInMaterials())
             {

@@ -65,8 +65,8 @@ public class PipelineTimeline {
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.listeners = listeners;
-        naturalOrderPmm = new HashMap<CaseInsensitiveString, TreeSet<PipelineTimelineEntry>>();
-        scheduleOrderPmm = new HashMap<CaseInsensitiveString, ArrayList<PipelineTimelineEntry>>();
+        naturalOrderPmm = new HashMap<>();
+        scheduleOrderPmm = new HashMap<>();
         maximumId = -1;
     }
 
@@ -79,7 +79,7 @@ public class PipelineTimeline {
         try {
             TreeSet<PipelineTimelineEntry> tree = naturalOrderPmm.get(new CaseInsensitiveString(pipelineName));
             if (tree == null) {
-                tree = new TreeSet<PipelineTimelineEntry>();
+                tree = new TreeSet<>();
             }
             return Collections.unmodifiableCollection(cloner.deepClone(tree));
         } finally {
@@ -157,7 +157,7 @@ public class PipelineTimeline {
     // --------------------------------------------------------
 
     private void notifyListeners(List<PipelineTimelineEntry> newEntries) {
-        Map<CaseInsensitiveString, PipelineTimelineEntry> pipelineToOldestEntry = new HashMap<CaseInsensitiveString, PipelineTimelineEntry>();
+        Map<CaseInsensitiveString, PipelineTimelineEntry> pipelineToOldestEntry = new HashMap<>();
         for (PipelineTimelineEntry challenger : newEntries) {
             CaseInsensitiveString pipelineName = new CaseInsensitiveString(challenger.getPipelineName());
             PipelineTimelineEntry champion = pipelineToOldestEntry.get(pipelineName);
@@ -363,8 +363,8 @@ public class PipelineTimeline {
     }
 
     public static class Users {
-        private TreeMap<MaterialUserConfig, MaterialUserConfig> byFolder = new TreeMap<MaterialUserConfig, MaterialUserConfig>();
-        private Map<CaseInsensitiveString, LinkedList<PipelineTimelineEntry>> byFlyweight = new HashMap<CaseInsensitiveString, LinkedList<PipelineTimelineEntry>>();
+        private TreeMap<MaterialUserConfig, MaterialUserConfig> byFolder = new TreeMap<>();
+        private Map<CaseInsensitiveString, LinkedList<PipelineTimelineEntry>> byFlyweight = new HashMap<>();
     }
 
     public static class MaterialUserConfig implements Comparable<MaterialUserConfig> {
@@ -379,7 +379,7 @@ public class PipelineTimeline {
 
         public synchronized void add(PipelineTimelineEntry entry) {
             if (entries == null) {
-                entries = new LinkedList<PipelineTimelineEntry>();
+                entries = new LinkedList<>();
             }
             entries.addFirst(entry);
         }

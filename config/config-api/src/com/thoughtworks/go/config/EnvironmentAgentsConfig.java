@@ -43,7 +43,7 @@ public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConf
     }
 
     public List<String> getUuids() {
-        List<String> uuids = new ArrayList<String>();
+        List<String> uuids = new ArrayList<>();
         for(EnvironmentAgentConfig config : this) {
             uuids.add(config.getUuid());
         }

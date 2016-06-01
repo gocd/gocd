@@ -83,7 +83,7 @@ public class Materials extends BaseCollection<Material> {
     public MaterialRevisions latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
         MaterialRevisions revisions = new MaterialRevisions();
         for (Material material : this) {
-            List<Modification> modifications = new ArrayList<Modification>();
+            List<Modification> modifications = new ArrayList<>();
             if (material instanceof SvnMaterial) {
                 modifications = ((SvnMaterial) material).latestModification(baseDir, execCtx);
             }
@@ -118,7 +118,7 @@ public class Materials extends BaseCollection<Material> {
     }
 
     private List<String> allowedFolders() {
-        ArrayList<String> allowed = new ArrayList<String>();
+        ArrayList<String> allowed = new ArrayList<>();
         for (Material material : this) {
             if (!StringUtils.isBlank(material.getFolder())) {
                 allowed.add(material.getFolder());
@@ -186,7 +186,7 @@ public class Materials extends BaseCollection<Material> {
  */
 
     private List<ScmMaterial> filterScmMaterials() {
-        List<ScmMaterial> scmMaterials = new ArrayList<ScmMaterial>();
+        List<ScmMaterial> scmMaterials = new ArrayList<>();
         for (Material material : this) {
             if (material instanceof ScmMaterial) {
                 scmMaterials.add((ScmMaterial) material);

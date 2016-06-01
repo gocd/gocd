@@ -137,7 +137,7 @@ public class MagicalGoConfigXmlWriter {
     }
 
     private static List<XmlFieldWithValue> allFields(Object o, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-        List<XmlFieldWithValue> list = new ArrayList<XmlFieldWithValue>();
+        List<XmlFieldWithValue> list = new ArrayList<>();
         Class originalClass = o.getClass();
         for (GoConfigFieldWriter field : allFieldsWithInherited(originalClass, o, configCache, registry)) {
             Field configField = field.getConfigField();

@@ -227,7 +227,7 @@ class DirectoryStructureWalker extends DirectoryWalker {
     private final ArrayList<String> excludeFiles;
 
     public DirectoryStructureWalker(String configDirectory, ZipOutputStream zipStream, File ...excludeFiles) {
-        this.excludeFiles = new ArrayList<String>();
+        this.excludeFiles = new ArrayList<>();
         for (File excludeFile : excludeFiles) {
             this.excludeFiles.add(excludeFile.getAbsolutePath());
         }

@@ -83,7 +83,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public List<JobPlan> filterJobsByAgent(List<JobPlan> jobPlans, String agentUuid) {
-        ArrayList<JobPlan> plans = new ArrayList<JobPlan>();
+        ArrayList<JobPlan> plans = new ArrayList<>();
         for (JobPlan jobPlan : jobPlans) {
             if (matchers.match(jobPlan.getPipelineName(), agentUuid)) {
                 plans.add(jobPlan);
@@ -135,7 +135,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public Set<EnvironmentConfig> getEnvironments() {
-        Set<EnvironmentConfig> environmentConfigs = new HashSet<EnvironmentConfig>();
+        Set<EnvironmentConfig> environmentConfigs = new HashSet<>();
         environmentConfigs.addAll(environments);
         return environmentConfigs;
     }
@@ -157,7 +157,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         try {
             CruiseConfig config = goConfigService.getConfigForEditing();
             EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
-            edit = new ConfigElementForEdit<EnvironmentConfig>(cloner.deepClone(env), config.getMd5());
+            edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
             result.badRequest(LocalizedMessage.string("ENV_NOT_FOUND", environmentName));
         }
@@ -192,7 +192,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user) {
-        List<EnvironmentPipelineModel> pipelines = new ArrayList<EnvironmentPipelineModel>();
+        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
         for (PipelineConfig pipelineConfig : goConfigService.getAllPipelineConfigs()) {
             String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {

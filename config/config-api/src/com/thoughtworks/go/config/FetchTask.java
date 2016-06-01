@@ -152,7 +152,7 @@ public class FetchTask extends AbstractTask implements Serializable {
     }
 
     public List<TaskProperty> getPropertiesForDisplay() {
-        ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
+        ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         if (pipelineName != null && !CaseInsensitiveString.isBlank(pipelineName.getPath())) {
             taskProperties.add(new TaskProperty("PIPELINE_NAME", CaseInsensitiveString.str(pipelineName.getPath())));
         }

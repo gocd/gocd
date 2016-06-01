@@ -42,7 +42,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.text.MessageFormat.format;
 
 public class GoConfigFieldLoader<T> {
-    private static Map<Field, Boolean> implicts = new HashMap<Field, Boolean>();
+    private static Map<Field, Boolean> implicts = new HashMap<>();
     private static final SimpleTypeConverter typeConverter = new GoConfigFieldTypeConverter();
 
     private final Element e;
@@ -54,7 +54,7 @@ public class GoConfigFieldLoader<T> {
 
     public static <T> GoConfigFieldLoader<T> fieldParser(Element e, T instance, Field field, ConfigCache configCache, final ConfigElementImplementationRegistry registry,
                                                              ConfigReferenceElements configReferenceElements) {
-        return new GoConfigFieldLoader<T>(e, instance, field, configCache, registry, configReferenceElements);
+        return new GoConfigFieldLoader<>(e, instance, field, configCache, registry, configReferenceElements);
     }
 
     private GoConfigFieldLoader(Element e, T instance, Field field, ConfigCache configCache, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {

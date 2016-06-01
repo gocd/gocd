@@ -34,8 +34,8 @@ public class CcTrayCache {
     private volatile List<ProjectStatus> orderedEntries;
 
     public CcTrayCache() {
-        this.cache = new LinkedHashMap<String, ProjectStatus>();
-        this.orderedEntries = new ArrayList<ProjectStatus>();
+        this.cache = new LinkedHashMap<>();
+        this.orderedEntries = new ArrayList<>();
     }
 
     public ProjectStatus get(String projectName) {
@@ -63,11 +63,11 @@ public class CcTrayCache {
     }
 
     private void cacheHasChanged() {
-        this.orderedEntries = new ArrayList<ProjectStatus>(cache.values());
+        this.orderedEntries = new ArrayList<>(cache.values());
     }
 
     private Map<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
-        Map<String, ProjectStatus> replacementItems = new LinkedHashMap<String, ProjectStatus>();
+        Map<String, ProjectStatus> replacementItems = new LinkedHashMap<>();
         for (ProjectStatus status : statuses) {
             replacementItems.put(status.name(), status);
         }

@@ -65,7 +65,7 @@ public class GoConfigParallelGraphWalker {
     }
 
     private List<Field> getAllFields(Class klass) {
-        List<Field> declaredFields = new ArrayList<Field>(Arrays.asList(klass.getDeclaredFields()));
+        List<Field> declaredFields = new ArrayList<>(Arrays.asList(klass.getDeclaredFields()));
         Class<?> superKlass = klass.getSuperclass();
         if (superKlass != null) {
             declaredFields.addAll(getAllFields(superKlass));

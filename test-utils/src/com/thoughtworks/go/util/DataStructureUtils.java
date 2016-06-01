@@ -27,21 +27,21 @@ import java.util.Set;
 
 public final class DataStructureUtils {
     public static <K, V> Map<K, V> m(K firstKey, V firstValue, Object... alternateKeyValues) {
-        Map<K, V> map = new HashMap<K, V>();
+        Map<K, V> map = new HashMap<>();
         //noinspection unchecked
         map.put(firstKey, firstValue);
         return populateMap(map, alternateKeyValues);
     }
 
     public static <K, V> Map<K, V> m(Map<K, V> src, Object... alternateKeyValues) {
-        Map<K, V> map = new HashMap<K, V>();
+        Map<K, V> map = new HashMap<>();
         //noinspection unchecked
         map.putAll(src);
         return populateMap(map, alternateKeyValues);
     }
 
     public static <K, V> Map<K, V> m(Class<K> keyType, Class<V> valType) {
-        Map<K, V> map = new HashMap<K, V>();
+        Map<K, V> map = new HashMap<>();
         //noinspection unchecked
         return populateMap(map, new Object[0]);
     }
@@ -64,7 +64,7 @@ public final class DataStructureUtils {
     }
 
     public static <T> Set<T> s(T... items) {
-        HashSet<T> set = new HashSet<T>();
+        HashSet<T> set = new HashSet<>();
         for (T item : items) {
             set.add(item);
         }
@@ -72,7 +72,7 @@ public final class DataStructureUtils {
     }
 
     public static <T> List<T> listOf(Iterator<T> iterator) {
-        ArrayList<T> list = new ArrayList<T>();
+        ArrayList<T> list = new ArrayList<>();
         while(iterator.hasNext()) {
             list.add(iterator.next());
         }

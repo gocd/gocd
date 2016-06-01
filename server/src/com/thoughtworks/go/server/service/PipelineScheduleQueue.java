@@ -41,8 +41,8 @@ public class PipelineScheduleQueue {
 
     private PipelineService pipelineService;
     private TransactionTemplate transactionTemplate;
-    private Map<String, BuildCause> toBeScheduled = new ConcurrentHashMap<String, BuildCause>();
-    private Map<String, BuildCause> mostRecentScheduled = new ConcurrentHashMap<String, BuildCause>();
+    private Map<String, BuildCause> toBeScheduled = new ConcurrentHashMap<>();
+    private Map<String, BuildCause> mostRecentScheduled = new ConcurrentHashMap<>();
     private InstanceFactory instanceFactory;
 
     @Autowired
@@ -85,7 +85,7 @@ public class PipelineScheduleQueue {
     }
 
     public synchronized Map<String, BuildCause> toBeScheduled() {
-        return new HashMap<String, BuildCause>(toBeScheduled);
+        return new HashMap<>(toBeScheduled);
     }
 
     public void finishSchedule(String pipelineName, BuildCause buildCause, BuildCause newCause) {

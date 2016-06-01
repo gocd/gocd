@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MaterialConnectivityService {
-    private static final Map<Class, MaterialConnectivityChecker> connectivityCheckerMap = new HashMap<Class, MaterialConnectivityChecker>();
+    private static final Map<Class, MaterialConnectivityChecker> connectivityCheckerMap = new HashMap<>();
     private MaterialConfigConverter materialConfigConverter;
 
     @Autowired

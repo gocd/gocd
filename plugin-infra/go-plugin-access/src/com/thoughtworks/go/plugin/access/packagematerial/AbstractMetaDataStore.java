@@ -55,7 +55,7 @@ public abstract class AbstractMetaDataStore extends  PluginPreferenceStore<Packa
     }
 
     public List<String> getPlugins() {
-        return new ArrayList<String>(pluginIds());
+        return new ArrayList<>(pluginIds());
     }
 
     public boolean hasPlugin(String pluginId) {

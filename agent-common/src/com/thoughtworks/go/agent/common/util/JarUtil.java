@@ -69,7 +69,7 @@ public class JarUtil {
         try {
             File agentJar = new File(jarFileName);
             String absolutePath = agentJar.getAbsolutePath();
-            List<URL> urls = new ArrayList<URL>();
+            List<URL> urls = new ArrayList<>();
             urls.add(agentJar.toURI().toURL());
 
             if (manifestLibDirKey != null) {

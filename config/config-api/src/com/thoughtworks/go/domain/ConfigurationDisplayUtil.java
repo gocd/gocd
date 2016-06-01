@@ -28,7 +28,7 @@ import static com.thoughtworks.go.util.StringUtil.isBlank;
 
 public class ConfigurationDisplayUtil {
     public static List<ConfigurationProperty> getConfigurationPropertiesToBeUsedForDisplay(PluginPreferenceStore metadataStore, String pluginId, final Configuration configuration) {
-        List<ConfigurationProperty> keysForDisplay = new ArrayList<ConfigurationProperty>();
+        List<ConfigurationProperty> keysForDisplay = new ArrayList<>();
         boolean pluginDoesNotExist = !metadataStore.hasPreferenceFor(pluginId);
 
         for (ConfigurationProperty property : configuration) {

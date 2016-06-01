@@ -128,7 +128,7 @@ public class PluggableTask extends AbstractTask {
 
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
-        ArrayList<TaskProperty> taskProperties = new ArrayList<TaskProperty>();
+        ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         if (PluggableTaskConfigStore.store().hasPreferenceFor(pluginConfiguration.getId())) {
             TaskPreference preference = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
             List<? extends Property> propertyDefinitions = preference.getConfig().list();
@@ -147,9 +147,9 @@ public class PluggableTask extends AbstractTask {
     }
 
     public Map<String, Map<String, String>> configAsMap() {
-        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> configMap = new HashMap<>();
         for (ConfigurationProperty property : configuration) {
-            Map<String, String> mapValue = new HashMap<String, String>();
+            Map<String, String> mapValue = new HashMap<>();
             mapValue.put(VALUE_KEY, property.getConfigValue());
             if (!property.errors().isEmpty()) {
                 mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));

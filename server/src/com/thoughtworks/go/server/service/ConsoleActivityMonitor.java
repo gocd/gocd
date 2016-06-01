@@ -54,7 +54,7 @@ public class ConsoleActivityMonitor {
         this.serverHealthService = serverHealthService;
         this.goConfigService = goConfigService;
         this.consoleService = consoleService;
-        this.jobLastActivityMap = new ConcurrentHashMap<JobIdentifier, Long>();
+        this.jobLastActivityMap = new ConcurrentHashMap<>();
         warningThreshold = systemEnvironment.getUnresponsiveJobWarningThreshold();
         jobInstanceService.registerJobStateChangeListener(new ActiveJobListener(this));
     }

@@ -169,7 +169,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
         long latestRev = Long.parseLong(latest.getRevision());
         long sinceRev = Long.parseLong(revision.getRevision());
         long numberOfModifications = latestRev - sinceRev;
-        List<Modification> newMods = new ArrayList<Modification>();
+        List<Modification> newMods = new ArrayList<>();
         if (numberOfModifications > 0) {
             List<Modification> history = history(latest.getRevision(), numberOfModifications);
             for (Modification listedMod : history) {

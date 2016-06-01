@@ -37,7 +37,7 @@ public class EmptySnippetComment implements CommandSnippetComment {
 
     @Override
     public List<String> getKeywords() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override

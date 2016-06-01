@@ -71,7 +71,7 @@ public class AntJUnitReportRDFizer implements XMLRDFizer {
     }
 
     private List<URIReference> testCases(Graph xunitGraph) {
-        List<URIReference> testCases = new ArrayList<URIReference>();
+        List<URIReference> testCases = new ArrayList<>();
 
         for (BoundVariables boundVariables : xunitGraph.select(SELECT_TEST_CASES_SPARQL)) {
             testCases.add(boundVariables.getURIReference("testCase"));

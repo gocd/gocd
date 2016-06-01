@@ -25,7 +25,7 @@ import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.PluginPreference;
 
 public abstract class PluginPreferenceStore<T extends PluginPreference> {
-    private Map<String, T> pluginIdPreferenceMap = new ConcurrentHashMap<String, T>();
+    private Map<String, T> pluginIdPreferenceMap = new ConcurrentHashMap<>();
 
     public T preferenceFor(String pluginId) {
         return pluginIdPreferenceMap.get(pluginId);

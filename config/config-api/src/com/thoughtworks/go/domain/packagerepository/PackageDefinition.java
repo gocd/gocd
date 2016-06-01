@@ -172,7 +172,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         Packages packageDefinitionsWithSameFingerprint = packagesMap.get(fingerprint);
 
         if (packageDefinitionsWithSameFingerprint.size() > 1) {
-            List<String> packageNames = new ArrayList<String>();
+            List<String> packageNames = new ArrayList<>();
             for (PackageDefinition packageDefinition : packageDefinitionsWithSameFingerprint) {
                 packageNames.add(format("[Repo Name: '%s', Package Name: '%s']", packageDefinition.getRepository().getName(), packageDefinition.getName()));
             }
@@ -202,7 +202,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
     }
 
     public String getFingerprint(String fingerprintDelimiter) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(format("%s=%s", "plugin-id", pluginId()));
         handlePackageDefinitionProperties(list);
         handlePackageRepositoryProperties(list);

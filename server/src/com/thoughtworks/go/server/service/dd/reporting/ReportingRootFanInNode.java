@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 public class ReportingRootFanInNode extends ReportingFanInNode {
-    private static List<Class<? extends MaterialConfig>> ROOT_NODE_TYPES = new ArrayList<Class<? extends MaterialConfig>>();
+    private static List<Class<? extends MaterialConfig>> ROOT_NODE_TYPES = new ArrayList<>();
     PipelineTimelineEntry.Revision scmRevision;
 
     static {

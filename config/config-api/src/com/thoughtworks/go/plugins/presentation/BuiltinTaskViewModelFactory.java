@@ -29,7 +29,7 @@ public class BuiltinTaskViewModelFactory implements PluggableViewModelFactory {
     private Map<String, String> viewTemplates;
 
     public BuiltinTaskViewModelFactory(String taskType) {
-        viewTemplates = new HashMap<String, String>();
+        viewTemplates = new HashMap<>();
         viewTemplates.put("new", String.format("admin/tasks/%s/new", taskType));
         viewTemplates.put("edit", String.format("admin/tasks/%s/edit", taskType));
         viewTemplates.put("list-entry", "admin/tasks/plugin/_task_entry_value_fields.html");

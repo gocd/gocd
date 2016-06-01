@@ -39,7 +39,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands storing and retrieving objects from an underlying LRU cache
  */
 public class GoCache {
-    private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<Boolean>();
+    private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<>();
 
     static final String SUB_KEY_DELIMITER = "!_#$#_!";
 

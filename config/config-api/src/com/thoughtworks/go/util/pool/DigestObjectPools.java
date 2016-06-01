@@ -24,8 +24,8 @@ public class DigestObjectPools {
 
     public static final String SHA_256 = "SHA-256";
     public static final String MD_5 = "MD5";
-    private static ThreadLocal<MessageDigest> sha256DigestLocal = new ThreadLocal<MessageDigest>();
-    private static ThreadLocal<MessageDigest> md5DigestLocal = new ThreadLocal<MessageDigest>();
+    private static ThreadLocal<MessageDigest> sha256DigestLocal = new ThreadLocal<>();
+    private static ThreadLocal<MessageDigest> md5DigestLocal = new ThreadLocal<>();
     private final CreateDigest createDigest;
 
     public DigestObjectPools() {

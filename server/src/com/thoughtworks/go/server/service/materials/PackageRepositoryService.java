@@ -184,7 +184,7 @@ public class PackageRepositoryService {
     }
 
     private HashMap<String, List<String>> fieldErrors(Validatable subject, String filedErrorPrefix) {
-        HashMap<String, List<String>> filedErrors = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> filedErrors = new HashMap<>();
         //TODO; Ideally subject should not be null, but when xsd validations fails subject comes as null hence this fix
         if (subject != null) {
             collectFieldErrors(filedErrors, filedErrorPrefix, subject);
@@ -193,7 +193,7 @@ public class PackageRepositoryService {
     }
 
     private List<String> globalErrors(List<ConfigErrors> allErrorsExceptSubject) {
-        ArrayList<String> globalErrors = new ArrayList<String>();
+        ArrayList<String> globalErrors = new ArrayList<>();
         collectGlobalErrors(globalErrors, allErrorsExceptSubject);
         return globalErrors;
     }

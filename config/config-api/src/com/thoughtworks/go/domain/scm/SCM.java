@@ -187,9 +187,9 @@ public class SCM implements Serializable, Validatable {
     }
 
     public Map<String, Map<String, String>> getConfigAsMap() {
-        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> configMap = new HashMap<>();
         for (ConfigurationProperty property : configuration) {
-            Map<String, String> mapValue = new HashMap<String, String>();
+            Map<String, String> mapValue = new HashMap<>();
             mapValue.put(VALUE_KEY, property.getValue());
             if (!property.errors().isEmpty()) {
                 mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));
@@ -261,7 +261,7 @@ public class SCM implements Serializable, Validatable {
     }
 
     public String getFingerprint() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(format("%s=%s", "plugin-id", getPluginId()));
         handleSCMProperties(list);
         String fingerprint = join(list, AbstractMaterialConfig.FINGERPRINT_DELIMITER);

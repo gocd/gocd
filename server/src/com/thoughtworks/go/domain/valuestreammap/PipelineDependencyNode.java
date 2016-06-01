@@ -28,7 +28,7 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 
 public class PipelineDependencyNode extends Node {
-    private Set<Revision> revisions = new HashSet<Revision>();
+    private Set<Revision> revisions = new HashSet<>();
     private Localizable message;
 
     public PipelineDependencyNode(String nodeId, String nodeName) {
@@ -43,12 +43,12 @@ public class PipelineDependencyNode extends Node {
     }
 
     private void emptyRevisions() {
-        revisions = new HashSet<Revision>();
+        revisions = new HashSet<>();
     }
 
     @Override
     public List<Revision> revisions() {
-        ArrayList<Revision> revisions = new ArrayList<Revision>(this.revisions);
+        ArrayList<Revision> revisions = new ArrayList<>(this.revisions);
         Collections.sort(revisions, new Comparator<Revision>() {
             @Override
             public int compare(Revision o1, Revision o2) {

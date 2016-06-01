@@ -127,7 +127,7 @@ public class SecurityConfig implements Validatable {
     }
 
     public List<Role> memberRoleFor(final CaseInsensitiveString userName) {
-        List<Role> roles = new ArrayList<Role>();
+        List<Role> roles = new ArrayList<>();
         for (Role role : rolesConfig) {
             if (isUserMemberOfRole(userName, role.getName())) {
                 roles.add(role);

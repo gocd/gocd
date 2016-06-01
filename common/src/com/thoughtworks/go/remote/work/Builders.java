@@ -30,7 +30,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
 public class Builders {
-    private List<Builder> builders = new ArrayList<Builder>();
+    private List<Builder> builders = new ArrayList<>();
     private final DefaultGoPublisher goPublisher;
     private final GoControlLog buildLog;
     private TaskExtension taskExtension;

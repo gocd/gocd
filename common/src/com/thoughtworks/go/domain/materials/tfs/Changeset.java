@@ -58,7 +58,7 @@ public class Changeset {
     public Modification getModification() {
         Date parse = parseDate(date, CHANGESET_DATE_FORMAT);
         Modification modification = new Modification(committer, getComment(), null, new Date(parse.getYear(), parse.getMonth(), parse.getDate(), parse.getHours(), parse.getMinutes(), parse.getSeconds()), id);
-        ArrayList<ModifiedFile> files = new ArrayList<ModifiedFile>();
+        ArrayList<ModifiedFile> files = new ArrayList<>();
         for (Item item : items) {
             files.add(item.getModifiedFile());
         }

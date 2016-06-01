@@ -120,7 +120,7 @@ public class ValueStreamMapService {
 		try {
 			MaterialConfig materialConfig = null;
 			boolean hasViewPermissionForMaterial = false;
-			List<PipelineConfig> downstreamPipelines = new ArrayList<PipelineConfig>();
+			List<PipelineConfig> downstreamPipelines = new ArrayList<>();
 			for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
 				boolean hasViewPermissionForGroup = securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineGroup.getGroup());
 				for (PipelineConfig pipelineConfig : pipelineGroup) {

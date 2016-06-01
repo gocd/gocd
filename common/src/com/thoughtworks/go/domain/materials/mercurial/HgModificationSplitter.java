@@ -57,7 +57,7 @@ public class HgModificationSplitter {
 
 
     private List<Modification> parseDOMTree(Document document) throws ParseException {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
 
         Element rootElement = document.getRootElement();
         List logEntries = rootElement.getChildren("changeset");
@@ -92,7 +92,7 @@ public class HgModificationSplitter {
 
     private List<File> parseFiles(Element filesElement, String fileType) {
         List files = filesElement.getChild(fileType).getChildren("file");
-        List<File> modifiedFiles = new ArrayList<File>();
+        List<File> modifiedFiles = new ArrayList<>();
         for (Iterator iterator = files.iterator(); iterator.hasNext();) {
             Element node = (Element) iterator.next();
             modifiedFiles.add(new File(org.apache.commons.lang.StringEscapeUtils.unescapeXml(node.getText())));

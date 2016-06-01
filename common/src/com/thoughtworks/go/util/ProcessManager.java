@@ -36,7 +36,7 @@ public class ProcessManager {
     private static final Logger LOG = Logger.getLogger(ProcessManager.class);
     private static final ProcessManager processManager = new ProcessManager();
 
-    private ConcurrentMap<Process, ProcessWrapper> processMap = new ConcurrentHashMap<Process, ProcessWrapper>();
+    private ConcurrentMap<Process, ProcessWrapper> processMap = new ConcurrentHashMap<>();
 
     ProcessManager() {
     }

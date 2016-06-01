@@ -31,7 +31,7 @@ import java.util.*;
 @Component
 public class ServerStatusService {
     private SecurityService securityService;
-    private List<ServerInfoProvider> providers = new ArrayList<ServerInfoProvider>();
+    private List<ServerInfoProvider> providers = new ArrayList<>();
     private static final Logger LOGGER = Logger.getLogger(ServerStatusService.class);
 
     @Autowired

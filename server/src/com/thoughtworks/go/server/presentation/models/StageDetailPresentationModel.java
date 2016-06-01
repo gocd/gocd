@@ -103,7 +103,7 @@ public class StageDetailPresentationModel {
 
     public Map<JobInstance, String> getIndexPages() {
         JobInstances nonEmptyIndexPages = stage.getJobInstances().withNonEmptyIndexPages();
-        Map<JobInstance, String> aggregate = new LinkedHashMap<JobInstance, String>();
+        Map<JobInstance, String> aggregate = new LinkedHashMap<>();
         for (JobInstance job : nonEmptyIndexPages) {
             JobIdentifier jobIdentifier = new JobIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
             String filePath = job.getTestIndexPage().getPath();

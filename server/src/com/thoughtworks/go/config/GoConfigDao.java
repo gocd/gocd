@@ -145,7 +145,7 @@ public class GoConfigDao {
     }
 
     public static class CompositeConfigCommand implements UpdateConfigCommand {
-        private List<UpdateConfigCommand> commands = new ArrayList<UpdateConfigCommand>();
+        private List<UpdateConfigCommand> commands = new ArrayList<>();
 
         public CompositeConfigCommand(UpdateConfigCommand... commands) {
             this.commands.addAll(Arrays.asList(commands));

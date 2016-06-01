@@ -41,7 +41,7 @@ module ApiV1
         @@version ||= begin
           json = JSON.parse(File.read(Rails.root.join('..', 'server_version.json')), symbolize_names: true)
           json[:full_version] = "#{json[:version]} (#{json[:build_number]}-#{json[:git_sha]})"
-          json[:commit_url] = "https://github.com/gocd/gocd/commits/#{json[:git_sha]}"
+          json[:commit_url] = "https://github.com/gocd/gocd/commit/#{json[:git_sha]}"
           OpenStruct.new(json)
         end
       end

@@ -59,7 +59,7 @@ public class GoVersion implements Comparable<GoVersion> {
 
     private Matcher matcherFor(String version) {
         Pattern updateServerPattern = Pattern.compile("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(?:(\\d+)\\-)?(?:(\\d+))$");
-        Pattern serverVersionPattern = Pattern.compile("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(?:(\\d+)\\()?(?:(\\d+)\\-)?(?:(\\w+)\\))$");
+        Pattern serverVersionPattern = Pattern.compile("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(?:(\\d+)\\s*\\()?(?:(\\d+)\\-)?(?:(\\w+)\\))$");
         Matcher matcher = null;
 
         matcher = updateServerPattern.matcher(version);

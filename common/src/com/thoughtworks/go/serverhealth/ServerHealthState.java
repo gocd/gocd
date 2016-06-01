@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ public class ServerHealthState {
         return expiryTime != null && expiryTime.isBefore(clock.currentDateTime());
     }
 
-    public String getPipelineNames(CruiseConfig config) {
+    public Set<String> getPipelineNames(CruiseConfig config) {
         return type.getPipelineNames(config);
     }
 }

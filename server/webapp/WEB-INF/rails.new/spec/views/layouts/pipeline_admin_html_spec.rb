@@ -22,10 +22,6 @@ describe "/layouts/pipeline_admin" do
   include EngineUrlHelper
 
   before do
-    stub_server_health_messages
-  end
-
-  before do
     @layout_name = "layouts/pipeline_admin"
     @admin_url = "/admin/pipelines"
     assign(:user,@user = Object.new)

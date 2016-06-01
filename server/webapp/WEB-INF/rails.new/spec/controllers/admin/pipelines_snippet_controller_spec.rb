@@ -49,7 +49,6 @@ describe Admin::PipelinesSnippetController do
       controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service)
       controller.stub(:go_config_service).and_return(@go_config_service)
       controller.should_receive(:populate_config_validity).and_return(true)
-      controller.should_receive(:populate_health_messages)
       controller.should_receive(:load_context)
       @result = HttpLocalizedOperationResult.new
       HttpLocalizedOperationResult.stub(:new).and_return(@result)

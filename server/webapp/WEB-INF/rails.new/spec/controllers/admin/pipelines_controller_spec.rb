@@ -18,7 +18,6 @@ require 'spec_helper'
 
 describe Admin::PipelinesController do
   before do
-    controller.stub(:populate_health_messages)
     controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
   end
 
@@ -141,9 +140,6 @@ describe Admin::PipelinesController do
       render_views
 
       before do
-        controller.stub(:populate_health_messages) do
-          controller.instance_variable_set :@current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new
-        end
         @go_config_service.stub(:isSecurityEnabled).and_return(false)
       end
 

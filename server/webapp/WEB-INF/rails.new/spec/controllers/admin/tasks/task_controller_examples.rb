@@ -23,10 +23,6 @@ end
 shared_examples_for :task_controller  do
   include ConfigSaveStubbing, TaskMother
 
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
   describe "routes" do
     describe "index" do
       it "should resolve templates as :stage_parent" do

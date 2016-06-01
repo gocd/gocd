@@ -20,7 +20,6 @@ describe Admin::ServerController do
   include MockRegistryModule
 
   before do
-    controller.stub(:populate_health_messages)
     controller.stub(:set_current_user)
   end
 
@@ -156,9 +155,6 @@ describe Admin::ServerController do
       render_views
 
       before do
-        controller.stub(:populate_health_messages) do
-          controller.instance_variable_set :@current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new
-        end
         user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("foo"))
         controller.stub(:set_current_user) do
           controller.instance_variable_set :@user, user

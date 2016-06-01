@@ -3,14 +3,6 @@ module MiscSpecExtensions
     org.joda.time.DateTime.new(year, month, day, hour, minute, second, 0, org.joda.time.DateTimeZone::UTC).toDate()
   end
 
-  def stub_server_health_messages
-    assign(:current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new)
-  end
-
-  def stub_server_health_messages_for_controllers
-    assigns[:current_server_health_states] = com.thoughtworks.go.serverhealth.ServerHealthStates.new
-  end
-
   def current_user
     @user ||= com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("some-user"), "display name")
     @controller.stub(:current_user).and_return(@user)

@@ -28,7 +28,7 @@ describe("pipeline_errors", function () {
             "    <div class='message'>global msg</div>\n" +
             "    <div class='description'>global desc</div>\n" +
             "  </div>\n" +
-            "  <div class='error' data-pipelines='pipeline1'>\n" +
+            "  <div class='error' data-pipelines='[&quot;pipeline1&quot;]'>\n" +
             "    <div class='message'>pipeline1 msg</div>\n" +
             "    <div class='description'>pipeline1 desc</div>\n" +
             "  </div>\n" +

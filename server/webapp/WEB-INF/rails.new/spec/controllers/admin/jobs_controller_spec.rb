@@ -25,10 +25,6 @@ describe Admin::JobsController do
     @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResource(resource)
   end
 
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
   describe "routes" do
     it "should resolve new" do
       {:get => "/admin/pipelines/dev/stages/test.1/jobs/new"}.should route_to(:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.serverhealth;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -32,17 +33,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class ServerHealthServiceTest {
     private ServerHealthService serverHealthService;
@@ -179,16 +181,16 @@ public class ServerHealthServiceTest {
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline(PIPELINE_NAME))));
-        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), is(PIPELINE_NAME));
+        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forStage(PIPELINE_NAME, "stage1"))));
-        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), is(PIPELINE_NAME));
+        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
 
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forJob(PIPELINE_NAME, "stage1", "job1"))));
-        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), is(PIPELINE_NAME));
+        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
     }
 
     @Test
@@ -200,7 +202,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.invalidConfig()));
-        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), is(""));
+        assertTrue((serverHealthService.getAllLogs().get(0)).getPipelineNames(config).isEmpty());
 
     }
 
@@ -213,7 +215,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(MaterialsMother.p4Material()))));
-        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), is(""));
+        assertTrue((serverHealthService.getAllLogs().get(0)).getPipelineNames(config).isEmpty());
     }
 
     @Test
@@ -225,9 +227,8 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(hgMaterial))));
-        String[] pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config).split(",");
-        Arrays.sort(pipelines);
-        assertArrayEquals("pipeline,pipeline2".split(","), pipelines);
+        Set<String> pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config);
+        assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
     }
 
     @Test
@@ -239,9 +240,8 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterialUpdate(hgMaterial))));
-        String[] pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config).split(",");
-        Arrays.sort(pipelines);
-        assertArrayEquals("pipeline,pipeline2".split(","), pipelines);
+        Set<String> pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config);
+        assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
     }
 
     @Test
@@ -253,7 +253,7 @@ public class ServerHealthServiceTest {
         config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forFanin("pipeline2"))));
-        String pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config);
-        assertThat(pipelines, is("pipeline2"));
+        Set<String> pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config);
+        assertEquals(Sets.newHashSet("pipeline2"), pipelines);
     }
 }

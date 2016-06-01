@@ -19,9 +19,6 @@ require 'spec_helper'
 describe Api::ServerController do
 
   before :each do
-    controller.stub(:populate_health_messages) do
-      stub_server_health_messages_for_controllers
-    end
     @system_environment = double('system_environment')
     @go_config_service = double('go_config_service')
     controller.stub(:system_environment).and_return(@system_environment)

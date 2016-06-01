@@ -22,7 +22,6 @@ describe Admin::StagesController do
   include TaskMother
 
   before do
-    controller.stub(:populate_health_messages)
     controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
     controller.stub(:set_current_user)
   end

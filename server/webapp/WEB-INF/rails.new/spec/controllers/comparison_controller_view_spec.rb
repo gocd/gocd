@@ -22,9 +22,6 @@ describe ComparisonController, "view" do
   render_views
 
   before do
-    controller.stub(:populate_health_messages) do
-      controller.instance_variable_set(:@current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new)
-    end
     controller.stub(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
     controller.stub(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
     controller.stub(:populate_config_validity)

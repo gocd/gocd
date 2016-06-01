@@ -85,7 +85,6 @@ describe Admin::PackageRepositoriesController do
       controller.stub(:go_config_service).and_return(@go_config_service)
       @go_config_service.should_receive(:checkConfigFileValid).and_return(config_validity)
       @go_config_service.stub(:registry)
-      controller.stub(:populate_health_messages)
 
       @cloner = double('cloner')
       controller.stub(:get_cloner_instance).and_return(@cloner)

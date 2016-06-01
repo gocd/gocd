@@ -18,9 +18,6 @@ require 'spec_helper'
 
 
 describe "/value_stream_map/show.html.erb" do
-  before do
-    stub_server_health_messages
-  end
   include GoUtil
 
   before(:each)  do

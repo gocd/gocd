@@ -26,7 +26,6 @@ describe Api::PipelinesController do
   include APIModelMother
 
   before :each do
-    controller.stub(:populate_health_messages)
     @pipeline_service = Object.new
     @pipeline_history_service = double('pipeline_history_service')
     @pipeline_unlock_api_service = double('pipeline_unlock_api_service')

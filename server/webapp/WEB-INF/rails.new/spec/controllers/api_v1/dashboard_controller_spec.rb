@@ -19,7 +19,6 @@ require 'spec_helper'
 describe ApiV1::DashboardController do
 
   before do
-    controller.stub(:populate_health_messages)
     @user                  = Username.new(CaseInsensitiveString.new("foo"))
     @pipeline_group_models = java.util.ArrayList.new
     controller.stub(:current_user).and_return(@user)

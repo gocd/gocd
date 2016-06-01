@@ -20,7 +20,6 @@ load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 describe Admin::Materials::DependencyController do
   include MockRegistryModule
   before do
-    controller.stub(:populate_health_messages)
     controller.stub(:go_config_service).and_return(@go_config_service = Object.new)
     @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
   end

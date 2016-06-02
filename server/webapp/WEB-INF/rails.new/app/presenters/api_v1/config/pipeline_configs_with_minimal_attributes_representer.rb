@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
+
 module ApiV1
-  class DashboardController < ApiV1::BaseController
+  module Config
+    class PipelineConfigsWithMinimalAttributesRepresenter < ApiV1::BaseRepresenter
+      alias_method :pipeline_configs, :represented
 
-    include ApplicationHelper
+      link :self do |opts|
+        opts[:url_builder].apiv1_admin_internal_pipelines_url
+      end
 
-    def dashboard
-      # TODO: What happens when there is no cookie!
-      pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
-      pipeline_groups     = pipeline_history_service.allActivePipelineInstances(current_user, pipeline_selections)
-      presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
+      collection :pipelines,
+                 embedded: true,
+                 exec_context: :decorator,
+                 decorator: PipelineConfigWithMinimalAttributesRepresenter
 
-      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
+      def pipelines
+        pipeline_configs.inject([]) do |arr, pipeline_configs|
+          pipeline_configs.getPipelines.each do |pipeline_config|
+            arr << pipeline_config
+          end
+          arr
+        end
+      end
     end
-
   end
 end

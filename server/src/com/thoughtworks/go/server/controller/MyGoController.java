@@ -28,6 +28,7 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.PipelineViewModel;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.ui.controller.Redirection;
@@ -55,13 +56,13 @@ public class MyGoController {
     private static final String MESSAGE_KEY = "message";
 
     private final UserService userService;
-    private SecurityService securityService;
+    private final PipelineConfigService pipelineConfigService;
     private final Localizer localizer;
 
     @Autowired
-    public MyGoController(UserService userService, SecurityService securityService, Localizer localizer) {
+    public MyGoController(UserService userService, PipelineConfigService pipelineConfigService, Localizer localizer) {
         this.userService = userService;
-        this.securityService = securityService;
+        this.pipelineConfigService = pipelineConfigService;
         this.localizer = localizer;
     }
 
@@ -160,7 +161,7 @@ public class MyGoController {
             }
         }
 
-        List<PipelineConfigs> groups = securityService.viewableGroupsFor(getUserName());
+        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(getUserName());
         data.put("pipelines", new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getPipelineModelsSortedByNameFor(groups)));
         data.put("l", localizer);
 

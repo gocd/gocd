@@ -297,6 +297,37 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
       });
     });
 
+    describe('Dependency View', function () {
+      var material;
+      beforeAll(function () {
+        var materials = new Materials();
+        material = materials.createMaterial({
+          type:       'dependency',
+          name:       'dependencyMaterial',
+          pipeline:   'pipeline1',
+          stage:      'stage1',
+          autoUpdate: true
+
+        });
+
+        createRootElement();
+        mount(materials);
+        viewMaterial();
+      });
+
+      afterAll(function () {
+        removeRootElement();
+      });
+
+      it('should bind name', function () {
+        expect($root.find("input[data-prop-name='name']").val()).toBe(material.name());
+      });
+
+      it('should bind pipeline and stage', function () {
+        expect($root.find("input[name='pipeline-stage']").val()).toBe('pipeline1 [stage1]');
+      });
+    });
+
     function createRootElement() {
       root = document.createElement("div");
       document.body.appendChild(root);
@@ -309,7 +340,7 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
 
     function mount(materials) {
       m.mount(root,
-        m.component(MaterialsConfigWidget, {materials: materials, pipelineName: 'testPipeLine'})
+        m.component(MaterialsConfigWidget, {materials: materials, pipelineName: m.prop('testPipeLine')})
       );
       m.redraw(true);
     }

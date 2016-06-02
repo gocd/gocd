@@ -34,6 +34,7 @@ import com.thoughtworks.go.util.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -47,12 +48,14 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     private final GoConfigService goConfigService;
     private static final String GO_PIPELINE_CONFIGS_ETAGS_CACHE = "GO_PIPELINE_CONFIGS_ETAGS_CACHE".intern();
     private GoCache goCache;
+    private SecurityService securityService;
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(PipelineConfigService.class);
 
     @Autowired
-    public PipelineConfigService(GoConfigService goConfigService, GoCache goCache) {
+    public PipelineConfigService(GoConfigService goConfigService, GoCache goCache, SecurityService securityService) {
         this.goConfigService = goConfigService;
         this.goCache = goCache;
+        this.securityService = securityService;
     }
 
     public void initialize() {
@@ -132,6 +135,26 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
 
+    public List<PipelineConfigs> viewableGroupsFor(Username username) {
+        ArrayList<PipelineConfigs> list = new ArrayList<PipelineConfigs>();
+        for (PipelineConfigs pipelineConfigs : goConfigService.cruiseConfig().getGroups()) {
+            if (securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineConfigs.getGroup())) {
+                list.add(pipelineConfigs);
+            }
+        }
+        return list;
+    }
+
+    public List<PipelineConfigs> viewableOrOperatableGroupsFor(Username username) {
+        ArrayList<PipelineConfigs> list = new ArrayList<PipelineConfigs>();
+        for (PipelineConfigs pipelineConfigs : goConfigService.cruiseConfig().getGroups()) {
+            if(hasViewOrOperatePermissionForGroup(username, pipelineConfigs.getGroup())) {
+                list.add(pipelineConfigs);
+            }
+        }
+        return list;
+    }
+
     public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
         CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
@@ -145,5 +168,8 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         }
     }
 
-
+    private boolean hasViewOrOperatePermissionForGroup(Username username, String group) {
+        return securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), group) ||
+                securityService.hasOperatePermissionForGroup(username.getUsername(), group);
+    }
 }

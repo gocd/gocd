@@ -19,11 +19,13 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +46,7 @@ public class PipelineConfigServiceTest {
     private CruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
     private GoCache goCache;
+    private SecurityService securityService;
 
     @Before
     public void setUp() throws Exception {
@@ -53,11 +56,13 @@ public class PipelineConfigServiceTest {
         cruiseConfig.addEnvironment(environment("foo", "in_env"));
 
         goConfigService = mock(GoConfigService.class);
+        securityService = mock(SecurityService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         goCache = mock(GoCache.class);
         PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
-        pipelineConfigService = new PipelineConfigService(goConfigService, goCache);
+        pipelineConfigService = new PipelineConfigService(goConfigService, goCache, securityService);
+
     }
 
     @Test
@@ -124,5 +129,54 @@ public class PipelineConfigServiceTest {
         PipelineConfig down = PipelineConfigMother.pipelineConfig("down");
         down.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("mingle")));
         configs.add(down);
+    }
+
+    @Test
+    public void shouldGetAllViewableOrOperatablePipelineConfigs() throws Exception {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("P1");
+        PipelineConfig p2 = PipelineConfigMother.pipelineConfig("P2");
+        PipelineConfig p3 = PipelineConfigMother.pipelineConfig("P3");
+        Username username = new Username(new CaseInsensitiveString("user"));
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getGroups()).thenReturn(new PipelineGroups(new BasicPipelineConfigs("group1", null, p1),
+                                                                     new BasicPipelineConfigs("group2", null, p2),
+                                                                     new BasicPipelineConfigs("group3", null, p3)));
+
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group1")).thenReturn(true);
+
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group2")).thenReturn(false);
+        when(securityService.hasOperatePermissionForGroup(username.getUsername(), "group2")).thenReturn(false);
+
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group3")).thenReturn(false);
+        when(securityService.hasOperatePermissionForGroup(username.getUsername(), "group3")).thenReturn(true);
+
+        List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableOrOperatableGroupsFor(username);
+
+        assertThat(pipelineConfigs.size(), is(2));
+        assertThat(pipelineConfigs.get(0).getGroup(), is("group1"));
+        assertThat(pipelineConfigs.get(1).getGroup(), is("group3"));
+    }
+
+    @Test
+    public void shouldGetAllViewablePipelineConfigs() throws Exception {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("P1");
+        PipelineConfig p2 = PipelineConfigMother.pipelineConfig("P2");
+        Username username = new Username(new CaseInsensitiveString("user"));
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getGroups()).thenReturn(new PipelineGroups(new BasicPipelineConfigs("group1", null, p1),
+                                                                     new BasicPipelineConfigs("group2", null, p2)));
+
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group1")).thenReturn(true);
+        when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group2")).thenReturn(false);
+
+
+        List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableOrOperatableGroupsFor(username);
+
+        assertThat(pipelineConfigs.size(), is(1));
+        assertThat(pipelineConfigs.get(0).getGroup(), is("group1"));
     }
 }

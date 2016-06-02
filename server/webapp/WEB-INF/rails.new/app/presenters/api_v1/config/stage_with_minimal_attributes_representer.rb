@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
+
 module ApiV1
-  class DashboardController < ApiV1::BaseController
+  module Config
+    class StageWithMinimalAttributesRepresenter < ApiV1::BaseRepresenter
+      alias_method :stage, :represented
 
-    include ApplicationHelper
+      property :name, exec_context: :decorator
+      property :jobs, exec_context: :decorator
 
-    def dashboard
-      # TODO: What happens when there is no cookie!
-      pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
-      pipeline_groups     = pipeline_history_service.allActivePipelineInstances(current_user, pipeline_selections)
-      presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
+      def jobs
+        stage.getJobs.collect(&:name).collect(&:toString)
+      end
 
-      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
+      def name
+        stage.name.toString
+      end
     end
-
   end
 end

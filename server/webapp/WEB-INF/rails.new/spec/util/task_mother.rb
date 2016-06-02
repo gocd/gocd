@@ -88,7 +88,7 @@ module TaskMother
 
   def plugin_task plugin_id = "curl.plugin", configurations = []
     configuration = Configuration.new(configurations.to_java(ConfigurationProperty))
-    PluggableTask.new("", PluginConfiguration.new(plugin_id, "1.0"), configuration)
+    PluggableTask.new( PluginConfiguration.new(plugin_id, "1.0"), configuration)
   end
 
   def simple_task_plugin_with_on_cancel_config plugin_id = "curl.plugin", configurations = []

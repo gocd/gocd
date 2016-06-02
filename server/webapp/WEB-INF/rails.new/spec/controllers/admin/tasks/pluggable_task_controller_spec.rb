@@ -41,7 +41,7 @@ describe Admin::TasksController do
     @updated_payload = {:Url => "http://foo/bar"}
     @updated_task = plugin_task("curl.plugin", [ConfigurationPropertyMother.create("Url", false, "http://foo/bar")])
 
-    @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
+    @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
 
     @create_payload= {:Url => "http://foo"}
     @created_task= plugin_task("curl.plugin", [ConfigurationPropertyMother.create("Url", false, "http://foo")])

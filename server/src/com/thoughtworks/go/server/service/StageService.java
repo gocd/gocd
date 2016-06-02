@@ -231,7 +231,7 @@ public class StageService implements StageRunFinder, StageFinder {
                 for (StageStatusListener stageStatusListener : stageStatusListeners.toArray(prototype)) {
                     try {
                         stageStatusListener.stageStatusChanged(savedStage);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         LOGGER.error("error notifying listener for stage " + savedStage, e);
                     }
                 }

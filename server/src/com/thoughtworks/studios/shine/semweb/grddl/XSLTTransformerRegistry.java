@@ -16,6 +16,8 @@
 
 package com.thoughtworks.studios.shine.semweb.grddl;
 
+import com.sun.org.apache.xalan.internal.XalanConstants;
+
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -45,7 +47,7 @@ public class XSLTTransformerRegistry {
     }
 
     private void register(String xsltPath) throws IOException {
-        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(xsltPath)) {
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(xsltPath)) {
             transformerMap.put(xsltPath, transformerForXSLStream(resourceAsStream));
         }
     }
@@ -60,6 +62,7 @@ public class XSLTTransformerRegistry {
 
     private Templates transformerForXSLStream(InputStream xsl) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setAttribute(XalanConstants.JDK_EXTENSION_CLASSLOADER, this.getClass().getClassLoader());
         try {
             return transformerFactory.newTemplates(new StreamSource(xsl));
         } catch (TransformerConfigurationException e) {

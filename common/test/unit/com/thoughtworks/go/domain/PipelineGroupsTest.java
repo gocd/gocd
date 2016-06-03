@@ -75,6 +75,18 @@ public class PipelineGroupsTest {
     }
 
     @Test
+    public void shouldRemovePipelineFromTheGroup() throws Exception {
+        PipelineConfig pipelineConfig = createPipelineConfig("pipeline1", "stage1");
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineConfig);
+        PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup);
+
+        assertThat(pipelineGroups.size(), is(1));
+        pipelineGroups.deletePipeline(pipelineConfig);
+        assertThat(pipelineGroups.size(), is(1));
+        assertThat(defaultGroup.size(), is(0));
+    }
+
+    @Test
     public void shouldSaveNewPipelineGroupOnTheTop() {
         PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
         PipelineConfigs defaultGroup2 = createGroup("defaultGroup2", createPipelineConfig("pipeline2", "stage2"));

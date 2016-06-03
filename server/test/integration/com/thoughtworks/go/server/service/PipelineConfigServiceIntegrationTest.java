@@ -45,6 +45,7 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -142,7 +143,7 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreatePipelineConfigWhenPipelineGroupDoesExist() throws GitAPIException {
+    public void shouldCreatePipelineConfigWhenPipelineGroupDoesNotExist() throws GitAPIException {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
         PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         pipelineConfigService.createPipelineConfig(user, downstream, result, "does-not-exist");
@@ -362,6 +363,32 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+    }
+
+    @Test
+    public void shouldDeletePipelineConfig() throws Exception {
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+
+        assertTrue(result.isSuccessful());
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(0));
+        assertFalse(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+    }
+
+    @Test
+    public void shouldNotDeleteThePipelineForUnauthorizedUsers() throws Exception {
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(new Username(new CaseInsensitiveString("unauthorized-user")), pipelineConfig, result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.toString(), result.toString().contains("UNAUTHORIZED_TO_DELETE_PIPELINE"), is(true));
+        assertThat(result.httpCode(), is(401));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
     }
 
     @Test

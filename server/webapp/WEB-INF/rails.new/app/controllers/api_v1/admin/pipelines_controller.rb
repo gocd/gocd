@@ -18,9 +18,10 @@ module ApiV1
   module Admin
     class PipelinesController < ApiV1::BaseController
       before_action :check_pipeline_group_admin_user_and_401
-      before_action :load_pipeline, only: [:show]
+      before_action :load_pipeline, only: [:show, :destroy]
       before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
+      before_action :check_for_pipeline_dependency, only: [:destroy]
 
       def show
         json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
@@ -44,6 +45,12 @@ module ApiV1
         get_pipeline_from_request
         pipeline_config_service.updatePipelineConfig(current_user, @pipeline_config_from_request, result)
         handle_config_save_or_update_result(result)
+      end
+
+      def destroy
+        result = HttpLocalizedOperationResult.new
+        pipeline_config_service.deletePipelineConfig(current_user, @pipeline_config, result)
+        render_http_operation_result(result)
       end
 
       private
@@ -115,6 +122,16 @@ module ApiV1
         if (!pipeline_config_service.getPipelineConfig(params[:pipeline_name]).nil?)
           result = HttpLocalizedOperationResult.new
           result.unprocessableEntity(LocalizedMessage::string("CANNOT_CREATE_PIPELINE_ALREADY_EXISTS", params[:pipeline_name]))
+          render_http_operation_result(result)
+        end
+      end
+
+      def check_for_pipeline_dependency
+        pipelines_can_be_deleted = pipeline_config_service.canDeletePipelines()
+        delete_result = pipelines_can_be_deleted[CaseInsensitiveString.new(params[:pipeline_name])]
+        if(!delete_result.canDelete())
+          result = HttpLocalizedOperationResult.new
+          result.unprocessableEntity(delete_result.message)
           render_http_operation_result(result)
         end
       end

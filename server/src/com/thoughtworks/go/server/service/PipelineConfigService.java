@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
+import com.thoughtworks.go.config.update.DeletePipelineConfigCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -171,6 +172,14 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
         CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
+    }
+
+    public void deletePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result) {
+        DeletePipelineConfigCommand deletePipelineConfigCommand = new DeletePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
+        update(currentUser, pipelineConfig, result, deletePipelineConfigCommand);
+        if(result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.string("PIPELINE_DELETE_SUCCESSFUL", pipelineConfig.name()));
+        }
     }
 
     @Override

@@ -124,6 +124,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     void update(String groupName, String pipelineName, PipelineConfig pipeline);
 
+    void deletePipeline(PipelineConfig pipelineConfig);
+
     boolean exist(int pipelineIndex);
 
     boolean hasPipeline();

@@ -69,7 +69,7 @@ public class GoPartialConfigTest {
 
         configWatchList = new GoConfigWatchList(cachedGoConfig);
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService);
-        cachedGoPartials = new CachedGoPartials();
+        cachedGoPartials = new CachedGoPartials(serverHealthService);
         goConfigService = mock(GoConfigService.class);
         serverHealthService = mock(ServerHealthService.class);
         partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService);

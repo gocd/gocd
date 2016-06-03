@@ -16,32 +16,47 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class CachedGoPartialsTest {
 
     private CachedGoPartials partials;
     private PartialConfig part1;
     private PartialConfig part2;
+    private ServerHealthService serverHealthService;
+    private String fingerprintForRepo1;
+    private String fingerprintForRepo2;
 
     @Before
     public void setUp() throws Exception {
-        partials = new CachedGoPartials();
-        part1 = new PartialConfig();
-        part2 = new PartialConfig();
-        partials.addOrUpdate("fingerprint1", part1);
-        partials.addOrUpdate("fingerprint2", part2);
-
+        serverHealthService = new ServerHealthService();
+        partials = new CachedGoPartials(serverHealthService);
+        ConfigRepoConfig configRepo1 = new ConfigRepoConfig(new GitMaterialConfig("url1"), "plugin");
+        part1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "1"));
+        ConfigRepoConfig configRepo2 = new ConfigRepoConfig(new GitMaterialConfig("url2"), "plugin");
+        part2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(configRepo2, "1"));
+        partials.addOrUpdate(configRepo1.getMaterialConfig().getFingerprint(), part1);
+        partials.addOrUpdate(configRepo2.getMaterialConfig().getFingerprint(), part2);
+        fingerprintForRepo1 = ((RepoConfigOrigin) part1.getOrigin()).getMaterial().getFingerprint();
+        fingerprintForRepo2 = ((RepoConfigOrigin) part2.getOrigin()).getMaterial().getFingerprint();
     }
 
     @Test
     public void shouldMarkAPartialAsValid() {
-        partials.markAsValid("fingerprint1", part1);
+        partials.markAsValid(fingerprintForRepo1, part1);
         assertThat(partials.lastValidPartials().contains(part1), is(true));
         assertThat(partials.lastValidPartials().contains(part2), is(false));
     }
@@ -56,15 +71,27 @@ public class CachedGoPartialsTest {
     @Test
     public void shouldRemoveValid() {
         partials.markAllKnownAsValid();
-        partials.removeValid("fingerprint1");
+        partials.removeValid(fingerprintForRepo1);
         assertThat(partials.lastValidPartials().contains(part1), is(false));
         assertThat(partials.lastValidPartials().contains(part2), is(true));
     }
 
     @Test
     public void shouldRemoveKnown() {
-        partials.removeKnown("fingerprint1");
+        partials.removeKnown(fingerprintForRepo1);
         assertThat(partials.lastKnownPartials().contains(part1), is(false));
         assertThat(partials.lastKnownPartials().contains(part2), is(true));
+    }
+
+    @Test
+    public void shouldRemoveServerHealthMessageForPartialWhenItIsMarkedAsValid(){
+        serverHealthService.update(ServerHealthState.error("error-repo-1", "error-desc-1", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1))));
+        serverHealthService.update(ServerHealthState.error("error-repo-2", "error-desc-2", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2))));
+        partials.markAsValid(fingerprintForRepo1, part1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).get(0).getMessage(), is("error-repo-2"));
+        partials.markAllKnownAsValid();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).isEmpty(), is(true));
     }
 }

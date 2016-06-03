@@ -18,7 +18,10 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,6 +33,14 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Component
 public class CachedGoPartials {
+    private final ServerHealthService serverHealthService;
+
+    @Autowired
+    public CachedGoPartials(ServerHealthService serverHealthService) {
+
+        this.serverHealthService = serverHealthService;
+    }
+
     public List<PartialConfig> lastValidPartials() {
         return getPartialConfigs(fingerprintToLatestValidConfigMap);
     }
@@ -70,6 +81,7 @@ public class CachedGoPartials {
     public void removeValid(String fingerprint) {
         if (fingerprintToLatestValidConfigMap.containsKey(fingerprint)) {
             fingerprintToLatestValidConfigMap.remove(fingerprint);
+            serverHealthService.removeByScope(HealthStateScope.forPartialConfigRepo(fingerprint));
         }
     }
 
@@ -80,7 +92,18 @@ public class CachedGoPartials {
 
     public void markAsValid(String fingerprint, PartialConfig newPart) {
         DateTime lastUpdated = fingerprintToLatestKnownConfigMap.get(fingerprint).lastUpdated;
+        if (fingerprintToLatestValidConfigMap.containsKey(fingerprint)) {
+            if (!fingerprintToLatestValidConfigMap.get(fingerprint).partialConfig.getOrigin().equals(newPart.getOrigin())) {
+                markAsValid(fingerprint, newPart, lastUpdated);
+            }
+        } else {
+            markAsValid(fingerprint, newPart, lastUpdated);
+        }
+    }
+
+    private void markAsValid(String fingerprint, PartialConfig newPart, DateTime lastUpdated) {
         fingerprintToLatestValidConfigMap.put(fingerprint, new UpdatedPartial(newPart, lastUpdated));
+        serverHealthService.removeByScope(HealthStateScope.forPartialConfigRepo(fingerprint));
     }
 
     public void markAsValid(List<PartialConfig> partials) {
@@ -120,8 +143,6 @@ public class CachedGoPartials {
     }
 
     public void markAllKnownAsValid() {
-        for (Map.Entry<String, UpdatedPartial> entry : fingerprintToLatestKnownConfigMap.entrySet()) {
-            fingerprintToLatestValidConfigMap.put(entry.getKey(), entry.getValue());
-        }
+        markAsValid(lastKnownPartials());
     }
 }

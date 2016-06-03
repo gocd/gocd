@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -30,10 +31,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @understands current state of configuration part.
@@ -41,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Provides partial configurations.
  */
 @Component
-public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener, PartialsProvider{
+public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener, PartialsProvider {
 
     private static final Logger LOGGER = Logger.getLogger(GoPartialConfig.class);
     public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
@@ -83,43 +81,54 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
 
             // put latest known
             cachedGoPartials.addOrUpdate(fingerprint, newPart);
-            if (updateConfig(newPart, fingerprint)) {
+            if (updateConfig(newPart, fingerprint, repoConfig)) {
                 cachedGoPartials.markAsValid(fingerprint, newPart);
             }
         }
     }
 
-    private boolean updateConfig(final PartialConfig newPart, final String fingerprint) {
-        try {
-            goConfigService.updateConfig(new UpdateConfigCommand() {
-                @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    if (newPart != null && fingerprint != null) {
-                        cruiseConfig.getPartials().remove(findMatchingPartial(cruiseConfig, fingerprint));
-                        cruiseConfig.getPartials().add(new Cloner().deepClone(newPart));
+    public class GoPartialUpdateCommand implements UpdateConfigCommand {
+        private final PartialConfig newPart;
+        private final String fingerprint;
 
-                        for (PartialConfig partial : cruiseConfig.getPartials()) {
-                            for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
-                                if (!cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentConfig.name())) {
-                                    cruiseConfig.addEnvironment(new BasicEnvironmentConfig(environmentConfig.name()));
-                                }
-                            }
-                            for (PipelineConfigs pipelineConfigs : partial.getGroups()) {
-                                if (!cruiseConfig.getGroups().hasGroup(pipelineConfigs.getGroup())) {
-                                    cruiseConfig.getGroups().add(new BasicPipelineConfigs(pipelineConfigs.getGroup(), new Authorization()));
-                                }
-                            }
+        public GoPartialUpdateCommand(final PartialConfig newPart, final String fingerprint) {
+            this.newPart = newPart;
+            this.fingerprint = fingerprint;
+        }
+
+        @Override
+        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            if (newPart != null && fingerprint != null) {
+                cruiseConfig.getPartials().remove(findMatchingPartial(cruiseConfig, fingerprint));
+                cruiseConfig.getPartials().add(new Cloner().deepClone(newPart));
+
+                for (PartialConfig partial : cruiseConfig.getPartials()) {
+                    for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
+                        if (!cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentConfig.name())) {
+                            cruiseConfig.addEnvironment(new BasicEnvironmentConfig(environmentConfig.name()));
                         }
                     }
-                    return cruiseConfig;
+                    for (PipelineConfigs pipelineConfigs : partial.getGroups()) {
+                        if (!cruiseConfig.getGroups().hasGroup(pipelineConfigs.getGroup())) {
+                            cruiseConfig.getGroups().add(new BasicPipelineConfigs(pipelineConfigs.getGroup(), new Authorization()));
+                        }
+                    }
                 }
-            });
-            serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
+            }
+            return cruiseConfig;
+        }
+    }
+
+    private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {
+        try {
+            goConfigService.updateConfig(new GoPartialUpdateCommand(newPart, fingerprint));
             return true;
         } catch (Exception e) {
-            String description = String.format("%s -  Config-Repo: %s", GoConfigValidity.invalid(e).errorMessage(), newPart.getOrigin().displayName());
-            ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.invalidConfigMerge());
-            serverHealthService.update(state);
+            if (repoConfig != null) {
+                String description = String.format("%s -  Config-Repo: %s", GoConfigValidity.invalid(e).errorMessage(), newPart.getOrigin().displayName());
+                ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.general(HealthStateScope.forPartialConfigRepo(repoConfig)));
+                serverHealthService.update(state);
+            }
             return false;
         }
     }
@@ -161,8 +170,8 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
                 cachedGoPartials.removeValid(fingerprint);
             }
         }
-        if(removed){
-            updateConfig(null, null);
+        if (removed) {
+            updateConfig(null, null, null);
         }
     }
 }

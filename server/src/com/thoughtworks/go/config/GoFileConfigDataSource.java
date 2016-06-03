@@ -257,7 +257,7 @@ public class GoFileConfigDataSource {
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
                 serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
-                if (cachedGoPartials.lastValidPartials().isEmpty()) {
+                if (cachedGoPartials.lastValidPartials().isEmpty() && !(updatingCommand instanceof GoPartialConfig.GoPartialUpdateCommand)) {
                     throw e;
                 } else {
                     serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));

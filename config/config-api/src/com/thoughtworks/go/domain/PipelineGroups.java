@@ -16,12 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
@@ -132,12 +127,20 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
 
     public void validatePipelineNameUniqueness() {
         List<PipelineConfig> visited = new ArrayList<>();
+        HashMap<CaseInsensitiveString, Set<String>> duplicates = new HashMap<>();
         for (PipelineConfigs group : this) {
             for (PipelineConfig pipeline : group) {
                 for (PipelineConfig visitedPipeline : visited) {
                     if (visitedPipeline.name().equals(pipeline.name())) {
-                        pipeline.addError(PipelineConfig.NAME, String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", pipeline.name()));
-                        visitedPipeline.addError(PipelineConfig.NAME, String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", pipeline.name()));
+                        if(!duplicates.containsKey(pipeline.name())){
+                            duplicates.put(pipeline.name(), new HashSet<String>());
+                        }
+                        duplicates.get(pipeline.name()).add(pipeline.getOriginDisplayName());
+                        duplicates.get(pipeline.name()).add(visitedPipeline.getOriginDisplayName());
+                        pipeline.errors().remove(PipelineConfig.NAME);
+                        pipeline.addError(PipelineConfig.NAME, String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): %s", pipeline.name(), duplicates.get(pipeline.name())));
+                        visitedPipeline.errors().remove(PipelineConfig.NAME);
+                        visitedPipeline.addError(PipelineConfig.NAME, String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): %s", pipeline.name(), duplicates.get(pipeline.name())));
                     }
                 }
                 visited.add(pipeline);

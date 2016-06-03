@@ -196,8 +196,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors.size(), is(2));
-        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
-        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
+        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
+        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
     }
 
     @Test
@@ -210,8 +210,9 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         List<ConfigErrors> allErrors = merged.validateAfterPreprocess();
         assertThat(remotePart.getGroups().get(0).getPipelines().get(0).errors().size(), is(1));
         assertThat(allErrors.size(), is(2));
-        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
-        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+
+        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
+        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
     }
 
     @Test
@@ -226,8 +227,9 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
         List<ConfigErrors> allErrors = cloned.validateAfterPreprocess();
         assertThat(allErrors.size(), is(2));
-        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
-        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique."));
+
+        assertThat(allErrors.get(0).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
+        assertThat(allErrors.get(1).on("name"), is("You have defined multiple pipelines named 'pipeline-1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
     }
 
     @Test

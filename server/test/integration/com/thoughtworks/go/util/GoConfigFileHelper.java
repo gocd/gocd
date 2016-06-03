@@ -120,7 +120,7 @@ public class GoConfigFileHelper {
             configRepository.initialize();
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
-            CachedGoPartials cachedGoPartials = new CachedGoPartials();
+            CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials);
             dataSource.upgradeIfNecessary();
@@ -141,7 +141,7 @@ public class GoConfigFileHelper {
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService, new CachedGoPartials());
+                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService, new CachedGoPartials(serverHealthService));
             dataSource.upgradeIfNecessary();
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource);
             cachedConfigService.loadConfigIfNull();

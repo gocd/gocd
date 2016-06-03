@@ -20,14 +20,19 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -50,14 +55,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -94,7 +103,7 @@ public class CachedGoConfigIntegrationTest {
         configHelper.onSetUp();
         externalConfigRepo = temporaryFolder.newFolder();
         latestCommit = setupExternalConfigRepo(externalConfigRepo);
-        configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(externalConfigRepo.getAbsolutePath()), "plugin"));
+        configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(externalConfigRepo.getAbsolutePath()), XmlPartialConfigProvider.providerName));
         goConfigService.forceNotifyListeners();
         configRepo = configWatchList.getCurrentConfigRepos().get(0);
         cachedGoPartials.clear();
@@ -130,6 +139,34 @@ public class CachedGoConfigIntegrationTest {
         assertThat(findMessageFor(HealthStateType.invalidConfig()).isEmpty(), is(true));
         assertThat(repoConfigDataSource.latestPartialConfigForMaterial(configRepo.getMaterialConfig()).getGroups().findGroup("first").findBy(new CaseInsensitiveString("pipe1")), is(not(nullValue())));
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+    }
+
+    @Test
+    public void shouldFailWhenTryingToAddPipelineWithTheSameNameAsAnotherPipelineDefinedRemotely() throws Exception {
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+
+        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
+                "www.spring.com");
+        try {
+            goConfigDao.updateConfig(new CreatePipelineConfigCommand(goConfigService, dupPipelineConfig, Username.ANONYMOUS, new DefaultLocalizedOperationResult(), "default"), Username.ANONYMOUS);
+            fail("Should have thrown");
+        } catch (RuntimeException ex) {
+            PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
+            String errorMessage = dupPipelineConfig.errors().on(PipelineConfig.NAME);
+            assertThat(errorMessage, containsString("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):"));
+            Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)\\].*$").matcher(errorMessage);
+            assertThat(matcher.matches(), is(true));
+            assertThat(matcher.groupCount(), is(2));
+            List<String> expectedSources = asList(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
+            List<String> actualSources = new ArrayList<>();
+            for (int i = 1; i <= matcher.groupCount(); i++) {
+                actualSources.add(matcher.group(i));
+            }
+            assertThat(actualSources.size(), is(expectedSources.size()));
+            assertThat(actualSources.containsAll(expectedSources), is(true));
+        }
     }
 
     private ArrayList<ServerHealthState> findMessageFor(final HealthStateType type) {

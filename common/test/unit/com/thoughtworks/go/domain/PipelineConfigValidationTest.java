@@ -508,7 +508,7 @@ public class PipelineConfigValidationTest {
         cruiseConfig.addPipeline(group, p1Duplicate);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, group, cruiseConfig, p1Duplicate);
         p1Duplicate.validateTree(context);
-        assertThat(p1Duplicate.errors().on(PipelineConfig.NAME), is(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", p1Duplicate.name())));
+        assertThat(p1Duplicate.errors().on(PipelineConfig.NAME), is(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", p1Duplicate.name())));
     }
 
     @Test

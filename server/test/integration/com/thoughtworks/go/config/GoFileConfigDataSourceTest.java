@@ -100,15 +100,15 @@ public class GoFileConfigDataSourceTest {
         when(timeProvider.currentTime()).thenReturn(new Date());
         ServerVersion serverVersion = new ServerVersion();
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        cachedGoPartials = new CachedGoPartials();
+        ServerHealthService serverHealthService = new ServerHealthService();
+        cachedGoPartials = new CachedGoPartials(serverHealthService);
         dataSource = new GoFileConfigDataSource(new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
             public void handle(Exception e) {
                 throw new RuntimeException(e);
             }
         }, configRepository, new TimeProvider(), configCache, registry),
-                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class), cachedGoPartials);
+                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry,  mock(ServerHealthService.class), cachedGoPartials);
         dataSource.upgradeIfNecessary();
-        ServerHealthService serverHealthService = new ServerHealthService();
         CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource);
         cachedGoConfig.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedGoConfig);

@@ -121,7 +121,7 @@ public class CachedGoConfig {
     }
 
     public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updateConfigCommand, Username currentUser) {
-        EntityConfigSaveResult entityConfigSaveResult = dataSource.writeEntityWithLock(updateConfigCommand, new GoConfigHolder(this.currentConfig, this.currentConfigForEdit), currentUser);
+        EntityConfigSaveResult entityConfigSaveResult = dataSource.writeEntityWithLock(updateConfigCommand, this.configHolder, currentUser);
         saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(entityConfigSaveResult);
         return entityConfigSaveResult;
     }

@@ -110,7 +110,6 @@ public class GoConfigDao {
                 }
                 LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
             }
-            LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
         }
         return configSaveState;
     }

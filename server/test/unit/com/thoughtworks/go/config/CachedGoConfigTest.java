@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,6 +56,8 @@ public class CachedGoConfigTest {
         GoConfigHolder holderBeforeUpdate = cachedGoConfig.loadConfigHolder();
         Username user = new Username(new CaseInsensitiveString("user"));
         EntityConfigSaveResult entityConfigSaveResult = mock(EntityConfigSaveResult.class);
+        when(entityConfigSaveResult.getConfigHolder()).thenReturn(savedConfig);
+        when(entityConfigSaveResult.getEntityConfig()).thenReturn(new PipelineConfig());
         when(dataSource.writeEntityWithLock(saveCommand, holderBeforeUpdate, user)).thenReturn(entityConfigSaveResult);
 
         cachedGoConfig.writeEntityWithLock(saveCommand, user);
@@ -126,10 +127,17 @@ public class CachedGoConfigTest {
         EntityConfigUpdateCommand configCommand = mock(EntityConfigUpdateCommand.class);
         when(configCommand.isValid(any(CruiseConfig.class))).thenReturn(true);
         when(configCommand.getPreprocessedEntityConfig()).thenReturn(mock(PipelineConfig.class));
-        cachedGoConfig.writeEntityWithLock(configCommand, new Username(new CaseInsensitiveString("user")));
+        EntityConfigSaveResult entityConfigSaveResult = mock(EntityConfigSaveResult.class);
+        when(entityConfigSaveResult.getConfigHolder()).thenReturn(configHolder);
+        when(entityConfigSaveResult.getEntityConfig()).thenReturn(new PipelineConfig());
+        Username user = new Username(new CaseInsensitiveString("user"));
+        when(dataSource.writeEntityWithLock(configCommand, configHolder, user)).thenReturn(entityConfigSaveResult);
+
+        cachedGoConfig.loadConfigIfNull();
+
+        cachedGoConfig.writeEntityWithLock(configCommand, user);
         assertThat(pipelineConfigChangeListenerCalled[0], is(true));
         assertThat(agentConfigChangeListenerCalled[0], is(false));
         assertThat(cruiseConfigChangeListenerCalled[0], is(false));
     }
-
 }

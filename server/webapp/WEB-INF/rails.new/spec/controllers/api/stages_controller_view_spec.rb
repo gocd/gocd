@@ -40,7 +40,7 @@ describe Api::StagesController do
     stage_element.tap do |entry|
       expect(entry.xpath("link[@rel='self'][@href='http://test.host/go/api/stages/#{stage.getId()}.xml']")).to_not be_nil_or_empty
       expect(entry.xpath("pipeline[@name='pipeline_name'][@counter='30'][@label='LABEL-30'][@href='http://test.host/go/api/pipelines/pipeline_name/120.xml']")).to_not be_nil_or_empty
-      expect(entry.xpath("updated").text).to eq(stage.latestTransitionDate().iso8601)
+      expect(entry.xpath("updated").text).to eq(DateUtils.formatISO8601(stage.latestTransitionDate()))
       expect(entry.xpath("result").text).to eq(StageResult::Passed.to_s)
       expect(entry.xpath("state").text).to eq("Completed")
       expect(entry.xpath("approvedBy").text).to eq(GoConstants::DEFAULT_APPROVED_BY)

@@ -102,6 +102,7 @@ public class PipelineHistoryServiceTest {
     public void setUp() {
         initMocks(this);
         when(featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)).thenReturn(true);
+        when(goConfigService.isPipelineEditableViaUI(any(String.class))).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
         pipelineHistoryService = new PipelineHistoryService(pipelineDao, stageDao, goConfigService, securityService, scheduleService,
                 mock(MaterialRepository.class),
@@ -266,6 +267,24 @@ public class PipelineHistoryServiceTest {
 
         assertThat(groups.get(0).getPipelineModels().get(0).canAdminister(), is(true));
         assertThat(groups.get(0).getPipelineModels().get(1).canAdminister(), is(true));
+        assertThat(groups.get(1).getPipelineModels().get(0).canAdminister(), is(false));
+
+        verify(goConfigService, times(1)).isUserAdminOfGroup(jez.getUsername(), "defaultGroup");
+        verify(goConfigService, times(1)).isUserAdminOfGroup(jez.getUsername(), "foo");
+    }
+
+    @Test
+    public void shouldRestrictAdminPermissionOnRemotePipelines() throws Exception {
+        when(goConfigService.isPipelineEditableViaUI(any(String.class))).thenReturn(false);
+        Username jez = new Username(new CaseInsensitiveString("jez"));
+        setupExpectationsForAllActivePipelinesWithTwoGroups(jez);
+        when(goConfigService.isUserAdminOfGroup(jez.getUsername(), "defaultGroup")).thenReturn(true);
+        when(goConfigService.isUserAdminOfGroup(jez.getUsername(), "foo")).thenReturn(false);
+
+        List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(jez, PipelineSelections.ALL);
+
+        assertThat(groups.get(0).getPipelineModels().get(0).canAdminister(), is(false));
+        assertThat(groups.get(0).getPipelineModels().get(1).canAdminister(), is(false));
         assertThat(groups.get(1).getPipelineModels().get(0).canAdminister(), is(false));
 
         verify(goConfigService, times(1)).isUserAdminOfGroup(jez.getUsername(), "defaultGroup");

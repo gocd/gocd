@@ -882,18 +882,18 @@ public abstract class CruiseConfigTestBase {
         assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe3")), is(true));
 
     }
+
     @Test
-    public void shouldgetAllPipelineNamesFromAllParts()
+    public void shouldGetAllPipelineNamesFromAllParts()
     {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
                 PartialConfigMother.withPipelineInGroup("pipe2", "g2"),PartialConfigMother.withPipelineInGroup("pipe3", "g3"));
 
-        assertThat(cruiseConfig.getAllPipelineNames(), contains(
-                new CaseInsensitiveString("pipe2"),
-                new CaseInsensitiveString("pipe1"),
-                new CaseInsensitiveString("pipe3")));
+        assertThat(cruiseConfig.getAllPipelineNames(), hasItem(new CaseInsensitiveString("pipe1")));
+        assertThat(cruiseConfig.getAllPipelineNames(), hasItem(new CaseInsensitiveString("pipe2")));
+        assertThat(cruiseConfig.getAllPipelineNames(), hasItem(new CaseInsensitiveString("pipe3")));
     }
 
     @Test

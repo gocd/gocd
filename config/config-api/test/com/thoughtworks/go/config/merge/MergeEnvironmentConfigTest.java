@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.merge;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.remote.UIConfigOrigin;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.collections.map.SingletonMap;
 import org.hamcrest.Matchers;
@@ -74,8 +75,7 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Test
-    public void getRemotePipelines_shouldReturnPipelinesFromRemotePartWhenRemoteHasPipesAssigned()
-    {
+    public void getRemotePipelines_shouldReturnPipelinesFromRemotePartWhenRemoteHasPipesAssigned() {
         uatRemotePart.addPipeline(new CaseInsensitiveString("pipe"));
         assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(false));
     }
@@ -89,18 +89,6 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     public void shouldGetLocalPartWhenOriginFile()
     {
         assertThat(environmentConfig.getLocal(),is(uatLocalPart2));
-    }
-    /*@Test
-    public void shouldGetLocalPartWhenOriginIsUI()
-    {
-        uatLocalPart2.setOrigins(new UIConfigOrigin());
-        assertThat(environmentConfig.getLocal(), is(uatLocalPart2));
-    }*/
-    @Test
-    public void shouldReturnNullLocalPartWhenOriginsAreRemote()
-    {
-        uatLocalPart2.setOrigins(new RepoConfigOrigin());
-        assertNull(environmentConfig.getLocal());
     }
 
     // merges

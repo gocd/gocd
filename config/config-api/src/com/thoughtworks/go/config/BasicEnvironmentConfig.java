@@ -306,15 +306,6 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         }
     }
 
-    public boolean isLocal() {
-        return this.origin == null || this.origin.isLocal();
-    }
-
-    @Override
-    public boolean isEnvironmentEmpty() {
-        return this.variables.isEmpty() && this.agents.isEmpty() && this.pipelines.isEmpty();
-    }
-
     @Override
     public EnvironmentPipelinesConfig getRemotePipelines() {
         if(this.isLocal())
@@ -330,4 +321,14 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         else
             return new EnvironmentAgentsConfig();
     }
+
+    public boolean isLocal() {
+        return this.origin == null || this.origin.isLocal();
+    }
+
+    @Override
+    public boolean isEnvironmentEmpty() {
+        return this.variables.isEmpty() && this.agents.isEmpty() && this.pipelines.isEmpty();
+    }
+
 }

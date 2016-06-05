@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
-import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Before;
@@ -74,12 +72,15 @@ public class EnvironmentConfigBasicTest extends EnvironmentConfigTestBase {
         environmentConfig.setOrigins(new FileConfigOrigin());
         assertSame(environmentConfig,environmentConfig.getLocal());
     }
-    /*@Test
+
+    @Test
     public void shouldReturnSelfAsLocalPartWhenOriginIsUI()
     {
         environmentConfig.setOrigins(new UIConfigOrigin());
         assertSame(environmentConfig,environmentConfig.getLocal());
-    }*/
+
+    }
+
     @Test
     public void shouldReturnNullAsLocalPartWhenOriginIsConfigRepo()
     {

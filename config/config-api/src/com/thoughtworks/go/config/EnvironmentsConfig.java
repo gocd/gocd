@@ -197,4 +197,15 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
             environmentConfig.removeAgent(uuid);
         }
     }
+
+    public EnvironmentsConfig getLocal() {
+        EnvironmentsConfig locals = new EnvironmentsConfig();
+        for(EnvironmentConfig environmentConfig : this)
+        {
+            EnvironmentConfig local = environmentConfig.getLocal();
+            if(local != null)
+                locals.add(local);
+        }
+        return locals;
+    }
 }

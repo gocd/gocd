@@ -16,28 +16,6 @@
 
 require 'spec_helper'
 
-def set_pipeline(pipeline_config, pipeline)
-  @pipeline = pipeline
-  @pipeline.getPipelineIdentifier
-  @pipeline.setId(10)
-  @pipeline.setMaterialConfigs(pipeline_config.materialConfigs())
-end
-
-def stage_finder
-  Class.new() do
-    include com.thoughtworks.go.domain.StageFinder
-    include StageModelMother
-
-    def initialize
-      @stage = stage(1)
-    end
-
-    def findStageWithIdentifier(id)
-      @stage
-    end
-  end.new
-end
-
 describe "/api/pipelines/pipeline_instance" do
   include GoUtil
   include StageModelMother
@@ -75,7 +53,7 @@ describe "/api/pipelines/pipeline_instance" do
           dep_material.xpath("modifications").tap do |modifications|
             modifications.xpath("changeset[@changesetUri='http://test.host/go/api/stages/#{@finder.findStageWithIdentifier(nil).getId()}.xml']").tap do |changeset|
               expect(changeset.xpath("user")).to be_nil_or_empty
-              expect(changeset.xpath("checkinTime").text).to eq(@modified_time2.iso8601)
+              expect(changeset.xpath("checkinTime").text).to eq(DateUtils.formatISO8601(@modified_time2))
               expect(changeset.xpath("revision").text).to eq("uat/1/default-stage/1")
               expect(changeset.xpath("message")).to be_nil_or_empty
             end
@@ -96,7 +74,7 @@ describe "/api/pipelines/pipeline_instance" do
 
     doc = Nokogiri::XML(response.body)
     doc.xpath("pipeline[@name='uat'][@counter='1'][@label='1']").tap do |pipeline|
-      expect(pipeline.xpath("scheduleTime").text).to eq(@schedule_time.iso8601)
+      expect(pipeline.xpath("scheduleTime").text).to eq(DateUtils.formatISO8601(@pipeline.getScheduledDate()))
 
       expect(pipeline.xpath("stages/stage[@href='http://test.host/go/api/stages/1.xml']")).to_not be_nil_or_empty
       expect(pipeline.xpath("stages/stage[@href='http://test.host/go/api/stages/0.xml']")).to be_nil_or_empty
@@ -107,7 +85,7 @@ describe "/api/pipelines/pipeline_instance" do
           dep_material.xpath("modifications").tap do |modifications|
             modifications.xpath("changeset[@changesetUri='http://test.host/go/api/materials/10/changeset/#{PipelineHistoryMother::REVISION}.xml']").tap do |changeset|
               expect(changeset.xpath("user").text).to eq("user")
-              expect(changeset.xpath("checkinTime").text).to eq(@modified_time.iso8601)
+              expect(changeset.xpath("checkinTime").text).to eq(DateUtils.formatISO8601(@modified_time))
               expect(changeset.xpath("revision").text).to eq(PipelineHistoryMother::REVISION)
               expect(changeset.xpath("message").text).to eq("Comment")
               expect(changeset.xpath("file[@name='file'][@action='added']")).to_not be_nil_or_empty
@@ -206,5 +184,25 @@ describe "/api/pipelines/pipeline_instance" do
     expect(root.xpath("pipeline/link[@rel='insertedAfter'][@href='http://test.host/go/api/pipelines/uat/9.xml']")).to be_nil_or_empty
   end
 
-  #TODO: do material helper test
+  def set_pipeline(pipeline_config, pipeline)
+    @pipeline = pipeline
+    @pipeline.getPipelineIdentifier
+    @pipeline.setId(10)
+    @pipeline.setMaterialConfigs(pipeline_config.materialConfigs())
+  end
+
+  def stage_finder
+    Class.new() do
+      include com.thoughtworks.go.domain.StageFinder
+      include StageModelMother
+
+      def initialize
+        @stage = stage(1)
+      end
+
+      def findStageWithIdentifier(id)
+        @stage
+      end
+    end.new
+  end
 end

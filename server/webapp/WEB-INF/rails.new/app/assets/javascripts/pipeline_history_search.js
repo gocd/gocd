@@ -54,6 +54,6 @@ jQuery( document ).ready(function() {
     //Trigger search when enterkey is pressed from the search field
     jQuery('#labelSearchField').keypress(function (e) {
         if (e.keyCode == 13)
-            filterLabels();
+            applyLabelFilter();
     });
 });

@@ -24,6 +24,8 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
+import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
+
 public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
     private final GoConfigService goConfigService;
     private final EntityHashingService entityHashingService;
@@ -60,7 +62,9 @@ public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
         boolean isValid = preprocessedPipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), preprocessedConfig, preprocessedPipelineConfig));
-        if (!isValid) BasicCruiseConfig.copyErrors(preprocessedPipelineConfig, pipelineConfig);
+        if (!isValid) {
+            copyErrors(preprocessedPipelineConfig, pipelineConfig);
+        }
         return isValid;
     }
 

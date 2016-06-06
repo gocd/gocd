@@ -672,6 +672,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return pagination.getCurrentPage();
     }
 
+    public PipelineInstanceModels findPipelineHistoryByRevision(String revision) {
+        return PipelineInstanceModels.createPipelineInstanceModels(
+                (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("getPipelineHistoryByRevision", arguments("revision", revision).asMap()));
+    }
+
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit) {
         Map<String, Object> args = arguments("pipelineName", pipelineName).
                 and("pattern", "%" + pattern.toLowerCase() + "%").

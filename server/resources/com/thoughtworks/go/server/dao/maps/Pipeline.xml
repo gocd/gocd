@@ -287,6 +287,13 @@
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 
+    <select id="getPipelineHistoryByRevision" resultMap="select-pipeline-history">
+        <include refid="getPipelineHistory" />
+        INNER JOIN pipelineMaterialRevisions pmr ON pmr.pipelineId = pipelines.id
+        INNER JOIN modifications mod ON mod.id &gt;= pmr.fromRevisionId AND mod.id &lt;= pmr.toRevisionId AND pmr.materialId = mod.materialId
+        WHERE mod.revision = #revision# ORDER BY pipelines.counter DESC
+    </select>
+
     <select id="getPipelineHistoryForIds" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory" />
         WHERE pipelines.id IN ($pipelineIds$)

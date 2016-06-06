@@ -89,6 +89,8 @@ public interface PipelineDao {
 
     int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit);
 
+    PipelineInstanceModels findPipelineHistoryByRevision(String revision);
+
     PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit);
 
     BuildCause findBuildCauseOfPipelineByNameAndCounter(String name, int counter);

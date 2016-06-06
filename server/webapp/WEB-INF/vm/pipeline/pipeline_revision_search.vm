@@ -1,0 +1,88 @@
+## layout level variable
+#set ($title = "Pipeline Revision Search")
+#set($extra_css_list = ['toolkit', 'pipeline-tab','pipeline-history'])
+#set($current_tab='build')
+## page level variable
+#set($_hide_collapse-sidebar-button = true)
+#set($searchRevision=$esc.javascript($revision))
+#set($pipelineName="Azure_QFE")
+
+#set($_page_title="Pipeline Revision Search")
+#parse("shared/_header.vm")
+
+
+<style type="text/css">
+    .pipeline-history-group .wrapper .onHover .detail,
+    .pipeline-history-group .wrapper .onHover .rerun,
+    .pipeline-history-group .wrapper .onHover .disabled-rerun {
+        display: block;
+        zoom: 1;
+    }
+</style>
+
+
+<textarea rows="0" cols="0" id='pipeline-history-list-template' style="display: none;">
+    #parse('pipeline/_pipeline_history_list_jstemplate.vm')
+</textarea>
+
+<div style="padding: 10px">
+    <input title='Search for Revision' placeholder='Search for Revision' id='revision-search-input' type='text' name='revision-search'/>
+    <button class="submit button" id="revision-search-button" onclick="revisionSearch()">Search</button>
+</div>
+<div id="yui-main">
+
+    <div class="yui-b">
+        <!-- breadcrumbs -->
+        #set($current_page="pipeline_revision_search")
+        <!-- /breadcrumbs -->
+
+        #parse("shared/_page_intro_top.vm")
+        <p>This view shows you all build activity that has occured in your pipeline over time.
+            Click on a stage in the configuration panel to view activity only within that stage.
+            You can also manually approve stages from this screen to force the next stage to run.
+            <a class="more" target="_blank" title="Learn more from help documentation" href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
+        </p>
+        #parse("shared/_page_intro_bottom.vm")
+        <!-- pipeline start -->
+
+
+        <div id="pipeline-history">
+            Loading...
+            <img src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="loading..."/>
+        </div>
+    </div>
+</div>
+
+#parse("shared/_flash_message.vm")
+
+<script type="text/javascript">
+    var pipelineHistoryPage = new PipelineHistoryPage();
+    var pipelineActions = new PipelineActions();
+    var stageActions = new StageActions();
+    var paginator = new Paginator();
+    var pipelineHistoryObserver = new PipelineHistoryObserver('history');
+    jQuery.get("/go/revisionsearch.json?revision=$revision", function (data) {
+        data.showForceBuildButton = false;
+        $('pipeline-history').innerHTML = pipelineHistoryObserver.getTemplate().process(
+                { data : data, _MODIFIERS: {
+                    escapeQuotes: function(str) {
+                        return str.replace(/"/g, '&quot;');
+                    },
+                }});
+        jQuery(".pipeline-buttons").hide();
+
+        //Add pipeline name in front of labels
+        jQuery(".pipeline-label").each(function(i, e) {
+            jQuery(e).prepend("<p>"+data.pipelineNames[i]+"</p>");
+        });
+
+        console.log(data);
+    }).fail(function() {
+        jQuery('#pipeline-history').html("<p style='font-size: 2em;padding-left: 20px;'>No revisions found matching \"$revision\"</p>");
+    });
+
+</script>
+
+#parse("shared/_footer.vm")
+
+

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -37,12 +38,14 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
+import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotFound;
 import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 
 @Controller
@@ -117,6 +120,47 @@ public class PipelineHistoryController {
                 pagination, canForce(pipelineConfig, username),
                 hasForcedBuildCause, hasBuildCauseInBuffer, canPause(pipelineConfig, username));
         return jsonFound(historyJsonPresenter.toJson()).respond(response);
+    }
+
+    @RequestMapping(value = "/tab/pipeline/search", method = RequestMethod.GET)
+    public ModelAndView revisionSearch(@RequestParam("revision") String revision,
+                                       HttpServletResponse response, HttpServletRequest request) throws Exception {
+        Map model = new HashMap();
+        model.put("revision", revision);
+        model.put("l", localizer);
+        return new ModelAndView("pipeline/pipeline_revision_search", model);
+    }
+
+    @RequestMapping(value = "/**/revisionsearch.json", method = RequestMethod.GET)
+    public ModelAndView revisionSearchJson(@RequestParam("revision") String revision,
+                                           HttpServletResponse response, HttpServletRequest request) throws Exception {
+        String username = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
+        PipelineInstanceModels pipelineHistory = pipelineHistoryService.findPipelineInstancesByRevision(revision);
+        if(pipelineHistory.isEmpty())
+            return jsonNotFound(null).respond(response);
+
+        String pipelineName = pipelineHistory.first().getName();
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        Pagination pagination = Pagination.pageStartingAt(0, pipelineHistory.size(), pipelineHistory.size());
+        boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineName);
+
+        PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
+        boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
+        PipelineHistoryJsonPresentationModel historyJsonPresenter = new PipelineHistoryJsonPresentationModel(
+                pauseInfo,
+                pipelineHistory,
+                pipelineConfig,
+                pagination, canForce(pipelineConfig, username),
+                hasForcedBuildCause, hasBuildCauseInBuffer, canPause(pipelineConfig, username));
+        Map jsonMap = historyJsonPresenter.toJson();
+
+        ArrayList<String> pipelineNameList = new ArrayList<String>(pipelineHistory.size());
+        for(PipelineInstanceModel model : pipelineHistory)
+            pipelineNameList.add(model.getName());
+
+        jsonMap.put("pipelineNames", pipelineNameList);
+        return jsonFound(jsonMap).respond(response);
+
     }
 
     private boolean canPause(PipelineConfig pipelineConfig, String username) {

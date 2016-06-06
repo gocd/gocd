@@ -2,6 +2,10 @@
 <% @page_header = '<h1 class="entity_title">Pipelines</h1>'
    @show_pipeline_selector = true -%>
 
+    <div style="padding: 10px">
+      <input title='Search for Revision' placeholder='Search for Revision' id='revision-search-input' type='text' name='revision-search'/>
+      <button class="submit button" id="revision-search-button" onclick="revisionSearch()">Search</button>
+    </div>
 
     <div class="dashboard_microcontent_popup dashboard_build_cause_like_microcontent_popups">
         <div class="hidden changes enhanced_dropdown" id="dashboard_build_cause_content">&nbsp;</div>
@@ -54,4 +58,5 @@
             popupShower.toggle_popup(event, this);
         });
     });
+
 </script>

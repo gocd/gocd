@@ -128,6 +128,7 @@ public class DependencyMaterial extends AbstractMaterial {
         if (!CaseInsensitiveString.isBlank(getName())) {
             json.put("materialName", CaseInsensitiveString.str(getName()));
         }
+        json.put("fingerprint", getFingerprint());
     }
 
     public boolean matches(String name, String regex) {

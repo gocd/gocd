@@ -46,11 +46,11 @@
 <div id="yui-main">
 
     <!-- Pipeline Label Search -->
-            <div style="padding: 5px">
-                <input type="text" id="labelSearchField">
-                <button id="filterLabelsButton" type="button" style="border: 2px #555555 outset" onclick="filterLabels()">Search</button>
-                <button id="removeFilterButton" type="button" style="border: 2px #FC3535 outset; background: #E4B7B7; display: none" onclick="removeFilter()">Remove Filter</button>
-            </div>
+    <div style="padding: 5px">
+        <input type="text" id="labelSearchField" placeholder='Filter history...'>
+        <button id="filterLabelsButton" type="button" class="submit button" onclick="applyLabelFilter()">Search</button>
+        <button id="removeFilterButton" type="button" class="submit button" style="border: 2px #FC3535 outset; background: #F43737; display: none" onclick="removeLabelFilter()">Remove Filter</button>
+    </div>
 
     <div class="yui-b">
         <!-- breadcrumbs -->
@@ -98,67 +98,8 @@
     #if($pipeline_comment_feature_toggle_key)
     var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
     #end
-</script>
 
-<!-- Code for searching through labels -->
-<script>
-
-    // Gets all the histories of the pipeline and calls filterHistory
-    // Needs improvement since it is inefficient with a large number of histories (loads all of them)
-    function filterLabels() {
-        var inputVal = jQuery("#labelSearchField").val().trim();
-        if (inputVal.length == 0) {
-            removeFilter();
-            return;
-        }
-
-        var numHistory = paginator.count;
-        jQuery.get("/go/pipelineHistory.json?pipelineName=${pipelineName}&start=0&perPage=" + numHistory+"&labelFilter="+inputVal, function (data) {
-            filterHistories(data, inputVal);
-        });
-    }
-
-    // Filters histories that match the search text. Rerenders the view with histories that match the text
-    function filterHistories(pipelineHistory) {
-        //Need to stop periodic executor to show only the pipelines matching the filter
-        dashboard_periodical_executer.stop();
-        var filtered = [];
-        var histories = pipelineHistory.groups[0].history;
-        for(var i in histories) {
-            //Ignore the default history returned when the history list is empty
-            if(histories[i].pipelineId != -1)
-                filtered.push(histories[i]);
-        }
-
-        pipelineHistory.groups[0].history = filtered;
-        //pipelineHistory.perPage = filtered.length;
-
-        $('pipeline-history').innerHTML = pipelineHistoryObserver.getTemplate().process(
-                { data : pipelineHistory});
-        //$('page_links').innerHTML = "";
-
-        jQuery("#labelSearchField").prop("readonly", true);
-        jQuery('#filterLabelsButton').hide();
-        jQuery('#removeFilterButton').show();
-    }
-
-    // Removes the applied filter (if there is one) and resumes the periodic executer
-    function removeFilter() {
-        jQuery("#labelSearchField").prop("readonly", false);
-        jQuery("#labelSearchField").val("");
-        jQuery('#filterLabelsButton').show();
-        jQuery('#removeFilterButton').hide();
-
-        if(!dashboard_periodical_executer.is_execution_start)
-            dashboard_periodical_executer.start();
-    }
-
-    //Trigger search when enterkey is pressed from the search field
-    jQuery('#labelSearchField').keypress(function(e){
-        if(e.keyCode==13)
-            filterLabels();
-    });
-
+    var pipelineName = "$pipelineName";
 </script>
 
 #parse("shared/_footer.vm")

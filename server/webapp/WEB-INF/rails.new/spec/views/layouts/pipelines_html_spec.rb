@@ -21,7 +21,6 @@ describe "layouts/pipelines.html.eb" do
 
   before do
     @layout_name = 'layouts/pipelines'
-    stub_server_health_messages
     @user = Username.new(CaseInsensitiveString.new("blah-name"), "blah diaply name")
     assign(:user,@user)
     now = org.joda.time.DateTime.new

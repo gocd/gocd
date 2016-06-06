@@ -18,10 +18,6 @@ require 'spec_helper'
 
 describe Admin::MaterialsController do
   include MockRegistryModule
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
   include ConfigSaveStubbing
 
   describe "routes" do

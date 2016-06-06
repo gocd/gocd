@@ -23,7 +23,6 @@ describe "/shared/_application_nav.html.erb" do
     class << view
       include ApplicationHelper
     end
-    stub_server_health_messages
     assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
   end
@@ -138,7 +137,7 @@ describe "/shared/_application_nav.html.erb" do
 
       render :partial => partial_page
 
-      expect(response.body).to have_selector("script", visible: false, text: /Util.on_load\(function\(\) {new AjaxRefresher\('\/server\/messages.json', null\);}\);/)
+      expect(response.body).to have_selector("script", visible: false, text: /new AjaxRefresher\('\/server\/messages.json', /)
     end
 
     it "should hookup auto refresh with update once when auto refresh is false" do

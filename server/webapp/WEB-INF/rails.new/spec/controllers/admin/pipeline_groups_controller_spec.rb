@@ -19,7 +19,6 @@ require 'spec_helper'
 describe Admin::PipelineGroupsController do
   include MockRegistryModule
   before do
-    controller.stub(:populate_health_messages)
     controller.stub(:set_current_user)
   end
   include ConfigSaveStubbing

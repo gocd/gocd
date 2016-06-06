@@ -20,7 +20,6 @@ require 'java'
 describe ApplicationController do
 
   before do
-    stub_server_health_messages_for_controllers
     UserHelper.stub(:getUserId).and_return(1)
   end
 
@@ -188,25 +187,12 @@ describe ApplicationController do
     end
 
     it "should populate the config file validity for every request" do
-      @controller.stub(:populate_health_messages)
       go_config_service = stub_service(:go_config_service)
       expect(go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
 
       get :index
 
       expect(assigns[:config_valid]).to eq(true)
-    end
-
-    it "should populate server-health-messages for every request" do
-      health_service = stub_service(:server_health_service)
-      config_service = stub_service(:go_config_service)
-      config_service.should_receive(:getCurrentConfig).and_return(new_config = BasicCruiseConfig.new)
-      config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      health_service.should_receive(:getAllValidLogs).with(new_config).and_return(:all_health_messages)
-
-      get :index
-
-      expect(assigns[:current_server_health_states]).to eq(:all_health_messages)
     end
 
     it "should set the siteUrl and secureSiteUrl on the thread" do
@@ -248,9 +234,6 @@ describe ApplicationController do
     before(:each) do
       @routes.draw do
         get "/anonymous/test_action"
-      end
-      controller.stub(:populate_health_messages) do
-        stub_server_health_messages_for_controllers
       end
       config_service = stub_service(:go_config_service)
       config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid)

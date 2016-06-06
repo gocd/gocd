@@ -19,7 +19,6 @@ require 'spec_helper'
 describe PipelinesController do
 
   before(:each)  do
-    controller.stub(:populate_health_messages)
     @stage_service = double('stage service')
     @material_service = double('material service')
     @user = Username.new(CaseInsensitiveString.new("foo"))

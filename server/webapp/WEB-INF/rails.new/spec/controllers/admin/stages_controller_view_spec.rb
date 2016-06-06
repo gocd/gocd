@@ -24,9 +24,6 @@ describe Admin::StagesController, "view" do
     render_views
 
     before do
-      controller.stub(:populate_health_messages) do
-        controller.instance_variable_set(:@current_server_health_states,com.thoughtworks.go.serverhealth.ServerHealthStates.new)
-      end
       controller.stub(:populate_config_validity)
       controller.stub(:checkConfigFileValid)
 

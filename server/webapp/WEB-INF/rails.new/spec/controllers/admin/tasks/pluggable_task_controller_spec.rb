@@ -70,7 +70,6 @@ describe Admin::TasksController do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
 
       @go_config_service.should_receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
       @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)

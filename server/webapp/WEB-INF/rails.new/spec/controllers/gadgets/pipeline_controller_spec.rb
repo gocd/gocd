@@ -18,7 +18,6 @@ require 'spec_helper'
 
 describe Gadgets::PipelineController do
   before :each do
-    controller.stub(:populate_health_messages)
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("user")))
     UserHelper.stub(:getUserId).and_return(1)
     controller.stub(:populate_config_validity)

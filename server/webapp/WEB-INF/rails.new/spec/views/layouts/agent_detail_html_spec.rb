@@ -18,9 +18,6 @@ require 'spec_helper'
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 describe "/layouts/agent_detail" do
-before do
-stub_server_health_messages
-end
   include AgentMother
   include GoUtil
 

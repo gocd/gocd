@@ -1,25 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END**********************************/
+ */
 
 PipelineErrors = function ($) {
     var refreshPipelineErrors = function() {
         var pipelinesHaveError = [];
         $("#cruise_message_body [data-pipelines]").each(function (i, ele) {
             if ($(ele).data("pipelines")) {
-                var pipelines = $(ele).data("pipelines").split(",");
+                var pipelines = $(ele).data("pipelines");
                 $.each(pipelines, function(i, name) {
                    if (pipelinesHaveError.indexOf(name) == -1) {
                        pipelinesHaveError.push(name);
@@ -45,7 +45,7 @@ PipelineErrors = function ($) {
         var pipelineName = $(errorIcon).data("pipeline");
         var errors = $('<div class="cruise_message_body"/>');
         $('#cruise_message_body .error').each(function(i, ele) {
-            var pipelines = $(ele).data("pipelines").split(",");
+            var pipelines = $(ele).data("pipelines");
             if (pipelines.include(pipelineName)) {
                 errors.append($(ele).clone());
             }
@@ -53,7 +53,7 @@ PipelineErrors = function ($) {
         Modalbox.show(errors[0], { title: pipelineName + ' error and warning messages', overlayClose: false });
     };
     var initialize = function() {
-        $(document).bind("dashboard-refresh-completed", refreshPipelineErrors);
+        $(document).bind("server-health-messages-refresh-completed", refreshPipelineErrors);
         refreshPipelineErrors();
         $(document).on("click", ".pipeline-error", function(e) {
             showPipelineErrors(e.target);

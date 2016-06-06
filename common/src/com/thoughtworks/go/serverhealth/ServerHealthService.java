@@ -1,39 +1,40 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.serverhealth;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.CruiseConfigProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ServerHealthService {
+    private static final Logger LOG = LoggerFactory.getLogger(ServerHealthService.class);
+
+    private HashMap<ServerHealthState, Set<String>> pipelinesWithErrors;
     private Map<HealthStateType, ServerHealthState> serverHealth;
 
     public ServerHealthService() {
         this.serverHealth = new ConcurrentHashMap<>();
+        this.pipelinesWithErrors = new HashMap<>();
     }
 
     public void removeByScope(HealthStateScope scope) {
@@ -72,6 +73,25 @@ public class ServerHealthService {
         }
     }
 
+    // called from spring timer
+    public synchronized void onTimer(CruiseConfigProvider provider) {
+        CruiseConfig currentConfig = provider.getCurrentConfig();
+        getAllValidLogs(currentConfig);
+        LOG.debug("Recomputing material to pipeline mappings.");
+
+        HashMap<ServerHealthState, Set<String>> erroredPipelines = new HashMap<>();
+
+        for (Map.Entry<HealthStateType, ServerHealthState> entry : serverHealth.entrySet()) {
+            erroredPipelines.put(entry.getValue(), entry.getValue().getPipelineNames(currentConfig));
+        }
+        pipelinesWithErrors = erroredPipelines;
+        LOG.debug("Done recomputing material to pipeline mappings.");
+    }
+
+    public Set<String> getPipelinesWithErrors(ServerHealthState serverHealthState) {
+        return pipelinesWithErrors.get(serverHealthState);
+    }
+
     public ServerHealthStates getAllValidLogs(CruiseConfig cruiseConfig) {
         removeMessagesForElementsNoLongerInConfig(cruiseConfig);
         removeExpiredMessages();
@@ -108,7 +128,7 @@ public class ServerHealthService {
         removeByScope(type.getScope());
     }
 
-    private ServerHealthStates logs() {
+    public ServerHealthStates logs() {
         ArrayList<ServerHealthState> logs = new ArrayList<>();
         for (Map.Entry<HealthStateType, ServerHealthState> entry : sortedEntries()) {
             logs.add(entry.getValue());

@@ -16,9 +16,6 @@
 
 require 'spec_helper'
 describe "/agents/index.html.erb" do
-  before do
-    stub_server_health_messages
-  end
   include AgentsHelper
   include AgentMother
   include GoUtil

@@ -10,11 +10,6 @@
          "key": "pipeline_config_single_page_app_key",
          "description": "Enables the pipeline config single page application. Default: off.",
          "value": false
-      },
-      {
-         "key": "better_dashboard_errors_key",
-         "description": "Makes pipeline related errors more visible in the dashboard (https://github.com/gocd/gocd/pull/1842). Default: off.",
-         "value": false
       }
    ]
 }

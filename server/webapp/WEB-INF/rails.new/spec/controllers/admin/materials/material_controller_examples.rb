@@ -19,10 +19,6 @@ shared_examples_for :material_controller do
   include ConfigSaveStubbing
   include MockRegistryModule
 
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
   describe "routes should resolve and generate" do
     it "new" do
       {:get => "/admin/pipelines/pipeline.name/materials/#{@short_material_type}/new"}.should route_to(:controller => "admin/materials/#{@short_material_type}", :action => "new", :pipeline_name => "pipeline.name")
@@ -78,7 +74,7 @@ shared_examples_for :material_controller do
         setup_for_new_material
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
-      
+
       it "should add new material" do
         stub_save_for_success
 

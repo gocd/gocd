@@ -21,10 +21,6 @@ describe Admin::TemplatesController do
   include ConfigSaveStubbing
   include GoUtil
 
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
   describe "routes" do
     it "should resolve route to the templates listing page" do
       {:get => "/admin/templates"}.should route_to(:controller => "admin/templates", :action => "index")

@@ -151,7 +151,7 @@
                     <div class="form_item">
 
                         <label for="server_configuration_form_from"><%= required_label_text(l.string("MAIL_HOST_FROM")) -%></label>
-                        <%= form.text_field :from, :size => 30, :maxLength => 64, :onblur => "serverConfiguration.validateEmail('server_configuration_form_from', 'from_error_message')" %>
+                        <%= form.text_field :from, :size => 30, :maxLength => 254, :onblur => "serverConfiguration.validateEmail('server_configuration_form_from', 'from_error_message')" %>
                         <span id="from_error_message"></span>
                     </div>
 

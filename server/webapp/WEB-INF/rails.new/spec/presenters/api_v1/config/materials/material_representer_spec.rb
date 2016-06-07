@@ -114,7 +114,18 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       expect(deserialized_object.branch.to_s).to eq(default_branch)
     end
 
+    it 'should deserialize material with ssh key' do
+      presenter = ApiV1::Config::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
 
+      deserialized_object = presenter.from_hash({
+                                                  type:       'git',
+                                                  attributes: {
+                                                    encrypted_ssh_key: GoCipher.new.encrypt("ssh-key")
+                                                  }
+                                                })
+
+      expect(deserialized_object.encryptedSshKey).to eq(GoCipher.new.encrypt("ssh-key"))
+    end
 
     def material_hash
       {
@@ -461,21 +472,21 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     it "should deserialize" do
-      presenter           = ApiV1::Config::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
+      presenter = ApiV1::Config::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
       go_config = BasicCruiseConfig.new
-      repo = PackageRepositoryMother.create("repoid")
+      repo      = PackageRepositoryMother.create("repoid")
       go_config.getPackageRepositories().add(repo)
 
-      deserialized_object = presenter.from_hash(package_material_hash("package-name"), {go_config: go_config})
+      deserialized_object = presenter.from_hash(package_material_hash("package-name"), { go_config: go_config })
       expect(deserialized_object.getPackageId).to eq("package-name")
       expect(deserialized_object.getPackageDefinition).to eq(repo.findPackage("package-name"))
     end
 
     it "should set packageId during deserialisation if matching package definition is not present in config" do
-      presenter           = ApiV1::Config::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
+      presenter = ApiV1::Config::Materials::MaterialRepresenter.prepare(PackageMaterialConfig.new)
       go_config = BasicCruiseConfig.new
 
-      deserialized_object = presenter.from_hash(package_material_hash("package-name"), {go_config: go_config})
+      deserialized_object = presenter.from_hash(package_material_hash("package-name"), { go_config: go_config })
       expect(deserialized_object.getPackageId).to eq("package-name")
       expect(deserialized_object.getPackageDefinition).to eq(nil)
     end
@@ -531,7 +542,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       @go_config.getSCMs().add(scm)
 
       presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
-      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
+      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, { go_config: @go_config })
       expect(deserialized_object.getScmId).to eq("scm-id")
       expect(deserialized_object.getSCMConfig).to eq(scm)
       expect(deserialized_object.getFolder).to eq("des-folder")
@@ -539,9 +550,9 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     it "should set scmId during deserialisation if matching package definition is not present in config" do
-      presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
+      presenter = ApiV1::Config::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)
 
-      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, {go_config: @go_config})
+      deserialized_object = presenter.from_hash(pluggable_scm_material_hash, { go_config: @go_config })
       expect(deserialized_object.getScmId).to eq("scm-id")
       expect(deserialized_object.getSCMConfig).to eq(nil)
     end
@@ -555,7 +566,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
                                                     filter:      nil,
                                                     destination: nil
                                                   }
-                                                }, {go_config: @go_config})
+                                                }, { go_config: @go_config })
       expect(deserialized_object.name.to_s).to eq("")
       expect(deserialized_object.getScmId).to eq("23a28171-3d5a-4912-9f36-d4e1536281b0")
       expect(deserialized_object.getFolder).to be_nil

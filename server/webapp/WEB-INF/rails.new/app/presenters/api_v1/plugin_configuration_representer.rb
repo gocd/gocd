@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,23 +15,15 @@
 ##########################################################################
 
 module ApiV1
-  module Config
-    module Tasks
-      class PluggableTaskRepresenter < ApiV1::Config::Tasks::BaseTaskRepresenter
-        alias_method :pluggable_task, :represented
+  class PluginConfigurationRepresenter < BaseRepresenter
+    property :key
+    property :type, skip_nil: true
+    property :metadata, exec_context: :decorator
 
-        property :plugin_configuration, decorator: ApiV1::Config::PluginConfigurationRepresenter, class: PluginConfiguration
-        collection :configuration, exec_context: :decorator, decorator: PluginConfigurationPropertyRepresenter, class: com.thoughtworks.go.domain.config.ConfigurationProperty
-
-        def configuration
-          pluggable_task.getConfiguration()
-        end
-
-        def configuration=(value)
-          value.each { |config|
-            pluggable_task.setConfiguration(config)
-          }
-        end
+    def metadata
+      represented.metadata.inject({}) do |hash, (k,v)|
+        hash[k] = v
+        hash
       end
     end
   end

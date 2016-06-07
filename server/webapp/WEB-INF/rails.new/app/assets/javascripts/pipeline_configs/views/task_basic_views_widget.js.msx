@@ -16,8 +16,8 @@
 
 define([
   'mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../models/pluggable_tasks', 'js-routes',
-  '../models/argument', './lookup_command_widget'
-], function (m, _, $, angular, f, PluggableTasks, Routes, Argument, LookupCommandWidget) {
+  '../models/argument', './lookup_command_widget', '../models/plugins'
+], function (m, _, $, angular, f, PluggableTasks, Routes, Argument, LookupCommandWidget, Plugins) {
 
   var TaskBasicViews = {
     ant: {
@@ -153,80 +153,86 @@ define([
       }
     },
 
-    plugin: {
+    pluggable_task: {
       controller: function (args) {
-        this.task = args.task;
-        this.templateHTML = PluggableTasks.Types[this.task.pluginId()].templateHTML;
-        this.defaultTaskConfig = PluggableTasks.Types[this.task.pluginId()].configuration;
-        this.ngControllerName = 'controller-' + this.task.uuid();
-        this.appName = 'app-' + this.task.uuid();
-        this.ngModule = angular.module(this.appName, []);
+        var self              = this;
+        var ctrl              = self;
+        self.task             = args.task;
+        self.ngControllerName = 'controller-' + self.task.uuid();
+        self.appName          = 'app-' + self.task.uuid();
 
-        this.hasBootstrapped = false;
+        var template = function (template) {
+          return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
+            return "GOINPUTNAME['" + name + "']";
+          })).html();
+        };
 
-        var ctrl = this;
+        Plugins.Plugin.byId(this.task.pluginId()).then(function (plugin) {
+          self.templateHTML = template(plugin.viewTemplate());
+          self.defaultTaskConfig = plugin.configurations();
 
-        this.ngController = angular.module(this.appName).controller(this.ngControllerName, ['$scope', '$http', function ($scope, $http) {
-          $scope.addError = function (field) {
-            this.GOINPUTNAME[field.name] = {
-              $error: {
-                server: field.errors.join()
-              }
-            };
-          };
-
-          $scope.clearErrors = function () {
-            this.GOINPUTNAME = {};
-            this.pluggableTaskGenericError = null;
-          };
-
-          $scope.clearErrors();
-
-          var ajaxValidator = _.debounce(function (configuration, config, newValue) {
-            configuration.setConfiguration(config.name, newValue);
-            var req = {
-              url: Routes.apiInternalPluggableTaskValidationPath({plugin_id: ctrl.task.pluginId()}),
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
-              },
-              data: JSON.stringify(configuration)
+          self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope, $http) {
+            $scope.addError = function (field) {
+              $scope.GOINPUTNAME[field.key] = {$error: {}};
+              $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
             };
 
-            $http(req).then(
-              $scope.clearErrors.bind($scope),
-              function (response) {
-                if (response.status === 422) {
-                  _.each(response.data, $scope.addError, $scope);
-                } else if (response.status === 520) {
-                  $scope.pluggableTaskGenericError = response.data.error;
-                } else {
-                  console.log('Something went wrong, we do not know what!');
-                }
+            $scope.clearErrors = function () {
+              $scope.GOINPUTNAME = {};
+              $scope.pluggableTaskGenericError = null;
+            };
+
+            $scope.clearErrors();
+
+            var ajaxValidator = _.debounce(function (configuration, config, newValue) {
+              configuration.setConfiguration(config.key, newValue);
+              var req = {
+                url: Routes.apiInternalPluggableTaskValidationPath({plugin_id: ctrl.task.pluginId()}),
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Confirm': true,
+                  'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
+                },
+                data: JSON.stringify(configuration)
+              };
+
+              $http(req).then(
+                $scope.clearErrors.bind($scope),
+                function (response) {
+                  if (response.status === 422) {
+                    _.each(response.data, $scope.addError, $scope);
+                  } else if (response.status === 520) {
+                    $scope.pluggableTaskGenericError = response.data.error;
+                  } else {
+                    console.log('Something went wrong, we do not know what!');
+                  }
+                });
+            }, 250);
+
+            _.map(self.defaultTaskConfig, function (config) {
+              var configuration = ctrl.task.configuration();
+              $scope[config.key] = configuration.valueFor(config.key);
+
+              $scope.$watch(config.key, function (newValue, oldValue) {
+                configuration.setConfiguration(config.key, newValue);
+                ajaxValidator(configuration, config, newValue);
               });
-          }, 250);
-
-          _.map(ctrl.defaultTaskConfig, function (config) {
-            var configuration = ctrl.task.configuration();
-            var value = configuration.valueFor(config.name);
-
-            if (!value) {
-              value = config.value;
-            }
-
-            $scope[config.name] = value;
-
-            $scope.$watch(config.name, function (newValue, oldValue) {
-              ajaxValidator(configuration, config, newValue);
             });
-          });
-        }]);
+          }]);
+        });
       },
 
       view: function (ctrl) {
+        var config = function (elem, isInitialized) {
+          if (!isInitialized) {
+            var pluginTaskTemplateElement = $('#pluggable-task-template-' + ctrl.task.uuid());
+            angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
+          }
+        };
+
         return (
-          <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName}>
+          <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName} config={config}>
             <div class="alert-box alert"
                  ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
             {m.trust(ctrl.templateHTML)}

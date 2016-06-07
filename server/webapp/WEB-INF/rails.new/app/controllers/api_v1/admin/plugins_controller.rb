@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,23 +15,20 @@
 ##########################################################################
 
 module ApiV1
-  module Config
-    module Tasks
-      class PluggableTaskRepresenter < ApiV1::Config::Tasks::BaseTaskRepresenter
-        alias_method :pluggable_task, :represented
+  module Admin
+    class PluginsController < ApiV1::BaseController
+      before_action :check_admin_user_or_group_admin_user_and_401
 
-        property :plugin_configuration, decorator: ApiV1::Config::PluginConfigurationRepresenter, class: PluginConfiguration
-        collection :configuration, exec_context: :decorator, decorator: PluginConfigurationPropertyRepresenter, class: com.thoughtworks.go.domain.config.ConfigurationProperty
+      def index
+        render json_hal_v1: ApiV1::PluginsRepresenter.new(plugin_service.plugins(params[:type])).to_hash(url_builder: self)
+      end
 
-        def configuration
-          pluggable_task.getConfiguration()
-        end
+      def show
+        plugin = plugin_service.plugin(params[:id])
 
-        def configuration=(value)
-          value.each { |config|
-            pluggable_task.setConfiguration(config)
-          }
-        end
+        raise RecordNotFound if plugin.nil?
+
+        render json_hal_v1: ApiV1::PluginRepresenter.new(plugin).to_hash(url_builder: self)
       end
     end
   end

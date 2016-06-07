@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', './tasks'], function (m, _, $, Tasks) {
+define(['mithril', 'lodash', './tasks', './plugins'], function (m, _, Tasks, Plugins) {
   var PluggableTasks = {};
 
-  PluggableTasks.initializeWith = function (descriptors) {
-    PluggableTasks.Types = {};
-    _.map(descriptors, function (descriptor) {
-
-      var templateHTML = $('<div></div>').html(descriptor.template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
-        return "GOINPUTNAME['" + name + "']";
-      })).html();
-
-      PluggableTasks.Types[descriptor.plugin_id] = {
-        version:       descriptor.version,
-        type:          Tasks.Task.PluginTask,
-        description:   descriptor.name,
-        templateHTML:  templateHTML,
-        configuration: descriptor.configuration
+  PluggableTasks.init = function () {
+    _.each(Plugins.filterByType('task'), function (plugin) {
+      PluggableTasks.Types[plugin.id()] = {
+        type:        Tasks.Task.PluginTask,
+        description: plugin.name()
       };
-
     });
   };
 

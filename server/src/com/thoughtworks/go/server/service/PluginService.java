@@ -22,13 +22,18 @@ import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsMetadataStore;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.ui.PluginViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,11 +41,13 @@ import java.util.Map;
 public class PluginService {
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;
+    private DefaultPluginManager pluginManager;
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, DefaultPluginManager pluginManager) {
         this.extensions = extensions;
         this.pluginDao = pluginDao;
+        this.pluginManager = pluginManager;
     }
 
     public PluginSettings getPluginSettingsFor(String pluginId) {
@@ -91,6 +98,42 @@ public class PluginService {
         Map<String, String> settingsMap = pluginSettings.getSettingsAsKeyValuePair();
         plugin.setConfiguration(toJSON(settingsMap));
         pluginDao.saveOrUpdate(plugin);
+    }
+
+    public ArrayList<PluginViewModel> plugins(String type) {
+        ArrayList<PluginViewModel> plugins = new ArrayList<>();
+
+        List<GoPluginDescriptor> goPluginDescriptors = type == null ? this.pluginManager.plugins() : descriptorsFor(type);
+
+        for(GoPluginDescriptor descriptor: goPluginDescriptors) {
+            GoPluginIdentifier identifier = this.pluginManager.pluginFor(descriptor.id());
+            if(identifier != null) {
+                plugins.add(PluginBuilder.getByExtension(identifier.getExtension()).build(descriptor.id(), descriptor.about(), false));
+            }
+        }
+        return plugins;
+    }
+
+    public PluginViewModel plugin(String pluginId) {
+        GoPluginDescriptor descriptor = this.pluginManager.getPluginDescriptorFor(pluginId);
+        GoPluginIdentifier identifier = this.pluginManager.pluginFor(pluginId);
+
+        if(descriptor != null && identifier != null) {
+            return PluginBuilder.getByExtension(identifier.getExtension()).build(descriptor.id(), descriptor.about(), true);
+        }
+
+        return null;
+    }
+
+    private List<GoPluginDescriptor> descriptorsFor(String type) {
+        List<GoPluginDescriptor> descriptors = new ArrayList<>();
+
+        for(GoPluginDescriptor descriptor: this.pluginManager.plugins()) {
+            if (this.pluginManager.isPluginOfType(type, descriptor.id())) {
+                descriptors.add(descriptor);
+            }
+        }
+        return descriptors;
     }
 
     private String toJSON(Map<String, String> settingsMap) {

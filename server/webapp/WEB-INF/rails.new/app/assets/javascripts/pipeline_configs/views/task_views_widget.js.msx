@@ -119,28 +119,12 @@ define([
       }
     },
 
-    plugin: {
-      controller: function (args) {
-        this.task = args.task;
-        this.appName = 'app-' + this.task.uuid();
-      },
-
+    pluggable_task: {
       view: function (ctrl, args) {
-        var config = function (elem, isInitialized) {
-          if (!isInitialized) {
-            var pluginTaskElem = $('#pluggable-task-' + ctrl.task.uuid());
-            var pluginTaskTemplateElement = $('#pluggable-task-template-' + ctrl.task.uuid());
-            angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
-            pluginTaskElem.show();
-          }
-        };
-
         return (
-          <div id={'pluggable-task-' + ctrl.task.uuid()} style='display:none' config={config}>
-            <TaskViews.base {...args}>
-              <TaskBasicViews.plugin {...args}/>
-            </TaskViews.base>
-          </div>
+          <TaskViews.base {...args}>
+            <TaskBasicViews.pluggable_task {...args}/>
+          </TaskViews.base>
         );
       }
     }

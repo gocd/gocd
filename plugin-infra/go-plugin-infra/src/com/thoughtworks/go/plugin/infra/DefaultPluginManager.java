@@ -193,6 +193,19 @@ public class DefaultPluginManager implements PluginManager {
         return list;
     }
 
+    public GoPluginIdentifier pluginFor(String pluginId) {
+        if (!hasReferenceFor(GoPlugin.class, pluginId)) {
+            return null;
+        }
+
+        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginIdentifier>() {
+            @Override
+            public GoPluginIdentifier execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
+                return plugin.pluginIdentifier();
+            }
+        });
+    }
+
     @Override
     public boolean hasReferenceFor(Class serviceReferenceClass, String pluginId) {
         return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId);

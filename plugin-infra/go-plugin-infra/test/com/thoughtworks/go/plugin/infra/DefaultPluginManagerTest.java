@@ -399,6 +399,42 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
+    public void pluginForShouldReturnGoPluginIdentifierCorrespondingPluginId() throws Exception {
+        String pluginId = "plugin-id";
+        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("sample-extension", asList("1.0"));
+        final GoPlugin goPlugin = mock(GoPlugin.class);
+        final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
+        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId)).thenReturn(true);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[2];
+                return action.execute(goPlugin, descriptor);
+            }
+        }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq(pluginId), any(ActionWithReturn.class));
+        when(goPlugin.pluginIdentifier()).thenReturn(pluginIdentifier);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener);
+
+        GoPluginIdentifier identifier = pluginManager.pluginFor("plugin-id");
+
+        assertThat(identifier, is(pluginIdentifier));
+    }
+
+    @Test
+    public void pluginForShouldReturnNullWhenReferenceForPluginIdNotFound() throws Exception {
+        final String nonExistentPlugin = "non-existent-plugin";
+        when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, nonExistentPlugin)).thenReturn(false);
+
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, applicationAccessor, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener);
+
+        assertNull(pluginManager.pluginFor(nonExistentPlugin));
+        verify(goPluginOSGiFramework).hasReferenceFor(GoPlugin.class, nonExistentPlugin);
+        verify(goPluginOSGiFramework, never()).doOn(eq(GoPlugin.class), eq(nonExistentPlugin), any(ActionWithReturn.class));
+    }
+
+    @Test
     public void shouldResolveToCorrectExtensionVersion() throws Exception {
         String pluginId = "plugin-id";
         GoPlugin goPlugin = mock(GoPlugin.class);

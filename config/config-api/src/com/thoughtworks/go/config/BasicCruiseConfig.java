@@ -367,7 +367,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public ConfigOrigin getOrigin() {
-            MergeConfigOrigin origins = new MergeConfigOrigin(BasicCruiseConfig.this.getOrigin());
+            MergeConfigOrigin origins = new MergeConfigOrigin(new FileConfigOrigin());
             for (PartialConfig part : this.parts) {
                 origins.add(part.getOrigin());
             }

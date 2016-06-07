@@ -55,7 +55,7 @@ public class RemoteConsoleAppender implements ConsoleAppender {
             putMethod.setParams(clientParams);
             httpClient.executeMethod(putMethod);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Got " + putMethod.getStatusLine());
+                LOGGER.debug("Got " + putMethod.getStatusCode());
             }
         } finally {
             putMethod.releaseConnection();

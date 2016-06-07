@@ -18,14 +18,12 @@
 package com.thoughtworks.go.util;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.joda.time.DateTime;
 
 public class LogFixture extends AppenderSkeleton {
 
@@ -103,20 +101,6 @@ public class LogFixture extends AppenderSkeleton {
             if (event.getThrowableInformation() != null) {
                 for (String s : event.getThrowableStrRep()) {
                     builder.append(s).append("\n");
-                }
-            }
-        }
-        return builder.toString();
-    }
-
-    public String allLogsWithVerboseInformation() {
-        StringBuilder builder = new StringBuilder();
-        for (LoggingEvent event : events) {
-            builder.append(new DateTime(event.timeStamp)).append(" - ").append(event.getLevel())
-                    .append(" - ").append(event.getMessage()).append("\n");
-            if (event.getThrowableInformation() != null) {
-                for (String s : event.getThrowableStrRep()) {
-                    builder.append(new DateTime(event.timeStamp)).append(" - ").append(s).append("\n");
                 }
             }
         }

@@ -35,7 +35,6 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -103,10 +102,6 @@ public class AgentControllerTest {
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
     private AgentController agentController;
-
-    private LogFixture logListener;
-    private boolean printOutLogMessagesOnExit;
-
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
@@ -114,18 +109,13 @@ public class AgentControllerTest {
     public void setUp() throws Exception {
         initMocks(this);
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
-
-        logListener = LogFixture.startListening();
-        printOutLogMessagesOnExit = false;
     }
 
     @After
     public void tearDown() {
         GuidService.deleteGuid();
-
-        printDebugLoggingInformation();
-        logListener.stopListening();
     }
+
 
     @Test
     public void shouldSetPluginManagerReference() throws Exception {
@@ -326,7 +316,6 @@ public class AgentControllerTest {
 
     @Test
     public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
-        printOutLogMessagesOnExit = true;
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(httpService.httpClient()).thenReturn(httpClient);
 
@@ -468,15 +457,5 @@ public class AgentControllerTest {
 
     private AgentController createAgentController() {
         return new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, httpService);
-    }
-
-    private void printDebugLoggingInformation() {
-        if (printOutLogMessagesOnExit) {
-            System.err.println("Debug information:");
-            for (StackTraceElement traceElement : Thread.currentThread().getStackTrace()) {
-                System.err.println("  " + traceElement);
-            }
-            System.err.println(logListener.allLogsWithVerboseInformation());
-        }
     }
 }

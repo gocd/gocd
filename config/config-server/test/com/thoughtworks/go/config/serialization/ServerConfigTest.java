@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class ServerConfigTest {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
         CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(FileUtil.readToEnd(IOUtils.toInputStream(
-                ConfigFileFixture.withServerConfig(xml)))).config;
+                ConfigFileFixture.withServerConfig(xml, GoConstants.CONFIG_SCHEMA_VERSION)))).config;
         MailHost mailHost = config.server().mailHost();
         assertThat(mailHost,
                 is(new MailHost("smtp.company.com", 25, "smtpuser", "password", true, true, "cruise@me.com", "jez@me.com")));

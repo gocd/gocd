@@ -68,6 +68,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.readToEnd;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -1181,6 +1182,32 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedXml, not(containsString("<authorization>")));
     }
 
+    @Test
+    public void shouldFailWhenFromEmailIsLargerThan254Characters_asPartOfMigration82() throws Exception {
+        try {
+            createEmailConfig(repeat("A", 260) + "@email.com", "admin@email.com");
+            fail("Didn't get an exception about email address being too long");
+        } catch (Exception e) {
+            assertThat(e.getCause().getCause().getMessage(), endsWith("AAA@email.com' with length = '270' is not facet-valid with respect to maxLength '254' for type 'emailType'."));
+        }
+    }
+
+    @Test
+    public void shouldFailWhenAdminEmailIsLargerThan254Characters_asPartOfMigration82() throws Exception {
+        try {
+            createEmailConfig("from@email.com", repeat("B", 250) + "@email.com");
+            fail("Didn't get an exception about email address being too long");
+        } catch (Exception e) {
+            assertThat(e.getCause().getCause().getMessage(), endsWith("BBB@email.com' with length = '260' is not facet-valid with respect to maxLength '254' for type 'emailType'."));
+        }
+    }
+
+    @Test
+    public void shouldAllowEmailOf254Characters_asPartOfMigration82() throws Exception {
+        String emailAddressWith254Chars = repeat("B", 244) + "@email.com";
+        CruiseConfig config = createEmailConfig("from@email.com", emailAddressWith254Chars);
+        assertThat(config.server().mailHost().getAdminMail(), is(emailAddressWith254Chars));
+    }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
@@ -1202,6 +1229,14 @@ public class GoConfigMigrationIntegrationTest {
 
         PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(new CaseInsensitiveString("old-timer"));
         return pipelineConfig.getTimer();
+    }
+
+    private CruiseConfig createEmailConfig(String fromEmail, String adminEmail) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String content = ConfigFileFixture.withServerConfig("<mailhost hostname=\"smtp.company.com\" port=\"25\" "
+                + "username=\"smtpuser\" password=\"password\" tls=\"true\" "
+                + "from=\"" + fromEmail + "\" admin=\"" + adminEmail + "\"/>", 81);
+
+        return migrateConfigAndLoadTheNewConfig(content, 81);
     }
 
     private File[] configFiles() {

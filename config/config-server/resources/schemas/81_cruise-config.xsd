@@ -76,7 +76,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="82"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="81"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -222,7 +222,6 @@
     <xsd:simpleType name="emailType">
         <xsd:restriction base="xsd:string">
             <xsd:pattern value=".*@.*"/>
-            <xsd:maxLength value="254"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:complexType name="rolesType">

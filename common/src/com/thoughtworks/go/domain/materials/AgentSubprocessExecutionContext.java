@@ -45,4 +45,9 @@ class AgentSubprocessExecutionContext implements SubprocessExecutionContext {
     public Boolean isGitShallowClone() {
         throw new UnsupportedOperationException("This is an unexpected call. Perform this action only on the server.");
     }
+
+    @Override
+    public boolean isServer() {
+        return false;
+    }
 }

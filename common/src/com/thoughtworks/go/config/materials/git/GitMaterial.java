@@ -235,7 +235,13 @@ public class GitMaterial extends ScmMaterial {
                 });
             }
             int cloneDepth = shallowClone ? preferredCloneDepth : Integer.MAX_VALUE;
-            int returnValue = gitCommand.cloneFrom(outputStreamConsumer, url.forCommandline(), cloneDepth);
+            int returnValue;
+            if(executionContext.isServer()) {
+                returnValue = gitCommand.cloneWithNoCheckout(outputStreamConsumer, url.forCommandline());
+            }
+            else {
+                returnValue = gitCommand.clone(outputStreamConsumer, url.forCommandline(), cloneDepth);
+            }
             bombIfFailedToRunCommandLine(returnValue, "Failed to run git clone command");
         }
         return gitCommand;

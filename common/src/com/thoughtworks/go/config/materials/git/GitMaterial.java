@@ -37,7 +37,10 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +58,7 @@ public class GitMaterial extends ScmMaterial {
     private static final Logger LOG = Logger.getLogger(GitMaterial.class);
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;
+    private String sshKey;
 
 
     private UrlArgument url;
@@ -79,19 +83,19 @@ public class GitMaterial extends ScmMaterial {
 
 
     public GitMaterial(String url, String branch) {
+        this(url, branch, null);
+    }
+
+    public GitMaterial(String url, String branch, String folder) {
+        this(url, branch, folder, false);
+    }
+
+    public GitMaterial(String url, String branch, String folder, Boolean shallowClone) {
         this(url);
         if (branch != null) {
             this.branch = branch;
         }
-    }
-
-    public GitMaterial(String url, String branch, String folder) {
-        this(url, branch);
         this.folder = folder;
-    }
-
-    public GitMaterial(String url, String branch, String folder, Boolean shallowClone) {
-        this(url, branch, folder);
         if (shallowClone != null) {
             this.shallowClone = shallowClone;
         }
@@ -103,11 +107,12 @@ public class GitMaterial extends ScmMaterial {
         this.filter = config.rawFilter();
         this.name = config.getName();
         this.submoduleFolder = config.getSubmoduleFolder();
+        this.sshKey = config.getClearTextSshKey();
     }
 
     @Override
     public MaterialConfig config() {
-        return new GitMaterialConfig(url, branch, submoduleFolder, autoUpdate, filter, folder, name, shallowClone);
+        return new GitMaterialConfig(url, branch, submoduleFolder, autoUpdate, filter, folder, name, shallowClone, sshKey);
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
@@ -116,7 +121,7 @@ public class GitMaterial extends ScmMaterial {
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
-        if(!execCtx.isGitShallowClone()) {
+        if (!execCtx.isGitShallowClone()) {
             fullyUnshallow(gitCommand, ProcessOutputStreamConsumer.inMemoryConsumer());
         }
         if (gitCommand.containsRevisionInBranch(revision)) {
@@ -211,10 +216,10 @@ public class GitMaterial extends ScmMaterial {
 
     private GitCommand git(ProcessOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
         if (isSubmoduleFolder()) {
-            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables());
+            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables(), sshKey);
         }
 
-        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables());
+        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables(), sshKey);
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Invalid git working copy or repository changed. Delete folder: " + workingFolder);
@@ -255,7 +260,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     private void fullyUnshallow(GitCommand gitCommand, ProcessOutputStreamConsumer streamConsumer) {
-        if(gitCommand.isShallow()) {
+        if (gitCommand.isShallow()) {
             gitCommand.unshallow(streamConsumer, Integer.MAX_VALUE);
         }
     }

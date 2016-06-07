@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.git;
 
@@ -112,7 +112,7 @@ public class GitTestRepo extends TestRepo {
     }
 
     private GitCommand git(File workingDir) {
-        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
+        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>(), null);
     }
 
     public GitMaterial createMaterial() {
@@ -124,21 +124,21 @@ public class GitTestRepo extends TestRepo {
     }
 
     private void checkoutRemoteBranchToLocal(String branch) {
-        new GitCommand(null, gitRepo, branch, false, new HashMap<String, String>()).checkoutRemoteBranchToLocal();
+        new GitCommand(null, gitRepo, branch, false, new HashMap<String, String>(), null).checkoutRemoteBranchToLocal();
     }
 
     public List<Modification> addFileAndPush(String fileName, String message) throws IOException {
         File newFile = new File(gitRepo, fileName);
         newFile.createNewFile();
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).add(newFile);
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).commit(message);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>(), null).add(newFile);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>(), null).commit(message);
         return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
     }
 
     public List<Modification> addFileAndAmend(String fileName, String message) throws IOException {
         File newFile = new File(gitRepo, fileName);
         newFile.createNewFile();
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).add(newFile);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>(), null).add(newFile);
         new GitCommandWithAmend(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).commitWithAmend(message, gitRepo);
         return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
     }
@@ -146,7 +146,7 @@ public class GitTestRepo extends TestRepo {
     private static class GitCommandWithAmend extends GitCommand {
 
         public GitCommandWithAmend(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String, String> environment) {
-            super(materialFingerprint, workingDir, branch, isSubmodule, environment);
+            super(materialFingerprint, workingDir, branch, isSubmodule, environment, null);
         }
 
         public void commitWithAmend(String message, File gitRepo) {

@@ -292,7 +292,7 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     private GitCommand localRepoFor(GitMaterial material) {
-        return new GitCommand(material.getFingerprint(), workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
+        return new GitCommand(material.getFingerprint(), workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>(), null);
     }
 
     private List<File> allFilesIn(File directory, String prefixOfFiles) {

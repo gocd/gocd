@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
@@ -92,7 +92,7 @@ public class StageResourceImporter {
 
     private Graph loadIsolatedStageGraph(StageIdentifier stageIdentifier, TempGraphFactory tempGraphFactory, XSLTTransformerRegistry transformerRegistry,
                                          final Stage stageWithIdentifier, final String baseUri) throws GoIntegrationException {
-        GoGRDDLResourceRDFizer stageRdfizer = new GoGRDDLResourceRDFizer("stage", "cruise/stage-graph-grddl.xsl", tempGraphFactory, transformerRegistry, xmlApiService);
+        GoGRDDLResourceRDFizer stageRdfizer = new GoGRDDLResourceRDFizer("stage", XSLTTransformerRegistry.CRUISE_STAGE_GRAPH_GRDDL_XSL, tempGraphFactory, transformerRegistry, xmlApiService);
         Graph graph = stageRdfizer.importURIUsingGRDDL(new StageXmlViewModel(stageWithIdentifier), baseUri);
         if (!stageCompleted(graph)) {
             throw new CanNotImportABuildingStageException(stageIdentifier + " is not completed yet, can not load test details");
@@ -112,7 +112,7 @@ public class StageResourceImporter {
     }
 
     private void importPipeline(PipelineInstanceModel pipelineInstance, Graph graph, XSLTTransformerRegistry transformerRegistry, String baseUri) throws GoIntegrationException {
-        final GoGRDDLResourceRDFizer pipeline = new GoGRDDLResourceRDFizer("pipeline", "cruise/pipeline-graph-grddl.xsl", graph, transformerRegistry, xmlApiService);
+        final GoGRDDLResourceRDFizer pipeline = new GoGRDDLResourceRDFizer("pipeline", XSLTTransformerRegistry.CRUISE_PIPELINE_GRAPH_GRDDL_XSL, graph, transformerRegistry, xmlApiService);
         Graph pipelineGraph = pipeline.importURIUsingGRDDL(new PipelineXmlViewModel(pipelineInstance), baseUri);
 
         graph.addTriplesFromGraph(pipelineGraph);

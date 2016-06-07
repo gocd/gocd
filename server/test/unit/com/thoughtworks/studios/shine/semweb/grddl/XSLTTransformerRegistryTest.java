@@ -16,9 +16,11 @@
 
 package com.thoughtworks.studios.shine.semweb.grddl;
 
+import com.thoughtworks.studios.shine.XSLTTransformerExecutor;
 import org.junit.Test;
 
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 
 import static org.junit.Assert.assertNotSame;
 
@@ -27,9 +29,18 @@ public class XSLTTransformerRegistryTest {
     @Test
     public void getTransformerShouldNeverReturnTheSameTransformerTwice() throws Exception {
         XSLTTransformerRegistry registry = new XSLTTransformerRegistry();
-        Transformer transformer1 = registry.getTransformer("xunit/ant-junit-grddl.xsl");
-        Transformer transformer2 = registry.getTransformer("xunit/ant-junit-grddl.xsl");
-
+        Transformer transformer1 = registry.transformWithCorrectClassLoader("xunit/ant-junit-grddl.xsl", new XSLTTransformerExecutor<Transformer>() {
+            @Override
+            public Transformer execute(Transformer transformer) throws TransformerException, GrddlTransformException {
+                return transformer;
+            }
+        });
+        Transformer transformer2 = registry.transformWithCorrectClassLoader("xunit/ant-junit-grddl.xsl", new XSLTTransformerExecutor<Transformer>() {
+            @Override
+            public Transformer execute(Transformer transformer) throws TransformerException, GrddlTransformException {
+                return transformer;
+            }
+        });
         assertNotSame(transformer1, transformer2);
     }
 }

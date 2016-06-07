@@ -230,7 +230,7 @@ public class NUnitRDFizerTest {
                 + "</testsuite>"
                 + "</testsuites>";
 
-        try(InputStream xsl = getClass().getClassLoader().getResourceAsStream("xunit/nunit-to-junit.xsl")) {
+        try(InputStream xsl = getClass().getClassLoader().getResourceAsStream(XSLTTransformerRegistry.XUNIT_NUNIT_TO_JUNIT_XSL)) {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             DocumentSource source = new DocumentSource(new SAXReader().read(new InputSource(new ByteArrayInputStream(nunitInputXml.getBytes("utf-8")))));
             DocumentResult result = new DocumentResult();
@@ -289,7 +289,7 @@ public class NUnitRDFizerTest {
                 + "</testsuite>"
                 + "</testsuites>";
 
-        try (InputStream xsl = getClass().getClassLoader().getResourceAsStream("xunit/nunit-to-junit.xsl")) {
+        try (InputStream xsl = getClass().getClassLoader().getResourceAsStream(XSLTTransformerRegistry.XUNIT_NUNIT_TO_JUNIT_XSL)) {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             DocumentSource source = new DocumentSource(new SAXReader().read(new InputSource(new ByteArrayInputStream(nunitInputXml.getBytes("utf-8")))));
             DocumentResult result = new DocumentResult();

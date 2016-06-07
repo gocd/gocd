@@ -1,32 +1,33 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.xunit;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsFalse;
-import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.grddl.GRDDLTransformer;
 import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsFalse;
+import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
 
 public class AntJUnitGRDDLTest {
     String minimalXUnitXML =
@@ -47,9 +48,9 @@ public class AntJUnitGRDDLTest {
     @Before
     public void setUp() throws Exception {
         InputStream xunitXMLStream = new ByteArrayInputStream(minimalXUnitXML.getBytes());
-        XSLTTransformerRegistry XSLTTransformerRegistry = new XSLTTransformerRegistry();
+        XSLTTransformerRegistry xsltTransformerRegistry = new XSLTTransformerRegistry();
 
-        transformer = new GRDDLTransformer(XSLTTransformerRegistry.getTransformer("xunit/ant-junit-grddl.xsl"));
+        transformer = new GRDDLTransformer(xsltTransformerRegistry, XSLTTransformerRegistry.XUNIT_ANT_JUNIT_GRDDL_XSL);
         minimalDataGraph = transformer.transform(xunitXMLStream, new InMemoryTempGraphFactory());
     }
 

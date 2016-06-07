@@ -16,10 +16,9 @@
 
 package com.thoughtworks.studios.shine.semweb.grddl;
 
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
+import com.thoughtworks.studios.shine.XSLTTransformerExecutor;
+
+import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,16 +28,21 @@ import java.util.Map;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class XSLTTransformerRegistry {
-    private final Map<String, Templates> transformerMap;
+    public static final String CRUISE_PIPELINE_GRAPH_GRDDL_XSL = "cruise/pipeline-graph-grddl.xsl";
+    public static final String CRUISE_STAGE_GRAPH_GRDDL_XSL = "cruise/stage-graph-grddl.xsl";
+    public static final String CRUISE_JOB_GRDDL_XSL = "cruise/job-grddl.xsl";
+    public static final String XUNIT_ANT_JUNIT_GRDDL_XSL = "xunit/ant-junit-grddl.xsl";
+    public static final String XUNIT_NUNIT_TO_JUNIT_XSL = "xunit/nunit-to-junit.xsl";
+    protected final Map<String, Templates> transformerMap;
 
     public XSLTTransformerRegistry() {
         transformerMap = new HashMap<>();
         try {
-            register("cruise/pipeline-graph-grddl.xsl");
-            register("cruise/stage-graph-grddl.xsl");
-            register("cruise/job-grddl.xsl");
-            register("xunit/ant-junit-grddl.xsl");
-            register("xunit/nunit-to-junit.xsl");
+            register(CRUISE_PIPELINE_GRAPH_GRDDL_XSL);
+            register(CRUISE_STAGE_GRAPH_GRDDL_XSL);
+            register(CRUISE_JOB_GRDDL_XSL);
+            register(XUNIT_ANT_JUNIT_GRDDL_XSL);
+            register(XUNIT_NUNIT_TO_JUNIT_XSL);
         } catch (IOException e) {
             throw bomb(e);
         }
@@ -50,20 +54,30 @@ public class XSLTTransformerRegistry {
         }
     }
 
-    public Transformer getTransformer(String xsltPath) {
-        try {
-            return transformerMap.get(xsltPath).newTransformer();
-        } catch (TransformerConfigurationException e) {
-            throw bomb(e);
-        }
-    }
-
     private Templates transformerForXSLStream(InputStream xsl) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         try {
             return transformerFactory.newTemplates(new StreamSource(xsl));
         } catch (TransformerConfigurationException e) {
             throw new InvalidGrddlTransformationException(e);
+        }
+    }
+
+    public <T> T transformWithCorrectClassLoader(String key, XSLTTransformerExecutor<T> executor) throws TransformerException, GrddlTransformException {
+        ClassLoader orig = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            return executor.execute(getTransformer(key));
+        } finally {
+            Thread.currentThread().setContextClassLoader(orig);
+        }
+    }
+
+    private Transformer getTransformer(String xsltPath) {
+        try {
+            return transformerMap.get(xsltPath).newTransformer();
+        } catch (TransformerConfigurationException e) {
+            throw bomb(e);
         }
     }
 

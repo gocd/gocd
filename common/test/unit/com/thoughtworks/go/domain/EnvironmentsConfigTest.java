@@ -21,6 +21,9 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -108,5 +111,44 @@ public class EnvironmentsConfigTest {
         assertThat(configs.environmentsForAgent("agent-one").size(), is(0));
         assertThat(configs.environmentsForAgent("agent-two").size(), is(2));
         assertThat(configs.environmentsForAgent("agent-three").size(), is(1));
+    }
+
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsNull()
+    {
+        assertThat(configs.getLocal().size(), is(1));
+        assertThat(configs.getLocal().get(0), Is.<EnvironmentConfig>is(env));
+    }
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsFile()
+    {
+        env.setOrigins(new FileConfigOrigin());
+        assertThat(configs.getLocal().size(), is(1));
+        assertThat(configs.getLocal().get(0), Is.<EnvironmentConfig>is(env));
+    }
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsRepo()
+    {
+        env.setOrigins(new RepoConfigOrigin());
+        assertThat(configs.getLocal().size(), is(0));
+    }
+
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsMixed()
+    {
+        env.setOrigins(new FileConfigOrigin());
+
+        BasicEnvironmentConfig prodLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+        prodLocalPart.addAgent("1235");
+        prodLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig prodRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("PROD"));
+        prodRemotePart.setOrigins(new RepoConfigOrigin());
+        MergeEnvironmentConfig pairEnvironmentConfig = new MergeEnvironmentConfig(prodLocalPart, prodRemotePart);
+
+        configs.add(pairEnvironmentConfig);
+
+        assertThat(configs.getLocal().size(), is(2));
+        assertThat(configs.getLocal(), hasItem(env));
+        assertThat(configs.getLocal(), hasItem(prodLocalPart));
     }
 }

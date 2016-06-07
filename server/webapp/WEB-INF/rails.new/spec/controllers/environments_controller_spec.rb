@@ -127,7 +127,8 @@ describe EnvironmentsController do
       environment_name = "foo-environment"
       result = ""
       @env_name = @pipelines = @agents = @user = @environment_variables = ""
-      @environment_service.should_receive(:getAllPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
+      @environment_service.should_receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
+      @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(any_args,any_args).and_return([])
 
       @environment_service.should_receive(:createEnvironment) do |environment_config, user, operation_result|
         @env_name = environment_config.name()
@@ -154,7 +155,8 @@ describe EnvironmentsController do
       controller.stub(:environment_config_service).and_return(@environment_service)
       environment_name = "foo-environment"
       createEnvironmentCalled = false
-      @environment_service.should_receive(:getAllPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
+      @environment_service.should_receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
+      @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(any_args,any_args).and_return([])
       @environment_service.should_receive(:createEnvironment) do |env_config, user, result|
         expect(env_config.name()).to eq(CaseInsensitiveString.new(environment_name))
         expect(env_config.getPipelineNames().to_a).to eq([CaseInsensitiveString.new("first_pipeline"), CaseInsensitiveString.new("second_pipeline")])
@@ -215,7 +217,8 @@ describe EnvironmentsController do
       controller.stub(:current_user).and_return(current_user)
 
       pipelines = [EnvironmentPipelineModel.new("first", nil)]
-      @environment_service.should_receive(:getAllPipelinesForUser).with(current_user).and_return(pipelines)
+      @environment_service.should_receive(:getAllLocalPipelinesForUser).with(current_user).and_return(pipelines)
+      @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(any_args,any_args).and_return([])
       @environment_service.stub(:isEnvironmentFeatureEnabled).and_return(true)
 
       post :create, :no_layout => true, :environment => {'pipelines' => [{'name' => "first"}]}
@@ -318,8 +321,8 @@ describe EnvironmentsController do
       result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)),LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,any_args).and_return(result)
       environment_service.should_receive(:forEdit).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(),"md5"))
-      environment_service.should_receive(:getAllPipelinesForUser).with(any_args).and_return([])
-
+      environment_service.should_receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
+      environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(any_args,any_args).and_return([])
 
       put :update, :no_layout => true,
           :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},

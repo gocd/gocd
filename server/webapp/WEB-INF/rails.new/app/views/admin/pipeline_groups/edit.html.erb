@@ -9,7 +9,7 @@
             <div class="fieldset">
                 <%= md5_field %>
                 <%== required_label(f, com.thoughtworks.go.config.PipelineConfigs::GROUP, l.string("PIPELINE_GROUP_NAME")) -%>
-                <%= f.text_field com.thoughtworks.go.config.PipelineConfigs::GROUP, {:class => "form_input"} -%>
+                <%= f.text_field com.thoughtworks.go.config.PipelineConfigs::GROUP, {:class => "form_input", :readonly => @group.hasRemoteParts()} -%>
                 <%= error_message_on(@group, com.thoughtworks.go.config.PipelineConfigs::GROUP, :css_class => "form_error") %>
                 <div class="clear"></div>
             </div>
@@ -57,5 +57,3 @@
 
 <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'group_edit_form', :reset_id => "reset_form"}} %>
 <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
-
-

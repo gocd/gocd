@@ -7,7 +7,7 @@
         <tbody>
         <% scope[:form].object.getPlainTextVariables().each do |variable| -%>
           <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
-            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false, :is_changed => false}} -%>
+            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => false, :is_changed => false, :disabled => variable.isRemote()}} -%>
           <% end %>
         <%- end -%>
         </tbody>
@@ -28,7 +28,7 @@
         <tbody>
         <% scope[:form].object.getSecureVariables().each do |variable| -%>
           <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
-            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true, :is_changed => false,:is_readonly =>true}} -%>
+            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true, :is_changed => false,:is_readonly =>true, :disabled => variable.isRemote()}} -%>
           <% end %>
         <%- end -%>
         </tbody>

@@ -182,6 +182,11 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     @Override
+    public boolean hasRemoteParts() {
+        return getOrigin() != null && !getOrigin().isLocal();
+    }
+
+    @Override
     public boolean contains(PipelineConfig o) {
         for (PipelineConfigs part : this.parts)
         {

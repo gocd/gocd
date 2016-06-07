@@ -278,6 +278,7 @@
     <entry key="ENV_NOT_FOUND">Environment named ''{0}'' not found.</entry>
     <entry key="SHOW_ENVIRONMENT_PAGE_TITLE">{0} - Environment</entry>
     <entry key="SHOW_UNAVAILABLE_PIPELINES">Unavailable pipelines (Already associated with environments)</entry>
+    <entry key="SHOW_UNAVAILABLE_REMOTE_PIPELINES">Pipelines associated with this environment in configuration repository</entry>
     <entry key="SHOW_AVAILABLE_PIPELINES">Available pipelines</entry>
     <entry key="NO_AVAILABLE_PIPELINES">There are no available pipelines.</entry>
     <entry key="INVALID_CONFIG_ON_DISK">Invalid config on disk. Displaying the last known valid config (Editing config through Go will overwrite the invalid copy. Edit it on disk to fix this problem).</entry>
@@ -511,6 +512,7 @@
     <entry key="DELETED_SUCCESSFULLY">Deleted successfully.</entry>
     <entry key="ADMINISTRATION">Administration</entry>
     <entry key="NUMBER_OF_JOBS">{0} Jobs</entry>
+    <entry key="CANNOT_DELETE_REMOTE_PIPELINE">Cannot delete pipeline ''{0}'' defined in configuration repository ''{1}''</entry>
     <entry key="CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT">Cannot delete pipeline ''{0}'' as it is present in environment ''{1}''</entry>
     <entry key="CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS">Cannot delete pipeline ''{0}'' as pipeline ''{1}'' depends on it</entry>
     <entry key="CAN_DELETE_PIPELINE">Delete this pipeline</entry>
@@ -678,6 +680,9 @@
     <entry key="CREATE_TEMPLATE_FROM_PIPELINE_TOOL_TIP">If a pipeline is not selected, a template with a default stage and default job is created. If a pipeline is selected, the template will use the stages from the pipeline and the pipeline itself will start using this template.</entry>
     <entry key="CREATE_TEMPLATE_FROM_PIPELINE_DISABLED_TOOL_TIP">No pipelines available for extracting template. Either all pipelines use templates already or no pipelines exists.</entry>
     <entry key="CANNOT_EXTRACT_TEMPLATE">This pipeline is already using a template.</entry>
+    <entry key="CANNOT_EXTRACT_TEMPLATE_FROM_REMOTE">This pipeline is defined in configuration repository.</entry>
+    <entry key="CANNOT_EDIT_REMOTE_PIPELINE">Cannot edit pipeline defined in configuration repository.</entry>
+    <entry key="CANNOT_CLONE_REMOTE_PIPELINE">Cannot clone pipeline defined in configuration repository.</entry>
     <entry key="THIS_PIPELINE_WILL_NOW_START_USING_NEWLY_CREATED_TEMPLATE">This pipeline will now start using the newly created template.</entry>
     <entry key="STAGE_CANCELLED_SUCCESSFULLY">Stage cancelled successfully.</entry>
     <entry key="GO_TEST_CASE_MESSAGE_WITH_NEWLINE">Message with newline.

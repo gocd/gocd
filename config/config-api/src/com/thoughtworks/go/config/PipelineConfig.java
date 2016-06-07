@@ -950,5 +950,4 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         else
             this.unlockExplicitly();
     }
-
 }

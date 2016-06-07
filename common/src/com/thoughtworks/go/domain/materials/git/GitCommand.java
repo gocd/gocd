@@ -54,17 +54,29 @@ public class GitCommand extends SCMCommand {
         this.environment = environment;
     }
 
-    public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
-        return cloneFrom(outputStreamConsumer, url, Integer.MAX_VALUE);
+    public int bareClone(ProcessOutputStreamConsumer outputStreamConsumer, String url, int cloneDepth) {
+         CommandLine bareClone = cloneCommand().withArg("--bare");
+        if(cloneDepth < Integer.MAX_VALUE) {
+            bareClone.withArg(String.format("--depth=%s", cloneDepth)); //TODO - May be remove this.
+        }
+        bareClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+
+        return run(bareClone, outputStreamConsumer);
+    }
+
+    public int clone(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
+        return clone(outputStreamConsumer, url, Integer.MAX_VALUE);
+    }
+
+    public int setupRefs(ProcessOutputStreamConsumer outputStreamConsumer) {
+        CommandLine command = git(environment).withArgs("config", "remote.origin.fetch", "+refs/*:refs/*");
+        return run(command, outputStreamConsumer);
     }
 
     // Clone repository from url with specified depth.
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
-    public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
-        CommandLine gitClone = git(environment)
-                .withArg("clone")
-                .withArg(String.format("--branch=%s", branch))
-                .withArg("--no-checkout");
+    public int clone(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
+        CommandLine gitClone = cloneCommand();
 
         if(depth < Integer.MAX_VALUE) {
             gitClone.withArg(String.format("--depth=%s", depth));
@@ -74,18 +86,24 @@ public class GitCommand extends SCMCommand {
         return run(gitClone, outputStreamConsumer);
     }
 
+    private CommandLine cloneCommand() {
+        return git(environment)
+                    .withArg("clone")
+                    .withArg(String.format("--branch=%s", branch));
+    }
+
     // http://www.kernel.org/pub/software/scm/git/docs/git-log.html
     private String modificationTemplate(String separator) {
         return "%cn <%ce>%n%H%n%ai%n%n%s%n%b%n" + separator;
     }
 
     public List<Modification> latestModification() {
-        return gitLog("-1", "--date=iso", "--pretty=medium", remoteBranch());
+        return gitLog("-1", "--date=iso", "--pretty=medium", branch);
 
     }
 
     public List<Modification> modificationsSince(Revision revision) {
-        return gitLog("--date=iso", "--pretty=medium", String.format("%s..%s", revision.getRevision(), remoteBranch()));
+        return gitLog("--date=iso", "--pretty=medium", String.format("%s..%s", revision.getRevision(), branch));
     }
 
     private List<Modification> gitLog(String... args) {
@@ -438,14 +456,20 @@ public class GitCommand extends SCMCommand {
     }
 
     public boolean containsRevisionInBranch(Revision revision) {
-        String[] args = {"branch", "-r", "--contains", revision.getRevision()};
+        String[] args = {"branch", "--contains", revision.getRevision()};
         CommandLine gitCommand = git(environment).withArgs(args).withWorkingDir(workingDir);
         try {
             ConsoleResult consoleResult = runOrBomb(gitCommand);
-            return (consoleResult.outputAsString()).contains(remoteBranch());
+            return (consoleResult.outputAsString()).contains(branch);
         } catch (CommandLineException e) {
             return false;
         }
+    }
+
+    public boolean isBare() {
+        CommandLine commandLine = git(environment).withArgs("rev-parse", "--is-bare-repository").withWorkingDir(workingDir);
+        ConsoleResult result = runOrBomb(commandLine);
+        return "true".equals(result.outputAsString());
     }
 
 }

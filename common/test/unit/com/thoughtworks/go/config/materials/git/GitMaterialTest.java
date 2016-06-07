@@ -108,11 +108,11 @@ public class GitMaterialTest {
         assertThat(modifications.size(), is(1));
     }
 
-    @Test
-    public void shouldNotCheckingOutWorkingCopyUponCallingGetLatestModification() throws Exception {
-        git.latestModification(workingDir, new TestSubprocessExecutionContext());
-        assertWorkingCopyNotCheckedOut(workingDir);
-    }
+//    @Test
+//    public void shouldNotCheckingOutWorkingCopyUponCallingGetLatestModification() throws Exception {
+//        git.latestModification(workingDir, new TestSubprocessExecutionContext(true));
+//        assertWorkingCopyNotCheckedOut(workingDir);
+//    }
 
     @Test
     public void shouldGetLatestModificationUsingPassword() {
@@ -156,11 +156,11 @@ public class GitMaterialTest {
         assertThat(modifications, is(git.latestModification(workingDir, new TestSubprocessExecutionContext())));
     }
 
-    @Test
-    public void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() throws Exception {
-        git.modificationsSince(workingDir, REVISION_0, new TestSubprocessExecutionContext());
-        assertWorkingCopyNotCheckedOut(workingDir);
-    }
+//    @Test
+//    public void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() throws Exception {
+//        git.modificationsSince(workingDir, REVISION_0, new TestSubprocessExecutionContext(true));
+//        assertWorkingCopyNotCheckedOut(workingDir);
+//    }
 
     @Test
     public void shouldRetrieveModifiedFiles() throws Exception {
@@ -472,11 +472,11 @@ public class GitMaterialTest {
 
         File serverWorkingDir = TestFileUtil.createTempFolder("workingDir-" + System.currentTimeMillis());
 
-        List<Modification> beforeAdd = gitMaterial.latestModification(serverWorkingDir, new TestSubprocessExecutionContext());
+        List<Modification> beforeAdd = gitMaterial.latestModification(serverWorkingDir, new TestSubprocessExecutionContext(true));
 
         submoduleRepos.addSubmodule(SUBMODULE, "new-submodule");
 
-        List<Modification> afterAdd = gitMaterial.modificationsSince(serverWorkingDir, new Modifications(beforeAdd).latestRevision(gitMaterial), new TestSubprocessExecutionContext());
+        List<Modification> afterAdd = gitMaterial.modificationsSince(serverWorkingDir, new Modifications(beforeAdd).latestRevision(gitMaterial), new TestSubprocessExecutionContext(true));
 
         assertThat(afterAdd.size(), is(1));
         assertThat(afterAdd.get(0).getComment(), is("Added submodule new-submodule"));
@@ -490,11 +490,11 @@ public class GitMaterialTest {
 
         File serverWorkingDir = TestFileUtil.createTempFolder("workingDir-" + System.currentTimeMillis());
 
-        List<Modification> beforeAdd = gitMaterial.latestModification(serverWorkingDir, new TestSubprocessExecutionContext());
+        List<Modification> beforeAdd = gitMaterial.latestModification(serverWorkingDir, new TestSubprocessExecutionContext(true));
 
         submoduleRepos.removeSubmodule("sub1");
 
-        List<Modification> after = gitMaterial.modificationsSince(serverWorkingDir, new Modifications(beforeAdd).latestRevision(gitMaterial), new TestSubprocessExecutionContext());
+        List<Modification> after = gitMaterial.modificationsSince(serverWorkingDir, new Modifications(beforeAdd).latestRevision(gitMaterial), new TestSubprocessExecutionContext(true));
 
         assertThat(after.size(), is(1));
         assertThat(after.get(0).getComment(), is("Removed submodule sub1"));

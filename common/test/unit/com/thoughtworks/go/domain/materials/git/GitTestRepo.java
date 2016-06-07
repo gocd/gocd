@@ -100,7 +100,7 @@ public class GitTestRepo extends TestRepo {
     private void cloneBundleToFolder(File from, File workingDir) {
         GitCommand git = git(workingDir);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        int returnValue = git.cloneFrom(outputStreamConsumer, from.getAbsolutePath());
+        int returnValue = git.clone(outputStreamConsumer, from.getAbsolutePath());
         if (returnValue != 0) {
             throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", from.getAbsolutePath(), returnValue, outputStreamConsumer.getAllOutput()));
         }

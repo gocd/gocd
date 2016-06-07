@@ -186,6 +186,24 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Test
+    public void shouldReturnTrueWhenOnlyPartIsLocal() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart);
+        assertThat(environmentConfig.isLocal(),is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenPartIsRemote() {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+        environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+        assertThat(environmentConfig.isLocal(),is(false));
+    }
+
+    @Test
     public void shouldUpdateEnvironmentVariablesWhenSourceIsEditable() {
         BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart.setOrigins(new FileConfigOrigin());

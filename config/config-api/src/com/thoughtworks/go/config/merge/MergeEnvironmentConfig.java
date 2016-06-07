@@ -348,7 +348,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     public boolean isLocal() {
         for(EnvironmentConfig part : this)
         {
-            if(part.isLocal())
+            if(!part.isLocal())
                 return false;
         }
         return true;

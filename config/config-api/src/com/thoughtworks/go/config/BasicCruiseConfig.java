@@ -93,7 +93,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         MergeStrategy mergeStrategy = new MergeStrategy(this, partList);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
+        this.resetAllPipelineConfigsCache();
         environments = mergeStrategy.mergeEnvironmentConfigs();
+    }
+
+    private void resetAllPipelineConfigsCache() {
+        allPipelineConfigs = null;
     }
 
     private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList) {
@@ -235,9 +240,6 @@ public class BasicCruiseConfig implements CruiseConfig {
             // then add from each part
             for (PartialConfig part : this.parts) {
                 for (PipelineConfigs partPipesConf : part.getGroups()) {
-                    for (PipelineConfig pipelineConfig : partPipesConf) {
-                        main.getAllPipelineConfigs().add(pipelineConfig);
-                    }
                     allPipelineConfigs.add(partPipesConf);
                 }
             }
@@ -1238,7 +1240,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void setPartials(List<PartialConfig> partials) {
-        this.partials = new Cloner().deepClone(partials);
+        this.partials = partials;
     }
 
     @Override

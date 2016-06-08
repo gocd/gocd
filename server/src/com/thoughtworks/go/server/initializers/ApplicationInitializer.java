@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
@@ -87,6 +88,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private PipelineConfigService pipelineConfigService;
     @Autowired private ServerVersionInfoManager serverVersionInfoManager;
     @Autowired private GoPartialConfig goPartialConfig;
+    @Autowired private ConfigCache configCache;
+    @Autowired private ConfigElementImplementationRegistry configElementImplementationRegistry;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -101,12 +104,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             //config
 
             configCipherUpdater.migrate(); // Should be done before configs get loaded
-            ConfigRepoPartialPreprocessor preprocessor = (ConfigRepoPartialPreprocessor) ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
-                @Override
-                public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {
-                    return item instanceof ConfigRepoPartialPreprocessor;
-                }
-            });
+            MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry);
+            ConfigRepoPartialPreprocessor preprocessor = (ConfigRepoPartialPreprocessor) loader.getPreprocessorOfType(ConfigRepoPartialPreprocessor.class);
             preprocessor.init(goPartialConfig);
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();

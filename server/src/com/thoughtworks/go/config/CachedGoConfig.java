@@ -98,6 +98,7 @@ public class CachedGoConfig {
     }
 
     public CruiseConfig loadForEditing() {
+        loadConfigIfNull();
         return currentConfigForEdit;
     }
 

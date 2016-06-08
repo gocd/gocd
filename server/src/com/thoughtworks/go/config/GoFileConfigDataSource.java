@@ -282,7 +282,8 @@ public class GoFileConfigDataSource {
     }
 
     private String trySavingConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
-        String configAsXml = getModifiedConfig(updatingCommand, configHolder, partials);
+        List<PartialConfig> clonedPartials = new Cloner().deepClone(partials);
+        String configAsXml = getModifiedConfig(updatingCommand, configHolder, clonedPartials);
         LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
         writeToConfigXmlFile(configAsXml);
         return configAsXml;

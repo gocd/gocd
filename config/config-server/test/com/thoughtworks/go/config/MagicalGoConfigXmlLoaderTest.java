@@ -28,7 +28,9 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -3597,6 +3599,13 @@ public class MagicalGoConfigXmlLoaderTest {
             assertThat(e.getCause().getCause().getMessage(), is("Invalid content was found starting with element 'resources'. One of '{environmentvariables, tasks, artifacts, tabs, properties}' is expected."));
         }
 
+    }
+
+    @Test
+    public void shouldGetConfigRepoPreprocessor(){
+        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(null, null);
+        assertThat(loader.getPreprocessorOfType(ConfigRepoPartialPreprocessor.class) instanceof ConfigRepoPartialPreprocessor, is(true));
+        assertThat(loader.getPreprocessorOfType(ConfigParamPreprocessor.class) instanceof ConfigParamPreprocessor, is(true));
     }
 
     private StageConfig stageWithJobResource(String resourceName) {

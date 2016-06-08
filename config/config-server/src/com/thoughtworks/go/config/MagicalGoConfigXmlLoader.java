@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -159,4 +160,12 @@ public class MagicalGoConfigXmlLoader {
         return classParser(element, o, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
     }
 
+    public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends com.thoughtworks.go.config.GoConfigPreprocessor> clazz) {
+        return ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
+            @Override
+            public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {
+                return item.getClass().isAssignableFrom(clazz);
+            }
+        });
+    }
 }

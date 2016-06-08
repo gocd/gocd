@@ -1,35 +1,35 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.semweb.grddl;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-
-import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
+import static org.junit.Assert.assertTrue;
 
 public class GRDDLTransformerTest {
     @Test
@@ -65,7 +65,7 @@ public class GRDDLTransformerTest {
         InputStream xslAsStream = new ByteArrayInputStream(xsl.getBytes());
         InputStream xmlAsStream = new ByteArrayInputStream(inputXML.getBytes());
 
-        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xslAsStream));
+        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xslAsStream, "foo.xml"), "foo.xml");
         Graph graph = transformer.transform(xmlAsStream, new InMemoryTempGraphFactory());
 
         assertAskIsTrue(graph, (ask));
@@ -76,7 +76,7 @@ public class GRDDLTransformerTest {
         InputStream xsl = getClass().getResourceAsStream("/cruise/job-grddl.xsl");
         InputStream jobXML = getClass().getResourceAsStream("/cruise/jobs/job-1622.xml");
 
-        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xsl));
+        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xsl, "foo.xsl"), "foo.xsl");
         Graph transformedGraph = transformer.transform(jobXML, new InMemoryTempGraphFactory());
 
         String askIfJobIsGood = "" +
@@ -133,7 +133,7 @@ public class GRDDLTransformerTest {
 
         InputStream pipelineXML = new ByteArrayInputStream(rawPipelineXML.getBytes());
 
-        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xsl));
+        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xsl, "foo.xsl"), "foo.xsl");
         Graph transformedGraph = transformer.transform(pipelineXML, new InMemoryTempGraphFactory());
 
         String askIfPipelineWasTransformedWell =
@@ -149,19 +149,16 @@ public class GRDDLTransformerTest {
         assertAskIsTrue(transformedGraph, askIfPipelineWasTransformedWell);
     }
 
-    @Test(expected = InvalidGrddlTransformationException.class)
-    public void allHellBreaksLooseWhenGrddlTransformerIsGivenAnInvalidXsl() {
-        new GRDDLTransformer(transformerForXSLStream(new ByteArrayInputStream("invalid xml".getBytes())));
-    }
+    private XSLTTransformerRegistry transformerForXSLStream(final InputStream xsl, final String key) throws TransformerConfigurationException {
+        {
+            return new XSLTTransformerRegistry() {
+                {
+                    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                    Templates templates = transformerFactory.newTemplates(new StreamSource(xsl));
+                    transformerMap.put(key, templates);
+                }
+            };
 
-
-    private Transformer transformerForXSLStream(InputStream xsl) {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        try {
-            return transformerFactory.newTransformer(new StreamSource(xsl));
-        } catch (TransformerConfigurationException e) {
-            throw new InvalidGrddlTransformationException(e);
         }
     }
-
 }

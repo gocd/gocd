@@ -333,7 +333,6 @@ Go::Application.routes.draw do
       end
 
       defaults :format => 'text' do
-        get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
         get 'fanin_debug/:name/(:index)' => 'fanin_trace#fanin_debug', constraints: {name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}
         get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
@@ -341,6 +340,7 @@ Go::Application.routes.draw do
 
       defaults :format => 'json' do
         get 'process_list' => 'process_list#process_list'
+        get 'support' => 'server#capture_support_info'
       end
 
       defaults :format => 'xml' do

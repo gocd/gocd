@@ -202,6 +202,7 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9ServletHelper*.class")
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Request.class")
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Response.class")
+    include_fileset_from_target(jar, 'jetty9', "**/Slf4jRequestLogger.class")
     # # ---- Jetty 9 end ---
 
     include_fileset_from_target(jar, 'common', "**/SubprocessLogger*.class")

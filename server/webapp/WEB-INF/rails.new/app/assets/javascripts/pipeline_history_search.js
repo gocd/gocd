@@ -25,7 +25,8 @@ function filterHistories(pipelineHistory, filter) {
 
     var count = histories.length;
     if(count == 0) {
-        jQuery('.pipeline-history-group').html("<p style='font-size: 2em;'>No instances found matching \"" + filter + "\"</p>");
+        jQuery('.pipeline-history-group').html("");
+        jQuery('#search-message').text("No instances found matching \"" + filter + "\"");
         return;
     }
 
@@ -45,6 +46,7 @@ function removeLabelFilter() {
     jQuery("#labelFilterField").val("");
     jQuery('#filterLabelsButton').show();
     jQuery('#removeFilterButton').hide();
+    jQuery('#search-message').text("");
 
     if(!dashboard_periodical_executer.is_execution_start)
         dashboard_periodical_executer.start();

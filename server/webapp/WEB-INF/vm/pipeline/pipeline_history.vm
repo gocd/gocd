@@ -32,12 +32,6 @@
         display: block;
         zoom: 1;
     }
-
-    input[readonly] {
-        background: gray;
-        color: white;
-    }
-
 </style>
 <![endif]-->
 <textarea rows="0" cols="0" id='pipeline-history-list-template' style="display: none;">
@@ -45,11 +39,11 @@
 </textarea>
 <div id="yui-main">
 
-    <!-- Pipeline Label Search -->
-    <div style="padding: 5px">
-        <input type="text" id="labelSearchField" placeholder='Filter history...'>
-        <button id="filterLabelsButton" type="button" class="submit button" onclick="applyLabelFilter()">Search</button>
-        <button id="removeFilterButton" type="button" class="submit button" style="border: 2px #FC3535 outset; background: #F43737; display: none" onclick="removeLabelFilter()">Remove Filter</button>
+    <!-- Pipeline Label Filter -->
+    <div class="label-filter-group">
+        <input type="text" id="labelFilterField" placeholder='Filter history...'>
+        <button id="filterLabelsButton" type="button" class="submit button">Search</button>
+        <button id="removeFilterButton" type="button" class="submit button">Remove Filter</button>
     </div>
 
     <div class="yui-b">

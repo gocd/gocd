@@ -65,6 +65,8 @@
             <img src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="loading..."/>
         </div>
 
+        <p id="search-message"></p>
+
         #set($previousPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage - 1)")
         #set($nextPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage + 1)")
         #set($page = "pipelineHistoryPage.switchToPage('$pipelineName', ${% page.pageNumber %})")

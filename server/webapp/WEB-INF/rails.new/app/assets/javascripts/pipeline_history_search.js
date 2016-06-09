@@ -1,8 +1,8 @@
 <!-- Code for searching through labels on pipeline history page -->
 function applyLabelFilter() {
-    var inputVal = jQuery("#labelSearchField").val().trim();
+    var inputVal = jQuery("#labelFilterField").val().trim();
     if (inputVal.length == 0) {
-        removeFilter();
+        removeLabelFilter();
         return;
     }
 
@@ -16,7 +16,7 @@ function filterHistories(pipelineHistory, filter) {
     //Need to stop periodic executor to show only the pipelines matching the filter
     dashboard_periodical_executer.stop();
 
-    jQuery("#labelSearchField").prop("readonly", true);
+    jQuery("#labelFilterField").prop("readonly", true);
     jQuery('#filterLabelsButton').hide();
     jQuery('#removeFilterButton').show();
     $('page_links').innerHTML = "";
@@ -41,8 +41,8 @@ function filterHistories(pipelineHistory, filter) {
 
 // Removes the applied filter (if there is one) and resumes the periodic executer
 function removeLabelFilter() {
-    jQuery("#labelSearchField").prop("readonly", false);
-    jQuery("#labelSearchField").val("");
+    jQuery("#labelFilterField").prop("readonly", false);
+    jQuery("#labelFilterField").val("");
     jQuery('#filterLabelsButton').show();
     jQuery('#removeFilterButton').hide();
 
@@ -52,8 +52,10 @@ function removeLabelFilter() {
 
 jQuery( document ).ready(function() {
     //Trigger search when enterkey is pressed from the search field
-    jQuery('#labelSearchField').keypress(function (e) {
+    jQuery('#labelFilterField').keypress(function (e) {
         if (e.keyCode == 13)
             applyLabelFilter();
     });
+    jQuery("#filterLabelsButton").click(applyLabelFilter);
+    jQuery("#removeFilterButton").click(removeLabelFilter);
 });

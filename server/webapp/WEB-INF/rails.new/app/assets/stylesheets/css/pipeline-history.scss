@@ -461,10 +461,19 @@ a.unpause-build-link-disabled {
     background-image: image_url('pause-icon.png');
 }
 
+#labelFilterField[readonly] {
+  background: gray;
+  color: white;
+}
 
+.label-filter-group {
+  padding: 5px;
+}
 
-
-
-
+#removeFilterButton {
+  border: 2px #FC3535 outset;
+  background: #F43737;
+  display: none;
+}
 
 

@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @understands current state of configuration part.
@@ -156,22 +157,18 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
 
     @Override
     public void onChangedRepoConfigWatchList(ConfigReposConfig newConfigRepos) {
-        boolean removed = false;
         // remove partial configs from map which are no longer on the list
-        for (String fingerprint : cachedGoPartials.getFingerprintToLatestKnownConfigMap().keySet()) {
+        Set<String> known = cachedGoPartials.getFingerprintToLatestKnownConfigMap().keySet();
+        for (String fingerprint : known) {
             if (!newConfigRepos.hasMaterialWithFingerprint(fingerprint)) {
-                removed = true;
                 cachedGoPartials.removeKnown(fingerprint);
             }
         }
-        for (String fingerprint : cachedGoPartials.getFingerprintToLatestValidConfigMap().keySet()) {
+        Set<String> valid = cachedGoPartials.getFingerprintToLatestValidConfigMap().keySet();
+        for (String fingerprint : valid) {
             if (!newConfigRepos.hasMaterialWithFingerprint(fingerprint)) {
-                removed = true;
                 cachedGoPartials.removeValid(fingerprint);
             }
-        }
-        if (removed) {
-            updateConfig(null, null, null);
         }
     }
 }

@@ -25,10 +25,12 @@ import org.springframework.security.vote.AccessDecisionVoter;
 
 public class IsSecurityEnabledVoter implements AccessDecisionVoter {
     private GoConfigService goConfigService;
+    private AuthenticationService authenticationService;
 
     @Autowired
-    public IsSecurityEnabledVoter(GoConfigService goConfigService) {
+    public IsSecurityEnabledVoter(GoConfigService goConfigService, AuthenticationService authenticationService) {
         this.goConfigService = goConfigService;
+        this.authenticationService = authenticationService;
     }
 
     public boolean supports(ConfigAttribute configAttribute) {
@@ -40,6 +42,14 @@ public class IsSecurityEnabledVoter implements AccessDecisionVoter {
     }
 
     public int vote(Authentication authentication, Object o, ConfigAttributeDefinition configAttributeDefinition) {
-        return goConfigService.isSecurityEnabled() ? ACCESS_ABSTAIN : ACCESS_GRANTED;
+        return isLegacyBuiltInAuthEnabled() ? ACCESS_ABSTAIN : getAuthServiceVote();
+    }
+
+    private boolean isLegacyBuiltInAuthEnabled() {
+        return goConfigService.isSecurityEnabled();
+    }
+
+    private int getAuthServiceVote() {
+        return authenticationService.isAuthEnabled() ? ACCESS_ABSTAIN : ACCESS_GRANTED;
     }
 }

@@ -31,6 +31,7 @@ import org.springframework.security.vote.AccessDecisionVoter;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IsSecurityEnabledVoterTest {
 
@@ -54,8 +55,38 @@ public class IsSecurityEnabledVoterTest {
         GoConfigService configService = new GoConfigService(goConfigDao, null, new SystemTimeClock(), mock(GoConfigMigration.class), null, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(),
                 new InstanceFactory());
-        IsSecurityEnabledVoter voter = new IsSecurityEnabledVoter(configService);
+        AuthenticationService authenticationService = mock(AuthenticationService.class);
+        when(authenticationService.isAuthEnabled()).thenReturn(false);
+
+
+        IsSecurityEnabledVoter voter = new IsSecurityEnabledVoter(configService, authenticationService);
         int accessStatus = voter.vote(null, null, null);
         assertThat(accessStatus, Is.is(AccessDecisionVoter.ACCESS_ABSTAIN));
+    }
+
+    @Test
+    public void shouldVoteAbstainIfSecurityConfigIsDisabledAndAuthServiceIsEnabled() {
+        GoConfigService configService = mock(GoConfigService.class);
+        when(configService.isSecurityEnabled()).thenReturn(false);
+
+        AuthenticationService authenticationService = mock(AuthenticationService.class);
+        when(authenticationService.isAuthEnabled()).thenReturn(true);
+
+        IsSecurityEnabledVoter voter = new IsSecurityEnabledVoter(configService, authenticationService);
+        int accessStatus = voter.vote(null, null, null);
+        assertThat(accessStatus, Is.is(AccessDecisionVoter.ACCESS_ABSTAIN));
+    }
+
+    @Test
+    public void shouldVoteAccessGrantedIfSecurityIsDisabledAndAuthServiceIsDisabled() {
+        GoConfigService configService = mock(GoConfigService.class);
+        when(configService.isSecurityEnabled()).thenReturn(false);
+
+        AuthenticationService authenticationService = mock(AuthenticationService.class);
+        when(authenticationService.isAuthEnabled()).thenReturn(false);
+
+        IsSecurityEnabledVoter voter = new IsSecurityEnabledVoter(configService, authenticationService);
+        int accessStatus = voter.vote(null, null, null);
+        assertThat(accessStatus, Is.is(AccessDecisionVoter.ACCESS_GRANTED));
     }
 }

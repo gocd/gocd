@@ -30,16 +30,14 @@ import org.xml.sax.InputSource;
 
 public class XpathUtils {
 
-    public static String evaluate(File file, String xpath) throws XPathExpressionException, FileNotFoundException {
-        return evaluate(XPathFactory.newInstance(), file, xpath);
-    }
+    private static XPathFactory xPathFactory = XPathFactory.newInstance();
 
-    public static String evaluate(XPathFactory factory, File file, String xpath)
+    public static String evaluate(File file, String xpath)
             throws XPathExpressionException, FileNotFoundException {
         InputStream stream = (new FileInputStream(file));
         try {
             InputSource inputSource = new InputSource(stream);
-            return evaluate(factory, inputSource, xpath);
+            return evaluate(xPathFactory, inputSource, xpath);
         } finally {
             IOUtils.closeQuietly(stream);
         }

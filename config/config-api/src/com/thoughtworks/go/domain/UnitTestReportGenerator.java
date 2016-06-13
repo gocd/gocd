@@ -22,21 +22,32 @@ import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
+import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.text.MessageFormat;
 
 public class UnitTestReportGenerator implements TestReportGenerator {
     private final File folderToUpload;
     private GoPublisher publisher;
-    XPathFactory factory = XPathFactory.newInstance();
+    private static Templates templates;
+
+    private static final Logger LOG = LoggerFactory.getLogger(UnitTestReportGenerator.class);
+
+    static {
+        try (InputStream xslt = UnitTestReportGenerator.class.getResourceAsStream("unittests.xsl")) {
+            templates = TransformerFactory.newInstance().newTemplates(new StreamSource(xslt));
+        } catch (Exception e) {
+            LOG.error("Could not load unit test converters", e);
+        }
+    }
 
     public UnitTestReportGenerator(GoPublisher publisher, File folderToUpload) {
         this.publisher = publisher;
@@ -52,22 +63,16 @@ public class UnitTestReportGenerator implements TestReportGenerator {
             mergedResource = mergeAllTestResultToSingleFile(allTestFiles);
             transformedHtml = new FileOutputStream(mergedResults);
 
-            try(InputStream xslt = getClass().getResourceAsStream("unittests.xsl")) {
+            try {
                 mergedFileStream = new FileInputStream(mergedResource);
                 Source xmlSource = new StreamSource(mergedFileStream);
-                Source xsltSource = new StreamSource(xslt);
-                TransformerFactory transFact = TransformerFactory.newInstance();
-                Transformer trans = transFact.newTransformer(xsltSource);
                 StreamResult result = new StreamResult(transformedHtml);
-                trans.transform(xmlSource, result);
+                templates.newTransformer().transform(xmlSource, result);
             } catch (Exception e) {
                 publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
-            } finally {
-                IOUtils.closeQuietly(mergedFileStream);
             }
 
             extractProperties(mergedResults);
-
             publisher.upload(mergedResults, uploadDestPath);
 
             return null;
@@ -107,7 +112,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     private void addProperty(File xmlFile, String cssClass, String cruiseProperty) {
         try {
             String xpath = "//div/p/span[@class='" + cssClass + "']";
-            String output = XpathUtils.evaluate(factory, xmlFile, xpath);
+            String output = XpathUtils.evaluate(xmlFile, xpath);
             output = output.startsWith(".") ? "0" + output : output;
             Property property = new Property(cruiseProperty, output);
             publisher.setProperty(property);
@@ -123,8 +128,8 @@ public class UnitTestReportGenerator implements TestReportGenerator {
 
         for (File testFile : testFiles) {
             if (testFile.isDirectory()) {
-                for (Object file : FileUtils.listFiles(testFile,new String[]{"xml"},true)) {
-                   pumpFileContentIfValid(out, (File)file);
+                for (Object file : FileUtils.listFiles(testFile, new String[]{"xml"}, true)) {
+                    pumpFileContentIfValid(out, (File) file);
                 }
             } else {
                 pumpFileContentIfValid(out, testFile);

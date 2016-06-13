@@ -57,7 +57,10 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -789,6 +792,38 @@ public class GoConfigServiceIntegrationTest {
 
         assertThat(validity.isValid(), is(true));
     }
+
+
+    @Test
+    public void shouldReturnTrueIfPipelineGroupIsAvailableAndUserIsAdminOfGroup() throws IOException {
+        setupSecurity();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        boolean canEditPipelineGroup = goConfigService.canEditPipelineGroup("defaultGroup", new Username(new CaseInsensitiveString("root")), result);
+
+        assertTrue(canEditPipelineGroup);
+        assertThat(result.isSuccessful(), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseIfPipelineGroupIsNotAvailableAndUserIsAdminOfGroup() throws IOException {
+        setupSecurity();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        boolean canEditPipelineGroup = goConfigService.canEditPipelineGroup("invalidGroup", new Username(new CaseInsensitiveString("root")), result);
+
+        assertFalse(canEditPipelineGroup);
+        assertThat(result.isSuccessful(), is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseIfPipelineGroupIsAvailableAndUserIsNotAdminOfGroup() throws IOException {
+        setupSecurity();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        boolean canEditPipelineGroup = goConfigService.canEditPipelineGroup("defaultGroup", new Username(new CaseInsensitiveString("loser")), result);
+
+        assertFalse(canEditPipelineGroup);
+        assertThat(result.isSuccessful(), is(false));
+    }
+
 
     private void setJobTimeoutTo(final String jobTimeout) {
         CruiseConfig config = configHelper.currentConfig();

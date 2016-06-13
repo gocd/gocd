@@ -17,8 +17,10 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.PipelineConfigsUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -305,6 +307,38 @@ public class PipelineConfigsServiceTest {
 		verify(goConfigService, never()).getAllPipelinesInGroup("group1");
 		assertThat(gotPipelineGroups, is(Arrays.asList(group1)));
 	}
+
+
+    @Test
+    public void shouldReturnSuccessfulResultWhenConfigIsUpdated() throws Exception {
+        Authorization authorization = mock(Authorization.class);
+        String groupName = "groupName";
+
+        service.updateAuthorization(authorization, groupName, result, validUser);
+        verify(goConfigService).updateConfig(any(PipelineConfigsUpdateCommand.class), eq(validUser));
+    }
+
+    @Test
+    public void shouldReturnUnsuccessfulResultWhenConfigIsInvalid() throws Exception {
+        Authorization authorization = mock(Authorization.class);
+        GoConfigInvalidException exception = mock(GoConfigInvalidException.class);
+        doThrow(exception).when(goConfigService).updateConfig(any(PipelineConfigsUpdateCommand.class), eq(validUser));
+        String groupName = "groupName";
+
+        service.updateAuthorization(authorization, groupName, result, validUser);
+        assertThat(result.httpCode(), is(422));
+    }
+
+    @Test
+    public void shouldRetrunInternalServerErrorForAnyOtherExceptions() throws Exception {
+        Authorization authorization = mock(Authorization.class);
+        Exception exception = new NullPointerException();       //replace NullPointerException with valid one
+        doThrow(exception).when(goConfigService).updateConfig(any(PipelineConfigsUpdateCommand.class), eq(validUser));
+        String groupName = "groupName";
+
+        service.updateAuthorization(authorization, groupName, result, validUser);
+        assertThat(result.httpCode(), is(500));
+    }
 
     private String groupXml() {
         return "<pipelines group=\"renamed_group_name\">\n"

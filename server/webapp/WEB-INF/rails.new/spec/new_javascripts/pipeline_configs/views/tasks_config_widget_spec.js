@@ -24,18 +24,18 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Ant({
-          buildFile:        'build-moduleA.xml',
-          target:           'clean',
+          buildFile: 'build-moduleA.xml',
+          target: 'clean',
           workingDirectory: 'moduleA',
-          runIf:            ['passed', 'failed'],
-          onCancelTask:     {
+          runIf: ['passed', 'failed'],
+          onCancelTask: {
             type: "nant",
             attributes: {
-              build_file:        'build-moduleA.xml',
-              target:            'clean',
+              build_file: 'build-moduleA.xml',
+              target: 'clean',
               working_directory: "moduleA",
-              nant_path:         "C:\\NAnt",
-              run_if:            []
+              nant_path: "C:\\NAnt",
+              run_if: []
             }
           }
         });
@@ -83,11 +83,11 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.NAnt({
-          buildFile:        'build-moduleA.xml',
-          target:           "clean",
+          buildFile: 'build-moduleA.xml',
+          target: "clean",
           workingDirectory: "moduleA",
-          nantPath:         'C:\\NAnt',
-          runIf:            ['passed', 'failed']
+          nantPath: 'C:\\NAnt',
+          runIf: ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -121,7 +121,7 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
 
-      it('should not have onCancel task', function() {
+      it('should not have onCancel task', function () {
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
@@ -132,10 +132,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Exec({
-          command:          'bash',
-          args:             ['-c', 'ls -al /'],
+          command: 'bash',
+          args: ['-c', 'ls -al /'],
           workingDirectory: 'moduleA',
-          runIf:            ['passed', 'failed']
+          runIf: ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -166,7 +166,7 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
           expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
         });
 
-        it('should not have onCancel task', function() {
+        it('should not have onCancel task', function () {
           expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
         });
       });
@@ -178,10 +178,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Rake({
-          buildFile:        'foo.rake',
-          target:           "clean",
+          buildFile: 'foo.rake',
+          target: "clean",
           workingDirectory: "moduleA",
-          runIf:            ['passed', 'failed']
+          runIf: ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -211,7 +211,7 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
 
-      it('should not have onCancel task', function() {
+      it('should not have onCancel task', function () {
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
@@ -223,10 +223,11 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
 
         task = new Tasks.Task.FetchArtifact({
           pipeline: 'Build',
-          stage:    "Dist",
-          job:      "RPM",
-          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'}),
-          runIf:    ['passed', 'failed']
+          stage: "Dist",
+          job: "RPM",
+          source: "logs",
+          isSourceAFile: true,
+          runIf: ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -250,12 +251,12 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[data-prop-name='job']").val()).toBe(task.job());
       });
 
-      it('should bind source type', function () {
-        expect($root.find("input[data-prop-name='type']").val()).toBe(task.source().type());
+      it('should bind source', function () {
+        expect($root.find("input[data-prop-name='source']").val()).toBe(task.source());
       });
 
-      it('should bind source location', function () {
-        expect($root.find("input[data-prop-name='location']").val()).toBe(task.source().location());
+      it('should bind source is a file ', function () {
+        expect($root.find("input[type=checkbox][data-prop-name=isSourceAFile]").is(':checked')).toBe(task.isSourceAFile());
       });
 
       it('should render run_if conditions', function () {
@@ -264,44 +265,45 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
 
-      it('should not have onCancel task', function() {
+      it('should not have onCancel task', function () {
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
 
-    describe("Add Tasks", function() {
+    describe("Add Tasks", function () {
       var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
       beforeEach(function () {
         antTask = new Tasks.Task.Ant({
-          buildFile:        'build-moduleA.xml',
-          target:           "clean",
+          buildFile: 'build-moduleA.xml',
+          target: "clean",
           workingDirectory: "moduleA"
         });
 
         nantTask = new Tasks.Task.NAnt({
-          buildFile:        'build-moduleA.xml',
-          target:           "clean",
+          buildFile: 'build-moduleA.xml',
+          target: "clean",
           workingDirectory: "moduleA",
-          nantPath:         'C:\\NAnt'
+          nantPath: 'C:\\NAnt'
         });
 
         execTask = new Tasks.Task.Exec({
-          command:          'bash',
-          args:             ['-c', 'ls -al /'],
+          command: 'bash',
+          args: ['-c', 'ls -al /'],
           workingDirectory: "moduleA"
         });
 
         rakeTask = new Tasks.Task.Rake({
-          buildFile:        'foo.rake',
-          target:           "clean",
+          buildFile: 'foo.rake',
+          target: "clean",
           workingDirectory: "moduleA"
         });
 
         fetchArtifactTask = new Tasks.Task.FetchArtifact({
           pipeline: 'Build',
-          stage:    "Dist",
-          job:      "RPM",
-          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'})
+          stage: "Dist",
+          job: "RPM",
+          source: "logs",
+          sourceIsFile: true
         });
 
         tasks = m.prop(new Tasks());

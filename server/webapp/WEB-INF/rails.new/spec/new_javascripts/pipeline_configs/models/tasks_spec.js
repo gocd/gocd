@@ -420,7 +420,8 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           pipeline: 'Build',
           stage:    "Dist",
           job:      "RPM",
-          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'}),
+          source:   "dir",
+          isSourceAFile: true,
           runIf:   ['any']
         });
       });
@@ -438,8 +439,8 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
       });
 
       it("should initialize task model with source", function () {
-        expect(task.source().type()).toBe("dir");
-        expect(task.source().location()).toBe("pkg");
+        expect(task.source()).toBe("dir");
+        expect(task.isSourceAFile()).toBe(true);
       });
 
       it("should initialize task model with runIfConditions", function () {
@@ -474,12 +475,12 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         });
 
         it("should de-serialize from JSON", function () {
-          expect(task.type()).toBe("fetchartifact");
+          expect(task.type()).toBe("fetch");
           expect(task.pipeline()).toBe("Build");
           expect(task.stage()).toBe("Dist");
           expect(task.job()).toBe("RPM");
-          expect(task.source().type()).toBe("dir");
-          expect(task.source().location()).toBe("pkg");
+          expect(task.source()).toBe("dir");
+          expect(task.isSourceAFile()).toBe(true);
           expect(task.runIf().data()).toEqual(['any']);
         });
 
@@ -489,15 +490,13 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
 
         function sampleTaskJSON() {
           return {
-            type:       "fetchartifact",
+            type:       "fetch",
             attributes: {
               pipeline: 'Build',
               stage:    "Dist",
               job:      "RPM",
-              source:   {
-                type:     'dir',
-                location: 'pkg'
-              },
+              source:   'dir',
+              is_source_a_file: true,
               run_if:   ['any'],
               on_cancel: {
                 type:       "nant",

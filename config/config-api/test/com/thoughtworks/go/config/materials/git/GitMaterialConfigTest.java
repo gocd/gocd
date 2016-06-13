@@ -63,7 +63,6 @@ public class GitMaterialConfigTest {
     public void byDefaultShallowCloneShouldBeOff() {
         assertThat(new GitMaterialConfig("http://url", "foo").isShallowClone(), is(false));
         assertThat(new GitMaterialConfig("http://url", "foo", false).isShallowClone(), is(false));
-        assertThat(new GitMaterialConfig("http://url", "foo", null).isShallowClone(), is(false));
         assertThat(new GitMaterialConfig("http://url", "foo", true).isShallowClone(), is(true));
     }
 
@@ -125,7 +124,7 @@ public class GitMaterialConfigTest {
     @Test
     public void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
         GitMaterialConfig config1 = new GitMaterialConfig("http://url", null);
-        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), "folder", new CaseInsensitiveString("git"), false);
+        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), "folder", new CaseInsensitiveString("git"), false, null);
 
         assertThat(config1.getBranch(), is("master"));
         assertThat(config2.getBranch(), is("master"));

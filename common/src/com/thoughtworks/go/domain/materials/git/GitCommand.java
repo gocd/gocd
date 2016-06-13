@@ -24,8 +24,12 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.*;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,13 +49,15 @@ public class GitCommand extends SCMCommand {
     private final String branch;
     private final boolean isSubmodule;
     private Map<String, String> environment;
+    private final String sshKey;
 
-    public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String, String> environment) {
+    public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String, String> environment, String sshKey) {
         super(materialFingerprint);
         this.workingDir = workingDir;
-        this.branch = StringUtil.isBlank(branch)? GitMaterialConfig.DEFAULT_BRANCH : branch ;
+        this.branch = StringUtil.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
         this.isSubmodule = isSubmodule;
         this.environment = environment;
+        this.sshKey = sshKey;
     }
 
     public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
@@ -66,12 +72,56 @@ public class GitCommand extends SCMCommand {
                 .withArg(String.format("--branch=%s", branch))
                 .withArg("--no-checkout");
 
-        if(depth < Integer.MAX_VALUE) {
+        if (depth < Integer.MAX_VALUE) {
             gitClone.withArg(String.format("--depth=%s", depth));
         }
         gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
 
+        configureSshKey(gitClone);
+
         return run(gitClone, outputStreamConsumer);
+    }
+
+    private CommandLine configureSshKey(CommandLine cmd) {
+        if (sshKey == null) {
+            return cmd;
+        }
+        try {
+            File sshKeyFile = File.createTempFile("gocd-ssh-key", "pem");
+            sshKeyFile.deleteOnExit();
+
+            boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+            File sshExecutable = File.createTempFile("git-ssh", isWindows ? ".bat" : ".sh");
+            sshExecutable.deleteOnExit();
+
+            Set<PosixFilePermission> perms = new HashSet<>();
+            perms.add(PosixFilePermission.OWNER_READ);
+            perms.add(PosixFilePermission.OWNER_WRITE);
+
+            Files.setPosixFilePermissions(sshKeyFile.toPath(), perms);
+            FileUtils.write(sshKeyFile, sshKey);
+
+            if (isWindows) {
+                FileUtils.write(sshExecutable, "@echo off" + System.lineSeparator() +
+                        "ssh -i " + sshKeyFile.getAbsolutePath() + " -p " + System.getProperty("SSH_PORT") + " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no %*");
+            } else {
+                perms = new HashSet<>();
+                perms.add(PosixFilePermission.OWNER_READ);
+                perms.add(PosixFilePermission.OWNER_WRITE);
+                perms.add(PosixFilePermission.OWNER_EXECUTE);
+
+                Files.setPosixFilePermissions(sshExecutable.toPath(), perms);
+                FileUtils.write(sshExecutable, "#!/bin/bash" + System.lineSeparator() +
+                        "ssh -i " + sshKeyFile.getAbsolutePath() + " -p " + System.getProperty("SSH_PORT") + " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \"$@\"");
+            }
+
+            cmd.withEnv("GIT_SSH", sshExecutable.getAbsolutePath());
+
+        } catch (IOException e) {
+            bomb(e);
+        }
+
+        return cmd;
     }
 
     // http://www.kernel.org/pub/software/scm/git/docs/git-log.html
@@ -237,8 +287,9 @@ public class GitCommand extends SCMCommand {
 
     public static void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
         CommandLine commandLine = git(environment).withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
+
         ConsoleResult result = commandLine.runOrBomb(repoUrl.forDisplay());
-        if(!hasOnlyOneMatchingBranch(result)){
+        if (!hasOnlyOneMatchingBranch(result)) {
             throw new CommandLineException(String.format("The branch %s could not be found.", branch));
         }
     }
@@ -272,12 +323,14 @@ public class GitCommand extends SCMCommand {
     public void push() {
         String[] args = new String[]{"push"};
         CommandLine gitCommit = git(environment).withArgs(args).withWorkingDir(workingDir);
+        configureSshKey(gitCommit);
         runOrBomb(gitCommit);
     }
 
     public void pull() {
         String[] args = new String[]{"pull"};
         CommandLine gitCommit = git(environment).withArgs(args).withWorkingDir(workingDir);
+        configureSshKey(gitCommit);
         runOrBomb(gitCommit);
     }
 
@@ -301,6 +354,8 @@ public class GitCommand extends SCMCommand {
         outputStreamConsumer.stdOutput("[GIT] Fetching changes");
         CommandLine gitFetch = git(environment).withArgs("fetch", "origin", "--prune").withWorkingDir(workingDir);
 
+        configureSshKey(gitFetch);
+
         int result = run(gitFetch, outputStreamConsumer);
         if (result != 0) {
             throw new RuntimeException(String.format("git fetch failed for [%s]", this.workingRepositoryUrl()));
@@ -317,6 +372,8 @@ public class GitCommand extends SCMCommand {
                 .withArgs("fetch", "origin")
                 .withArg(String.format("--depth=%d", depth))
                 .withWorkingDir(workingDir);
+
+        configureSshKey(gitFetch);
 
         int result = run(gitFetch, outputStreamConsumer);
         if (result != 0) {

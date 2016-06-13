@@ -1,18 +1,19 @@
-/*************************GO-LICENSE-START*********************************
+package com.thoughtworks.go.util.command;
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 /*
  * The Apache Software License, Version 1.1
@@ -67,7 +68,6 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
-package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
@@ -348,7 +348,7 @@ public class CommandLine {
 
     /**
      * @deprecated this should not be used outside of this CommandLine(in production code), as using it directly can bypass smudging of sensitive data
-     *             this is used only in tests
+     * this is used only in tests
      */
     public ProcessWrapper execute(ConsoleOutputStreamConsumer outputStreamConsumer, EnvironmentVariableContext environmentVariableContext, String processTag) {
         ProcessWrapper process = createProcess(environmentVariableContext, outputStreamConsumer, processTag, ERROR_STREAM_PREFIX_FOR_CMDS);
@@ -414,6 +414,11 @@ public class CommandLine {
         return this;
     }
 
+    public CommandLine withEnv(String key, String value) {
+        this.env.put(key, value);
+        return this;
+    }
+
     public CommandLine withArg(CommandArgument argument) {
         arguments.add(argument);
         return this;
@@ -438,7 +443,7 @@ public class CommandLine {
     }
 
     public void runScript(Script script, StreamConsumer buildOutputConsumer,
-                             EnvironmentVariableContext environmentVariableContext, String processTag) throws CheckedCommandLineException {
+                          EnvironmentVariableContext environmentVariableContext, String processTag) throws CheckedCommandLineException {
         LOG.info("Running command: " + toStringForDisplay());
 
         CompositeConsumer errorStreamConsumer = new CompositeConsumer(StreamLogger.getWarnLogger(LOG), buildOutputConsumer);

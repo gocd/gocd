@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryUsage;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

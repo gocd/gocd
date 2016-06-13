@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
@@ -81,7 +81,7 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
             if(message instanceof MaterialUpdateFailedMessage)
             {
                 MaterialUpdateFailedMessage failure = (MaterialUpdateFailedMessage)message;
-                LOGGER.warn(String.format("[Config Material Update] Cannot update configuration part because material update has failed. Reason: ",
+                LOGGER.warn(String.format("[Config Material Update] Cannot update configuration part because material update has failed. Reason: %s",
                         failure.getReason()));
             }
             else {
@@ -123,10 +123,8 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
                 return null;
             lastParseRevision = materialChecker.findSpecificRevision(message.getMaterial(),
                     materialRevisionAtLastAttempt);
-        }
-        catch (Exception ex)
-        {
-            LOGGER.error(String.format("[Config Material Update] failed to get last parsed material revision. Reason: ",
+        } catch (Exception ex) {
+            LOGGER.error(String.format("[Config Material Update] failed to get last parsed material revision. Reason: %s",
                     ex.getMessage()));
             lastParseRevision = null;
         }

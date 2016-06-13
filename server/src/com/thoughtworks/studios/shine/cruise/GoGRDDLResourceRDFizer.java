@@ -59,9 +59,7 @@ public class GoGRDDLResourceRDFizer implements XMLRDFizer {
         try {
             Document doc = xmlApiService.write(xmlRepresentable, baseUri);
             return importDocumentUsingGRDDL(doc);
-        } catch (DocumentException e) {
-            throw new GoIntegrationException(e);
-        } catch (IOException e) {
+        } catch (DocumentException | IOException e) {
             throw new GoIntegrationException(e);
         }
     }

@@ -255,7 +255,7 @@ public class GoCache {
         return ehCache.getCacheConfiguration();
     }
 
-    private static interface Predicate {
+    private interface Predicate {
         boolean isTrue();
     }
 

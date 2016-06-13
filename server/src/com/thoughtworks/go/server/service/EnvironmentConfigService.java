@@ -32,7 +32,6 @@ import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -196,7 +195,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return getAllPipelinesForUser(user, pipelineConfigs);
     }
     public List<EnvironmentPipelineModel> getAllRemotePipelinesForUserInEnvironment(Username user,EnvironmentConfig environment) {
-        List<EnvironmentPipelineModel> pipelines = new ArrayList<EnvironmentPipelineModel>();
+        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
         for (EnvironmentPipelineConfig pipelineConfig : environment.getRemotePipelines()) {
             String pipelineName = CaseInsensitiveString.str(pipelineConfig.getName());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
@@ -208,7 +207,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     private List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user, List<PipelineConfig> pipelineConfigs) {
-        List<EnvironmentPipelineModel> pipelines = new ArrayList<EnvironmentPipelineModel>();
+        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
         for (PipelineConfig pipelineConfig : pipelineConfigs) {
             String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
@@ -241,7 +240,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return result;
     }
 
-    public static interface EditEnvironments {
+    public interface EditEnvironments {
         void performEdit();
     }
 }

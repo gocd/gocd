@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.PipelineViewModel;
 import com.thoughtworks.go.server.service.PipelineConfigService;
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.ui.controller.Redirection;
 import com.thoughtworks.go.server.util.UserHelper;

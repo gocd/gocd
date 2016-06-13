@@ -223,7 +223,7 @@ public class GoFileConfigDataSource {
 
         if (updatingCommand.isValid(preprocessedConfig)) {
             try {
-                LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
+                LOGGER.info("[Configuration Changed] Saving updated configuration.");
                 String configAsXml = configAsXml(modifiedConfig, true);
                 String md5 = CachedDigestUtils.md5Hex(configAsXml);
                 MagicalGoConfigXmlLoader.setMd5(modifiedConfig, md5);
@@ -248,7 +248,7 @@ public class GoFileConfigDataSource {
             // If our cruiseConfig fails XSD validation, we don't want to write it incorrectly.
             String configAsXml = getModifiedConfig(updatingCommand, configHolder);
 
-            LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
+            LOGGER.info("[Configuration Changed] Saving updated configuration.");
             writeToConfigXmlFile(configAsXml);
             ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
             return new GoConfigSaveResult(internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand)), configSaveState);
@@ -382,8 +382,8 @@ public class GoFileConfigDataSource {
         }
     }
 
-    private static interface ReloadStrategy {
-        static class ReloadTestResult {
+    private interface ReloadStrategy {
+        class ReloadTestResult {
             final boolean requiresReload;
             final long fileSize;
             final long modifiedTime;
@@ -454,20 +454,10 @@ public class GoFileConfigDataSource {
 
         private String getConfigFileMd5(File configFile) {
             String newMd5;
-            FileInputStream inputStream = null;
-            try {
-                inputStream = new FileInputStream(configFile);
+            try (FileInputStream inputStream = new FileInputStream(configFile)) {
                 newMd5 = CachedDigestUtils.md5Hex(inputStream);
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
             }
             return newMd5;
         }

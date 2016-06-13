@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,14 +61,14 @@ public class ConsoleService {
     ConsoleOut getConsoleOut(int startingLine, InputStream inputStream) throws IOException {
         int lineNumber = 0;
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String consoleLine;
             while (null != (consoleLine = reader.readLine())) {
                 if (lineNumber >= startingLine) {
-                    buffer.append(consoleLine);
-                    buffer.append(FileUtil.lineSeparator());
+                    builder.append(consoleLine);
+                    builder.append(FileUtil.lineSeparator());
                 }
                 lineNumber++;
             }
@@ -79,7 +79,7 @@ public class ConsoleService {
         } finally {
             inputStream.close();
         }
-        return new ConsoleOut(buffer.toString(), startingLine, lineNumber);
+        return new ConsoleOut(builder.toString(), startingLine, lineNumber);
     }
 
     public ConsoleOut getConsoleOut(JobIdentifier identifier, int startingLine) throws IOException, IllegalArtifactLocationException {
@@ -115,17 +115,11 @@ public class ConsoleService {
         parentFile.mkdirs();
 
         LOGGER.trace("Updating console log [" + dest.getAbsolutePath() + "]");
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(dest, dest.exists()));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(dest, dest.exists()))) {
             IOUtils.copy(in, writer);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [" + dest.getAbsolutePath() + "]", e);
             return false;
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
         }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Console log [" + dest.getAbsolutePath() + "] saved.");
@@ -142,9 +136,7 @@ public class ConsoleService {
 
             File to = chooser.findArtifact(locatableEntity, getConsoleOutputFolderAndFileName());
             FileUtils.moveFile(from, to);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArtifactLocationException e) {
+        } catch (IOException | IllegalArtifactLocationException e) {
             throw new RuntimeException(e);
         }
     }

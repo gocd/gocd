@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.ApproveAgentCommand;
-import com.thoughtworks.go.config.update.ErrorCollector;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
 import com.thoughtworks.go.domain.AllConfigErrors;
@@ -38,9 +37,6 @@ import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -266,7 +262,7 @@ public class AgentRegistrationController {
         return !StringUtil.isBlank(agentAutoRegisterHostname) ? agentAutoRegisterHostname : hostname;
     }
 
-    public static interface InputStreamSrc {
+    public interface InputStreamSrc {
         InputStream invoke() throws FileNotFoundException;
     }
 

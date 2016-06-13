@@ -191,7 +191,7 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
                 " os= " + getOperatingSystem() +
                 " status = " + getStatus() +
                 " ip = " + getIpAddress() +
-                " boostrapperVersion = " + getBootstrapperVersion();
+                " bootstrapperVersion = " + getBootstrapperVersion();
     }
 
     public String getOperatingSystem() {

@@ -217,7 +217,6 @@ public class MaterialRepository extends HibernateDaoSupport {
 
         final int batchSize = 500;
         loadPMRsIntoCache(ids, batchSize);
-        return;
     }
 
     private void loadPMRsIntoCache(List<Long> ids, int batchSize) {
@@ -274,7 +273,6 @@ public class MaterialRepository extends HibernateDaoSupport {
             uniquePmrs.add(pmr);
         }
         loadModificationsIntoCache(uniquePmrs);
-        return;
     }
 
     private void sortPersistentObjectsById(List<? extends PersistentObject> persistentObjects, boolean asc) {
@@ -433,7 +431,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public MaterialInstance find(long id) {
-        return (MaterialInstance) getHibernateTemplate().load(MaterialInstance.class, id);
+        return getHibernateTemplate().load(MaterialInstance.class, id);
     }
 
     public MaterialInstance saveMaterialRevision(MaterialRevision materialRevision) {
@@ -1065,7 +1063,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                         }
                     });
                     if (modificationId == null) {
-                        modificationId = -1l;
+                        modificationId = -1L;
                     }
                     goCache.put(key, modificationId);
                 }

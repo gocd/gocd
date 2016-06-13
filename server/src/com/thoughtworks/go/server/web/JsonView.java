@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,7 @@ public class JsonView extends AbstractView {
                                            HttpServletResponse httpServletResponse) throws Exception {
         if (requestContext == null) {
             //TODO requestContext may already exist in request; need to check it
-            try {
-                requestContext = new GoRequestContext(httpServletRequest);
-            } catch (Exception e) {
-                //ignore
-                throw e;
-            }
+            requestContext = new GoRequestContext(httpServletRequest);
         }
         Object json = map.get("json");
 

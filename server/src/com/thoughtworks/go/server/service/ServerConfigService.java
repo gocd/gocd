@@ -64,7 +64,7 @@ public class ServerConfigService implements BaseUrlProvider {
             validate(mailHost, result);
         }
 
-        if (shouldAllowAutoLogin == false && !userService.canUserTurnOffAutoLogin()) {
+        if (!shouldAllowAutoLogin && !userService.canUserTurnOffAutoLogin()) {
             result.notAcceptable(LocalizedMessage.string("CANNOT_TURN_OFF_AUTO_LOGIN"));
             return;
         }

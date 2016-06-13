@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -141,9 +136,7 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
                 result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class), CaseInsensitiveString.str(pipelineConfig.name())));
-            } else if (e instanceof ConfigUpdateCheckFailedException) {
-                return;
-            } else {
+            } else if (!(e instanceof ConfigUpdateCheckFailedException)) {
                 LOGGER.error(e.getMessage(), e);
                 result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
             }
@@ -156,7 +149,7 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     }
 
     public List<PipelineConfigs> viewableGroupsFor(Username username) {
-        ArrayList<PipelineConfigs> list = new ArrayList<PipelineConfigs>();
+        ArrayList<PipelineConfigs> list = new ArrayList<>();
         for (PipelineConfigs pipelineConfigs : goConfigService.cruiseConfig().getGroups()) {
             if (securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineConfigs.getGroup())) {
                 list.add(pipelineConfigs);
@@ -166,7 +159,7 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     }
 
     public List<PipelineConfigs> viewableOrOperatableGroupsFor(Username username) {
-        ArrayList<PipelineConfigs> list = new ArrayList<PipelineConfigs>();
+        ArrayList<PipelineConfigs> list = new ArrayList<>();
         for (PipelineConfigs pipelineConfigs : goConfigService.cruiseConfig().getGroups()) {
             if(hasViewOrOperatePermissionForGroup(username, pipelineConfigs.getGroup())) {
                 list.add(pipelineConfigs);

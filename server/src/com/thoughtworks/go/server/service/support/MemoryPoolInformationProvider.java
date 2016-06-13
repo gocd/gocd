@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryUsage;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,7 @@ public class MemoryPoolInformationProvider extends AbstractMemoryInformationProv
 
     @Override
     public Map<String, Object> asJson() {
-        LinkedHashMap<String, Object> json = new LinkedHashMap<String, Object>();
+        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
         for (MemoryPoolMXBean memoryPoolMXBean : memoryPoolMXBeans) {
             Map<String, Object> params = formatInJson(memoryPoolMXBean.getUsage());

@@ -331,9 +331,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private void setMD5(String md5, CruiseConfig badConfig) {
         try {
             MagicalGoConfigXmlLoader.setMd5(badConfig, md5);
-        } catch (NoSuchFieldException e) {
-            // Ignore
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             // Ignore
         }
     }

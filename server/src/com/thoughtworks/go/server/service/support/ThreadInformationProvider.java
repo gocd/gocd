@@ -126,8 +126,33 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("Id", threadInfo.getThreadId());
             threadStackTrace.put("Name", threadInfo.getThreadName());
             threadStackTrace.put("State", threadInfo.getThreadState());
-            threadStackTrace.put("Locked Monitors", mapToString(threadInfo.getLockedMonitors()));
-            threadStackTrace.put("Locked Synchronizers", mapToString(threadInfo.getLockedSynchronizers()));
+
+            LinkedHashMap<String, Object> lockMonitorInfo = new LinkedHashMap<>();
+            lockMonitorInfo.put("Locked Monitors", mapToString(threadInfo.getLockedMonitors()));
+            lockMonitorInfo.put("Locked Synchronizers", mapToString(threadInfo.getLockedSynchronizers()));
+            threadStackTrace.put("Lock Monitor Info", lockMonitorInfo);
+
+            LinkedHashMap<String, Object> blockedInfo = new LinkedHashMap<>();
+            blockedInfo.put("Blocked Time", threadInfo.getBlockedTime());
+            blockedInfo.put("Blocked Count", threadInfo.getBlockedCount());
+            threadStackTrace.put("Blocked Info", blockedInfo);
+
+            LinkedHashMap<String, Object> timeInfo = new LinkedHashMap<>();
+            timeInfo.put("Waited Time", threadInfo.getWaitedTime());
+            timeInfo.put("Waited Count", threadInfo.getWaitedCount());
+            threadStackTrace.put("Time Info", timeInfo);
+
+            LinkedHashMap<String, Object> lockInfo = new LinkedHashMap<>();
+            lockInfo.put("Lock Name", threadInfo.getLockName());
+            lockInfo.put("Lock Owner Thread Id", threadInfo.getLockOwnerId());
+            lockInfo.put("Lock Owner Thread Name", threadInfo.getLockOwnerName());
+            threadStackTrace.put("Lock Info", lockInfo);
+
+            LinkedHashMap<String, Object> stateInfo = new LinkedHashMap<>();
+            stateInfo.put("Suspended", threadInfo.isSuspended());
+            stateInfo.put("InNative", threadInfo.isInNative());
+            threadStackTrace.put("State Info", stateInfo);
+
             StackTraceElement[] stackTrace = threadInfo.getStackTrace();
             ArrayList<String> strings = mapToString(stackTrace);
             threadStackTrace.put("Stack Trace", strings);

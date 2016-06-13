@@ -227,22 +227,24 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.FetchArtifact = function (data) {
-    Tasks.Task.call(this, "fetchartifact");
-    this.pipeline     = m.prop(s.defaultToIfBlank(data.pipeline, ''));
-    this.stage        = m.prop(s.defaultToIfBlank(data.stage, ''));
-    this.job          = m.prop(s.defaultToIfBlank(data.job, ''));
-    this.source       = m.prop(s.defaultToIfBlank(data.source, new Tasks.Task.FetchArtifact.Source({})));
-    this.runIf        = m.prop(RunIfConditions.create(data.runIf));
-    this.onCancelTask = Tasks.Task.onCancelTask(data.onCancelTask);
+    Tasks.Task.call(this, "fetch");
+    this.pipeline      = m.prop(s.defaultToIfBlank(data.pipeline, ''));
+    this.stage         = m.prop(s.defaultToIfBlank(data.stage, ''));
+    this.job           = m.prop(s.defaultToIfBlank(data.job, ''));
+    this.source        = m.prop(s.defaultToIfBlank(data.source, ''));
+    this.isSourceAFile = m.prop(s.defaultToIfBlank(data.isSourceAFile, false));
+    this.runIf         = m.prop(RunIfConditions.create(data.runIf));
+    this.onCancelTask  = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
       return {
-        pipeline:  this.pipeline,
-        stage:     this.stage,
-        job:       this.job,
-        source:    this.source,
-        run_if:    this.runIf().data(),
-        on_cancel: this.onCancelTaskToJSON()
+        pipeline:          this.pipeline,
+        stage:             this.stage,
+        job:               this.job,
+        source:            this.source,
+        is_source_a_file:  this.isSourceAFile,
+        run_if:            this.runIf().data(),
+        on_cancel:         this.onCancelTaskToJSON()
       }
     };
 
@@ -255,21 +257,16 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
   };
 
-  Tasks.Task.FetchArtifact.Source = function (data) {
-    this.type     = m.prop(data.type);
-    this.location = m.prop(data.location);
-  };
 
   Tasks.Task.FetchArtifact.fromJSON = function (data) {
-    var source = new Tasks.Task.FetchArtifact.Source(_.pick(data.source, ['type', 'location']));
-
     return new Tasks.Task.FetchArtifact({
-      pipeline:     data.pipeline,
-      stage:        data.stage,
-      job:          data.job,
-      source:       source,
-      runIf:        data.run_if,
-      onCancelTask: data.on_cancel
+      pipeline:      data.pipeline,
+      stage:         data.stage,
+      job:           data.job,
+      source:        data.source,
+      isSourceAFile: data.is_source_a_file,
+      runIf:         data.run_if,
+      onCancelTask:  data.on_cancel
     });
   };
 
@@ -380,7 +377,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     ant:           {type: Tasks.Task.Ant, description: "Ant"},
     nant:          {type: Tasks.Task.NAnt, description: "NAnt"},
     rake:          {type: Tasks.Task.Rake, description: "Rake"},
-    fetchartifact: {type: Tasks.Task.FetchArtifact, description: "Fetch Artifact"}
+    fetch:         {type: Tasks.Task.FetchArtifact, description: "Fetch Artifact"}
   };
 
   Tasks.Types = _.assign({}, Tasks.BuiltInTypes);

@@ -114,7 +114,7 @@ define([
       }
     },
 
-    fetchartifact: {
+    fetch: {
       view: function (ctrl, args) {
         return (
           <TaskViews.base {...args}>

@@ -54,7 +54,7 @@ module ApiV1
         end
       end
 
-      def handle_config_save_or_update_result(result, pipeline_name = params[:name])
+      def handle_config_save_or_update_result(result, pipeline_name = params[:pipeline_name])
         if result.isSuccessful
           load_pipeline(pipeline_name)
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
@@ -68,7 +68,7 @@ module ApiV1
 
 
       def check_for_attempted_pipeline_rename
-        unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:name])
+        unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:pipeline_name])
           result = HttpLocalizedOperationResult.new
           result.notAcceptable(LocalizedMessage::string("PIPELINE_RENAMING_NOT_ALLOWED"))
           render_http_operation_result(result)
@@ -76,14 +76,14 @@ module ApiV1
       end
 
       def check_for_stale_request
-        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_pipeline_from_cache(params[:name]))}\"")
+        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_pipeline_from_cache(params[:pipeline_name]))}\"")
           result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string("STALE_PIPELINE_CONFIG", params[:name]))
+          result.stale(LocalizedMessage::string("STALE_PIPELINE_CONFIG", params[:pipeline_name]))
           render_http_operation_result(result)
         end
       end
 
-      def load_pipeline(pipeline_name = params[:name])
+      def load_pipeline(pipeline_name = params[:pipeline_name])
         @pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
         raise RecordNotFound if @pipeline_config.nil?
       end
@@ -112,9 +112,9 @@ module ApiV1
       end
 
       def check_if_pipeline_by_same_name_already_exists
-        if (!pipeline_config_service.getPipelineConfig(params[:name]).nil?)
+        if (!pipeline_config_service.getPipelineConfig(params[:pipeline_name]).nil?)
           result = HttpLocalizedOperationResult.new
-          result.unprocessableEntity(LocalizedMessage::string("CANNOT_CREATE_PIPELINE_ALREADY_EXISTS", params[:name]))
+          result.unprocessableEntity(LocalizedMessage::string("CANNOT_CREATE_PIPELINE_ALREADY_EXISTS", params[:pipeline_name]))
           render_http_operation_result(result)
         end
       end

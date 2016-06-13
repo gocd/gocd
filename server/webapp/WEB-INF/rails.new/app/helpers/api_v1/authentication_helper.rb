@@ -57,36 +57,35 @@ module ApiV1
     end
 
     def check_pipeline_group_admin_user_and_401
-      groupName = params[:group] || go_config_service.findGroupNameByPipeline(com.thoughtworks.go.config.CaseInsensitiveString.new(params[:name]))
+      groupName = params[:group] || go_config_service.findGroupNameByPipeline(com.thoughtworks.go.config.CaseInsensitiveString.new(params[:pipeline_name]))
       return unless security_service.isSecurityEnabled()
-        unless is_user_a_group_admin?(current_user, groupName)
-            Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-            render_unauthorized_error
-        end
+      unless is_user_a_group_admin?(current_user, groupName)
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
     end
 
     def verify_content_type_on_post
       if [:put, :post, :patch].include?(request.request_method_symbol) && !request.raw_post.blank? && request.content_mime_type != :json
-        render ApiV1::BaseController::DEFAULT_FORMAT => { message: "You must specify a 'Content-Type' of 'application/json'" }, status: :unsupported_media_type
+        render json_hal_v1: {message: "You must specify a 'Content-Type' of 'application/json'"}, status: :unsupported_media_type
       end
     end
 
     def render_not_found_error
-      render ApiV1::BaseController::DEFAULT_FORMAT => { :message => 'Either the resource you requested was not found, or you are not authorized to perform this action.' }, :status => 404
+      render :json_hal_v1 => {:message => 'Either the resource you requested was not found, or you are not authorized to perform this action.'}, :status => 404
     end
 
     def render_bad_request(exception)
-      render ApiV1::BaseController::DEFAULT_FORMAT => { :message => "Your request could not be processed. #{exception.message}" }, :status => 400
+      render :json_hal_v1 => {:message => "Your request could not be processed. #{exception.message}"}, :status => 400
     end
 
     def render_unauthorized_error
-      render ApiV1::BaseController::DEFAULT_FORMAT => { :message => 'You are not authorized to perform this action.' }, :status => 401
+      render :json_hal_v1 => {:message => 'You are not authorized to perform this action.'}, :status => 401
     end
 
     private
     def is_user_a_group_admin?(current_user, group_name)
-      is_group_present = !group_name.blank? && go_config_service.getCurrentConfig().getGroups().hasGroup(group_name)
-      if is_group_present
+      if go_config_service.groups().hasGroup(group_name)
         return security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
       else
         return security_service.isUserAdmin(current_user)

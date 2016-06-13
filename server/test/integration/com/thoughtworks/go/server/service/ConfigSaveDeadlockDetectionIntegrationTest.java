@@ -79,7 +79,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Autowired
     private Localizer localizer;
     private GoConfigFileHelper configHelper;
-    private final int TWO_MINUTES = 2 * 60 * 1000;
+    private final int THREE_MINUTES = 3 * 60 * 1000;
 
     @Before
     public void setup() throws Exception {
@@ -109,7 +109,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
                 }
             })
-            .around(new Timeout(TWO_MINUTES));
+            .around(new Timeout(THREE_MINUTES));
 
     @Test
     public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() throws Exception {

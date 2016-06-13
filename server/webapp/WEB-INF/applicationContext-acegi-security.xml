@@ -37,6 +37,9 @@
             <value>
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
+                /api/config-repository/**=performanceLoggingFilter,modeAwareFilter,removeAdminPermissionFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor
+                /api/config-repository.git/**=performanceLoggingFilter,modeAwareFilter,removeAdminPermissionFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor
+
                 /rails/cas_errors/**=performanceLoggingFilter,modeAwareFilter,i18nlocaleResolver,anonymousProcessingFilter,flashLoader,urlRewriter
                 /remoting/**=performanceLoggingFilter,modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor,flashLoader,urlRewriter
                 /agent-websocket/**=performanceLoggingFilter,modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor
@@ -263,6 +266,8 @@
                 /api/admin/material_test=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/internal/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/**=ROLE_SUPERVISOR
+                /api/config-repository/**=ROLE_SUPERVISOR
+                /api/config-repository.git/**=ROLE_SUPERVISOR
                 /api/jobs/scheduled.xml=ROLE_SUPERVISOR
                 /admin/**=ROLE_SUPERVISOR
                 /**/addresources.json=ROLE_SUPERVISOR

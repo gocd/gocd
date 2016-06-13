@@ -102,7 +102,6 @@
         <set name="rails_bound">true</set>
     </rule>
 
-
     <rule>
         <name>Update Check URLs</name>
         <from>^/(api/version_infos/.*)$</from>

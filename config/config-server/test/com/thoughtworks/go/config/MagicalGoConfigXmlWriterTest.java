@@ -167,7 +167,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(merged, output, false);
             fail("Should not be able to save config when there are errors in merged config");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
         }
     }
 
@@ -189,7 +189,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("Should not be able to save config when there are 2 pipelines with same name");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
         }
     }
 

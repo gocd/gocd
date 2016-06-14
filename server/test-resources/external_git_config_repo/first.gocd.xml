@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pipelines group="first">
+    <!-- authorization part is forbidden here  -->
+    <pipeline name="pipe1" isLocked="false">
+      <materials>
+	<!-- material repo is the same as partial config repo  -->
+        <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+      </materials>
+      <stage name="test">
+        <jobs>
+          <job name="test">
+            <tasks>
+              <rake />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="pipe2" isLocked="false">
+      <materials>
+	<!-- material repo is the same as partial config repo  -->
+        <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+	<!-- dependency on another pipeline in this -->
+	<pipeline pipelineName="pipe1" stageName="test" materialName="pipe1" />
+      </materials>
+      <stage name="test">
+        <jobs>
+          <job name="test">
+            <tasks>
+              <rake />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+</cruise>

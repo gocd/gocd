@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
@@ -215,17 +214,13 @@ public final class LogFileHelper {
         private File artifactsDir;
 
         public FakeGoConfigService(File artifactsDir) throws IOException {
-            super(new GoConfigDao(new MergedGoConfig(new ServerHealthService(),
-                          new CachedFileGoConfig(new GoFileConfigDataSource(new DoNotUpgrade(), mock(ConfigRepository.class), new SystemEnvironment(), new TimeProvider(),
-                                  new ConfigCache(), new ServerVersion(), ConfigElementImplementationRegistryMother.withNoPlugins(), new ServerHealthService()),
-                                  new ServerHealthService()),mock(GoPartialConfig.class))
-                  ) {
+            super(new GoConfigDao(new CachedGoConfig(new ServerHealthService(), mock(GoFileConfigDataSource.class))) {
                 public CruiseConfig load() {
                     return null;
                 }
             }, null, new SystemTimeClock(), new GoConfigMigration(mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
                     ), null, null, ConfigElementImplementationRegistryMother.withNoPlugins(),
-                    new InstanceFactory());
+                    new InstanceFactory(), mock(CachedGoPartials.class));
             this.artifactsDir = artifactsDir;
         }
 

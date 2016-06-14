@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.preprocessor.ParamScope;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
@@ -949,5 +950,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             this.lockExplicitly();
         else
             this.unlockExplicitly();
+    }
+
+    public String getOriginDisplayName() {
+        return getOrigin() != null ? getOrigin().displayName() : new FileConfigOrigin().displayName();
     }
 }

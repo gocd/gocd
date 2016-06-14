@@ -51,7 +51,7 @@ public class PipelinePauseServiceTest {
     public void setUp() throws Exception {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigDao = mock(GoConfigDao.class);
-        goConfigService = new GoConfigService(goConfigDao, null, (GoConfigMigration) null, null, null, null, null, null);
+        goConfigService = new GoConfigService(goConfigDao, null, (GoConfigMigration) null, null, null, null, null, null, null);
         securityService = mock(SecurityService.class);
         pipelinePauseService = new PipelinePauseService(pipelineDao, goConfigService, securityService);
     }

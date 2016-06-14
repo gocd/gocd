@@ -168,14 +168,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     private void notifyFailureListeners(ConfigRepoConfig repoConfig, Exception ex) {
-        for(PartialConfigUpdateCompletedListener listener : this.listeners)
-        {
-            try
-            {
-                listener.onFailedPartialConfig(repoConfig,ex);
-            }
-            catch (Exception e)
-            {
+        for (PartialConfigUpdateCompletedListener listener : this.listeners) {
+            try {
+                listener.onFailedPartialConfig(repoConfig, ex);
+            } catch (Exception e) {
                 LOGGER.error(String.format("Failed to fire event 'exception while parsing partial configuration' for listener %s",
                         listener));
             }
@@ -183,14 +179,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     private void notifySuccessListeners(ConfigRepoConfig repoConfig, PartialConfig newPart) {
-        for(PartialConfigUpdateCompletedListener listener : this.listeners)
-        {
-            try
-            {
-                listener.onSuccessPartialConfig(repoConfig,newPart);
-            }
-            catch (Exception e)
-            {
+        for (PartialConfigUpdateCompletedListener listener : this.listeners) {
+            try {
+                listener.onSuccessPartialConfig(repoConfig, newPart);
+            } catch (Exception e) {
                 LOGGER.error(String.format("Failed to fire parsed partial configuration for listener %s",
                         listener));
             }

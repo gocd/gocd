@@ -92,6 +92,7 @@ public class GoConfigMigrationIntegrationTest {
     @Autowired private ConfigElementImplementationRegistry registry;
     @Autowired private GoConfigService goConfigService;
     @Autowired private ServerHealthService serverHealthService;
+    @Autowired private CachedGoPartials cachedGoPartials;
 
     private String currentGoServerVersion;
     private MagicalGoConfigXmlLoader loader;
@@ -1260,7 +1261,7 @@ public class GoConfigMigrationIntegrationTest {
         );
         SystemEnvironment sysEnv = new SystemEnvironment();
         GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
-                registry, serverHealthService);
+                registry, serverHealthService, cachedGoPartials);
         configDataSource.upgradeIfNecessary();
         return configDataSource.forceLoad(configFile);
     }

@@ -85,8 +85,7 @@ public class StageNotificationService {
         MaterialRevisions materialRevisions = pipeline.getMaterialRevisions();
         List<TestSuite> failedTestSuites = null;
 
-        String shineEnabled = systemEnvironment.getEnvironmentVariable("SHINE_ENABLED");
-        if (shineEnabled != null && !"false".equalsIgnoreCase(shineEnabled)) {
+        if (systemEnvironment.isShineEnabled()) {
             failedTestSuites = shineDao.failedTestsFor(stageIdentifier);
         }
         String emailBody = new EmailBodyGenerator(materialRevisions, cancelledBy, systemEnvironment, stageIdentifier, failedTestSuites).getContent();

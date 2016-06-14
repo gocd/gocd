@@ -105,7 +105,7 @@ public class PipelineConfigTreeValidator {
                         dependencyMaterialConfig.validate(validationContext.withParent(downstreamPipeline));
                         List<String> allErrors = dependencyMaterialConfig.errors().getAll();
                         for (String error : allErrors) {
-                            pipelineConfig.errors().add("base", String.format("%s, it is being referred to from pipeline '%s'", error, selected));
+                            pipelineConfig.errors().add("base", error);
                         }
                     }
                 }

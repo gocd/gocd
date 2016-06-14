@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pipelines group="invalid">
+    <pipeline name="pipeline_with_no_stage" isLocked="false">
+      <materials>
+        <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+      </materials>
+    </pipeline>
+  </pipelines>
+</cruise>

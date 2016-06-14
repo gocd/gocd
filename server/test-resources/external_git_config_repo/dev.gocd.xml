@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="76">
+  <environments>
+    <environment name="dev">
+      <pipelines>
+        <pipeline name="pipe1" />
+      </pipelines>
+      <environmentvariables>
+        <variable name="remote">
+          <value>variable</value>
+        </variable>
+      </environmentvariables>
+    </environment>
+  </environments>
+</cruise>
+

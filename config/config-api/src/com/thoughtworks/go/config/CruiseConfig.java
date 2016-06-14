@@ -40,6 +40,8 @@ import java.util.Set;
 public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     String WORKING_BASE_DIR = "pipelines/";
 
+    void merge(List<PartialConfig> partList);
+
     @PostConstruct
     void initializeServer();
 
@@ -256,4 +258,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     boolean canDeletePluggableSCMMaterial(SCM scmConfig);
 
     List<PipelineConfig> getAllLocalPipelineConfigs();
+
+    void setPartials(List<PartialConfig> partials);
+
+    List<PartialConfig> getPartials();
 }

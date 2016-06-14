@@ -34,7 +34,7 @@ public class GoConfigPluginServiceTest {
     {
         extension = mock(ConfigRepoExtension.class);
         service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                mock(CachedFileGoConfig.class));
+                mock(CachedGoConfig.class));
         parseResult = new CRParseResult(environments,pipelines,errors);
 
         when(extension.parseDirectory(any(String.class), any(String.class), any(Collection.class)))

@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.security.GoCipher;
@@ -901,6 +902,26 @@ public class PipelineConfigTest {
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("32"),is(false));
+    }
+
+    @Test
+    public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsRemote() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "revision1"));
+        assertThat(pipelineConfig.getOriginDisplayName(), is("AwesomeGitMaterial at revision1"));
+    }
+
+    @Test
+    public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsFile() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setOrigin(new FileConfigOrigin());
+        assertThat(pipelineConfig.getOriginDisplayName(), is("cruise-config.xml"));
+    }
+
+    @Test
+    public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsNotSet() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        assertThat(pipelineConfig.getOriginDisplayName(), is("cruise-config.xml"));
     }
 
     private StageConfig completedStage() {

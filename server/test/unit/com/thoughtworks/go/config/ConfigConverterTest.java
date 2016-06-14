@@ -2,7 +2,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -12,7 +11,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.label.PipelineLabel;
@@ -25,16 +23,11 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.server.presentation.models.StageCctrayPresentationModel;
-import com.thoughtworks.go.server.util.CollectionUtil;
 import org.apache.commons.collections.map.HashedMap;
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.hamcrest.core.Is;
-import org.jruby.ant.Rake;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static org.hamcrest.core.Is.is;
@@ -50,7 +43,7 @@ public class ConfigConverterTest {
     private ConfigConverter configConverter;
     private GoCipher goCipher;
     private List<String> filter = new ArrayList<>();
-    private CachedFileGoConfig cachedFileGoConfig;
+    private CachedGoConfig cachedGoConfig;
 
     Collection<CREnvironmentVariable> environmentVariables = new ArrayList<>();
     Collection<CRTab> tabs = new ArrayList<>();
@@ -83,9 +76,9 @@ public class ConfigConverterTest {
         stages = new ArrayList<>();
         materials = new ArrayList<>();
 
-        cachedFileGoConfig = mock(CachedFileGoConfig.class);
+        cachedGoConfig = mock(CachedGoConfig.class);
         goCipher = mock(GoCipher.class);
-        configConverter = new ConfigConverter(goCipher,cachedFileGoConfig);
+        configConverter = new ConfigConverter(goCipher, cachedGoConfig);
         String encryptedText = "secret";
         when(goCipher.decrypt("encryptedvalue")).thenReturn(encryptedText);
         when(goCipher.encrypt("secret")).thenReturn("encryptedvalue");
@@ -497,7 +490,7 @@ public class ConfigConverterTest {
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(scms);
-        when(cachedFileGoConfig.currentConfig()).thenReturn(cruiseConfig);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name","scmid","directory",filter);
 
@@ -523,7 +516,7 @@ public class ConfigConverterTest {
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setPackageRepositories(repositories);
-        when(cachedFileGoConfig.currentConfig()).thenReturn(cruiseConfig);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         CRPackageMaterial crPackageMaterial = new CRPackageMaterial("name","package-id");
 

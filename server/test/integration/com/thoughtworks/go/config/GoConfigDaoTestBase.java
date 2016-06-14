@@ -477,14 +477,12 @@ public abstract class GoConfigDaoTestBase {
         EntityConfigUpdateCommand saveCommand = mock(EntityConfigUpdateCommand.class);
         when(saveCommand.isValid(cruiseConfig)).thenReturn(true);
         when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
-
         goConfigDao = new GoConfigDao(cachedConfigService);
         Username currentUser = new Username(new CaseInsensitiveString("user"));
         goConfigDao.updateConfig(saveCommand, currentUser);
 
         verify(cachedConfigService).writeEntityWithLock(saveCommand, currentUser);
     }
-
 
     private void assertCurrentConfigIs(CruiseConfig cruiseConfig) throws Exception {
         CruiseConfig currentConfig = goConfigDao.load();

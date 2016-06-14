@@ -72,7 +72,7 @@ public class AgentServiceIntegrationTest {
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private AgentService agentService;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private MergedGoConfig mergedGoConfig;
+    @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private SecurityService securityService;
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private AgentDao agentDao;
@@ -88,7 +88,7 @@ public class AgentServiceIntegrationTest {
     public void setUp() throws Exception {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
-        mergedGoConfig.clearListeners();
+        cachedGoConfig.clearListeners();
         agentService.clearAll();
         agentService.initialize();
         environmentConfigService.initialize();
@@ -99,7 +99,7 @@ public class AgentServiceIntegrationTest {
         new SystemEnvironment().setProperty("agent.connection.timeout", "300");
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onTearDown();
-        mergedGoConfig.clearListeners();
+        cachedGoConfig.clearListeners();
         agentService.clearAll();
     }
 

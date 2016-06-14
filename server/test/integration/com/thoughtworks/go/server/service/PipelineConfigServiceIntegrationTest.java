@@ -224,7 +224,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
         assertFalse(pipelineBeingCreated.errors().isEmpty());
-        assertThat(pipelineBeingCreated.errors().on(PipelineConfig.NAME), is(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", pipelineConfig.name())));
+        assertThat(pipelineBeingCreated.errors().on(PipelineConfig.NAME), is(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", pipelineConfig.name())));
         assertThat(goConfigDao.loadConfigHolder(), is(goConfigHolderBeforeUpdate));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
     }

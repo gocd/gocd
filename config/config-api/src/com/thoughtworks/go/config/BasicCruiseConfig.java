@@ -367,11 +367,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         @Override
         public ConfigOrigin getOrigin() {
-            MergeConfigOrigin origins = new MergeConfigOrigin(new FileConfigOrigin());
-            for (PartialConfig part : this.parts) {
-                origins.add(part.getOrigin());
-            }
-            return origins;
+            return new MergeConfigOrigin();
         }
 
         @Override
@@ -434,24 +430,6 @@ public class BasicCruiseConfig implements CruiseConfig {
             allPipelineConfigs = null;
             pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
         }
-
-        /*
-        @Override
-        public void addPipeline(String groupName, PipelineConfig pipelineConfig) {
-            // validate at global level
-            this.verifyUniqueNameInParts(pipelineConfig);
-            this.addPipeline(groupName,pipelineConfig);
-            //TODO add rather than reconstruct
-            groups = this.mergePipelineConfigs();
-        }
-
-        @Override
-        public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
-            this.verifyUniqueNameInParts(pipelineConfig);
-            this.addPipelineWithoutValidation(groupName,pipelineConfig);
-            //TODO add rather than reconstruct
-            groups = this.mergePipelineConfigs();
-        }*/
 
         private void verifyUniqueNameInParts(PipelineConfig pipelineConfig) {
             for (PartialConfig part : this.parts) {

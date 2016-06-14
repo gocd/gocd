@@ -94,6 +94,8 @@ public class CachedGoConfigIntegrationTest {
     private CachedGoPartials cachedGoPartials;
     @Autowired
     private GoPartialConfig goPartialConfig;
+    @Autowired
+    private GoFileConfigDataSource goFileConfigDataSource;
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -824,6 +826,21 @@ public class CachedGoConfigIntegrationTest {
         goConfigService.addPipeline(upstreamPipelineConfig, "default");
         PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, upstreamPipelineConfig, new RepoConfigOrigin(configRepo, "r1"));
         goPartialConfig.onSuccessPartialConfig(configRepo, partialConfig);
+    }
+
+    @Test
+    public void shouldSaveConfigChangesWhenFullConfigIsBeingSavedFromConfigXmlTabAndAllKnownConfigRepoPartialsAreInvalid() throws Exception {
+        cachedGoPartials.clear();
+        PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision1"));
+        goPartialConfig.onSuccessPartialConfig(configRepo, invalidPartial);
+        CruiseConfig updatedConfig = new Cloner().deepClone(goConfigService.getConfigForEditing());
+        updatedConfig.server().setCommandRepositoryLocation("foo");
+        String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
+        FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), updatedXml);
+        GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(updatedXml, goConfigDao.md5OfConfigFile());
+        assertThat(validity.isValid(), is(true));
+        assertThat(cachedGoPartials.lastValidPartials().isEmpty(), is(true));
+        assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial), is(true));
     }
 
     private void addPipelineWithParams(CruiseConfig cruiseConfig) {

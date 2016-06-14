@@ -280,7 +280,7 @@ public class GoFileConfigDataSource {
                 List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
                 //TODO if last known partials are all equal to last valid partials, then fallback is just a waste of resources,
                 // It would attempt config update with the same set of partials
-                if (lastValidPartials.isEmpty() && !(updatingCommand instanceof GoPartialConfig.GoPartialUpdateCommand)) {
+                if (cachedGoPartials.lastKnownPartials().isEmpty()) {
                     throw e;
                 } else {
                     LOGGER.warn(String.format(
@@ -381,15 +381,21 @@ public class GoFileConfigDataSource {
                 serverVersion.version(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
-        validateMergedXML(mergedConfigXml, latestMd5);
+        validateMergedXML(mergedConfigXml, latestMd5, partials);
         cachedGoPartials.markAsValid(modifiedConfig.getPartials());
         return mergedConfigXml;
     }
 
-    private CruiseConfig validateMergedXML(String mergedConfigXml, String latestMd5) throws Exception {
+    //TODO: jyoti - write a test for a case with config-repo post-merge validation failing
+    private CruiseConfig validateMergedXML(String mergedConfigXml, String latestMd5, final List<PartialConfig> partials) throws Exception {
         LOGGER.debug("[Config Save] -=- Converting merged config to XML");
         try {
-            return magicalGoConfigXmlLoader.loadConfigHolder(mergedConfigXml).configForEdit;
+            return magicalGoConfigXmlLoader.loadConfigHolder(mergedConfigXml, new MagicalGoConfigXmlLoader.Callback() {
+                @Override
+                public void call(CruiseConfig cruiseConfig) {
+                    cruiseConfig.setPartials(partials);
+                }
+            }).configForEdit;
         } catch (Exception e) {
             LOGGER.info(format("[CONFIG_MERGE] Post merge validation failed, latest-md5: %s", latestMd5));
             throw new ConfigMergePostValidationException(e.getMessage(), e);

@@ -32,10 +32,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.server.service.StubGoCache;
-import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -66,7 +62,6 @@ import java.util.UUID;
 import java.util.Vector;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
-import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.not;
@@ -114,16 +109,9 @@ public class GoFileConfigDataSourceTest {
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();
         configHelper.usingCruiseConfigDao(goConfigDao);
-        ConfigRepoPartialPreprocessor preprocessor = (ConfigRepoPartialPreprocessor) ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
-            @Override
-            public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {
-                return item instanceof ConfigRepoPartialPreprocessor;
-            }
-        });
         GoConfigWatchList configWatchList = new GoConfigWatchList(cachedGoConfig);
         ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
         GoConfigPluginService configPluginService = new GoConfigPluginService(mock(ConfigRepoExtension.class), new ConfigCache(), configElementImplementationRegistry, cachedGoConfig);
-        preprocessor.init(new GoPartialConfig(new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService), configWatchList, new GoConfigService(goConfigDao, null, new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry), new StubGoCache(new TestTransactionSynchronizationManager()), configRepository, configCache, configElementImplementationRegistry, new InstanceFactory(), cachedGoPartials), cachedGoPartials, serverHealthService));
         repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
         configHelper.addConfigRepo(repoConfig);
     }
@@ -561,7 +549,7 @@ public class GoFileConfigDataSourceTest {
         } catch (Exception e) {
             verifyZeroInteractions(configRepository);
             verifyZeroInteractions(serverHealthService);
-            verify(loader, times(1)).loadConfigHolder(Matchers.any(String.class));
+            verify(loader, times(1)).loadConfigHolder(Matchers.any(String.class), Matchers.any(MagicalGoConfigXmlLoader.Callback.class));
         }
     }
 }

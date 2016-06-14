@@ -40,7 +40,7 @@ import java.util.Set;
  * Provides partial configurations.
  */
 @Component
-public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener, PartialsProvider {
+public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener{
 
     private static final Logger LOGGER = Logger.getLogger(GoPartialConfig.class);
     public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";

@@ -30,7 +30,6 @@ import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -107,12 +106,10 @@ public class MagicalGoConfigXmlLoaderTest {
     public void setup() throws Exception {
         RepositoryMetadataStoreHelper.clear();
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        findConfigRepoPartialPreprocessor().init(null);
     }
 
     @After
     public void tearDown() throws Exception {
-        findConfigRepoPartialPreprocessor().init(null);
         RepositoryMetadataStoreHelper.clear();
     }
 
@@ -265,15 +262,12 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldSetConfigOriginInCruiseConfig_AfterLoadingConfigFile() throws Exception {
-        ConfigRepoPartialPreprocessor preprocessor = findConfigRepoPartialPreprocessor();
-        assert preprocessor != null;
-        preprocessor.init(new PartialsProvider() {
+        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG, new MagicalGoConfigXmlLoader.Callback() {
             @Override
-            public List<PartialConfig> lastPartials() {
-                return asList(new PartialConfig());
+            public void call(CruiseConfig cruiseConfig) {
+                cruiseConfig.setPartials(asList(new PartialConfig()));
             }
         });
-        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(ConfigFileFixture.CONFIG);
         assertThat(goConfigHolder.config.getOrigin(), Is.<ConfigOrigin>is(new MergeConfigOrigin()));
         assertThat(goConfigHolder.configForEdit.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }

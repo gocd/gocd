@@ -1011,6 +1011,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             final CruiseConfig deserializedConfig = configXmlLoader.deserializeConfig(xmlString);
             ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                    deserializedConfig.setPartials(cruiseConfig.getPartials());
                     return deserializedConfig;
                 }
 

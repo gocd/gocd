@@ -339,7 +339,7 @@ public class FetchTaskTest {
         FetchTask task = new FetchTask(new CaseInsensitiveString("upstream/uppest_stream"), new CaseInsensitiveString("up-stage1"), new CaseInsensitiveString("up-job1"), "src", "dest");
         StageConfig stage = downstream.getStage(new CaseInsensitiveString("stage"));
 
-        task.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, stage, stage.getJobs().get(0)));
+        task.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, downstream, stage, stage.getJobs().get(0)));
         assertThat(task.errors().isEmpty(), is(false));
         assertThat(task.errors().on(FetchTask.PIPELINE_NAME), is("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'."));
     }
@@ -649,7 +649,7 @@ public class FetchTaskTest {
                 new MaterialConfigs(new DependencyMaterialConfig(upstream.name(), upstream.getFirstStageConfig().name())),
                 new StageConfig(new CaseInsensitiveString("downstream-stage"), new JobConfigs(job)));
 
-        fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
+        fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs(upstream, downstream)), downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
         assertThat(fetchTask.errors().isEmpty(), is(true));
     }
 
@@ -667,7 +667,7 @@ public class FetchTaskTest {
                 new MaterialConfigs(),
                 new StageConfig(new CaseInsensitiveString("downstream-stage"), new JobConfigs(job)));
 
-        fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
+        fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs(upstream, downstream)), downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
         assertThat(fetchTask.errors().isEmpty(), is(false));
         assertThat(fetchTask.errors().on(FetchTask.PIPELINE_NAME), is("Pipeline \"downstream-pipeline\" tries to fetch artifact from pipeline \"upstream-pipeline\" which is not an upstream pipeline"));
     }
@@ -686,7 +686,7 @@ public class FetchTaskTest {
                 new MaterialConfigs(new DependencyMaterialConfig(upstream.name(), upstream.getFirstStageConfig().name())),
                 new StageConfig(new CaseInsensitiveString("downstream-stage"), new JobConfigs(job)));
 
-        fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
+        fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs(upstream, downstream)), downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
         assertThat(fetchTask.errors().isEmpty(), is(false));
         assertThat(fetchTask.errors().on(FetchTask.JOB), is("\"downstream-pipeline :: downstream-stage :: downstream-job\" tries to fetch artifact from job \"upstream-pipeline :: upstream-stage :: some-random-job\" which does not exist."));
     }

@@ -229,10 +229,12 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
                 for (PipelineConfig pipelineConfig : group) {
                     for (MaterialConfig material : pipelineConfig.materialConfigs()) {
                         String fingerprint = material.getFingerprint();
-                        if (!map.containsKey(fingerprint)) {
-                            map.put(fingerprint, new MaterialConfigs());
+                        if (fingerprint != null) {
+                            if (!map.containsKey(fingerprint)) {
+                                map.put(fingerprint, new MaterialConfigs());
+                            }
+                            map.get(fingerprint).add(material);
                         }
-                        map.get(fingerprint).add(material);
 
                         if (!pipelineMaterialMap.containsKey(pipelineConfig.name().toString())) {
                             pipelineMaterialMap.put(pipelineConfig.name().toString(), new MaterialConfigs());

@@ -147,6 +147,9 @@ define([
               model:task}),
             m.component(f.checkBox, {attrName:"isSourceAFile",
               model:task,
+              class:"check",
+              label:"Source is a file",
+              addPadding:true,
               end:true})
           ])
         ]}

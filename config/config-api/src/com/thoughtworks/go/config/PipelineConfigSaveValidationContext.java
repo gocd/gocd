@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,31 +12,37 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Node;
 import org.apache.commons.lang.NotImplementedException;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PipelineConfigSaveValidationContext implements ValidationContext {
     private final Boolean isPipelineBeingCreated;
     private final String groupName;
     private final Validatable immediateParent;
-    private CruiseConfig cruiseConfig;
+    private BasicCruiseConfig cruiseConfig;
     private PipelineConfig pipelineBeingValidated;
     private boolean isPipeline = true;//Does not support template editing yet
     private final PipelineConfigSaveValidationContext parentContext;
     private PipelineConfig pipeline;
     private StageConfig stage;
     private JobConfig job;
+    private MaterialConfigFingerprintMap materialConfigsFingerprintMap;
 
     private PipelineConfigSaveValidationContext(Boolean isPipelineBeingCreated, String groupName, Validatable immediateParent) {
         this.isPipelineBeingCreated = isPipelineBeingCreated;
@@ -50,8 +56,8 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         this.groupName = parentContext.groupName;
         this.immediateParent = immediateParent;
         this.parentContext = parentContext;
-        if (immediateParent instanceof CruiseConfig) {
-            this.cruiseConfig = (CruiseConfig) immediateParent;
+        if (immediateParent instanceof BasicCruiseConfig) {
+            this.cruiseConfig = (BasicCruiseConfig) immediateParent;
         } else if (parentContext.cruiseConfig != null) {
             this.cruiseConfig = parentContext.cruiseConfig;
         }
@@ -133,7 +139,10 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
 
     public Node getDependencyMaterialsFor(CaseInsensitiveString pipelineName) {
-        return PipelineConfigurationCache.getInstance().getDependencyMaterialsFor(pipelineName);
+        if (getDependencies().containsKey(pipelineName)) {
+            return getDependencies().get(pipelineName);
+        }
+        return new Node(new ArrayList<Node.DependencyNode>());
     }
 
     @Override
@@ -145,12 +154,16 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     }
 
     public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
-        return PipelineConfigurationCache.getInstance().getMatchingMaterialsFromConfig(fingerprint);
+        initMaterialConfigMap();
+        return materialConfigsFingerprintMap.get(fingerprint);
     }
 
     public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
-        if (pipelineBeingValidated.name().equals(pipelineName)) return pipelineBeingValidated;
-        return PipelineConfigurationCache.getInstance().getPipelineConfig(pipelineName.toString());
+        try {
+            return cruiseConfig.pipelineConfigByName(pipelineName);
+        } catch (PipelineNotFoundException e) {
+            return null;
+        }
     }
 
     @Override
@@ -174,12 +187,24 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public PackageRepository findPackageById(String packageId) {
-        return cruiseConfig.getPackageRepositories().findPackageRepositoryHaving(packageId) ;
+        return cruiseConfig.getPackageRepositories().findPackageRepositoryHaving(packageId);
     }
 
     public Set<CaseInsensitiveString> getPipelinesWithDependencyMaterials() {
-        return PipelineConfigurationCache.getInstance().getPipelinesWithDependencyMaterials();
+        return getDependencies().keySet();
     }
+
+    private Hashtable<CaseInsensitiveString, Node> getDependencies() {
+        if (dependencies == null) {
+            dependencies = new Hashtable<>();
+            for (PipelineConfig pipeline : cruiseConfig.getAllPipelineConfigs()) {
+                dependencies.put(pipeline.name(), pipeline.getDependenciesAsNode());
+            }
+        }
+        return dependencies;
+    }
+
+    private Hashtable<CaseInsensitiveString, Node> dependencies;
 
     public PipelineGroups getGroups() {
         return cruiseConfig.getGroups();
@@ -188,4 +213,39 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     public boolean isPipelineBeingCreated() {
         return isPipelineBeingCreated;
     }
+
+    private void initMaterialConfigMap() {
+        if (materialConfigsFingerprintMap == null) {
+            materialConfigsFingerprintMap = new MaterialConfigFingerprintMap(cruiseConfig);
+        }
+    }
+
+    private class MaterialConfigFingerprintMap {
+        private Map<String, MaterialConfigs> map = new ConcurrentHashMap<>();
+        private Map<String, MaterialConfigs> pipelineMaterialMap = new ConcurrentHashMap<>();
+
+        public MaterialConfigFingerprintMap(CruiseConfig cruiseConfig) {
+            for (PipelineConfigs group : cruiseConfig.getGroups()) {
+                for (PipelineConfig pipelineConfig : group) {
+                    for (MaterialConfig material : pipelineConfig.materialConfigs()) {
+                        String fingerprint = material.getFingerprint();
+                        if (!map.containsKey(fingerprint)) {
+                            map.put(fingerprint, new MaterialConfigs());
+                        }
+                        map.get(fingerprint).add(material);
+
+                        if (!pipelineMaterialMap.containsKey(pipelineConfig.name().toString())) {
+                            pipelineMaterialMap.put(pipelineConfig.name().toString(), new MaterialConfigs());
+                        }
+                        pipelineMaterialMap.get(pipelineConfig.name().toString()).add(material);
+                    }
+                }
+            }
+        }
+
+        public MaterialConfigs get(String fingerprint) {
+            return map.get(fingerprint);
+        }
+    }
+
 }

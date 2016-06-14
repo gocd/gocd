@@ -85,7 +85,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private RailsAssetsService railsAssetsService;
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
-    @Autowired private PipelineConfigService pipelineConfigService;
     @Autowired private ServerVersionInfoManager serverVersionInfoManager;
     @Autowired private GoPartialConfig goPartialConfig;
     @Autowired private ConfigCache configCache;
@@ -113,7 +112,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             goFileConfigDataSource.upgradeIfNecessary();
             cachedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
-            pipelineConfigService.initialize();
             entityHashingService.initialize();
 
             //artifacts

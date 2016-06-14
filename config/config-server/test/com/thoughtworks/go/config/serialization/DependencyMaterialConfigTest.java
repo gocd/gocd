@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,7 +54,6 @@ public class DependencyMaterialConfigTest {
         loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
         pipelineConfig = config.getAllPipelineConfigs().get(0);
-        PipelineConfigurationCache.getInstance().onConfigChange(config);
     }
 
     @Test
@@ -74,7 +73,6 @@ public class DependencyMaterialConfigTest {
         mother.addPipeline("pipeline-name", "stage-name", "job-name");
         mother.addPipeline("dependent", "stage-name", "job-name").addMaterialConfig(originalMaterial);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        PipelineConfigurationCache.getInstance().onConfigChange(mother.cruiseConfig());
         writer.write(mother.cruiseConfig(), buffer, false);
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
@@ -96,7 +94,6 @@ public class DependencyMaterialConfigTest {
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = mother.cruiseConfig();
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
 
         writer.write(cruiseConfig, buffer, false);
 
@@ -147,7 +144,6 @@ public class DependencyMaterialConfigTest {
     @Test
     public void shouldNOTBeValidIfTheReferencedPipelineDoesNotExist() throws Exception {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
-        PipelineConfigurationCache.getInstance().onConfigChange(config);
 
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-not-exist"), new CaseInsensitiveString("stage"));
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
@@ -185,12 +181,10 @@ public class DependencyMaterialConfigTest {
 
     @Test
     public void shouldValidateTree(){
-        PipelineConfigurationCache.getInstance().onConfigChange(new BasicCruiseConfig());
-
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipeline.setOrigin(new FileConfigOrigin());
-        dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipeline));
+        dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, pipeline));
         assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), is("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"));
     }
 }

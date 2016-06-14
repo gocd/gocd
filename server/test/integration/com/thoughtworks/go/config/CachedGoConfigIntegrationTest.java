@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,19 @@
 
 package com.thoughtworks.go.config;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -44,6 +44,7 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,11 +92,16 @@ public class CachedGoConfigIntegrationTest {
     private GoConfigDao goConfigDao;
     @Autowired
     private CachedGoPartials cachedGoPartials;
+    @Autowired
+    private GoPartialConfig goPartialConfig;
+
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private String latestCommit;
     private ConfigRepoConfig configRepo;
     private File externalConfigRepo;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -728,6 +735,95 @@ public class CachedGoConfigIntegrationTest {
             }
         });
         assertThat(secondSaveState, is(ConfigSaveState.MERGED));
+    }
+
+    @Test
+    public void shouldNotAllowAGitMergeOfConcurrentChangesIfTheChangeCausesMergedPartialsToBecomeInvalid(){
+        final String upstream = UUID.randomUUID().toString();
+        String remoteDownstream = "remote-downstream";
+        setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
+        final String md5 = cachedGoConfig.currentConfig().getMd5();
+
+        // some random unrelated change to force a git merge workflow
+        cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.server().setCommandRepositoryLocation("new_location");
+                return cruiseConfig;
+            }
+
+            @Override
+            public String unmodifiedMd5() {
+                return md5;
+            }
+        });
+
+        thrown.expectMessage(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (%s at r1)", upstream, configRepo.getMaterialConfig().getDisplayName()));
+        cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
+                return cruiseConfig;
+            }
+
+            @Override
+            public String unmodifiedMd5() {
+                return md5;
+            }
+        });
+    }
+
+    @Test
+    public void shouldMarkAPartialAsValidIfItBecomesValidBecauseOfNewerChangesInMainXml_GitMergeWorkflow(){
+        final String upstream = UUID.randomUUID().toString();
+        String remoteDownstream = "remote-downstream";
+        setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
+
+        PartialConfig partialWithStageRenamed = new Cloner().deepClone(goPartialConfig.lastPartials().get(0));
+        PipelineConfig pipelineInRemoteConfigRepo = partialWithStageRenamed.getGroups().get(0).getPipelines().get(0);
+        pipelineInRemoteConfigRepo.materialConfigs().getDependencyMaterial().setStageName(new CaseInsensitiveString("new_name"));
+        partialWithStageRenamed.setOrigin(new RepoConfigOrigin(configRepo, "r2"));
+
+        goPartialConfig.onSuccessPartialConfig(configRepo, partialWithStageRenamed);
+        final String md5 = cachedGoConfig.currentConfig().getMd5();
+
+        // some random unrelated change to force a git merge workflow
+        cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.server().setCommandRepositoryLocation("new_location");
+                return cruiseConfig;
+            }
+
+            @Override
+            public String unmodifiedMd5() {
+                return md5;
+            }
+        });
+
+        ConfigSaveState saveState = cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
+                return cruiseConfig;
+            }
+
+            @Override
+            public String unmodifiedMd5() {
+                return md5;
+            }
+        });
+        assertThat(saveState, is(ConfigSaveState.MERGED));
+        assertThat(cachedGoPartials.lastValidPartials().get(0).getGroups().first().get(0).materialConfigs().getDependencyMaterial().getStageName(), is(new CaseInsensitiveString("new_name")));
+        assertThat(goConfigService.getConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name(), is(new CaseInsensitiveString("new_name")));
+        assertThat(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name(), is(new CaseInsensitiveString("new_name")));
+    }
+
+    private void setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(String upstream, String remoteDownstreamPipelineName) {
+        PipelineConfig upstreamPipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(upstream, new GitMaterialConfig("FOO"));
+        goConfigService.addPipeline(upstreamPipelineConfig, "default");
+        PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, upstreamPipelineConfig, new RepoConfigOrigin(configRepo, "r1"));
+        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfig);
     }
 
     private void addPipelineWithParams(CruiseConfig cruiseConfig) {

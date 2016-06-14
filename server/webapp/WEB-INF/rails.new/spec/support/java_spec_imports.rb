@@ -107,7 +107,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.server.domain.helper.FeatureToggleMother unless defined? FeatureToggleMother
   java_import com.thoughtworks.go.helper.EnvironmentVariablesConfigMother unless defined? EnvironmentVariablesConfigMother
   java_import com.thoughtworks.go.config.validation.FilePathTypeValidator unless defined? FilePathTypeValidator
-  java_import com.thoughtworks.go.config.PipelineConfigurationCache unless defined? PipelineConfigurationCache
   java_import com.thoughtworks.go.domain.GoVersion unless defined? GoVersion
   java_import com.thoughtworks.go.domain.VersionInfo unless defined? VersionInfo
   java_import com.thoughtworks.go.server.service.CheckConnectionSubprocessExecutionContext unless defined? CheckConnectionSubprocessExecutionContext

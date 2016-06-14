@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -619,8 +619,7 @@ Above scenario allowed
         MaterialConfigs materialConfigs = new MaterialConfigs(git, svn, p4, tfs, hg);
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs(svn));
-        PipelineConfigurationCache.getInstance().onConfigChange(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)) );
-        materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig));
+        materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)), pipelineConfig));
         assertThat(git.errors().on(GitMaterialConfig.MATERIAL_NAME), contains("You have defined multiple materials called 'mat-name'"));
         assertThat(git.errors().on(GitMaterialConfig.URL), is("URL cannot be blank"));
         assertThat(svn.errors().on(SvnMaterialConfig.MATERIAL_NAME), contains("You have defined multiple materials called 'mat-name'"));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -338,7 +338,6 @@ public class FetchTaskTest {
 
         FetchTask task = new FetchTask(new CaseInsensitiveString("upstream/uppest_stream"), new CaseInsensitiveString("up-stage1"), new CaseInsensitiveString("up-job1"), "src", "dest");
         StageConfig stage = downstream.getStage(new CaseInsensitiveString("stage"));
-        PipelineConfigurationCache.getInstance().onConfigChange(config);
 
         task.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, stage, stage.getJobs().get(0)));
         assertThat(task.errors().isEmpty(), is(false));
@@ -649,7 +648,6 @@ public class FetchTaskTest {
         PipelineConfig downstream = new PipelineConfig(new CaseInsensitiveString("downstream-pipeline"),
                 new MaterialConfigs(new DependencyMaterialConfig(upstream.name(), upstream.getFirstStageConfig().name())),
                 new StageConfig(new CaseInsensitiveString("downstream-stage"), new JobConfigs(job)));
-        PipelineConfigurationCache.getInstance().onConfigChange(new BasicCruiseConfig(new BasicPipelineConfigs(upstream, downstream)));
 
         fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
         assertThat(fetchTask.errors().isEmpty(), is(true));
@@ -668,7 +666,6 @@ public class FetchTaskTest {
         PipelineConfig downstream = new PipelineConfig(new CaseInsensitiveString("downstream-pipeline"),
                 new MaterialConfigs(),
                 new StageConfig(new CaseInsensitiveString("downstream-stage"), new JobConfigs(job)));
-        PipelineConfigurationCache.getInstance().onConfigChange(new BasicCruiseConfig(new BasicPipelineConfigs(upstream, downstream)));
 
         fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
         assertThat(fetchTask.errors().isEmpty(), is(false));
@@ -688,7 +685,6 @@ public class FetchTaskTest {
         PipelineConfig downstream = new PipelineConfig(new CaseInsensitiveString("downstream-pipeline"),
                 new MaterialConfigs(new DependencyMaterialConfig(upstream.name(), upstream.getFirstStageConfig().name())),
                 new StageConfig(new CaseInsensitiveString("downstream-stage"), new JobConfigs(job)));
-        PipelineConfigurationCache.getInstance().onConfigChange(new BasicCruiseConfig(new BasicPipelineConfigs(upstream, downstream)));
 
         fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
         assertThat(fetchTask.errors().isEmpty(), is(false));

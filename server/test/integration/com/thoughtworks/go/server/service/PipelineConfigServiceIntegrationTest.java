@@ -23,13 +23,14 @@ import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -47,6 +48,8 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -91,6 +94,10 @@ public class PipelineConfigServiceIntegrationTest {
     @Autowired
     private ConfigElementImplementationRegistry registry;
     @Autowired
+    private GoPartialConfig goPartialConfig;
+    @Autowired
+    private CachedGoPartials cachedGoPartials;
+    @Autowired
     private Localizer localizer;
     @Autowired
     private EntityHashingService entityHashingService;
@@ -102,9 +109,15 @@ public class PipelineConfigServiceIntegrationTest {
     private HttpLocalizedOperationResult result;
     private String groupName = "jumbo";
     private String pipelineConfigMD5 = "md5";
+    private ConfigRepoConfig repoConfig;
+    private PartialConfig partialConfig;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+    private String remoteDownstreamPipelineName;
 
     @Before
     public void setup() throws Exception {
+        cachedGoPartials.clear();
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
@@ -113,10 +126,21 @@ public class PipelineConfigServiceIntegrationTest {
         user = new Username(new CaseInsensitiveString("current"));
         pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
         goConfigService.addPipeline(pipelineConfig, groupName);
+        repoConfig = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
+        goConfigService.updateConfig(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.getConfigRepos().add(repoConfig);
+                return cruiseConfig;
+            }
+        });
         GoCipher goCipher = new GoCipher();
         goConfigService.updateServerConfig(new MailHost(goCipher), new LdapConfig(goCipher), new PasswordFileConfig("path"), false, goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
         UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(Arrays.asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
+        remoteDownstreamPipelineName = "remote-downstream";
+        partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, pipelineConfig, new RepoConfigOrigin(repoConfig, "r1"));
+        goPartialConfig.onSuccessPartialConfig(repoConfig, partialConfig);
         result = new HttpLocalizedOperationResult();
         headCommitBeforeUpdate = configRepository.getCurrentRevCommit().name();
         entityHashingService.initializeWith(new EntityDigest() {
@@ -129,6 +153,7 @@ public class PipelineConfigServiceIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
+        cachedGoPartials.clear();
         configHelper.onTearDown();
         dbHelper.onTearDown();
     }
@@ -191,7 +216,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         MaterialConfigs materialConfigs = new MaterialConfigs();
         materialConfigs.add(new DependencyMaterialConfig(pipelineConfig.name(), new CaseInsensitiveString("stage")));
-        PipelineConfig upstream = new PipelineConfig(new CaseInsensitiveString("upstream"),materialConfigs);
+        PipelineConfig upstream = new PipelineConfig(new CaseInsensitiveString("upstream"), materialConfigs);
         upstream.setTemplateName(templateName);
         upstream.addParam(new ParamConfig("SOME_PARAM", "SOME_VALUE"));
         pipelineConfigService.createPipelineConfig(user, upstream, result, groupName);
@@ -435,7 +460,7 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulUpdate(){
+    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulUpdate() {
         final String pipelineName = UUID.randomUUID().toString();
         final String templateName = UUID.randomUUID().toString();
         final boolean[] listenerInvoked = {false};
@@ -460,7 +485,7 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulCreate(){
+    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulCreate() {
         final String pipelineName = UUID.randomUUID().toString();
         final String templateName = UUID.randomUUID().toString();
         final boolean[] listenerInvoked = {false};
@@ -497,6 +522,60 @@ public class PipelineConfigServiceIntegrationTest {
         });
     }
 
+    @Test
+    public void shouldValidateMergedConfigForConfigChanges() throws Exception {
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
+        pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
+
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(pipelineConfig.errors().on("base"), is(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at r1)", pipelineConfig.name())));
+        assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. Please correct and resubmit.", pipelineConfig.name())));
+    }
+
+    @Test
+    public void shouldFallbackToValidPartialsForConfigChanges() throws Exception {
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
+
+        String remoteInvalidPipeline = "remote_invalid_pipeline";
+        PartialConfig invalidPartial = PartialConfigMother.invalidPartial(remoteInvalidPipeline, new RepoConfigOrigin(repoConfig, "r2"));
+        goPartialConfig.onSuccessPartialConfig(repoConfig, invalidPartial);
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
+
+        pipelineConfig.getFirstStageConfig().getJobs().first().addTask(new ExecTask("executable", new Arguments(new Argument("foo")), "working"));
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
+
+        assertThat(result.isSuccessful(), is(true));
+        CruiseConfig currentConfig = goConfigService.getCurrentConfig();
+        assertThat(currentConfig.getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
+        assertThat(currentConfig.getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
+    }
+
+    @Ignore("Need to find a good way to support two step validations for entity config save through API")
+    @Test
+    public void shouldSaveWithKnownPartialsWhenValidationPassesForConfigChangesThroughFileSystem() throws Exception {
+        PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+
+        //Introducing a change to make the latest version of remote pipeline invalid
+
+        final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
+        partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig, "r2"));
+        goPartialConfig.onSuccessPartialConfig(repoConfig, partialConfig);
+        DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = goConfigService.getCurrentConfig().getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
+        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
+
+        pipelineConfig.getFirstStageConfig().setName(upstreamStageRenamed);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
+
+        assertThat(result.isSuccessful(), is(true));
+        CruiseConfig currentConfig = goConfigService.getCurrentConfig();
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(upstreamStageRenamed));
+        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(upstreamStageRenamed));
+    }
 
     private void saveTemplateWithParamToConfig(CaseInsensitiveString templateName) throws Exception {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));

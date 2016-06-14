@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ public class AdminRoleTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs(new Authorization(new ViewConfig(role)), pipelineConfig);
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
-        PipelineConfigurationCache.getInstance().onConfigChange(config);
         role.validate(PipelineConfigSaveValidationContext.forChain(true, "group",config, pipelineConfig));
         ConfigErrors errors = role.errors();
         assertThat(errors.isEmpty(), is(false));

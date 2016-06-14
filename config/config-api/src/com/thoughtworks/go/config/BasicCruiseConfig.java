@@ -139,6 +139,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         serverConfig.ensureServerIdExists();
     }
 
+
     private interface CruiseStrategy {
         ConfigOrigin getOrigin();
 

@@ -20,10 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.lang.management.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class ThreadInformationProvider implements ServerInfoProvider {
@@ -117,9 +114,8 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         return json;
     }
 
-    private ArrayList<Map<String, Object>> getStackTraceInformation(ThreadMXBean threadMXBean) {
-
-        ArrayList<Map<String, Object>> maps = new ArrayList<>();
+    private TreeMap<Long, Map<String, Object>> getStackTraceInformation(ThreadMXBean threadMXBean) {
+        TreeMap<Long, Map<String, Object>> traces = new TreeMap<>();
         ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(true, true);
         for (ThreadInfo threadInfo : threadInfos) {
             LinkedHashMap<String, Object> threadStackTrace = new LinkedHashMap<>();
@@ -156,9 +152,9 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             StackTraceElement[] stackTrace = threadInfo.getStackTrace();
             ArrayList<String> strings = mapToString(stackTrace);
             threadStackTrace.put("Stack Trace", strings);
-            maps.add(threadStackTrace);
+            traces.put(threadInfo.getThreadId(), threadStackTrace);
         }
-        return maps;
+        return traces;
     }
 
     private ArrayList<String> mapToString(Object[] objects) {

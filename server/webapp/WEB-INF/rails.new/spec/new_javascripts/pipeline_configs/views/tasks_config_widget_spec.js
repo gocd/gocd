@@ -24,18 +24,18 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Ant({
-          buildFile: 'build-moduleA.xml',
-          target: 'clean',
+          buildFile:        'build-moduleA.xml',
+          target:           'clean',
           workingDirectory: 'moduleA',
-          runIf: ['passed', 'failed'],
+          runIf:            ['passed', 'failed'],
           onCancelTask: {
-            type: "nant",
+            type:                "nant",
             attributes: {
-              build_file: 'build-moduleA.xml',
-              target: 'clean',
+              build_file:        'build-moduleA.xml',
+              target:            'clean',
               working_directory: "moduleA",
-              nant_path: "C:\\NAnt",
-              run_if: []
+              nant_path:         "C:\\NAnt",
+              run_if:            []
             }
           }
         });
@@ -83,11 +83,11 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.NAnt({
-          buildFile: 'build-moduleA.xml',
-          target: "clean",
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
           workingDirectory: "moduleA",
-          nantPath: 'C:\\NAnt',
-          runIf: ['passed', 'failed']
+          nantPath:         'C:\\NAnt',
+          runIf:            ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -132,10 +132,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Exec({
-          command: 'bash',
-          args: ['-c', 'ls -al /'],
+          command:          'bash',
+          args:             ['-c', 'ls -al /'],
           workingDirectory: 'moduleA',
-          runIf: ['passed', 'failed']
+          runIf:            ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -178,10 +178,10 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Rake({
-          buildFile: 'foo.rake',
-          target: "clean",
+          buildFile:        'foo.rake',
+          target:           "clean",
           workingDirectory: "moduleA",
-          runIf: ['passed', 'failed']
+          runIf:            ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -222,12 +222,12 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.FetchArtifact({
-          pipeline: 'Build',
-          stage: "Dist",
-          job: "RPM",
-          source: "logs",
+          pipeline:      'Build',
+          stage:         "Dist",
+          job:           "RPM",
+          source:        "dir",
           isSourceAFile: true,
-          runIf: ['passed', 'failed']
+          runIf:         ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -274,35 +274,35 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
       var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
       beforeEach(function () {
         antTask = new Tasks.Task.Ant({
-          buildFile: 'build-moduleA.xml',
-          target: "clean",
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
           workingDirectory: "moduleA"
         });
 
         nantTask = new Tasks.Task.NAnt({
-          buildFile: 'build-moduleA.xml',
-          target: "clean",
+          buildFile:        'build-moduleA.xml',
+          target:           "clean",
           workingDirectory: "moduleA",
-          nantPath: 'C:\\NAnt'
+          nantPath:         'C:\\NAnt'
         });
 
         execTask = new Tasks.Task.Exec({
-          command: 'bash',
-          args: ['-c', 'ls -al /'],
+          command:          'bash',
+          args:             ['-c', 'ls -al /'],
           workingDirectory: "moduleA"
         });
 
         rakeTask = new Tasks.Task.Rake({
-          buildFile: 'foo.rake',
-          target: "clean",
+          buildFile:        'foo.rake',
+          target:           "clean",
           workingDirectory: "moduleA"
         });
 
         fetchArtifactTask = new Tasks.Task.FetchArtifact({
-          pipeline: 'Build',
-          stage: "Dist",
-          job: "RPM",
-          source: "logs",
+          pipeline:     'Build',
+          stage:        "Dist",
+          job:          "RPM",
+          source:       "dir",
           sourceIsFile: true
         });
 

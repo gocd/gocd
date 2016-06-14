@@ -440,7 +440,17 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
 
       it("should initialize task model with source", function () {
         expect(task.source()).toBe("dir");
+      });
+
+      it("should initialize task model with isSourceAFile", function () {
         expect(task.isSourceAFile()).toBe(true);
+      });
+
+      it('should initialize isSourceAFile to be false if not specified', function(){
+        var task = new Tasks.Task.FetchArtifact({
+
+        });
+        expect(task.isSourceAFile()).toBe(false);
       });
 
       it("should initialize task model with runIfConditions", function () {

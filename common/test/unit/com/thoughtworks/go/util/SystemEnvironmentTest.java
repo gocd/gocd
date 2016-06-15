@@ -508,4 +508,9 @@ public class SystemEnvironmentTest {
         System.setProperty("go.check.updates", "false");
         assertFalse(systemEnvironment.isGOUpdateCheckEnabled());
     }
+
+    @Test
+    public void shouldReturnFalseWhenShineEnabledIsNotSet() {
+        assertFalse(systemEnvironment.isShineEnabled());
+    }
 }

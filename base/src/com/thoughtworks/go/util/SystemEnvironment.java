@@ -535,6 +535,11 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return String.format("http://%s:%s%s", HOSTNAME_SHINE_USES, getServerPort(), getWebappContextPath());
     }
 
+    public Boolean isShineEnabled() {
+        String shineEnabled = getEnvironmentVariable("SHINE_ENABLED");
+        return shineEnabled == null ? false : !"false".equalsIgnoreCase(shineEnabled); //should return true for shine_enabled set to anything but false.
+    }
+
 
     public String getBaseSslUrlForShineWithoutContextPath() {
         return String.format("https://%s:%s", HOSTNAME_SHINE_USES, getSslServerPort());

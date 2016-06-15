@@ -114,7 +114,7 @@ public class StageNotificationServiceTest {
                 return morphURl((String)args[0], expectedBaseUrl);
             }
         });
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("true");
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
         when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(Arrays.asList(suite1, suite2));
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
 
@@ -149,7 +149,7 @@ public class StageNotificationServiceTest {
     public void shouldNotHaveFailedTestsSectionWhenThereAreNoFailedTests() {
         String jezMail = prepareOneMatchedUser();
         stubPipelineAndStage(new Date());
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("true");
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
         when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(new ArrayList<TestSuite>());
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
@@ -162,7 +162,7 @@ public class StageNotificationServiceTest {
     public void shouldHaveFailedTestsSectionWhenShineIsEnabledAndThereAreFailedTests() {
         String mail = prepareOneMatchedUser();
         stubPipelineAndStage(new Date());
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("true");
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
         ArrayList<TestSuite> testSuites = new ArrayList<>();
         testSuites.add(new TestSuite("blah"));
         when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(testSuites);
@@ -177,7 +177,7 @@ public class StageNotificationServiceTest {
     public void shouldNotHaveFailedTestsSectionWhenShineIsDisabled() {
         String mail = prepareOneMatchedUser();
         stubPipelineAndStage(new Date());
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("false");
+        when(systemEnvironment.isShineEnabled()).thenReturn(false);
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
 

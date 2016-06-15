@@ -83,41 +83,20 @@ public class BackgroundStageLoaderTest {
     }
 
     @Test
-    public void shouldLoadLatestUsingBackgroundStageStatusListener_IfShineEnabledIsNull() {
-        when(jobInstances.stageState()).thenReturn(StageState.Passed);
-        stage.setJobInstances(jobInstances);
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn(null);
-
-        listener.stageStatusChanged(stage);
-
-        verify(stageFeedsReader).readFromLatest(backgroundStageLoader, pipelineInstanceLoader);
-    }
-
-    @Test
     public void shouldLoadLatestUsingBackgroundStageStatusListener_IfShineEnabledIsTrue() {
         when(jobInstances.stageState()).thenReturn(StageState.Passed);
         stage.setJobInstances(jobInstances);
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("true");
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
 
         listener.stageStatusChanged(stage);
 
         verify(stageFeedsReader).readFromLatest(backgroundStageLoader, pipelineInstanceLoader);
     }
 
-    @Test
-    public void shouldLoadLatestUsingBackgroundStageStatusListener_IfShineEnabledIsAnyStringOtherThanFalse() {
-        when(jobInstances.stageState()).thenReturn(StageState.Passed);
-        stage.setJobInstances(jobInstances);
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("YES");
-
-        listener.stageStatusChanged(stage);
-
-        verify(stageFeedsReader).readFromLatest(backgroundStageLoader, pipelineInstanceLoader);
-    }
 
     @Test
     public void shouldNotLoadLatestIfStageIsBuilding() {
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("true");
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
 
         ReflectionUtil.setField(stage, "state", StageState.Building);
 
@@ -128,7 +107,7 @@ public class BackgroundStageLoaderTest {
 
     @Test
     public void shouldLoadLatestIfStageIsCompleted() {
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("true");
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
 
         when(jobInstances.stageState()).thenReturn(StageState.Cancelled).thenReturn(StageState.Passed).thenReturn(StageState.Failed);
         stage.setJobInstances(jobInstances);

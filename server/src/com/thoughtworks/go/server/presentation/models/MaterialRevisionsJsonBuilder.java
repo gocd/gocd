@@ -70,7 +70,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         modifiedFilesJson = new ArrayList();
 
         Map<String, Object> jsonMap = new LinkedHashMap<>();
-        jsonMap.put("user", escapeHtml(modification.getUserDisplayName()));
+        jsonMap.put("user", modification.getUserDisplayName());
         jsonMap.put("revision", modification.getRevision());
         jsonMap.put("date", formatISO8601(modification.getModifiedTime()));
         String comment = modification.getComment();

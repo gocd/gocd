@@ -138,12 +138,6 @@ public class JobDetailPresentationModel {
         return new ModificationSummaries(pipeline.getMaterialRevisions());
     }
 
-    public String getMaterialRevisionsJson() {
-        MaterialRevisionsJsonBuilder jsonVisitor = new MaterialRevisionsJsonBuilder(trackingTool);
-        pipeline.getMaterialRevisions().accept(jsonVisitor);
-        return render(jsonVisitor.json());
-    }
-
     public String getModificationTime() {
         return converter.nullSafeDate(pipeline.getModifiedDate());
     }

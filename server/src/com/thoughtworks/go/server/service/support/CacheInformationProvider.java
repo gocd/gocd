@@ -20,11 +20,9 @@ import com.thoughtworks.go.server.cache.GoCache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.openrdf.query.algebra.Str;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

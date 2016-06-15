@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -112,9 +112,7 @@ public class AutoBuild implements BuildType {
             MaterialRevisions materialRevisions = fanInOn(originalMaterialRevisions, cruiseConfig, targetPipelineName);
             serverHealthService.removeByScope(HealthStateScope.forFanin(pipelineName));
             return materialRevisions;
-        } catch (NoCompatibleUpstreamRevisionsException e) {
-            throw e;
-        } catch (NoModificationsPresentForDependentMaterialException e) {
+        } catch (NoCompatibleUpstreamRevisionsException | NoModificationsPresentForDependentMaterialException e) {
             throw e;
         } catch (RuntimeException e) {
             serverHealthService.update(ServerHealthState.warning("Turning off Fan-In for pipeline: '" + pipelineName + "'", "Error occurred during Fan-In resolution for the pipeline.",

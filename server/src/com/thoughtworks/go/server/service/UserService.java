@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,7 +258,7 @@ public class UserService {
         }
     }
 
-    public static enum SortableColumn {
+    public enum SortableColumn {
         EMAIL {
             protected String get(UserModel model) {
                 return model.getUser().getEmail();
@@ -327,7 +327,7 @@ public class UserService {
         }
     }
 
-    public static enum SortDirection {
+    public enum SortDirection {
         ASC {
             @Override
             public Comparator<UserModel> forColumn(final SortableColumn column) {

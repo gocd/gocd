@@ -127,7 +127,7 @@ public class BackupFilter implements Filter {
             }
 
         } catch (IOException e) {
-            LOGGER.error(String.format("General IOException", e.getMessage()));
+            LOGGER.error(String.format("General IOException: %s", e.getMessage()));
         }
         ((HttpServletResponse) response).setStatus(503);
     }
@@ -135,7 +135,7 @@ public class BackupFilter implements Filter {
     private boolean requestIsOfType(String type, HttpServletRequest request) {
         String header = request.getHeader("Accept");
         String contentType = request.getContentType();
-        String url = request.getRequestURI().toString();
+        String url = request.getRequestURI();
         return header != null && header.contains(type) || url != null && url.endsWith(type) || contentType != null && contentType.contains(type);
     }
 

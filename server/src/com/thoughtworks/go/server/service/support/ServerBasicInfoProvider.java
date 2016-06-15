@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.server.util.ServerVersion;
-import org.openrdf.query.algebra.Str;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

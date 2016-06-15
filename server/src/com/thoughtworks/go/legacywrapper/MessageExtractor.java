@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.legacywrapper;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.thoughtworks.go.legacywrapper.SAXBasedExtractor;
 import com.thoughtworks.go.server.domain.BuildMessage;
 import com.thoughtworks.go.server.domain.MessageLevel;
 import org.apache.commons.lang.StringUtils;
@@ -66,8 +64,8 @@ public class MessageExtractor extends SAXBasedExtractor {
     public void report(Map resultSet) {
         if (!messages.isEmpty()) {
             StringBuilder result = new StringBuilder("");
-            for (Iterator i = messages.iterator(); i.hasNext();) {
-                result.append(i.next().toString());
+            for (Object message : messages) {
+                result.append(message.toString());
             }
             resultSet.put("message", new BuildMessage(result.toString(), MessageLevel.getLevelForPriority(priority)));
         }

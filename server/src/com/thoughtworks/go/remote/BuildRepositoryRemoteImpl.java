@@ -139,6 +139,6 @@ public class BuildRepositoryRemoteImpl {
     }
 
     private interface ReportingAction {
-        public void call() throws Exception;
+        void call() throws Exception;
     }
 }

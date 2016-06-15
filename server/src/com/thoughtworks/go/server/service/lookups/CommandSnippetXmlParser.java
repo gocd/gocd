@@ -37,7 +37,7 @@ public class CommandSnippetXmlParser {
 
     public CommandSnippet parse(String xmlContent, String fileName, String relativeFilePath) {
         try {
-            Document document = buildXmlDocument(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"));;
+            Document document = buildXmlDocument(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"));
             CommandSnippetComment comment = getComment(document);
 
             Element execTag = document.getRootElement();

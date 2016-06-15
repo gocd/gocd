@@ -155,7 +155,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     public ConfigElementForEdit<EnvironmentConfig> forEdit(String environmentName, HttpLocalizedOperationResult result) {
         ConfigElementForEdit<EnvironmentConfig> edit = null;
         try {
-            CruiseConfig config = goConfigService.getConfigForEditing();
+            CruiseConfig config = goConfigService.getMergedConfigForEditing();
             EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
             edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {

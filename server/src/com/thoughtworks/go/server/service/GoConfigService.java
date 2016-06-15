@@ -186,6 +186,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return goConfigDao.loadForEditing();
     }
 
+    @Deprecated()
+    public CruiseConfig getMergedConfigForEditing() {
+        return goConfigDao.loadMergedForEditing();
+    }
+
     CruiseConfig cruiseConfig() {
         return goConfigDao.load();
     }

@@ -43,18 +43,21 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class CachedGoConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(CachedGoConfig.class);
     private final GoFileConfigDataSource dataSource;
+    private final CachedGoPartials cachedGoPartials;
     private final ServerHealthService serverHealthService;
     private List<ConfigChangedListener> listeners = new ArrayList<>();
     private volatile CruiseConfig currentConfig;
     private volatile CruiseConfig currentConfigForEdit;
+    private volatile CruiseConfig mergedCurrentConfigForEdit;
     private volatile GoConfigHolder configHolder;
     private volatile Exception lastException;
 
     @Autowired
     public CachedGoConfig(ServerHealthService serverHealthService,
-                          GoFileConfigDataSource dataSource) {
+                          GoFileConfigDataSource dataSource, CachedGoPartials cachedGoPartials) {
         this.serverHealthService = serverHealthService;
         this.dataSource = dataSource;
+        this.cachedGoPartials = cachedGoPartials;
     }
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
@@ -101,6 +104,10 @@ public class CachedGoConfig {
         loadConfigIfNull();
         return currentConfigForEdit;
     }
+    public CruiseConfig loadMergedForEditing() {
+        loadConfigIfNull();
+        return mergedCurrentConfigForEdit;
+    }
 
     public CruiseConfig currentConfig() {
         if (currentConfig == null) {
@@ -110,7 +117,7 @@ public class CachedGoConfig {
     }
 
     public void loadConfigIfNull() {
-        if (currentConfig == null || currentConfigForEdit == null || configHolder == null) {
+        if (currentConfig == null || currentConfigForEdit == null || configHolder == null || (mergedCurrentConfigForEdit == null && !cachedGoPartials.lastValidPartials().isEmpty())) {
             forceReload();
         }
     }
@@ -154,6 +161,7 @@ public class CachedGoConfig {
             this.configHolder = configHolder;
             this.currentConfig = this.configHolder.config;
             this.currentConfigForEdit = this.configHolder.configForEdit;
+            this.mergedCurrentConfigForEdit = configHolder.mergedConfigForEdit;
             serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfig()));
         }
     }

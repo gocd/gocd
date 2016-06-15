@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -256,7 +257,7 @@ public class GoFileConfigDataSource {
             try {
                 String configAsXml = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand));
-                validatedConfigHolder.configForEdit.merge(lastKnownPartials,true);
+                updateMergedConfigForEdit(validatedConfigHolder, lastKnownPartials);
                 serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
                 List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
@@ -275,7 +276,7 @@ public class GoFileConfigDataSource {
                         // These have changed now
                         int previousValidPartialsCount = lastValidPartials.size();
                         lastValidPartials = cachedGoPartials.lastValidPartials();
-                        validatedConfigHolder.configForEdit.merge(lastValidPartials, true);
+                        updateMergedConfigForEdit(validatedConfigHolder, lastValidPartials);
                         LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials. Now there are %s LAST VALID partials",
                                 previousValidPartialsCount, lastValidPartials.size()));
                     }
@@ -304,6 +305,13 @@ public class GoFileConfigDataSource {
         }
     }
 
+    private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {
+        if (partialConfigs.isEmpty()) return;
+        CruiseConfig mergedCruiseConfigForEdit = cloner.deepClone(validatedConfigHolder.configForEdit);
+        mergedCruiseConfigForEdit.merge(partialConfigs, true);
+        validatedConfigHolder.mergedConfigForEdit = mergedCruiseConfigForEdit;
+    }
+
     private String trySavingConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
         List<PartialConfig> clonedPartials = new Cloner().deepClone(partials);
         String configAsXml = getModifiedConfig(updatingCommand, configHolder, clonedPartials);
@@ -324,7 +332,7 @@ public class GoFileConfigDataSource {
             }
             return getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
         }
-        CruiseConfig deepCloneForEdit = configHolder.configForEdit.cloneForValidation();
+        CruiseConfig deepCloneForEdit = cloner.deepClone(configHolder.configForEdit);
         deepCloneForEdit.setPartials(partials);
         CruiseConfig config = updatingCommand.update(deepCloneForEdit);
         String configAsXml = configAsXml(config, false);

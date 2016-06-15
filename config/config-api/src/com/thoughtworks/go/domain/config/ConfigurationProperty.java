@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @ConfigTag("property")
 public class ConfigurationProperty implements Serializable, Validatable {
@@ -290,5 +291,30 @@ public class ConfigurationProperty implements Serializable, Validatable {
             return "****";
         }
         return getValue();
+    }
+
+    public void deserialize(String key, String value, boolean isSecure, String encryptedValue) throws InvalidCipherTextException {
+        setConfigurationKey(new ConfigurationKey(key));
+
+        if (!isSecure && encryptedValue != null) {
+            errors().add(ENCRYPTED_VALUE, "You may specify encrypted value only when option 'secure' is true.");
+        }
+
+        if (value != null && encryptedValue != null) {
+            addError("value", "You may only specify `value` or `encrypted_value`, not both!");
+            addError(ENCRYPTED_VALUE, "You may only specify `value` or `encrypted_value`, not both!");
+        }
+
+        if (encryptedValue != null) {
+            setEncryptedConfigurationValue(new EncryptedConfigurationValue(encryptedValue));
+        }
+
+        if (isSecure) {
+            if (value != null) {
+                setEncryptedConfigurationValue(new EncryptedConfigurationValue(new GoCipher().encrypt(value)));
+            }
+        } else {
+            setConfigurationValue(new ConfigurationValue(value));
+        }
     }
 }

@@ -1,45 +1,59 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.update.CreateSCMConfigCommand;
+import com.thoughtworks.go.config.update.UpdateSCMConfigCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.StringUtil;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class PluggableScmService {
     private SCMExtension scmExtension;
     private Localizer localizer;
+    private GoConfigService goConfigService;
+    private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluggableScmService.class);
 
     @Autowired
-    public PluggableScmService(SCMExtension scmExtension, Localizer localizer) {
+    public PluggableScmService(SCMExtension scmExtension, Localizer localizer, GoConfigService goConfigService) {
         this.scmExtension = scmExtension;
         this.localizer = localizer;
+        this.goConfigService = goConfigService;
     }
 
-    public void validate(final SCM scmConfig) {
+    public boolean isValid(final SCM scmConfig) {
         final String pluginId = scmConfig.getPluginConfiguration().getId();
         final SCMPropertyConfiguration configuration = getScmPropertyConfiguration(scmConfig);
         ValidationResult validationResult = scmExtension.isSCMConfigurationValid(pluginId, configuration);
@@ -63,6 +77,8 @@ public class PluggableScmService {
                 property.addError(validationError.getKey(), validationError.getMessage());
             }
         }
+
+        return validationResult.getErrors().isEmpty();
     }
 
     public Result checkConnection(final SCM scmConfig) {
@@ -71,6 +87,43 @@ public class PluggableScmService {
         return scmExtension.checkConnectionToSCM(pluginId, configuration);
     }
 
+    public ArrayList<SCM> listAllScms() {
+        return goConfigService.getSCMs();
+    }
+
+    public SCM findPluggableScmMaterial(String materialName) {
+        ArrayList<SCM> scms = listAllScms();
+        for(SCM scm : scms){
+            if(materialName.equals(scm.getName()))  {
+                return scm;
+            }
+        }
+        return null;
+    }
+
+    public void createPluggableScmMaterial(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result) {
+        CreateSCMConfigCommand command = new CreateSCMConfigCommand(globalScmConfig, this, result, currentUser, goConfigService);
+        update(currentUser, result, command);
+    }
+
+    public void updatePluggableScmMaterial(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result) {
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(globalScmConfig, this, goConfigService, currentUser, result);
+        update(currentUser, result, command);
+    }
+
+    private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command) {
+        try {
+            goConfigService.updateConfig(command, currentUser);
+        } catch (Exception e) {
+            if (e instanceof ConfigUpdateCheckFailedException) {
+                return;
+            }
+            else {
+                LOGGER.error(e.getMessage(), e);
+                result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+            }
+        }
+    }
     private SCMPropertyConfiguration getScmPropertyConfiguration(SCM scmConfig) {
         final SCMPropertyConfiguration configuration = new SCMPropertyConfiguration();
         for (ConfigurationProperty configurationProperty : scmConfig.getConfiguration()) {

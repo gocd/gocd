@@ -59,6 +59,10 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return new HealthStateType("UNAUTHORIZED", 401, HealthStateScope.GLOBAL);
     }
 
+    public static HealthStateType notFound() {
+        return new HealthStateType("NOT_FOUND", 404, HealthStateScope.GLOBAL);
+    }
+
     public static HealthStateType invalidLicense(HealthStateScope scope) {
         return new HealthStateType("INVALID_LICENSE", 402, scope);
     }

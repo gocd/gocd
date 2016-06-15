@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,9 +69,7 @@ module ApiV1
 
       def check_for_attempted_pipeline_rename
         unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:name])
-          result = HttpLocalizedOperationResult.new
-          result.notAcceptable(LocalizedMessage::string("PIPELINE_RENAMING_NOT_ALLOWED"))
-          render_http_operation_result(result)
+          render_message('Renaming of pipeline is not supported by this API.', :unprocessable_entity)
         end
       end
 

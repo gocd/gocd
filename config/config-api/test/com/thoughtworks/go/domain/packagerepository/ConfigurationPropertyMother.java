@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.packagerepository;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.security.GoCipher;
 
 public class ConfigurationPropertyMother {
@@ -30,5 +31,9 @@ public class ConfigurationPropertyMother {
 
     public static ConfigurationProperty create(String key) {
         return new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue());
+    }
+
+    public static ConfigurationProperty create(String key, String value, String encryptedValue) {
+        return new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value), new EncryptedConfigurationValue(encryptedValue), null);
     }
 }

@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.domain.config;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.PostConstruct;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.config.ConfigSubtag;
@@ -31,6 +25,12 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+
+import javax.annotation.PostConstruct;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.EMPTY;

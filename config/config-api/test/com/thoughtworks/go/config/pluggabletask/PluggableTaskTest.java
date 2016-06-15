@@ -17,12 +17,16 @@
 package com.thoughtworks.go.config.pluggabletask;
 
 import com.thoughtworks.go.config.AntTask;
+import com.thoughtworks.go.config.OnCancelConfig;
+import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
@@ -40,6 +44,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PluggableTaskTest {
@@ -282,56 +287,121 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void shouldAddPropertyGivenConfigurationPropertyIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
+    public void shouldAddConfigurationProperties() {
+        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("key", "value", "encValue"), new ConfigurationProperty());
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("github.pr", "1.1");
         TaskPreference taskPreference = mock(TaskPreference.class);
-        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
-
-        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1", false, "value1");
-
         TaskConfig taskConfig = new TaskConfig();
-        TaskProperty property1 = new TaskProperty("KEY1", "value1");
-        taskConfig.addProperty(property1.getName());
+        Configuration configuration = new Configuration();
+        ConfigurationPropertyBuilder builder = mock(ConfigurationPropertyBuilder.class);
+
+        PluggableTaskConfigStore.store().setPreferenceFor(pluginConfiguration.getId(), taskPreference);
+        TaskConfigProperty taskConfigProperty = taskConfig.addProperty("key");
+
         when(taskPreference.getConfig()).thenReturn(taskConfig);
-        task.setConfiguration(configurationProperty);
-        assertThat(task.configAsMap().get("KEY1").get(PluggableTask.VALUE_KEY), is("value1"));
+
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration, builder);
+        pluggableTask.addConfigurations(configurationProperties);
+
+        assertThat(configuration.size(), is(2));
+        verify(builder).create("key", "value", "encValue", taskConfigProperty);
+        verify(builder).create(null, null, null, null);
     }
 
     @Test
-    public void shouldAddErrorWhenTaskPreferenceIsNotPresentInPluggableTaskPreferenceStore() throws Exception {
-        TaskPreference taskPreference = mock(TaskPreference.class);
-        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+    public void shouldAddConfigurationPropertiesForAInvalidPlugin() {
+        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("key", "value", "encValue"));
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("does_not_exist", "1.1");
 
-        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1", false, "value1");
+        Configuration configuration = new Configuration();
+        ConfigurationPropertyBuilder builder = mock(ConfigurationPropertyBuilder.class);
 
-        TaskConfig taskConfig = new TaskConfig();
-        TaskProperty property1 = new TaskProperty("KEY1", "value1");
-        taskConfig.addProperty(property1.getName());
-        when(taskPreference.getConfig()).thenReturn(taskConfig);
-        task.setConfiguration(configurationProperty);
-        assertThat(task.errors().on(task.TYPE), is("Could not find plugin for given pluggable id:[abc.def]."));
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration, builder);
+        pluggableTask.addConfigurations(configurationProperties);
+
+        assertThat(configuration.size(), is(1));
+        verify(builder).create("key", "value", "encValue", null);
     }
 
     @Test
-    public void shouldAddSecurePropertyGivenConfigurationPropertyIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
-        TaskPreference taskPreference = mock(TaskPreference.class);
+    public void validateShouldVerifyIfPluginIdIsValid() {
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("does_not_exist", "1.1");
+        Configuration configuration = new Configuration();
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration);
 
-        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("secureKey"));
-        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
+        pluggableTask.validate(null);
 
-        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("secureKey"), new ConfigurationValue("secureValue"), new EncryptedConfigurationValue("old-encrypted-text"),
-                new GoCipher());
+        assertThat(pluggableTask.errors().get("pluggable_task").get(0), is("Could not find plugin for given pluggable id:[does_not_exist]."));
+    }
 
-        TaskConfig taskConfig = new TaskConfig();
-        TaskProperty property = new TaskProperty("secureKey", "secureValue");
-        taskConfig.addProperty(property.getName()).with(Property.SECURE, true);
-        when(taskPreference.getConfig()).thenReturn(taskConfig);
-        task.setConfiguration(configurationProperty);
-        assertThat(task.getConfiguration().getProperty("secureKey").getConfigurationValue(), is(nullValue()));
-        assertThat(task.getConfiguration().getProperty("secureKey").getEncryptedValue().getValue(), is(new GoCipher().encrypt("secureValue")));
+    @Test
+    public void validateShouldVerifyForValidConfigurationProperties() {
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("github.pr", "1.1");
+        Configuration configuration = new Configuration();
+        ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
+        ConfigurationProperty inputDirectory = mock(ConfigurationProperty.class);
+        ValidationContext validationContext = mock(ValidationContext.class);
+
+        PluggableTaskConfigStore.store().setPreferenceFor(pluginConfiguration.getId(), mock(TaskPreference.class));
+        configuration.add(outputDirectory);
+        configuration.add(inputDirectory);
+
+        when(outputDirectory.hasErrors()).thenReturn(true);
+        when(inputDirectory.hasErrors()).thenReturn(false);
+
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration);
+
+        pluggableTask.validate(validationContext);
+
+        verify(outputDirectory).validate(validationContext);
+        verify(inputDirectory).validate(validationContext);
+    }
+
+    @Test
+    public void shouldBeAbleToGetTaskConfigRepresentation() {
+        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("source", false, "src_dir"),
+                ConfigurationPropertyMother.create("destination", false, "des_dir"));
+
+        Configuration configuration = new Configuration();
+        configuration.addAll(configurationProperties);
+
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("plugin_id", "version");
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration);
+
+        TaskConfig taskConfig = pluggableTask.toTaskConfig();
+
+        assertThat(taskConfig.size(), is(2));
+        assertThat(taskConfig.get("source").getValue(), is("src_dir"));
+        assertThat(taskConfig.get("destination").getValue(), is("des_dir"));
+    }
+
+    @Test
+    public void validateTreeShouldVerifyIfOnCancelTasksHasErrors() {
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration(), new Configuration());
+        pluggableTask.onCancelConfig = mock(OnCancelConfig.class);
+
+        when(pluggableTask.onCancelConfig.validateTree(null)).thenReturn(false);
+
+        assertFalse(pluggableTask.validateTree(null));
+    }
+
+    @Test
+    public void validateTreeShouldVerifyIfPluggableTaskHasErrors() {
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration(), new Configuration());
+        pluggableTask.addError("task", "invalid plugin");
+
+        assertFalse(pluggableTask.validateTree(null));
+    }
+
+    @Test
+    public void validateTreeShouldVerifyIfConfigurationHasErrors() {
+        ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
+
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration(), new Configuration(outputDirectory));
+
+        when(outputDirectory.hasErrors()).thenReturn(true);
+
+        assertFalse(pluggableTask.validateTree(null));
     }
 
     private void assertProperty(TaskProperty taskProperty, String name, String value, String cssClass) {

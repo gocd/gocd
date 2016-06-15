@@ -19,11 +19,14 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -32,6 +35,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.util.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,13 +55,15 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     private static final String GO_PIPELINE_CONFIGS_ETAGS_CACHE = "GO_PIPELINE_CONFIGS_ETAGS_CACHE".intern();
     private GoCache goCache;
     private SecurityService securityService;
+    private PluggableTaskService pluggableTaskService;
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(PipelineConfigService.class);
 
     @Autowired
-    public PipelineConfigService(GoConfigService goConfigService, GoCache goCache, SecurityService securityService) {
+    public PipelineConfigService(GoConfigService goConfigService, GoCache goCache, SecurityService securityService, PluggableTaskService pluggableTaskService) {
         this.goConfigService = goConfigService;
         this.goCache = goCache;
         this.securityService = securityService;
+        this.pluggableTaskService = pluggableTaskService;
     }
 
     public void initialize() {
@@ -147,6 +153,7 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     }
 
     public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result) {
+        validatePluggableTasks(pipelineConfig);
         UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
@@ -172,6 +179,7 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     }
 
     public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
+        validatePluggableTasks(pipelineConfig);
         CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
     }
@@ -195,5 +203,25 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     private boolean hasViewOrOperatePermissionForGroup(Username username, String group) {
         return securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), group) ||
                 securityService.hasOperatePermissionForGroup(username.getUsername(), group);
+    }
+
+    private void validatePluggableTasks(PipelineConfig config) {
+        for(PluggableTask task: pluggableTask(config)) {
+            pluggableTaskService.isValid(task);
+        }
+    }
+
+    private List<PluggableTask> pluggableTask(PipelineConfig config) {
+        List<PluggableTask> tasks = new ArrayList<>();
+        for(StageConfig stageConfig: config.getStages()) {
+            for(JobConfig jobConfig: stageConfig.getJobs()) {
+                for(Task task: jobConfig.getTasks()) {
+                    if(task instanceof PluggableTask) {
+                        tasks.add((PluggableTask) task);
+                    }
+                }
+            }
+        }
+        return tasks;
     }
 }

@@ -98,7 +98,7 @@ class BackgroundStageLoaderStageStatusListener implements StageStatusListener {
     @Override
     public void stageStatusChanged(Stage stage) {
 
-        if (!"false".equalsIgnoreCase(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED"))) {
+        if (systemEnvironment.isShineEnabled()) {
             if (stage.isCompleted()) {
                 backgroundStageLoader.load();
             }

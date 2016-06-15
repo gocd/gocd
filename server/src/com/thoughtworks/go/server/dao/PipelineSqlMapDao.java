@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,7 +162,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private String cacheKeyForBuildCauseByNameAndCounter(String name, int counter) {
-        return (PipelineSqlMapDao.class + "_buildCauseByNameAndCounter_" + name + "_and_" + counter).intern();
+        return (PipelineSqlMapDao.class + "_buildCauseByNameAndCounter_" + name.toLowerCase() + "_and_" + counter).intern();
     }
 
     public Pipeline findPipelineByNameAndLabel(String name, String label) {
@@ -308,7 +308,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private String cacheKeyForPipelineWithStageId(String pipelineName, long stageId) {
-        return (getClass().getName() + "_pipelineWithStageId_" + pipelineName + stageId).intern();
+        return (PipelineSqlMapDao.class + "_pipelineWithStageId_" + pipelineName.toLowerCase() + "_" + stageId).intern();
     }
 
     public Pipeline loadAssociations(Pipeline pipeline, String pipelineName) {
@@ -354,7 +354,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private String cacheKeyForPipelineHistoryByNameAndCounter(String pipelineName, int pipelineCounter) {
-        return (String.format("%s_cacheKeyForPipelineHistoryByName_%s_AndCounter_%s", PipelineSqlMapDao.class.getName(), pipelineName, pipelineCounter)).intern();
+        return (PipelineSqlMapDao.class + "_cacheKeyForPipelineHistoryByName_" + pipelineName.toLowerCase() + "_AndCounter_" + pipelineCounter).intern();
     }
 
     public PipelineDependencyGraphOld pipelineGraphByNameAndCounter(String pipelineName, int pipelineCounter) {
@@ -722,7 +722,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private String cacheKeyForLatestPipelineIdByPipelineName(String pipelineName) {
-        return (PipelineSqlMapDao.class.getName() + "_latestPipelineIdByPipelineName_" + pipelineName).intern();
+        return (PipelineSqlMapDao.class + "_latestPipelineIdByPipelineName_" + pipelineName.toLowerCase()).intern();
     }
 
     private PipelineInstanceModels loadHistory(String pipelineName, List<Long> ids) {
@@ -941,11 +941,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private String cacheKeyForPauseState(String pipelineName) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForPauseState_" + pipelineName).intern();
+        return (PipelineSqlMapDao.class + "_cacheKeyForPauseState_" + pipelineName.toLowerCase()).intern();
     }
 
     String cacheKeyForlatestPassedStage(long pipelineId, String stage) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForlatestPassedStage_" + pipelineId + "_and_" + stage).intern();
+        return (PipelineSqlMapDao.class + "_cacheKeyForlatestPassedStage_" + pipelineId + "_and_" + stage.toLowerCase()).intern();
     }
 
     public StageIdentifier latestPassedStageIdentifier(long pipelineId, String stage) {
@@ -1001,11 +1001,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 	}
 
     private String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String dependencyPipelineName, Integer dependencyPipelineCounter) {
-        return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName + "_" + dependencyPipelineName + "_" + dependencyPipelineCounter).intern();
+        return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName.toLowerCase() + "_" + dependencyPipelineName.toLowerCase() + "_" + dependencyPipelineCounter).intern();
     }
 
 	String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String fingerPrint, String revision) {
-		return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName + "_" + fingerPrint + "_" + revision).intern();
+        return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName.toLowerCase() + "_" + fingerPrint + "_" + revision).intern();
 	}
 
     private void invalidateCacheConditionallyForPipelineInstancesTriggeredWithDependencyMaterial(Pipeline pipeline) {

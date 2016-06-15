@@ -210,7 +210,7 @@ public class CachedGoConfigIntegrationTest {
     public void shouldFailWhenTryingToAddPipelineDefinedRemotely() throws Exception {
         assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
-        assertThat(cachedGoConfig.loadForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
 
         PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
                 "www.spring.com");
@@ -280,12 +280,12 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldReturnRemotePipelinesAmongAllPipelinesInConfigForEdit() throws Exception
+    public void shouldReturnRemotePipelinesAmongAllPipelinesInMergedConfigForEdit() throws Exception
     {
         assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
-        assertThat(cachedGoConfig.loadForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
     }
 
     private ArrayList<ServerHealthState> findMessageFor(final HealthStateType type) {

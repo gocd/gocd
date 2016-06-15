@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
@@ -69,6 +70,9 @@ public class MagicalGoConfigXmlWriter {
     public void write(CruiseConfig configForEdit, OutputStream output, boolean skipPreprocessingAndValidation) throws Exception {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
+        if (!configForEdit.getOrigin().isLocal()) {
+            throw new GoConfigInvalidException(configForEdit,"Attempted to save merged configuration with patials");
+        }
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);
             LOGGER.debug("[Serializing Config] Done with cruise config validators.");

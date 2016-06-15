@@ -72,14 +72,6 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
-    public void stripRemotesShouldKeepProposedPartials(){
-        cruiseConfig.setPartials(Arrays.asList(createPartial()));
-        assertThat(cruiseConfig.getPartials().size(),is(1));
-        cruiseConfig.stripRemotes();
-        assertThat(cruiseConfig.getPartials().size(),is(1));
-    }
-
-    @Test
     public void cloneForValidationShouldKeepProposedPartials(){
         cruiseConfig.setPartials(Arrays.asList(createPartial()));
         assertThat(cruiseConfig.getPartials().size(),is(1));
@@ -1043,34 +1035,6 @@ public abstract class CruiseConfigTestBase {
         cruiseConfig.getEnvironments().get(0).addAgent("agent");
 
         assertThat(envInFile.getAgents(),hasItem(new EnvironmentAgentConfig("agent")));
-    }
-
-    @Test
-    public void shouldReturnEnvironmentConfigAddedForUIEditsWhenGetLocal_WhenThereAreChangesViaUI()
-    {
-        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
-        PartialConfig partialConfig = PartialConfigMother.withEnvironment("remoteEnv");
-        partialConfig.setOrigins(new RepoConfigOrigin());
-        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig);
-
-        cruiseConfig.getEnvironments().get(0).addPipeline(new CaseInsensitiveString("pipeUI"));
-
-        cruiseConfig.stripRemotes();
-        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("remoteEnv")),is(true));
-    }
-
-    @Test
-    public void shouldNotReturnEnvironmentConfigAddedForUIEditsWhenGetLocal_WhenThereAreNoChangesViaUI()
-    {
-        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
-        PartialConfig partialConfig = PartialConfigMother.withEnvironment("remoteEnv");
-        partialConfig.setOrigins(new RepoConfigOrigin());
-        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig);
-
-        // nothing added, no need to have remoteEnv in xml
-
-        cruiseConfig.stripRemotes();
-        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("remoteEnv")),is(false));
     }
 
     @Test

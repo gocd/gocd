@@ -394,7 +394,7 @@ public class EnvironmentConfigServiceTest {
         env.addAgent("baz");
         env.addEnvironmentVariable("quux", "bang");
         config.getEnvironments().add(env);
-        when(mockGoConfigService.getConfigForEditing()).thenReturn(config);
+        when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
         assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), Is.<EnvironmentConfig>is(env));
         assertThat(result.isSuccessful(), is(true));
     }

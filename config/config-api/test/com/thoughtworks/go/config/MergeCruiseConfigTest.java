@@ -49,37 +49,20 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void merge_shouldNotMergePipelinesAlreadyMerged(){
-        assertThat(cruiseConfig.allPipelines().size(),is(1));
-        cruiseConfig.merge(Arrays.asList(createPartial()),false);
-        assertThat(cruiseConfig.allPipelines().size(),is(1));
-        cruiseConfig.validateAfterPreprocess();
-    }
-
-    @Test
-    public void merge_shouldNotMergePipelinesAlreadyMergedWhenForEdit(){
-        assertThat(cruiseConfig.allPipelines().size(),is(1));
-        cruiseConfig.merge(Arrays.asList(createPartial()),true);
-        assertThat(cruiseConfig.allPipelines().size(),is(1));
-        cruiseConfig.validateAfterPreprocess();
-    }
-
-    @Test
-    public void merge_shouldNotMergeEnvironmentsAlreadyMerged() {
+    public void mergeShouldThrowWhenCalledSecondTime() {
         cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), PartialConfigMother.withEnvironment("remote-env"));
         assertThat(cruiseConfig.getEnvironments().size(),is(1));
-        cruiseConfig.merge(Arrays.asList(PartialConfigMother.withEnvironment("remote-env")),false);
-        assertThat(cruiseConfig.getEnvironments().size(),is(1));
-        cruiseConfig.validateAfterPreprocess();
-    }
-
-    @Test
-    public void merge_shouldNotMergeEnvironmentsAlreadyMergedWhenForEdit() {
-        cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), PartialConfigMother.withEnvironment("remote-env"));
-        assertThat(cruiseConfig.getEnvironments().size(),is(1));
-        cruiseConfig.merge(Arrays.asList(PartialConfigMother.withEnvironment("remote-env")),true);
-        assertThat(cruiseConfig.getEnvironments().size(),is(1));
-        cruiseConfig.validateAfterPreprocess();
+        try {
+            cruiseConfig.merge(Arrays.asList(PartialConfigMother.withEnvironment("remote-env")), false);
+        }
+        catch (RuntimeException ex)
+        {
+            //ok
+            assertThat(cruiseConfig.getEnvironments().size(),is(1));
+            cruiseConfig.validateAfterPreprocess();
+            return;
+        }
+        fail("should have thrown");
     }
 
     @Test
@@ -100,55 +83,10 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void getLocal_shouldNotReturnMergeEnvironmentConfig()
-    {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
-        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
-        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
-        partialConfig.getGroups().get(0).setOrigins(new RepoConfigOrigin());
-        BasicEnvironmentConfig localEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-        localEnvironment.addPipeline(new CaseInsensitiveString("local-pipeline-1"));
-        mainCruiseConfig.addEnvironment(localEnvironment);
-
-        BasicEnvironmentConfig remoteEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-        remoteEnvironment.setOrigins(new RepoConfigOrigin());
-        remoteEnvironment.addPipeline(new CaseInsensitiveString("remote-pipeline-1"));
-        partialConfig.getEnvironments().add(remoteEnvironment);
-
-        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig);
-        cruiseConfig.merge(Arrays.asList(partialConfig),true);
-
-        assertThat(cruiseConfig.getEnvironments().size(),is(1));
-        EnvironmentConfig mergedEnvironment = cruiseConfig.getEnvironments().get(0);
-        assertThat(mergedEnvironment, instanceOf(MergeEnvironmentConfig.class));
-
-        cruiseConfig.stripRemotes();
-        assertThat(cruiseConfig.getEnvironments().size(),is(1));
-        assertThat(cruiseConfig.getEnvironments().get(0), instanceOf(BasicEnvironmentConfig.class));
-    }
-
-    @Test
     public void getAllLocalPipelineConfigs_shouldReturnEmptyListWhenNoLocalPipelines()
     {
         List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
         assertThat(localPipelines.size(),is(0));
-    }
-
-    @Test
-    public void getLocal_shouldReturnOnlyLocalPipelines()
-    {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
-        cruiseConfig = new BasicCruiseConfig(pipelines);
-        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
-        partialConfig.getGroups().get(0).setOrigins(new RepoConfigOrigin());
-
-        cruiseConfig.merge(Arrays.asList(partialConfig),true);
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")),is(true));
-
-        cruiseConfig.stripRemotes();
-
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")),is(true));
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("remote-pipeline-1")),is(false));
     }
 
     @Test
@@ -487,6 +425,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
     @Test
     public void shouldUpdatePipelineConfigsListWhenAPartialIsMerged(){
+        cruiseConfig = new BasicCruiseConfig(pipelines);
         PartialConfig partial = PartialConfigMother.withPipeline("pipeline3");
 
         cruiseConfig.merge(Arrays.asList(partial), false);

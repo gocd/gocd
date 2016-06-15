@@ -92,7 +92,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (partList.isEmpty()) {
             return;
         }
-        stripRemotes();
+        if(this.strategy instanceof MergeStrategy)
+            throw new RuntimeException("cannot merge partials to already merged configuration");
         MergeStrategy mergeStrategy = new MergeStrategy(partList,forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
@@ -143,8 +144,6 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         void setOrigins(ConfigOrigin origins);
 
-        void stripRemotes();
-
         List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
 
         List<PartialConfig> getMergedPartials();
@@ -181,11 +180,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         public List<PartialConfig> getMergedPartials() {
             return new ArrayList<>();
         }
-
-        public void stripRemotes() {
-            /*nth to do*/
-        }
-
 
         @Override
         public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
@@ -378,57 +372,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public List<PartialConfig> getMergedPartials() {
             return this.parts;
-        }
-
-        @Override
-        public void stripRemotes() {
-            EnvironmentsConfig localEnvironments = environments.getLocal();
-            EnvironmentsConfig environmentsForSave = new EnvironmentsConfig();
-            for(EnvironmentConfig environmentConfig : localEnvironments)
-            {
-                if(environmentConfig.getOrigin() instanceof UIConfigOrigin)
-                {
-                    //then we have injected this so that UI has a piece to edit
-                    // we want to keep it only if there is something added
-                    if(!environmentConfig.isEnvironmentEmpty())
-                    {
-                        environmentsForSave.add(environmentConfig);
-                    }
-                }
-                else
-                {
-                    //origin is local file
-                    environmentsForSave.add(environmentConfig);
-                }
-            }
-
-            PipelineGroups localGroups = groups.getLocal();
-            PipelineGroups pipelineConfigsForSave = new PipelineGroups();
-            for(PipelineConfigs pipelineConfigs : localGroups)
-            {
-                if(pipelineConfigs.getOrigin() instanceof UIConfigOrigin)
-                {
-                    //then we have injected this so that UI has a piece to edit
-                    // we want to keep it only if there is something added
-                    if(!pipelineConfigs.isEmpty())
-                    {
-                        pipelineConfigsForSave.add(pipelineConfigs);
-                    }
-                }
-                else
-                {
-                    //origin is local file
-                    pipelineConfigsForSave.add(pipelineConfigs);
-                }
-            }
-
-            // we only need groups and environments to be different
-            groups = pipelineConfigsForSave;
-            environments = environmentsForSave;
-            // and it should contain partials
-            // and this must be initialized again, we want _same_ instances in groups and in allPipelineConfigs
-            allPipelineConfigs = null;
-            pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
         }
 
         private void verifyUniqueNameInParts(PipelineConfig pipelineConfig) {
@@ -761,11 +704,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public int schemaVersion() {
         return GoConstants.CONFIG_SCHEMA_VERSION;
-    }
-
-    @Override
-    public void stripRemotes() {
-        strategy.stripRemotes();
     }
 
     @Override

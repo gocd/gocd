@@ -106,6 +106,10 @@ public class CachedGoConfig {
     }
     public CruiseConfig loadMergedForEditing() {
         loadConfigIfNull();
+        if(mergedCurrentConfigForEdit == null) {
+            // when there are no partials, just return standard config for edit
+            return currentConfigForEdit;
+        }
         return mergedCurrentConfigForEdit;
     }
 

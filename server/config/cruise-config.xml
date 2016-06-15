@@ -11,6 +11,14 @@
       </admins>
     </security>
   </server>
+  <config-repos>
+    <config-repo>
+      <git url="http://gitlab.ai-traders.com/tomzo/gocd-example-xmlconfig.git" />
+    </config-repo>
+    <config-repo>
+      <git url="http://gitlab.ai-traders.com/tomzo/gocd-example2-xmlconfig.git" />
+    </config-repo>
+  </config-repos>
   <pipelines group="first">
     <authorization>
       <view>
@@ -20,11 +28,16 @@
         <user>operate</user>
       </admins>
     </authorization>
-    <pipeline name="up42">
+    <pipeline name="up42" template="temp2">
       <materials>
         <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
       </materials>
-      <stage name="up42_stage">
+    </pipeline>
+  </pipelines>
+  <pipelines group="aptly" />
+  <templates>
+    <pipeline name="temp2">
+      <stage name="up42_stage_renamed">
         <jobs>
           <job name="up42_job">
             <tasks>
@@ -34,6 +47,16 @@
         </jobs>
       </stage>
     </pipeline>
-  </pipelines>
+  </templates>
+  <environments>
+    <environment name="testing">
+      <environmentvariables>
+        <variable name="admin" secure="true">
+          <encryptedValue>aSdiFgRRZ6A=</encryptedValue>
+        </variable>
+      </environmentvariables>
+    </environment>
+    <environment name="dev" />
+  </environments>
 </cruise>
 

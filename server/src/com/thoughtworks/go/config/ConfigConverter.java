@@ -57,7 +57,7 @@ public class ConfigConverter {
     }
 
     public Map<String, List<CRPipeline>> groupPipelinesByGroupName(Collection<CRPipeline> pipelines) {
-        Map<String, List<CRPipeline>> map = new HashMap<String, List<CRPipeline>>();
+        Map<String, List<CRPipeline>> map = new HashMap<>();
         for (CRPipeline pipe : pipelines) {
             String key = pipe.getGroupName();
             if (map.get(key) == null) {
@@ -422,7 +422,7 @@ public class ConfigConverter {
         else {
             Integer count = crJob.getRunInstanceCount();
             if (count != null)
-                jobConfig.setRunInstanceCount((int) count);
+                jobConfig.setRunInstanceCount(count);
             // else null - meaning simple job
         }
 

@@ -137,9 +137,9 @@ public class Modifications extends BaseCollection<Modification> {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Checking Ignore filters for " + materialConfig);
-            LOG.debug("Ignored files : " + ignoredFiles + "");
-            LOG.debug("Changed files : " + CollectionUtils.subtract(allFiles, ignoredFiles) + "");
+            LOG.debug("Checking ignore filters for " + materialConfig);
+            LOG.debug("Ignored files: " + ignoredFiles);
+            LOG.debug("Changed files: " + CollectionUtils.subtract(allFiles, ignoredFiles));
         }
 
         if (materialConfig.isInvertFilter()) {

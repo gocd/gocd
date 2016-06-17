@@ -44,10 +44,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -315,6 +312,7 @@ public class AgentControllerTest {
     }
 
     @Test
+    @Ignore("This test is flaky. Better to not have it than to have it be flaky. -Aravind")
     public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(httpService.httpClient()).thenReturn(httpClient);

@@ -176,15 +176,6 @@ public class ModificationsTest {
         MatcherAssert.assertThat(new Modifications().shouldBeIgnoredByFilterIn(packageMaterialConfig), is(false));
     }
 
-
-
-
-
-
-
-
-
-
     @Test
     public void shouldIncludeModificationsIfAnyFileIsNotIgnored() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();

@@ -181,6 +181,11 @@ public class AbstractMaterialConfigTest {
         public Filter filter() {
             return null;
         }
+        
+        @Override
+        public boolean isInvertFilter() {
+            return false;
+        }
 
         @Override
         public void setConfigAttributes(Object attributes) {

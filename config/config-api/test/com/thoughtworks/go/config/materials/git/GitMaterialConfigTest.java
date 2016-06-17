@@ -125,7 +125,7 @@ public class GitMaterialConfigTest {
     @Test
     public void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
         GitMaterialConfig config1 = new GitMaterialConfig("http://url", null);
-        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), "folder", new CaseInsensitiveString("git"), false);
+        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), false, "folder", new CaseInsensitiveString("git"), false);
 
         assertThat(config1.getBranch(), is("master"));
         assertThat(config2.getBranch(), is("master"));

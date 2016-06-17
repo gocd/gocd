@@ -71,8 +71,8 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     }
 
 
-    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
-        super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
+    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
+        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         if(branch != null) {
             this.branch = branch;

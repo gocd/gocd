@@ -176,6 +176,15 @@ public class ModificationsTest {
         MatcherAssert.assertThat(new Modifications().shouldBeIgnoredByFilterIn(packageMaterialConfig), is(false));
     }
 
+
+
+
+
+
+
+
+
+
     @Test
     public void shouldIncludeModificationsIfAnyFileIsNotIgnored() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
@@ -205,6 +214,71 @@ public class ModificationsTest {
         assertThat(new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf"))).shouldBeIgnoredByFilterIn(materialConfig), is(true));
         assertThat(new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.doc"))).shouldBeIgnoredByFilterIn(materialConfig), is(true));
         assertThat(new Modifications(multipleCheckin(aCheckIn("100", "a.pdf", "b.pdf"), aCheckIn("100", "a.doc", "b.doc"))).shouldBeIgnoredByFilterIn(materialConfig), is(true));
+    }
+
+    @Test
+    public void shouldIgnoreModificationsIfInvertFilterAndEmptyIgnoreList() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter();
+        materialConfig.setFilter(filter);
+        materialConfig.setInvertFilter(true);
+
+        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf", "a.java")));
+        assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(true));
+    }
+
+    @Test
+    public void shouldIgnoreModificationsIfWildcardBlacklist() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("**/*")));
+        materialConfig.setFilter(filter);
+
+        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf", "a.java")));
+        assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(true));
+    }
+
+    @Test
+    public void shouldIncludeModificationsIfInvertFilterAndWildcardBlacklist() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("**/*")));
+        materialConfig.setFilter(filter);
+        materialConfig.setInvertFilter(true);
+
+        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf", "a.java")));
+        assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(false));
+    }
+
+    @Test
+    public void shouldIgnoreModificationsIfInvertFilterAndSpecificFileNotChanged() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.foo")));
+        materialConfig.setFilter(filter);
+        materialConfig.setInvertFilter(true);
+
+        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf", "a.java")));
+        assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(true));
+    }
+
+    @Test
+    public void shouldIgnoreModificationsIfInvertFilterAndSpecificFileNotChanged2() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("foo/bar.baz")));
+        materialConfig.setFilter(filter);
+        materialConfig.setInvertFilter(true);
+
+        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.java", "foo", "bar.baz", "foo/bar.qux")));
+        assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(true));
+    }
+
+    @Test
+    public void shouldIncludeModificationsIfInvertFilterAndSpecificIsChanged() {
+        HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
+        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("foo/bar.baz")));
+        materialConfig.setFilter(filter);
+        materialConfig.setInvertFilter(true);
+
+        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("foo/bar.baz")));
+        assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(false));
     }
 
     private Modifications modificationWithIds() {

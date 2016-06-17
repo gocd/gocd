@@ -76,7 +76,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="82"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="81"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -370,7 +370,6 @@
         <xsd:attribute name="dest" type="filePathType" use="optional"/>
         <xsd:attribute name="materialName" type="nameType" use="optional"/>
         <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="invertFilter" type="xsd:boolean" use="optional"/>
     </xsd:complexType>
     <xsd:complexType name="p4Type">
         <xsd:sequence>
@@ -385,7 +384,6 @@
         <xsd:attribute name="dest" type="filePathType" use="optional"/>
         <xsd:attribute name="materialName" type="nameType" use="optional"/>
         <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="invertFilter" type="xsd:boolean" use="optional"/>
     </xsd:complexType>
     <xsd:complexType name="gitType">
         <xsd:sequence>
@@ -397,7 +395,6 @@
         <xsd:attribute name="shallowClone" type="xsd:boolean" use="optional"/>
         <xsd:attribute name="materialName" type="nameType" use="optional"/>
         <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="invertFilter" type="xsd:boolean" use="optional"/>
     </xsd:complexType>
     <xsd:complexType name="hgType">
         <xsd:sequence>
@@ -407,7 +404,6 @@
         <xsd:attribute name="dest" type="filePathType" use="optional"/>
         <xsd:attribute name="materialName" type="nameType" use="optional"/>
         <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="invertFilter" type="xsd:boolean" use="optional"/>
     </xsd:complexType>
     <xsd:complexType name="tfsType">
         <xsd:sequence>
@@ -422,7 +418,6 @@
         <xsd:attribute name="dest" type="filePathType" use="optional"/>
         <xsd:attribute name="materialName" type="nameType" use="optional"/>
         <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
-        <xsd:attribute name="invertFilter" type="xsd:boolean" use="optional"/>
     </xsd:complexType>
     <xsd:complexType name="packageType">
         <xsd:attribute name="ref" type="xsd:string" use="required">

@@ -23,7 +23,7 @@ class Api::ServerController < Api::ApiController
     @config_dir = system_environment.configDir().getAbsolutePath()
   end
 
-  GSON = com.google.gson.GsonBuilder.new.setPrettyPrinting().create()
+  GSON = com.google.gson.GsonBuilder.new.setPrettyPrinting().serializeNulls().create()
 
   def capture_support_info
     respond_to do |format|

@@ -88,8 +88,8 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     public P4MaterialConfig(String serverAndPort, String userName, String password, Boolean useTickets, String viewStr, GoCipher goCipher, CaseInsensitiveString name,
-                            boolean autoUpdate, Filter filter, String folder) {
-        super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
+                            boolean autoUpdate, Filter filter, boolean invertFilter, String folder) {
+        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.serverAndPort = serverAndPort;
         this.goCipher = goCipher;
         setPassword(password);

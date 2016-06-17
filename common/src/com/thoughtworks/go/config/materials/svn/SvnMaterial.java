@@ -93,13 +93,14 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         this(config.getUrl(), config.getUserName(), config.getPassword(), config.isCheckExternals(), config.getGoCipher());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
+        this.invertFilter = config.getInvertFilter();
         this.folder = config.getFolder();
         this.name = config.getName();
     }
 
     @Override
     public MaterialConfig config() {
-        return new SvnMaterialConfig(url, userName, getPassword(), checkExternals, goCipher, autoUpdate, filter, folder, name);
+        return new SvnMaterialConfig(url, userName, getPassword(), checkExternals, goCipher, autoUpdate, filter, invertFilter, folder, name);
     }
 
     private Subversion svn() {

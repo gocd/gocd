@@ -60,15 +60,14 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), false)
-      dup_git_material =GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      dup_git_material = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
       material_configs = MaterialConfigs.new(git_config);
       material_configs.add(dup_git_material)
 
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.get(0)
     end
-
 
     it "should serialize material without name" do
       presenter   = ApiV1::Config::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank"))
@@ -81,7 +80,6 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(git_material_basic_hash)
     end
-
 
     it "should deserialize material without name" do
       presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
@@ -113,8 +111,6 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
                                                 })
       expect(deserialized_object.branch.to_s).to eq(default_branch)
     end
-
-
 
     def material_hash
       {
@@ -169,8 +165,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           url:         ["URL cannot be blank"]
         }
       }
-
     end
+
   end
 
   describe :svn do
@@ -185,7 +181,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      svn_config       = SvnMaterialConfig.new(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, '', CaseInsensitiveString.new('!nV@l!d'))
+      svn_config       = SvnMaterialConfig.new(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(svn_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.get(0)
@@ -243,7 +239,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      hg_config        = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
+      hg_config        = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(hg_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.get(0)
@@ -356,7 +352,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      p4_config        = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, '/dest/')
+      p4_config        = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, false, '/dest/')
       material_configs = MaterialConfigs.new(p4_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.first()

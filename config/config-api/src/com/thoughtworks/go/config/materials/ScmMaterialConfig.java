@@ -42,6 +42,9 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     @ConfigSubtag
     private Filter filter;
 
+    @ConfigAttribute(value = "invertFilter", optional = true)
+    private boolean invertFilter = false;
+
     @ConfigAttribute(value = "dest", allowNull = true)
     protected String folder;
 
@@ -55,14 +58,16 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public static final String FOLDER = "folder";
     public static final String FILTER = "filterAsString";
+    public static final String INVERT_FILTER = "invertFilter";
 
     public ScmMaterialConfig(String typeName) {
         super(typeName);
     }
 
-    public ScmMaterialConfig(CaseInsensitiveString name, Filter filter, String folder, boolean autoUpdate, String typeName, ConfigErrors errors) {
+    public ScmMaterialConfig(CaseInsensitiveString name, Filter filter, boolean invertFilter, String folder, boolean autoUpdate, String typeName, ConfigErrors errors) {
         super(typeName, name, errors);
         this.filter = filter;
+        this.invertFilter = invertFilter;
         this.folder = folder;
         this.autoUpdate = autoUpdate;
     }
@@ -120,6 +125,18 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public void setFilter(Filter filter) {
         this.filter = filter;
+    }
+
+    public boolean isInvertFilter() {
+        return invertFilter;
+    }
+
+    public boolean getInvertFilter() {
+        return invertFilter;
+    }
+
+    public void setInvertFilter(boolean value) {
+        invertFilter = value;
     }
 
     public String getDescription() {
@@ -207,6 +224,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             this.folder = folder;
         }
         this.setAutoUpdate("true".equals(map.get(AUTO_UPDATE)));
+        this.setInvertFilter("true".equals(map.get(INVERT_FILTER)));
         if (map.containsKey(FILTER)) {
             String pattern = (String) map.get(FILTER);
             if (!StringUtil.isBlank(pattern)) {

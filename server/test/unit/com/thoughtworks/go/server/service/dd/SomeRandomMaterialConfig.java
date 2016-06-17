@@ -59,6 +59,11 @@ public class SomeRandomMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
+    public boolean isInvertFilter() {
+        throw new RuntimeException("Ouch!");
+    }
+
+    @Override
     public boolean matches(String name, String regex) {
         throw new RuntimeException("Ouch!");
     }

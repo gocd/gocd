@@ -104,7 +104,7 @@ public class MaterialConfigsMother {
 
     public static HgMaterialConfig hgMaterialConfigFull() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new HgMaterialConfig(new HgUrlArgument("http://user:pass@domain/path##branch"),true, filter, "dest-folder", new CaseInsensitiveString("hg-material") );
+        return new HgMaterialConfig(new HgUrlArgument("http://user:pass@domain/path##branch"),true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material") );
     }
 
     public static HgMaterialConfig hgMaterialConfig() {
@@ -128,7 +128,7 @@ public class MaterialConfigsMother {
 
     public static GitMaterialConfig gitMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new GitMaterialConfig(new UrlArgument("http://user:password@funk.com/blank"), "branch", "sub_module_folder", false, filter, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), true);
+        return new GitMaterialConfig(new UrlArgument("http://user:password@funk.com/blank"), "branch", "sub_module_folder", false, filter, false, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), true);
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url) {
@@ -170,7 +170,7 @@ public class MaterialConfigsMother {
     }
 
     public static SvnMaterialConfig svnMaterialConfig(String svnUrl, String folder, boolean autoUpdate) {
-        SvnMaterialConfig materialConfig = new SvnMaterialConfig(new UrlArgument(svnUrl), "user", "pass", true, new GoCipher(), autoUpdate, new Filter(new IgnoredFiles("*.doc")),
+        SvnMaterialConfig materialConfig = new SvnMaterialConfig(new UrlArgument(svnUrl), "user", "pass", true, new GoCipher(), autoUpdate, new Filter(new IgnoredFiles("*.doc")), false,
                 folder, new CaseInsensitiveString("svn-material"));
         materialConfig.setPassword("pass");
         return materialConfig;

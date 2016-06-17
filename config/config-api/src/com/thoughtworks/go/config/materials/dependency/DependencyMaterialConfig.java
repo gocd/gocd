@@ -88,6 +88,11 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     }
 
     @Override
+    public boolean isInvertFilter() {
+        return false;
+    }
+
+    @Override
     public boolean matches(String name, String regex) {
         return false;
     }

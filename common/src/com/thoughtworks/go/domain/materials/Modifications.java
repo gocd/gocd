@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Collections;
 
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.PackageMaterial;
@@ -136,12 +137,17 @@ public class Modifications extends BaseCollection<Modification> {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Checking Ignore filters for " + materialConfig);
-            LOG.debug("Ignored files : " + ignoredFiles + "");
-            LOG.debug("Changed files : " + CollectionUtils.subtract(allFiles, ignoredFiles) + "");
+            LOG.debug("Checking ignore filters for " + materialConfig);
+            LOG.debug("Ignored files: " + ignoredFiles);
+            LOG.debug("Changed files: " + CollectionUtils.subtract(allFiles, ignoredFiles));
         }
 
-        return ignoredFiles.containsAll(allFiles);
+        if (materialConfig.isInvertFilter()) {
+          // return true (ignore) if we are inverting the filter, and the ignoredFiles and allFiles are disjoint sets
+          return Collections.disjoint(allFiles, ignoredFiles);
+        } else {
+          return ignoredFiles.containsAll(allFiles);
+        }
     }
 
     private void appyIgnoreFilter(MaterialConfig materialConfig, ModifiedFile file, Set<ModifiedFile> ignoredFiles) {

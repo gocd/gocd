@@ -129,20 +129,26 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("Lock Monitor Info", lockMonitorInfo);
 
             LinkedHashMap<String, Object> blockedInfo = new LinkedHashMap<>();
-            blockedInfo.put("Blocked Time", threadInfo.getBlockedTime());
+            blockedInfo.put("Blocked Time", threadInfo.getBlockedTime() == -1 ? null : threadInfo.getBlockedTime());
             blockedInfo.put("Blocked Count", threadInfo.getBlockedCount());
             threadStackTrace.put("Blocked Info", blockedInfo);
 
             LinkedHashMap<String, Object> timeInfo = new LinkedHashMap<>();
-            timeInfo.put("Waited Time", threadInfo.getWaitedTime());
+            timeInfo.put("Waited Time", threadInfo.getWaitedTime() == -1 ? null : threadInfo.getWaitedTime());
             timeInfo.put("Waited Count", threadInfo.getWaitedCount());
             threadStackTrace.put("Time Info", timeInfo);
 
-            LinkedHashMap<String, Object> lockInfo = new LinkedHashMap<>();
-            lockInfo.put("Lock Name", threadInfo.getLockName());
-            lockInfo.put("Lock Owner Thread Id", threadInfo.getLockOwnerId());
-            lockInfo.put("Lock Owner Thread Name", threadInfo.getLockOwnerName());
-            threadStackTrace.put("Lock Info", lockInfo);
+            LinkedHashMap<String, Object> lockInfoMap = new LinkedHashMap<>();
+            LinkedHashMap<String, Object> lockedOn = new LinkedHashMap<>();
+            LockInfo lockInfo = threadInfo.getLockInfo();
+            if (lockInfo != null) {
+                lockedOn.put("Class", lockInfo.getClassName());
+                lockedOn.put("Hashcode", lockInfo.getIdentityHashCode());
+            }
+            lockInfoMap.put("Locked On", lockedOn);
+            lockInfoMap.put("Lock Owner Thread Id", threadInfo.getLockOwnerId() == -1 ? null : threadInfo.getLockOwnerId());
+            lockInfoMap.put("Lock Owner Thread Name", threadInfo.getLockOwnerName());
+            threadStackTrace.put("Lock Info", lockInfoMap);
 
             LinkedHashMap<String, Object> stateInfo = new LinkedHashMap<>();
             stateInfo.put("Suspended", threadInfo.isSuspended());

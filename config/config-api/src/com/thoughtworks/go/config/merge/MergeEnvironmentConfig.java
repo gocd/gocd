@@ -223,7 +223,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        return false; //TODO: jyoti - is this correct?
+        throw new RuntimeException("not impl");
     }
 
     @Override
@@ -382,6 +382,16 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
             locals.addAll(part.getLocalAgents());
         }
         return locals;
+    }
+
+    @Override
+    public boolean containsPipelineRemotely(CaseInsensitiveString pipelineName) {
+        for(EnvironmentConfig part : this)
+        {
+            if(part.containsPipelineRemotely(pipelineName))
+                return true;
+        }
+        return false;
     }
 
     @Override

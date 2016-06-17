@@ -24,14 +24,13 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.TaskConfigVisitor;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
+import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -44,6 +43,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.Is;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -66,6 +66,18 @@ public abstract class CruiseConfigTestBase {
     protected abstract CruiseConfig createCruiseConfig(BasicPipelineConfigs pipelineConfigs);
 
     protected abstract BasicCruiseConfig createCruiseConfig();
+
+    protected PartialConfig createPartial() {
+        return PartialConfigMother.withPipelineInGroup("remote-pipe-1", "remote_group");
+    }
+
+    @Test
+    public void cloneForValidationShouldKeepProposedPartials(){
+        cruiseConfig.setPartials(Arrays.asList(createPartial()));
+        assertThat(cruiseConfig.getPartials().size(),is(1));
+        cruiseConfig = cruiseConfig.cloneForValidation();
+        assertThat(cruiseConfig.getPartials().size(),is(1));
+    }
 
     @Test
     public void shouldLoadPasswordForGivenMaterialFingerprint() {
@@ -828,16 +840,15 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
-    public void getAllLocalPipelines_shouldReturnPipelinesOnlyFromMainPart()
-    {
+    public void getAllLocalPipelines_shouldReturnPipelinesOnlyFromMainPart() {
         PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipe1");
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), pipe1);
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,
                 PartialConfigMother.withPipeline("pipe2"));
 
-        assertThat(cruiseConfig.getAllLocalPipelineConfigs().size(), is(1));
-        assertThat(cruiseConfig.getAllLocalPipelineConfigs(),hasItem(pipe1));
+        assertThat(cruiseConfig.getAllLocalPipelineConfigs(false).size(), is(1));
+        assertThat(cruiseConfig.getAllLocalPipelineConfigs(false), hasItem(pipe1));
     }
 
     @Test
@@ -910,6 +921,13 @@ public abstract class CruiseConfigTestBase {
 
     @Test
     public void shouldCheckCyclicDependency() throws Exception {
+        PipelineConfig p1 = createPipelineConfig("p1", "s1", "j1");
+        PipelineConfig p2 = createPipelineConfig("p2", "s2", "j1");
+        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
+        PipelineConfig p3 = createPipelineConfig("p3", "s3", "j1");
+        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
+        p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("s3")));
+        pipelines.addAll(Arrays.asList(p1,p2,p3));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
@@ -918,17 +936,128 @@ public abstract class CruiseConfigTestBase {
 
         PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");
         cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,  partialConfig);
-        PipelineConfig p1 = createPipelineConfig("p1", "s1", "j1");
-        PipelineConfig p2 = createPipelineConfig("p2", "s2", "j1");
-        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
-        PipelineConfig p3 = createPipelineConfig("p3", "s3", "j1");
-        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
-        p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("s3")));
-        pipelines.addAll(Arrays.asList(p1,p2,p3));
+
         cruiseConfig.validate(mock(ValidationContext.class));
         List<ConfigErrors> allErrors = cruiseConfig.getAllErrors();
         assertThat((allErrors.get(0).on("base")),is("Circular dependency: p1 <- p2 <- p3 <- p1"));
 
+    }
+
+    // UI-like scenarios
+    @Test
+    public void shouldCreateEmptyEnvironmentConfigForEditsWithUIOrigin_WhenFileHasNoEnvironment_AndForEdit()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withEnvironment("remoteEnv");
+        partialConfig.setOrigins(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig);
+
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        assertThat(cruiseConfig.getEnvironments().get(0) instanceof MergeEnvironmentConfig,is(true));
+        assertThat(cruiseConfig.getEnvironments().get(0).name(), is(new CaseInsensitiveString("remoteEnv")));
+        MergeEnvironmentConfig mergedEnv = (MergeEnvironmentConfig)cruiseConfig.getEnvironments().get(0);
+        assertThat(mergedEnv.size(),is(2));
+    }
+    @Test
+    public void shouldCreateEmptyEnvironmentConfigForEditsWithUIOrigin_WhenFileHasNoEnvironmentAnd2RemoteParts_AndForEdit()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig1 = PartialConfigMother.withEnvironment("remoteEnv");
+        partialConfig1.setOrigins(new RepoConfigOrigin());
+        PartialConfig partialConfig2 = PartialConfigMother.withEnvironment("remoteEnv");
+        partialConfig2.setOrigins(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig1,partialConfig2);
+
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        assertThat(cruiseConfig.getEnvironments().get(0) instanceof MergeEnvironmentConfig,is(true));
+        assertThat(cruiseConfig.getEnvironments().get(0).name(), is(new CaseInsensitiveString("remoteEnv")));
+        MergeEnvironmentConfig mergedEnv = (MergeEnvironmentConfig)cruiseConfig.getEnvironments().get(0);
+        assertThat(mergedEnv.size(),is(3));
+    }
+    @Test
+    public void shouldNotCreateMergeEnvironmentConfig_WhenFileHasNoEnvironment_AndNotForEdit()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withEnvironment("remoteEnv");
+        partialConfig.setOrigins(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,false,  partialConfig);
+
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        assertThat(cruiseConfig.getEnvironments().get(0) instanceof MergeEnvironmentConfig, is(false));
+        assertThat(cruiseConfig.getEnvironments().get(0).name(), is(new CaseInsensitiveString("remoteEnv")));
+        assertThat(cruiseConfig.getEnvironments().get(0).isLocal(), is(false));
+    }
+    @Test
+    public void shouldNotCreateEmptyEnvironmentConfigForEditsWithUIOrigin_WhenFileHasEnvironment_AndForEdit()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        mainCruiseConfig.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("Env")));
+        mainCruiseConfig.setOrigins(new FileConfigOrigin());
+        PartialConfig partialConfig = PartialConfigMother.withEnvironment("Env");
+        partialConfig.setOrigins(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig);
+
+        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        assertThat(cruiseConfig.getEnvironments().get(0) instanceof MergeEnvironmentConfig,is(true));
+        assertThat(cruiseConfig.getEnvironments().get(0).name(), is(new CaseInsensitiveString("Env")));
+
+        MergeEnvironmentConfig mergedEnv = (MergeEnvironmentConfig)cruiseConfig.getEnvironments().get(0);
+        assertThat(mergedEnv.size(),is(2));
+        assertThat(mergedEnv.get(0).isLocal(), is(true));
+        assertThat(mergedEnv.get(1).isLocal(), is(false));
+
+    }
+
+    @Test
+    public void shouldModifyEmptyEnvironmentConfigWithUIOrigin()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        PartialConfig partialConfig = PartialConfigMother.withEnvironment("remoteEnv");
+        partialConfig.setOrigins(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig);
+
+        cruiseConfig.getEnvironments().get(0).addAgent("agent");
+        MergeEnvironmentConfig mergedEnv = (MergeEnvironmentConfig)cruiseConfig.getEnvironments().get(0);
+        assertThat(mergedEnv.getFirstEditablePart().getAgents(),hasItem(new EnvironmentAgentConfig("agent")));
+    }
+
+    @Test
+    public void shouldModifyEnvironmentConfigWithFileOrigin()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
+        BasicEnvironmentConfig envInFile = new BasicEnvironmentConfig(new CaseInsensitiveString("Env"));
+        mainCruiseConfig.addEnvironment(envInFile);
+        mainCruiseConfig.setOrigins(new FileConfigOrigin());
+        PartialConfig partialConfig = PartialConfigMother.withEnvironment("Env");
+        partialConfig.setOrigins(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig);
+
+        cruiseConfig.getEnvironments().get(0).addAgent("agent");
+
+        assertThat(envInFile.getAgents(),hasItem(new EnvironmentAgentConfig("agent")));
+    }
+
+    @Test
+    public void shouldAddAuthorizationToPipelinesConfigForEditsWithUIOrigin_WhenFileHasNoPipelineGroupYet_AndForEdit()
+    {
+        BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig();
+        // only remotely defined group
+        PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipe1","group1");
+        partialConfig.setOrigins(new RepoConfigOrigin());
+        cruiseConfig = new BasicCruiseConfig(mainCruiseConfig,true,  partialConfig);
+
+        assertThat(cruiseConfig.getGroups().size(),is(1));
+        assertThat(cruiseConfig.getGroups().get(0) instanceof MergePipelineConfigs,is(true));
+        assertThat(cruiseConfig.getGroups().get(0).getGroup(), is("group1"));
+
+        MergePipelineConfigs mergedEnv = (MergePipelineConfigs)cruiseConfig.getGroups().get(0);
+        assertThat(mergedEnv.getLocal().getOrigin(), Is.<ConfigOrigin>is(new UIConfigOrigin()));
+
+        Authorization authorization = new Authorization(new AdminsConfig(
+                new AdminUser(new CaseInsensitiveString("firstTemplate-admin"))));
+        cruiseConfig.getGroups().get(0).setAuthorization(authorization);
+
+        assertThat(mergedEnv.getLocal().getAuthorization(),is(authorization));
     }
 
     private Role setupSecurityWithRole() {

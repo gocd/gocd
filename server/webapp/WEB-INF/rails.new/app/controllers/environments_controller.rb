@@ -105,6 +105,7 @@ class EnvironmentsController < ApplicationController
 
   def load_pipelines_and_agents
     pipelines = environment_config_service.getAllLocalPipelinesForUser(current_user)
+    # available_pipelines should only contain local pipelines, not referenced already from a remote config repository
 
     @unavailable_pipelines = []
     @available_pipelines = []

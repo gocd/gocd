@@ -16,7 +16,8 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.*;
+import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import org.apache.commons.lang.StringUtils;
@@ -30,8 +31,10 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  *
  * Composite of many pipeline configuration parts.
  */
+@ConfigTag("pipelines")
 public class MergePipelineConfigs implements PipelineConfigs {
 
+    @ConfigSubtag
     private PipelineConfigsPartials parts = new PipelineConfigsPartials();
 
     private final ConfigErrors configErrors = new ConfigErrors();
@@ -45,6 +48,12 @@ public class MergePipelineConfigs implements PipelineConfigs {
     {
         this.parts.addAll(parts);
         validateGroupNameUniqueness(this.parts);
+    }
+
+    public void addPart(BasicPipelineConfigs pipelineConfigs) {
+        if (!StringUtils.equals(pipelineConfigs.getGroup(), this.getGroup()))
+            throw new IllegalArgumentException("Group names must be the same in merge");
+        this.parts.add(pipelineConfigs);
     }
 
     private void validateGroupNameUniqueness(List<PipelineConfigs> parts) {
@@ -147,7 +156,12 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public ConfigOrigin getOrigin() {
-        throw new RuntimeException("Not implemented");
+        MergeConfigOrigin origins = new MergeConfigOrigin();
+        for(PipelineConfigs part : this.parts)
+        {
+            origins.add(part.getOrigin());
+        }
+        return origins;
     }
 
     @Override
@@ -224,6 +238,20 @@ public class MergePipelineConfigs implements PipelineConfigs {
     @Override
     public void validateGroupNameAndAddErrorsTo(ConfigErrors errors) {
         this.parts.get(0).validateGroupNameAndAddErrorsTo(errors);
+    }
+
+    public PipelineConfigs getLocal() {
+        for (PipelineConfigs part : this.parts)
+        {
+            if(part.isLocal())
+                return part;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isLocal() {
+        return getOrigin() == null || getOrigin().isLocal();
     }
 
     @Override

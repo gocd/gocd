@@ -195,6 +195,6 @@ class Admin::PipelineGroupsController < AdminController
   end
 
   def load_config_for_edit
-    assert_load(:cruise_config, CLONER.deepClone(go_config_service.getConfigForEditing()))
+    assert_load(:cruise_config, go_config_service.getMergedConfigForEditing())
   end
 end

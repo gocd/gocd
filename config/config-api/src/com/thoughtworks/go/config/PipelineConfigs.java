@@ -122,4 +122,8 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
     PipelineConfig remove(int i);
 
     void validateGroupNameAndAddErrorsTo(ConfigErrors errors);
+
+    PipelineConfigs getLocal();
+
+    boolean isLocal();
 }

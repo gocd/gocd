@@ -141,34 +141,22 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOnlyLocalPartOfConfigWhenSavingMergedConfig() throws Exception {
+    public void shouldThrowInvalidConfigWhenAttemptedToSaveMergedConfig() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
         PartialConfig remotePart = PartialConfigMother.withPipeline("some-pipe");
         remotePart.setOrigin(new RepoConfigOrigin());
         BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
-        xmlWriter.write(merged, output, true);
-        assertXmlEquals(xml, output.toString());
-    }
-
-    @Test
-    public void shouldValidateMergedConfigWhenSavingMergedConfig() throws Exception {
-        String xml = ConfigFileFixture.TWO_PIPELINES;
-
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
-        // pipeline1 is in xml and and in config repo - this is an error at merged scope
-        PartialConfig remotePart = PartialConfigMother.withPipelineInGroup("pipeline1", "defaultGroup");
-        remotePart.setOrigin(new RepoConfigOrigin());
-        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
-        List<ConfigErrors> errors = merged.validateAfterPreprocess();
-        assertThat(errors.size(),is(2));
         try {
-            xmlWriter.write(merged, output, false);
-            fail("Should not be able to save config when there are errors in merged config");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
+            xmlWriter.write(merged, output, true);
         }
+        catch(GoConfigInvalidException ex) {
+            // ok
+            assertThat(ex.getMessage(),is("Attempted to save merged configuration with patials"));
+            return;
+        }
+        fail("should have thrown when saving merged configuration");
     }
 
     @Test

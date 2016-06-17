@@ -95,4 +95,6 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
     EnvironmentPipelinesConfig getRemotePipelines();
 
     EnvironmentAgentsConfig getLocalAgents();
+
+    boolean containsPipelineRemotely(CaseInsensitiveString pipelineName);
 }

@@ -344,6 +344,25 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
+    public void getAllLocalPipelinesForUser_shouldReturnOnlyLocalPipelines() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Username user = new Username(new CaseInsensitiveString("user"));
+
+        when(mockGoConfigService.getAllLocalPipelineConfigs()).thenReturn(asList(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
+
+        when(securityService.hasViewPermissionForPipeline(user, "foo")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(user, "bar")).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(user, "baz")).thenReturn(false);
+
+        environmentConfigService.sync(environmentsConfig("foo-env", "foo"));
+        List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllLocalPipelinesForUser(user);
+
+
+        assertThat(pipelines.size(), is(2));
+        assertThat(pipelines, is(asList(new EnvironmentPipelineModel("bar"), new EnvironmentPipelineModel("foo", "foo-env"))));
+    }
+
+    @Test
     public void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermsToView() throws NoSuchEnvironmentException
     {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -375,7 +394,7 @@ public class EnvironmentConfigServiceTest {
         env.addAgent("baz");
         env.addEnvironmentVariable("quux", "bang");
         config.getEnvironments().add(env);
-        when(mockGoConfigService.getConfigForEditing()).thenReturn(config);
+        when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
         assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), Is.<EnvironmentConfig>is(env));
         assertThat(result.isSuccessful(), is(true));
     }

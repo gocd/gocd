@@ -170,7 +170,7 @@ public class GoPartialConfigIntegrationTest {
         ServerHealthState healthStateForInvalidConfigMerge = healthStateFor(HealthStateScope.forPartialConfigRepo(repoConfig2));
         assertThat(healthStateForInvalidConfigMerge, is(notNullValue()));
         assertThat(healthStateForInvalidConfigMerge.getMessage(), is("Invalid Merged Configuration"));
-        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("Pipeline &quot;p1_repo1&quot; does not exist. It is used from pipeline &quot;p2_repo2&quot;. -  Config-Repo: url2 at 1"));
+        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("3+ errors :: Pipeline &quot;p1_repo1&quot; does not exist. It is used from pipeline &quot;p2_repo2&quot;.;; Pipeline with name 'p1_repo1' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at 1);; Pipeline with name 'p3_repo3' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at 1);;  -  Config-Repo: url2 at 1"));
         assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
         assertThat(cachedGoPartials.lastValidPartials().isEmpty(), is(true));
         assertThat(cachedGoPartials.lastKnownPartials().size(), is(1));

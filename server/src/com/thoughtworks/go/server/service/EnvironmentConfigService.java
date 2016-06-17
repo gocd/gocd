@@ -154,7 +154,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     public ConfigElementForEdit<EnvironmentConfig> forEdit(String environmentName, HttpLocalizedOperationResult result) {
         ConfigElementForEdit<EnvironmentConfig> edit = null;
         try {
-            CruiseConfig config = goConfigService.getConfigForEditing();
+            CruiseConfig config = goConfigService.getMergedConfigForEditing();
             EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
             edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
@@ -223,7 +223,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return pipelines;
     }
 
-    public HttpLocalizedOperationResult updateEnvironment(final String named, final EnvironmentConfig newDefinition, final Username username, final String md5) {
+    public HttpLocalizedOperationResult updateEnvironment(final String named, final EnvironmentConfig usersNewDefinition, final Username username, final String md5) {
+        final EnvironmentConfig newDefinition = usersNewDefinition.getLocal();
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", named, username.getDisplayName());
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", named);

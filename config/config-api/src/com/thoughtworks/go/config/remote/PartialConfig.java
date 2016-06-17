@@ -45,6 +45,11 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     }
 
     @Override
+    public String toString() {
+        return String.format("ConfigPartial: %s pipes, %s environments; From %s",pipelines.size(),environments.size(),origin);
+    }
+
+    @Override
     public void validate(ValidationContext validationContext) {
 
     }

@@ -116,6 +116,116 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
+    public void shouldRecoverFromDeepConfigRepoReferencesBug1901When2Repos() throws Exception {
+        // pipeline references are like this: pipe1 -> downstream
+        File downstreamExternalConfigRepo = temporaryFolder.newFolder();
+         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
+        String downstreamLatestCommit = setupExternalConfigRepo(downstreamExternalConfigRepo,"external_git_config_repo_referencing_first");
+        configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(downstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml"));
+        goConfigService.forceNotifyListeners();//TODO what if this is not called?
+        ConfigRepoConfig downstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(1);
+        assertThat(configWatchList.getCurrentConfigRepos().size(),is(2));
+
+        // And unluckily downstream gets parsed first
+        repoConfigDataSource.onCheckoutComplete(downstreamConfigRepo.getMaterialConfig(), downstreamExternalConfigRepo, downstreamLatestCommit);
+        // So parsing fails and proper message is shown:
+        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(), is(false));
+        ArrayList<ServerHealthState> messageForInvalidMerge = findMessageFor(HealthStateType.invalidConfigMerge());
+        assertThat(messageForInvalidMerge.isEmpty(), is(false));
+        assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("tries to fetch artifact from pipeline &quot;pipe1&quot;"));
+        // and current config is still old
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream")),is(false));
+        assertThat(cachedGoPartials.lastKnownPartials().size(),is(1));
+        assertThat(cachedGoPartials.lastValidPartials().size(),is(0));
+        //here downstream partial is waiting to be merged
+        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream")),is(true));
+
+        // Finally upstream config repository is parsed
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+
+        // now server should be healthy and contain all pipelines
+        assertThat(findMessageFor(HealthStateType.invalidConfigMerge()).isEmpty(), is(true));
+        assertThat(findMessageFor(HealthStateType.invalidConfig()).isEmpty(), is(true));
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream")), is(true));
+    }
+
+    @Test
+    public void shouldRecoverFromDeepConfigRepoReferencesBug1901When3Repos() throws Exception {
+        // pipeline references are like this: pipe1 -> downstream -> downstream2
+        File secondDownstreamExternalConfigRepo = temporaryFolder.newFolder();
+         /*here is a pipeline 'downstream2' with material dependency on 'downstream' in other repository*/
+        String secondDownstreamLatestCommit = setupExternalConfigRepo(secondDownstreamExternalConfigRepo,"external_git_config_repo_referencing_second");
+        configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(secondDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml"));
+        File firstDownstreamExternalConfigRepo = temporaryFolder.newFolder();
+         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
+        String firstDownstreamLatestCommit = setupExternalConfigRepo(firstDownstreamExternalConfigRepo,"external_git_config_repo_referencing_first");
+        configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(firstDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml"));
+        goConfigService.forceNotifyListeners();
+        ConfigRepoConfig firstDownstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(1);
+        ConfigRepoConfig secondDownstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(2);
+        assertThat(configWatchList.getCurrentConfigRepos().size(),is(3));
+
+        // And unluckily downstream2 gets parsed first
+        repoConfigDataSource.onCheckoutComplete(secondDownstreamConfigRepo.getMaterialConfig(), secondDownstreamExternalConfigRepo, secondDownstreamLatestCommit);
+
+        // So parsing fails and proper message is shown:
+        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(), is(false));
+        ArrayList<ServerHealthState> messageForInvalidMerge = findMessageFor(HealthStateType.invalidConfigMerge());
+        assertThat(messageForInvalidMerge.isEmpty(), is(false));
+        assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("tries to fetch artifact from pipeline &quot;downstream&quot;"));
+        // and current config is still old
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2")),is(false));
+        assertThat(cachedGoPartials.lastKnownPartials().size(),is(1));
+        assertThat(cachedGoPartials.lastValidPartials().size(),is(0));
+        //here downstream2 partial is waiting to be merged
+        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream2")),is(true));
+
+        // Then middle upstream config repository is parsed
+        repoConfigDataSource.onCheckoutComplete(firstDownstreamConfigRepo.getMaterialConfig(), firstDownstreamExternalConfigRepo, firstDownstreamLatestCommit);
+
+        // and errors are still shown
+        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(), is(false));
+        messageForInvalidMerge = findMessageFor(HealthStateType.invalidConfigMerge());
+        assertThat(messageForInvalidMerge.isEmpty(), is(false));
+        assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("Pipeline &quot;pipe1&quot; does not exist. It is used from pipeline &quot;downstream&quot"));
+        // and current config is still old
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream")),is(false));
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2")),is(false));
+        assertThat(cachedGoPartials.lastKnownPartials().size(),is(2));
+        assertThat(cachedGoPartials.lastValidPartials().size(),is(0));
+
+        // Finally upstream config repository is parsed
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+
+        // now server should be healthy and contain all pipelines
+        assertThat(findMessageFor(HealthStateType.invalidConfigMerge()).isEmpty(), is(true));
+        assertThat(findMessageFor(HealthStateType.invalidConfig()).isEmpty(), is(true));
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream")), is(true));
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream2")), is(true));
+    }
+
+    @Test
+    public void shouldFailWhenTryingToAddPipelineDefinedRemotely() throws Exception {
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+        assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+
+        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
+                "www.spring.com");
+        try {
+            goConfigDao.addPipeline(dupPipelineConfig, PipelineConfigs.DEFAULT_GROUP);
+        }
+        catch (RuntimeException ex)
+        {
+            assertThat(ex.getMessage(),containsString("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):"));
+            return;
+        }
+        fail("Should have thrown");
+    }
+
+    @Test
     public void shouldNotifyListenersWhenConfigChanged() {
         ConfigChangeListenerStub listener = new ConfigChangeListenerStub();
         cachedGoConfig.registerListener(listener);
@@ -167,6 +277,15 @@ public class CachedGoConfigIntegrationTest {
             assertThat(actualSources.size(), is(expectedSources.size()));
             assertThat(actualSources.containsAll(expectedSources), is(true));
         }
+    }
+
+    @Test
+    public void shouldReturnRemotePipelinesAmongAllPipelinesInMergedConfigForEdit() throws Exception
+    {
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
+
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+        assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
     }
 
     private ArrayList<ServerHealthState> findMessageFor(final HealthStateType type) {
@@ -644,6 +763,11 @@ public class CachedGoConfigIntegrationTest {
     }
 
     private void checkinPartial(String partial) throws IOException {
+        File externalConfigRepo = this.externalConfigRepo;
+        checkInPartial(partial, externalConfigRepo);
+    }
+
+    private void checkInPartial(String partial, File externalConfigRepo) throws IOException {
         ClassPathResource resource = new ClassPathResource(partial);
         if (resource.getFile().isDirectory()) {
             FileUtils.copyDirectory(resource.getFile(), externalConfigRepo);
@@ -664,7 +788,12 @@ public class CachedGoConfigIntegrationTest {
     }
 
     private String setupExternalConfigRepo(File configRepo) throws IOException {
-        ClassPathResource resource = new ClassPathResource("external_git_config_repo");
+        String configRepoTestResource = "external_git_config_repo";
+        return setupExternalConfigRepo(configRepo, configRepoTestResource);
+    }
+
+    private String setupExternalConfigRepo(File configRepo, String configRepoTestResource) throws IOException {
+        ClassPathResource resource = new ClassPathResource(configRepoTestResource);
         FileUtils.copyDirectory(resource.getFile(), configRepo);
         CommandLine.createCommandLine("git").withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb("");
         gitAddDotAndCommit(configRepo);

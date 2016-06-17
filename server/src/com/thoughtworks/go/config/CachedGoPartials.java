@@ -115,7 +115,6 @@ public class CachedGoPartials {
         }
     }
 
-
     private class UpdatedPartial {
         private PartialConfig partialConfig;
         private DateTime lastUpdated;

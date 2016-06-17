@@ -16,6 +16,10 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import javax.annotation.PostConstruct;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -35,11 +39,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
-
-import javax.annotation.PostConstruct;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -75,41 +74,51 @@ public class BasicCruiseConfig implements CruiseConfig {
         strategy = new BasicStrategy();
     }
 
-    public BasicCruiseConfig(BasicCruiseConfig main, PartialConfig... parts) {
+    public BasicCruiseConfig(BasicCruiseConfig main,boolean forEdit, PartialConfig... parts){
         List<PartialConfig> partList = Arrays.asList(parts);
-
-        createMergedConfig(main, partList);
+        createMergedConfig(main, partList,forEdit);
+    }
+    public BasicCruiseConfig(BasicCruiseConfig main, PartialConfig... parts){
+        List<PartialConfig> partList = Arrays.asList(parts);
+        createMergedConfig(main, partList,false);
     }
 
     public BasicCruiseConfig(BasicCruiseConfig main, List<PartialConfig> parts) {
-        createMergedConfig(main, parts);
+        createMergedConfig(main, parts, false);
     }
 
     @Override
-    public void merge(List<PartialConfig> partList) {
+    public void merge(List<PartialConfig> partList, boolean forEdit) {
         if (partList.isEmpty()) {
             return;
         }
-        MergeStrategy mergeStrategy = new MergeStrategy(this, partList);
+        if(this.strategy instanceof MergeStrategy)
+            throw new RuntimeException("cannot merge partials to already merged configuration");
+        MergeStrategy mergeStrategy = new MergeStrategy(partList,forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
         this.resetAllPipelineConfigsCache();
         environments = mergeStrategy.mergeEnvironmentConfigs();
+        //TODO temporary to check if this causes #1901
+        pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+        allPipelineConfigs = null;
     }
 
     private void resetAllPipelineConfigsCache() {
         allPipelineConfigs = null;
     }
 
-    private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList) {
+    private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList,boolean forEdit) {
         this.serverConfig = main.serverConfig;
         this.packageRepositories = main.packageRepositories;
         this.scms = main.scms;
         this.templatesConfig = main.templatesConfig;
         this.agents = main.agents;
         this.configRepos = main.configRepos;
+        this.groups = main.groups;
+        this.environments = main.environments;
 
-        MergeStrategy mergeStrategy = new MergeStrategy(main, partList);
+        MergeStrategy mergeStrategy = new MergeStrategy(partList,forEdit);
         this.strategy = mergeStrategy;
 
         groups = mergeStrategy.mergePipelineConfigs();
@@ -135,9 +144,13 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         void setOrigins(ConfigOrigin origins);
 
-        CruiseConfig getLocal();
+        List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
 
-        List<PipelineConfig> getAllLocalPipelineConfigs();
+        List<PartialConfig> getMergedPartials();
+
+        boolean isLocal();
+
+        CruiseConfig cloneForValidation();
     }
 
     private class BasicStrategy implements CruiseStrategy {
@@ -164,14 +177,24 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
 
         @Override
-        public CruiseConfig getLocal() {
-            return BasicCruiseConfig.this;
+        public List<PartialConfig> getMergedPartials() {
+            return new ArrayList<>();
         }
 
+        @Override
+        public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
+            return getAllPipelineConfigs();
+        }
 
         @Override
-        public List<PipelineConfig> getAllLocalPipelineConfigs() {
-            return getAllPipelineConfigs();
+        public boolean isLocal() {
+            return true;
+        }
+
+        @Override
+        public CruiseConfig cloneForValidation() {
+            Cloner cloner = new Cloner();
+            return cloner.deepClone(BasicCruiseConfig.this);
         }
     }
 
@@ -186,12 +209,14 @@ public class BasicCruiseConfig implements CruiseConfig {
          Main configuration is still validated within its own scope, explicitly, at the right moment,
          But that is done higher in services.
          */
-        @IgnoreTraversal
-        private BasicCruiseConfig main;
-        private List<PartialConfig> parts = new ArrayList<>();
 
-        public MergeStrategy(BasicCruiseConfig main, List<PartialConfig> parts) {
-            this.main = main;
+        //@IgnoreTraversal
+        //private BasicCruiseConfig main; // this might be causing cloning troubles
+        private boolean forEdit;
+        private List<PartialConfig> parts = new ArrayList<PartialConfig>();
+
+        public MergeStrategy(List<PartialConfig> parts,boolean forEdit) {
+            this.forEdit = forEdit;
             this.parts.addAll(parts);
         }
 
@@ -200,7 +225,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
             //first add environment configs from main
             List<EnvironmentConfig> allEnvConfigs = new ArrayList<>();
-            for (EnvironmentConfig envConfig : this.main.getEnvironments()) {
+            for (EnvironmentConfig envConfig : BasicCruiseConfig.this.getEnvironments()) {
                 allEnvConfigs.add(envConfig);
             }
             // then add from each part
@@ -219,11 +244,43 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
                 map.get(key).add(env);
             }
-            for (List<EnvironmentConfig> oneEnv : map.values()) {
-                if (oneEnv.size() == 1)
-                    environments.add(oneEnv.get(0));
+            for(List<EnvironmentConfig> oneEnv : map.values())
+            {
+                if(forEdit) {
+                    // this cruise configuration may be changed (and cloned) later
+                    // if all parts are immutable then we must add a piece for edits
+                    if (oneEnv.size() == 1) {
+                        EnvironmentConfig sole = oneEnv.get(0);
+                        if (sole.isLocal()) {
+                            // the sole part is editable anyway
+                            environments.add(sole);
+                        }
+                        else {
+                            BasicEnvironmentConfig environmentConfigForEdit = new BasicEnvironmentConfig(sole.name());
+                            environmentConfigForEdit.setOrigins(new UIConfigOrigin());
+                            environments.add(new MergeEnvironmentConfig(environmentConfigForEdit, sole));
+                        }
+                    } else {
+                        MergeEnvironmentConfig merge = new MergeEnvironmentConfig(oneEnv);
+                        if(merge.getFirstEditablePartOrNull() == null)
+                        {
+                            //no parts to edit, we must add one
+                            BasicEnvironmentConfig environmentConfigForEdit = new BasicEnvironmentConfig(merge.name());
+                            environmentConfigForEdit.setOrigins(new UIConfigOrigin());
+                            merge.add(environmentConfigForEdit);
+                        }
+                        environments.add(merge);
+                    }
+                }
                 else
-                    environments.add(new MergeEnvironmentConfig(oneEnv));
+                {
+                    // there will not be any modifications on this config.
+                    // just keep all parts in simple form
+                    if(oneEnv.size() == 1)
+                        environments.add(oneEnv.get(0));
+                    else
+                        environments.add(new MergeEnvironmentConfig(oneEnv));
+                }
             }
 
             return environments;
@@ -234,12 +291,15 @@ public class BasicCruiseConfig implements CruiseConfig {
 
             // first add pipeline configs from main part
             List<PipelineConfigs> allPipelineConfigs = new ArrayList<>();
-            for (PipelineConfigs partPipesConf : this.main.getGroups()) {
+            for (PipelineConfigs partPipesConf : BasicCruiseConfig.this.getGroups()) {
                 allPipelineConfigs.add(partPipesConf);
             }
             // then add from each part
             for (PartialConfig part : this.parts) {
                 for (PipelineConfigs partPipesConf : part.getGroups()) {
+                    for (PipelineConfig pipelineConfig : partPipesConf) {
+                        BasicCruiseConfig.this.getAllPipelineConfigs().add(pipelineConfig);
+                    }
                     allPipelineConfigs.add(partPipesConf);
                 }
             }
@@ -254,24 +314,52 @@ public class BasicCruiseConfig implements CruiseConfig {
                 }
                 map.get(key).add(pipes);
             }
-            for (List<PipelineConfigs> oneGroup : map.values()) {
-                if (oneGroup.size() == 1)
-                    groups.add(oneGroup.get(0));
+
+            for(List<PipelineConfigs> oneGroup : map.values())
+            {
+                if(forEdit) {
+                    // this cruise configuration may be changed (and cloned) later
+                    // if all parts are immutable then we must add a piece for edits
+                    if (oneGroup.size() == 1) {
+                        PipelineConfigs sole = oneGroup.get(0);
+                        if (sole.isLocal()) {
+                            // the sole part is editable anyway
+                            groups.add(sole);
+                        }
+                        else {
+                            BasicPipelineConfigs pipelineConfigsForEdit = new BasicPipelineConfigs();
+                            pipelineConfigsForEdit.setGroup(sole.getGroup());
+                            pipelineConfigsForEdit.setOrigins(new UIConfigOrigin());
+                            groups.add(new MergePipelineConfigs(pipelineConfigsForEdit, sole));
+                        }
+                    } else {
+                        MergePipelineConfigs merge = new MergePipelineConfigs(oneGroup);
+                        if(merge.getFirstEditablePartOrNull() == null)
+                        {
+                            //no parts to edit, we must add one
+                            BasicPipelineConfigs pipelineConfigsForEdit = new BasicPipelineConfigs();
+                            pipelineConfigsForEdit.setGroup(merge.getGroup());
+                            pipelineConfigsForEdit.setOrigins(new UIConfigOrigin());
+                            merge.addPart(pipelineConfigsForEdit);
+                        }
+                        groups.add(merge);
+                    }
+                }
                 else
-                    groups.add(new MergePipelineConfigs(oneGroup));
+                {
+                    // there will not be any modifications on this config.
+                    // just keep all parts in simple form
+                    if(oneGroup.size() == 1)
+                        groups.add(oneGroup.get(0));
+                    else
+                        groups.add(new MergePipelineConfigs(oneGroup));
+                }
             }
 
             return groups;
         }
 
-//        @Override
-//        public ConfigOrigin getOrigin() {
-//            MergeConfigOrigin origins = new MergeConfigOrigin(this.main.getOrigin());
-//            for (PartialConfig part : this.parts) {
-//                origins.add(part.getOrigin());
-//            }
-//            return origins;
-//        }
+        @Override
         public ConfigOrigin getOrigin() {
             return new MergeConfigOrigin();
         }
@@ -282,14 +370,78 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
 
         @Override
-        public CruiseConfig getLocal() {
-            return this.main;
+        public List<PartialConfig> getMergedPartials() {
+            return this.parts;
+        }
+
+        private void verifyUniqueNameInParts(PipelineConfig pipelineConfig) {
+            for (PartialConfig part : this.parts) {
+                for (PipelineConfigs partGroup : part.getGroups()) {
+                    if (partGroup.hasPipeline(pipelineConfig.name())) {
+                        throw bomb("Pipeline called '" + pipelineConfig.name() +
+                                "' is already defined in configuration repository " +
+                                part.getOrigin().displayName());
+                    }
+
+                }
+            }
         }
 
         @Override
-        public List<PipelineConfig> getAllLocalPipelineConfigs() {
-            return this.main.getAllPipelineConfigs();
+        public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
+            List<PipelineConfig> locals = new ArrayList<>();
+
+            PipelineGroups localGroups = BasicCruiseConfig.this.groups.getLocal();
+            for(PipelineConfigs pipelineConfigs : localGroups)
+            {
+                if(pipelineConfigs.getOrigin() instanceof UIConfigOrigin)
+                {
+                    //then we have injected this so that UI has a piece to edit
+                    // we want to keep it only if there is something added
+                    if(!pipelineConfigs.isEmpty())
+                    {
+                        for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
+                            if(excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                                continue;
+                            locals.add(pipelineConfig);
+                        }
+
+                    }
+                }
+                else
+                {
+                    //origin is local file
+
+                    for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
+                        if(excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                            continue;
+                        locals.add(pipelineConfig);
+                    }
+
+                }
+            }
+            return locals;
         }
+
+        @Override
+        public boolean isLocal() {
+            return false;
+        }
+
+        @Override
+        public CruiseConfig cloneForValidation() {
+            Cloner cloner = new Cloner();
+            BasicCruiseConfig configForValidation = cloner.deepClone(BasicCruiseConfig.this);
+            // and this must be initialized again, we don't want _same_ instances in groups and in allPipelineConfigs
+            configForValidation.allPipelineConfigs = null;
+            configForValidation.pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+            return configForValidation;
+        }
+    }
+
+    @Override
+    public CruiseConfig cloneForValidation() {
+        return strategy.cloneForValidation();
     }
 
     @Override
@@ -552,11 +704,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public int schemaVersion() {
         return GoConstants.CONFIG_SCHEMA_VERSION;
-    }
-
-    @Override
-    public CruiseConfig getLocal() {
-        return strategy.getLocal();
     }
 
     @Override
@@ -1235,7 +1382,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     public List<PipelineConfig> getAllLocalPipelineConfigs() {
-        return strategy.getAllLocalPipelineConfigs();
+        return strategy.getAllLocalPipelineConfigs(false);
     }
 
     @Override
@@ -1246,6 +1393,21 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PartialConfig> getPartials() {
         return partials;
+    }
+
+    @Override
+    public List<PartialConfig> getMergedPartials() {
+        return strategy.getMergedPartials();
+    }
+
+    @Override
+    public List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments) {
+        return  strategy.getAllLocalPipelineConfigs(excludeMembersOfRemoteEnvironments);
+    }
+
+    @Override
+    public boolean isLocal() {
+        return this.strategy.isLocal();
     }
 
     @Override

@@ -40,7 +40,7 @@ import java.util.Set;
 public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     String WORKING_BASE_DIR = "pipelines/";
 
-    void merge(List<PartialConfig> partList);
+    void merge(List<PartialConfig> partList, boolean forEdit);
 
     @PostConstruct
     void initializeServer();
@@ -49,11 +49,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     String getMd5();
 
     int schemaVersion();
-
-    /**
-     * Gets only elements of CruiseConfig which are defined locally.
-     */
-    CruiseConfig getLocal();
 
     ConfigReposConfig getConfigRepos();
 
@@ -262,4 +257,16 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     void setPartials(List<PartialConfig> partials);
 
     List<PartialConfig> getPartials();
+
+    List<PipelineConfig> getAllLocalPipelineConfigs(boolean excludeMembersOfRemoteEnvironments);
+
+    boolean isLocal();
+
+    /**
+     * Gets remote config parts currently active in this configuration.
+     * Note: It does NOT guarantee that these partials are valid.
+     */
+    List<PartialConfig> getMergedPartials();
+
+    CruiseConfig cloneForValidation();
 }

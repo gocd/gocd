@@ -124,7 +124,7 @@ public class GoConfigFileHelper {
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials);
             dataSource.upgradeIfNecessary();
-            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -143,7 +143,8 @@ public class GoConfigFileHelper {
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService, new CachedGoPartials(serverHealthService));
             dataSource.upgradeIfNecessary();
-            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource);
+            CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {

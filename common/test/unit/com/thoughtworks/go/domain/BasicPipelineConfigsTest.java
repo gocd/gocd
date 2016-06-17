@@ -21,11 +21,14 @@ import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.PipelineConfigsTestBase;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertSame;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -46,6 +49,32 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
     protected PipelineConfigs createWithPipelines(PipelineConfig first, PipelineConfig second) {
         return new BasicPipelineConfigs(first, second);
     }
+
+
+    @Test
+    public void shouldReturnSelfForGetLocalWhenOriginIsNull()
+    {
+        PipelineConfigs pipelineConfigs = createEmpty();
+        assertThat(pipelineConfigs.getLocal().size(), is(0));
+        assertSame(pipelineConfigs,pipelineConfigs.getLocal());
+    }
+    @Test
+    public void shouldReturnSelfForGetLocalPartsWhenOriginIsFile()
+    {
+        PipelineConfigs pipelineConfigs = createEmpty();
+        pipelineConfigs.setOrigins(new FileConfigOrigin());
+        assertThat(pipelineConfigs.getLocal().size(), is(0));
+        assertSame(pipelineConfigs, pipelineConfigs.getLocal());
+    }
+    @Test
+    public void shouldReturnNullGetLocalPartsWhenOriginIsRepo()
+    {
+        PipelineConfigs pipelineConfigs = createEmpty();
+        pipelineConfigs.setOrigins(new RepoConfigOrigin());
+        assertNull(pipelineConfigs.getLocal());
+    }
+
+
     @Test
     public void shouldSetOriginInPipelines() {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");

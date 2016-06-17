@@ -299,12 +299,12 @@ public class ConfigConverter {
             if (StringUtils.isBlank(gitBranch))
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
             return new GitMaterialConfig(new UrlArgument(git.getUrl()), gitBranch,
-                    null, git.isAutoUpdate(), filter, crScmMaterial.getDirectory(),
+                    null, git.isAutoUpdate(), filter, false, crScmMaterial.getDirectory(),
                     toMaterialName(materialName), git.shallowClone());
         } else if (crScmMaterial instanceof CRHgMaterial) {
             CRHgMaterial hg = (CRHgMaterial) crScmMaterial;
             return new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
-                    hg.isAutoUpdate(), toFilter(crScmMaterial), hg.getDirectory(),
+                    hg.isAutoUpdate(), toFilter(crScmMaterial), false, hg.getDirectory(),
                     toMaterialName(materialName));
         } else if (crScmMaterial instanceof CRP4Material) {
             CRP4Material crp4Material = (CRP4Material) crScmMaterial;

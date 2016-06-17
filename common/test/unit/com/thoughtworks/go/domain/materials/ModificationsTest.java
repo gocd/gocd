@@ -277,7 +277,7 @@ public class ModificationsTest {
         materialConfig.setFilter(filter);
         materialConfig.setInvertFilter(true);
 
-        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("foo/bar.baz")));
+        Modifications modifications = new Modifications(multipleCheckin(aCheckIn("101", "foo/bar.baz")));
         assertThat(modifications.shouldBeIgnoredByFilterIn(materialConfig), is(false));
     }
 

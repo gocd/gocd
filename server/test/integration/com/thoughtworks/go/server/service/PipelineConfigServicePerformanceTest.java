@@ -155,6 +155,28 @@ public class PipelineConfigServicePerformanceTest {
 
     @Test
     @Ignore
+    public void performanceTestForDeletePipeline() throws Exception {
+        setupPipelines(numberOfRequests);
+        final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
+        run(new Runnable() {
+            @Override
+            public void run() {
+                PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
+                pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+                PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
+                pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+                updateTimer.stop();
+                results.put(Thread.currentThread().getName(), result.isSuccessful());
+                if (!result.isSuccessful()) {
+                    LOGGER.error(result.toString());
+                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
+                }
+            }
+        }, numberOfRequests, results);
+    }
+
+    @Test
+    @Ignore
     public void performanceTestForCreatePipeline() throws Exception {
         setupPipelines(0);
         final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();

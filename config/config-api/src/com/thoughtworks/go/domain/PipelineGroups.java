@@ -72,6 +72,15 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         }
     }
 
+    public void deletePipeline(PipelineConfig pipelineConfig) {
+        for (PipelineConfigs group : this) {
+            if(group.hasPipeline(pipelineConfig.name())){
+                group.remove(pipelineConfig);
+                return;
+            }
+        }
+    }
+
     private void createNewGroup(String sanitizedGroupName, PipelineConfig pipeline) {
         PipelineConfigs configs = new BasicPipelineConfigs(pipeline);
         configs.setGroup(sanitizedGroupName);

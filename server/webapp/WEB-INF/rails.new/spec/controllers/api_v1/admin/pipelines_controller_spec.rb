@@ -104,6 +104,31 @@ describe ApiV1::Admin::PipelinesController do
         expect(controller).to allow_action(:post, :create, :group => @group)
       end
     end
+
+    describe :destroy do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:delete, :destroy)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        @security_service.stub(:isUserAdminOfGroup).and_return(false)
+        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should disallow normal users, with security enabled' do
+        login_as_user
+        @security_service.stub(:isUserAdminOfGroup).and_return(false)
+        expect(controller).to disallow_action(:delete, :destroy, :pipeline_name => "pipeline1").with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:delete, :destroy)
+      end
+    end
   end
 
   describe :action do
@@ -294,8 +319,6 @@ describe ApiV1::Admin::PipelinesController do
         expect(response).to be_ok
         expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
       end
-
-
     end
 
     describe :create do
@@ -306,7 +329,7 @@ describe ApiV1::Admin::PipelinesController do
 
       it "should not allow non admin users to create a new pipeline config" do
         login_as_pipeline_group_Non_Admin_user
-        post_with_api_header :create, name: @pipeline_name, :pipeline => pipeline, :group => "new_grp"
+        post_with_api_header :create, pipeline_name: @pipeline_name, :pipeline => pipeline, :group => "new_grp"
 
         expect(response.code).to eq("401")
 
@@ -321,7 +344,7 @@ describe ApiV1::Admin::PipelinesController do
         @security_service.stub(:isUserAdminOfGroup).and_return(false) # pipeline group admin
         @security_service.stub(:isUserAdmin).and_return(false) # not an admin
 
-        post_with_api_header :create, name: @pipeline_name, :pipeline => pipeline, :group => "another_group"
+        post_with_api_header :create, pipeline_name: @pipeline_name, :pipeline => pipeline, :group => "another_group"
 
         expect(response.code).to eq("401")
 
@@ -406,7 +429,7 @@ describe ApiV1::Admin::PipelinesController do
         @security_service.stub(:isUserAdmin).and_return(true)
         @pipeline_config_service.stub(:getPipelineConfig).and_return(nil)
 
-        post_with_api_header :create, name: @pipeline_name, :pipeline => pipeline, :group => ""
+        post_with_api_header :create, pipeline_name: @pipeline_name, :pipeline => pipeline, :group => ""
 
         expect(response.code).to eq("422")
 
@@ -444,6 +467,58 @@ describe ApiV1::Admin::PipelinesController do
         post_with_api_header :create, :pipeline => pipeline_with_pluggable_material("pipeline1", "plugin", "scm-id"), :group => "group", :pipeline_name => @pipeline_name
         expect(response).to be_ok
         expect(pipeline_being_saved.materialConfigs().first().getSCMConfig()).to eq(@scm)
+      end
+    end
+
+    describe :destroy do
+      before(:each) do
+        login_as_admin
+        @pipeline_name = "pipeline1"
+        @pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        @pipeline_config_service.stub(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        @security_service.stub(:isUserAdminOfGroup).and_return(true)
+      end
+
+      it "should delete pipeline config for an admin" do
+        can_delete_message = com.thoughtworks.go.server.presentation.CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
+        @pipeline_config_service.should_receive(:canDeletePipelines).and_return({CaseInsensitiveString.new(@pipeline_name) => can_delete_message})
+
+        @pipeline_config_service.should_receive(:deletePipelineConfig).with(anything(), @pipeline, an_instance_of(HttpLocalizedOperationResult)) do |username, pipeline, result|
+          result.setMessage(LocalizedMessage.string("PIPELINE_DELETE_SUCCESSFUL", pipeline.name.to_s))
+        end
+
+        put_with_api_header :destroy, pipeline_name: @pipeline_name
+
+        expect(response.code).to eq("200")
+        expect(actual_response).to eq({ :message => "Pipeline 'pipeline1' was deleted successfully." })
+      end
+
+      it "should not delete the pipeline config if the pipeline is used as a material in some another pipeline" do
+        can_not_delete_message = com.thoughtworks.go.server.presentation.CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", @pipeline_name, "some-downstream-pipeline"))
+        @pipeline_config_service.should_receive(:canDeletePipelines).and_return({CaseInsensitiveString.new(@pipeline_name) => can_not_delete_message})
+
+        put_with_api_header :destroy,pipeline_name: @pipeline_name
+
+        expect(response.code).to eq("422")
+        expect(actual_response).to eq({ :message => "Cannot delete pipeline 'pipeline1' as pipeline 'some-downstream-pipeline' depends on it" })
+      end
+
+      it "should not delete the pipeline config if the pipeline is used in an environment" do
+        can_not_delete_message = com.thoughtworks.go.server.presentation.CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", @pipeline_name, "foo-environment"))
+        @pipeline_config_service.should_receive(:canDeletePipelines).and_return({CaseInsensitiveString.new(@pipeline_name) => can_not_delete_message})
+
+        put_with_api_header :destroy, pipeline_name: @pipeline_name
+
+        expect(response.code).to eq("422")
+        expect(actual_response).to eq({ :message => "Cannot delete pipeline 'pipeline1' as it is present in environment 'foo-environment'" })
+      end
+
+      it "should render not found if the specified pipeline is absent" do
+        @pipeline_config_service.stub(:getPipelineConfig).with(@pipeline_name).and_return(nil)
+        put_with_api_header :destroy, pipeline_name: @pipeline_name
+
+        expect(response.code).to eq("404")
+        expect(actual_response).to eq({ :message => "Either the resource you requested was not found, or you are not authorized to perform this action." })
       end
     end
 

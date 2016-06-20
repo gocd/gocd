@@ -41,21 +41,21 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 
 public class RemoteRegistrationRequesterTest {
-    private Properties original;
+    private String original;
 
     @Before
     public void before() {
-        original = new Properties(System.getProperties());
+        original = System.getProperty("os.name");
+        System.setProperty("os.name", "minix");
     }
 
     @After
     public void after() {
-        System.setProperties(original);
+        System.setProperty("os.name", original);
     }
 
     @Test
     public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {
-        new SystemEnvironment().setProperty("os.name", "minix");
         String url = "http://cruise.com/go";
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
@@ -71,7 +71,6 @@ public class RemoteRegistrationRequesterTest {
 
     @Test
     public void shouldPassAllParametersToPostForRegistrationOfElasticAgent() throws IOException, ClassNotFoundException {
-        new SystemEnvironment().setProperty("os.name", "minix");
         String url = "http://cruise.com/go";
         HttpClient httpClient = Mockito.mock(HttpClient.class);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();

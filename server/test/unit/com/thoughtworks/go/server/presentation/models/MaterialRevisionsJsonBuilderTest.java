@@ -118,7 +118,7 @@ public class MaterialRevisionsJsonBuilderTest {
         JSONArray jsonArray = (JSONArray) revision.get("modifications");
         JSONObject modification = (JSONObject) jsonArray.get(0);
 
-        assertAttributeInJson(modification, "user", escapeHtml(ModificationsMother.MOD_USER_WITH_HTML_CHAR));
+        assertAttributeInJson(modification, "user", ModificationsMother.MOD_USER_WITH_HTML_CHAR);
         assertAttributeInJson(modification, "comment", escapeHtml(ModificationsMother.MOD_COMMENT_3));
     }
 

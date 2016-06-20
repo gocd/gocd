@@ -83,12 +83,6 @@ public class StageDetailPresentationModel {
         return stage.stageState().toString().toLowerCase();
     }
 
-    public String getMaterialRevisionsJson() {
-        MaterialRevisionsJsonBuilder jsonVisitor = new MaterialRevisionsJsonBuilder(trackingTool);
-        pipeline.getBuildCause().getMaterialRevisions().accept(jsonVisitor);
-        return render(jsonVisitor.json());
-    }
-
     public TimeConverter.ConvertedTime getModificationTime() {
         return this.converter.getConvertedTime(pipeline.getBuildCause().getMaterialRevisions().getDateOfLatestModification());
     }

@@ -97,15 +97,14 @@ public class BasicCruiseConfig implements CruiseConfig {
         MergeStrategy mergeStrategy = new MergeStrategy(partList,forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
-        this.resetAllPipelineConfigsCache();
         environments = mergeStrategy.mergeEnvironmentConfigs();
-        //TODO temporary to check if this causes #1901
-        pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
-        allPipelineConfigs = null;
+        this.resetAllPipelineConfigsCache();
     }
 
     private void resetAllPipelineConfigsCache() {
         allPipelineConfigs = null;
+        //TODO temporary to check if this causes #1901
+        pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
     }
 
     private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList,boolean forEdit) {
@@ -298,9 +297,6 @@ public class BasicCruiseConfig implements CruiseConfig {
             // then add from each part
             for (PartialConfig part : this.parts) {
                 for (PipelineConfigs partPipesConf : part.getGroups()) {
-                    for (PipelineConfig pipelineConfig : partPipesConf) {
-                        BasicCruiseConfig.this.getAllPipelineConfigs().add(pipelineConfig);
-                    }
                     allPipelineConfigs.add(partPipesConf);
                 }
             }

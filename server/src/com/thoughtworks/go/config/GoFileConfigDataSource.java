@@ -289,7 +289,7 @@ public class GoFileConfigDataSource {
                     serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
                     try {
                         String configAsXml = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
-                        validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastValidPartials);
+                        validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), cachedGoPartials.lastValidPartials());
                         // These have changed now
                         int previousValidPartialsCount = lastValidPartials.size();
                         lastValidPartials = cachedGoPartials.lastValidPartials();

@@ -180,7 +180,7 @@ public class GoPartialConfigIntegrationTest {
         goPartialConfig.onSuccessPartialConfig(repoConfig3, repo3);
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p3.name()), is(true));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p2.name()), is(false));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p2.name()), is(false));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p1.name()), is(false));
         assertThat(healthStateFor(HealthStateType.invalidConfigMerge()), is(notNullValue()));
         assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
         assertThat(cacheContainsPartial(cachedGoPartials.lastValidPartials(), repo2), is(false));

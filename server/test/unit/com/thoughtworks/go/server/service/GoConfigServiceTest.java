@@ -1263,7 +1263,7 @@ public class GoConfigServiceTest {
                 UpdateConfigCommand configCommand = (UpdateConfigCommand) item;
                 CruiseConfig updatedConfig = null;
                 try {
-                    updatedConfig = configCommand.update(null);
+                    updatedConfig = configCommand.update(new BasicCruiseConfig());
                 } catch (Exception e) {
                     Assert.fail(String.format("Updating config through exception : %s", e));
                 }

@@ -400,19 +400,19 @@ public class PipelineConfigServiceIntegrationTest {
 
     @Test
     public void shouldDeletePipelineConfig() throws Exception {
-        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(2));
         assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
 
         pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
 
         assertTrue(result.isSuccessful());
-        assertThat(goConfigService.getAllPipelineConfigs().size(), is(0));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
         assertFalse(goConfigService.hasPipelineNamed(pipelineConfig.name()));
     }
 
     @Test
     public void shouldNotDeleteThePipelineForUnauthorizedUsers() throws Exception {
-        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(2));
         assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
 
         pipelineConfigService.deletePipelineConfig(new Username(new CaseInsensitiveString("unauthorized-user")), pipelineConfig, result);
@@ -420,7 +420,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.toString().contains("UNAUTHORIZED_TO_DELETE_PIPELINE"), is(true));
         assertThat(result.httpCode(), is(401));
-        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(2));
         assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
     }
 

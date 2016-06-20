@@ -197,7 +197,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
                 public boolean call() throws Exception {
                     return subProcessNames().contains(processName) == expectExist;
                 }
-            }, 1);
+            }, 250);
         } catch (RuntimeException e) {
             throw new RuntimeException("timeout waiting for subprocess " + (expectExist ? "exists" : "not exists") + ", current sub processes are: " + subProcessNames());
         }

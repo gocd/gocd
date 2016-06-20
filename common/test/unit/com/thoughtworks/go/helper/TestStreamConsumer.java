@@ -48,7 +48,7 @@ public class TestStreamConsumer implements StreamConsumer {
             public boolean call() throws Exception {
                 return output().contains(content);
             }
-        }, 1);
+        }, 250);
     }
 
     public void clear() {

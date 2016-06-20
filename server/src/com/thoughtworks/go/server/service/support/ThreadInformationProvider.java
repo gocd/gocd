@@ -88,6 +88,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
     private Map<String, Object> getDeadLockThreadInformation(ThreadMXBean threadMXBean) {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
+
         if (deadlockedThreads != null && deadlockedThreads.length > 0) {
             json.put("Count", deadlockedThreads.length);
             for (long deadlockedThread : deadlockedThreads) {
@@ -124,8 +125,20 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("State", threadInfo.getThreadState());
 
             LinkedHashMap<String, Object> lockMonitorInfo = new LinkedHashMap<>();
-            lockMonitorInfo.put("Locked Monitors", mapToString(threadInfo.getLockedMonitors()));
-            lockMonitorInfo.put("Locked Synchronizers", mapToString(threadInfo.getLockedSynchronizers()));
+            MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
+            ArrayList<Map<String, Object>> lockedMonitorsJson = new ArrayList<>();
+
+            for (MonitorInfo lockedMonitor : lockedMonitors) {
+                LinkedHashMap<String, Object> lockedMonitorJson = new LinkedHashMap<>();
+                lockedMonitorJson.put("Class", lockedMonitor.getClassName());
+                lockedMonitorJson.put("IdentityHashCode", lockedMonitor.getIdentityHashCode());
+                lockedMonitorJson.put("LockedStackDepth", lockedMonitor.getLockedStackDepth());
+                lockedMonitorJson.put("StackFrame", lockedMonitor.getLockedStackFrame().toString());
+                lockedMonitorsJson.add(lockedMonitorJson);
+            }
+
+            lockMonitorInfo.put("Locked Monitors", lockedMonitorsJson);
+            lockMonitorInfo.put("Locked Synchronizers", asJSON(threadInfo.getLockedSynchronizers()));
             threadStackTrace.put("Lock Monitor Info", lockMonitorInfo);
 
             LinkedHashMap<String, Object> blockedInfo = new LinkedHashMap<>();
@@ -139,13 +152,8 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("Time Info", timeInfo);
 
             LinkedHashMap<String, Object> lockInfoMap = new LinkedHashMap<>();
-            LinkedHashMap<String, Object> lockedOn = new LinkedHashMap<>();
             LockInfo lockInfo = threadInfo.getLockInfo();
-            if (lockInfo != null) {
-                lockedOn.put("Class", lockInfo.getClassName());
-                lockedOn.put("Hashcode", lockInfo.getIdentityHashCode());
-            }
-            lockInfoMap.put("Locked On", lockedOn);
+            lockInfoMap.put("Locked On", asJSON(lockInfo));
             lockInfoMap.put("Lock Owner Thread Id", threadInfo.getLockOwnerId() == -1 ? null : threadInfo.getLockOwnerId());
             lockInfoMap.put("Lock Owner Thread Name", threadInfo.getLockOwnerName());
             threadStackTrace.put("Lock Info", lockInfoMap);
@@ -155,21 +163,38 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             stateInfo.put("InNative", threadInfo.isInNative());
             threadStackTrace.put("State Info", stateInfo);
 
-            StackTraceElement[] stackTrace = threadInfo.getStackTrace();
-            ArrayList<String> strings = mapToString(stackTrace);
-            threadStackTrace.put("Stack Trace", strings);
+            threadStackTrace.put("Stack Trace", asJSON(threadInfo.getStackTrace()));
             traces.put(threadInfo.getThreadId(), threadStackTrace);
         }
         return traces;
     }
 
-    private ArrayList<String> mapToString(Object[] objects) {
+    private Object asJSON(StackTraceElement[] stackTrace) {
         ArrayList<String> strings = new ArrayList<>();
 
-        for (Object o : objects) {
+        for (StackTraceElement o : stackTrace) {
             strings.add(o.toString());
         }
         return strings;
+
+    }
+
+    private ArrayList<LinkedHashMap<String, Object>> asJSON(LockInfo[] lockInfos) {
+        ArrayList<LinkedHashMap<String, Object>> objects = new ArrayList<>();
+
+        for (LockInfo lockInfo : lockInfos) {
+            objects.add(asJSON(lockInfo));
+        }
+        return objects;
+    }
+
+    private LinkedHashMap<String, Object> asJSON(LockInfo lockInfo) {
+        LinkedHashMap<String, Object> lockedOn = new LinkedHashMap<>();
+        if (lockInfo != null) {
+            lockedOn.put("Class", lockInfo.getClassName());
+            lockedOn.put("IdentityHashCode", lockInfo.getIdentityHashCode());
+        }
+        return lockedOn;
     }
 
     @Override

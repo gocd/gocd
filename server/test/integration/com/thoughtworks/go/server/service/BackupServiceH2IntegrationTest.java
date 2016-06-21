@@ -155,7 +155,7 @@ public class BackupServiceH2IntegrationTest {
 
         String location = tempFiles.createUniqueFolder("foo").getAbsolutePath();
 
-        Restore.execute(dbZip(), location, "cruise", false);
+        Restore.execute(dbZip(), location, "cruise");
 
         BasicDataSource source = constructTestDataSource(new File(location));
         ResultSet resultSet = source.getConnection().prepareStatement("select * from pipelines where id = " + expectedPipeline.getId()).executeQuery();

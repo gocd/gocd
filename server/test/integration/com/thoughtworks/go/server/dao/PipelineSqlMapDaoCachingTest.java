@@ -377,7 +377,7 @@ public class PipelineSqlMapDaoCachingTest {
 
     @Test
     public void loadHistory_shouldCacheResult() {
-        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", "display", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
         PipelineInstanceModel loaded;
         loaded = pipelineDao.loadHistory(99);
@@ -388,7 +388,7 @@ public class PipelineSqlMapDaoCachingTest {
 
     @Test
     public void loadHistory_shouldCloneResultSoThatModificationsDoNotAffectTheCachedObjects() {
-        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", "display", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
         PipelineInstanceModel loaded;
         loaded = pipelineDao.loadHistory(99);
@@ -412,7 +412,7 @@ public class PipelineSqlMapDaoCachingTest {
                 transactionSynchronizationManager, systemEnvironment, mockconfigFileDao, databaseStrategy);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
-        PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, "display", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         PipelineInstanceModels pims = PipelineInstanceModels.createPipelineInstanceModels(pipeline);
         when(mockTemplate.queryForList("allActivePipelines")).thenReturn(pims);
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
@@ -432,7 +432,7 @@ public class PipelineSqlMapDaoCachingTest {
 
     @Test
     public void shouldLockedPipelineCacheWhenStageStatusChanges() {
-        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", "display", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
 
         PipelineInstanceModel loaded;
@@ -465,7 +465,7 @@ public class PipelineSqlMapDaoCachingTest {
 
     @Test
     public void shouldClearCachedPipelineHistoryWhenStageStatusChanges() {
-        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", "display", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
 
         PipelineInstanceModel loaded;
@@ -817,7 +817,7 @@ public class PipelineSqlMapDaoCachingTest {
     private PipelineInstanceModel model(long id, JobState jobState, JobResult jobResult) {
         StageInstanceModels models = new StageInstanceModels();
         models.add(new StageInstanceModel("first", "1", JobHistory.withJob("job", jobState, jobResult, new Date())));
-        PipelineInstanceModel model = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), models);
+        PipelineInstanceModel model = new PipelineInstanceModel("pipeline", "display", -2, "label", BuildCause.createManualForced(), models);
         model.setId(id);
         return model;
     }

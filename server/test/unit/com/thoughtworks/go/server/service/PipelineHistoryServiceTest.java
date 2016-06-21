@@ -119,7 +119,7 @@ public class PipelineHistoryServiceTest {
         String pipelineName = "junk";
         String groupName = "some-pipeline-group";
 
-        PipelineInstanceModel pipeline = PipelineInstanceModel.createPipeline(pipelineName, -1, "1.0", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineInstanceModel pipeline = PipelineInstanceModel.createPipeline(pipelineName, pipelineName, -1, "1.0", BuildCause.createManualForced(), new StageInstanceModels());
         when(pipelineDao.loadHistory(pipelineName, 1, 0)).thenReturn(createPipelineInstanceModels(pipeline));
         when(schedulingCheckerService.canManuallyTrigger(pipelineName, username)).thenReturn(false);
         when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
@@ -328,7 +328,7 @@ public class PipelineHistoryServiceTest {
     private PipelineInstanceModel activePipeline(String pipelineName, int pipelineCounter, double naturalOrder, StageInstanceModel... moreStages) {
         StageInstanceModels stagesForNonOperatablePipeline = new StageInstanceModels();
         stagesForNonOperatablePipeline.addAll(Arrays.asList(moreStages));
-        PipelineInstanceModel nonOperatablePipeline = PipelineInstanceModel.createPipeline(pipelineName, -1, "1.0", BuildCause.createWithEmptyModifications(), stagesForNonOperatablePipeline);
+        PipelineInstanceModel nonOperatablePipeline = PipelineInstanceModel.createPipeline(pipelineName, pipelineName, -1, "1.0", BuildCause.createWithEmptyModifications(), stagesForNonOperatablePipeline);
         nonOperatablePipeline.setNaturalOrder(naturalOrder);
         nonOperatablePipeline.setCounter(pipelineCounter);
         return nonOperatablePipeline;
@@ -574,7 +574,7 @@ public class PipelineHistoryServiceTest {
 
         ensureHasPermission(Username.ANONYMOUS, "pipeline");
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createNeverRun(), new StageInstanceModels());
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createNeverRun(), new StageInstanceModels());
         when(pipelineDao.findPipelineHistoryByNameAndCounter("pipeline", 1)).thenReturn(instanceModel);
 
         when(pipelineUnlockService.canUnlock(eq("pipeline"), eq(Username.ANONYMOUS), any(HttpOperationResult.class))).thenReturn(true);
@@ -590,7 +590,7 @@ public class PipelineHistoryServiceTest {
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(new StageInstanceModel("dev", "1", new JobHistory()));
         stages.add(new StageInstanceModel("qa", "1", new JobHistory()));
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createNeverRun(), stages);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createNeverRun(), stages);
         when(pipelineDao.findPipelineHistoryByNameAndCounter("pipeline", 1)).thenReturn(instanceModel);
         stubConfigServiceToReturnPipeline("pipeline", config);
 
@@ -645,7 +645,7 @@ public class PipelineHistoryServiceTest {
         when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<PipelineConfig>());
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(pipelineTimeline.pipelineBefore(12)).thenReturn(1L);
-        when(pipelineDao.loadHistory(1)).thenReturn(new PipelineInstanceModel("blahPipeline", 21, "prev-label", BuildCause.createWithEmptyModifications(), new StageInstanceModels()));
+        when(pipelineDao.loadHistory(1)).thenReturn(new PipelineInstanceModel("blahPipeline", "display", 21, "prev-label", BuildCause.createWithEmptyModifications(), new StageInstanceModels()));
 
         Username foo = new Username(new CaseInsensitiveString("foo"));
         ensureHasPermission(USERNAME, "blahPipeline");
@@ -668,7 +668,7 @@ public class PipelineHistoryServiceTest {
 
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(pipelineTimeline.pipelineBefore(23)).thenReturn(1L);
-        when(pipelineDao.loadHistory(1L)).thenReturn(new PipelineInstanceModel("blahPipeline", 21, "prev-label", BuildCause.createWithEmptyModifications(), new StageInstanceModels()));
+        when(pipelineDao.loadHistory(1L)).thenReturn(new PipelineInstanceModel("blahPipeline", "display", 21, "prev-label", BuildCause.createWithEmptyModifications(), new StageInstanceModels()));
 
         ensureHasPermission(USERNAME, "blahPipeline");
 

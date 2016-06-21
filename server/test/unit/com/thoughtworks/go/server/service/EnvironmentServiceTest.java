@@ -68,10 +68,10 @@ public class EnvironmentServiceTest {
         assertThat(environment.getName(), is("uat"));
         List<PipelineModel> models = environment.getPipelineModels();
         assertThat(models.size(),is(2));
-        PipelineModel model1 = new PipelineModel(uatInstance.getName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineModel model1 = new PipelineModel(uatInstance.getName(), uatInstance.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
         model1.addPipelineInstance(uatInstance);
         assertThat(models, hasItem(model1));
-        PipelineModel model2 = new PipelineModel(stagingInstance.getName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineModel model2 = new PipelineModel(stagingInstance.getName(), stagingInstance.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
         model2.addPipelineInstance(stagingInstance);
         assertThat(models, hasItem(model2));
     }
@@ -83,8 +83,8 @@ public class EnvironmentServiceTest {
     }
 
     private PipelineInstanceModel stubPipelineHistoryServiceToReturnPipelines(final String pipelineName) {
-        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModel.createPipeline(pipelineName, -1, "1", BuildCause.createManualForced(), new StageInstanceModels());
-        PipelineModel pipelineModel = new PipelineModel(pipelineInstanceModel.getName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModel.createPipeline(pipelineName, pipelineName, -1, "1", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineModel pipelineModel = new PipelineModel(pipelineInstanceModel.getName(), pipelineInstanceModel.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
         pipelineModel.addPipelineInstance(pipelineInstanceModel);
         when(pipelineHistoryService.latestPipelineModel(new Username(new CaseInsensitiveString("Foo")), pipelineName)).thenReturn(pipelineModel);
         return pipelineInstanceModel;

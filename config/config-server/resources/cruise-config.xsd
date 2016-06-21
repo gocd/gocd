@@ -325,6 +325,7 @@
                         <xsd:element minOccurs="0" maxOccurs="unbounded" name="stage" type="stageType"/>
                     </xsd:sequence>
                     <xsd:attribute name="name" type="nameType" use="required"/>
+                    <xsd:attribute name="displayName" type="nameType"/>
                     <xsd:attribute name="labeltemplate" type="labelType"/>
                     <xsd:attribute name="isLocked" type="xsd:boolean"/>
                     <xsd:attribute name="template" type="nameType" use="optional"/>

@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.PipelinePauseInfo;
 public class PipelineModel {
 
     private final String pipelineName;
+    private final String pipelineDisplayName;
     private final boolean canForce;
     private final boolean canOperate;
     private boolean canAdminister = false;
@@ -28,8 +29,9 @@ public class PipelineModel {
     private final PipelineInstanceModels activePipelineInstances;
 
 
-    public PipelineModel(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
+    public PipelineModel(String pipelineName, String pipelineDisplayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
         this.pipelineName = pipelineName;
+        this.pipelineDisplayName = pipelineDisplayName;
         this.canForce = canForce;
         this.pipelinePauseInfo = pipelinePauseInfo;
         this.canOperate = canOperate;
@@ -46,6 +48,10 @@ public class PipelineModel {
 
     public String getName() {
         return pipelineName;
+    }
+
+    public String getDisplayName() {
+        return pipelineDisplayName;
     }
 
     public boolean hasNewRevisions() {

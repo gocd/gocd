@@ -319,7 +319,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void shouldLoadPipelineHistoryWithEmptyDefaultIfNone() throws Exception {
         configHelper.setViewPermissionForGroup("group1", "jez");
-        PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageStartingAt(0, 1, 1), "jez");
+        PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, "", Pagination.pageStartingAt(0, 1, 1), "jez");
         assertThat(history.size(), is(1));
         StageInstanceModels stageHistory = history.first().getStageHistory();
         assertThat(stageHistory.size(), is(3));
@@ -346,7 +346,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldLoadPipelineHistoryWithPlaceholderStagesPopulated() throws Exception {
         pipelineOne.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
-                Pagination.pageStartingAt(0, 1, 10),
+                "", Pagination.pageStartingAt(0, 1, 10),
                 "jez", true);
         StageInstanceModels stageHistory = history.first().getStageHistory();
         assertThat("Should populate 2 placeholder stages from config", stageHistory.size(), is(3));
@@ -454,7 +454,7 @@ public class PipelineHistoryServiceIntegrationTest {
         saveRev(materialRevision);
         configHelper.setViewPermissionForGroup("group1", "username");
 
-        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
+        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, "", Pagination.ONE_ITEM, "username");
         MaterialRevisions latestRevision = latest.get(0).getLatestRevisions();
         assertThat(latestRevision.getMaterialRevision(0).getRevision(), is((Revision) new SubversionRevision("2")));
     }
@@ -472,7 +472,7 @@ public class PipelineHistoryServiceIntegrationTest {
         saveRev(new MaterialRevision(pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial(), new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
         configHelper.setViewPermissionForGroup("group1", "username");
 
-        PipelineInstanceModel latest = pipelineHistoryService.latest(pipeline.getName(), new Username(new CaseInsensitiveString("username")));
+        PipelineInstanceModel latest = pipelineHistoryService.latest(pipeline.getName(), pipeline.getDisplayName(), new Username(new CaseInsensitiveString("username")));
         assertThat(latest.getLatestRevisions().getMaterialRevision(0).getRevision(), is((Revision) new SubversionRevision("2")));
     }
 
@@ -482,7 +482,7 @@ public class PipelineHistoryServiceIntegrationTest {
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "new-material"));
         configHelper.addMaterialToPipeline(pipelineOne.pipelineName, svnMaterialConfig);
         configHelper.setViewPermissionForGroup("group1", "username");
-        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
+        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, "", Pagination.ONE_ITEM, "username");
         MaterialRevisions latestRevision = latest.get(0).getLatestRevisions();
         assertThat(latestRevision.getRevisions().size(), is(1));
     }
@@ -490,7 +490,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test public void shouldCreateEmptyPipelineIfThePipelineHasNeverBeenRun() throws Exception {
         SvnMaterialConfig svnMaterial = new SvnMaterialConfig("https://some-url", "new-user", "new-pass", false);
         configHelper.addPipeline("new-pipeline", "new-stage", svnMaterial, "first-job");
-        PipelineInstanceModels instanceModels = pipelineHistoryService.loadWithEmptyAsDefault("new-pipeline", Pagination.ONE_ITEM, "username");
+        PipelineInstanceModels instanceModels = pipelineHistoryService.loadWithEmptyAsDefault("new-pipeline", "", Pagination.ONE_ITEM, "username");
         PipelineInstanceModel instanceModel = instanceModels.get(0);
         assertThat(instanceModel.getMaterials(), is(new MaterialConfigs(svnMaterial)));
         assertThat(instanceModel.getCurrentRevision(svnMaterial).getRevision(), is("No historical data"));
@@ -533,7 +533,7 @@ public class PipelineHistoryServiceIntegrationTest {
         Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
         saveRev(new MaterialRevision(material, new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
         configHelper.setViewPermissionForGroup("group1", "username");
-        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
+        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, "", Pagination.ONE_ITEM, "username");
         PipelineInstanceModel model = latest.get(0);
         assertThat(model.hasNewRevisions(material.config()), is(true));
     }
@@ -542,7 +542,7 @@ public class PipelineHistoryServiceIntegrationTest {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
         configHelper.setViewPermissionForGroup("group1", "username");
-        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
+        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, "", Pagination.ONE_ITEM, "username");
         PipelineInstanceModel model = latest.get(0);
         assertThat(model.hasNewRevisions(material.config()), is(false));
     }
@@ -551,8 +551,8 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addPipelineWithGroup("admin_only", "admin_pipeline", "stage", "deploy");
         configHelper.addRole(new Role(new CaseInsensitiveString("deployers"), new RoleUser(new CaseInsensitiveString("root"))));
         configHelper.blockPipelineGroupExceptFor("admin_only", "deployers");
-        assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(new CaseInsensitiveString("root"))), is(not(nullValue())));
-        assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(new CaseInsensitiveString("someone_else"))), is(nullValue()));
+        assertThat(pipelineHistoryService.latest("admin_pipeline", "", new Username(new CaseInsensitiveString("root"))), is(not(nullValue())));
+        assertThat(pipelineHistoryService.latest("admin_pipeline", "", new Username(new CaseInsensitiveString("someone_else"))), is(nullValue()));
     }
 
     @Test

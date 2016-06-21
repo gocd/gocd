@@ -75,7 +75,7 @@ public class PipelineHistoryMother {
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
-        PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), -1, label, buildCause, stageHistory(pipelineConfig, scheduleDate));
+        PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(pipelineConfig.name()), -1, label, buildCause, stageHistory(pipelineConfig, scheduleDate));
         item.setCounter(1);
         item.setId(1);
         item.setComment("build comment");
@@ -119,7 +119,7 @@ public class PipelineHistoryMother {
 
     public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages, Date modifiedDate) {
         BuildCause manualForced = BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.hgMaterial(), new Modification(modifiedDate, "abc", "MOCK_LABEL-12", null))), Username.ANONYMOUS);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline(pipelineName, -1, "1", manualForced, stages);
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline(pipelineName, pipelineName, -1, "1", manualForced, stages);
         model.setCounter(1);
         return model;
     }
@@ -176,9 +176,9 @@ public class PipelineHistoryMother {
     }
 
     public static PipelineModel pipeline() {
-        PipelineModel pipelineModel = new PipelineModel("pipe1", true, true, PipelinePauseInfo.notPaused());
+        PipelineModel pipelineModel = new PipelineModel("pipe1", "display1", true, true, PipelinePauseInfo.notPaused());
         MaterialRevisions materialRevisions = ModificationsMother.createHgMaterialRevisions();
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipe1", -1, "label1", BuildCause.createWithModifications(materialRevisions, "foo-bar"), new StageInstanceModels());
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipe1", "display1", -1, "label1", BuildCause.createWithModifications(materialRevisions, "foo-bar"), new StageInstanceModels());
         instanceModel.setMaterialConfigs(new MaterialConfigs(materialRevisions.getMaterialRevision(0).getMaterial().config()));
         instanceModel.setLatestRevisions(materialRevisions);
         pipelineModel.addPipelineInstance(instanceModel);

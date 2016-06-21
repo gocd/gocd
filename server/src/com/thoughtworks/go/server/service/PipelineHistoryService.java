@@ -278,7 +278,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         }
     }
 
-    public PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, Pagination pagination, String userName) {
+    public PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, String displayName, Pagination pagination, String userName) {
         if (!securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(userName)), pipelineName)) {
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
@@ -287,7 +287,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
             StageInstanceModels stageHistory = new StageInstanceModels();
             appendFollowingStagesFromConfig(pipelineName, stageHistory);
-            PipelineInstanceModel model = PipelineInstanceModel.createPreparingToSchedule(pipelineName, stageHistory);
+            PipelineInstanceModel model = PipelineInstanceModel.createPreparingToSchedule(pipelineName, displayName, stageHistory);
             model.setCanRun(false);
 
             pipelineInstanceModels = PipelineInstanceModels.createPipelineInstanceModels(model);
@@ -297,8 +297,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return pipelineInstanceModels;
     }
 
-    public PipelineInstanceModel latest(String pipelineName, Username username) {
-        PipelineInstanceModels models = loadWithEmptyAsDefault(pipelineName, Pagination.ONE_ITEM, CaseInsensitiveString.str(username.getUsername()));
+    public PipelineInstanceModel latest(String pipelineName, String displayName, Username username) {
+        PipelineInstanceModels models = loadWithEmptyAsDefault(pipelineName, displayName, Pagination.ONE_ITEM, CaseInsensitiveString.str(username.getUsername()));
         return models.isEmpty() ? null : models.get(0);
     }
 
@@ -306,7 +306,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         PipelineInstanceModels pipelineInstances = PipelineInstanceModels.createPipelineInstanceModels();
         for (PipelineConfigs group : goConfigService.currentCruiseConfig().getGroups()) {
             for (PipelineConfig pipelineConfig : group) {
-                PipelineInstanceModel pipelineInstanceModel = latest(CaseInsensitiveString.str(pipelineConfig.name()), username);
+                PipelineInstanceModel pipelineInstanceModel = latest(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getDisplayName(), username);
                 if (pipelineInstanceModel != null) {
                     pipelineInstances.add(pipelineInstanceModel);
                 }
@@ -534,7 +534,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         String groupName = group.getGroup();
         for (PipelineConfig pipelineConfig : group) {
             if (!groupModels.containsPipeline(groupName, CaseInsensitiveString.str(pipelineConfig.name()))) {
-                PipelineModel latestPipeline = latestPipelineModel(username, CaseInsensitiveString.str(pipelineConfig.name()));
+                PipelineModel latestPipeline = latestPipelineModel(username, CaseInsensitiveString.str(pipelineConfig.name()),pipelineConfig.getDisplayName());
                 if (latestPipeline != null) {
                     groupModels.addPipelineInstance(groupName, latestPipeline.getLatestPipelineInstance(), latestPipeline.canForce(), latestPipeline.canOperate(), latestPipeline.getPausedInfo());
                 }
@@ -552,12 +552,12 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return newModels;
     }
 
-    public PipelineModel latestPipelineModel(Username username, String pipelineName) {
-        PipelineInstanceModel instanceModel = latest(pipelineName, username);
+    public PipelineModel latestPipelineModel(Username username, String pipelineName, String displayName) {
+        PipelineInstanceModel instanceModel = latest(pipelineName, displayName, username);
         if (instanceModel != null) {
             boolean canForce = schedulingCheckerService.canManuallyTrigger(pipelineName, username);
             PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
-            PipelineModel pipelineModel = new PipelineModel(pipelineName, canForce, securityService.hasOperatePermissionForPipeline(
+            PipelineModel pipelineModel = new PipelineModel(pipelineName, instanceModel.getDisplayName(), canForce, securityService.hasOperatePermissionForPipeline(
                     username.getUsername(), pipelineName
             ), pauseInfo);
             populateLockStatus(instanceModel.getName(), username, instanceModel);
@@ -623,7 +623,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         List<PipelineGroupModel> groupModels = new ArrayList<>();
 
         public void addPipelineInstance(String groupName, PipelineInstanceModel pipelineInstanceModel, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
-            PipelineModel pipelineModel = pipelineModelForPipelineName(groupName, pipelineInstanceModel.getName(), canForce, canOperate, pipelinePauseInfo);
+            PipelineModel pipelineModel = pipelineModelForPipelineName(groupName, pipelineInstanceModel.getName(), pipelineInstanceModel.getDisplayName(), canForce, canOperate, pipelinePauseInfo);
             pipelineModel.addPipelineInstance(pipelineInstanceModel);
         }
 
@@ -635,9 +635,9 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             return new ArrayList<>(groupModels);
         }
 
-        private PipelineModel pipelineModelForPipelineName(String groupName, String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo){
+        private PipelineModel pipelineModelForPipelineName(String groupName, String pipelineName, String pipelineDisplayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo){
             PipelineGroupModel group = get(groupName);
-            return group.pipelineModelForPipelineName(pipelineName, canForce, canOperate, pipelinePauseInfo);
+            return group.pipelineModelForPipelineName(pipelineName, pipelineDisplayName, canForce, canOperate, pipelinePauseInfo);
         }
 
         private PipelineGroupModel get(String groupName) {

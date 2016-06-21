@@ -32,6 +32,7 @@ import java.util.Date;
 public class PipelineInstanceModel implements PipelineInfo {
     private long id;
     private String name;
+    private String displayName;
     private String label;
     private BuildCause buildCause;
     private StageInstanceModels stageHistory;
@@ -56,8 +57,9 @@ public class PipelineInstanceModel implements PipelineInfo {
         stageHistory = new StageInstanceModels();
     }
 
-    public PipelineInstanceModel(String name, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
+    public PipelineInstanceModel(String name, String displayName, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
         this.name = name;
+        this.displayName = displayName;
         this.counter = counter;
         this.label = label;
         this.buildCause = buildCause;
@@ -86,6 +88,10 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public String getUri() {
@@ -350,12 +356,12 @@ public class PipelineInstanceModel implements PipelineInfo {
         return new PipelineInstanceModel();
     }
 
-    public static PipelineInstanceModel createPreparingToSchedule(String name, StageInstanceModels stages) {
-        return new PreparingToScheduleInstance(name, stages);
+    public static PipelineInstanceModel createPreparingToSchedule(String name, String displayName, StageInstanceModels stages) {
+        return new PreparingToScheduleInstance(name, displayName, stages);
     }
 
-    public static PipelineInstanceModel createPipeline(String name, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
-        return new PipelineInstanceModel(name, counter, label, buildCause, stageHistory);
+    public static PipelineInstanceModel createPipeline(String name, String displayName, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
+        return new PipelineInstanceModel(name, displayName, counter, label, buildCause, stageHistory);
     }
 
     public static EmptyPipelineInstanceModel createEmptyPipelineInstanceModel(String pipelineName, BuildCause withEmptyModifications, StageInstanceModels stageHistory) {

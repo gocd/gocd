@@ -59,14 +59,14 @@ public class ViewCacheKeyTest {
 
     @Test
     public void shouldGenerateKeyForBuildCause() {
-        PipelineModel model = new PipelineModel("pipelineName", true, true, PipelinePauseInfo.notPaused());
-        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", 10, "label-10", BuildCause.createExternal(), new StageInstanceModels());
+        PipelineModel model = new PipelineModel("pipelineName", "displayName", true, true, PipelinePauseInfo.notPaused());
+        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 10, "label-10", BuildCause.createExternal(), new StageInstanceModels());
         pipelineInstance.setId(12);
         TrackingTool trackingTool = new TrackingTool("link", "regex");
         pipelineInstance.setTrackingTool(trackingTool);
         model.addPipelineInstance(pipelineInstance);
 
-        PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", 7, "label-7", BuildCause.createExternal(), new StageInstanceModels());
+        PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 7, "label-7", BuildCause.createExternal(), new StageInstanceModels());
         pipelineInstance2.setId(14);
         MingleConfig mingleConfig = new MingleConfig("mingle", "project", "mql");
         pipelineInstance2.setMingleConfig(mingleConfig);
@@ -80,11 +80,11 @@ public class ViewCacheKeyTest {
         MaterialRevisions materialRevisions = ModificationsMother.createHgMaterialRevisions();
         Modification latestModification = materialRevisions.getMaterialRevision(0).getModifications().remove(0);
 
-        PipelineModel model = new PipelineModel("pipelineName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
+        PipelineModel model = new PipelineModel("pipelineName", "displayName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(stageInstance("stageName", 13, JobState.Building, JobResult.Unknown));
         stages.add(new NullStageHistoryItem("stage2", true));
-        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", 10, "label-10", BuildCause.createWithModifications(materialRevisions, "someone"), stages);
+        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 10, "label-10", BuildCause.createWithModifications(materialRevisions, "someone"), stages);
         pipelineInstance.setMaterialConfigs(materialRevisions.getMaterials().convertToConfigs());
         pipelineInstance.setLatestRevisions(new MaterialRevisions(new MaterialRevision(materialRevisions.getMaterialRevision(0).getMaterial(), latestModification)));
         pipelineInstance.setId(12);
@@ -99,18 +99,18 @@ public class ViewCacheKeyTest {
 
     @Test
     public void shouldGenerateKeyForPipelineModelViewFragment() {
-        PipelineModel model = new PipelineModel("pipelineName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
+        PipelineModel model = new PipelineModel("pipelineName", "displayName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(stageInstance("stageName", 13, JobState.Building, JobResult.Unknown));
         stages.add(new NullStageHistoryItem("stage2", true));
-        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", 10, "label-10", BuildCause.createExternal(), stages);
+        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 10, "label-10", BuildCause.createExternal(), stages);
         pipelineInstance.setId(12);
         model.addPipelineInstance(pipelineInstance);
 
         StageInstanceModels stages2 = new StageInstanceModels();
         stages2.add(stageInstance("stageName", 7, JobState.Completed, JobResult.Passed));
         stages2.add(stageInstance("stage2", 10, JobState.Assigned, JobResult.Unknown));
-        PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", 7, "label-7", BuildCause.createExternal(), stages2);
+        PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 7, "label-7", BuildCause.createExternal(), stages2);
         pipelineInstance2.setId(14);
         model.addPipelineInstance(pipelineInstance2);
         
@@ -120,18 +120,18 @@ public class ViewCacheKeyTest {
     @Test
     public void shouldGenerateKeyForPipelineModelViewFragmentWithoutSpecialCharactersInPauseCause() {
         PipelinePauseInfo pauseInfo = new PipelinePauseInfo(true, "pause& @Cause #with $special %char &*(){';/.,<>?", "admin");
-        PipelineModel model = new PipelineModel("pipelineName", true, true, pauseInfo).updateAdministrability(true);
+        PipelineModel model = new PipelineModel("pipelineName", "displayName", true, true, pauseInfo).updateAdministrability(true);
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(stageInstance("stageName", 13, JobState.Building, JobResult.Unknown));
         stages.add(new NullStageHistoryItem("stage2", true));
-        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", 10, "label-10", BuildCause.createExternal(), stages);
+        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 10, "label-10", BuildCause.createExternal(), stages);
         pipelineInstance.setId(12);
         model.addPipelineInstance(pipelineInstance);
 
         StageInstanceModels stages2 = new StageInstanceModels();
         stages2.add(stageInstance("stageName", 7, JobState.Completed, JobResult.Passed));
         stages2.add(stageInstance("stage2", 10, JobState.Assigned, JobResult.Unknown));
-        PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", 7, "label-7", BuildCause.createExternal(), stages2);
+        PipelineInstanceModel pipelineInstance2 = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 7, "label-7", BuildCause.createExternal(), stages2);
         pipelineInstance2.setId(14);
         model.addPipelineInstance(pipelineInstance2);
 
@@ -141,11 +141,11 @@ public class ViewCacheKeyTest {
 
     @Test
     public void shouldGenerateKeyForPipelineModelViewFragmentWithLockStatus() {
-        PipelineModel model = new PipelineModel("pipelineName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
+        PipelineModel model = new PipelineModel("pipelineName", "displayName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(stageInstance("stageName", 13, JobState.Building, JobResult.Unknown));
         stages.add(new NullStageHistoryItem("stage2", true));
-        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", 10, "label-10", BuildCause.createExternal(), stages);
+        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 10, "label-10", BuildCause.createExternal(), stages);
         pipelineInstance.setId(12);
         pipelineInstance.setCanUnlock(false);
         pipelineInstance.setIsLockable(true);
@@ -157,11 +157,11 @@ public class ViewCacheKeyTest {
 
     @Test
     public void shouldGenerateKeyForPipelineModelViewIncludingUserAdminStatus() {
-        PipelineModel model = new PipelineModel("pipelineName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
+        PipelineModel model = new PipelineModel("pipelineName", "displayName", true, true, PipelinePauseInfo.notPaused()).updateAdministrability(true);
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(stageInstance("stageName", 13, JobState.Building, JobResult.Unknown));
         stages.add(new NullStageHistoryItem("stage2", true));
-        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", 10, "label-10", BuildCause.createExternal(), stages);
+        PipelineInstanceModel pipelineInstance = PipelineInstanceModel.createPipeline("pipelineName", "displayName", 10, "label-10", BuildCause.createExternal(), stages);
         pipelineInstance.setId(12);
         pipelineInstance.setCanUnlock(false);
         pipelineInstance.setIsLockable(true);

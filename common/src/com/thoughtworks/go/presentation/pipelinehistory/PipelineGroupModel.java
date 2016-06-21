@@ -37,7 +37,7 @@ public class PipelineGroupModel {
     }
 
     public void add(PipelineModel pipelineModel) {
-        PipelineModel model = pipelineModelForPipelineName(pipelineModel.getName(), pipelineModel.canForce(), pipelineModel.canOperate(), pipelineModel.getPausedInfo());
+        PipelineModel model = pipelineModelForPipelineName(pipelineModel.getName(), pipelineModel.getDisplayName(), pipelineModel.canForce(), pipelineModel.canOperate(), pipelineModel.getPausedInfo());
         for (PipelineInstanceModel pipelineInstanceModel : pipelineModel.getActivePipelineInstances()) {
             model.addPipelineInstance(pipelineInstanceModel);
         }
@@ -47,8 +47,8 @@ public class PipelineGroupModel {
         return new ArrayList<>(pipelineModels);
     }
 
-    public PipelineModel pipelineModelForPipelineName(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
-        if (!containsPipeline(pipelineName)) { pipelineModels.add(new PipelineModel(pipelineName, canForce, canOperate, pipelinePauseInfo)); }
+    public PipelineModel pipelineModelForPipelineName(String pipelineName, String displayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
+        if (!containsPipeline(pipelineName)) { pipelineModels.add(new PipelineModel(pipelineName, displayName, canForce, canOperate, pipelinePauseInfo)); }
         return getPipelineModel(pipelineName);
     }
 

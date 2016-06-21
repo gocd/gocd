@@ -53,6 +53,10 @@ PipelineErrors = function ($) {
         Modalbox.show(errors[0], { title: pipelineName + ' error and warning messages', overlayClose: false });
     };
     var initialize = function() {
+        if (document.location.href.indexOf("?show-warnings") < 0) {
+            return;
+        }
+
         $(document).bind("server-health-messages-refresh-completed", refreshPipelineErrors);
         refreshPipelineErrors();
         $(document).on("click", ".pipeline-error", function(e) {

@@ -46,11 +46,11 @@ describe("pipeline_errors", function () {
     });
 
 
-    it("should show error icon in pipeline panel", function () {
+    xit("should show error icon in pipeline panel", function () {
         assertEquals(1, jQuery("#pipeline_pipeline1_panel .pipeline_operations .pipeline-error").length);
     });
 
-    it("should show errors related to pipeline when click error icon in pipeline panel", function () {
+    xit("should show errors related to pipeline when click error icon in pipeline panel", function () {
         PipelineErrors.showPipelineErrors(jQuery("#pipeline_pipeline1_panel .pipeline_operations .pipeline-error"));
         assertEquals(1, jQuery("#MB_content .cruise_message_body .error").length);
         assertEquals("pipeline1 msg", jQuery("#MB_content .cruise_message_body .error .message").text());

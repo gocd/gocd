@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-$opensans-variants: (Bold, BoldItalic, ExtraBold, ExtraBoldItalic, Italic, Light, LightItalic, Regular, Semibold, SemiboldItalic);
+@import 'shared/mixins';
 
-@each $variant in $opensans-variants {
-  @include font-face($font-family: 'OpenSans#{$variant}',
-                     $file-path: font-path('opensans/OpenSans-#{$variant}-webfont'),
-                     $asset-pipeline: false,
-                     $file-formats: eot woff ttf svg);
-}
+@import 'shared/_autocomplete';
+@import 'pipeline_configs/_pipeline';
+@import 'pipeline_configs/_accordion';
+@import 'pipeline_configs/_stages';
+@import 'pipeline_configs/_materials';

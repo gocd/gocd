@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-@include keyframes(spin) {
-  from {
-    @include transform(rotate(0deg));
-  }
+ul.textcomplete-dropdown {
+  min-width: $dropdownmenu-min-width;
+  background: $dropdownmenu-background;
+  border: $dropdownmenu-border;
+  @include menu-base;
+  @include menu-direction(vertical);
 
-  to {
-    @include transform(rotate(359deg));
-  }
-}
-
-@include keyframes(fadeIn) {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
+  //list-style: none;
+  //background: white;
+  //border: $fieldset-border;
+  li {
+    &.active {
+     background-color: $light-gray;
+    }
   }
 }

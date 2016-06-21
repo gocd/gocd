@@ -6,7 +6,8 @@
   <meta charset="utf-8">
   <title><%= @view_title %> - Go</title>
 
-  <%= stylesheet_link_tag 'pipeline_configs/application' %>
+  <%= stylesheet_link_tag 'frameworks' %>
+  <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
   <%= requirejs_include_tag "single_page_apps/#{controller_name}" %>
   <%= csrf_meta_tags %>
 </head>

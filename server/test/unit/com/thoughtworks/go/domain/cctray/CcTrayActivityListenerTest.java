@@ -29,39 +29,27 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.util.LogFixture;
-import ch.qos.logback.classic.Level;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
-import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class CcTrayActivityListenerTest {
-    private StubCcTrayJobStatusChangeHandler jobStatusChangeHandler;
-    private StubCcTrayStageStatusChangeHandler stageStatusChangeHandler;
-    private StubCcTrayConfigChangeHandler configChangeHandler;
     private GoConfigService goConfigService;
 
     @Before
     public void setUp() throws Exception {
-        jobStatusChangeHandler = new StubCcTrayJobStatusChangeHandler();
-        stageStatusChangeHandler = new StubCcTrayStageStatusChangeHandler();
-        configChangeHandler = new StubCcTrayConfigChangeHandler();
         goConfigService = mock(GoConfigService.class);
     }
 
     @Test
     public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() throws Exception {
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, null, null);
 
         listener.initialize();
 
@@ -69,63 +57,42 @@ public class CcTrayActivityListenerTest {
     }
 
     @Test
-    public void shouldMultiplexEventsFromDifferentThreadsOnToHandlersOnASingleThread() throws Exception {
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
+    public void shouldInvokeJobChangeHandlerWhenJobStatusChanges() throws Exception {
+        JobInstance aJob = JobInstanceMother.cancelled("job1");
+        CcTrayJobStatusChangeHandler handler = mock(CcTrayJobStatusChangeHandler.class);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, handler, null, null);
+
         listener.initialize();
-
-        Thread t1 = callJobStatusChangeInNewThread(listener);
-        Thread t2 = callStageStatusChangeInNewThread(listener);
-        Thread t3 = callConfigChangeInNewThread(listener);
-
-        t1.start();
-        t2.start();
-        t3.start();
-
-        t1.join();
-        t2.join();
-        t3.join();
-
+        listener.jobStatusChanged(aJob);
         waitForProcessingToHappen();
 
-        assertThat(jobStatusChangeHandler.threadOfCall, is(not(nullValue())));
-        assertThat(jobStatusChangeHandler.threadOfCall, is(not(Thread.currentThread())));
-        assertThat(jobStatusChangeHandler.threadOfCall, is(not(t1)));
-
-        assertThat(jobStatusChangeHandler.threadOfCall, is(stageStatusChangeHandler.threadOfCall));
-        assertThat(stageStatusChangeHandler.threadOfCall, is(configChangeHandler.threadOfCall));
+        verify(handler).call(aJob);
     }
 
     @Test
-    public void shouldNotAllowTheQueueProcessorToBeStartedMultipleTimes() throws Exception {
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, jobStatusChangeHandler, stageStatusChangeHandler, configChangeHandler);
+    public void shouldInvokeStageChangeHandlerWhenStageStatusChanges() throws Exception {
+        Stage aStage = StageMother.custom("stage1");
+        CcTrayStageStatusChangeHandler handler = mock(CcTrayStageStatusChangeHandler.class);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, handler, null);
+
         listener.initialize();
+        listener.stageStatusChanged(aStage);
+        waitForProcessingToHappen();
 
-        try {
-            listener.initialize();
-            fail("Should have failed to start queue processor a second time.");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Cannot start queue processor multiple times."));
-        }
+        verify(handler).call(aStage);
     }
 
     @Test
-    public void shouldLogAndIgnoreAnyChangesWhichCannotBeHandled() throws Exception {
-        CcTrayStageStatusChangeHandler normalStageStatusChangeHandler = mock(CcTrayStageStatusChangeHandler.class);
-        CcTrayJobStatusChangeHandler failingJobStatusChangeHandler = mock(CcTrayJobStatusChangeHandler.class);
-        doThrow(new RuntimeException("Ouch. Failed.")).when(failingJobStatusChangeHandler).call(any(JobInstance.class));
+    public void shouldInvokeConfigChangeHandlerWhenConfigChanges() throws Exception {
+        CruiseConfig aConfig = GoConfigMother.defaultCruiseConfig();
+        CcTrayConfigChangeHandler handler = mock(CcTrayConfigChangeHandler.class);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, null, handler);
 
-        try (LogFixture logFixture = logFixtureFor(CcTrayActivityListener.class, Level.DEBUG)) {
-            CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
-            listener.initialize();
-            listener.jobStatusChanged(JobInstanceMother.passed("some-job-this-should-fail"));
-            listener.stageStatusChanged(StageMother.unrunStage("some-stage"));
+        listener.initialize();
+        listener.onConfigChange(aConfig);
+        waitForProcessingToHappen();
 
-            waitForProcessingToHappen();
-
-            assertThat(logFixture.contains(Level.WARN, "Failed to handle action in CCTray queue"), is(true));
-        }
-
-        verify(normalStageStatusChangeHandler).call(StageMother.unrunStage("some-stage"));
+        verify(handler).call(aConfig);
     }
 
     @Test
@@ -174,71 +141,5 @@ public class CcTrayActivityListenerTest {
 
     private void waitForProcessingToHappen() throws InterruptedException {
         Thread.sleep(1000); /* Prevent potential race, of queue not being processed. Being a little lazy. :( */
-    }
-
-    private Thread callJobStatusChangeInNewThread(final CcTrayActivityListener listener) {
-        return new Thread() {
-            @Override
-            public void run() {
-                listener.jobStatusChanged(JobInstanceMother.passed("some-job"));
-            }
-        };
-    }
-
-    private Thread callStageStatusChangeInNewThread(final CcTrayActivityListener listener) {
-        return new Thread() {
-            @Override
-            public void run() {
-                listener.stageStatusChanged(StageMother.unrunStage("some-stage"));
-            }
-        };
-    }
-
-    private Thread callConfigChangeInNewThread(final CcTrayActivityListener listener) {
-        return new Thread() {
-            @Override
-            public void run() {
-                listener.onConfigChange(GoConfigMother.defaultCruiseConfig());
-            }
-        };
-    }
-
-    private class StubCcTrayJobStatusChangeHandler extends CcTrayJobStatusChangeHandler {
-        private Thread threadOfCall;
-
-        public StubCcTrayJobStatusChangeHandler() {
-            super(null);
-        }
-
-        @Override
-        public void call(JobInstance job) {
-            threadOfCall = Thread.currentThread();
-        }
-    }
-
-    private class StubCcTrayStageStatusChangeHandler extends CcTrayStageStatusChangeHandler {
-        private Thread threadOfCall;
-
-        public StubCcTrayStageStatusChangeHandler() {
-            super(null, null, null);
-        }
-
-        @Override
-        public void call(Stage stage) {
-            threadOfCall = Thread.currentThread();
-        }
-    }
-
-    private class StubCcTrayConfigChangeHandler extends CcTrayConfigChangeHandler {
-        private Thread threadOfCall;
-
-        public StubCcTrayConfigChangeHandler() {
-            super(null, null, null);
-        }
-
-        @Override
-        public void call(CruiseConfig config) {
-            threadOfCall = Thread.currentThread();
-        }
     }
 }

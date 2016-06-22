@@ -16,21 +16,26 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.PipelineConfigurationCache;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
@@ -52,18 +57,17 @@ import java.util.Map;
 @Service
 public class PipelineConfigService implements ConfigChangedListener, Initializer {
     private final GoConfigService goConfigService;
-    private static final String GO_PIPELINE_CONFIGS_ETAGS_CACHE = "GO_PIPELINE_CONFIGS_ETAGS_CACHE".intern();
-    private GoCache goCache;
-    private SecurityService securityService;
-    private PluggableTaskService pluggableTaskService;
+    private final SecurityService securityService;
+    private final PluggableTaskService pluggableTaskService;
+    private final EntityHashingService entityHashingService;
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(PipelineConfigService.class);
 
     @Autowired
-    public PipelineConfigService(GoConfigService goConfigService, GoCache goCache, SecurityService securityService, PluggableTaskService pluggableTaskService) {
+    public PipelineConfigService(GoConfigService goConfigService, SecurityService securityService, PluggableTaskService pluggableTaskService, EntityHashingService entityHashingService) {
         this.goConfigService = goConfigService;
-        this.goCache = goCache;
         this.securityService = securityService;
         this.pluggableTaskService = pluggableTaskService;
+        this.entityHashingService = entityHashingService;
     }
 
     public void initialize() {
@@ -77,9 +81,6 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 PipelineConfigurationCache.getInstance().onPipelineConfigChange(pipelineConfig);
                 PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
-                if (goCache.get(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower()) != null) {
-                    goCache.remove(GO_PIPELINE_CONFIGS_ETAGS_CACHE, pipelineConfig.name().toLower());
-                }
             }
         };
     }
@@ -152,9 +153,10 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         }
     }
 
-    public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result) {
+
+    public void updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final String md5, final LocalizedOperationResult result) {
         validatePluggableTasks(pipelineConfig);
-        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
+        UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, currentUser, md5, result);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
     }
 
@@ -195,9 +197,6 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
-        if (goCache.get(GO_PIPELINE_CONFIGS_ETAGS_CACHE) != null) {
-            goCache.remove(GO_PIPELINE_CONFIGS_ETAGS_CACHE);
-        }
     }
 
     private boolean hasViewOrOperatePermissionForGroup(Username username, String group) {

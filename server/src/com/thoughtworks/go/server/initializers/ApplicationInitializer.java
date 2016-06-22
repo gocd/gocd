@@ -90,6 +90,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private GoPartialConfig goPartialConfig;
     @Autowired private ConfigCache configCache;
     @Autowired private ConfigElementImplementationRegistry configElementImplementationRegistry;
+    @Autowired private EntityHashingService entityHashingService;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -113,6 +114,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             cachedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
             pipelineConfigService.initialize();
+            entityHashingService.initialize();
 
             //artifacts
             artifactsDirHolder.initialize();

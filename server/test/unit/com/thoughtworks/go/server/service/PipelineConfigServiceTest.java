@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -27,15 +26,12 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +47,6 @@ public class PipelineConfigServiceTest {
     private PipelineConfigService pipelineConfigService;
     private CruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
-    private GoCache goCache;
     private SecurityService securityService;
     private PluggableTaskService pluggableTaskService;
 
@@ -70,9 +65,8 @@ public class PipelineConfigServiceTest {
         pluggableTaskService = mock(PluggableTaskService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
-        goCache = mock(GoCache.class);
         PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
-        pipelineConfigService = new PipelineConfigService(goConfigService, goCache, securityService, pluggableTaskService);
+        pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null);
 
     }
 
@@ -94,47 +88,6 @@ public class PipelineConfigServiceTest {
         PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
         PipelineConfig pipeline = pipelineConfigService.getPipelineConfig(pipelineName);
         assertThat(pipeline, is(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName))));
-    }
-
-    @Test
-    public void shouldRemovePipelineConfigFromCacheWhenPresentOnPipelineConfigChange() {
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = getPipelineConfigEntityConfigChangedListener();
-        when(goCache.get("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p")).thenReturn(new Object());
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-
-        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
-        verify(goCache).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p");
-    }
-
-    private EntityConfigChangedListener<PipelineConfig> getPipelineConfigEntityConfigChangedListener() {
-        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
-        doNothing().when(goConfigService).register(captor.capture());
-        pipelineConfigService.initialize();
-        List<ConfigChangedListener> listeners = captor.getAllValues();
-        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
-        return pipelineConfigChangeListener;
-    }
-
-    @Test
-    public void shouldNotRemovePipelineConfigFromCacheWhenNotPresentOnPipelineConfigChange(){
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = getPipelineConfigEntityConfigChangedListener();
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
-        verify(goCache, never()).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p");
-    }
-
-    @Test
-    public void shouldRemovePipelineConfigsFromCacheWhenPresentOnGoConfigChange() {
-        when(goCache.get("GO_PIPELINE_CONFIGS_ETAGS_CACHE")).thenReturn(new Object());
-        pipelineConfigService.onConfigChange(cruiseConfig);
-        verify(goCache).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE");
-    }
-
-    @Test
-    public void shouldNotRemovePipelineConfigsFromCacheWhenNotPresentOnGoConfigChange(){
-        pipelineConfigService.onConfigChange(cruiseConfig);
-        verify(goCache, never()).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE");
     }
 
     private void downstream(PipelineConfigs configs) {
@@ -206,7 +159,7 @@ public class PipelineConfigServiceTest {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
                 new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
-        pipelineConfigService.updatePipelineConfig(null, pipeline, null);
+        pipelineConfigService.updatePipelineConfig(null, pipeline, null, null);
 
         verify(pluggableTaskService).isValid(xUnit);
         verify(pluggableTaskService).isValid(docker);

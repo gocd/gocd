@@ -52,6 +52,7 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.util.EntityDigest;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.server.websocket.AgentStub;
 import com.thoughtworks.go.util.FileUtil;
@@ -117,6 +118,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private AgentRemoteHandler agentRemoteHandler;
     @Autowired private PipelineConfigService pipelineConfigService;
+    @Autowired private EntityHashingService entityHashingService;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -129,6 +131,7 @@ public class BuildAssignmentServiceIntegrationTest {
     private String md5 = "md5-test";
     private Username loserUser = new Username(new CaseInsensitiveString("loser"));
     private AgentStub agent;
+    private String pipelineConfigMD5 = "md5";
 
     @BeforeClass
     public static void setupRepos() throws IOException {
@@ -158,6 +161,12 @@ public class BuildAssignmentServiceIntegrationTest {
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
 
         agent = new AgentStub();
+        entityHashingService.initializeWith(new EntityDigest() {
+            @Override
+            public String md5ForPipeline(PipelineConfig pipelineConfig) {
+                return pipelineConfigMD5;
+            }
+        });
     }
 
     @After
@@ -264,7 +273,7 @@ public class BuildAssignmentServiceIntegrationTest {
         PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         pipelineConfig.remove(devStage);
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineConfigMD5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
@@ -284,7 +293,7 @@ public class BuildAssignmentServiceIntegrationTest {
         PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineConfigMD5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);

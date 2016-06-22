@@ -245,4 +245,5 @@ module JavaImports
   java_import com.thoughtworks.go.server.ui.plugins.PluginInfo unless defined? PluginInfo
   java_import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings unless defined? PluggableInstanceSettings
   java_import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException unless defined? InvalidPluginTypeException
+  java_import com.thoughtworks.go.server.service.EntityHashingService unless defined? EntityHashingService
 end

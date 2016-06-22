@@ -227,11 +227,6 @@
     <url-pattern>/api/config-repository.git/*</url-pattern>
   </filter-mapping>
 
-  <filter-mapping>
-    <filter-name>ConfigGitRepositoryFilter</filter-name>
-    <url-pattern>/api/config-repository/*</url-pattern>
-  </filter-mapping>
-
   <servlet-mapping>
     <servlet-name>spring-tabs</servlet-name>
     <url-pattern>/api/*</url-pattern>

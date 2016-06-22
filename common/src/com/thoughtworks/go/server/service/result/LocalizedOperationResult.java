@@ -43,6 +43,8 @@ public interface LocalizedOperationResult {
 
     void setMessage(Localizable message);
 
+    boolean hasMessage();
+
     void notImplemented(Localizable localizable);
 
     void unprocessableEntity(Localizable localizable);

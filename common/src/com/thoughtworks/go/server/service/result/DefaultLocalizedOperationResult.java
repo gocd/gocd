@@ -55,6 +55,11 @@ public class DefaultLocalizedOperationResult implements LocalizedOperationResult
     }
 
     @Override
+    public boolean hasMessage() {
+        return false;
+    }
+
+    @Override
     public void notImplemented(Localizable localizable) {
     }
 

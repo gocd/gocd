@@ -392,6 +392,41 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldNotDeletePipelineConfigWhenItIsUsedInAnEnvironment() throws Exception {
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("Dev"));
+        env.addPipeline(pipelineConfig.name());
+        goConfigService.addEnvironment(env);
+
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.toString(), result.toString().contains("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT"), is(true));
+        assertThat(result.httpCode(), is(422));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+    }
+
+    @Test
+    public void shouldNotDeletePipelineConfigWhenItHasDownstreamDependencies() throws Exception {
+        PipelineConfig dependency = GoConfigMother.createPipelineConfigWithMaterialConfig(new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        goConfigService.addPipeline(dependency, groupName);
+
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(2));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.toString(), result.toString().contains("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS"), is(true));
+        assertThat(result.httpCode(), is(422));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(2));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+    }
+
+    @Test
     public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulUpdate(){
         final String pipelineName = UUID.randomUUID().toString();
         final String templateName = UUID.randomUUID().toString();

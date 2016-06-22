@@ -380,4 +380,8 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         materialConfig.setConfigAttributes(attributes);
         add(materialConfig);
     }
+
+    public boolean hasDependencyMaterial(PipelineConfig pipeline) {
+        return findDependencyMaterial(pipeline.name()) != null;
+    }
 }

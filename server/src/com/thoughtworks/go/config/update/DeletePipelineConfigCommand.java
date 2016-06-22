@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -50,6 +50,22 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
+        for (PipelineConfig pipeline : preprocessedConfig.getAllPipelineConfigs()) {
+            if(pipeline.materialConfigs().hasDependencyMaterial(pipelineConfig)){
+                Localizable.CurryableLocalizable message = LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", pipelineConfig.name(), String.format("%s (%s)", pipeline.name(), pipeline.getOriginDisplayName()));
+                this.result.unprocessableEntity(message);
+                return false;
+            }
+        }
+
+        for (EnvironmentConfig environment : preprocessedConfig.getEnvironments()) {
+            if(environment.getPipelineNames().contains(pipelineConfig.name())){
+                Localizable.CurryableLocalizable message = LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", pipelineConfig.name(), environment.name());
+                this.result.unprocessableEntity(message);
+                return false;
+            }
+        }
+
         return true;
     }
 

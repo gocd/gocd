@@ -480,9 +480,6 @@ describe ApiV1::Admin::PipelinesController do
       end
 
       it "should delete pipeline config for an admin" do
-        can_delete_message = com.thoughtworks.go.server.presentation.CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
-        @pipeline_config_service.should_receive(:canDeletePipelines).and_return({CaseInsensitiveString.new(@pipeline_name) => can_delete_message})
-
         @pipeline_config_service.should_receive(:deletePipelineConfig).with(anything(), @pipeline, an_instance_of(HttpLocalizedOperationResult)) do |username, pipeline, result|
           result.setMessage(LocalizedMessage.string("PIPELINE_DELETE_SUCCESSFUL", pipeline.name.to_s))
         end
@@ -493,25 +490,6 @@ describe ApiV1::Admin::PipelinesController do
         expect(actual_response).to eq({ :message => "Pipeline 'pipeline1' was deleted successfully." })
       end
 
-      it "should not delete the pipeline config if the pipeline is used as a material in some another pipeline" do
-        can_not_delete_message = com.thoughtworks.go.server.presentation.CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS", @pipeline_name, "some-downstream-pipeline"))
-        @pipeline_config_service.should_receive(:canDeletePipelines).and_return({CaseInsensitiveString.new(@pipeline_name) => can_not_delete_message})
-
-        put_with_api_header :destroy,pipeline_name: @pipeline_name
-
-        expect(response.code).to eq("422")
-        expect(actual_response).to eq({ :message => "Cannot delete pipeline 'pipeline1' as pipeline 'some-downstream-pipeline' depends on it" })
-      end
-
-      it "should not delete the pipeline config if the pipeline is used in an environment" do
-        can_not_delete_message = com.thoughtworks.go.server.presentation.CanDeleteResult.new(false, LocalizedMessage.string("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT", @pipeline_name, "foo-environment"))
-        @pipeline_config_service.should_receive(:canDeletePipelines).and_return({CaseInsensitiveString.new(@pipeline_name) => can_not_delete_message})
-
-        put_with_api_header :destroy, pipeline_name: @pipeline_name
-
-        expect(response.code).to eq("422")
-        expect(actual_response).to eq({ :message => "Cannot delete pipeline 'pipeline1' as it is present in environment 'foo-environment'" })
-      end
 
       it "should render not found if the specified pipeline is absent" do
         @pipeline_config_service.stub(:getPipelineConfig).with(@pipeline_name).and_return(nil)

@@ -65,6 +65,11 @@ public class SubsectionLocalizedOperationResult implements LocalizedOperationRes
     }
 
     @Override
+    public boolean hasMessage() {
+        return this.message == null;
+    }
+
+    @Override
     public void notImplemented(Localizable localizable) {
         throw new UnsupportedOperationException("not supported");
     }

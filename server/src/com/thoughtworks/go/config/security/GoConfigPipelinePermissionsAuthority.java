@@ -1,26 +1,26 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
-package com.thoughtworks.go.domain.cctray;
+package com.thoughtworks.go.config.security;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
-import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
-import com.thoughtworks.go.domain.cctray.viewers.Everyone;
-import com.thoughtworks.go.domain.cctray.viewers.Viewers;
+import com.thoughtworks.go.config.security.viewers.AllowedViewers;
+import com.thoughtworks.go.config.security.viewers.Everyone;
+import com.thoughtworks.go.config.security.viewers.Viewers;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,11 +29,11 @@ import java.util.*;
 
 /* Understands which users can view which pipelines and pipeline groups. */
 @Service
-public class CcTrayViewAuthority {
+public class GoConfigPipelinePermissionsAuthority {
     private GoConfigService goConfigService;
 
     @Autowired
-    public CcTrayViewAuthority(GoConfigService goConfigService) {
+    public GoConfigPipelinePermissionsAuthority(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
     }
 

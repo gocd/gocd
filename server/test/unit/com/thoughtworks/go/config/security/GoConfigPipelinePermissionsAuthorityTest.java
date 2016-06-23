@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain.cctray;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
-import com.thoughtworks.go.domain.cctray.viewers.Viewers;
+package com.thoughtworks.go.config.security;
+
+import com.thoughtworks.go.config.Authorization;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.security.viewers.AllowedViewers;
+import com.thoughtworks.go.config.security.viewers.Viewers;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.After;
@@ -37,17 +40,17 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CcTrayViewAuthorityTest {
+public class GoConfigPipelinePermissionsAuthorityTest {
     private GoConfigMother configMother;
     private GoConfigService configService;
-    private CcTrayViewAuthority service;
+    private GoConfigPipelinePermissionsAuthority service;
     private CruiseConfig config;
     private PluginRoleUsersStore pluginRoleUsersStore;
 
     @Before
     public void setUp() throws Exception {
         configService = mock(GoConfigService.class);
-        service = new CcTrayViewAuthority(configService);
+        service = new GoConfigPipelinePermissionsAuthority(configService);
 
         configMother = new GoConfigMother();
         config = GoConfigMother.defaultCruiseConfig();

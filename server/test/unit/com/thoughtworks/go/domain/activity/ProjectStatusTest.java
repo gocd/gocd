@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
-import com.thoughtworks.go.domain.cctray.viewers.Viewers;
+import com.thoughtworks.go.config.security.viewers.AllowedViewers;
+import com.thoughtworks.go.config.security.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.jdom2.Element;
 import org.junit.Test;

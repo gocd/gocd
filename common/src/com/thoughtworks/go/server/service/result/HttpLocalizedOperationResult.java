@@ -45,7 +45,7 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
         this.message = message;
     }
 
-
+    @Override
     public boolean hasMessage() {
         return message != null;
     }

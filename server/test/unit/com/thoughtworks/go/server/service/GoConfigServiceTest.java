@@ -1218,6 +1218,69 @@ public class GoConfigServiceTest {
         assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(true));
     }
 
+    @Test
+    public void shouldReturnTrueIfPipelineGroupIsAvailableAndUserIsAdminOfGroup() throws Exception {
+        mockConfigWithSecurityWithAdminAndGroupAdmin();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        boolean canEditPipelineGroup = goConfigService.canEditPipelineGroup("group0", new Username(new CaseInsensitiveString("admin")), result);
+        assertTrue(canEditPipelineGroup);
+    }
+
+    @Test
+    public void shouldReturnTrueIfPipelineGroupIsAvailableAndUserIsSuperAdmin() throws Exception {
+        mockConfigWithSecurityWithAdminAndGroupAdmin();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        boolean canEditPipelineGroup = goConfigService.canEditPipelineGroup("group0", new Username(new CaseInsensitiveString("root")), result);
+        assertTrue(canEditPipelineGroup);
+    }
+
+    @Test
+    public void shouldReturnFalseIfPipelineGroupIsNotAvailable() throws Exception {
+        mockConfigWithSecurityWithAdminAndGroupAdmin();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Localizer localizer = mock(Localizer.class);
+        String invalidGroup = "invalidGroup";
+
+        boolean canEditPipelineGroup = goConfigService.canEditPipelineGroup(invalidGroup, new Username(new CaseInsensitiveString("admin")), result);
+        assertFalse(canEditPipelineGroup);
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(404));
+        result.message(localizer);
+        verify(localizer).localize("PIPELINE_GROUP_NOT_FOUND", invalidGroup);
+    }
+
+    @Test
+    public void shouldReturnFalseIfUserIsNotAdminOfGroupAndNotSuperAdmin() throws Exception {
+        mockConfigWithSecurityWithAdminAndGroupAdmin();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Localizer localizer = mock(Localizer.class);
+        String validGroup = "group0";
+
+        boolean canEditPipelineGroup = goConfigService.canEditPipelineGroup(validGroup, new Username(new CaseInsensitiveString("notAdmin")), result);
+        assertFalse(canEditPipelineGroup);
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(401));
+        result.message(localizer);
+        verify(localizer).localize("UNAUTHORIZED_TO_EDIT_GROUP", validGroup);
+    }
+
+    private CruiseConfig mockConfigWithSecurityWithAdminAndGroupAdmin() {
+        CruiseConfig config = mockConfigWithGroupAdmin();
+        SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("path"), true);
+        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
+        config.server().useSecurity(securityConfig);
+        return config;
+    }
+
+    private CruiseConfig mockConfigWithGroupAdmin() {
+        CruiseConfig config = mockConfig();
+        config.findGroup("group0").setAuthorization(new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))));
+        return config;
+    }
+
+
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));

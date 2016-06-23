@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.BasicPipelineConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -58,7 +55,8 @@ public class PartialConfigMother {
 
     public static PartialConfig invalidPartial(String name, RepoConfigOrigin repoOrigin) {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
-        BasicPipelineConfigs pipes = new BasicPipelineConfigs(pipe);
+        pipe.getFirstStageConfig().setName(new CaseInsensitiveString(""));
+        BasicPipelineConfigs pipes = new BasicPipelineConfigs("grp", new Authorization(), pipe);
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
         partialConfig.setOrigins(repoOrigin);
         return partialConfig;

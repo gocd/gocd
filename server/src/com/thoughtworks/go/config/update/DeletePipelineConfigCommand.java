@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -67,6 +68,11 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
         }
 
         return true;
+    }
+
+    @Override
+    public void clearErrors() {
+        BasicCruiseConfig.clearErrors(pipelineConfig);
     }
 
     @Override

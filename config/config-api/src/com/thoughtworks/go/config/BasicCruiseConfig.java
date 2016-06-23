@@ -1221,6 +1221,16 @@ public class BasicCruiseConfig implements CruiseConfig {
         });
     }
 
+    public static void clearErrors(Validatable obj) {
+        GoConfigGraphWalker walker = new GoConfigGraphWalker(obj);
+        walker.walk(new GoConfigGraphWalker.Handler() {
+            @Override
+            public void handle(Validatable validatable, ValidationContext ctx) {
+                validatable.errors().clear();
+            }
+        });
+    }
+
     @Override
     public PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig) {
         String groupName = getGroups().findGroupNameByPipeline(pipelineConfig.name());

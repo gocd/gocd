@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.exceptions;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.domain.AllConfigErrors;
 
 public class GoConfigInvalidException extends RuntimeException {
     private final CruiseConfig cruiseConfig;
@@ -25,12 +26,17 @@ public class GoConfigInvalidException extends RuntimeException {
         super(error);
         this.cruiseConfig = cruiseConfig;
     }
-    protected GoConfigInvalidException(CruiseConfig cruiseConfig, String message,Throwable e) {
-        super(message,e);
+
+    protected GoConfigInvalidException(CruiseConfig cruiseConfig, String message, Throwable e) {
+        super(message, e);
         this.cruiseConfig = cruiseConfig;
     }
 
     public CruiseConfig getCruiseConfig() {
         return cruiseConfig;
+    }
+
+    public String getAllErrorMessages() {
+        return new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
     }
 }

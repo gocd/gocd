@@ -23,5 +23,7 @@ public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
 
     boolean isValid(CruiseConfig preprocessedConfig);
 
+    void clearErrors();
+
     T getPreprocessedEntityConfig();
 }

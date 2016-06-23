@@ -115,7 +115,7 @@ public class PipelineConfigService {
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
                 if(!result.hasMessage()){
-                    result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class).value(), CaseInsensitiveString.str(pipelineConfig.name())));
+                    result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class).value(), CaseInsensitiveString.str(pipelineConfig.name()), e.getMessage()));
                 }
             } else if (!(e instanceof ConfigUpdateCheckFailedException)) {
                 LOGGER.error(e.getMessage(), e);

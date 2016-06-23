@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -240,8 +239,46 @@ public class GoFileConfigDataSource {
         } catch (Exception e) {
             bomb(e);
         }
+        List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
+        List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
+        if (lastKnownPartials.isEmpty() || lastValidPartials.equals(lastKnownPartials)) {
+            return trySavingEntity(updatingCommand, currentUser, modifiedConfig, lastValidPartials);
+        } else {
+            try {
+                return trySavingEntity(updatingCommand, currentUser, modifiedConfig, lastValidPartials);
+            } catch (GoConfigInvalidException e) {
+                StringBuilder errorMessageBuilder = new StringBuilder();
+                try {
+                    String message = String.format(
+                            "Merged update operation failed on VALID %s partials. Falling back to using LAST KNOWN %s partials. Exception message was: [%s %s]",
+                            lastValidPartials.size(), lastKnownPartials.size(), e.getMessage(), e.getAllErrorMessages());
+                    errorMessageBuilder.append(message);
+                    LOGGER.warn(message, e);
+                    updatingCommand.clearErrors();
+                    List<PartialConfig> partials = lastKnownPartials;
+                    modifiedConfig.setPartials(partials);
+                    String configAsXml = configAsXml(modifiedConfig, false);
+                    cachedGoPartials.markAsValid(partials);
+                    GoConfigHolder holder = internalLoad(configAsXml, new ConfigModifyingUser(currentUser.getUsername().toString()), partials);
+                    LOGGER.info(String.format("Update operation on merged configuration succeeded with %s KNOWN partials. Now there are %s LAST KNOWN partials",
+                            lastKnownPartials.size(), cachedGoPartials.lastKnownPartials().size()));
+                    return new EntityConfigSaveResult(holder.config, holder);
+                } catch (Exception exceptionDuringFallbackValidation) {
+                    String message = String.format(
+                            "Merged config update operation failed using fallback LAST KNOWN %s partials. Exception message was: %s",
+                            lastKnownPartials.size(), exceptionDuringFallbackValidation.getMessage());
+                    LOGGER.warn(message, exceptionDuringFallbackValidation);
+                    errorMessageBuilder.append(System.lineSeparator());
+                    errorMessageBuilder.append(message);
+                    throw new GoConfigInvalidException(e.getCruiseConfig(), errorMessageBuilder.toString());
+                }
+            }
+        }
+    }
+
+    private EntityConfigSaveResult trySavingEntity(EntityConfigUpdateCommand updatingCommand, Username currentUser, CruiseConfig modifiedConfig, List<PartialConfig> partials) {
+        modifiedConfig.setPartials(partials);
         CruiseConfig preprocessedConfig = cloner.deepClone(modifiedConfig);
-        preprocessedConfig.setPartials(cachedGoPartials.lastValidPartials());
         MagicalGoConfigXmlLoader.preprocess(preprocessedConfig);
 
         if (updatingCommand.isValid(preprocessedConfig)) {
@@ -285,7 +322,7 @@ public class GoFileConfigDataSource {
                 } else {
                     LOGGER.warn(String.format(
                             "Merged config update operation failed on LATEST %s partials. Falling back to using LAST VALID %s partials. Exception message was: %s",
-                            lastKnownPartials.size(),lastValidPartials.size(),e.getMessage()),e);
+                            lastKnownPartials.size(), lastValidPartials.size(), e.getMessage()), e);
                     serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
                     try {
                         String configAsXml = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
@@ -296,13 +333,11 @@ public class GoFileConfigDataSource {
                         updateMergedConfigForEdit(validatedConfigHolder, lastValidPartials);
                         LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials. Now there are %s LAST VALID partials",
                                 previousValidPartialsCount, lastValidPartials.size()));
-                    }
-                    catch (GoConfigInvalidException fallbackFailed)
-                    {
+                    } catch (GoConfigInvalidException fallbackFailed) {
                         LOGGER.warn(String.format(
                                 "Merged config update operation failed using fallback LAST VALID %s partials. Exception message was: %s",
-                                lastValidPartials.size(),fallbackFailed.getMessage()),fallbackFailed);
-                        throw new GoConfigInvalidMergeException("Fallback merge failed",lastValidPartials, fallbackFailed);
+                                lastValidPartials.size(), fallbackFailed.getMessage()), fallbackFailed);
+                        throw new GoConfigInvalidMergeException("Fallback merge failed", lastValidPartials, fallbackFailed);
                     }
                 }
             }
@@ -353,7 +388,7 @@ public class GoFileConfigDataSource {
         deepCloneForEdit.setPartials(partials);
         CruiseConfig config = updatingCommand.update(deepCloneForEdit);
         String configAsXml = configAsXml(config, false);
-        if(deepCloneForEdit.getPartials().size() < partials.size())
+        if (deepCloneForEdit.getPartials().size() < partials.size())
             throw new RuntimeException("should never be called");
         cachedGoPartials.markAsValid(deepCloneForEdit.getPartials());
         return configAsXml;

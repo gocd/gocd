@@ -196,7 +196,7 @@ public class AgentWebsocketService {
 
     @OnWebSocketClose
     public void onClose(int closeCode, String closeReason) {
-        LOGGER.info("{} closed: {}", sessionName(), closeReason);
+        LOGGER.debug("{} closed. code: {}, reason: {}", sessionName(), closeCode, closeReason);
     }
 
     @OnWebSocketError

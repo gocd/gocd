@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
-import com.thoughtworks.go.config.security.viewers.AllowedViewers;
-import com.thoughtworks.go.config.security.viewers.Viewers;
+import com.thoughtworks.go.config.security.users.AllowedViewers;
+import com.thoughtworks.go.config.security.users.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;

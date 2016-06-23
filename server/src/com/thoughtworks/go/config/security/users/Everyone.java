@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.security.viewers;
+package com.thoughtworks.go.config.security.users;
 
-/* Claims that it has all viewers. */
+/* Claims that it has all users. */
 public class Everyone implements Viewers {
     public static Viewers INSTANCE = new Everyone();
 

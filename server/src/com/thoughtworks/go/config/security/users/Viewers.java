@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.security.viewers;
+package com.thoughtworks.go.config.security.users;
 
 public interface Viewers {
     boolean contains(String username);

@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.thoughtworks.go.config.security.users;
 
-package com.thoughtworks.go.config.security.viewers;
+import org.junit.Test;
 
-/* Denies that it has any viewers. */
-public class NoOne implements Viewers {
-    public static Viewers INSTANCE = new NoOne();
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
-    private NoOne() {
-    }
+public class NoOneTest {
+    @Test
+    public void shouldSayItContainsNoUsersAlways() throws Exception {
+        Viewers noViewers = NoOne.INSTANCE;
 
-    @Override
-    public boolean contains(String username) {
-        return false;
+        assertThat(noViewers.contains("abc"), is(false));
+        assertThat(noViewers.contains("def"), is(false));
+        assertThat(noViewers.contains(null), is(false));
+        assertThat(noViewers.contains(""), is(false));
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config.security.viewers;
+package com.thoughtworks.go.config.security.users;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.HashSet;
 import java.util.Set;
 
-/* Understands: The set of viewers it has. */
+/* Understands: The set of users it has. */
 public class AllowedViewers implements Viewers {
     private final Set<PluginRoleConfig> allowedRoles;
     private Set<String> allowedUsers = new HashSet<>();

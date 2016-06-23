@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import com.thoughtworks.go.domain.cctray.viewers.NoOne;
-import com.thoughtworks.go.domain.cctray.viewers.Viewers;
+import com.thoughtworks.go.config.security.viewers.NoOne;
+import com.thoughtworks.go.config.security.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Element;

@@ -16,6 +16,12 @@
 
 package com.thoughtworks.go.domain.materials.tfs;
 
+import com.thoughtworks.go.util.NestedJarClassLoader;
+import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,19 +31,10 @@ import java.net.URLClassLoader;
 import java.util.List;
 import java.util.jar.JarInputStream;
 
-import com.thoughtworks.go.util.NestedJarClassLoader;
-import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TfsSDKCommandBuilderTest {
     private TfsSDKCommandBuilder builder;
@@ -71,7 +68,7 @@ public class TfsSDKCommandBuilderTest {
         assertThat(log4jJarFromClasspath != null, is(true));
         String version = implementationVersionFromManifrest(log4jJarFromClasspath);
         assertThat(version != null, is(true));
-        assertThat(version, is("1.2.12"));
+        assertThat(version, is("1.2.17"));
     }
 
     private String implementationVersionFromManifrest(URL log4jJarFromClasspath) throws IOException {

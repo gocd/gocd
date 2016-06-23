@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,12 +156,12 @@
                     {/for}
                     {if $pipeline_comment_feature_toggle_key }
                     <td>
-                        <p class="pipeline-info pipeline-history-build-comment">${%pipeline.comment|h%}</p>
 
-                        {if pipeline.comment == ""}
+                        {if pipeline.comment == null}
                         <input class="pipeline-comment-button" type="button" value="Add Comment"
                                onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}', '${% pipeline.counterOrLabel %}');">
                         {else}
+                        <p class="pipeline-info pipeline-history-build-comment">${%pipeline.comment|h%}</p>
                         <input class="pipeline-comment-button" type="button" value="Edit Comment"
                                onClick="PipelineHistoryComment.showModal('${% data.pipelineName %}', '${% pipeline.label %}', '${% pipeline.counterOrLabel %}');">
                         {/if}

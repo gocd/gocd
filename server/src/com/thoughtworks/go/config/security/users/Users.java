@@ -16,6 +16,6 @@
 
 package com.thoughtworks.go.config.security.users;
 
-public interface Viewers {
+public interface Users {
     boolean contains(String username);
 }

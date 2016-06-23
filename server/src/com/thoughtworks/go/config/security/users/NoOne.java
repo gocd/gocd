@@ -17,8 +17,8 @@
 package com.thoughtworks.go.config.security.users;
 
 /* Denies that it has any users. */
-public class NoOne implements Viewers {
-    public static Viewers INSTANCE = new NoOne();
+public class NoOne implements Users {
+    public static Users INSTANCE = new NoOne();
 
     private NoOne() {
     }

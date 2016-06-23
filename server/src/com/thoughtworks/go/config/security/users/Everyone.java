@@ -17,8 +17,8 @@
 package com.thoughtworks.go.config.security.users;
 
 /* Claims that it has all users. */
-public class Everyone implements Viewers {
-    public static Viewers INSTANCE = new Everyone();
+public class Everyone implements Users {
+    public static Users INSTANCE = new Everyone();
 
     private Everyone() {
     }

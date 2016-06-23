@@ -25,11 +25,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /* Understands: The set of users it has. */
-public class AllowedViewers implements Viewers {
+public class AllowedUsers implements Users {
     private final Set<PluginRoleConfig> allowedRoles;
     private Set<String> allowedUsers = new HashSet<>();
 
-    public AllowedViewers(Set<String> allowedUsers, Set<PluginRoleConfig> allowedRoles) {
+    public AllowedUsers(Set<String> allowedUsers, Set<PluginRoleConfig> allowedRoles) {
         this.allowedRoles = allowedRoles;
         for (String user : allowedUsers) {
             this.allowedUsers.add(user.toLowerCase());
@@ -56,7 +56,7 @@ public class AllowedViewers implements Viewers {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AllowedViewers that = (AllowedViewers) o;
+        AllowedUsers that = (AllowedUsers) o;
 
         if (allowedRoles != null ? !allowedRoles.equals(that.allowedRoles) : that.allowedRoles != null) return false;
         return allowedUsers != null ? allowedUsers.equals(that.allowedUsers) : that.allowedUsers == null;

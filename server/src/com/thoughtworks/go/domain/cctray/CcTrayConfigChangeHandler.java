@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
-import com.thoughtworks.go.config.security.users.Viewers;
+import com.thoughtworks.go.config.security.users.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,20 +48,20 @@ public class CcTrayConfigChangeHandler {
 
     public void call(PipelineConfig pipelineConfig, String pipelineGroup) {
         ArrayList<ProjectStatus> projectStatuses = new ArrayList<>();
-        final Map<String, Viewers> groupsAndTheirViewers = pipelinePermissionsAuthority.groupsAndTheirViewers();
-        Viewers usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineGroup);
+        final Map<String, Users> groupsAndTheirViewers = pipelinePermissionsAuthority.groupsAndTheirViewers();
+        Users usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineGroup);
         updateProjectStatusForPipeline(usersWithViewPermissionsOfThisGroup, pipelineConfig, projectStatuses);
         cache.putAll(projectStatuses);
     }
 
     private List<ProjectStatus> findAllProjectStatusesForStagesAndJobsIn(CruiseConfig config) {
         final List<ProjectStatus> projectStatuses = new ArrayList<>();
-        final Map<String, Viewers> groupsAndTheirViewers = pipelinePermissionsAuthority.groupsAndTheirViewers();
+        final Map<String, Users> groupsAndTheirViewers = pipelinePermissionsAuthority.groupsAndTheirViewers();
 
         config.accept(new PipelineGroupVisitor() {
             @Override
             public void visit(PipelineConfigs pipelineConfigs) {
-                Viewers usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
+                Users usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
 
                 for (PipelineConfig pipelineConfig : pipelineConfigs) {
                     updateProjectStatusForPipeline(usersWithViewPermissionsOfThisGroup, pipelineConfig, projectStatuses);
@@ -73,7 +73,7 @@ public class CcTrayConfigChangeHandler {
         return projectStatuses;
     }
 
-    private void updateProjectStatusForPipeline(Viewers usersWithViewPermissionsOfThisGroup, PipelineConfig pipelineConfig, List<ProjectStatus> projectStatuses) {
+    private void updateProjectStatusForPipeline(Users usersWithViewPermissionsOfThisGroup, PipelineConfig pipelineConfig, List<ProjectStatus> projectStatuses) {
         for (StageConfig stageConfig : pipelineConfig) {
             List<ProjectStatus> statusesInCacheOrDB = findExistingStatuses(pipelineConfig, stageConfig);
             List<ProjectStatus> statuses = getStatusesForCurrentProjectsWithDefaultsForMissingOnes(pipelineConfig, stageConfig, statusesInCacheOrDB);
@@ -134,7 +134,7 @@ public class CcTrayConfigChangeHandler {
         return new ProjectStatus.NullProjectStatus(projectName);
     }
 
-    private void updateStatusesWithUsersHavingViewPermission(List<ProjectStatus> statuses, Viewers viewersOfThisGroup) {
+    private void updateStatusesWithUsersHavingViewPermission(List<ProjectStatus> statuses, Users viewersOfThisGroup) {
         for (ProjectStatus status : statuses) {
             status.updateViewers(viewersOfThisGroup);
         }

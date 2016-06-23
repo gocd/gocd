@@ -4,7 +4,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.validation.PipelineConfigsUpdateValidator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,7 +17,6 @@ public class PipelineConfigsUpdateCommandTest {
 
     GoConfigService goConfigService;
     UpdateAuthorizationCommand updateAuthorizationCommand;
-    PipelineConfigsUpdateValidator pipelineConfigsUpdateValidator;
     HttpLocalizedOperationResult result;
     Username currentUser;
     String groupName;
@@ -29,7 +27,6 @@ public class PipelineConfigsUpdateCommandTest {
     public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
         updateAuthorizationCommand = mock(UpdateAuthorizationCommand.class);
-        pipelineConfigsUpdateValidator = mock(PipelineConfigsUpdateValidator.class);
         result = mock(HttpLocalizedOperationResult.class);
         currentUser = new Username(new CaseInsensitiveString("userName"));
         groupName = "groupName";

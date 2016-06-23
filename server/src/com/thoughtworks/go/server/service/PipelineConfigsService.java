@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.PipelineConfigsUpdateCommand;
 import com.thoughtworks.go.config.update.UpdateAuthorizationCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -124,6 +125,8 @@ public class PipelineConfigsService {
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
                 result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED"));
+            } else if(e instanceof ConfigUpdateCheckFailedException) {
+                return;
             } else {
                 result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
             }

@@ -128,9 +128,29 @@ public class PipelineConfigsServiceIntegrationTest {
 
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(new CaseInsensitiveString("newAdmin"))));
         pipelineConfigsService.updateAuthorization(authorization, groupName, result, new Username(new CaseInsensitiveString("NotAnAdmin")));
+
         assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.toString(), result.httpCode(), is(401));
+        assertThat(result.toString(), result.toString().contains("UNAUTHORIZED_TO_EDIT_GROUP"), is(true));
+    }
 
+    @Test
+    public void shouldReturnInvalidGroupErrorWhenGroupIsNotAvailable() throws Exception {
+        String pipelineName = UUID.randomUUID().toString();
+        PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(pipelineName, new GitMaterialConfig("FOO"));
+        String groupName = "groupName";
+        goConfigService.addPipeline(pipelineConfig, groupName);
+        setupSecurity();
 
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        PipelineConfigsService pipelineConfigsService = new PipelineConfigsService(configCache, registry, goConfigService, securityService);
+
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(new CaseInsensitiveString("newAdmin"))));
+        pipelineConfigsService.updateAuthorization(authorization, "invaldGroupName", result, new Username(new CaseInsensitiveString("groupAdmin")));
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.toString(), result.httpCode(), is(404));
+        assertThat(result.toString(), result.toString().contains("PIPELINE_GROUP_NOT_FOUND"), is(true));
     }
 
     private void setupSecurity() {

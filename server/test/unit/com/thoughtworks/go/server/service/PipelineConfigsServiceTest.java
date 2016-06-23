@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.PipelineConfigsUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -338,6 +339,17 @@ public class PipelineConfigsServiceTest {
 
         service.updateAuthorization(authorization, groupName, result, validUser);
         assertThat(result.httpCode(), is(500));
+    }
+
+    @Test
+    public void shouldNotReturnInternalServerErrorWhenConfigUpdateIsUnableToContinue() throws Exception {
+        Authorization authorization = mock(Authorization.class);
+        ConfigUpdateCheckFailedException configUpdateCheckFailedException = new ConfigUpdateCheckFailedException();
+        doThrow(configUpdateCheckFailedException).when(goConfigService).updateConfig(any(PipelineConfigsUpdateCommand.class), eq(validUser));
+        String groupName = "groupName";
+        service.updateAuthorization(authorization, groupName, result, validUser);
+        assertThat(result.httpCode(), not(500));
+        assertThat(result.httpCode(), not(422));
     }
 
     private String groupXml() {

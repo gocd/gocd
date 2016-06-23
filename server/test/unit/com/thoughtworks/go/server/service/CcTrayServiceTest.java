@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
-import com.thoughtworks.go.config.security.users.AllowedViewers;
-import com.thoughtworks.go.config.security.users.Viewers;
+import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -134,7 +134,7 @@ public class CcTrayServiceTest {
         assertThat(actualXml, is(expectedXml.toString()));
     }
 
-    private Viewers viewers(String... users) {
-        return new AllowedViewers(s(users), Collections.emptySet());
+    private Users viewers(String... users) {
+        return new AllowedUsers(s(users), Collections.emptySet());
     }
 }

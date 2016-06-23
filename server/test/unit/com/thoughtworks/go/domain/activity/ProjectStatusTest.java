@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import com.thoughtworks.go.config.security.users.AllowedViewers;
-import com.thoughtworks.go.config.security.users.Viewers;
+import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.DateUtils;
 import org.jdom2.Element;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class ProjectStatusTest {
 
     @Test
     public void shouldListViewers() throws Exception {
-        Viewers viewers = mock(Viewers.class);
+        Users viewers = mock(Users.class);
 
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
         status.updateViewers(viewers);
@@ -99,7 +99,7 @@ public class ProjectStatusTest {
         assertThat(status.canBeViewedBy("abc"), is(false));
         assertThat(status.canBeViewedBy("def"), is(false));
 
-        status.updateViewers(new AllowedViewers(s("abc", "ghi"), Collections.emptySet()));
+        status.updateViewers(new AllowedUsers(s("abc", "ghi"), Collections.emptySet()));
 
         assertThat(status.canBeViewedBy("abc"), is(true));
         assertThat(status.canBeViewedBy("def"), is(false));

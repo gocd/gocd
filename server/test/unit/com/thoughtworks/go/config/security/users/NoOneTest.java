@@ -23,11 +23,11 @@ import static org.hamcrest.core.Is.is;
 public class NoOneTest {
     @Test
     public void shouldSayItContainsNoUsersAlways() throws Exception {
-        Viewers noViewers = NoOne.INSTANCE;
+        Users noUsers = NoOne.INSTANCE;
 
-        assertThat(noViewers.contains("abc"), is(false));
-        assertThat(noViewers.contains("def"), is(false));
-        assertThat(noViewers.contains(null), is(false));
-        assertThat(noViewers.contains(""), is(false));
+        assertThat(noUsers.contains("abc"), is(false));
+        assertThat(noUsers.contains("def"), is(false));
+        assertThat(noUsers.contains(null), is(false));
+        assertThat(noUsers.contains(""), is(false));
     }
 }

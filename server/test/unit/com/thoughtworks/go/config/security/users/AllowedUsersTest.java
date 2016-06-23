@@ -30,7 +30,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class AllowedViewersTest {
+public class AllowedUsersTest {
     private PluginRoleUsersStore pluginRoleUsersStore;
 
     @Before
@@ -45,15 +45,15 @@ public class AllowedViewersTest {
 
     @Test
     public void shouldCheckViewPermissionsInACaseInsensitiveWay() throws Exception {
-        AllowedViewers viewers = new AllowedViewers(s("USER1", "user2", "User3", "AnoTherUsEr"), Collections.emptySet());
+        AllowedUsers users = new AllowedUsers(s("USER1", "user2", "User3", "AnoTherUsEr"), Collections.emptySet())
 
-        assertThat(viewers.contains("user1"), is(true));
-        assertThat(viewers.contains("USER1"), is(true));
-        assertThat(viewers.contains("User1"), is(true));
-        assertThat(viewers.contains("USER2"), is(true));
-        assertThat(viewers.contains("uSEr3"), is(true));
-        assertThat(viewers.contains("anotheruser"), is(true));
-        assertThat(viewers.contains("NON-EXISTENT-USER"), is(false));
+        assertThat(users.contains("user1"), is(true));
+        assertThat(users.contains("USER1"), is(true));
+        assertThat(users.contains("User1"), is(true));
+        assertThat(users.contains("USER2"), is(true));
+        assertThat(users.contains("uSEr3"), is(true));
+        assertThat(users.contains("anotheruser"), is(true));
+        assertThat(users.contains("NON-EXISTENT-USER"), is(false));
     }
 
     @Test
@@ -62,10 +62,10 @@ public class AllowedViewersTest {
 
         pluginRoleUsersStore.assignRole("foo", admin);
 
-        AllowedViewers allowedViewers = new AllowedViewers(Collections.emptySet(), Collections.singleton(admin));
+        AllowedUsers users = new AllowedUsers(Collections.emptySet(), Collections.singleton(admin));
 
-        assertTrue(allowedViewers.contains("FOO"));
-        assertTrue(allowedViewers.contains("foo"));
-        assertFalse(allowedViewers.contains("bar"));
+        assertTrue(users.contains("FOO"));
+        assertTrue(users.contains("foo"));
+        assertFalse(users.contains("bar"));
     }
 }

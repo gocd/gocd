@@ -18,9 +18,9 @@ package com.thoughtworks.go.config.security;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
-import com.thoughtworks.go.config.security.users.AllowedViewers;
+import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
-import com.thoughtworks.go.config.security.users.Viewers;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,8 +37,8 @@ public class GoConfigPipelinePermissionsAuthority {
         this.goConfigService = goConfigService;
     }
 
-    public Map<String, Viewers> groupsAndTheirViewers() {
-        final Map<String, Viewers> pipelinesAndViewers = new HashMap<>();
+    public Map<String, Users> groupsAndTheirViewers() {
+        final Map<String, Users> pipelinesAndViewers = new HashMap<>();
 
         SecurityConfig security = goConfigService.security();
         final Map<String, Collection<String>> rolesToUsers = rolesToUsers(security);
@@ -67,7 +67,7 @@ public class GoConfigPipelinePermissionsAuthority {
                 roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getAdminsConfig().getRoles()));
                 roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getViewConfig().getRoles()));
 
-                pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedViewers(viewers, roles));
+                pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedUsers(viewers, roles));
             }
         });
 

@@ -18,8 +18,8 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
-import com.thoughtworks.go.config.security.users.AllowedViewers;
-import com.thoughtworks.go.config.security.users.Viewers;
+import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.After;
 import org.junit.Before;
@@ -231,7 +231,7 @@ public class CcTrayConfigChangeHandlerTest {
         PluginRoleConfig admin = new PluginRoleConfig("admin", "ldap");
         pluginRoleUsersStore.assignRole("user4", admin);
 
-        AllowedViewers allowedViewers = new AllowedViewers(s("user3"), Collections.singleton(admin));
+        AllowedUsers allowedViewers = new AllowedUsers(s("user3"), Collections.singleton(admin));
         when(pipelinePermissionsAuthority.groupsAndTheirViewers()).thenReturn(m("group1", viewers("user1", "user2"), "group2", allowedViewers));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();
@@ -330,8 +330,8 @@ public class CcTrayConfigChangeHandlerTest {
         assertThat(allValues.get(1).viewers().contains("user3"), is(false));
     }
 
-    private Viewers viewers(String... users) {
-        return new AllowedViewers(s(users), Collections.emptySet());
+    private Users viewers(String... users) {
+        return new AllowedUsers(s(users), Collections.emptySet());
     }
 
     private PipelineConfig pipelineConfigFor(CruiseConfig config, String pipelineName) {

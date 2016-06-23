@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
-import com.thoughtworks.go.config.security.viewers.Viewers;
+import com.thoughtworks.go.config.security.users.Viewers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

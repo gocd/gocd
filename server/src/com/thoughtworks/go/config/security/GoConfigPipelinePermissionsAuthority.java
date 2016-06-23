@@ -18,9 +18,9 @@ package com.thoughtworks.go.config.security;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
-import com.thoughtworks.go.config.security.viewers.AllowedViewers;
-import com.thoughtworks.go.config.security.viewers.Everyone;
-import com.thoughtworks.go.config.security.viewers.Viewers;
+import com.thoughtworks.go.config.security.users.AllowedViewers;
+import com.thoughtworks.go.config.security.users.Everyone;
+import com.thoughtworks.go.config.security.users.Viewers;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain.activity;
 
-import com.thoughtworks.go.config.security.viewers.AllowedViewers;
-import com.thoughtworks.go.config.security.viewers.Viewers;
+import com.thoughtworks.go.config.security.users.AllowedViewers;
+import com.thoughtworks.go.config.security.users.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.jdom2.Element;
 import org.junit.Test;

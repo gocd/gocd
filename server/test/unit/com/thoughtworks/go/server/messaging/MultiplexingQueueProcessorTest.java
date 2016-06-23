@@ -16,23 +16,12 @@
 
 package com.thoughtworks.go.server.messaging;
 
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
-import com.thoughtworks.go.domain.cctray.CcTrayJobStatusChangeHandler;
-import com.thoughtworks.go.domain.cctray.CcTrayStageStatusChangeHandler;
-import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.helper.StageMother;
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
 import com.thoughtworks.go.util.LogFixture;
-import org.apache.log4j.Level;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.UUID;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.containsString;
@@ -41,7 +30,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class MultiplexingQueueProcessorTest {
@@ -106,8 +94,10 @@ public class MultiplexingQueueProcessorTest {
             queueProcessor.start();
             waitForProcessingToHappen();
 
-            assertThat(logFixture.contains(Level.WARN, "Failed to handle action in queue1 queue"), is(true));
-            assertThat(logFixture.allLogs(), containsString("Ouch. Failed."));
+            synchronized (logFixture) {
+                assertThat(logFixture.contains(Level.WARN, "Failed to handle action in queue1 queue"), is(true));
+                assertThat(logFixture.getLog(), containsString("Ouch. Failed."));
+            }
         }
 
         verify(successfulAction1).call();

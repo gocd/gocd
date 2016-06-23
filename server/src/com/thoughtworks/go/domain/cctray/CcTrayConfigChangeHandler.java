@@ -18,6 +18,8 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
+import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.config.security.users.Users;
@@ -48,23 +50,22 @@ public class CcTrayConfigChangeHandler {
 
     public void call(PipelineConfig pipelineConfig, String pipelineGroup) {
         ArrayList<ProjectStatus> projectStatuses = new ArrayList<>();
-        final Map<String, Users> groupsAndTheirViewers = pipelinePermissionsAuthority.groupsAndTheirViewers();
-        Users usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineGroup);
-        updateProjectStatusForPipeline(usersWithViewPermissionsOfThisGroup, pipelineConfig, projectStatuses);
+        final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = pipelinePermissionsAuthority.pipelinesAndTheirPermissions();
+        Users usersWithViewPermissionsOfThisPipeline = usersWithViewPermissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+        updateProjectStatusForPipeline(usersWithViewPermissionsOfThisPipeline, pipelineConfig, projectStatuses);
         cache.putAll(projectStatuses);
     }
 
     private List<ProjectStatus> findAllProjectStatusesForStagesAndJobsIn(CruiseConfig config) {
         final List<ProjectStatus> projectStatuses = new ArrayList<>();
-        final Map<String, Users> groupsAndTheirViewers = pipelinePermissionsAuthority.groupsAndTheirViewers();
+        final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = pipelinePermissionsAuthority.pipelinesAndTheirPermissions();
 
         config.accept(new PipelineGroupVisitor() {
             @Override
-            public void visit(PipelineConfigs pipelineConfigs) {
-                Users usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineConfigs.getGroup());
-
-                for (PipelineConfig pipelineConfig : pipelineConfigs) {
-                    updateProjectStatusForPipeline(usersWithViewPermissionsOfThisGroup, pipelineConfig, projectStatuses);
+            public void visit(PipelineConfigs group) {
+                for (PipelineConfig pipelineConfig : group) {
+                    Users usersWithViewPermissionsForPipeline = usersWithViewPermissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+                    updateProjectStatusForPipeline(usersWithViewPermissionsForPipeline, pipelineConfig, projectStatuses);
                 }
             }
 
@@ -146,5 +147,10 @@ public class CcTrayConfigChangeHandler {
 
     private String jobProjectName(String stageProjectName, JobConfig jobConfig) {
         return String.format("%s :: %s", stageProjectName, jobConfig.name().toString());
+    }
+
+    private Users usersWithViewPermissionsFor(PipelineConfig pipelineConfig, Map<CaseInsensitiveString, Permissions> allPipelinesAndTheirPermissions) {
+        Permissions permissions = allPipelinesAndTheirPermissions.get(pipelineConfig.name());
+        return permissions == null ? NoOne.INSTANCE : permissions.viewers();
     }
 }

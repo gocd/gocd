@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.security;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
@@ -27,7 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-/* Understands which users can view which pipelines and pipeline groups. */
+/* Understands which users can view, operate and administer which pipelines and pipeline groups. */
 @Service
 public class GoConfigPipelinePermissionsAuthority {
     private GoConfigService goConfigService;
@@ -37,41 +38,58 @@ public class GoConfigPipelinePermissionsAuthority {
         this.goConfigService = goConfigService;
     }
 
-    public Map<String, Users> groupsAndTheirViewers() {
-        final Map<String, Users> pipelinesAndViewers = new HashMap<>();
+    public Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions() {
+        final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = new HashMap<>();
 
-        SecurityConfig security = goConfigService.security();
+        final SecurityConfig security = goConfigService.security();
         final Map<String, Collection<String>> rolesToUsers = rolesToUsers(security);
         final Set<String> superAdminUsers = namesOf(security.adminsConfig(), rolesToUsers);
         final Set<PluginRoleConfig> superAdminPluginRoles = pluginRolesFor(security.adminsConfig().getRoles());
-        final boolean noSuperAdminsAreDefined = noSuperAdminsDefined();
+        final boolean hasNoAdminsDefinedAtRootLevel = noSuperAdminsDefined();
 
         goConfigService.groups().accept(new PipelineGroupVisitor() {
             @Override
-            public void visit(PipelineConfigs pipelineConfigs) {
-                if (noSuperAdminsAreDefined || !pipelineConfigs.hasAuthorizationDefined()) {
-                    pipelinesAndViewers.put(pipelineConfigs.getGroup(), Everyone.INSTANCE);
-                    return;
-                }
-
-                Set<String> pipelineGroupAdmins = namesOf(pipelineConfigs.getAuthorization().getAdminsConfig(), rolesToUsers);
-                Set<String> pipelineGroupViewers = namesOf(pipelineConfigs.getAuthorization().getViewConfig(), rolesToUsers);
-
+            public void visit(PipelineConfigs group) {
                 Set<String> viewers = new HashSet<>();
-                viewers.addAll(superAdminUsers);
-                viewers.addAll(pipelineGroupAdmins);
+                Set<String> operators = new HashSet<>();
+                Set<String> admins = new HashSet<>();
+
+                Set<String> pipelineGroupViewers = namesOf(group.getAuthorization().getViewConfig(), rolesToUsers);
+                Set<String> pipelineGroupOperators = namesOf(group.getAuthorization().getOperationConfig(), rolesToUsers);
+                Set<String> pipelineGroupAdmins = namesOf(group.getAuthorization().getAdminsConfig(), rolesToUsers);
+
+                Set<PluginRoleConfig> viewerRoles = pluginRolesFor(group.getAuthorization().getViewConfig().getRoles());
+                Set<PluginRoleConfig> operatorRoles = pluginRolesFor(group.getAuthorization().getOperationConfig().getRoles());
+                Set<PluginRoleConfig> adminRoles = pluginRolesFor(group.getAuthorization().getAdminsConfig().getRoles());
+
+                adminRoles.addAll(superAdminPluginRoles);
+                operatorRoles.addAll(adminRoles);
+                viewerRoles.addAll(adminRoles);
+
+                admins.addAll(superAdminUsers);
+                admins.addAll(pipelineGroupAdmins);
+
+                operators.addAll(admins);
+                operators.addAll(pipelineGroupOperators);
+
+                viewers.addAll(admins);
                 viewers.addAll(pipelineGroupViewers);
 
-                Set<PluginRoleConfig> roles = new HashSet<>();
-                roles.addAll(superAdminPluginRoles);
-                roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getAdminsConfig().getRoles()));
-                roles.addAll(pluginRolesFor(pipelineConfigs.getAuthorization().getViewConfig().getRoles()));
+                boolean hasNoAuthDefinedAtGroupLevel = !group.hasAuthorizationDefined();
 
-                pipelinesAndViewers.put(pipelineConfigs.getGroup(), new AllowedUsers(viewers, roles));
+                for (PipelineConfig pipeline : group) {
+                    if (hasNoAdminsDefinedAtRootLevel) {
+                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
+                    } else if (hasNoAuthDefinedAtGroupLevel) {
+                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, new AllowedUsers(admins, operatorRoles), new AllowedUsers(admins, adminRoles)));
+                    } else {
+                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(new AllowedUsers(viewers, viewerRoles), new AllowedUsers(operators, operatorRoles), new AllowedUsers(admins, adminRoles)));
+                    }
+                }
             }
         });
 
-        return pipelinesAndViewers;
+        return pipelinesAndTheirPermissions;
     }
 
     private Set<PluginRoleConfig> pluginRolesFor(List<AdminRole> roles) {

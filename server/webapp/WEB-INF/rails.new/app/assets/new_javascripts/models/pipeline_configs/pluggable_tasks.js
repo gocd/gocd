@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'models/pipeline_configs/tasks'], function (m, _, $, Tasks) {
-  var PluggableTasks = {};
 
-  PluggableTasks.initializeWith = function (descriptors) {
+define(['mithril', 'lodash', 'jquery', 'models/pipeline_configs/tasks', 'models/pipeline_configs/plugin_infos'],
+  function (m, _, $, Tasks, PluginInfos) {
+    var PluggableTasks = {};
+
+    PluggableTasks.init = function () {
+      _.each(PluginInfos.filterByType('task'), function (pluginInfo) {
+        PluggableTasks.Types[pluginInfo.id()] = {
+          type: Tasks.Task.PluginTask,
+          description: pluginInfo.displayName()
+        };
+      });
+    };
+
     PluggableTasks.Types = {};
-    _.map(descriptors, function (descriptor) {
 
-      var templateHTML = $('<div></div>').html(descriptor.template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
-        return "GOINPUTNAME['" + name + "']";
-      })).html();
-
-      PluggableTasks.Types[descriptor.plugin_id] = {
-        version:       descriptor.version,
-        type:          Tasks.Task.PluginTask,
-        description:   descriptor.name,
-        templateHTML:  templateHTML,
-        configuration: descriptor.configuration
-      };
-
-    });
-  };
-
-  PluggableTasks.Types = {};
-
-  return PluggableTasks;
-});
+    return PluggableTasks;
+  });

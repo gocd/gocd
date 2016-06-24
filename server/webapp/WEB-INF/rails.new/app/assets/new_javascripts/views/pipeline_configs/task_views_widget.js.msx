@@ -16,10 +16,11 @@
 
 define([
   'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'models/pipeline_configs/tasks',
-  'models/pipeline_configs/pluggable_tasks', 'js-routes',  'models/pipeline_configs/argument', 'helpers/mithril_component_mixins',
-  'views/pipeline_configs/run_if_conditions_widget', 'views/pipeline_configs/task_basic_views_widget', 'views/pipeline_configs/cancel_task_widget'
+  'models/pipeline_configs/pluggable_tasks', 'js-routes', 'models/pipeline_configs/argument', 'helpers/mithril_component_mixins',
+  'views/pipeline_configs/run_if_conditions_widget', 'views/pipeline_configs/task_basic_views_widget', 'views/pipeline_configs/cancel_task_widget',
+  'models/pipeline_configs/plugin_infos'
 ], function (m, _, $, angular, f, Tasks, PluggableTasks, Routes, Argument, ComponentMixins,
-             RunIfConditionsWidget, TaskBasicViews, CancelTaskWidget) {
+             RunIfConditionsWidget, TaskBasicViews, CancelTaskWidget, PluginInfos) {
 
   var TaskViews = {
     base: {
@@ -40,6 +41,10 @@ define([
           var isEditing = self.vmState(vmStateKey)();
           self.vmState('taskEdit' + self.task.uuid())(!isEditing);
         };
+
+        this.taskDisplayName = function () {
+          return Tasks.isBuiltInTaskType(self.task.type()) ? self.task.type() : PluginInfos.findById(self.task.pluginId()).name();
+        }
       },
 
       view: function (ctrl, args, children) {
@@ -51,7 +56,7 @@ define([
           <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
             <div>
               <div class="task-header" onclick={ctrl.toggleIsEditing.bind(ctrl)}>
-                <strong>{args.task.type()}</strong>
+                <strong>{ctrl.taskDisplayName()}</strong>
                 <span class='task-type'>{args.task.toString()}</span>
                 <div class='actions'>
                   <f.removeButton onclick={args.onRemove} class="remove-task"/>
@@ -119,28 +124,12 @@ define([
       }
     },
 
-    plugin: {
-      controller: function (args) {
-        this.task = args.task;
-        this.appName = 'app-' + this.task.uuid();
-      },
-
+    pluggable_task: {
       view: function (ctrl, args) {
-        var config = function (elem, isInitialized) {
-          if (!isInitialized) {
-            var pluginTaskElem = $('#pluggable-task-' + ctrl.task.uuid());
-            var pluginTaskTemplateElement = $('#pluggable-task-template-' + ctrl.task.uuid());
-            angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
-            pluginTaskElem.show();
-          }
-        };
-
         return (
-          <div id={'pluggable-task-' + ctrl.task.uuid()} style='display:none' config={config}>
-            <TaskViews.base {...args}>
-              <TaskBasicViews.plugin {...args}/>
-            </TaskViews.base>
-          </div>
+          <TaskViews.base {...args}>
+            <TaskBasicViews.pluggable_task {...args}/>
+          </TaskViews.base>
         );
       }
     }

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/tasks", "string-plus"], function (_, Tasks, s) {
+define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeline_configs/plugin_infos'],
+  function (_, Tasks, s, PluginInfos) {
   describe("Task Model", function () {
     var task;
     describe("Ant", function () {
@@ -522,15 +523,15 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus"], function (_, 
           pluginId:      'indix.s3fetch',
           version:       1,
           configuration: Tasks.Task.PluginTask.Configurations.fromJSON([
-            {name: "Repo", value: "foo"},
-            {name: "Package", value: "foobar-widgets"}
+            {key: "Repo",    value: "foo"},
+            {key: "Package", value: "foobar-widgets"}
           ]),
           runIf:        ['any']
         });
       });
 
       it("should initialize task model with type", function () {
-        expect(task.type()).toBe("plugin");
+        expect(task.type()).toBe("pluggable_task");
       });
 
       it("should initialize task model with pluginId", function () {
@@ -542,12 +543,31 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus"], function (_, 
       });
 
       it("should initialize task model with configuration", function () {
-        expect(task.configuration().collectConfigurationProperty('name')).toEqual(['Repo', 'Package']);
+        expect(task.configuration().collectConfigurationProperty('key')).toEqual(['Repo', 'Package']);
         expect(task.configuration().collectConfigurationProperty('value')).toEqual(['foo', 'foobar-widgets']);
       });
 
       it("should initialize task model with runIfConditions", function () {
         expect(task.runIf().data()).toEqual(['any']);
+      });
+
+      it('should have a string representation', function () {
+        expect(task.toString()).toBe('Repo: foo Package: foobar-widgets');
+      });
+
+      describe('from pluginInfo', function() {
+        it('should be created from a plugin', function() {
+          var plugin = new PluginInfos.PluginInfo({
+            id:      'plugin_id',
+            version: 'plugin_version'
+          });
+
+          var task = Tasks.Task.PluginTask.fromPluginInfo(plugin);
+
+          expect(task.pluginId()).toBe('plugin_id');
+          expect(task.version()).toBe('plugin_version')
+          expect(task.configuration().isEmptyConfiguration()).toBe(true);
+        });
       });
 
       describe("Serialize from/to JSON", function () {
@@ -557,12 +577,12 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus"], function (_, 
         });
 
         it("should de-serialize from json", function () {
-          expect(task.type()).toBe("plugin");
+          expect(task.type()).toBe("pluggable_task");
           expect(task.pluginId()).toBe("indix.s3fetch");
           expect(task.version()).toBe(1);
           expect(task.runIf().data()).toEqual(['any']);
 
-          expect(task.configuration().collectConfigurationProperty('name')).toEqual(['Repo', 'Package']);
+          expect(task.configuration().collectConfigurationProperty('key')).toEqual(['Repo', 'Package']);
           expect(task.configuration().collectConfigurationProperty('value')).toEqual(['foo', 'foobar-widgets']);
         });
 
@@ -572,13 +592,15 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus"], function (_, 
 
         function sampleTaskJSON() {
           return {
-            type:       "plugin",
+            type:       "pluggable_task",
             attributes: {
-              plugin_id:     "indix.s3fetch",
-              version:       1,
+              plugin_configuration: {
+                id:     "indix.s3fetch",
+                version:       1
+              },
               configuration: [
-                {name: "Repo", value: "foo"},
-                {name: "Package", value: "foobar-widgets"}
+                {key: "Repo",    value: "foo"},
+                {key: "Package", value: "foobar-widgets"}
               ],
               run_if:        ['any'],
               on_cancel: {

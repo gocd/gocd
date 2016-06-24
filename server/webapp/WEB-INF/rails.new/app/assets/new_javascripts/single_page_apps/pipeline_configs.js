@@ -17,21 +17,23 @@
 requirejs([
   'jquery', 'mithril',
   'models/pipeline_configs/pluggable_tasks', 'models/pipeline_configs/resources', 'models/pipeline_configs/users', 'models/pipeline_configs/roles',
-  'views/pipeline_configs/pipeline_config_widget', 'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle',
+  'views/pipeline_configs/pipeline_config_widget', 'models/pipeline_configs/plugin_infos', 'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle',
   'foundation.dropdown'
 ], function ($, m,
              PluggableTasks, Resources, Users, Roles,
-             PipelineConfigWidget) {
+             PipelineConfigWidget, PluginInfos) {
 
   $(function () {
     var pipelineConfigElem            = $('#pipeline-config');
     var url                           = pipelineConfigElem.attr('data-pipeline-api-url');
-    var taskPluginTemplateDescriptors = JSON.parse(pipelineConfigElem.attr('data-task-template-plugins'));
     var allResourceNames              = JSON.parse(pipelineConfigElem.attr('data-resource-names'));
     var allUserNames                  = JSON.parse(pipelineConfigElem.attr('data-user-names'));
     var allRoleNames                  = JSON.parse(pipelineConfigElem.attr('data-role-names'));
 
-    PluggableTasks.initializeWith(taskPluginTemplateDescriptors);
+    PluginInfos.init().then(function () {
+      PluggableTasks.init();
+    });
+
     Resources.initializeWith(allResourceNames);
     Users.initializeWith(allUserNames);
     Roles.initializeWith(allRoleNames);

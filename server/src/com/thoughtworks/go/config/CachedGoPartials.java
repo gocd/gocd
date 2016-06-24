@@ -18,8 +18,11 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -114,7 +117,7 @@ public class CachedGoPartials {
         return fingerprintToLatestValidConfigMap;
     }
 
-    public void clear(){
+    public void clear() {
         fingerprintToLatestKnownConfigMap.clear();
         fingerprintToLatestValidConfigMap.clear();
     }

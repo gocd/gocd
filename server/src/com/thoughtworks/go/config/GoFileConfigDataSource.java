@@ -20,20 +20,22 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -46,7 +48,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -239,7 +243,7 @@ public class GoFileConfigDataSource {
         }
         List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
         List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
-        if (lastKnownPartials.isEmpty() || lastValidPartials.equals(lastKnownPartials)) {
+        if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
             return trySavingEntity(updatingCommand, currentUser, modifiedConfig, lastValidPartials);
         } else {
             try {
@@ -306,15 +310,13 @@ public class GoFileConfigDataSource {
             // If our cruiseConfig fails XSD validation, we don't want to write it incorrectly.
             GoConfigHolder validatedConfigHolder;
             List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
+            List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
             try {
                 String configAsXml = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastKnownPartials);
                 updateMergedConfigForEdit(validatedConfigHolder, lastKnownPartials);
             } catch (GoConfigInvalidException e) {
-                List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
-                //TODO if last known partials are all equal to last valid partials, then fallback is just a waste of resources,
-                // It would attempt config update with the same set of partials
-                if (cachedGoPartials.lastKnownPartials().isEmpty()) {
+                if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
                     throw e;
                 } else {
                     LOGGER.warn(String.format(
@@ -351,6 +353,25 @@ public class GoFileConfigDataSource {
         } finally {
             LOGGER.debug("[Config Save] Done writing with lock");
         }
+    }
+
+    protected boolean areKnownPartialsSameAsValidPartials(List<PartialConfig> lastKnownPartials, List<PartialConfig> lastValidPartials) {
+        if (lastKnownPartials.size() != lastValidPartials.size()) {
+            return false;
+        }
+        final ArrayList<ConfigOrigin> validConfigOrigins = ListUtil.map(lastValidPartials, new ListUtil.Transformer<PartialConfig, ConfigOrigin>() {
+            @Override
+            public ConfigOrigin transform(PartialConfig partialConfig) {
+                return partialConfig.getOrigin();
+            }
+        });
+        PartialConfig invalidKnownPartial = ListUtil.find(lastKnownPartials, new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                return !validConfigOrigins.contains(((PartialConfig) item).getOrigin());
+            }
+        });
+        return invalidKnownPartial == null;
     }
 
     private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {

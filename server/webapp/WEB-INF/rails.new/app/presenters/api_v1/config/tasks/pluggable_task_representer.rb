@@ -28,9 +28,7 @@ module ApiV1
         end
 
         def configuration=(value)
-          value.each { |config|
-            pluggable_task.setConfiguration(config)
-          }
+          pluggable_task.addConfigurations(value)
         end
       end
     end

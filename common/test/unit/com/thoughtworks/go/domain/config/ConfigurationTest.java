@@ -22,6 +22,10 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ConfigurationTest {
 
@@ -112,4 +116,32 @@ public class ConfigurationTest {
         assertThat(two.errors().isEmpty(), is(true));
     }
 
+    @Test
+    public void validateTreeShouldValidateAllConfigurationProperties() {
+        ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
+        ConfigurationProperty inputDirectory = mock(ConfigurationProperty.class);
+
+        Configuration configuration = new Configuration(outputDirectory, inputDirectory);
+
+        configuration.validateTree();
+
+        verify(outputDirectory).validate(null);
+        verify(inputDirectory).validate(null);
+    }
+
+    @Test
+    public void hasErrorsShouldVerifyIfAnyConfigurationPropertyHasErrors() {
+        ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
+        ConfigurationProperty inputDirectory = mock(ConfigurationProperty.class);
+
+        when(outputDirectory.hasErrors()).thenReturn(false);
+        when(inputDirectory.hasErrors()).thenReturn(true);
+
+        Configuration configuration = new Configuration(outputDirectory, inputDirectory);
+
+        assertTrue(configuration.hasErrors());
+
+        verify(outputDirectory).hasErrors();
+        verify(inputDirectory).hasErrors();
+    }
 }

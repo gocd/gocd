@@ -40,7 +40,6 @@ module ApiV1
 
       def value=(val)
         configuration_property.setConfigurationValue(ConfigurationValue.new(val))
-        configuration_property.handleSecureValueConfiguration(configuration_property.isSecure)
       end
 
       def encrypted_value=(encrypted_val)

@@ -19,10 +19,12 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -30,6 +32,7 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
+import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,6 +53,7 @@ public class PipelineConfigServiceTest {
     private GoConfigService goConfigService;
     private GoCache goCache;
     private SecurityService securityService;
+    private PluggableTaskService pluggableTaskService;
 
     @Before
     public void setUp() throws Exception {
@@ -63,11 +67,12 @@ public class PipelineConfigServiceTest {
 
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
+        pluggableTaskService = mock(PluggableTaskService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         goCache = mock(GoCache.class);
         PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
-        pipelineConfigService = new PipelineConfigService(goConfigService, goCache, securityService);
+        pipelineConfigService = new PipelineConfigService(goConfigService, goCache, securityService, pluggableTaskService);
 
     }
 
@@ -185,5 +190,45 @@ public class PipelineConfigServiceTest {
 
         assertThat(pipelineConfigs.size(), is(1));
         assertThat(pipelineConfigs.get(0).getGroup(), is("group1"));
+    }
+
+    @Test
+    public void updatePipelineConfigShouldValidateAllPluggableTasks() {
+        PluggableTask xUnit = mock(PluggableTask.class);
+        PluggableTask docker = mock(PluggableTask.class);
+
+        JobConfig job1 = JobConfigMother.job();
+        JobConfig job2 = JobConfigMother.job();
+
+        job1.addTask(xUnit);
+        job2.addTask(docker);
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+
+        pipelineConfigService.updatePipelineConfig(null, pipeline, null);
+
+        verify(pluggableTaskService).isValid(xUnit);
+        verify(pluggableTaskService).isValid(docker);
+    }
+
+    @Test
+    public void createPipelineConfigShouldValidateAllPluggableTasks() {
+        PluggableTask xUnit = mock(PluggableTask.class);
+        PluggableTask docker = mock(PluggableTask.class);
+
+        JobConfig job1 = JobConfigMother.job();
+        JobConfig job2 = JobConfigMother.job();
+
+        job1.addTask(xUnit);
+        job2.addTask(docker);
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+
+        pipelineConfigService.createPipelineConfig(null, pipeline, null, null);
+
+        verify(pluggableTaskService).isValid(xUnit);
+        verify(pluggableTaskService).isValid(docker);
     }
 }

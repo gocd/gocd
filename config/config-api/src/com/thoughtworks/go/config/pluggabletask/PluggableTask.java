@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.AbstractTask;
 import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -30,6 +31,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
+import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.util.ListUtil;
 
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ public class PluggableTask extends AbstractTask {
     public static final String TYPE = "pluggable_task";
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
+    private ConfigurationPropertyBuilder builder;
 
     @ConfigSubtag
     private PluginConfiguration pluginConfiguration = new PluginConfiguration();
@@ -53,11 +56,19 @@ public class PluggableTask extends AbstractTask {
     private Configuration configuration = new Configuration();
 
     public PluggableTask() {
+        this.builder = new ConfigurationPropertyBuilder();
     }
 
     public PluggableTask(PluginConfiguration pluginConfiguration, Configuration configuration) {
+        this();
         this.pluginConfiguration = pluginConfiguration;
         this.configuration = configuration;
+    }
+
+    //For Tests Only
+    protected PluggableTask(PluginConfiguration pluginConfiguration, Configuration configuration, ConfigurationPropertyBuilder builder) {
+        this(pluginConfiguration, configuration);
+        this.builder = builder;
     }
 
     public PluginConfiguration getPluginConfiguration() {
@@ -94,26 +105,53 @@ public class PluggableTask extends AbstractTask {
         }
     }
 
-    public void setConfiguration(ConfigurationProperty configurationProperty) {
-        if (PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()) != null) {
-            TaskConfig taskConfig = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()).getConfig();
-            String configKeyName = configurationProperty.getConfigKeyName();
-            Property property_definition = taskConfig.get(configKeyName);
-            if (configuration.getProperty(configKeyName) == null) {
-                configuration.addNewConfiguration(configKeyName, property_definition.getOption(Property.SECURE));
-            }
-            ConfigurationProperty addedConfigProperty = configuration.getProperty(configKeyName);
+    public TaskConfig toTaskConfig() {
+        TaskConfig taskConfig = new TaskConfig();
 
-            addedConfigProperty.setConfigurationValue(configurationProperty.getConfigurationValue());
-            addedConfigProperty.setEncryptedConfigurationValue(configurationProperty.getEncryptedValue());
-            addedConfigProperty.handleSecureValueConfiguration(property_definition.getOption(Property.SECURE));
-        } else {
-            addError(TYPE, String.format("Could not find plugin for given pluggable id:[%s].", pluginConfiguration.getId()));
+        for (ConfigurationProperty configurationProperty : configuration) {
+            taskConfig.add(new TaskConfigProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
         }
+
+        return taskConfig;
+    }
+
+    public void addConfigurations(List<ConfigurationProperty> configurations) {
+        for (ConfigurationProperty property : configurations) {
+            String configKey = property.getConfigurationKey() != null ? property.getConfigKeyName() : null;
+            String encryptedValue = property.getEncryptedValue() != null ? property.getEncryptedValue().getValue() : null;
+            String configValue = property.getConfigurationValue() != null ? property.getConfigValue() : null;
+
+            configuration.add(this.builder.create(configKey, configValue, encryptedValue, propertyFor(configKey)));
+        }
+    }
+
+    private Property propertyFor(String key) {
+        TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
+        if(taskPreference != null) {
+            return taskPreference.getConfig().get(key);
+        }
+        return null;
     }
 
     @Override
     protected void validateTask(ValidationContext validationContext) {
+    }
+
+    @Override
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        return (onCancelConfig.validateTree(validationContext) && errors.isEmpty() && !configuration.hasErrors());
+    }
+
+//  This method is called from PluggableTaskService to validate Tasks.
+    public boolean isValid() {
+        if (PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()) == null) {
+            addError(TYPE, String.format("Could not find plugin for given pluggable id:[%s].", pluginConfiguration.getId()));
+        }
+
+        configuration.validateTree();
+
+        return (errors.isEmpty() && !configuration.hasErrors());
     }
 
     @Override

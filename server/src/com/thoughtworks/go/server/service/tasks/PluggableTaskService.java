@@ -70,4 +70,27 @@ public class PluggableTaskService {
 
         return validationResult.isSuccessful();
     }
+
+    public boolean isValid(PluggableTask task) {
+        if(!task.isValid()) {
+            return false;
+        }
+
+        ValidationResult validationResult = taskExtension.validate(task.getPluginConfiguration().getId(), task.toTaskConfig());
+        mapErrorsToConfiguration(validationResult, task);
+
+        return validationResult.isSuccessful();
+    }
+
+    private void mapErrorsToConfiguration(ValidationResult result, PluggableTask task) {
+        for (ValidationError validationError : result.getErrors()) {
+            ConfigurationProperty property = task.getConfiguration().getProperty(validationError.getKey());
+
+            if (property != null) {
+                property.addError(validationError.getKey(), validationError.getMessage());
+            } else {
+                task.addError(validationError.getKey(), validationError.getMessage());
+            }
+        }
+    }
 }

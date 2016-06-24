@@ -127,6 +127,22 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
         }
     }
 
+    public void validateTree() {
+        for (ConfigurationProperty property : this) {
+            property.validate(null);
+        }
+    }
+
+    public boolean hasErrors() {
+        for (ConfigurationProperty property : this) {
+            if (property.hasErrors()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public Map<String, Object> getConfigurationAsMap(boolean addSecureFields) {
         Map<String, Object> configurationMap = new HashMap<>();
         for (ConfigurationProperty currentConfiguration : this) {

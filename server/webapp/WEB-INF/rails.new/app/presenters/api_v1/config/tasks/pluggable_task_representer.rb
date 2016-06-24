@@ -20,7 +20,7 @@ module ApiV1
       class PluggableTaskRepresenter < ApiV1::Config::Tasks::BaseTaskRepresenter
         alias_method :pluggable_task, :represented
 
-        property :plugin_configuration, decorator: PluginConfigurationRepresenter, class: PluginConfiguration
+        property :plugin_configuration, decorator: ApiV1::Config::PluginConfigurationRepresenter, class: com.thoughtworks.go.domain.config.PluginConfiguration
         collection :configuration, exec_context: :decorator, decorator: PluginConfigurationPropertyRepresenter, class: com.thoughtworks.go.domain.config.ConfigurationProperty
 
         def configuration

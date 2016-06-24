@@ -22,7 +22,7 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>gocd</artifactId>
-    <version>16.6.0</version>
+    <version>16.7.0</version>
     <name>Thoughtworks Go</name>
     <url>http://www.thoughtworks.com/products/go-continuous-delivery</url>
     <packaging>pom</packaging>

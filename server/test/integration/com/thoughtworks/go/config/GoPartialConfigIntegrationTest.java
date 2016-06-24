@@ -95,7 +95,9 @@ public class GoPartialConfigIntegrationTest {
     public void shouldNotSaveConfigWhenANewInValidPartialGetsAdded() {
         goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.invalidPartial("p1"));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1")), is(false));
-        assertThat(serverHealthService.containsError(HealthStateType.invalidConfigMerge(), HealthStateLevel.ERROR), is(true));
+        List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
+        assertThat(serverHealthStates.isEmpty(), is(false));
+        assertThat(serverHealthStates.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
     }
 
     @Test
@@ -108,15 +110,14 @@ public class GoPartialConfigIntegrationTest {
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p2_repo2")), is(true));
 
-        assertThat(healthStateFor(HealthStateType.invalidConfigMerge()), is(nullValue()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
     }
 
     @Test
     public void shouldValidateAndMergeJustTheChangedPartialAlongWithAllValidPartialsIfValidationOfAllKnownPartialsFail() {
         goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
-        assertThat(healthStateFor(HealthStateScope.forPartialConfigRepo(repoConfig1.getMaterialConfig().getFingerprint())), is(nullValue()));
-        assertThat(healthStateFor(HealthStateType.invalidConfigMerge()), is(nullValue()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getMaterialConfig().getFingerprint())).isEmpty(), is(true));
 
         final String invalidPipelineInPartial = "p1_repo1_invalid";
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial(invalidPipelineInPartial, new RepoConfigOrigin(repoConfig1, "2"));
@@ -125,7 +126,9 @@ public class GoPartialConfigIntegrationTest {
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials()), is(nullValue()));
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastKnownPartials()), is(invalidPartial));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial)), is(false));
-        assertThat(healthStateFor(HealthStateScope.forPartialConfigRepo(repoConfig1)), is(notNullValue()));
+        List<ServerHealthState> serverHealthStatesForRepo1 = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
+        assertThat(serverHealthStatesForRepo1.isEmpty(), is(false));
+        assertThat(serverHealthStatesForRepo1.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
 
         goPartialConfig.onSuccessPartialConfig(repoConfig2, PartialConfigMother.withPipeline("p2_repo2", new RepoConfigOrigin(repoConfig2, "1")));
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials()), is(nullValue()));
@@ -135,9 +138,11 @@ public class GoPartialConfigIntegrationTest {
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p2_repo2")), is(true));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial)), is(false));
 
-        assertThat(healthStateFor(HealthStateType.invalidConfigMerge()), is(notNullValue()));
-        assertThat(healthStateFor(HealthStateScope.forPartialConfigRepo(repoConfig1)), is(notNullValue()));
-        assertThat(healthStateFor(HealthStateScope.forPartialConfigRepo(repoConfig2)), is(nullValue()));
+        serverHealthStatesForRepo1 = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
+        assertThat(serverHealthStatesForRepo1.isEmpty(), is(false));
+        assertThat(serverHealthStatesForRepo1.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
+        List<ServerHealthState> serverHealthStatesForRepo2 = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2));
+        assertThat(serverHealthStatesForRepo2.isEmpty(), is(true));
     }
 
     private PartialConfig findPartial(final String invalidPipelineInPartial, List<PartialConfig> partials) {
@@ -167,8 +172,8 @@ public class GoPartialConfigIntegrationTest {
 
         goPartialConfig.onSuccessPartialConfig(repoConfig2, repo2);
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p2.name()), is(false));
-        ServerHealthState healthStateForInvalidConfigMerge = healthStateFor(HealthStateScope.forPartialConfigRepo(repoConfig2));
-        assertThat(healthStateForInvalidConfigMerge, is(notNullValue()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(false));
+        ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0);
         assertThat(healthStateForInvalidConfigMerge.getMessage(), is("Invalid Merged Configuration"));
         assertThat(healthStateForInvalidConfigMerge.getDescription(), is("3+ errors :: Pipeline &quot;p1_repo1&quot; does not exist. It is used from pipeline &quot;p2_repo2&quot;.;; Pipeline with name 'p1_repo1' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at 1);; Pipeline with name 'p3_repo3' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at 1);;  -  Config-Repo: url2 at 1"));
         assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
@@ -181,7 +186,7 @@ public class GoPartialConfigIntegrationTest {
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p3.name()), is(true));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p2.name()), is(false));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p1.name()), is(false));
-        assertThat(healthStateFor(HealthStateType.invalidConfigMerge()), is(notNullValue()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig3)).isEmpty(), is(true));
         assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
         assertThat(cacheContainsPartial(cachedGoPartials.lastValidPartials(), repo2), is(false));
         assertThat(cacheContainsPartial(cachedGoPartials.lastValidPartials(), repo3), is(true));
@@ -193,7 +198,7 @@ public class GoPartialConfigIntegrationTest {
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p1.name()), is(true));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p2.name()), is(true));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p3.name()), is(true));
-        assertThat(healthStateFor(HealthStateType.invalidConfigMerge()), is(nullValue()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
         assertThat(cachedGoPartials.lastValidPartials().size(), is(3));
         assertThat(cacheContainsPartial(cachedGoPartials.lastValidPartials(), repo2), is(true));
         assertThat(cacheContainsPartial(cachedGoPartials.lastValidPartials(), repo1), is(true));
@@ -212,23 +217,5 @@ public class GoPartialConfigIntegrationTest {
                 return partialConfig.getEnvironments().equals(config.getEnvironments()) && partialConfig.getGroups().equals(config.getGroups()) && partialConfig.getOrigin().equals(config.getOrigin());
             }
         }) != null;
-    }
-
-    private ServerHealthState healthStateFor(final HealthStateType type) {
-        return ListUtil.find(serverHealthService.getAllLogs(), new ListUtil.Condition() {
-            @Override
-            public <T> boolean isMet(T item) {
-                return ((ServerHealthState) item).getType().equals(type);
-            }
-        });
-    }
-
-    private ServerHealthState healthStateFor(final HealthStateScope scope) {
-        return ListUtil.find(serverHealthService.getAllLogs(), new ListUtil.Condition() {
-            @Override
-            public <T> boolean isMet(T item) {
-                return ((ServerHealthState) item).getType().getScope().equals(scope);
-            }
-        });
     }
 }

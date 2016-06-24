@@ -138,8 +138,7 @@ public class CachedGoConfigIntegrationTest {
         // And unluckily downstream gets parsed first
         repoConfigDataSource.onCheckoutComplete(downstreamConfigRepo.getMaterialConfig(), downstreamExternalConfigRepo, downstreamLatestCommit);
         // So parsing fails and proper message is shown:
-        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(), is(false));
-        ArrayList<ServerHealthState> messageForInvalidMerge = findMessageFor(HealthStateType.invalidConfigMerge());
+        List<ServerHealthState> messageForInvalidMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(downstreamConfigRepo));
         assertThat(messageForInvalidMerge.isEmpty(), is(false));
         assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("tries to fetch artifact from pipeline &quot;pipe1&quot;"));
         // and current config is still old
@@ -153,8 +152,8 @@ public class CachedGoConfigIntegrationTest {
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
 
         // now server should be healthy and contain all pipelines
-        assertThat(findMessageFor(HealthStateType.invalidConfigMerge()).isEmpty(), is(true));
-        assertThat(findMessageFor(HealthStateType.invalidConfig()).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo)).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(downstreamConfigRepo)).isEmpty(), is(true));
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream")), is(true));
     }
@@ -179,8 +178,8 @@ public class CachedGoConfigIntegrationTest {
         repoConfigDataSource.onCheckoutComplete(secondDownstreamConfigRepo.getMaterialConfig(), secondDownstreamExternalConfigRepo, secondDownstreamLatestCommit);
 
         // So parsing fails and proper message is shown:
-        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(), is(false));
-        ArrayList<ServerHealthState> messageForInvalidMerge = findMessageFor(HealthStateType.invalidConfigMerge());
+        List<ServerHealthState> messageForInvalidMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(secondDownstreamConfigRepo));
+
         assertThat(messageForInvalidMerge.isEmpty(), is(false));
         assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("tries to fetch artifact from pipeline &quot;downstream&quot;"));
         // and current config is still old
@@ -194,8 +193,7 @@ public class CachedGoConfigIntegrationTest {
         repoConfigDataSource.onCheckoutComplete(firstDownstreamConfigRepo.getMaterialConfig(), firstDownstreamExternalConfigRepo, firstDownstreamLatestCommit);
 
         // and errors are still shown
-        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(), is(false));
-        messageForInvalidMerge = findMessageFor(HealthStateType.invalidConfigMerge());
+        messageForInvalidMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(firstDownstreamConfigRepo));
         assertThat(messageForInvalidMerge.isEmpty(), is(false));
         assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("Pipeline &quot;pipe1&quot; does not exist. It is used from pipeline &quot;downstream&quot"));
         // and current config is still old
@@ -208,8 +206,9 @@ public class CachedGoConfigIntegrationTest {
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
 
         // now server should be healthy and contain all pipelines
-        assertThat(findMessageFor(HealthStateType.invalidConfigMerge()).isEmpty(), is(true));
-        assertThat(findMessageFor(HealthStateType.invalidConfig()).isEmpty(), is(true));
+
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(firstDownstreamConfigRepo)).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(secondDownstreamConfigRepo)).isEmpty(), is(true));
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream")), is(true));
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream2")), is(true));
@@ -254,8 +253,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
-        assertThat(findMessageFor(HealthStateType.invalidConfigMerge()).isEmpty(), is(true));
-        assertThat(findMessageFor(HealthStateType.invalidConfig()).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo)).isEmpty(), is(true));
         assertThat(repoConfigDataSource.latestPartialConfigForMaterial(configRepo.getMaterialConfig()).getGroups().findGroup("first").findBy(new CaseInsensitiveString("pipe1")), is(not(nullValue())));
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
     }
@@ -343,11 +341,10 @@ public class CachedGoConfigIntegrationTest {
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
 
-        assertThat(serverHealthService.filterByScope(HealthStateScope.GLOBAL).isEmpty(), is(false));
-        ArrayList<ServerHealthState> messageForInvalidMerge = findMessageFor(HealthStateType.invalidConfigMerge());
+        List<ServerHealthState> messageForInvalidMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo));
+
         assertThat(messageForInvalidMerge.isEmpty(), is(false));
         assertThat(messageForInvalidMerge.get(0).getDescription().contains("Pipeline 'pipeline_with_no_stage' does not have any stages configured"), is(true));
-        assertThat(findMessageFor(HealthStateType.invalidConfig()).size(), is(0));
     }
 
     @Test
@@ -355,12 +352,12 @@ public class CachedGoConfigIntegrationTest {
         ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
         checkinPartial("config_repo_with_invalid_partial/bad_partial.gocd.xml");
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
-        assertThat(findMessageFor(HealthStateType.invalidConfigMerge()).isEmpty(), is(false));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo)).isEmpty(), is(false));
 
         //fix partial
         deletePartial("bad_partial.gocd.xml");
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
-        assertThat(findMessageFor(HealthStateType.invalidConfigMerge()).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo)).isEmpty(), is(true));
     }
 
     @Test

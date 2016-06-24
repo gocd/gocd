@@ -159,12 +159,10 @@ public class GoFileConfigDataSource {
                 List<PartialConfig> partials = cachedGoPartials.lastKnownPartials();
                 holder = internalLoad(FileUtils.readFileToString(configFile), new ConfigModifyingUser(FILESYSTEM), partials);
                 cachedGoPartials.markAsValid(partials);
-                serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
                 if (cachedGoPartials.lastValidPartials().isEmpty()) {
                     throw e;
                 } else {
-                    serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
                     List<PartialConfig> partials = cachedGoPartials.lastValidPartials();
                     holder = internalLoad(FileUtils.readFileToString(configFile), new ConfigModifyingUser(FILESYSTEM), partials);
                     cachedGoPartials.markAsValid(partials);
@@ -312,7 +310,6 @@ public class GoFileConfigDataSource {
                 String configAsXml = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastKnownPartials);
                 updateMergedConfigForEdit(validatedConfigHolder, lastKnownPartials);
-                serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfigMerge()));
             } catch (GoConfigInvalidException e) {
                 List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
                 //TODO if last known partials are all equal to last valid partials, then fallback is just a waste of resources,
@@ -323,7 +320,6 @@ public class GoFileConfigDataSource {
                     LOGGER.warn(String.format(
                             "Merged config update operation failed on LATEST %s partials. Falling back to using LAST VALID %s partials. Exception message was: %s",
                             lastKnownPartials.size(), lastValidPartials.size(), e.getMessage()), e);
-                    serverHealthService.update(ServerHealthState.error(GoPartialConfig.INVALID_CRUISE_CONFIG_MERGE, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfigMerge()));
                     try {
                         String configAsXml = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
                         validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), cachedGoPartials.lastValidPartials());

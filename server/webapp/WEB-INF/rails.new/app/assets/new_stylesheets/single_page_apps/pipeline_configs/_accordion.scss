@@ -1,0 +1,92 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.accordion {
+  border-radius: $accordion-border-radius;
+  margin-bottom: 10px;
+  .show {
+    display: inherit !important;
+  }
+  .accordion-content {
+    border-radius: $accordion-border-radius;
+  }
+  &.accordion-inner {
+    background: $white;
+    border: 1px solid $border;
+    margin-left: 15px;
+    margin-right: 15px;
+    .accordion-content {
+      background: $white;
+      padding-top: 20px;
+    }
+  }
+}
+
+.accordion-title {
+  font-size: rem-calc(14);
+  text-transform: uppercase;
+  background: $accordion-bg;
+  padding: 0 35px;
+  height: 40px;
+  line-height: 40px;
+  color: $black;
+  border-radius: $accordion-border-radius;
+
+  &:hover, &:focus {
+    color: $black;
+    background: $accordion-bg;
+  }
+
+  &:before {
+    @include icon-only(caret-right);
+    position: absolute;
+    left: 16px;
+  }
+
+  .is-active > &::before {
+    @include icon-only(caret-down);
+    left: 14px;
+  }
+
+  .accordion-inner & {
+    background: $white;
+    font-size: rem-calc(12);
+    height: 30px;
+    line-height: 33px;
+    padding: 0 28px;
+    &:before {
+      left: 13px;
+    }
+  }
+}
+
+.accordion-inner {
+  .is-active {
+    .accordion-title {
+      border-bottom-left-radius: 0;
+      border-bottom: 1px solid $border;
+      border-bottom-right-radius: 0;
+      &::before {
+        left: 11px;
+      }
+    }
+  }
+  .sub-header {
+    font-size: 15px;
+    margin-left: 10px;
+    margin-bottom: 15px;
+  }
+}

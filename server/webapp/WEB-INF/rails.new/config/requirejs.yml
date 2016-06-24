@@ -202,4 +202,4 @@ shim:
 
 # our modules
 modules:
-  - name: 'pipeline_configs/application'
+  - name: "single_page_apps/pipeline_configs"

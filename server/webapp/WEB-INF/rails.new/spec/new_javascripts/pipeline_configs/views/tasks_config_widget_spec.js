@@ -28,8 +28,8 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
           target:           'clean',
           workingDirectory: 'moduleA',
           runIf:            ['passed', 'failed'],
-          onCancelTask:     {
-            type: "nant",
+          onCancelTask: {
+            type:                "nant",
             attributes: {
               build_file:        'build-moduleA.xml',
               target:            'clean',
@@ -121,7 +121,7 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
 
-      it('should not have onCancel task', function() {
+      it('should not have onCancel task', function () {
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
@@ -166,7 +166,7 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
           expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
         });
 
-        it('should not have onCancel task', function() {
+        it('should not have onCancel task', function () {
           expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
         });
       });
@@ -211,7 +211,7 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
 
-      it('should not have onCancel task', function() {
+      it('should not have onCancel task', function () {
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
@@ -222,11 +222,12 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.FetchArtifact({
-          pipeline: 'Build',
-          stage:    "Dist",
-          job:      "RPM",
-          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'}),
-          runIf:    ['passed', 'failed']
+          pipeline:      'Build',
+          stage:         "Dist",
+          job:           "RPM",
+          source:        "dir",
+          isSourceAFile: true,
+          runIf:         ['passed', 'failed']
         });
         tasks().addTask(task);
 
@@ -250,12 +251,12 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[data-prop-name='job']").val()).toBe(task.job());
       });
 
-      it('should bind source type', function () {
-        expect($root.find("input[data-prop-name='type']").val()).toBe(task.source().type());
+      it('should bind source', function () {
+        expect($root.find("input[data-prop-name='source']").val()).toBe(task.source());
       });
 
-      it('should bind source location', function () {
-        expect($root.find("input[data-prop-name='location']").val()).toBe(task.source().location());
+      it('should bind source is a file ', function () {
+        expect($root.find("input[type=checkbox][data-prop-name=isSourceAFile]").is(':checked')).toBe(task.isSourceAFile());
       });
 
       it('should render run_if conditions', function () {
@@ -264,12 +265,12 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
 
-      it('should not have onCancel task', function() {
+      it('should not have onCancel task', function () {
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
       });
     });
 
-    describe("Add Tasks", function() {
+    describe("Add Tasks", function () {
       var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
       beforeEach(function () {
         antTask = new Tasks.Task.Ant({
@@ -298,10 +299,11 @@ define(["jquery", "mithril", "pipeline_configs/models/tasks", "pipeline_configs/
         });
 
         fetchArtifactTask = new Tasks.Task.FetchArtifact({
-          pipeline: 'Build',
-          stage:    "Dist",
-          job:      "RPM",
-          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'})
+          pipeline:     'Build',
+          stage:        "Dist",
+          job:          "RPM",
+          source:       "dir",
+          sourceIsFile: true
         });
 
         tasks = m.prop(new Tasks());

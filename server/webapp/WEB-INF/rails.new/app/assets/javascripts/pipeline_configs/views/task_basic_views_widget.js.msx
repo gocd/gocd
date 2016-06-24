@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 define([
   'mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../models/pluggable_tasks', 'js-routes',
   '../models/argument', './lookup_command_widget'
@@ -24,15 +25,15 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <f.row>
-            <f.inputWithLabel attrName='buildFile'
-                              model={task}/>
-            <f.inputWithLabel attrName='target'
-                              model={task}/>
-            <f.inputWithLabel attrName='workingDirectory'
-                              model={task}
-                              end={true}/>
-          </f.row>
+          m.component(f.row, {}, [
+            m.component(f.inputWithLabel, {attrName:"buildFile",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"target",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"workingDirectory",
+              model:task,
+              end:true})
+          ])
         );
       }
     },
@@ -41,23 +42,23 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <div class="task-basic">
-            <f.row>
-              <f.inputWithLabel attrName='buildFile'
-                                model={task}/>
-              <f.inputWithLabel attrName='target'
-                                model={task}/>
-              <f.inputWithLabel attrName='workingDirectory'
-                                model={task}
-                                end={true}/>
+        {tag: "div", attrs: {class:"task-basic"}, children: [
+          m.component(f.row, {}, [
+            m.component(f.inputWithLabel, {attrName:"buildFile",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"target",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"workingDirectory",
+              model:task,
+              end:true})
 
-            </f.row>
-            <f.row>
-              <f.inputWithLabel attrName='nantPath'
-                                model={task}
-                                end={true}/>
-            </f.row>
-          </div>
+          ]),
+          m.component(f.row, {}, [
+            m.component(f.inputWithLabel, {attrName:"nantPath",
+              model:task,
+              end:true})
+          ])
+        ]}
         );
       }
     },
@@ -69,43 +70,43 @@ define([
         var arguments = function () {
           if (task.args().isList()) {
             return (
-              <f.column size={8}>
-                <f.textareaWithLabel attrName="data"
-                                     model={vm}
-                                     label="Args"
-                                     size={12}/>
-              </f.column>)
+              m.component(f.column, {size:8}, [
+                m.component(f.textareaWithLabel, {attrName:"data",
+                  model:vm,
+                  label:"Args",
+                  size:12})
+              ]))
           }
           return (
-            <f.column size={8}>
-              <f.inputWithLabel attrName='data'
-                                model={vm}
-                                label="Args"
-                                size={12}
-                                largeSize={12}/>
-            </f.column>)
+            m.component(f.column, {size:8}, [
+              m.component(f.inputWithLabel, {attrName:"data",
+                model:vm,
+                label:"Args",
+                size:12,
+                largeSize:12})
+            ]))
         };
 
         return (
-          <div class="task-basic">
-            <f.row>
-              <f.column size={4}>
-                <f.row>
-                  <f.inputWithLabel attrName='command'
-                                    model={task}
-                                    size={12}
-                                    largeSize={12}/>
-                  <f.inputWithLabel attrName='workingDirectory'
-                                    model={task}
-                                    end={true}
-                                    size={12}
-                                    largeSize={12}/>
-                </f.row>
-              </f.column>
-              {arguments()}
-            </f.row>
-            <LookupCommandWidget model={args.task}/>
-          </div>
+        {tag: "div", attrs: {class:"task-basic"}, children: [
+          m.component(f.row, {}, [
+            m.component(f.column, {size:4}, [
+              m.component(f.row, {}, [
+                m.component(f.inputWithLabel, {attrName:"command",
+                  model:task,
+                  size:12,
+                  largeSize:12}),
+                m.component(f.inputWithLabel, {attrName:"workingDirectory",
+                  model:task,
+                  end:true,
+                  size:12,
+                  largeSize:12})
+              ])
+            ]),
+            arguments()
+          ]),
+          m.component(LookupCommandWidget, {model:args.task})
+        ]}
         );
       }
     },
@@ -114,15 +115,15 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <f.row>
-            <f.inputWithLabel attrName='buildFile'
-                              model={task}/>
-            <f.inputWithLabel attrName='target'
-                              model={task}/>
-            <f.inputWithLabel attrName='workingDirectory'
-                              model={task}
-                              end={true}/>
-          </f.row>
+          m.component(f.row, {}, [
+            m.component(f.inputWithLabel, {attrName:"buildFile",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"target",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"workingDirectory",
+              model:task,
+              end:true})
+          ])
         );
       }
     },
@@ -131,24 +132,27 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <div class="task-basic">
-            <f.row>
-              <f.inputWithLabel attrName='pipeline'
-                                model={task}/>
-              <f.inputWithLabel attrName='stage'
-                                model={task}/>
-              <f.inputWithLabel attrName='job'
-                                model={task}
-                                end={true}/>
-            </f.row>
-            <f.row>
-              <f.inputWithLabel attrName='type'
-                                model={task.source()}/>
-              <f.inputWithLabel attrName='location'
-                                model={task.source()}
-                                end={true}/>
-            </f.row>
-          </div>
+        {tag: "div", attrs: {class:"task-basic"}, children: [
+          m.component(f.row, {}, [
+            m.component(f.inputWithLabel, {attrName:"pipeline",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"stage",
+              model:task}),
+            m.component(f.inputWithLabel, {attrName:"job",
+              model:task,
+              end:true})
+          ]),
+          m.component(f.row, {}, [
+            m.component(f.inputWithLabel, {attrName:"source",
+              model:task}),
+            m.component(f.checkBox, {attrName:"isSourceAFile",
+              model:task,
+              class:"check",
+              label:"Source is a file",
+              addPadding:true,
+              end:true})
+          ])
+        ]}
         );
       }
     },
@@ -226,11 +230,11 @@ define([
 
       view: function (ctrl) {
         return (
-          <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName}>
-            <div class="alert-box alert"
-                 ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
-            {m.trust(ctrl.templateHTML)}
-          </div>
+        {tag: "div", attrs: {id:'pluggable-task-template-' + ctrl.task.uuid(), "ng-controller":ctrl.ngControllerName}, children: [
+          {tag: "div", attrs: {class:"alert-box alert",
+            "ng-show":"pluggableTaskGenericError"}, children: ['{{pluggableTaskGenericError}}']},
+          m.trust(ctrl.templateHTML)
+        ]}
         );
       }
     }

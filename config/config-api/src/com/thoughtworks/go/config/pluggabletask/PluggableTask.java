@@ -135,36 +135,23 @@ public class PluggableTask extends AbstractTask {
 
     @Override
     protected void validateTask(ValidationContext validationContext) {
-        if (PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()) == null) {
-            addError(TYPE, String.format("Could not find plugin for given pluggable id:[%s].", pluginConfiguration.getId()));
-        }
-
-        for (ConfigurationProperty property : configuration) {
-            property.validate(validationContext);
-        }
     }
 
     @Override
     public boolean validateTree(ValidationContext validationContext) {
-//        skipping validation as Validation done as part of PluggableTaskService
-        return (onCancelConfig.validateTree(validationContext) && errors.isEmpty() && !configurationHasErrors());
+        validate(validationContext);
+        return (onCancelConfig.validateTree(validationContext) && errors.isEmpty() && !configuration.hasErrors());
     }
 
+//  This method is called from PluggableTaskService to validate Tasks.
     public boolean isValid() {
-        validateTask(null);
-
-        return (errors.isEmpty() && !configurationHasErrors());
-    }
-
-    private boolean configurationHasErrors() {
-        boolean configurationHasErrors = false;
-        for (ConfigurationProperty property : configuration) {
-            if (property.hasErrors()) {
-                configurationHasErrors = true;
-            }
+        if (PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId()) == null) {
+            addError(TYPE, String.format("Could not find plugin for given pluggable id:[%s].", pluginConfiguration.getId()));
         }
 
-        return configurationHasErrors;
+        configuration.validateTree();
+
+        return (errors.isEmpty() && !configuration.hasErrors());
     }
 
     @Override

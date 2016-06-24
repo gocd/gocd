@@ -324,37 +324,30 @@ public class PluggableTaskTest {
     }
 
     @Test
-    public void validateShouldVerifyIfPluginIdIsValid() {
+    public void isValidShouldVerifyIfPluginIdIsValid() {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("does_not_exist", "1.1");
         Configuration configuration = new Configuration();
         PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration);
 
-        pluggableTask.validate(null);
+        pluggableTask.isValid();
 
         assertThat(pluggableTask.errors().get("pluggable_task").get(0), is("Could not find plugin for given pluggable id:[does_not_exist]."));
     }
 
     @Test
-    public void validateShouldVerifyForValidConfigurationProperties() {
+    public void isValidShouldVerifyForValidConfigurationProperties() {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("github.pr", "1.1");
-        Configuration configuration = new Configuration();
-        ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
-        ConfigurationProperty inputDirectory = mock(ConfigurationProperty.class);
-        ValidationContext validationContext = mock(ValidationContext.class);
+        Configuration configuration = mock(Configuration.class);
 
         PluggableTaskConfigStore.store().setPreferenceFor(pluginConfiguration.getId(), mock(TaskPreference.class));
-        configuration.add(outputDirectory);
-        configuration.add(inputDirectory);
-
-        when(outputDirectory.hasErrors()).thenReturn(true);
-        when(inputDirectory.hasErrors()).thenReturn(false);
+        when(configuration.hasErrors()).thenReturn(true);
 
         PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration);
 
-        pluggableTask.validate(validationContext);
+        assertFalse(pluggableTask.isValid());
 
-        verify(outputDirectory).validate(validationContext);
-        verify(inputDirectory).validate(validationContext);
+        verify(configuration).validateTree();
+        verify(configuration).hasErrors();
     }
 
     @Test
@@ -379,10 +372,27 @@ public class PluggableTaskTest {
     public void validateTreeShouldVerifyIfOnCancelTasksHasErrors() {
         PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration(), new Configuration());
         pluggableTask.onCancelConfig = mock(OnCancelConfig.class);
+        com.thoughtworks.go.domain.Task cancelTask = mock(com.thoughtworks.go.domain.Task.class);
 
+        when(pluggableTask.onCancelConfig.getTask()).thenReturn(cancelTask);
+        when(cancelTask.hasCancelTask()).thenReturn(false);
         when(pluggableTask.onCancelConfig.validateTree(null)).thenReturn(false);
 
         assertFalse(pluggableTask.validateTree(null));
+    }
+
+    @Test
+    public void validateTreeShouldVerifyIfCancelTasksHasNestedCancelTask() {
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration(), new Configuration());
+        pluggableTask.onCancelConfig = mock(OnCancelConfig.class);
+        com.thoughtworks.go.domain.Task cancelTask = mock(com.thoughtworks.go.domain.Task.class);
+
+        when(pluggableTask.onCancelConfig.getTask()).thenReturn(cancelTask);
+        when(cancelTask.hasCancelTask()).thenReturn(true);
+        when(pluggableTask.onCancelConfig.validateTree(null)).thenReturn(true);
+
+        assertFalse(pluggableTask.validateTree(null));
+        assertThat(pluggableTask.errors().get("onCancelConfig").get(0), is("Cannot nest 'oncancel' within a cancel task"));
     }
 
     @Test
@@ -395,11 +405,11 @@ public class PluggableTaskTest {
 
     @Test
     public void validateTreeShouldVerifyIfConfigurationHasErrors() {
-        ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
+        Configuration configuration = mock(Configuration.class);
 
-        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration(), new Configuration(outputDirectory));
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration(), configuration);
 
-        when(outputDirectory.hasErrors()).thenReturn(true);
+        when(configuration.hasErrors()).thenReturn(true);
 
         assertFalse(pluggableTask.validateTree(null));
     }

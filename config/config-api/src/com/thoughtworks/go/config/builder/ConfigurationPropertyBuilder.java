@@ -18,14 +18,14 @@ public class ConfigurationPropertyBuilder {
         this.cipher = new GoCipher();
     }
 
-    public ConfigurationProperty create(String key, String value, String encryptedValue, Property property) {
-        if(property == null) {
+    public ConfigurationProperty create(String key, String value, String encryptedValue, Property pluginConfiguration) {
+        if(pluginConfiguration == null) {
             return createInAbsenceOfProperty(key, value, encryptedValue);
         }
 
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         configurationProperty.setConfigurationKey(new ConfigurationKey(key));
-        Boolean isSecure = property.getOption(Property.SECURE);
+        Boolean isSecure = pluginConfiguration.getOption(Property.SECURE);
 
         if (isNotBlank(value) && isNotBlank(encryptedValue)) {
             configurationProperty.addError("configurationValue", "You may only specify `value` or `encrypted_value`, not both!");

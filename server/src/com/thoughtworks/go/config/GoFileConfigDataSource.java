@@ -315,7 +315,7 @@ public class GoFileConfigDataSource {
                 String configAsXml = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastKnownPartials);
                 updateMergedConfigForEdit(validatedConfigHolder, lastKnownPartials);
-            } catch (GoConfigInvalidException e) {
+            } catch (Exception e) {
                 if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
                     throw e;
                 } else {

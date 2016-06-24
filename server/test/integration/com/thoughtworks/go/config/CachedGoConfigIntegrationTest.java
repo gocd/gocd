@@ -840,6 +840,23 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial), is(true));
     }
 
+    @Test
+    public void shouldAllowFallbackMergeAndSaveWhenKnownPartialHasAnInvalidEnvironmentThatRefersToAnUnknownPipeline() throws Exception {
+        cachedGoPartials.clear();
+        PartialConfig partialConfigWithInvalidEnvironment = PartialConfigMother.withEnvironment("env", new RepoConfigOrigin(configRepo, "revision1"));
+
+        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfigWithInvalidEnvironment);
+        ConfigSaveState state = cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.server().setCommandRepositoryLocation("newlocation");
+                return cruiseConfig;
+            }
+        });
+        assertThat(state, is(ConfigSaveState.UPDATED));
+        assertThat(goConfigService.getCurrentConfig().server().getCommandRepositoryLocation(), is("newlocation"));
+    }
+
     private void addPipelineWithParams(CruiseConfig cruiseConfig) {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("mingle", "dev", "ant");
         pipelineConfig.addParam(new ParamConfig("foo", "hg-server"));

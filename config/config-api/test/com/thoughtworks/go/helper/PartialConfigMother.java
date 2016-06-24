@@ -74,11 +74,14 @@ public class PartialConfigMother {
         return new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://some.git"), "myplugin"), "1234fed");
     }
 
-    public static PartialConfig withEnvironment(String name) {
+    public static PartialConfig withEnvironment(String name, RepoConfigOrigin repoConfigOrigin) {
         BasicEnvironmentConfig env = EnvironmentConfigMother.environment(name);
         PartialConfig partialConfig = new PartialConfig();
         partialConfig.getEnvironments().add(env);
-        partialConfig.setOrigins(createRepoOrigin());
+        partialConfig.setOrigins(repoConfigOrigin);
         return partialConfig;
+    }
+    public static PartialConfig withEnvironment(String name) {
+        return withEnvironment(name, createRepoOrigin());
     }
 }

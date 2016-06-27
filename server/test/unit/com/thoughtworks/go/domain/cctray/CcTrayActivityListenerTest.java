@@ -103,8 +103,7 @@ public class CcTrayActivityListenerTest {
         CcTrayConfigChangeHandler ccTrayConfigChangeHandler = mock(CcTrayConfigChangeHandler.class);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
-        when(goConfigService.findGroupNameByPipeline(p1)).thenReturn("group1");
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class), mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class),  mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
         listener.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
@@ -113,7 +112,7 @@ public class CcTrayActivityListenerTest {
         pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
         waitForProcessingToHappen();
 
-        verify(ccTrayConfigChangeHandler).call(pipelineConfig, "group1");
+        verify(ccTrayConfigChangeHandler).call(pipelineConfig);
     }
 
     @Test

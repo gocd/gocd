@@ -488,6 +488,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getGroups().findGroupNameByPipeline(pipelineName);
     }
 
+    public PipelineConfigs findGroupByPipeline(CaseInsensitiveString pipelineName) {
+        return getCurrentConfig().getGroups().findGroupByPipeline(pipelineName);
+    }
+
     public void populateAdminModel(Map<String, String> model) {
         model.put("location", fileLocation());
         XmlPartialSaver saver = fileSaver(false);

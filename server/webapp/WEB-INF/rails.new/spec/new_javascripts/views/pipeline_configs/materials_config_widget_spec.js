@@ -17,6 +17,12 @@
 define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipeline_configs/materials_config_widget"], function ($, m, Materials, MaterialsConfigWidget) {
   describe("Material Widget", function () {
     var $root, root;
+    beforeAll(function() {
+      spyOn(m, 'request').and.callFake(function() {
+        return $.Deferred().promise();
+      });
+    });
+
     describe('SVN View', function () {
       var material;
       beforeAll(function () {

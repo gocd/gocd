@@ -1267,6 +1267,19 @@ public class GoConfigServiceTest {
         assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("admin_user")));
     }
 
+    public void shouldFindGroupByPipelineName() throws Exception {
+        GoConfigMother configMother = new GoConfigMother();
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1", "job1");
+        configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1", "job1");
+
+        expectLoad(config);
+        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1")).getGroup(), is("group1"));
+        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline2")).getGroup(), is("group1"));
+        assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline3")).getGroup(), is("group2"));
+    }
+
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));

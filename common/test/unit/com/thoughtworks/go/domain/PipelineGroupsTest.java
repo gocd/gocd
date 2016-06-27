@@ -284,4 +284,20 @@ public class PipelineGroupsTest {
         assertThat(groups.getLocal().size(), is(1));
         assertThat(groups.getLocal(), hasItem(localGroup));
     }
+
+    @Test
+    public void shouldFindGroupByPipelineName() throws Exception {
+        PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
+        PipelineConfig p2Config = createPipelineConfig("pipeline2", "stage1");
+        PipelineConfig p3Config = createPipelineConfig("pipeline3", "stage1");
+
+        PipelineConfigs group1 = createGroup("group1", p1Config, p2Config);
+        PipelineConfigs group2 = createGroup("group2", p3Config);
+
+        PipelineGroups groups = new PipelineGroups(group1, group2);
+
+        assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline1")), is(group1));
+        assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline2")), is(group1));
+        assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline3")), is(group2));
+    }
 }

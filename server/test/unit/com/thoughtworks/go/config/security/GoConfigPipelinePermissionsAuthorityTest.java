@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.config.security;
 
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -556,6 +556,29 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertViewers(permissions, "pipeline1", Collections.emptySet(), "user");
     }
 
+    @Test
+    public void shouldAllowStageToOverrideOperators() throws Exception {
+        PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        configMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        configMother.addUserAsOperatorOfPipelineGroup(config, "user1", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "user2", "group1");
+
+        configMother.addRole(config, configMother.createRole("role1", "user3", "user4"));
+        configMother.addRole(config, configMother.createRole("role2", "user5", "user6"));
+        configMother.addRoleAsOperatorOfPipelineGroup(config, "role1", "group1");
+        configMother.addRoleAsOperatorOfPipelineGroup(config, "role2", "group1");
+
+        StageConfigMother.addApprovalWithUsers(pipelineConfig.first(), "user1");
+        StageConfigMother.addApprovalWithRoles(pipelineConfig.first(), "role1");
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
+
+        assertPipelinesInMap(permissions, "pipeline1");
+
+        assertGroupOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "user1", "user2", "user3", "user4", "user5", "user6");
+        assertPipelineOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "user1", "user3", "user4");
+    }
 
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissions() {
         when(configService.security()).thenReturn(config.server().security());
@@ -570,6 +593,16 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     private void assertOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
+        assertGroupOperators(permissionsForAllPipelines, pipelineToCheckFor, pluginRoleConfigs, expectedOperators);
+        assertPipelineOperators(permissionsForAllPipelines, pipelineToCheckFor, pluginRoleConfigs, expectedOperators);
+    }
+
+    private void assertPipelineOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
+        Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
+        assertThat(permissions.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
+    }
+
+    private void assertGroupOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
         assertThat(permissions.operators(), CoreMatchers.<Users>is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
     }

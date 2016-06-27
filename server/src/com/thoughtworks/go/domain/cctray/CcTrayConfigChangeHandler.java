@@ -48,7 +48,7 @@ public class CcTrayConfigChangeHandler {
         cache.replaceAllEntriesInCacheWith(findAllProjectStatusesForStagesAndJobsIn(config));
     }
 
-    public void call(PipelineConfig pipelineConfig, String pipelineGroup) {
+    public void call(PipelineConfig pipelineConfig) {
         ArrayList<ProjectStatus> projectStatuses = new ArrayList<>();
         final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = pipelinePermissionsAuthority.pipelinesAndTheirPermissions();
         Users usersWithViewPermissionsOfThisPipeline = usersWithViewPermissionsFor(pipelineConfig, pipelinesAndTheirPermissions);

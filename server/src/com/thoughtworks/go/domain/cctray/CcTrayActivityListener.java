@@ -145,7 +145,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
                 processor.add(new Action() {
                     @Override
                     public void call() {
-                        configChangeHandler.call(pipelineConfig, goConfigService.findGroupNameByPipeline(pipelineConfig.name()));
+                        configChangeHandler.call(pipelineConfig);
                     }
 
                     @Override

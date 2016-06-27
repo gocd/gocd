@@ -310,12 +310,8 @@ public class CcTrayConfigChangeHandlerTest {
         when(cache.get(pipeline1Stage)).thenReturn(statusOfPipeline1StageInCache);
         when(cache.get(pipeline1job)).thenReturn(statusOfPipeline1JobInCache);
 
-        Map<CaseInsensitiveString, Permissions> expectedPermissions = new HashMap<>();
-        expectedPermissions.put(new CaseInsensitiveString("pipeline1"), new Permissions(viewers("user1", "user2"), null, null, null));
-        expectedPermissions.put(new CaseInsensitiveString("pipeline2"), new Permissions(viewers("user3"), null, null, null));
-        when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(expectedPermissions);
-
         PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        when(pipelinePermissionsAuthority.permissionsForPipeline(pipeline1Config.name())).thenReturn(new Permissions(viewers("user1", "user2"), null, null, null));
 
         handler.call(pipeline1Config);
         ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = new ArgumentCaptor<>();

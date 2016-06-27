@@ -580,6 +580,34 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertPipelineOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "user1", "user3", "user4");
     }
 
+    @Test
+    public void shouldAllowRetrievingPermissionsOfASinglePipelineByName() throws Exception {
+        configMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        PipelineConfig p1Config = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        PipelineConfig p2Config = configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
+
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "operator1", "group1");
+        configMother.addAdminUserForPipelineGroup(config, "groupadmin1", "group2");
+
+        when(configService.security()).thenReturn(config.server().security());
+        when(configService.findGroupByPipeline(p1Config.name())).thenReturn(config.findGroup("group1"));
+        when(configService.findGroupByPipeline(p2Config.name())).thenReturn(config.findGroup("group2"));
+
+        Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
+        assertThat(p1Permissions.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "viewer1"))));
+        assertThat(p1Permissions.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"))));
+        assertThat(p1Permissions.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1"))));
+        assertThat(p1Permissions.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"))));
+
+        Permissions p2Permission = service.permissionsForPipeline(p2Config.name());
+        assertThat(p2Permission.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
+        assertThat(p2Permission.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
+        assertThat(p2Permission.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
+        assertThat(p2Permission.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"))));
+    }
+
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissions() {
         when(configService.security()).thenReturn(config.server().security());
         when(configService.groups()).thenReturn(config.getGroups());

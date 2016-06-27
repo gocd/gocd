@@ -50,8 +50,8 @@ public class CcTrayConfigChangeHandler {
 
     public void call(PipelineConfig pipelineConfig) {
         ArrayList<ProjectStatus> projectStatuses = new ArrayList<>();
-        final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = pipelinePermissionsAuthority.pipelinesAndTheirPermissions();
-        Users usersWithViewPermissionsOfThisPipeline = usersWithViewPermissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+        final Permissions permissions = pipelinePermissionsAuthority.permissionsForPipeline(pipelineConfig.name());
+        Users usersWithViewPermissionsOfThisPipeline = viewersOrNoOne(permissions);
         updateProjectStatusForPipeline(usersWithViewPermissionsOfThisPipeline, pipelineConfig, projectStatuses);
         cache.putAll(projectStatuses);
     }
@@ -151,6 +151,10 @@ public class CcTrayConfigChangeHandler {
 
     private Users usersWithViewPermissionsFor(PipelineConfig pipelineConfig, Map<CaseInsensitiveString, Permissions> allPipelinesAndTheirPermissions) {
         Permissions permissions = allPipelinesAndTheirPermissions.get(pipelineConfig.name());
+        return viewersOrNoOne(permissions);
+    }
+
+    private Users viewersOrNoOne(Permissions permissions) {
         return permissions == null ? NoOne.INSTANCE : permissions.viewers();
     }
 }

@@ -95,6 +95,10 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return new HealthStateType("COMMAND_REPOSITORY_UPGRADE_ERROR", 406, HealthStateScope.GLOBAL);
     }
 
+    public static HealthStateType notFound() {
+        return new HealthStateType("NOT_FOUND", 404, HealthStateScope.GLOBAL);
+    }
+
     public boolean equals(Object that) {
         if (this == that) { return true; }
         if (that == null) {return false; }

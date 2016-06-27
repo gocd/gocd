@@ -18,14 +18,10 @@ public class ConfigurationPropertyBuilder {
         this.cipher = new GoCipher();
     }
 
-    public ConfigurationProperty create(String key, String value, String encryptedValue, Property pluginConfiguration) {
-        if(pluginConfiguration == null) {
-            return createInAbsenceOfProperty(key, value, encryptedValue);
-        }
+    public ConfigurationProperty create(String key, String value, String encryptedValue, Boolean isSecure) {
 
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         configurationProperty.setConfigurationKey(new ConfigurationKey(key));
-        Boolean isSecure = pluginConfiguration.getOption(Property.SECURE);
 
         if (isNotBlank(value) && isNotBlank(encryptedValue)) {
             configurationProperty.addError("configurationValue", "You may only specify `value` or `encrypted_value`, not both!");
@@ -56,20 +52,6 @@ public class ConfigurationPropertyBuilder {
             }
         }
 
-        return configurationProperty;
-    }
-
-    private ConfigurationProperty createInAbsenceOfProperty(String key, String value, String encryptedValue) {
-        ConfigurationProperty configurationProperty = new ConfigurationProperty();
-        configurationProperty.setConfigurationKey(new ConfigurationKey(key));
-
-        if (isNotBlank(encryptedValue)) {
-            configurationProperty.setEncryptedConfigurationValue(new EncryptedConfigurationValue(encryptedValue));
-        }
-
-        if (isNotBlank(value)) {
-            configurationProperty.setConfigurationValue(new ConfigurationValue(value));
-        }
         return configurationProperty;
     }
 

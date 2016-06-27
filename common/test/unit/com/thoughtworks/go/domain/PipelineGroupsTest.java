@@ -16,25 +16,25 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.*;
-import java.util.regex.Matcher;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.Pair;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
@@ -195,7 +195,7 @@ public class PipelineGroupsTest {
         PipelineConfigs groupTwo = new BasicPipelineConfigs(p2);
         groups.addAll(asList(groupOne, groupTwo));
 
-        Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> packageToPipelineMap = groups.getPackageUsageInPipelines();
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap = groups.getPackageUsageInPipelines();
 
         assertThat(packageToPipelineMap.get("package-id-one").size(), is(1));
         assertThat(packageToPipelineMap.get("package-id-one"), hasItems(new Pair<>(p1, groupOne)));
@@ -213,8 +213,8 @@ public class PipelineGroupsTest {
         PipelineGroups groups = new PipelineGroups();
         groups.addAll(asList(new BasicPipelineConfigs(p1), new BasicPipelineConfigs(p2)));
 
-        Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> result1 = groups.getPackageUsageInPipelines();
-        Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> result2 = groups.getPackageUsageInPipelines();
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> result1 = groups.getPackageUsageInPipelines();
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> result2 = groups.getPackageUsageInPipelines();
         assertSame(result1, result2);
     }
 
@@ -243,25 +243,24 @@ public class PipelineGroupsTest {
 
 
     @Test
-    public void shouldGetLocalPartsWhenOriginIsNull()
-    {
+    public void shouldGetLocalPartsWhenOriginIsNull() {
         PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
         PipelineGroups groups = new PipelineGroups(defaultGroup);
         assertThat(groups.getLocal().size(), is(1));
         assertThat(groups.getLocal().get(0), is(defaultGroup));
     }
+
     @Test
-    public void shouldGetLocalPartsWhenOriginIsFile()
-    {
+    public void shouldGetLocalPartsWhenOriginIsFile() {
         PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
         defaultGroup.setOrigins(new FileConfigOrigin());
         PipelineGroups groups = new PipelineGroups(defaultGroup);
         assertThat(groups.getLocal().size(), is(1));
         assertThat(groups.getLocal().get(0), is(defaultGroup));
     }
+
     @Test
-    public void shouldGetLocalPartsWhenOriginIsRepo()
-    {
+    public void shouldGetLocalPartsWhenOriginIsRepo() {
         PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
         defaultGroup.setOrigins(new RepoConfigOrigin());
         PipelineGroups groups = new PipelineGroups(defaultGroup);
@@ -270,8 +269,7 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldGetLocalPartsWhenOriginIsMixed()
-    {
+    public void shouldGetLocalPartsWhenOriginIsMixed() {
         PipelineConfigs localGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
         localGroup.setOrigins(new FileConfigOrigin());
 

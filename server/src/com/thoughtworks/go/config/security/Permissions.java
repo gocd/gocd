@@ -22,11 +22,13 @@ public class Permissions {
     private final Users viewers;
     private final Users operators;
     private final Users admins;
+    private Users pipelineOperators;
 
-    public Permissions(Users viewers, Users operators, Users admins) {
+    public Permissions(Users viewers, Users operators, Users admins, Users pipelineOperators) {
         this.viewers = viewers;
         this.operators = operators;
         this.admins = admins;
+        this.pipelineOperators = pipelineOperators;
     }
 
     public Users viewers() {
@@ -39,5 +41,9 @@ public class Permissions {
 
     public Users admins() {
         return admins;
+    }
+
+    public Users pipelineOperators() {
+        return pipelineOperators;
     }
 }

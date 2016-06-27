@@ -17,11 +17,9 @@
 package com.thoughtworks.go.config.security;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
-import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,11 +77,15 @@ public class GoConfigPipelinePermissionsAuthority {
 
                 for (PipelineConfig pipeline : group) {
                     if (hasNoAdminsDefinedAtRootLevel) {
-                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
-                    } else if (hasNoAuthDefinedAtGroupLevel) {
                         pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, new AllowedUsers(admins, operatorRoles), new AllowedUsers(admins, adminRoles)));
-                    } else {
-                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(new AllowedUsers(viewers, viewerRoles), new AllowedUsers(operators, operatorRoles), new AllowedUsers(admins, adminRoles)));
+
+                    } else if (hasNoAuthDefinedAtGroupLevel) {
+                        AllowedUsers adminUsers = new AllowedUsers(admins, adminRoles);
+                        pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, adminUsers, adminUsers, adminUsers));
+                    }else {
+                        AllowedUsers pipelineOperators = pipelineOperators(pipeline, admins, new AllowedUsers(operators, Collections.emptySet()), rolesToUsers);
+                        Permissions permissions = new Permissions(new AllowedUsers(viewers, viewerRoles), new AllowedUsers(operators, operatorRoles), new AllowedUsers(admins, adminRoles), pipelineOperators);
+                        pipelinesAndTheirPermissions.put(pipeline.name(), permissions);
                     }
                 }
             }
@@ -108,6 +110,20 @@ public class GoConfigPipelinePermissionsAuthority {
     private boolean noSuperAdminsDefined() {
         AdminsConfig adminsConfig = goConfigService.security().adminsConfig();
         return adminsConfig.getRoles().isEmpty() && adminsConfig.getUsers().isEmpty();
+    }
+
+    private AllowedUsers pipelineOperators(PipelineConfig pipeline, Set<String> admins, AllowedUsers groupLevelOperators, Map<String, Collection<String>> rolesToUsers) {
+        if (!pipeline.first().hasOperatePermissionDefined()) {
+            return groupLevelOperators;
+        }
+
+        Set<String> stageLevelApproversOfFirstStage = namesOf(pipeline.first().getApproval().getAuthConfig(), rolesToUsers);
+
+        Set<String> pipelineOperators = new HashSet<>();
+        pipelineOperators.addAll(admins);
+        pipelineOperators.addAll(stageLevelApproversOfFirstStage);
+
+        return new AllowedUsers(pipelineOperators, Collections.emptySet());
     }
 
     private Set<String> namesOf(AdminsConfig adminsConfig, Map<String, Collection<String>> rolesToUsers) {

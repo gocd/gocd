@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.server.dashboard.GoDashboardActivityListener;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
@@ -113,6 +114,8 @@ public class ApplicationInitializerTest {
     @Mock
     private CcTrayActivityListener ccTrayActivityListener;
     @Mock
+    private GoDashboardActivityListener dashboardActivityListener;
+    @Mock
     private ConsoleService consoleService;
     @Mock
     private ContextRefreshedEvent contextRefreshedEvent;
@@ -148,8 +151,8 @@ public class ApplicationInitializerTest {
     }
 
     @Test
-    public void shouldInitializeCcTrayActivityListenerAfterGoConfigServiceAndPipelineSqlMapDaoAreInitialized() throws Exception {
-        verifyOrder(goConfigService, pipelineSqlMapDao, ccTrayActivityListener);
+    public void shouldInitializeCcTrayAndDashboardActivityListenersAfterGoConfigServiceAndPipelineSqlMapDaoAreInitialized() throws Exception {
+        verifyOrder(goConfigService, pipelineSqlMapDao, ccTrayActivityListener, dashboardActivityListener);
     }
 
     @Test

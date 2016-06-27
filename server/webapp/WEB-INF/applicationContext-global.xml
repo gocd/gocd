@@ -55,6 +55,7 @@
     <context:component-scan base-package="com.thoughtworks.go.presentation"/>
     <context:component-scan base-package="com.thoughtworks.go.server.initializers"/>
     <context:component-scan base-package="com.thoughtworks.go.server.valuestreammap"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.dashboard"/>
     <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
 
     <import resource="velocity-config.xml"/>

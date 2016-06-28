@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 define([
   'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'models/pipeline_configs/pluggable_tasks', 'js-routes',
   'models/pipeline_configs/argument', 'views/pipeline_configs/lookup_command_widget', 'models/pipeline_configs/plugin_infos'
@@ -25,15 +24,15 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          m.component(f.row, {}, [
-            m.component(f.inputWithLabel, {attrName:"buildFile",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"target",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"workingDirectory",
-              model:task,
-              end:true})
-          ])
+          <f.row>
+            <f.inputWithLabel attrName='buildFile'
+                              model={task}/>
+            <f.inputWithLabel attrName='target'
+                              model={task}/>
+            <f.inputWithLabel attrName='workingDirectory'
+                              model={task}
+                              end={true}/>
+          </f.row>
         );
       }
     },
@@ -42,23 +41,23 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-        {tag: "div", attrs: {class:"task-basic"}, children: [
-          m.component(f.row, {}, [
-            m.component(f.inputWithLabel, {attrName:"buildFile",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"target",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"workingDirectory",
-              model:task,
-              end:true})
+          <div class="task-basic">
+            <f.row>
+              <f.inputWithLabel attrName='buildFile'
+                                model={task}/>
+              <f.inputWithLabel attrName='target'
+                                model={task}/>
+              <f.inputWithLabel attrName='workingDirectory'
+                                model={task}
+                                end={true}/>
 
-          ]),
-          m.component(f.row, {}, [
-            m.component(f.inputWithLabel, {attrName:"nantPath",
-              model:task,
-              end:true})
-          ])
-        ]}
+            </f.row>
+            <f.row>
+              <f.inputWithLabel attrName='nantPath'
+                                model={task}
+                                end={true}/>
+            </f.row>
+          </div>
         );
       }
     },
@@ -70,43 +69,43 @@ define([
         var arguments = function () {
           if (task.args().isList()) {
             return (
-              m.component(f.column, {size:8}, [
-                m.component(f.textareaWithLabel, {attrName:"data",
-                  model:vm,
-                  label:"Args",
-                  size:12})
-              ]))
+              <f.column size={8}>
+                <f.textareaWithLabel attrName="data"
+                                     model={vm}
+                                     label="Args"
+                                     size={12}/>
+              </f.column>)
           }
           return (
-            m.component(f.column, {size:8}, [
-              m.component(f.inputWithLabel, {attrName:"data",
-                model:vm,
-                label:"Args",
-                size:12,
-                largeSize:12})
-            ]))
+            <f.column size={8}>
+              <f.inputWithLabel attrName='data'
+                                model={vm}
+                                label="Args"
+                                size={12}
+                                largeSize={12}/>
+            </f.column>)
         };
 
         return (
-        {tag: "div", attrs: {class:"task-basic"}, children: [
-          m.component(f.row, {}, [
-            m.component(f.column, {size:4}, [
-              m.component(f.row, {}, [
-                m.component(f.inputWithLabel, {attrName:"command",
-                  model:task,
-                  size:12,
-                  largeSize:12}),
-                m.component(f.inputWithLabel, {attrName:"workingDirectory",
-                  model:task,
-                  end:true,
-                  size:12,
-                  largeSize:12})
-              ])
-            ]),
-            arguments()
-          ]),
-          m.component(LookupCommandWidget, {model:args.task})
-        ]}
+          <div class="task-basic">
+            <f.row>
+              <f.column size={4}>
+                <f.row>
+                  <f.inputWithLabel attrName='command'
+                                    model={task}
+                                    size={12}
+                                    largeSize={12}/>
+                  <f.inputWithLabel attrName='workingDirectory'
+                                    model={task}
+                                    end={true}
+                                    size={12}
+                                    largeSize={12}/>
+                </f.row>
+              </f.column>
+              {arguments()}
+            </f.row>
+            <LookupCommandWidget model={args.task}/>
+          </div>
         );
       }
     },
@@ -115,15 +114,15 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          m.component(f.row, {}, [
-            m.component(f.inputWithLabel, {attrName:"buildFile",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"target",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"workingDirectory",
-              model:task,
-              end:true})
-          ])
+          <f.row>
+            <f.inputWithLabel attrName='buildFile'
+                              model={task}/>
+            <f.inputWithLabel attrName='target'
+                              model={task}/>
+            <f.inputWithLabel attrName='workingDirectory'
+                              model={task}
+                              end={true}/>
+          </f.row>
         );
       }
     },
@@ -132,27 +131,27 @@ define([
       view: function (ctrl, args) {
         var task = args.task;
         return (
-        {tag: "div", attrs: {class:"task-basic"}, children: [
-          m.component(f.row, {}, [
-            m.component(f.inputWithLabel, {attrName:"pipeline",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"stage",
-              model:task}),
-            m.component(f.inputWithLabel, {attrName:"job",
-              model:task,
-              end:true})
-          ]),
-          m.component(f.row, {}, [
-            m.component(f.inputWithLabel, {attrName:"source",
-              model:task}),
-            m.component(f.checkBox, {attrName:"isSourceAFile",
-              model:task,
-              class:"check",
-              label:"Source is a file",
-              addPadding:true,
-              end:true})
-          ])
-        ]}
+          <div class="task-basic">
+            <f.row>
+              <f.inputWithLabel attrName='pipeline'
+                                model={task}/>
+              <f.inputWithLabel attrName='stage'
+                                model={task}/>
+              <f.inputWithLabel attrName='job'
+                                model={task}
+                                end={true}/>
+            </f.row>
+            <f.row>
+              <f.inputWithLabel attrName='source'
+                                model={task}/>
+              <f.checkBox attrName='isSourceAFile'
+                                model={task}
+                                class='check'
+                                label='Source is a file'
+                                addPadding={true}
+                                end={true}/>
+            </f.row>
+          </div>
         );
       }
     },

@@ -23,11 +23,11 @@
                scope[:html_opts] = {:class => "stage_action", :id => scope[:id]}
                scope[:before_opts] = "spinny('operate_#{scope[:stage_name]}')"
                if scope[:stage_in_status_bar].canRun() && scope[:stage_in_status_bar].isScheduled() %>
-                <%== blocking_link_to_remote_new :name => "&nbsp;", :method => :post, :url => run_stage_path(:stage_name => scope[:stage_name]), :html => scope[:html_opts], :update => scope[:update_opts], :before => scope[:before_opts] %>
+                <%== blocking_link_to_remote_new :name => "&nbsp;", :method => :post, :url => run_stage_path(:stage_name => scope[:stage_name]), :html => scope[:html_opts], :update => scope[:update_opts], :headers => {Confirm: 'true'}, :before => scope[:before_opts] %>
 
         <% end %>
             <% if scope[:stage_in_status_bar].isRunning() %>
-                <%== blocking_link_to_remote_new :name => "&nbsp;", :method => :post, :url => cancel_stage_path(:id => scope[:stage_in_status_bar].getId()), :html => scope[:html_opts], :update => scope[:update_opts], :before => scope[:before_opts] %>
+                <%== blocking_link_to_remote_new :name => "&nbsp;", :method => :post, :url => cancel_stage_path(:id => scope[:stage_in_status_bar].getId()), :html => scope[:html_opts], :update => scope[:update_opts], :headers => {Confirm: 'true'} , :before => scope[:before_opts] %>
             <% end %>
         </div>
     <% end %>

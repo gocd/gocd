@@ -44,7 +44,7 @@ public class AgentStatusReportingIntegrationTest {
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
-        this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
     }
 
     @After
@@ -56,7 +56,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldReportBuildingWhenAgentRunningBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
         work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null, null, null);
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         assertThat(agentRuntimeInfo, is(agentRuntimeInfo1));
     }
@@ -71,7 +71,7 @@ public class AgentStatusReportingIntegrationTest {
     }
 
     private AgentRuntimeInfo expectedAgentRuntimeInfo() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         info.setBuildingInfo(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         info.cancel();
         return info;

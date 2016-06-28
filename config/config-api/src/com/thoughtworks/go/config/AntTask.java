@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Map;
-
 import com.thoughtworks.go.util.FileUtil;
 
 /**

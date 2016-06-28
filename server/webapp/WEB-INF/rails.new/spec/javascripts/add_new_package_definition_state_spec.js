@@ -16,6 +16,7 @@
 
 describe("add_new_package_definition_state", function () {
     var originalPackageMaterialDefinition = PackageMaterialDefinition;
+    var originalMailbox = Modalbox;
     beforeEach(function () {
         setFixtures("<input id=\"repo_containter\" value=\"value\"/>\n" +
             "<div id=\"packageConfigContainer\"></div>\n" +
@@ -26,6 +27,7 @@ describe("add_new_package_definition_state", function () {
 
     afterEach(function(){
         PackageMaterialDefinition = originalPackageMaterialDefinition;
+        Modalbox = originalMailbox;
     });
 
     it("test_should_setup_MBFocusable_on_elements_inserted_via_ajax", function () {

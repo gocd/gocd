@@ -67,7 +67,6 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
         addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", new File("testdata/agent-launcher.jar"));
         addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", new File("testdata/agent-plugins.zip"));
         addlatestAgentStatusCall(wac);
-        addStopServlet(server, wac);
         addDefaultServlet(wac);
         server.setHandler(wac);
         server.setStopAtShutdown(true);
@@ -118,41 +117,9 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
         wac.addServlet(holder, pathSpec);
     }
 
-    private static void addStopServlet(Server server, WebAppContext wac) {
-        ServletHolder holder = new ServletHolder();
-        holder.setServlet(new StopTestingServerServlet(server));
-        wac.addServlet(holder, "/jetty/stop");
-    }
-
     public void stop() throws Exception {
         server.stop();
         server.join();
     }
 
-}
-
-class StopTestingServerServlet extends HttpServlet {
-    private final Server stoppingServer;
-
-    public StopTestingServerServlet(Server jettyServer) {
-        stoppingServer = jettyServer;
-    }
-
-    public void service(ServletRequest request, ServletResponse response)
-            throws ServletException, IOException {
-        try {
-            Thread thread = new Thread() {
-                public void run() {
-                    try {
-                        stoppingServer.stop();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
-            thread.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

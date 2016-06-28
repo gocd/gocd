@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.domain;
 
@@ -26,18 +26,21 @@ import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.exception.MaxPendingAgentsLimitReachedException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AgentInstancesTest {
     private AgentInstance virtual;
@@ -46,37 +49,35 @@ public class AgentInstancesTest {
     private AgentInstance pending;
     private AgentInstance disabled;
     private AgentInstance local;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         virtual = AgentInstanceMother.virtual();
-        idle = AgentInstanceMother.idle(new Date(), "CCeDev01");
+        idle = AgentInstanceMother.idle(new Date(), "CCeDev01", systemEnvironment);
         AgentInstanceMother.updateOS(idle, "linux");
-        building = AgentInstanceMother.building();
+        building = AgentInstanceMother.building("buildLocator", systemEnvironment);
         AgentInstanceMother.updateOS(building, "macOS");
-        pending = AgentInstanceMother.pending();
+        pending = AgentInstanceMother.pending(systemEnvironment);
         AgentInstanceMother.updateOS(pending, "windows");
-        disabled = AgentInstanceMother.disabled();
-        local = AgentInstanceMother.local();
-    }
-
-    @After
-    public void tearDown() {
-        new SystemEnvironment().setProperty("agent.connection.timeout", "300");
+        disabled = AgentInstanceMother.disabled("10.18.5.4", systemEnvironment);
+        local = AgentInstanceMother.local(systemEnvironment);
     }
 
     @Test
     public void shouldUnderstandFilteringAgentListBasedOnUuid() {
         AgentInstances instances = new AgentInstances(null);
 
-        AgentRuntimeInfo agent1 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux");
-        AgentRuntimeInfo agent2 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), true, "/bar/baz", 200l, "linux");
-        AgentRuntimeInfo agent3 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux");
+        AgentRuntimeInfo agent1 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux", false);
+        AgentRuntimeInfo agent2 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), true, "/bar/baz", 200l, "linux", false);
+        AgentRuntimeInfo agent3 = AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux", false);
 
-        AgentInstance instance1 = AgentInstance.createFromLiveAgent(agent1, new SystemEnvironment());
+        AgentInstance instance1 = AgentInstance.createFromLiveAgent(agent1, systemEnvironment);
         instances.add(instance1);
-        instances.add(AgentInstance.createFromLiveAgent(agent2, new SystemEnvironment()));
-        AgentInstance instance3 = AgentInstance.createFromLiveAgent(agent3, new SystemEnvironment());
+        instances.add(AgentInstance.createFromLiveAgent(agent2, systemEnvironment));
+        AgentInstance instance3 = AgentInstance.createFromLiveAgent(agent3, systemEnvironment);
         instances.add(instance3);
 
         List<AgentInstance> agents = instances.filter(Arrays.asList("uuid-1", "uuid-3"));
@@ -119,7 +120,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldFindAgentsByStatus() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building());
         agentInstances.add(pending);
         agentInstances.add(building);
 
@@ -131,7 +132,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldReturnEmtpyAgentInstancesWhenNothingMatched() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building());
         agentInstances.add(pending);
         agentInstances.add(building);
 
@@ -141,7 +142,7 @@ public class AgentInstancesTest {
     @Test
     public void shouldFindAgentsByItHostName() throws Exception {
         AgentInstance idle = AgentInstanceMother.idle(new Date(), "ghost-name");
-        AgentInstances agentInstances = new AgentInstances(null, idle, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, idle, AgentInstanceMother.building());
 
         AgentInstance byHostname = agentInstances.findFirstByHostname("ghost-name");
         assertThat(byHostname, is(idle));
@@ -149,7 +150,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldReturnNullAgentsWhenHostNameIsNotFound() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building());
         agentInstances.add(idle);
         agentInstances.add(building);
 
@@ -159,14 +160,13 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldReturnFirstMatchedAgentsWhenHostNameHasMoreThanOneMatch() throws Exception {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
         AgentInstance agent = AgentInstance.create(new AgentConfig("uuid20", "CCeDev01", "10.18.5.20"),
                 false,
                 systemEnvironment);
         AgentInstance duplicatedAgent = AgentInstance.create(new AgentConfig("uuid21", "CCeDev01", "10.18.5.20"),
                 false,
                 systemEnvironment);
-        AgentInstances agentInstances = new AgentInstances(null, agent, duplicatedAgent);
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, agent, duplicatedAgent);
 
         AgentInstance byHostname = agentInstances.findFirstByHostname("CCeDev01");
         assertThat(byHostname, is(agent));
@@ -184,19 +184,19 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldRemoveAgentWhenAgentIsRemovedFromConfigFile() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, idle, building);
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, idle, building);
 
         Agents oneAgentIsRemoved = new Agents(new AgentConfig("uuid2", "CCeDev01", "10.18.5.1"));
 
         agentInstances.sync(oneAgentIsRemoved);
         assertThat(agentInstances.size(), is(1));
         assertThat(agentInstances.findAgentAndRefreshStatus("uuid2"), is(idle));
-        assertThat(agentInstances.findAgentAndRefreshStatus("uuid1"), is((AgentInstance)new NullAgentInstance("uuid1")));
+        assertThat(agentInstances.findAgentAndRefreshStatus("uuid1"), is((AgentInstance) new NullAgentInstance("uuid1")));
     }
 
     @Test
     public void shouldSyncAgent() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, AgentInstanceMother.building(), idle);
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building(), idle);
 
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
         agentConfig.setDisabled(true);
@@ -209,7 +209,7 @@ public class AgentInstancesTest {
 
     @Test
     public void shouldNotRemovePendingAgentDuringSync() throws Exception {
-        AgentInstances agentInstances = new AgentInstances(null, AgentInstanceMother.building());
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.building());
         agentInstances.add(pending);
         Agents agents = new Agents();
 
@@ -223,20 +223,30 @@ public class AgentInstancesTest {
     public void agentHostnameShouldBeUnique() {
         AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
         AgentInstances agentInstances = new AgentInstances(null);
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
-        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
+        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
+        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
         assertThat(agentInstances.findPhysicalAgents().size(), is(1));
+    }
+
+    @Test(expected = MaxPendingAgentsLimitReachedException.class)
+    public void registerShouldErrorOutIfMaxPendingAgentsLimitIsReached() {
+        AgentConfig agentConfig = new AgentConfig("uuid2", "CCeDev01", "10.18.5.1");
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, AgentInstanceMother.pending());
+        when(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED)).thenReturn(1);
+
+        agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
     }
 
     @Test
     public void shouldRemovePendingAgentThatIsTimedOut() {
-        new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
-        AgentInstances agentInstances = new AgentInstances(null, pending, building, disabled);
+        when(systemEnvironment.getAgentConnectionTimeout()).thenReturn(-1);
+        AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, pending, building, disabled);
         agentInstances.refresh();
         assertThat(agentInstances.findAgentAndRefreshStatus("uuid4"), is(instanceOf(NullAgentInstance.class)));
     }
 
-    @Test @Ignore("This causes OOM errors - don't run it automatically")
+    @Test
+    @Ignore("This causes OOM errors - don't run it automatically")
     public void shouldSupportConcurrentOperations() throws Exception {
         final AgentInstances agentInstances = new AgentInstances(null);
         AgentAdder agentAdder = AgentAdder.startAdding(agentInstances);
@@ -247,8 +257,7 @@ public class AgentInstancesTest {
             for (int i = 0; i < 1000; i++) {
                 agentInstances.findRegisteredAgents();
             }
-        }
-        finally {
+        } finally {
             agentAdder.stop();
         }
     }
@@ -339,7 +348,7 @@ public class AgentInstancesTest {
             int count = 0;
             while (!stop) {
                 AgentConfig agentConfig = new AgentConfig("uuid" + count, "CCeDev_" + count, "10.18.5." + count);
-                agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux"));
+                agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux", false));
                 count++;
             }
         }

@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class JobStatusCache implements JobStatusListener {
-    private ConcurrentMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<JobConfigIdentifier, JobInstance>();
+    private ConcurrentMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<>();
     private final StageDao stageDao;
     private static final NullJobInstance NEVER_RUN = new NullJobInstance("NEVER_RUN");
 
@@ -57,7 +57,7 @@ public class JobStatusCache implements JobStatusListener {
     }
 
     private void clearOldJobs(JobInstance newJob) {
-        Set<JobConfigIdentifier> cachedIds = new HashSet<JobConfigIdentifier>(jobs.keySet());
+        Set<JobConfigIdentifier> cachedIds = new HashSet<>(jobs.keySet());
         for (JobConfigIdentifier cachedId : cachedIds) {
             JobInstance originalCached = jobs.get(cachedId);
             if ((originalCached == NEVER_RUN && !newJob.getIdentifier().jobConfigIdentifier().equals(cachedId))) {
@@ -80,7 +80,7 @@ public class JobStatusCache implements JobStatusListener {
 
     public List<JobInstance> currentJobs(final JobConfigIdentifier identifier) {
         if (jobs.get(identifier) == NEVER_RUN) {
-            return new ArrayList<JobInstance>();
+            return new ArrayList<>();
         }
         List<JobInstance> found = addInstances(identifier, jobs.values());
         if (found.isEmpty()) {
@@ -97,7 +97,7 @@ public class JobStatusCache implements JobStatusListener {
     }
 
     private List<JobInstance> addInstances(JobConfigIdentifier identifier, Collection<JobInstance> jobInstances) {
-        List<JobInstance> found = new ArrayList<JobInstance>();
+        List<JobInstance> found = new ArrayList<>();
         for (JobInstance jobInstance : jobInstances) {
             if (jobInstance != NEVER_RUN && jobInstance.matches(identifier)) {
                 found.add(jobInstance);

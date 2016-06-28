@@ -20,7 +20,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import static com.thoughtworks.go.server.util.Pagination.page;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -176,7 +175,7 @@ public class PaginationTest {
     @Test
     public void shouldUnderstandPageNumberAndLabel() {
         assertThat(Pagination.PageNumber.DOTS.getLabel(), is("..."));
-        assertThat(Pagination.PageNumber.DOTS.getNumber(), is(-1));        
+        assertThat(Pagination.PageNumber.DOTS.getNumber(), is(-1));
         assertThat(Pagination.page(5).getLabel(), is("5"));
         assertThat(Pagination.page(5).getNumber(), is(5));
         assertThat(Pagination.page(10, "foo").getLabel(), is("foo"));

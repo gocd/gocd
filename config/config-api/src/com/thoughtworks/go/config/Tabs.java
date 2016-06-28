@@ -22,7 +22,6 @@ import java.util.Map;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.util.StringUtil;
 
 @ConfigTag("tabs")
@@ -55,7 +54,7 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
         return isValid;
     }
     public void validate(ValidationContext validationContext) {
-        ArrayList<Tab> visitedTabs = new ArrayList<Tab>();
+        ArrayList<Tab> visitedTabs = new ArrayList<>();
         for (Tab tab : this) {
             tab.validateTabNameUniqueness(visitedTabs);
         }

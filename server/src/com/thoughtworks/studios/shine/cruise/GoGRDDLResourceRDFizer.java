@@ -1,22 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.cruise;
-
-import java.io.IOException;
 
 import com.thoughtworks.go.domain.XmlRepresentable;
 import com.thoughtworks.go.server.service.XmlApiService;
@@ -25,10 +23,12 @@ import com.thoughtworks.studios.shine.semweb.Graph;
 import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
 import com.thoughtworks.studios.shine.semweb.XMLRDFizer;
 import com.thoughtworks.studios.shine.semweb.grddl.GRDDLTransformer;
-import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
 import com.thoughtworks.studios.shine.semweb.grddl.GrddlTransformException;
+import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+
+import java.io.IOException;
 
 public class GoGRDDLResourceRDFizer implements XMLRDFizer {
     private final GRDDLTransformer grddlTransformer;
@@ -40,7 +40,7 @@ public class GoGRDDLResourceRDFizer implements XMLRDFizer {
         this.rootNodeName = rootNodeName;
         this.graphFactory = graphFactory;
         this.xmlApiService = xmlApiService;
-        this.grddlTransformer = new GRDDLTransformer(transformerRegistry.getTransformer(grddlResourcePath));
+        this.grddlTransformer = new GRDDLTransformer(transformerRegistry, grddlResourcePath);
     }
 
     public boolean canHandle(Document doc) {
@@ -59,9 +59,7 @@ public class GoGRDDLResourceRDFizer implements XMLRDFizer {
         try {
             Document doc = xmlApiService.write(xmlRepresentable, baseUri);
             return importDocumentUsingGRDDL(doc);
-        } catch (DocumentException e) {
-            throw new GoIntegrationException(e);
-        } catch (IOException e) {
+        } catch (DocumentException | IOException e) {
             throw new GoIntegrationException(e);
         }
     }

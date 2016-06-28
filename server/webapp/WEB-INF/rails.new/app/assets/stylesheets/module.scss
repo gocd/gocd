@@ -2644,6 +2644,20 @@ li.task_property {
     opacity: 0.7;
 }
 
+.vsm-entity .warning {
+    background: image_url('g9/icons/icon_warning_16.png') no-repeat 0 0;
+    color: red;
+    padding-bottom: inherit;
+    font-weight: bold;
+    padding-left: 21px;
+    line-height: 20px;
+}
+
+.vsm-entity.conflicts {
+    border-color: red;
+    border-width: medium;
+}
+
 .vsm-entity h3 a {
     cursor: pointer;
 }
@@ -2874,6 +2888,9 @@ li.task_property {
     overflow: hidden;
     padding: 7px;
     text-overflow: ellipsis;
+    &.instance{
+        border-left: 2px solid #94399E;
+    }
 }
 
 #vsm-container > .instances li:first-child{
@@ -2883,7 +2900,7 @@ li.task_property {
     margin-top: -14px;
 }
 
-#vsm-container > .instances li:nth-child(2) {
+#vsm-container > .instances > .material_revision_header {
     border: 0 none;
     font-weight: bold;
     background-color: #eee;

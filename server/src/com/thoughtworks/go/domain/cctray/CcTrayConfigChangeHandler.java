@@ -46,7 +46,7 @@ public class CcTrayConfigChangeHandler {
     }
 
     public void call(PipelineConfig pipelineConfig, String pipelineGroup) {
-        ArrayList<ProjectStatus> projectStatuses = new ArrayList<ProjectStatus>();
+        ArrayList<ProjectStatus> projectStatuses = new ArrayList<>();
         final Map<String, Viewers> groupsAndTheirViewers = ccTrayViewAuthority.groupsAndTheirViewers();
         Viewers usersWithViewPermissionsOfThisGroup = groupsAndTheirViewers.get(pipelineGroup);
         updateProjectStatusForPipeline(usersWithViewPermissionsOfThisGroup, pipelineConfig, projectStatuses);
@@ -54,7 +54,7 @@ public class CcTrayConfigChangeHandler {
     }
 
     private List<ProjectStatus> findAllProjectStatusesForStagesAndJobsIn(CruiseConfig config) {
-        final List<ProjectStatus> projectStatuses = new ArrayList<ProjectStatus>();
+        final List<ProjectStatus> projectStatuses = new ArrayList<>();
         final Map<String, Viewers> groupsAndTheirViewers = ccTrayViewAuthority.groupsAndTheirViewers();
 
         config.accept(new PipelineGroupVisitor() {
@@ -91,7 +91,7 @@ public class CcTrayConfigChangeHandler {
     }
 
     private List<ProjectStatus> findStageAndStatusesFromCache(PipelineConfig pipelineConfig, StageConfig stageConfig) {
-        List<ProjectStatus> projectStatuses = new ArrayList<ProjectStatus>();
+        List<ProjectStatus> projectStatuses = new ArrayList<>();
 
         String stageProjectName = stageProjectName(pipelineConfig, stageConfig);
         projectStatuses.add(cache.get(stageProjectName));
@@ -111,7 +111,7 @@ public class CcTrayConfigChangeHandler {
 
     private List<ProjectStatus> getStatusesForCurrentProjectsWithDefaultsForMissingOnes(PipelineConfig pipelineConfig, StageConfig stageConfig,
                                                                                         List<ProjectStatus> statusesAvailableForThisStage) {
-        List<ProjectStatus> allStatuses = new ArrayList<ProjectStatus>();
+        List<ProjectStatus> allStatuses = new ArrayList<>();
 
         String stageProjectName = stageProjectName(pipelineConfig, stageConfig);
         allStatuses.add(findOrDefault(stageProjectName, statusesAvailableForThisStage));

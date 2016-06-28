@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -148,7 +147,7 @@ public class StageServiceIntegrationTest {
         job.setAgentUuid(UUID);
         jobInstanceDao.updateAssignedInfo(job);
         AgentIdentifier agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", UUID);
-        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         receivedState = null;
         receivedResult = null;
         receivedStageResult = null;

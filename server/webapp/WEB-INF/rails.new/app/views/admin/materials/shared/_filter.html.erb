@@ -9,7 +9,13 @@
         end
     end %>
 
-    <%= scope[:form].text_area(com.thoughtworks.go.config.materials.ScmMaterialConfig::FILTER, {:include_blank => true, :class => "form_input", :id => nil, :rows => 2}) -%>
+    <%= scope[:form].text_area(com.thoughtworks.go.config.materials.ScmMaterialConfig::FILTER, {:class => "form_input", :id => nil, :rows => 2}) -%>
     <%= error_message_on(scope[:form].object, com.thoughtworks.go.config.materials.ScmMaterialConfig::FILTER, :css_class => "form_error") %>
     <div class="clear"></div>
+
+    <div class="form_item_block checkbox_row material_options">
+      <%= scope[:form].check_box(com.thoughtworks.go.config.materials.ScmMaterialConfig::INVERT_FILTER, {:class => "form_input"}, "true") -%>
+      <%= scope[:form].label(com.thoughtworks.go.config.materials.ScmMaterialConfig::INVERT_FILTER, l.string('INVERT_FILTER')) %>
+    </div>
+
 </div>

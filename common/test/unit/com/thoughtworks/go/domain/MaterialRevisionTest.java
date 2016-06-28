@@ -29,16 +29,10 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -392,7 +386,8 @@ public class MaterialRevisionTest {
     private void checkInFiles(HgMaterial hgMaterial, String... fileNames) throws Exception {
         final File localDir = TestFileUtil.createTempFolder("foo");
         InMemoryStreamConsumer consumer = inMemoryConsumer();
-        hgMaterial.updateTo(consumer, latestRevision(hgMaterial, workingFolder, new TestSubprocessExecutionContext()), localDir, new TestSubprocessExecutionContext());
+        Revision revision = latestRevision(hgMaterial, workingFolder, new TestSubprocessExecutionContext());
+        hgMaterial.updateTo(consumer, localDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
         for (String fileName : fileNames) {
             File file = new File(localDir, fileName);
             FileUtils.writeStringToFile(file, "");

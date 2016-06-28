@@ -48,14 +48,12 @@ import com.thoughtworks.go.server.scheduling.PipelineScheduledTopic;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
-import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -241,8 +239,8 @@ public class ScheduleServiceTest {
         } catch (CannotScheduleException e) {
             assertThat(e.getMessage(), is("foo"));
         }
-        verify(serverHealthService).update(new ServerHealthState(HealthStateLevel.ERROR, HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "Failed to trigger stage [stage-baz] pipeline [pipeline-quux]", "foo", Timeout.TWO_MINUTES));
+        verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
+                "pipeline-quux","stage-baz" , "foo"));
     }
 
     @Test
@@ -273,8 +271,8 @@ public class ScheduleServiceTest {
 
         service.autoSchedulePipelinesFromRequestBuffer();
 
-        verify(serverHealthService).update(new ServerHealthState(HealthStateLevel.ERROR, HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "Failed to trigger stage [stage-baz] pipeline [pipeline-quux]", "foo", Timeout.TWO_MINUTES));
+        verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
+                "pipeline-quux","stage-baz" , "foo"));
     }
 
     @Test

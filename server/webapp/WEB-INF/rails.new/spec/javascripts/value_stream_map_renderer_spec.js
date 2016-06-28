@@ -56,7 +56,9 @@ describe("value_stream_map_renderer", function () {
     });
 
     it("testCurrentPipelineShouldHaveHighlightingBackground", function () {
-        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1, '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
+        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1,
+          '[{"modifications": [{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
+          '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
         var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "", '[]');
         var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
@@ -65,7 +67,9 @@ describe("value_stream_map_renderer", function () {
     });
 
     it("testVSMForCommitShouldNotHaveHighlightingBackground", function () {
-        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1, '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
+        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1,
+          '[{"modifications": [{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
+          '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
         var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "", '[]');
         var vsm = eval('({"current_material":"hg_fingerprint","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
@@ -283,7 +287,8 @@ describe("value_stream_map_renderer", function () {
              */
 
             var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1,
-                '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
+                '[{modifications:[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
+                '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
             var node_p1 = pipelineNode("p1", '["hg_fingerprint"]', '[]', 1, "", '[]');
 
             var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
@@ -334,8 +339,8 @@ describe("value_stream_map_renderer", function () {
     it("testShouldCommitDetailsForPackageMaterial", function () {
         var vsm = {"current_pipeline": "sample", "levels": [
             {"nodes": [
-                {"name": "Repository: [repo_url=file:///tmp/repo] - Package: [package_spec=go-agent]", "node_type": "PACKAGE", "depth": 1, "parents": [], "instances": [
-                    {"modified_time": "5 months ago", "user": "anonymous", "comment": "{\"COMMENT\":\"Built on server.\",\"TRACKBACK_URL\":\"google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}", "revision": "go-agent-13.1.1-16714.noarch"}
+                {"name": "Repository: [repo_url=file:///tmp/repo] - Package: [package_spec=go-agent]", "node_type": "PACKAGE", "depth": 1, "parents": [], "material_revisions": [
+                    {"modifications": [{"modified_time": "5 months ago", "user": "anonymous", "comment": "{\"COMMENT\":\"Built on server.\",\"TRACKBACK_URL\":\"google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}", "revision": "go-agent-13.1.1-16714.noarch"}]}
                 ], "locator": "", "id": "pkg_id", "dependents": ["sample"], "material_names": ["yum:go-agent"]}
             ]},
             {"nodes": [
@@ -365,8 +370,8 @@ describe("value_stream_map_renderer", function () {
     it("testShouldShowTrackbackUrlAsNotProvidedWhenItIsEmpty", function () {
         var vsm = {"current_pipeline": "sample", "levels": [
             {"nodes": [
-                {"name": "Repository: [repo_url=file:///tmp/repo] - Package: [package_spec=go-agent]", "node_type": "PACKAGE", "depth": 1, "parents": [], "instances": [
-                    {"modified_time": "5 months ago", "user": "anonymous", "comment": "{\"TYPE\":\"PACKAGE_MATERIAL\"}", "revision": "go-agent-13.1.1-16714.noarch"}
+                {"name": "Repository: [repo_url=file:///tmp/repo] - Package: [package_spec=go-agent]", "node_type": "PACKAGE", "depth": 1, "parents": [], "material_revisions": [
+                    {"modifications": [{"modified_time": "5 months ago", "user": "anonymous", "comment": "{\"TYPE\":\"PACKAGE_MATERIAL\"}", "revision": "go-agent-13.1.1-16714.noarch"}]}
                 ], "locator": "", "id": "pkg_id", "dependents": ["sample"], "material_names": ["yum:go-agent"]}
             ]},
             {"nodes": [
@@ -395,9 +400,11 @@ describe("value_stream_map_renderer", function () {
     if (window.navigator.userAgent.indexOf("MSIE")<=0) {
         it("testShouldCheckIfCommentsBoxIsShownCorrectlyIfTwoOrMoreSameSVNorTFSorP4IsConfiguredWithDifferentCredentials", function () {
             var svn_material_1 = scmMaterialNode('svn_fingerprint_1', 'http://username1:password1@svn.com', "svn", '["p1"]', 1,
-                '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
+                '[{"modifications":[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
+                '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
             var svn_material_2 = scmMaterialNode('svn_fingerprint_2', 'http://username2:password2@svn.com', "svn", '["p1"]', 1,
-                '[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, {"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]');
+                '[{"modifications":[{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
+                '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
             var node_p1 = pipelineNode("p1", '["svn_fingerprint_1", "svn_fingerprint_2"]', '[]', 1, "", '[]');
 
             var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + svn_material_1 + ',' + svn_material_2 + ']},{"nodes":[' + node_p1 + ']}]})');
@@ -420,7 +427,8 @@ describe("value_stream_map_renderer", function () {
         var current_pipeline_instance_details = '{"stages": [{"locator": "/go/pipelines/current/1/defaultStage/1","status": "Passed","name": "defaultStage"},' +
             '{"locator": "","status": "Unknown","name": "oneMore"}],"locator": "/go/pipelines/value_stream_map/current/1","counter": 1,"label": "1" }';
 
-        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1, '[{"revision": "revision1"}, {"revision": "revision2"}]');
+        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1,
+          '[{"modifications":[{"revision": "revision1"}, {"revision": "revision2"}]}]');
         var current = pipelineNode("current", '["hg_fingerprint"]', '[]', 1, "/go/tab/pipeline/history/current", '[' + current_pipeline_instance_details + ']');
 
         var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']}]})');
@@ -447,7 +455,8 @@ describe("value_stream_map_renderer", function () {
             ' "locator": "/go/pipelines/value_stream_map/downstream/1","counter": 1,"label": "1" },' + '{"stages": [{"locator": "/go/pipelines/downstream/2/defaultStage/1","status": "Passed","name": "defaultStage"}],' +
             ' "locator": "/go/pipelines/downstream/current/2","counter": 2,"label": "2" }';
 
-        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1, '[{"revision": "revision1"}, {"revision": "revision2"}]');
+        var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["current"]', 1,
+          '[{"modifications":[{"revision": "revision1"}, {"revision": "revision2"}]}]');
         var current = pipelineNode("current", '["hg_fingerprint"]', '["downstream"]', 1, "/go/tab/pipeline/history/current", '[' + current_pipeline_instance_details + ']');
         var downstream = pipelineNode("downstream", '["current"]', '[]', 2, "/go/tab/pipeline/history/downstream", '[' + downstream_pipeline_instance_details + ']');
 
@@ -485,9 +494,9 @@ describe("value_stream_map_renderer", function () {
             ',"id":"' + nodeId + '", "depth":' + depth + ', "locator":' + '""' + '}';
     }
 
-    function scmMaterialNode(nodeId, nodeName, type, dependents, depth, instances) {
+    function scmMaterialNode(nodeId, nodeName, type, dependents, depth, material_revisions) {
         return '{"node_type":"' + type + '","name":"' + nodeName + '","parents":' + '[]' + ',"dependents":' + dependents +
-            ',"id":"' + nodeId + '", "depth":' + depth + ', "locator":' + '""' + ', "instances":' + instances + '}';
+            ',"id":"' + nodeId + '", "depth":' + depth + ', "locator":' + '""' + ', "material_revisions":' + material_revisions + '}';
     }
 
     function pipelineNode(nodeId, parents, dependents, depth, locator, instances) {

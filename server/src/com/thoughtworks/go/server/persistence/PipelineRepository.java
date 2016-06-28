@@ -136,12 +136,12 @@ public class PipelineRepository extends HibernateDaoSupport {
 
 
             private List<PipelineTimelineEntry> populateFrom(List<Object[]> matches) {
-                ArrayList<PipelineTimelineEntry> newPipelines = new ArrayList<PipelineTimelineEntry>();
+                ArrayList<PipelineTimelineEntry> newPipelines = new ArrayList<>();
                 if (matches.isEmpty()) {
                     return newPipelines;
                 }
 
-                Map<String, List<PipelineTimelineEntry.Revision>> revisions = new HashMap<String, List<PipelineTimelineEntry.Revision>>();
+                Map<String, List<PipelineTimelineEntry.Revision>> revisions = new HashMap<>();
 
                 String name = null;
                 long curId = -1;
@@ -157,7 +157,7 @@ public class PipelineRepository extends HibernateDaoSupport {
                         name = pipelineName(row);
                         curId = id;
                         counter = counter(row);
-                        revisions = new HashMap<String, List<PipelineTimelineEntry.Revision>>();
+                        revisions = new HashMap<>();
                         naturalOrder = naturalOrder(row);
                     }
 

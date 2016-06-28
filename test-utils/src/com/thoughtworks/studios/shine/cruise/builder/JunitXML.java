@@ -25,8 +25,8 @@ import java.util.ArrayList;
 public class JunitXML {
   private String suiteName;
   private int testCaseCount;
-  private List<Integer> erroredTests = new ArrayList<Integer>();
-  private List<Integer> failedTests = new ArrayList<Integer>();
+  private List<Integer> erroredTests = new ArrayList<>();
+  private List<Integer> failedTests = new ArrayList<>();
   private boolean invalidXML = false;
 
   public JunitXML(String suiteName, int testCaseCount) {
@@ -47,7 +47,7 @@ public class JunitXML {
     if (invalidXML) {
       return "I AM NOT XML!";
     }
-    
+
     String results = "" +
       "<?xml version='1.0' encoding='UTF-8' ?>" +
       "<testsuite errors='" + erroredTests.size() + "' failures='" + failedTests.size() + "' hostname='foo.bar.com' name='" + suiteName + "' tests='" + testCaseCount + "' time='1.76' timestamp='2010-02-04T01:34:53'>" +
@@ -97,10 +97,10 @@ public class JunitXML {
   public static JunitXML junitXML(String suiteName, int testCount) {
     return new JunitXML(suiteName, testCount);
   }
-  
+
   public static JunitXML invalidJunitXML() {
     return new JunitXML("BrokenTestSuite").invalidXML();
   }
 
-  
+
 }

@@ -37,7 +37,7 @@ public final class TransactionContext {
     TransactionContext() {
         txnActive = MAX_VALUE;
         txnSurrounding = MAX_VALUE;
-        futureSynchronizations = new HashSet<TransactionSynchronization>();
+        futureSynchronizations = new HashSet<>();
         txnFinished = false;
     }
 

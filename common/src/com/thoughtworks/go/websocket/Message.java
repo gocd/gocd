@@ -16,63 +16,44 @@
 
 package com.thoughtworks.go.websocket;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
+import com.google.gson.annotations.Expose;
 
-import java.io.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import java.util.UUID;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+public class Message {
 
-public class Message implements Serializable {
-
-    public static byte[] encode(Message msg) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        try {
-            GZIPOutputStream zip = new GZIPOutputStream(bytes);
-            ObjectOutputStream output = new ObjectOutputStream(zip);
-            try {
-                output.writeObject(msg);
-            } finally {
-                output.close();
-            }
-        } catch (IOException e) {
-            throw bomb(e);
-        }
-        return bytes.toByteArray();
-    }
-
-    public static Message decode(InputStream input) {
-        try {
-            ObjectInputStream stream = new ObjectInputStream(new GZIPInputStream(input));
-            try {
-                return (Message) stream.readObject();
-            } finally {
-                stream.close();
-            }
-        } catch (Exception e) {
-            throw bomb(e);
-        }
-    }
-
+    @Expose
     private final Action action;
-    private final Object data;
+    @Expose
+    private final String data;
+    @Expose
+    private String ackId;
 
     public Message(Action action) {
         this(action, null);
     }
 
-    public Message(Action action, Object data) {
+    public Message(Action action, String data) {
+        this(action, data, null);
+    }
+
+    public Message(Action action, String data, String ackId) {
         this.action = action;
         this.data = data;
+        this.ackId = ackId;
     }
+
 
     public Action getAction() {
         return action;
     }
 
-    public Object getData() {
+    public String getData() {
         return data;
+    }
+
+    public String getAckId() {
+        return ackId;
     }
 
     @Override
@@ -80,6 +61,7 @@ public class Message implements Serializable {
         return "Message{" +
                 "action=" + action +
                 ", data=" + data +
+                ", ackId=" + ackId +
                 '}';
     }
 
@@ -91,15 +73,20 @@ public class Message implements Serializable {
         Message message = (Message) o;
 
         if (action != message.action) return false;
-        return data != null ? data.equals(message.data) : message.data == null;
+        if (data != null ? !data.equals(message.data) : message.data != null) return false;
+        return ackId != null ? ackId.equals(message.ackId) : message.ackId == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = action != null ? action.hashCode() : 0;
+        int result = action.hashCode();
         result = 31 * result + (data != null ? data.hashCode() : 0);
+        result = 31 * result + (ackId != null ? ackId.hashCode() : 0);
         return result;
     }
 
+    public void generateAckId() {
+        this.ackId = UUID.randomUUID().toString();
+    }
 }

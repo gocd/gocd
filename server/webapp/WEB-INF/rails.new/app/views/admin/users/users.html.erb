@@ -55,12 +55,12 @@
                         <td class='selector'>
                             <input type='checkbox' name='selected[]' value='<%= user_model.getUser().getName()-%>' class='agent_select'/>
                         </td>
-                        <%== cell_with_title( user_model.getUser().getName(), 'username') %>
-                        <%== piped_cell(user_model.getRoles(), '', 'roles') %>
-                        <%== piped_cell(user_model.getUser().getMatchers(), '', 'aliases') %>
-                        <%== cell_with_title( user_model.isAdmin() ? "Yes" : "No", 'is_admin') %>
-                        <%== cell_with_title( user_model.getUser().getEmail(), 'email') %>
-                        <%== cell_with_title( user_model.isEnabled() ? "Yes" : "No", 'enabled') %>
+                        <%= cell_with_title(h(user_model.getUser().getName()), 'username') %>
+                        <%= piped_cell( user_model.getRoles(), '', 'roles') %>
+                        <%= piped_cell(user_model.getUser().getMatchers(), '', 'aliases') %>
+                        <%= cell_with_title(user_model.isAdmin() ? "Yes" : "No", 'is_admin') %>
+                        <%= cell_with_title(h(user_model.getUser().getEmail()), 'email') %>
+                        <%= cell_with_title(user_model.isEnabled() ? "Yes" : "No", 'enabled') %>
                     </tr>
                 <% end %>
             </table>

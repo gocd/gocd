@@ -47,10 +47,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -81,7 +79,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private MaterialConfigConverter materialConfigConverter;
     @Autowired private ConfigCache configCache;
-    @Autowired private MergedGoConfig mergedGoConfig;
+    @Autowired private CachedGoConfig cachedGoConfig;
 
     @Autowired private MaterialUpdateCompletedTopic topic;
     @Autowired private ConfigMaterialUpdateCompletedTopic configTopic;
@@ -280,7 +278,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
 
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
 
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()), is(true));
         assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name()), is(pipelineConfig));
@@ -342,7 +340,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
 
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
 
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()), is(true));
         assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name()),is(pipelineConfig));
@@ -362,7 +360,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
 
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
         // but we still have the old part
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()), is(true));
         assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name()), is(pipelineConfig));

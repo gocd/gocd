@@ -53,7 +53,7 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
     }
 
     public ArrayList<CaseInsensitiveString> getNames() {
-        ArrayList<CaseInsensitiveString> names = new ArrayList<CaseInsensitiveString>();
+        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
         for (EnvironmentPipelineConfig environmentPipelineConfig : this) {
             names.add(environmentPipelineConfig.getName());
         }

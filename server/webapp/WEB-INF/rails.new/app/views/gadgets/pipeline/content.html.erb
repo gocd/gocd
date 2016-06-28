@@ -5,7 +5,7 @@
             <% cache(view_cache_key.forPipelineModelBox(pipeline_model_in_pipeline_group), {:subkey => "pipeline_gadget_html", :skip_digest => true}) do %>
                 <div class="pipeline_header">
                     <h3 class="title entity_title">
-                        <%== link_to(smart_word_breaker(pipeline_model_in_pipeline_group.getName()), url_for_pipeline(pipeline_model_in_pipeline_group.getName(), {:only_path => false}), {:target => "_blank"}) %>
+                        <%= link_to(pipeline_model_in_pipeline_group.getName(), url_for_pipeline(pipeline_model_in_pipeline_group.getName(), {:only_path => false}), {:target => "_blank", :class => 'wrapped_word'}) %>
                     </h3>
                 </div>
                 <% pipeline_model_in_pipeline_group.getActivePipelineInstances().each do |active_pipeline_in_pipeline| -%>

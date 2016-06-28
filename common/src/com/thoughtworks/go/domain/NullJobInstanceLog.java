@@ -62,7 +62,7 @@ public class NullJobInstanceLog extends JobInstanceLog {
     }
 
     public List<File> getTestOutputs() {
-        return new ArrayList<File>();
+        return new ArrayList<>();
     }
 
     public String getBuildError() {

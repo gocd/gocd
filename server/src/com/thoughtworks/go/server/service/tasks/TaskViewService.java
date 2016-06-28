@@ -65,7 +65,7 @@ public class TaskViewService implements TaskFactory {
     }
 
     public List<PluggableViewModel> getTaskViewModelsWith(Task given) {
-        List<PluggableViewModel> viewModels = new ArrayList<PluggableViewModel>();
+        List<PluggableViewModel> viewModels = new ArrayList<>();
         for (Task task : allTasks()) {
             if (task.hasSameTypeAs(given)) {
                 viewModels.add(getViewModel(given, "new"));
@@ -101,7 +101,7 @@ public class TaskViewService implements TaskFactory {
     }
 
     public List<PluggableViewModel<Task>> getOnCancelTaskViewModels(Task given) {
-        List<PluggableViewModel<Task>> viewModels = new ArrayList<PluggableViewModel<Task>>();
+        List<PluggableViewModel<Task>> viewModels = new ArrayList<>();
         for (Task task : allTasks()) {
             if (hasCancelTaskOfType(given, task)) {
                 viewModels.add(getViewModel(given.cancelTask(), "edit"));
@@ -117,7 +117,7 @@ public class TaskViewService implements TaskFactory {
     }
 
     private List<Task> allTasks() {
-        List<Task> result = new ArrayList<Task>();
+        List<Task> result = new ArrayList<>();
         for (Class<? extends Task> aClass : builtinTaskClasses()) {
             try {
                 result.add(aClass.getConstructor().newInstance());
@@ -144,7 +144,7 @@ public class TaskViewService implements TaskFactory {
             GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(pluginId);
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
             if (pluginDescriptor != null && taskPreference != null) {
-                tasks.add(new PluggableTask("", new PluginConfiguration(pluginId, pluginDescriptor.version()), getConfiguration(taskPreference.getConfig())));
+                tasks.add(new PluggableTask(new PluginConfiguration(pluginId, pluginDescriptor.version()), getConfiguration(taskPreference.getConfig())));
             }
         }
         return tasks;
@@ -152,7 +152,7 @@ public class TaskViewService implements TaskFactory {
 
     private List<Class<? extends Task>> builtinTaskClasses() {
         List<Class<? extends Task>> allTaskClasses = registry.implementersOf(Task.class);
-        List<Class<? extends Task>> builtinTaskClasses = new ArrayList<Class<? extends Task>>();
+        List<Class<? extends Task>> builtinTaskClasses = new ArrayList<>();
 
         for (Class<? extends Task> taskClass : allTaskClasses) {
             if (taskClass != PluggableTask.class) {

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.security;
 
@@ -47,7 +48,7 @@ public class GoCipher implements Serializable {
         return decipher(this.cipherProvider.getKey(), cipherText);
     }
 
-    String cipher(byte[] key, String plainText) throws InvalidCipherTextException {
+    public String cipher(byte[] key, String plainText) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
         KeyParameter keyParameter = new KeyParameter(Hex.decode(key));
         cipher.init(true, keyParameter);
@@ -58,7 +59,7 @@ public class GoCipher implements Serializable {
         return Base64.encodeBase64String(cipherTextBytes).trim();
     }
 
-    String decipher(byte[] key, String cipherText) throws InvalidCipherTextException {
+    public String decipher(byte[] key, String cipherText) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
         cipher.init(false, new KeyParameter(Hex.decode(key)));
         byte[] cipherTextBytes = Base64.decodeBase64(cipherText);

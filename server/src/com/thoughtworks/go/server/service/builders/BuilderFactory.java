@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BuilderFactory {
-    private final Map<Class, TaskBuilder> taskBuilderMap = new HashMap<Class, TaskBuilder>();
+    private final Map<Class, TaskBuilder> taskBuilderMap = new HashMap<>();
 
     @Autowired
     public BuilderFactory(AntTaskBuilder antTaskBuilder, ExecTaskBuilder execTaskBuilder, NantTaskBuilder nantTaskBuilder, RakeTaskBuilder rakeTaskBuilder,
@@ -55,7 +55,7 @@ public class BuilderFactory {
     }
 
     public List<Builder> buildersForTasks(Pipeline pipeline, List<Task> tasks, UpstreamPipelineResolver resolver) {
-        ArrayList<Builder> builders = new ArrayList<Builder>();
+        ArrayList<Builder> builders = new ArrayList<>();
         for (Task task : tasks) {
             builders.add(builderFor(task, pipeline, resolver));
         }

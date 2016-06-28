@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ describe Api::PipelinesController do
   include APIModelMother
 
   before :each do
-    controller.stub(:populate_health_messages)
     @pipeline_service = Object.new
     @pipeline_history_service = double('pipeline_history_service')
     @pipeline_unlock_api_service = double('pipeline_unlock_api_service')
@@ -211,10 +210,6 @@ describe Api::PipelinesController do
       fake_template_presence "api/pipelines/schedule.erb", "dummy"
 
       post 'schedule', :pipeline_name => 'pipeline', "materials" => {'material_does_not_exist' => "foo"}, :no_layout => true
-    end
-
-    it "should answer for /api/pipelines/blahpipeline/schedule" do
-      expect(:post => '/api/pipelines/blahpipeline/schedule').to route_to(:controller => "api/pipelines", :pipeline_name=>"blahpipeline", :action => "schedule", :no_layout=>true)
     end
 
     it "should be able to specify a particular revision from a upstream pipeline" do
@@ -417,17 +412,55 @@ describe Api::PipelinesController do
 
       post :releaseLock, :pipeline_name => 'pipeline-name', :no_layout => true
     end
+  end
 
-    it "should map /api/pipelines/:pipeline_name/releaseLock to :release_lock" do
-      expect(:post => "/api/pipelines/cruise-1.3.2/releaseLock").to route_to(:controller => "api/pipelines", :pipeline_name => "cruise-1.3.2", :action => "releaseLock", :no_layout => true)
+  describe 'routes' do
+    describe 'when constraint is met' do
+      before :each do
+        allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+      end
+
+      it 'should map /api/pipelines/:pipeline_name/releaseLock to :release_lock' do
+        expect(:post => "/api/pipelines/cruise-1.3.2/releaseLock").to route_to(:controller => "api/pipelines", :pipeline_name => "cruise-1.3.2", :action => "releaseLock", :no_layout => true)
+      end
+
+      it 'should resolve route to pause' do
+        expect(:post => "/api/pipelines/foo.bar/pause").to route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "pause", :no_layout => true)
+      end
+
+      it 'should resolve route to unpause' do
+        expect(:post => "/api/pipelines/foo.bar/unpause").to route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "unpause", :no_layout => true)
+      end
+
+      it 'should resolve route to schedule' do
+        expect(:post => '/api/pipelines/blahpipeline/schedule').to route_to(:controller => "api/pipelines", :pipeline_name => "blahpipeline", :action => "schedule", :no_layout => true)
+      end
+    end
+
+    describe 'when constraint is not met' do
+      before :each do
+        allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+      end
+
+      it 'should not map /api/pipelines/:pipeline_name/releaseLock to :release_lock' do
+        expect(:post => "/api/pipelines/cruise-1.3.2/releaseLock").to_not route_to(:controller => "api/pipelines", :pipeline_name => "cruise-1.3.2", :action => "releaseLock", :no_layout => true)
+      end
+
+      it 'should not resolve route to pause' do
+        expect(:post => "/api/pipelines/foo.bar/pause").to_not route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "pause", :no_layout => true)
+      end
+
+      it 'should not resolve route to unpause' do
+        expect(:post => "/api/pipelines/foo.bar/unpause").to_not route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "unpause", :no_layout => true)
+      end
+
+      it 'should not resolve route to schedule' do
+        expect(:post => '/api/pipelines/blahpipeline/schedule').to_not route_to(:controller => "api/pipelines", :pipeline_name => "blahpipeline", :action => "schedule", :no_layout => true)
+      end
     end
   end
 
   describe :pause do
-    it "should resolve route to pause" do
-      expect(:post => "/api/pipelines/foo.bar/pause").to route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "pause", :no_layout => true)
-    end
-
     it "should pause the pipeline" do
       @pipeline_pause_service.should_receive(:pause).with("foo.bar", "wait for next checkin", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
       @controller.stub(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
@@ -436,10 +469,6 @@ describe Api::PipelinesController do
   end
 
   describe :unpause do
-    it "should resolve route to unpause" do
-      expect(:post => "/api/pipelines/foo.bar/unpause").to route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "unpause", :no_layout => true)
-    end
-
     it "should pause the pipeline" do
       @pipeline_pause_service.should_receive(:unpause).with("foo.bar", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
       @controller.stub(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))

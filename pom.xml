@@ -22,7 +22,7 @@
 
     <groupId>com.thoughtworks.go</groupId>
     <artifactId>gocd</artifactId>
-    <version>16.3.0</version>
+    <version>16.7.0</version>
     <name>Thoughtworks Go</name>
     <url>http://www.thoughtworks.com/products/go-continuous-delivery</url>
     <packaging>pom</packaging>
@@ -52,17 +52,17 @@
         </repository>
         <repository>
             <id>caja</id>
-            <url>http://google-caja.googlecode.com/svn/maven</url>
+            <url>https://dl.bintray.com/gocd-google-code-mirror/generic/google-caja</url>
         </repository>
         <repository>
             <id>oauth</id>
-            <url>http://oauth.googlecode.com/svn/code/maven</url>
+            <url>https://dl.bintray.com/gocd-google-code-mirror/generic/oauth</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>onejar-maven-plugin.googlecode.com</id>
-            <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+            <url>https://dl.bintray.com/gocd-google-code-mirror/generic/onejar-maven-plugin</url>
         </pluginRepository>
     </pluginRepositories>
 

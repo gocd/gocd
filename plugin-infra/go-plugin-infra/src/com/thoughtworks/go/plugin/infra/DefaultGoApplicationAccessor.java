@@ -32,7 +32,7 @@ public class DefaultGoApplicationAccessor extends GoApplicationAccessor {
 
     private static final Logger LOGGER = Logger.getLogger(DefaultGoApplicationAccessor.class);
 
-    private Map<String, GoPluginApiRequestProcessor> processorMap = new HashMap<String, GoPluginApiRequestProcessor>();
+    private Map<String, GoPluginApiRequestProcessor> processorMap = new HashMap<>();
 
     public void registerProcessorFor(String request, GoPluginApiRequestProcessor processor) {
         processorMap.put(request, processor);

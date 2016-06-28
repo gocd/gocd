@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,11 +63,11 @@ public class Resources extends BaseCollection<Resource> implements Comparable<Re
     }
 
     public List<String> resourceNames() {
-        Set<String> names = new TreeSet<String>();
+        Set<String> names = new TreeSet<>();
         for (Resource resource : this) {
             names.add(resource.getName());
         }
-        return new ArrayList<String>(names);
+        return new ArrayList<>(names);
     }
 
     public String toString() {
@@ -78,7 +78,7 @@ public class Resources extends BaseCollection<Resource> implements Comparable<Re
         return new AlphaAsciiCollectionComparator<Resource>().compare(this, other);
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         boolean isValid = errors().isEmpty();
         for (Resource resource : this) {
             isValid = resource.validateTree(validationContext) && isValid;

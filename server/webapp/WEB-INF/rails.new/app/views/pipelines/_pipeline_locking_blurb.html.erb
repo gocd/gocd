@@ -3,7 +3,7 @@
     <% if scope[:latestPIM].canUnlock() -%>
         <span class="locked_instance click_to_unlock" id='unlock' title="Click to unlock this pipeline">
             <%== blocking_link_to_remote_new :name => "&nbsp;", :url => api_pipeline_action_path(:pipeline_name =>  scope[:pipeline_model].getName(), :action => 'releaseLock'),
-                                        :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :before => "spinny('unlock');" %>
+                                        :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :before => "spinny('unlock');", :headers => {Confirm: 'true'} -%>
         </span>
     <% else -%>
         <span class="locked_instance locked" title="This pipeline is locked">

@@ -69,7 +69,7 @@ public class TemplateConfigService {
         GoConfigHolder configHolder = goConfigService.getConfigHolder();
         configHolder = cloner.deepClone(configHolder);
         PipelineTemplateConfig template = findTemplate(templateName, result, configHolder);
-        return template != null ? new ConfigForEdit<PipelineTemplateConfig>(template, configHolder) : null;
+        return template != null ? new ConfigForEdit<>(template, configHolder) : null;
     }
 
     public PipelineTemplateConfig loadForView(String templateName, HttpLocalizedOperationResult result) {
@@ -92,7 +92,7 @@ public class TemplateConfigService {
             return null;
         }
         List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigsForEdit();
-        List<PipelineConfig> allPipelinesNotUsingTemplates = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> allPipelinesNotUsingTemplates = new ArrayList<>();
         for (PipelineConfig pipeline : allPipelineConfigs) {
             if (!pipeline.hasTemplate()) {
                 allPipelinesNotUsingTemplates.add(pipeline);

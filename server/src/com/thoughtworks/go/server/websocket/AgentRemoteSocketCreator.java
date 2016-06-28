@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,16 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import org.eclipse.jetty.websocket.api.extensions.ExtensionConfig;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class AgentRemoteSocketCreator implements WebSocketCreator {
 
-
     private AgentRemoteHandler handler;
-    private List<ExtensionConfig> configs = new ArrayList<>();
 
     @Autowired
     public AgentRemoteSocketCreator(AgentRemoteHandler handler) {
@@ -40,11 +34,6 @@ public class AgentRemoteSocketCreator implements WebSocketCreator {
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-        resp.setExtensions(configs);
         return new AgentRemoteSocket(handler);
-    }
-
-    public void addExtensionConfig(ExtensionConfig config) {
-        configs.add(config);
     }
 }

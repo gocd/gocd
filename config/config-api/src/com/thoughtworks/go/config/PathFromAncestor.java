@@ -82,7 +82,7 @@ public class PathFromAncestor {
     }
 
     private List<CaseInsensitiveString> pathToAncestor(int upTill) {
-        List<CaseInsensitiveString> fragments = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> fragments = new ArrayList<>();
         String[] allFragments = path().split(DELIMITER);
         for (int i = allFragments.length - 1; i > upTill; i--) {
             fragments.add(new CaseInsensitiveString(allFragments[i]));

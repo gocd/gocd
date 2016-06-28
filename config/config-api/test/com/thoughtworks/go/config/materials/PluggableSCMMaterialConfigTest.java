@@ -115,12 +115,12 @@ public class PluggableSCMMaterialConfigTest {
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder."));
 
-        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, ".crap", null);
+        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "./../crap", null);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
-        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
-        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Invalid directory name '.crap'. It should be a valid relative path."));
+        assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(2));
+        assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Invalid directory name './../crap'. It should be a valid relative path."));
     }
 
 

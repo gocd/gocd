@@ -102,7 +102,7 @@ public class AgentInstanceTest {
     public void shouldUpdateAgentBackToIdleAfterCancelledTaskFinishes() throws Exception {
         AgentInstance cancelled = AgentInstanceMother.cancelled();
 
-        AgentRuntimeInfo fromAgent = new AgentRuntimeInfo(cancelled.agentConfig().getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo fromAgent = new AgentRuntimeInfo(cancelled.agentConfig().getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         fromAgent.idle();
         cancelled.update(fromAgent);
 
@@ -113,7 +113,7 @@ public class AgentInstanceTest {
     public void shouldUpdateTheIntsallLocation() throws Exception {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
         String installPath = "/var/lib/GoServer";
-        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         newRuntimeInfo.setLocation(installPath);
         agentInstance.update(newRuntimeInfo);
 
@@ -124,7 +124,7 @@ public class AgentInstanceTest {
     public void shouldUpdateTheUsableSpace() throws Exception {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
 
-        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         newRuntimeInfo.setUsableSpace(1000L);
 
         assertThat(agentInstance.getUsableSpace(), is(not(newRuntimeInfo.getUsableSpace())));
@@ -135,7 +135,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldAssignCertificateToApprovedAgent() {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
-        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
 
         Registration entry = agentInstance.assignCertification();
         assertThat(entry.getChain().length, is(not(0)));
@@ -143,7 +143,7 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldNotAssignCertificateToPendingAgent() {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux");
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false);
         AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment
         );
 
@@ -157,7 +157,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
         Date time = agentInstance.getLastHeardTime();
         assertThat(time, is(nullValue()));
-        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         time = agentInstance.getLastHeardTime();
         assertThat(time, is(not(nullValue())));
     }
@@ -165,18 +165,30 @@ public class AgentInstanceTest {
     @Test
     public void shouldUpdateTheLastHeardTime() throws Exception {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
-        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         Date time = agentInstance.getLastHeardTime();
         Thread.sleep(1000);
-        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         Date newtime = agentInstance.getLastHeardTime();
         assertThat(newtime.after(time), is(true));
     }
 
     @Test
+    public void shouldUpdateSupportBuildCommandProtocolFlag() throws Exception {
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
+        assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(false));
+        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+        assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(false));
+
+        agentInstance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, true));
+        assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(true));
+    }
+
+
+    @Test
     public void shouldUpdateIPForPhysicalMachineWhenUpChanged() throws Exception {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
-        agentInstance.update(new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        agentInstance.update(new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
 
         assertThat(agentInstance.agentConfig().getIpAddress(), is("10.18.7.52"));
     }
@@ -191,7 +203,7 @@ public class AgentInstanceTest {
     }
 
     private AgentRuntimeInfo idleRuntimeInfo() {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.idle();
         return agentRuntimeInfo;
     }
@@ -199,7 +211,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldUpdateBuildingInfoWhenAgentIsBuilding() throws Exception {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         AgentBuildingInfo buildingInfo = new AgentBuildingInfo("running pipeline/stage/build", "buildLocator");
         agentRuntimeInfo.busy(buildingInfo);
         agentInstance.update(agentRuntimeInfo);
@@ -218,7 +230,7 @@ public class AgentInstanceTest {
     }
 
     private AgentRuntimeInfo cancelRuntimeInfo() {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.busy(defaultBuildingInfo);
         agentRuntimeInfo.cancel();
         return agentRuntimeInfo;
@@ -227,7 +239,7 @@ public class AgentInstanceTest {
     @Test
     public void shouldNotChangeVirtualMachineIpAddress() throws Exception {
         AgentInstance virtual = AgentInstance.create(new AgentConfig("uuid", "ccedev01", "10.18.7.51"), true, systemEnvironment);
-        final AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        final AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         boolean required = virtual.isIpChangeRequired(
                 info.getIpAdress());
         assertThat(required, is(false));
@@ -235,16 +247,16 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldNotChangePendingAgentIpAddress() throws Exception {
-        AgentInstance pending = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null),
+        AgentInstance pending = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false),
                 systemEnvironment);
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         assertThat(pending.isIpChangeRequired(info.getIpAdress()), is(false));
     }
 
     @Test
     public void shouldChangeIpWhenSameAgentIpChanged() throws Exception {
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         assertThat(instance.isIpChangeRequired(info.getIpAdress()), is(true));
     }
 
@@ -263,7 +275,7 @@ public class AgentInstanceTest {
 
     @Test
     public void pendingAgentshouldNotBeRegistered() throws Exception {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment
         );
         assertThat(instance.isRegistered(), is(false));
@@ -286,10 +298,10 @@ public class AgentInstanceTest {
 
     @Test
     public void shouldBecomeIdleAfterApprove() throws Exception {
-        AgentInstance instance = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null),
+        AgentInstance instance = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false),
                 systemEnvironment);
         instance.enable();
-        instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         assertThat(instance.getStatus(), is(AgentStatus.Idle));
     }
 
@@ -311,7 +323,7 @@ public class AgentInstanceTest {
         });
         assertThat(instance.getStatus(), is(AgentStatus.Missing));
 
-        instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         instance.refresh(null);
         assertThat(instance.getStatus(), is(AgentStatus.LostContact));
     }
@@ -324,14 +336,14 @@ public class AgentInstanceTest {
                 return -1;
             }
         });
-        instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        instance.update(new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         instance.refresh(null);
         assertThat(instance.getStatus().getRuntimeStatus(), is(not(AgentRuntimeStatus.LostContact)));
     }
 
     @Test
     public void shouldDenyPendingAgent() throws Exception {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, systemEnvironment
         );
         instance.deny();
@@ -351,7 +363,7 @@ public class AgentInstanceTest {
     public void shouldSyncIPWithConfig() {
         AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment);
 
-        original.update(new AgentRuntimeInfo(new AgentIdentifier("CCeDev01", "10.18.5.2", "uuid2"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        original.update(new AgentRuntimeInfo(new AgentIdentifier("CCeDev01", "10.18.5.2", "uuid2"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
 
         assertThat(original.agentConfig(), is(new AgentConfig("uuid2", "CCeDev01", "10.18.5.2")));
     }
@@ -394,7 +406,7 @@ public class AgentInstanceTest {
                 return 100 * 1024 * 1024;
             }
         });
-        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         long is110M = 110 * 1024 * 1024;
         newRuntimeInfo.setUsableSpace(is110M);
         original.update(newRuntimeInfo);
@@ -409,7 +421,7 @@ public class AgentInstanceTest {
                 return 100 * 1024 * 1024;
             }
         });
-        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         long is90M = 90 * 1024 * 1024;
         newRuntimeInfo.setUsableSpace(is90M);
         original.update(newRuntimeInfo);
@@ -589,7 +601,7 @@ public class AgentInstanceTest {
     }
 
     private AgentRuntimeInfo buildingRuntimeInfo(AgentConfig agentConfig) {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         runtimeInfo.busy(defaultBuildingInfo);
         return runtimeInfo;
     }

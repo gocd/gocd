@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -23,18 +24,17 @@ import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.*;
 
 public class GoConfigWatchListTest {
 
-    private CachedFileGoConfig cachedGoConfig;
+    private CachedGoConfig cachedGoConfig;
     private GoConfigWatchList watchList;
     private CruiseConfig cruiseConfig;
 
     @Before
     public void setUp() throws Exception {
-        cachedGoConfig = mock(CachedFileGoConfig.class);
+        cachedGoConfig = mock(CachedGoConfig.class);
         cruiseConfig = mock(CruiseConfig.class);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
         watchList = new GoConfigWatchList(cachedGoConfig);

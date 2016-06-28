@@ -26,8 +26,8 @@ describe AgentsController do
   describe "GET 'index'" do
 
     before(:all) do
-      config = ConfigMigrator.migrate(ConfigFileFixture::WITH_VARITY_OF_AGENTS)
-      cachedGoConfig = Spring.bean("cachedFileGoConfig")
+      config = ConfigMigrator.migrate(ConfigFileFixture::WITH_VARIETY_OF_AGENTS)
+      cachedGoConfig = Spring.bean("cachedGoConfig")
       cachedGoConfig.save(config, false)
     end
 

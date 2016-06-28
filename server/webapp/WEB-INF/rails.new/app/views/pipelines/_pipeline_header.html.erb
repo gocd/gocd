@@ -9,7 +9,7 @@ end %>
             <% if @pipeline.canUnlock() %>
                 <div class="locked_instance" id='unlock'>
                     <%== blocking_link_to_remote_new :name => "Click to unlock", :method => :post, :url => api_pipeline_action_path(:pipeline_name => @pipeline.getName(), :action => 'releaseLock'),
-                            :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :before => "spinny('unlock');" %>
+                            :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :headers => {Confirm: 'true'}, :before => "spinny('unlock');" %>
                 </div>
             <% else %>
                 <div class="locked_instance">

@@ -34,7 +34,6 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstances;
 
-import static com.thoughtworks.go.helper.JobInstanceMother.assignedWithAgentId;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.AgentInstanceMother.building;
 
@@ -45,7 +44,7 @@ private JobDurationStrategy jobDurationStrategy;
 private AgentService agentService;
 
     @Before
-        public void setUp() throws Exception {            
+        public void setUp() throws Exception {
             jobDurationStrategy = mock(JobDurationStrategy.class);
             agentService = mock(AgentService.class);
         }
@@ -61,7 +60,7 @@ private AgentService agentService;
         AgentInstance agent = building();
         when(agentService.findAgentAndRefreshStatus(any(String.class))).thenReturn(agent);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(dev, bev, tev,lev,kev, DEv));
-        assertThat(models.size(), is(6));       
+        assertThat(models.size(), is(6));
         //failed
         assertThat(models.get(0), is(new JobInstanceModel(kev, jobDurationStrategy, agent)));
         //in progress. sort by name (case insensitive)

@@ -33,8 +33,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.verification.Times;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;

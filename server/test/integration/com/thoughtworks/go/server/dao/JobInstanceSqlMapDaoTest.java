@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
@@ -62,7 +61,6 @@ import static com.thoughtworks.go.helper.JobInstanceMother.rescheduled;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
-import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;

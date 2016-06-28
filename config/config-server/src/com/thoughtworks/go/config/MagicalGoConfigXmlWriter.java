@@ -16,14 +16,13 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
-import com.thoughtworks.go.util.XsdErrorTranslator;
 import org.apache.log4j.Logger;
 import org.jdom.*;
-import org.jdom.input.SAXBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,11 +71,7 @@ public class MagicalGoConfigXmlWriter {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? " + skipPreprocessingAndValidation);
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
-            if (!skipPreprocessingAndValidation) {
-                // lets validate merged config first, it will show more sensible errors
-                loader.preprocessAndValidate(configForEdit);
-            }
-            configForEdit = configForEdit.getLocal();
+            throw new GoConfigInvalidException(configForEdit,"Attempted to save merged configuration with patials");
         }
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);
@@ -139,7 +134,7 @@ public class MagicalGoConfigXmlWriter {
     }
 
     private static List<XmlFieldWithValue> allFields(Object o, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-        List<XmlFieldWithValue> list = new ArrayList<XmlFieldWithValue>();
+        List<XmlFieldWithValue> list = new ArrayList<>();
         Class originalClass = o.getClass();
         for (GoConfigFieldWriter field : allFieldsWithInherited(originalClass, o, configCache, registry)) {
             Field configField = field.getConfigField();
@@ -230,6 +225,8 @@ public class MagicalGoConfigXmlWriter {
 
     private static Element elementFor(Class<?> aClass, ConfigCache configCache) {
         ConfigTag configTag = annotationFor(aClass, ConfigTag.class);
+        if(configTag == null)
+            throw bomb(format("Cannot get config tag for {0}",aClass));
         return new Element(configTag.value(), namespaceFor(configTag));
     }
 

@@ -18,10 +18,7 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -121,7 +118,8 @@ public class SvnTestRepo extends TestRepo {
         InMemoryStreamConsumer consumer = inMemoryConsumer();
 
 
-        svnMaterial.updateTo(consumer, getLatestRevision(svnMaterial), workingCopy, new TestSubprocessExecutionContext());
+        Revision latestRevision = getLatestRevision(svnMaterial);
+        svnMaterial.updateTo(consumer, workingCopy, new RevisionContext(latestRevision), new TestSubprocessExecutionContext());
 
 
         File newFileToAdd = new File(workingCopy, filename);
@@ -137,9 +135,9 @@ public class SvnTestRepo extends TestRepo {
     }
 
     @Override
-    public Modification latestModification() {
+    public List<Modification> latestModification() {
         final File workingCopy = TestFileUtil.createTempFolder("foo" + System.currentTimeMillis());
-        return (Modification) material().latestModification(workingCopy, new TestSubprocessExecutionContext()).get(0);
+        return material().latestModification(workingCopy, new TestSubprocessExecutionContext());
     }
 
 
@@ -149,7 +147,8 @@ public class SvnTestRepo extends TestRepo {
 
         ProcessOutputStreamConsumer consumer = inMemoryConsumer();
 
-        svnMaterial.updateTo(consumer, latestRevision(svnMaterial, baseDir, new TestSubprocessExecutionContext()), baseDir, new TestSubprocessExecutionContext());
+        Revision revision = latestRevision(svnMaterial, baseDir, new TestSubprocessExecutionContext());
+        svnMaterial.updateTo(consumer, baseDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
 
         File workingDir = new File(baseDir, svnMaterial.getFolder());
         File newFileToAdd = new File(workingDir, fileName);

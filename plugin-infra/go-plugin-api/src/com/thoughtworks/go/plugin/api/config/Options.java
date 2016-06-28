@@ -24,8 +24,10 @@ import com.thoughtworks.go.plugin.api.config.Option;
 /**
  * Container for {@link com.thoughtworks.go.plugin.api.config.Option}
  */
+@Deprecated
+//Will be moved to internal scope
 public class Options {
-    private List<Option> options = new ArrayList<Option>();
+    private List<Option> options = new ArrayList<>();
 
     /**
      * Adds given option to container

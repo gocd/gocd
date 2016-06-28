@@ -1,11 +1,11 @@
 <tr class="change <%= scope[:changed_css] -%>" id="<%= scope[:id] %>">
-    <td class="modified_by">
-        <%= h(scope[:modification].getUserDisplayName()) -%><br/><%= smart_word_breaker(scope[:modification].getModifiedTime().iso8601) -%>
+    <td class="modified_by wrapped_word">
+        <%= h(scope[:modification].getUserDisplayName()) -%><br/><%= scope[:modification].getModifiedTime().iso8601 %>
     </td>
     <td class="comment">
         <%= render_comment(scope[:modification], scope[:pipeline_name]) %>
     </td>
     <td class="revision">
-        <%= smart_word_breaker(scope[:modification].getRevision()) -%> - <%= link_to('vsm', vsm_show_material_path(:material_fingerprint => scope[:material].getFingerprint(), :revision => scope[:modification].getRevision())) -%>
+        <span class="wrapped_word"><%= scope[:modification].getRevision() -%></span> - <%= link_to('vsm', vsm_show_material_path(:material_fingerprint => scope[:material].getFingerprint(), :revision => scope[:modification].getRevision())) -%>
     </td>
 </tr>

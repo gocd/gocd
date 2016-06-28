@@ -17,14 +17,11 @@ package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 
 public class ConfigReposConfigTest {

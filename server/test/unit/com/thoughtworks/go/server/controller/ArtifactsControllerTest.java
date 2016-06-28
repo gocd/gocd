@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.web.ResponseCodeView;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -42,8 +41,6 @@ import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsControllerTest {
@@ -78,7 +75,7 @@ public class ArtifactsControllerTest {
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
-        when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class), any(ConsoleService.LineListener.class))).thenReturn(true);
+        when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class))).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }

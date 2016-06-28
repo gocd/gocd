@@ -50,7 +50,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -76,10 +75,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -96,6 +92,7 @@ public class GoConfigMigrationIntegrationTest {
     @Autowired private ConfigElementImplementationRegistry registry;
     @Autowired private GoConfigService goConfigService;
     @Autowired private ServerHealthService serverHealthService;
+    @Autowired private CachedGoPartials cachedGoPartials;
 
     private String currentGoServerVersion;
     private MagicalGoConfigXmlLoader loader;
@@ -182,8 +179,8 @@ public class GoConfigMigrationIntegrationTest {
             loadConfigFileWithContent("<cruise></cruise>");
             ServerHealthStates states = serverHealthService.getAllLogs();
             assertThat(states.size(), is(1));
-            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to ‘"));
-            assertThat(states.get(0).getDescription(), containsString("’ and a new configuration file has been automatically created using the last good configuration."));
+            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to &lsquo;"));
+            assertThat(states.get(0).getDescription(), containsString("&rsquo; and a new configuration file has been automatically created using the last good configuration."));
             assertThat(states.get(0).getMessage(), containsString("Invalid Configuration"));
             assertThat(states.get(0).getType(), is(HealthStateType.general(HealthStateScope.forInvalidConfig())));
             assertThat(states.get(0).getLogLevel(), is(HealthStateLevel.WARNING));
@@ -199,8 +196,8 @@ public class GoConfigMigrationIntegrationTest {
             loadConfigFileWithContent("<cruise></cruise>");
             ServerHealthStates states = serverHealthService.getAllLogs();
             assertThat(states.size(), is(1));
-            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to ‘"));
-            assertThat(states.get(0).getDescription(), containsString("’ and a new configuration file has been automatically created using the last good configuration."));
+            assertThat(states.get(0).getDescription(), containsString("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to &lsquo;"));
+            assertThat(states.get(0).getDescription(), containsString("&rsquo; and a new configuration file has been automatically created using the last good configuration."));
             assertThat(states.get(0).getMessage(), containsString("Invalid Configuration"));
             assertThat(states.get(0).getType(), is(HealthStateType.general(HealthStateScope.forInvalidConfig())));
             assertThat(states.get(0).getLogLevel(), is(HealthStateLevel.WARNING));
@@ -1020,7 +1017,7 @@ public class GoConfigMigrationIntegrationTest {
 
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size(),is(1));
-        assertThat((PluggableTask) tasks.get(0), is(new PluggableTask(null, new PluginConfiguration("plugin-id", "1.0"), configuration)));
+        assertThat((PluggableTask) tasks.get(0), is(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration)));
     }
 
     @Test
@@ -1264,7 +1261,7 @@ public class GoConfigMigrationIntegrationTest {
         );
         SystemEnvironment sysEnv = new SystemEnvironment();
         GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
-                registry, serverHealthService);
+                registry, serverHealthService, cachedGoPartials);
         configDataSource.upgradeIfNecessary();
         return configDataSource.forceLoad(configFile);
     }

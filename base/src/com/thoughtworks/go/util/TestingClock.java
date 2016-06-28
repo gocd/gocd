@@ -26,7 +26,7 @@ import org.joda.time.DateTime;
 
 public class TestingClock implements Clock {
     private Date currentTime;
-    private List<Long> sleeps = new ArrayList<Long>();
+    private List<Long> sleeps = new ArrayList<>();
 
     public TestingClock() {
         this(new Date());

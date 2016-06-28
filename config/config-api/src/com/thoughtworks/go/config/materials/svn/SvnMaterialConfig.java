@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,7 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
-import java.util.Map;
-import javax.annotation.PostConstruct;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.ParamsAttributeAware;
-import com.thoughtworks.go.config.PasswordEncrypter;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -35,8 +27,12 @@ import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
+import javax.annotation.PostConstruct;
+import java.util.Map;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "svn", label = "Subversion")
 public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -87,14 +83,21 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         setPassword(password);
         this.checkExternals = checkExternals;
     }
+    public SvnMaterialConfig(String url, String userName, boolean checkExternals, GoCipher goCipher) {
+        this(goCipher);
+        bombIfNull(url, "null url");
+        this.url = new UrlArgument(url);
+        this.userName = userName;
+        this.checkExternals = checkExternals;
+    }
 
     public SvnMaterialConfig(String url, String userName, String password, boolean checkExternals, String folder) {
         this(url, userName, password, checkExternals);
         this.folder = folder;
     }
 
-    public SvnMaterialConfig(UrlArgument url, String userName, String password, boolean checkExternals, GoCipher goCipher, boolean autoUpdate, Filter filter, String folder, CaseInsensitiveString name) {
-        super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
+    public SvnMaterialConfig(UrlArgument url, String userName, String password, boolean checkExternals, GoCipher goCipher, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
+        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         this.userName = userName;
         this.checkExternals = checkExternals;
@@ -109,6 +112,10 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     public void setPassword(String password) {
         resetPassword(password);
+    }
+
+    public void setCleartextPassword(String password) {
+        this.password = password;
     }
 
     private void resetPassword(String passwordToSet) {
@@ -196,9 +203,13 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    protected void validateConcreteScmMaterial(ValidationContext validationContext) {
+    public void validateConcreteScmMaterial() {
         if (StringUtil.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
+        }
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
+            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
     }
 

@@ -1,19 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
-
+ */
 
 package com.thoughtworks.go.domain.materials;
 
@@ -66,7 +65,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     private HashMap<String, String> additionalDataMap;
 
     private Date modifiedTime;
-    private Set<ModifiedFile> files = new LinkedHashSet<ModifiedFile>();
+    private Set<ModifiedFile> files = new LinkedHashSet<>();
     private MaterialInstance materialInstance;
     private String pipelineLabel;
     private Long pipelineId;
@@ -93,17 +92,25 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public Modification(Modification modification) {
-        this(modification.userName, modification.comment, modification.emailAddress, modification.modifiedTime, modification.getRevision());
-        this.id = modification.id;
-        this.files = modification.files;
-        this.pipelineLabel = modification.pipelineLabel;
-        this.pipelineId = modification.pipelineId;
-        this.materialInstance = modification.materialInstance;
+        this(modification, true);
     }
 
     public Modification(String user, String comment, String email, Date dateTime, String revision, String additionalData) {
         this(user, comment, email, dateTime, revision);
         setAdditionalData(additionalData);
+    }
+
+    public Modification(Modification modification, boolean shouldCopyModifiedFiles) {
+        this(modification.userName, modification.comment, modification.emailAddress, modification.modifiedTime, modification.getRevision());
+        this.id = modification.id;
+        if(shouldCopyModifiedFiles){
+            this.files = modification.files;
+        }
+        this.pipelineLabel = modification.pipelineLabel;
+        this.pipelineId = modification.pipelineId;
+        this.materialInstance = modification.materialInstance;
+        this.additionalData = modification.additionalData;
+        this.additionalDataMap = modification.additionalDataMap;
     }
 
     public final ModifiedFile createModifiedFile(String filename, String folder, ModifiedAction modifiedAction) {
@@ -161,7 +168,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
      * @deprecated used only in tests
      */
     public void setModifiedFiles(List<ModifiedFile> files) {
-        this.files = files == null ? new LinkedHashSet<ModifiedFile>() : new LinkedHashSet<ModifiedFile>(files);
+        this.files = files == null ? new LinkedHashSet<ModifiedFile>() : new LinkedHashSet<>(files);
     }
 
     /**
@@ -171,7 +178,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
      *         (<code>null</code> is never returned).
      */
     public List<ModifiedFile> getModifiedFiles() {
-        return Collections.unmodifiableList(new ArrayList<ModifiedFile>(files));
+        return Collections.unmodifiableList(new ArrayList<>(files));
     }
 
     public int compareTo(Object o) {
@@ -301,7 +308,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public static ArrayList<Modification> modifications(Modification modification) {
-        ArrayList<Modification> modifications = new ArrayList<Modification>();
+        ArrayList<Modification> modifications = new ArrayList<>();
         modifications.add(modification);
         return modifications;
     }
@@ -337,9 +344,9 @@ public class Modification extends PersistentObject implements Comparable, Serial
         materialInstance = (MaterialInstance) in.readObject();
         Set files = (Set) in.readObject();
         if (files == null) {
-            this.files = new LinkedHashSet<ModifiedFile>();
+            this.files = new LinkedHashSet<>();
         } else {
-            this.files = new LinkedHashSet<ModifiedFile>(files);
+            this.files = new LinkedHashSet<>(files);
         }
     }
 
@@ -365,7 +372,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public Set<String> getCardNumbersFromComment() {
-        Set<String> cardNumbers = new TreeSet<String>();
+        Set<String> cardNumbers = new TreeSet<>();
         Pattern pattern = Pattern.compile("#(\\d+)");
         String comment = this.comment == null ? "" : this.comment;
         Matcher matcher = pattern.matcher(comment);

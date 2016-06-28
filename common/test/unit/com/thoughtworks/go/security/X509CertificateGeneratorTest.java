@@ -17,8 +17,11 @@
 package com.thoughtworks.go.security;
 
 import java.io.File;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateCrtKey;
 import java.util.Date;
 
 import com.thoughtworks.go.util.TempFiles;
@@ -27,6 +30,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.crypto.Cipher;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class X509CertificateGeneratorTest {
@@ -81,6 +89,36 @@ public class X509CertificateGeneratorTest {
         X509Certificate cert = certChain.getFirstCertificate();
         cert.checkValidity(epoch); // does not throw CertificateNotYetValidException
         cert.checkValidity(DateUtils.addYears(new Date(), 9)); // does not throw CertificateNotYetValidException
+    }
+
+    @Test
+    public void shouldGeneratePrivateKeyWithCRTFactorsForCompatibilityWithOtherPlatform() throws Exception {
+        X509CertificateGenerator generator = new X509CertificateGenerator();
+        Registration registration = generator.createAgentCertificate(keystore, "agentHostName");
+        assertThat(registration.getPrivateKey(), instanceOf(RSAPrivateCrtKey.class));
+        RSAPrivateCrtKey key = (RSAPrivateCrtKey) registration.getPrivateKey();
+        assertThat(key.getModulus().signum(), is(1));
+        assertThat(key.getPrivateExponent().signum(), is(1));
+        assertThat(key.getPrimeP().signum(), is(1));
+        assertThat(key.getPrimeExponentQ().signum(), is(1));
+        assertThat(key.getCrtCoefficient().signum(), is(1));
+    }
+
+    @Test
+    public void shouldGenerateValidRSAKeyPair() throws Exception {
+        String text = "this is a secret message";
+        X509CertificateGenerator generator = new X509CertificateGenerator();
+        Registration registration = generator.createAgentCertificate(keystore, "agentHostName");
+        PrivateKey privateKey = registration.getPrivateKey();
+        PublicKey publicKey = registration.getPublicKey();
+
+        final Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encrypted = cipher.doFinal(text.getBytes());
+
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decrypted = cipher.doFinal(encrypted);
+        assertThat(decrypted, is(text.getBytes()));
     }
 
 }

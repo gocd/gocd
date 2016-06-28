@@ -22,7 +22,6 @@ import com.thoughtworks.go.helper.CommandSnippetMother;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server;
 
@@ -35,6 +35,7 @@ public class GoServer {
 
     static {
         System.setProperty("jruby.compile.invokedynamic", "false");
+        System.setProperty("jruby.ji.objectProxyCache", "false");
     }
 
     private static final Logger LOG = Logger.getLogger(GoServer.class);
@@ -84,7 +85,6 @@ public class GoServer {
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
         server.setCookieExpirePeriod(twoWeeks());
-        server.addStopServlet();
         return server;
     }
 
@@ -93,7 +93,7 @@ public class GoServer {
     }
 
     private String getExtraJarsToBeAddedToClasspath() {
-        ArrayList<File> extraClassPathFiles = new ArrayList<File>();
+        ArrayList<File> extraClassPathFiles = new ArrayList<>();
         extraClassPathFiles.addAll(getAddonJarFiles());
         String extraClasspath = convertToClasspath(extraClassPathFiles);
         LOG.info("Including addons: " + extraClasspath);
@@ -114,10 +114,10 @@ public class GoServer {
     private List<File> getAddonJarFiles() {
         File addonsPath = new File(systemEnvironment.get(SystemEnvironment.ADDONS_PATH));
         if (!addonsPath.exists() || !addonsPath.canRead()) {
-            return new ArrayList<File>();
+            return new ArrayList<>();
         }
 
-        return new ArrayList<File>(FileUtils.listFiles(addonsPath, new SuffixFileFilter("jar", IOCase.INSENSITIVE), FalseFileFilter.INSTANCE));
+        return new ArrayList<>(FileUtils.listFiles(addonsPath, new SuffixFileFilter("jar", IOCase.INSENSITIVE), FalseFileFilter.INSTANCE));
     }
 
     public void stop() throws Exception {
@@ -133,7 +133,7 @@ public class GoServer {
     }
 
     ArrayList<Validator> validators() {
-        ArrayList<Validator> validators = new ArrayList<Validator>();
+        ArrayList<Validator> validators = new ArrayList<>();
         validators.add(new ServerPortValidator(systemEnvironment.getServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getSslServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getDatabaseSeverPort()));

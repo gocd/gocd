@@ -21,6 +21,10 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 /**
  * Parses partial configurations and exposes latest configurations as soon as possible.
  */
@@ -42,15 +44,18 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
+    private final ServerHealthService serverHealthService;
 
     // value is partial config instance or last exception
-    private Map<String,PartialConfigParseResult> fingerprintOfPartialToLatestParseResultMap = new ConcurrentHashMap<String,PartialConfigParseResult>();
+    private Map<String,PartialConfigParseResult> fingerprintOfPartialToLatestParseResultMap = new ConcurrentHashMap<>();
 
-    private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<PartialConfigUpdateCompletedListener>();
+    private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<>();
 
-    @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService)
+    @Autowired public GoRepoConfigDataSource(GoConfigWatchList configWatchList,GoConfigPluginService configPluginService,
+                                             ServerHealthService healthService)
     {
         this.configPluginService = configPluginService;
+        this.serverHealthService = healthService;
         this.configWatchList = configWatchList;
         this.configWatchList.registerListener(this);
     }
@@ -113,15 +118,20 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         {
             PartialConfigProvider plugin = null;
             ConfigRepoConfig repoConfig = configWatchList.getConfigRepoForMaterial(material);
+            HealthStateScope scope = HealthStateScope.forPartialConfigRepo(repoConfig);
             try {
                 plugin = this.configPluginService.partialConfigProviderFor(repoConfig);
             }
             catch (Exception ex)
             {
-                // TODO make sure this is clearly shown to user
                 fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision,ex));
                 LOGGER.error(String.format("Failed to get config plugin for %s",
                         material.getDisplayName()));
+                String message = String.format("Failed to obtain configuration plugin '%s' for material: %s",
+                        repoConfig.getConfigProviderPluginName(), material.getLongDescription());
+                String errorDescription = ex.getMessage() == null ? ex.toString()
+                        : ex.getMessage();
+                serverHealthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
                 notifyFailureListeners(repoConfig, ex);
                 return;
             }
@@ -133,34 +143,35 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 if(newPart == null)
                 {
                     LOGGER.warn(String.format("Parsed configuration material %s by %s is null",
-                            material.getDisplayName(), plugin));
+                            material.getDisplayName(), plugin.displayName()));
                     newPart = new PartialConfig();
                 }
 
                 newPart.setOrigins(new RepoConfigOrigin(repoConfig,revision));
                 fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision,newPart));
+                serverHealthService.removeByScope(scope);
                 notifySuccessListeners(repoConfig, newPart);
             }
             catch (Exception ex)
             {
-                // TODO make sure this is clearly shown to user
                 fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision,ex));
                 LOGGER.error(String.format("Failed to parse configuration material %s by %s",
-                        material.getDisplayName(),plugin));
+                        material.getDisplayName(),plugin.displayName()));
+                String message = String.format("Parsing configuration repository using %s failed for material: %s",
+                        plugin.displayName(), material.getLongDescription());
+                String errorDescription = ex.getMessage() == null ? ex.toString()
+                        : ex.getMessage();
+                serverHealthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
                 notifyFailureListeners(repoConfig, ex);
             }
         }
     }
 
     private void notifyFailureListeners(ConfigRepoConfig repoConfig, Exception ex) {
-        for(PartialConfigUpdateCompletedListener listener : this.listeners)
-        {
-            try
-            {
-                listener.onFailedPartialConfig(repoConfig,ex);
-            }
-            catch (Exception e)
-            {
+        for (PartialConfigUpdateCompletedListener listener : this.listeners) {
+            try {
+                listener.onFailedPartialConfig(repoConfig, ex);
+            } catch (Exception e) {
                 LOGGER.error(String.format("Failed to fire event 'exception while parsing partial configuration' for listener %s",
                         listener));
             }
@@ -168,14 +179,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     private void notifySuccessListeners(ConfigRepoConfig repoConfig, PartialConfig newPart) {
-        for(PartialConfigUpdateCompletedListener listener : this.listeners)
-        {
-            try
-            {
-                listener.onSuccessPartialConfig(repoConfig,newPart);
-            }
-            catch (Exception e)
-            {
+        for (PartialConfigUpdateCompletedListener listener : this.listeners) {
+            try {
+                listener.onSuccessPartialConfig(repoConfig, newPart);
+            } catch (Exception e) {
                 LOGGER.error(String.format("Failed to fire parsed partial configuration for listener %s",
                         listener));
             }

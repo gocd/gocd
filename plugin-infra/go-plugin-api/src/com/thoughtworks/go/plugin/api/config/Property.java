@@ -22,33 +22,35 @@ package com.thoughtworks.go.plugin.api.config;
  * A given property can have set of metadata which can be represented by options.
  * The valid options are Property.REQUIRED, Property.PART_OF_IDENTITY, Property.SECURE, Property.DISPLAY_NAME and Property.DISPLAY_ORDER
  */
+@Deprecated
+//Will be moved to internal scope
 public class Property {
 
     /**
      * Option to specify if a property is a mandatory when configuration is captured
      */
-    public static final Option<Boolean> REQUIRED = new Option<Boolean>("REQUIRED", Boolean.TRUE);
+    public static final Option<Boolean> REQUIRED = new Option<>("REQUIRED", Boolean.TRUE);
 
     /**
      * Option to specify if a property is part of group of properties used to uniquely identify material
      */
-    public static final Option<Boolean> PART_OF_IDENTITY = new Option<Boolean>("PART_OF_IDENTITY", Boolean.TRUE);
+    public static final Option<Boolean> PART_OF_IDENTITY = new Option<>("PART_OF_IDENTITY", Boolean.TRUE);
 
     /**
      * Option to specify if a property is a secure property.
      * If the property is secure, property value will be always stored (in configuration) and displayed in encrypted text
      */
-    public static final Option<Boolean> SECURE = new Option<Boolean>("SECURE", Boolean.FALSE);
+    public static final Option<Boolean> SECURE = new Option<>("SECURE", Boolean.FALSE);
 
     /**
      * Option to specify the display name for the property
      */
-    public static final Option<String> DISPLAY_NAME = new Option<String>("DISPLAY_NAME", "");
+    public static final Option<String> DISPLAY_NAME = new Option<>("DISPLAY_NAME", "");
 
     /**
      * Option to specify order of display of property on screen
      */
-    public static final Option<Integer> DISPLAY_ORDER = new Option<Integer>("DISPLAY_ORDER", 0);
+    public static final Option<Integer> DISPLAY_ORDER = new Option<>("DISPLAY_ORDER", 0);
 
     private final Options options;
 

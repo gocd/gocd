@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,21 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.work.GoPublisher;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-
-import com.thoughtworks.go.work.DefaultGoPublisher;
 
 public interface FetchHandler extends Serializable {
     String url(String remoteHost, String workingUrl) throws IOException;
 
     void handle(InputStream stream) throws IOException;
 
-    boolean handleResult(int returncode, DefaultGoPublisher goPublisher);
+    boolean handleResult(int returncode, GoPublisher goPublisher);
 
     void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums);
+
+    BuildCommand toDownloadCommand(String locator, String checksumUrl, File checksumPath);
 }

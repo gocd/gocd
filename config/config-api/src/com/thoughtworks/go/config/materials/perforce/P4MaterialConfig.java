@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "p4", label = "Perforce")
 public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -87,8 +88,8 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     public P4MaterialConfig(String serverAndPort, String userName, String password, Boolean useTickets, String viewStr, GoCipher goCipher, CaseInsensitiveString name,
-                            boolean autoUpdate, Filter filter, String folder) {
-        super(name, filter, folder, autoUpdate, TYPE, new ConfigErrors());
+                            boolean autoUpdate, Filter filter, boolean invertFilter, String folder) {
+        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.serverAndPort = serverAndPort;
         this.goCipher = goCipher;
         setPassword(password);
@@ -180,6 +181,11 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         resetPassword(password);
     }
 
+    public void setCleartextPassword(String password) {
+        this.password = password;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -221,12 +227,16 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    protected void validateConcreteScmMaterial(ValidationContext validationContext) {
+    public void validateConcreteScmMaterial() {
         if (getView() == null || getView().trim().isEmpty()) {
             errors.add(VIEW, "P4 view cannot be empty.");
         }
         if (StringUtil.isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
+        }
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
+            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
     }
 

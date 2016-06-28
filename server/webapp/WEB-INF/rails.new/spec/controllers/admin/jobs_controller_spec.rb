@@ -25,10 +25,6 @@ describe Admin::JobsController do
     @pipeline.getFirstStageConfig().getJobs().getJob(CaseInsensitiveString.new(job_name)).addResource(resource)
   end
 
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
   describe "routes" do
     it "should resolve new" do
       {:get => "/admin/pipelines/dev/stages/test.1/jobs/new"}.should route_to(:controller => "admin/jobs", :action => "new", :pipeline_name => "dev", :stage_name => "test.1", :stage_parent => "pipelines")
@@ -331,7 +327,7 @@ describe Admin::JobsController do
         @pluggable_task_service.stub(:validate)
         task_view_service = double('Task View Service')
         controller.stub(:task_view_service).and_return(task_view_service)
-        @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
+        @new_task = PluggableTask.new(PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
         task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         stub_save_for_success
 
@@ -353,7 +349,7 @@ describe Admin::JobsController do
         @pluggable_task_service.stub(:validate) do |task|
           task.getConfiguration().getProperty("key").addError("key", "some error")
         end
-        @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
+        @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
         task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         stub_save_for_validation_error do |result, cruise_config, pipeline|
@@ -423,4 +419,3 @@ describe Admin::JobsController do
     end
   end
 end
-

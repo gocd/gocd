@@ -1,17 +1,18 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.config.materials;
@@ -117,7 +118,7 @@ public class PackageMaterial extends AbstractMaterial {
     }
 
     @Override
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, Revision revision, File baseDir, SubprocessExecutionContext execCtx) {
+    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, SubprocessExecutionContext execCtx) {
         //do nothing
     }
 
@@ -216,7 +217,7 @@ public class PackageMaterial extends AbstractMaterial {
 
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
-        Map<String, Object> materialMap = new HashMap<String, Object>();
+        Map<String, Object> materialMap = new HashMap<>();
         materialMap.put("type", "package");
         materialMap.put("plugin-id", getPluginId());
         Map<String, Object> repositoryConfigurationMap = packageDefinition.getRepository().getConfiguration().getConfigurationAsMap(addSecureFields);
@@ -262,6 +263,13 @@ public class PackageMaterial extends AbstractMaterial {
 
     public void setPackageDefinition(PackageDefinition packageDefinition) {
         this.packageDefinition = packageDefinition;
+    }
+
+    @Override
+    public void updateFromConfig(MaterialConfig materialConfig) {
+        super.updateFromConfig(materialConfig);
+        this.getPackageDefinition().setConfiguration(((PackageMaterialConfig)materialConfig).getPackageDefinition().getConfiguration());
+        this.getPackageDefinition().getRepository().setConfiguration(((PackageMaterialConfig)materialConfig).getPackageDefinition().getRepository().getConfiguration());
     }
 
     @Override

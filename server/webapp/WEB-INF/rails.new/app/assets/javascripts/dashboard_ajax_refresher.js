@@ -196,10 +196,13 @@ var PipelineOperations = {
                 {
                     asynchronous:true,
                     evalScripts:true,
-                    on401:function(request) {
+                    requestHeaders: {
+                      Confirm: 'true'
+                    },
+                    on401:function() {
                         redirectToLoginPage('/go/auth/login');
                     },
-                    onComplete:function(request) {
+                    onComplete:function() {
                         AjaxRefreshers.enableAjax();
                     },
                     parameters:Form.serialize(form)
@@ -215,10 +218,10 @@ var PipelineOperations = {
                             {
                                 asynchronous:true,
                                 evalScripts:true,
-                                on401: function(request) {
+                                on401: function() {
                                     redirectToLoginPage('/go/auth/login');
                                 },
-                                onComplete: function(request) {
+                                onComplete: function() {
                                     AjaxRefreshers.enableAjax();
                                 },
                                 onSuccess: function(request) {
@@ -247,10 +250,13 @@ var PipelineOperations = {
                 {
                     asynchronous:true,
                     evalScripts:true,
-                    on401:function(request) {
+                    requestHeaders: {
+                      Confirm: 'true'
+                    },
+                    on401:function() {
                         redirectToLoginPage('/go/auth/login');
                     },
-                    onComplete:function(request) {
+                    onComplete:function() {
                         AjaxRefreshers.enableAjax();
                         Modalbox.hide()
                     },
@@ -268,10 +274,13 @@ var PipelineOperations = {
                         {
                             asynchronous:true,
                             evalScripts:true,
-                            on401:function(request) {
+                            requestHeaders: {
+                              Confirm: 'true'
+                            },
+                            on401:function() {
                                 redirectToLoginPage('/go/auth/login');
                             },
-                            onComplete:function(request) {
+                            onComplete:function() {
                                 AjaxRefreshers.enableAjax();
                             },
                             parameters:Form.serialize(form)
@@ -287,10 +296,13 @@ var PipelineOperations = {
                         {
                             asynchronous:true,
                             evalScripts:true,
-                            on401:function(request) {
+                            requestHeaders: {
+                              Confirm: 'true'
+                            },
+                            on401:function() {
                                 redirectToLoginPage('/go/auth/login');
                             },
-                            onComplete:function(request) {
+                            onComplete:function() {
                                 AjaxRefreshers.enableAjax();
                             },
                             parameters:Form.serialize(form)
@@ -305,10 +317,10 @@ var PipelineOperations = {
                             {
                                 asynchronous:true,
                                 evalScripts:true,
-                                on401:function(request) {
+                                on401:function() {
                                     redirectToLoginPage('/go/auth/login');
                                 },
-                                onComplete:function(request) {
+                                onComplete:function() {
                                     AjaxRefreshers.enableAjax();
                                     PipelineFilter.close();
                                 },

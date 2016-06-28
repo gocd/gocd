@@ -40,7 +40,7 @@ describe "/api/stages" do
 
     expect(stage).to_not be_nil_or_empty
     expect(stage.xpath("pipeline[@name='pipeline_name'][@counter='100'][@label='LABEL-100'][@href='http://localhost:8153/go/api/pipelines/pipeline_name/100.xml']")).to_not be_nil_or_empty
-    expect(stage.xpath("updated").text).to eq(@last_updated.iso8601())
+    expect(stage.xpath("updated").text).to eq(DateUtils.formatISO8601(@last_updated))
     expect(stage.xpath("result").text).to eq("Passed")
     expect(stage.xpath("state").text).to eq("Completed")
     expect(stage.xpath("state").text).to eq("Completed")

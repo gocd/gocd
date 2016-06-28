@@ -34,7 +34,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

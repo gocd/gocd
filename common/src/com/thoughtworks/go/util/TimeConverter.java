@@ -73,7 +73,7 @@ public class TimeConverter {
             "less than a minute ago");
 
     private static final LinkedHashMap<Seconds, ConvertableTime> RULES =
-            new LinkedHashMap<Seconds, ConvertableTime>();
+            new LinkedHashMap<>();
 
     static {
         RULES.put(Seconds.seconds(29), new TimeConverter.LessThanAMinute());
@@ -126,7 +126,7 @@ public class TimeConverter {
     private static SimpleDateFormat getDateFormatterWithTimeZone() {
         return new SimpleDateFormat("d MMM yyyy HH:mm 'GMT' Z", Locale.ENGLISH);
     }
-    
+
     public ConvertedTime getConvertedTime(Date dateLogFileGenerated, Date dateCheckTheDuration) {
         if (dateCheckTheDuration.getTime() < dateLogFileGenerated.getTime()) {
             String dateString = getHumanReadableDate(new DateTime(dateLogFileGenerated));

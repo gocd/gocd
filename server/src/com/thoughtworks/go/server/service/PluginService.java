@@ -26,6 +26,8 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.dao.PluginDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
+import com.thoughtworks.go.server.service.plugins.builder.PluginInfoBuilder;
+import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,11 +38,13 @@ import java.util.Map;
 public class PluginService {
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;
+    private PluginInfoBuilder pluginInfoBuilder;
 
     @Autowired
-    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao) {
+    public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, PluginInfoBuilder pluginInfoBuilder) {
         this.extensions = extensions;
         this.pluginDao = pluginDao;
+        this.pluginInfoBuilder = pluginInfoBuilder;
     }
 
     public PluginSettings getPluginSettingsFor(String pluginId) {
@@ -65,11 +69,16 @@ public class PluginService {
         PluginSettingsConfiguration configuration = pluginSettings.toPluginSettingsConfiguration();
         ValidationResult result = null;
 
+        boolean anyExtensionSupportsPluginId = false;
         for (GoPluginExtension extension : extensions) {
             if (extension.canHandlePlugin(pluginId)) {
                 result = extension.validatePluginSettings(pluginId, configuration);
+                anyExtensionSupportsPluginId = true;
             }
         }
+        if(!anyExtensionSupportsPluginId)
+            throw new IllegalArgumentException(String.format(
+                    "Plugin '%s' is not supported by any extension point",pluginId));
 
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {
@@ -86,6 +95,14 @@ public class PluginService {
         Map<String, String> settingsMap = pluginSettings.getSettingsAsKeyValuePair();
         plugin.setConfiguration(toJSON(settingsMap));
         pluginDao.saveOrUpdate(plugin);
+    }
+
+    public List<PluginInfo> pluginInfos(String type) {
+        return pluginInfoBuilder.allPluginInfos(type);
+    }
+
+    public PluginInfo pluginInfo(String pluginId) {
+        return pluginInfoBuilder.pluginInfoFor(pluginId);
     }
 
     private String toJSON(Map<String, String> settingsMap) {

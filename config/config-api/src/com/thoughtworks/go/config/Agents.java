@@ -84,7 +84,7 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
 
 
     public Set<String> acceptedUuids() {
-        HashSet<String> uuids = new HashSet<String>();
+        HashSet<String> uuids = new HashSet<>();
         for (AgentConfig agentConfig : this) {
             uuids.add(agentConfig.getUuid());
         }

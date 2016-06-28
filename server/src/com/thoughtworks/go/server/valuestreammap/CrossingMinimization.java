@@ -96,7 +96,7 @@ public class CrossingMinimization {
     private void reorderByBaryCenter(TraversalDirection traversalDirection) {
         while (traversalDirection.hasNext()) {
             List<Node> nodesAtLevel = traversalDirection.next();
-            ArrayList<NodeBaryCentre> nodeBaryCentres = new ArrayList<NodeBaryCentre>();
+            ArrayList<NodeBaryCentre> nodeBaryCentres = new ArrayList<>();
             for (Node node : nodesAtLevel) {
                 List<Node> relatedNodes = traversalDirection.getRelatedNodesAtPreviousLevel(node);
                 nodeBaryCentres.add(getNodeBaryCentre(node, relatedNodes));
@@ -130,7 +130,7 @@ public class CrossingMinimization {
     void initializeNodeDepths(NodeLevelMap nodeLevelMap) {
         Node pipeline = nodeLevelMap.get(LEVEL_OF_CURRENT_PIPELINE).get(0);
 
-        HashMap<Integer, Integer> levelToDepthMap = new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> levelToDepthMap = new HashMap<>();
 
         initializeDepthsFor(pipeline, levelToDepthMap, new RightToLeft(nodeLevelMap, LEVEL_OF_CURRENT_PIPELINE), new HashSet<Node>());
         initializeDepthsFor(pipeline, levelToDepthMap, new LeftToRight(nodeLevelMap, LEVEL_OF_CURRENT_PIPELINE), new HashSet<Node>());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,7 @@ import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
@@ -180,13 +178,6 @@ public class SystemEnvironmentTest {
         assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(128 * 1024)));
         System.setProperty(SystemEnvironment.CRUISE_DB_CACHE_SIZE, String.valueOf(512 * 1024));
         assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(512 * 1024)));
-    }
-
-    @Test
-    public void shouldUnderstandLazyLoadXslTransformerRegistryCacheSize() {
-        assertThat(systemEnvironment.getShineXslTransformerRegistryCacheSize(), is(20));
-        systemEnvironment.setProperty(SystemEnvironment.SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE, "50");
-        assertThat(systemEnvironment.getShineXslTransformerRegistryCacheSize(), is(50));
     }
 
     @Test
@@ -484,7 +475,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldSetConfigRepoGCToBeAggressiveByDefault(){
+    public void shouldSetConfigRepoGCToBeAggressiveByDefault() {
         assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE), is(true));
     }
 
@@ -494,7 +485,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldGetUpdateServerPublicKeyFilePath(){
+    public void shouldGetUpdateServerPublicKeyFilePath() {
         assertThat(SystemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.propertyName(), is("go.update.server.public.key.file.name"));
 
         System.setProperty("go.update.server.public.key.file.name", "public_key");
@@ -502,7 +493,7 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldGetUpdateServerUrl(){
+    public void shouldGetUpdateServerUrl() {
         assertThat(SystemEnvironment.GO_UPDATE_SERVER_URL.propertyName(), is("go.update.server.url"));
 
         System.setProperty("go.update.server.url", "http://update_server_url");
@@ -510,11 +501,16 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldCheckIfGOUpdatesIsEnabled(){
+    public void shouldCheckIfGOUpdatesIsEnabled() {
         assertThat(SystemEnvironment.GO_CHECK_UPDATES.propertyName(), is("go.check.updates"));
         assertTrue(systemEnvironment.isGOUpdateCheckEnabled());
 
         System.setProperty("go.check.updates", "false");
         assertFalse(systemEnvironment.isGOUpdateCheckEnabled());
+    }
+
+    @Test
+    public void shouldReturnFalseWhenShineEnabledIsNotSet() {
+        assertFalse(systemEnvironment.isShineEnabled());
     }
 }

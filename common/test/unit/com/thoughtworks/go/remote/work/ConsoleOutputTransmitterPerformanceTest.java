@@ -25,7 +25,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertThat;
 import org.junit.runner.RunWith;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
 @RunWith(JMock.class)
@@ -48,7 +47,7 @@ public class ConsoleOutputTransmitterPerformanceTest {
     public void shouldNotBlockPublisherWhenSendingToServer() throws InterruptedException {
         SlowResource resource = new SlowResource();
         final ConsoleOutputTransmitter transmitter = new ConsoleOutputTransmitter(resource);
-        
+
         int numberToSend = 4;
         int actuallySent = transmitData(transmitter, numberToSend);
         transmitter.stop();

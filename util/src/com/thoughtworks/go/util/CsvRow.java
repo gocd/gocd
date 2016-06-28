@@ -25,7 +25,7 @@ import static com.thoughtworks.go.util.ListUtil.join;
 import static com.thoughtworks.go.util.ObjectUtil.defaultIfNull;
 
 public class CsvRow {
-    private LinkedHashMap<String, String> rowData = new LinkedHashMap<String, String>();
+    private LinkedHashMap<String, String> rowData = new LinkedHashMap<>();
 
     public CsvRow put(String name, String value) {
         rowData.put(name, value);
@@ -41,7 +41,7 @@ public class CsvRow {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Set<String> fields = fields();
         sb.append(join(fields, ",")).append("\n");
         sb.append(toString(fields)).append("\n");
@@ -49,7 +49,7 @@ public class CsvRow {
     }
 
     public String toString(Set<String> keys) {
-        ArrayList<String> stringData = new ArrayList<String>();
+        ArrayList<String> stringData = new ArrayList<>();
         for (String field : keys) {
             stringData.add(this.get(field));
         }

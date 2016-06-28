@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.scheduling;
 
@@ -40,18 +40,7 @@ import com.thoughtworks.go.server.materials.MaterialUpdateStatusNotifier;
 import com.thoughtworks.go.server.materials.SpecificMaterialRevisionFactory;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.AutoBuild;
-import com.thoughtworks.go.server.service.BuildType;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.ManualBuild;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.NoCompatibleUpstreamRevisionsException;
-import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMaterialException;
-import com.thoughtworks.go.server.service.PipelineScheduleQueue;
-import com.thoughtworks.go.server.service.PipelineService;
-import com.thoughtworks.go.server.service.SchedulingCheckerService;
-import com.thoughtworks.go.server.service.TimedBuild;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -158,8 +147,8 @@ public class BuildCauseProducerService {
     }
 
     ServerHealthState newProduceBuildCause(PipelineConfig pipelineConfig, BuildType buildType, ServerHealthStateOperationResult result, long trackingId) {
-        final HashMap<String, String> stringStringHashMap = new HashMap<String, String>();
-        final HashMap<String, String> stringStringHashMap1 = new HashMap<String, String>();
+        final HashMap<String, String> stringStringHashMap = new HashMap<>();
+        final HashMap<String, String> stringStringHashMap1 = new HashMap<>();
         return newProduceBuildCause(pipelineConfig, buildType, new ScheduleOptions(stringStringHashMap, stringStringHashMap1, new HashMap<String, String>()), result, trackingId);
     }
 
@@ -183,7 +172,7 @@ public class BuildCauseProducerService {
             BuildCause buildCause = null;
             boolean materialConfigurationChanged = hasConfigChanged(previousBuild, expandedMaterials);
             if (previousBuild.hasNeverRun() || materialConfigurationChanged) {
-                LOGGER.debug("Using latest modifications from respository for " + pipelineConfig.name());
+                LOGGER.debug("Using latest modifications from repository for " + pipelineConfig.name());
                 MaterialRevisions revisions = materialChecker.findLatestRevisions(peggedRevisions, materials);
                 if (!revisions.isMissingModifications()) {
                     buildCause = buildType.onModifications(revisions, materialConfigurationChanged, null);
@@ -307,7 +296,7 @@ public class BuildCauseProducerService {
             this.pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);
             this.buildType = buildType;
             this.scheduleOptions = scheduleOptions;
-            pendingMaterials = new ConcurrentHashMap<String, Material>();
+            pendingMaterials = new ConcurrentHashMap<>();
 
             if(isConfigurationInMaterials())
             {

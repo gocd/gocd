@@ -13,7 +13,7 @@
 </script>
 <div id="warning_prompt" class="warning" style="display:none;">
     <div class="ui-dialog-content">
-        <p><%==message-%></p>
+        <p><%= message %></p>
     </div>
     <div class="form_buttons actions">
         <%= submit_button(l.string("PROCEED"), :class=> "primary", :onclick => on_confirmation_js ) %>

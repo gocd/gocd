@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -54,7 +54,7 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
             );
             return true;
         } catch (DataAccessException e) {
-            String message = "Error saving property '" + propertyName + "' = '" + property.getValue() + "' on instanceId '" + (Long) instanceId + "'";
+            String message = "Error saving property '" + propertyName + "' = '" + property.getValue() + "' on instanceId '" + instanceId + "'";
             LOGGER.error(message, e);
             LOGGER.debug(message, e);
             return false;
@@ -67,7 +67,7 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
     }
 
     public String value(long instanceId, String propertyName) {
-        Map<String, Object> toGet = new HashMap<String, Object>();
+        Map<String, Object> toGet = new HashMap<>();
         toGet.put("instanceId", instanceId);
         toGet.put("propertyName", propertyName);
         return (String) getSqlMapClientTemplate().queryForObject("getProperty", toGet);
@@ -107,16 +107,16 @@ public class PropertySqlMapDao extends SqlMapClientDaoSupport implements Propert
 
 
     static List<Properties> groupByPipelineId(List<Map<String, Object>> flatHistory) {
-        LinkedHashMap<String, Properties> propHistory = new LinkedHashMap<String, Properties>();
+        LinkedHashMap<String, Properties> propHistory = new LinkedHashMap<>();
 
         for (Map<String, Object> flatMap : flatHistory) {
             addToHistory(propHistory, sanitize(flatMap));
         }
-        return new ArrayList<Properties>(propHistory.values());
+        return new ArrayList<>(propHistory.values());
     }
 
     private static Map<String, Object> sanitize(Map<String, Object> flatMap) {
-        HashMap<String, Object> santizedMap = new HashMap<String, Object>();
+        HashMap<String, Object> santizedMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : flatMap.entrySet()) {
             santizedMap.put(entry.getKey().toLowerCase(), entry.getValue());
         }

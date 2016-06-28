@@ -37,6 +37,8 @@
             <value>
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
+                /api/config-repository.git/**=performanceLoggingFilter,modeAwareFilter,httpSessionContextIntegrationFilter,apiSessionFilter,removeAdminPermissionFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor
+
                 /rails/cas_errors/**=performanceLoggingFilter,modeAwareFilter,i18nlocaleResolver,anonymousProcessingFilter,flashLoader,urlRewriter
                 /remoting/**=performanceLoggingFilter,modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor,flashLoader,urlRewriter
                 /agent-websocket/**=performanceLoggingFilter,modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,x509ProcessingFilter,x509AccessDenied,agentRemotingFilterInvocationInterceptor
@@ -212,7 +214,7 @@
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
                 /remoting/**=ROLE_AGENT
-                /aws/**=ROLE_AGENT
+                /agent-websocket/**=ROLE_AGENT
             ]]></value>
         </property>
     </bean>
@@ -243,14 +245,11 @@
                 /shine/sparql.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /compressed/*=IS_AUTHENTICATED_ANONYMOUSLY
                 /assets/**=IS_AUTHENTICATED_ANONYMOUSLY
-                /static/backup_in_progress.html=IS_AUTHENTICATED_ANONYMOUSLY
-                /is_backup_finished.json=IS_AUTHENTICATED_ANONYMOUSLY
                 /images/cruise.ico=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/latest-agent.status=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-launcher.jar=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-plugins.zip=IS_AUTHENTICATED_ANONYMOUSLY
-                /tab/admin/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/configuration/file/**=ROLE_SUPERVISOR
                 /admin/configuration/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/restful/configuration/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
@@ -263,7 +262,12 @@
                 /admin/materials/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/package_repositories/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/package_definitions/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/material_test=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/internal/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/pipelines/*=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/**=ROLE_SUPERVISOR
+                /api/config-repository.git/**=ROLE_SUPERVISOR
                 /api/jobs/scheduled.xml=ROLE_SUPERVISOR
                 /admin/**=ROLE_SUPERVISOR
                 /**/addresources.json=ROLE_SUPERVISOR
@@ -271,6 +275,7 @@
                 /api/feeds/**=ROLE_SUPERVISOR
                 /api/support=ROLE_SUPERVISOR
                 /api/pipelines.xml=ROLE_USER
+                /api/version=IS_AUTHENTICATED_ANONYMOUSLY
                 /api/*/*.xml=ROLE_USER
                 /api/pipelines/*/*.xml=ROLE_USER,ROLE_OAUTH_USER
                 /api/agents/**=ROLE_USER

@@ -60,16 +60,14 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-
-      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'))
-      dup_git_material =GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, '', CaseInsensitiveString.new('!nV@l!d'))
+      git_config       = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      dup_git_material = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
       material_configs = MaterialConfigs.new(git_config);
       material_configs.add(dup_git_material)
 
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.get(0)
     end
-
 
     it "should serialize material without name" do
       presenter   = ApiV1::Config::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank"))
@@ -82,7 +80,6 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(git_material_basic_hash)
     end
-
 
     it "should deserialize material without name" do
       presenter           = ApiV1::Config::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
@@ -115,8 +112,6 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       expect(deserialized_object.branch.to_s).to eq(default_branch)
     end
 
-
-
     def material_hash
       {
         type:       'git',
@@ -128,6 +123,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           },
           branch:           'branch',
           submodule_folder: 'sub_module_folder',
+          shallow_clone:    true,
           name:             'AwesomeGitMaterial',
           auto_update:      false
         }
@@ -144,7 +140,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           name:             nil,
           auto_update:      true,
           branch:           "master",
-          submodule_folder: nil
+          submodule_folder: nil,
+          shallow_clone:    false
         }
       }
     end
@@ -159,7 +156,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           name:             "!nV@l!d",
           auto_update:      true,
           branch:           "master",
-          submodule_folder: ""
+          submodule_folder: "",
+          shallow_clone:    false
         },
         errors:     {
           name:        ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
@@ -167,8 +165,8 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
           url:         ["URL cannot be blank"]
         }
       }
-
     end
+
   end
 
   describe :svn do
@@ -183,7 +181,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      svn_config       = SvnMaterialConfig.new(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, '', CaseInsensitiveString.new('!nV@l!d'))
+      svn_config       = SvnMaterialConfig.new(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(svn_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.get(0)
@@ -241,7 +239,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      hg_config        = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
+      hg_config        = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(hg_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.get(0)
@@ -354,7 +352,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      p4_config        = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, '/dest/')
+      p4_config        = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, false, '/dest/')
       material_configs = MaterialConfigs.new(p4_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
       material_configs.first()
@@ -417,6 +415,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       dependency_config = DependencyMaterialConfig.new(CaseInsensitiveString.new(''), CaseInsensitiveString.new(''))
       material_configs  = MaterialConfigs.new(dependency_config);
       pipeline = PipelineConfig.new(CaseInsensitiveString.new("p"), material_configs)
+      pipeline.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipeline))
       material_configs.first()
     end
@@ -444,7 +443,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
                   auto_update: true
                 },
         errors: {
-          pipeline: ["Pipeline with name '' does not exist"]
+          pipeline: ["Pipeline with name '' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"]
         }
       }
     end

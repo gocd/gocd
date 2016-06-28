@@ -22,7 +22,6 @@ describe 'stages/stage.html.erb' do
   include StageModelMother, GoUtil, JobMother, PipelineModelMother, ApplicationHelper
 
   before(:each) do
-    stub_server_health_messages
     view.stub(:is_user_an_admin?).and_return(true)
     view.stub(:config_change_path)
 
@@ -37,7 +36,6 @@ describe 'stages/stage.html.erb' do
     assign :pipeline, @pipeline =  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false, @revisions).getLatestPipelineInstance()
     assign :current_tab,  "overview"
     assign :fbh_pipeline_instances, []
-    assign :current_server_health_states, ServerHealthStates.new([])
   end
 
   def mat_revisions()

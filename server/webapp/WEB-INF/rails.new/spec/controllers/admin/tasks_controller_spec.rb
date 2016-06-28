@@ -17,12 +17,7 @@
 require 'spec_helper'
 
 describe Admin::TasksController do
-  include MockRegistryModule
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
-  include TaskMother, ReflectiveUtil, ConfigSaveStubbing
+  include MockRegistryModule, TaskMother, ReflectiveUtil, ConfigSaveStubbing
 
   describe "increment" do
 

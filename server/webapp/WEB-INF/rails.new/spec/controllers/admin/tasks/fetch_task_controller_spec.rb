@@ -68,8 +68,6 @@ describe Admin::TasksController, "fetch task" do
       @cruise_config.addTemplate(@template)
       set(@cruise_config, "md5", "abcd1234")
 
-      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
-
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")

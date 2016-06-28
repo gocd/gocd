@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,9 +29,6 @@ describe StagesController do
   include JobMother
 
   before(:each) do
-    controller.stub(:populate_health_messages) do
-      stub_server_health_messages_for_controllers
-    end
     controller.go_cache.clear
     @stage_service = double('stage service')
     @shine_dao = double('shine dao')

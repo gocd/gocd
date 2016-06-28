@@ -32,7 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
  * Adds the tabs and currentTab to the model.
  */
 public class TabInterceptor implements HandlerInterceptor {
-    private List<TabConfiguration> tabs = new ArrayList<TabConfiguration>();
+    private List<TabConfiguration> tabs = new ArrayList<>();
 
     @Autowired
     public TabInterceptor(List<TabConfiguration> tabs) {

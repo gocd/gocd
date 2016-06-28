@@ -19,7 +19,6 @@ require 'spec_helper'
 describe PipelinesController do
 
   before(:each)  do
-    controller.stub(:populate_health_messages)
     @stage_service = double('stage service')
     @material_service = double('material service')
     @user = Username.new(CaseInsensitiveString.new("foo"))
@@ -39,6 +38,7 @@ describe PipelinesController do
     controller.stub(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
     controller.stub(:go_config_service).and_return(@go_config_service=double())
     controller.stub(:security_service).and_return(@security_service=double())
+    controller.stub(:pipeline_config_service).and_return(@pipeline_config_service=double())
     @pipeline_identifier = PipelineIdentifier.new("blah", 1, "label")
     controller.stub(:populate_config_validity)
     @pipeline_service = double('pipeline_service')
@@ -89,7 +89,7 @@ describe PipelinesController do
     it "should load the dashboard" do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
+      @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
 
       get :index
@@ -109,7 +109,7 @@ describe PipelinesController do
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
+      @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
       controller.stub(:url_for_path).with("/admin/pipeline/new?group=defaultGroup").and_return("/admin/pipeline/new?group=defaultGroup")
 
@@ -123,7 +123,7 @@ describe PipelinesController do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(false)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
+      @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
 
       get :index
 
@@ -136,7 +136,7 @@ describe PipelinesController do
       viewable_groups = PipelineConfigMother::createGroup("blah", [PipelineConfigMother::createPipelineConfig("pip1", "stage1", ["job1"].to_java(:string))].to_java('com.thoughtworks.go.config.PipelineConfig'))
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups)
+      @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups)
 
       get :index
 
@@ -327,7 +327,7 @@ describe PipelinesController do
     it "should set tab name" do
       @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id,@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
-      @security_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
+      @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
 
       get :index

@@ -54,7 +54,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     public final Map<String, Object> getSqlCriteria() {
         if (sqlCriteria == null) {
-            Map<String, Object> map = new LinkedHashMap<String, Object>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("type", type);
             appendCriteria(map);
             sqlCriteria = Collections.unmodifiableMap(map);
@@ -64,7 +64,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     public final Map<String, Object> getAttributesForXml() {
         if (attributesForXml == null) {
-            Map<String, Object> map = new LinkedHashMap<String, Object>();
+            Map<String, Object> map = new LinkedHashMap<>();
             map.put("type", type);
             appendAttributes(map);
             attributesForXml = Collections.unmodifiableMap(map);
@@ -81,7 +81,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     public String getPipelineUniqueFingerprint() {
         if (pipelineUniqueFingerprint == null) {
-            Map<String, Object> basicCriteria = new LinkedHashMap<String, Object>(getSqlCriteria());
+            Map<String, Object> basicCriteria = new LinkedHashMap<>(getSqlCriteria());
             appendPipelineUniqueCriteria(basicCriteria);
             pipelineUniqueFingerprint = generateFingerprintFromCriteria(basicCriteria);
         }
@@ -89,7 +89,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     private String generateFingerprintFromCriteria(Map<String, Object> sqlCriteria) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (Map.Entry<String, Object> criteria : sqlCriteria.entrySet()) {
             list.add(new StringBuilder().append(criteria.getKey()).append("=").append(criteria.getValue()).toString());
         }
@@ -191,5 +191,13 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     public boolean supportsDestinationFolder() {
         return false;
+    }
+
+    @Override
+    public void updateFromConfig(MaterialConfig materialConfig) {
+        if(materialConfig instanceof PasswordAwareMaterial) {
+            PasswordAwareMaterial passwordConfig = (PasswordAwareMaterial) materialConfig;
+            ((PasswordAwareMaterial) this).setPassword(passwordConfig.getPassword());
+        }
     }
 }

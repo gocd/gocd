@@ -40,12 +40,12 @@ import org.apache.commons.collections.Predicate;
 
 
 public class ReportingDependencyFanInNode extends ReportingFanInNode {
-    private static List<Class<? extends MaterialConfig>> DEPENDENCY_NODE_TYPES = new ArrayList<Class<? extends MaterialConfig>>();
-    public Set<ReportingFanInNode> children = new HashSet<ReportingFanInNode>();
+    private static List<Class<? extends MaterialConfig>> DEPENDENCY_NODE_TYPES = new ArrayList<>();
+    public Set<ReportingFanInNode> children = new HashSet<>();
     StageIdentifier currentRevision;
     private int totalInstanceCount = Integer.MAX_VALUE;
     private int currentCount;
-    private Map<StageIdentifier, Set<ReportingFaninScmMaterial>> stageIdentifierScmMaterial = new LinkedHashMap<StageIdentifier, Set<ReportingFaninScmMaterial>>();
+    private Map<StageIdentifier, Set<ReportingFaninScmMaterial>> stageIdentifierScmMaterial = new LinkedHashMap<>();
 
     ReportingDependencyFanInNode(MaterialConfig material) {
         super(material);
@@ -94,7 +94,7 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
         context.out.println("----");
         context.out.println("SCM Materials in config:");
         context.out.println(currentScmMaterials);
-        final Set<MaterialConfig> scmMaterialsInRev = new HashSet<MaterialConfig>();
+        final Set<MaterialConfig> scmMaterialsInRev = new HashSet<>();
         for (ReportingFaninScmMaterial scmMaterial : scmMaterials) {
             final MaterialConfig scm = context.fingerprintScmMaterialMap.get(scmMaterial.fingerprint);
             scmMaterialsInRev.add(scm);
@@ -118,7 +118,7 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
 
         printCurrentAndOldSCMs(context, currentScmMaterials, scmMaterials, stageIdentifierScmPair);
 
-        final List<ReportingFaninScmMaterial> setOfRevisions = new ArrayList<ReportingFaninScmMaterial>();
+        final List<ReportingFaninScmMaterial> setOfRevisions = new ArrayList<>();
         for (final ReportingFaninScmMaterial scmMaterial : scmMaterials) {
             ReportingFaninScmMaterial mat = (ReportingFaninScmMaterial) CollectionUtils.find(setOfRevisions, new Predicate() {
                 @Override
@@ -141,9 +141,9 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
     }
 
     private Pair<StageIdentifier, List<ReportingFaninScmMaterial>> getRevisionNthFor(int n, ReportingFanInGraphContext context) {
-        List<ReportingFaninScmMaterial> scmMaterials = new ArrayList<ReportingFaninScmMaterial>();
+        List<ReportingFaninScmMaterial> scmMaterials = new ArrayList<>();
         PipelineTimeline pipelineTimeline = context.pipelineTimeline;
-        Queue<PipelineTimelineEntry.Revision> revisionQueue = new ConcurrentLinkedQueue<PipelineTimelineEntry.Revision>();
+        Queue<PipelineTimelineEntry.Revision> revisionQueue = new ConcurrentLinkedQueue<>();
         DependencyMaterialConfig dependencyMaterial = (DependencyMaterialConfig) materialConfig;
         PipelineTimelineEntry entry = pipelineTimeline.instanceFor(dependencyMaterial.getPipelineName(), totalInstanceCount - n);
 
@@ -160,7 +160,7 @@ public class ReportingDependencyFanInNode extends ReportingFanInNode {
             addToRevisionQueue(pte, revisionQueue, scmMaterials, context);
         }
 
-        return new Pair<StageIdentifier, List<ReportingFaninScmMaterial>>(dependentStageIdentifier, scmMaterials);
+        return new Pair<>(dependentStageIdentifier, scmMaterials);
     }
 
     private boolean validateAllScmRevisionsAreSameWithinAFingerprint(Pair<StageIdentifier, List<ReportingFaninScmMaterial>> pIdScmPair) {

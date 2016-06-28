@@ -117,7 +117,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private List<ActiveJob> getActiveJobs(List<Long> activeJobIds) {
-        List<ActiveJob> activeJobs = new ArrayList<ActiveJob>();
+        List<ActiveJob> activeJobs = new ArrayList<>();
         for (Long activeJobId : activeJobIds) {
             ActiveJob job = getActiveJob(activeJobId);
             if (job != null) {
@@ -261,7 +261,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private List<JobIdentifier> buildingJobs(List<Long> activeJobIds) {
-        List<JobIdentifier> buildingJobs = new ArrayList<JobIdentifier>();
+        List<JobIdentifier> buildingJobs = new ArrayList<>();
         for (Long activeJobId : activeJobIds) {
             JobIdentifier jobIdentifier = (JobIdentifier) getSqlMapClientTemplate().queryForObject("getBuildingJobIdentifier", activeJobId);
             if (jobIdentifier != null) {
@@ -393,7 +393,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     public List<JobPlan> orderedScheduledBuilds() {
         List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");
 
-        List<JobPlan> plans = new ArrayList<JobPlan>();
+        List<JobPlan> plans = new ArrayList<>();
         for (Long jobId : jobIds) {
             String cacheKey = cacheKeyForJobPlan(jobId);
             synchronized (cacheKey) {

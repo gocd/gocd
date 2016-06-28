@@ -33,8 +33,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -201,7 +199,7 @@ public class GoArtifactsManipulator {
     public void setProperty(JobIdentifier jobIdentifier, Property property) {
         try {
             String propertiesUrl = urlService.getPropertiesUrl(jobIdentifier, property.getKey());
-            httpService.postToUrl(propertiesUrl, property.getValue());
+            httpService.postProperty(propertiesUrl, property.getValue());
         } catch (Exception e) {
             throw new ArtifactPublishingException(format("Failed to set property %s with value %s", property.getKey(), property.getValue()), e);
         }

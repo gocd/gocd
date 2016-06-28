@@ -23,9 +23,11 @@ import java.util.List;
 /**
  * Represents result of validation
  */
+@Deprecated
+//Will be moved to internal scope
 public class ValidationResult {
 
-    private List<ValidationError> errors = new ArrayList<ValidationError>();
+    private List<ValidationError> errors = new ArrayList<>();
 
     /**
      * Adds provided ValidationError to error container
@@ -72,7 +74,7 @@ public class ValidationResult {
      * @return list of errors for container
      */
     public List<ValidationError> getErrors() {
-        return new ArrayList<ValidationError>(errors);
+        return new ArrayList<>(errors);
     }
 
     /**
@@ -80,7 +82,7 @@ public class ValidationResult {
      * @return error message as list of string
      */
     public List<String> getMessages() {
-        List<String> errorMessages = new ArrayList<String>();
+        List<String> errorMessages = new ArrayList<>();
         for (ValidationError error : errors) {
             errorMessages.add(error.getMessage());
         }

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.security;
 
@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -50,9 +49,9 @@ public class PasswordFileUserSearch {
     }
 
     private List<User> findUserNameContaining(String searchText, Properties properties) {
-        List<User> users = new ArrayList<User>();
-        for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
-            String username = (String) iter.next();
+        List<User> users = new ArrayList<>();
+        for (Object o : properties.keySet()) {
+            String username = (String) o;
             if (username.toLowerCase().contains(searchText.toLowerCase())) {
                 users.add(new User(username));
             }

@@ -35,14 +35,14 @@ public class FailingTestsInPipeline {
     public FailingTestsInPipeline(String label, int counter) {
         this.label = label;
         this.counter = counter;
-        suites = new TreeMap<String, TestSuite>();
-        users = new ArrayList<String>();
+        suites = new TreeMap<>();
+        users = new ArrayList<>();
     }
 
     public List<TestSuite> failingSuites() {
-        return new ArrayList<TestSuite>(this.suites.values());
+        return new ArrayList<>(this.suites.values());
     }
-    
+
 
     private void removeIfEmpty(TestSuite testSuite) {
         if (testSuite.isEmpty()) {

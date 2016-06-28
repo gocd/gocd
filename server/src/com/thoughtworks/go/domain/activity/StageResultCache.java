@@ -25,14 +25,13 @@ import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.messaging.*;
-import com.thoughtworks.go.server.messaging.GoMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StageResultCache implements GoMessageListener<StageStatusMessage> {
-    private Map<StageConfigIdentifier, StageResult> currentResults = new HashMap<StageConfigIdentifier, StageResult>();
-    private Map<StageConfigIdentifier, StageResult> previousResults = new HashMap<StageConfigIdentifier, StageResult>();
+    private Map<StageConfigIdentifier, StageResult> currentResults = new HashMap<>();
+    private Map<StageConfigIdentifier, StageResult> previousResults = new HashMap<>();
 
     private final StageDao stageDao;
     private final StageResultTopic stageResultTopic;

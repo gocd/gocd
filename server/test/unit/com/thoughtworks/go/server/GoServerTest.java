@@ -118,7 +118,6 @@ public class GoServerTest {
 
         assertThat((String) appServerStub.calls.get("addExtraJarsToClasspath"), is(""));
         assertThat((Integer) appServerStub.calls.get("setCookieExpirePeriod"), is(1209600));
-        assertThat((Boolean) appServerStub.calls.get("addStopServlet"), is(true));
         assertThat((Boolean) appServerStub.calls.get("getUnavailableException"), is(true));
         assertThat((Boolean) appServerStub.calls.get("configure"), is(true));
         assertThat((Boolean) appServerStub.calls.get("start"), is(true));
@@ -190,6 +189,12 @@ public class GoServerTest {
         goServerWithInaccessibleAddonDir.startServer();
         appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithNoAddon, "server");
         assertExtraClasspath(appServer, "");
+    }
+
+    @Test
+    public void shouldTurnOffJrubyObjectProxyCacheByDefault(){
+        new GoServer();
+        assertThat(new SystemEnvironment().getPropertyImpl("jruby.ji.objectProxyCache"), is("false"));
     }
 
     private void assertExtraClasspath(AppServerStub appServer, String... expectedClassPathJars) {

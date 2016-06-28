@@ -57,7 +57,7 @@ public class BuildRepositoryRemoteImplTest {
         jobStatusTopic = mock(JobStatusTopic.class);
         buildRepository = new BuildRepositoryRemoteImpl(repositoryService, agentService, jobStatusTopic);
         logFixture = LogFixture.startListening(Level.TRACE);
-        info = new AgentRuntimeInfo(new AgentIdentifier("host", "192.168.1.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null);
+        info = new AgentRuntimeInfo(new AgentIdentifier("host", "192.168.1.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
     }
 
     @After

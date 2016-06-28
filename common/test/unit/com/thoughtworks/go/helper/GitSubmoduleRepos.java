@@ -22,12 +22,13 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ArrayUtil.asList;
@@ -95,7 +96,7 @@ public class GitSubmoduleRepos extends TestRepo {
     }
 
     private GitCommand git(File workingDir) {
-        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false);
+        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
     }
 
     public GitMaterial mainRepo() {
@@ -103,14 +104,12 @@ public class GitSubmoduleRepos extends TestRepo {
     }
 
     public String projectRepositoryUrl() {
-        return remoteRepoDir.getAbsolutePath();
+        return FileUtil.toFileURI(remoteRepoDir.getAbsoluteFile());
     }
 
     public List<Modification> checkInOneFile(String fileName, String comment) throws Exception {
         addAndCommitNewFile(remoteRepoDir, fileName, comment);
-        List<Modification> list = new ArrayList<Modification>();
-        list.add(latestModification());
-        return list;
+        return latestModification();
     }
 
     public List<Modification> modifyOneFileInSubmoduleAndUpdateMainRepo(File remoteSubmoduleRepoLocation,
@@ -123,9 +122,7 @@ public class GitSubmoduleRepos extends TestRepo {
         git(new File(remoteRepoDir, submoduleNameInRepo)).pull();
         checkInOneFile(remoteRepoDir, new File(submoduleNameInRepo), comment);
 
-        List<Modification> list = new ArrayList<Modification>();
-        list.add(latestModification());
-        return list;
+        return latestModification();
     }
 
     private void changeFile(File parentDir, String fileName, String newFileContent) throws IOException {
@@ -133,9 +130,9 @@ public class GitSubmoduleRepos extends TestRepo {
         FileUtils.writeStringToFile(fileToChange, newFileContent);
     }
 
-    public Modification latestModification() {
+    public List<Modification> latestModification() {
         File dir = workingCopy("local-working-copy");
-        return mainRepo().latestModification(dir, new TestSubprocessExecutionContext()).get(0);
+        return mainRepo().latestModification(dir, new TestSubprocessExecutionContext());
     }
 
     @Override public GitMaterial material() {

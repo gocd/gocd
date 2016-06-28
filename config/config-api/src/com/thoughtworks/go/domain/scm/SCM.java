@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.domain.scm;
@@ -26,6 +27,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.ConfigurationDisplayUtil;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
@@ -185,9 +187,9 @@ public class SCM implements Serializable, Validatable {
     }
 
     public Map<String, Map<String, String>> getConfigAsMap() {
-        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> configMap = new HashMap<>();
         for (ConfigurationProperty property : configuration) {
-            Map<String, String> mapValue = new HashMap<String, String>();
+            Map<String, String> mapValue = new HashMap<>();
             mapValue.put(VALUE_KEY, property.getValue());
             if (!property.errors().isEmpty()) {
                 mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));
@@ -259,7 +261,7 @@ public class SCM implements Serializable, Validatable {
     }
 
     public String getFingerprint() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(format("%s=%s", "plugin-id", getPluginId()));
         handleSCMProperties(list);
         String fingerprint = join(list, AbstractMaterialConfig.FINGERPRINT_DELIMITER);

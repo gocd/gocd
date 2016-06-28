@@ -31,13 +31,13 @@ module AgentMother
   end
 
   def cancelled_agent(options={})
-    agent = options[:locator] ? AgentInstanceMother.cancelled(options[:locator]) : AgentInstanceMother.cancelled()
+    agent = options[:locator] ? AgentInstanceMother.cancelled(options.delete(:locator)) : AgentInstanceMother.cancelled()
     handle_options(agent, options)
   end
 
   def disabled_agent(options={})
-    if options[:locator]
-      agent = AgentInstanceMother.building(options[:locator])
+    if locator = options.delete(:locator)
+      agent = AgentInstanceMother.building(locator)
       agent.deny()
     else
       agent = AgentInstanceMother.disabled()
@@ -46,58 +46,31 @@ module AgentMother
   end
 
   def building_agent(options={})
-    agent = options[:locator] ? AgentInstanceMother.building(options[:locator]) : AgentInstanceMother.building()
+    agent = options[:locator] ? AgentInstanceMother.building(options.delete(:locator)) : AgentInstanceMother.building()
     handle_options(agent, options)
   end
 
   def lost_contact_agent(options={})
-    agent = options[:locator] ? AgentInstanceMother.lostContact(options[:locator]) : AgentInstanceMother.lostContact()
+    agent = options[:locator] ? AgentInstanceMother.lostContact(options.delete(:locator)) : AgentInstanceMother.lostContact()
     handle_options(agent, options)
   end
+
+  def agent_with_config_errors(options={})
+    agent = AgentInstanceMother.agentWithConfigErrors()
+    handle_options(agent, options)
+  end
+
 
   private
 
   def handle_options(agent, options)
-    options.each do |option|
-      value = option[1]
-      key   = option[0]
-      respond_to?(key.to_s) && send(key, agent, value)
+    environments = options.delete(:environments) || []
+
+    options.each do |key, value|
+      AgentInstanceMother.send("update_#{key}", agent, value) #if AgentInstanceMother.respond_to?("update_#{key}")
     end
-    AgentViewModel.new(agent, options[:environments] || [])
-  end
 
-  public
-
-  def ip_address(agent, ip_address)
-    AgentInstanceMother.updateIpAddress(agent, ip_address)
-  end
-
-  def resources(agent, resources)
-    AgentInstanceMother.updateResources(agent, resources)
-  end
-
-  def hostname(agent,host)
-    AgentInstanceMother.updateHostname(agent,host)
-  end
-
-  def uuid(agent,uuid)
-    AgentInstanceMother.updateUuid(agent,uuid)
-  end
-
-  def space(agent,space)
-    AgentInstanceMother.updateUsableSpace(agent,space)
-  end
-
-  def location(agent,location)
-    AgentInstanceMother.updateLocation(agent,location)
-  end
-
-  def operating_system(agent,os)
-    AgentInstanceMother.updateOS(agent,os)
-  end
-
-  def agent_launcher_version(agent,launcher_version)
-    AgentInstanceMother.updateAgentLauncherVersion(agent,launcher_version)
+    AgentViewModel.new(agent, environments)
   end
 
 end

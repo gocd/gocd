@@ -25,7 +25,7 @@
                             <%= md5_field %>
                             <button title='<%= l.string("DELETE_REPOSITORY") %>' type="button" class="remove" id="button_for_repository_delete_from_tree_<%= repo.getId() %>"></button>
                             <%= render :partial => 'admin/shared/submit_with_prompt.html',
-                                       :locals => {:scope => {:button_container => "delete_repository_#{repo.getId()}", :button_id => "button_for_repository_delete_from_tree_#{repo.getId()}", :message => "You are about to delete repository <span style='font-weight:bold'>#{repo.getName()}</span>", :on_confirmation_js => "$('#{"delete_repository_#{repo.getId()}"}').submit()"}} %>
+                                       :locals => {:scope => {:button_container => "delete_repository_#{repo.getId()}", :button_id => "button_for_repository_delete_from_tree_#{repo.getId()}", :message => "You are about to delete repository #{repo.getName()}", :on_confirmation_js => "$('#{"delete_repository_#{repo.getId()}"}').submit()"}} %>
                         <% else %>
                             <button type="button" title="<%= l.string('CANNOT_DELETE_REPOSITORY') %>" class="remove" id="delete_repository_button_<%= repo.getId() %>" disabled="disabled"></button>
                         <% end %>
@@ -47,7 +47,7 @@
                                             <span id="package_delete_from_tree_<%= pkg.getId() %>">
                                         <button title='<%= l.string("DELETE_PACKAGE_TITLE") -%>' type="button" class="remove" id="delete_button_from_tree_<%= pkg.getId() %>"></button>
                                                 <%= render :partial => 'admin/shared/submit_with_prompt.html',
-                                                           :locals => {:scope => {:button_container => "package_delete_from_tree_#{pkg.getId()}", :button_id => "delete_button_from_tree_#{pkg.getId()}", :message => "You are about to delete package <span style='font-weight:bold'>#{pkg.getName()}</span>", :on_confirmation_js => "$('#{"delete_package_#{pkg.getId()}"}').submit()"}} %>
+                                                           :locals => {:scope => {:button_container => "package_delete_from_tree_#{pkg.getId()}", :button_id => "delete_button_from_tree_#{pkg.getId()}", :message => "You are about to delete package #{pkg.getName()}", :on_confirmation_js => "$('#{"delete_package_#{pkg.getId()}"}').submit()"}} %>
                                     </span>
                                         <% else %>
                                             <button title='<%= l.string("PACKAGE_USED_IN_PIPELINES") -%>' type="button" class="remove" id="delete_button_<%= pkg.getId() %>" disabled="disabled"></button>

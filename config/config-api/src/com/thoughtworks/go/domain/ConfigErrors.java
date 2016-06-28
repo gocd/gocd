@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,9 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
+
+import com.thoughtworks.go.util.ListUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
     public void add(String fieldName, String msg) {
         List<String> msgList = get(fieldName);
         if (msgList == null) {
-            msgList = new ArrayList<String>();
+            msgList = new ArrayList<>();
             put(fieldName, msgList);
         }
         if (!msgList.contains(msg)) {
@@ -35,7 +37,7 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
     }
 
     public List<String> getAll() {
-        ArrayList<String> allErrors = new ArrayList<String>();
+        ArrayList<String> allErrors = new ArrayList<>();
         for (List<String> errorOnAnAttribute : values()) {
             allErrors.addAll(errorOnAnAttribute);
         }
@@ -74,5 +76,9 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
                 this.add(fieldName, value);
             }
         }
+    }
+
+    public String asString(){
+        return ListUtil.join(this.getAll());
     }
 }

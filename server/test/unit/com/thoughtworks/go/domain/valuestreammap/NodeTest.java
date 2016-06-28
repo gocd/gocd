@@ -18,12 +18,10 @@ package com.thoughtworks.go.domain.valuestreammap;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
 
-import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.scmRevision;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -135,19 +133,6 @@ public class NodeTest {
         assertThat(revisions.toString(), revisions.size(), is(2));
         assertThat(revisions, hasItems(p11, p12));
     }
-
-    @Test
-    public void shouldGetRevisionsSortedInOrderOfModificationTimes_ForAnScmMaterialNode() {
-        SCMDependencyNode node = new SCMDependencyNode("finger-print", "svn-material", "svn");
-        Revision revision_Mar4th = scmRevision("rev", new Date(2013, 3, 4));
-        Revision revision_Mar3rd = scmRevision("rev", new Date(2013, 3, 3));
-        Revision revision_Mar2nd = scmRevision("rev", new Date(2013, 3, 2));
-        node.addRevision(revision_Mar3rd);
-        node.addRevision(revision_Mar4th);
-        node.addRevision(revision_Mar2nd);
-        assertThat(node.revisions(), is(Arrays.asList(revision_Mar4th, revision_Mar3rd, revision_Mar2nd)));
-    }
-
 
     @Test
     public void shouldGetRevisionsSortedInOrderOfPipelineCounters() {

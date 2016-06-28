@@ -26,7 +26,7 @@ public final class ConfigUpdateAjaxResponse {
     @Expose
     private Map<String, List<String>> fieldErrors = new LinkedHashMap<>();
     @Expose
-    private List<String> globalErrors = new ArrayList<String>();
+    private List<String> globalErrors = new ArrayList<>();
     @Expose
     private String message;
     @Expose

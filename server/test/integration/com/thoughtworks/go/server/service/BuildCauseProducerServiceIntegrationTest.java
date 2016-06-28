@@ -56,6 +56,7 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -133,7 +134,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         svnMaterialRevs = new MaterialRevisions();
         SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
-        svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService)));
+        svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment())));
 
         final MaterialRevisions materialRevisions = new MaterialRevisions();
         SvnMaterial anotherSvnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);

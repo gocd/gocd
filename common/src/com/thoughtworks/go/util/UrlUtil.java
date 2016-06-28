@@ -99,6 +99,15 @@ public class UrlUtil {
         }
     }
 
+    public static String concatPath(String baseUrl, String path) {
+        StringBuilder builder = new StringBuilder(baseUrl);
+        if(!baseUrl.endsWith("/")) {
+            builder.append('/');
+        }
+        builder.append(path);
+        return builder.toString();
+    }
+
     private static class QueryTuple {
         private static final String QUERY_SEPERATOR = "&";
         private static final String QUERY_KEY_VAL_SEPERATOR = "=";
@@ -111,7 +120,7 @@ public class UrlUtil {
         }
 
         static List<QueryTuple> parse(String query) {
-            List<QueryTuple> parsed = new ArrayList<QueryTuple>();
+            List<QueryTuple> parsed = new ArrayList<>();
             if (StringUtils.isEmpty(query)) {
                 return parsed;
             }

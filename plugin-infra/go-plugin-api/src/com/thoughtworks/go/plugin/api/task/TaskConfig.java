@@ -29,6 +29,8 @@ import java.util.List;
  * This class, at other times, is used to hold information about the value provided by the
  * user, for the configuration.
  */
+@Deprecated
+//Will be moved to internal scope
 public class TaskConfig extends Configuration {
     /**
      * Adds a property to the configuration of this task.
@@ -58,7 +60,7 @@ public class TaskConfig extends Configuration {
     }
 
     public List<? extends  Property> list() {
-        ArrayList<TaskConfigProperty> list = new ArrayList<TaskConfigProperty>();
+        ArrayList<TaskConfigProperty> list = new ArrayList<>();
         for (Property property : super.list()) {
             list.add((TaskConfigProperty) property);
         }

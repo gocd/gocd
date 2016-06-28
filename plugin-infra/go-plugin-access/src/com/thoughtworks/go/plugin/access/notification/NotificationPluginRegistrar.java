@@ -46,6 +46,7 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
         if (notificationExtension.canHandlePlugin(pluginDescriptor.id())) {
             try {
+                notificationPluginRegistry.registerPlugin(pluginDescriptor.id());
                 List<String> notificationsInterestedIn = notificationExtension.getNotificationsOfInterestFor(pluginDescriptor.id());
                 if (notificationsInterestedIn != null && !notificationsInterestedIn.isEmpty()) {
                     checkNotificationTypes(pluginDescriptor, notificationsInterestedIn);
@@ -69,6 +70,7 @@ public class NotificationPluginRegistrar implements PluginChangeListener {
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
         if (notificationExtension.canHandlePlugin(pluginDescriptor.id())) {
+            notificationPluginRegistry.deregisterPlugin(pluginDescriptor.id());
             notificationPluginRegistry.removePluginInterests(pluginDescriptor.id());
         }
     }

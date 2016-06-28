@@ -29,7 +29,7 @@ import java.util.List;
 import static java.lang.String.format;
 
 public class ArtifactDirectoryChooser {
-    List<ArtifactLocator> locators = new ArrayList<ArtifactLocator>();
+    List<ArtifactLocator> locators = new ArrayList<>();
 
     public void add(ArtifactLocator artifactLocator) {
         locators.add(artifactLocator);

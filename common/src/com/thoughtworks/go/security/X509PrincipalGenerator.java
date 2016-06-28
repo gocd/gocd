@@ -26,8 +26,8 @@ import org.bouncycastle.jce.X509Principal;
  * Helper to create a X509 Principal with ordered identifiers
  */
 public class X509PrincipalGenerator {
-    private final Hashtable<DERObjectIdentifier, String> attrs = new Hashtable<DERObjectIdentifier, String>();
-    private final Vector<DERObjectIdentifier> order = new Vector<DERObjectIdentifier>();
+    private final Hashtable<DERObjectIdentifier, String> attrs = new Hashtable<>();
+    private final Vector<DERObjectIdentifier> order = new Vector<>();
 
     public static X509Principal createX509Principal(PrincipalIdentifier... identifiers) {
         return new X509PrincipalGenerator(identifiers).principal();

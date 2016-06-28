@@ -17,6 +17,7 @@
 module PipelinesHelper
   include RailsLocalizer
   include JavaImports
+  include ERB::Util
 
   def stage_bar_url stage, action
     stage_id = stage.getIdentifier()
@@ -29,7 +30,7 @@ module PipelinesHelper
 
   def trigger_message(actual_date_time, pim)
     if pim.class != com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance
-      "(Triggered&nbsp;#{l.string('BY')}&nbsp;<span class='who'>#{pim.getApprovedBy()}</span>&nbsp;<span class='time'></span><input type='hidden' value='#{actual_date_time}'/>)"
+      "(Triggered&nbsp;#{l.string('BY')}&nbsp;<span class='who'>#{h pim.getApprovedBy()}</span>&nbsp;<span class='time'></span><input type='hidden' value='#{actual_date_time}'/>)"
     else
     ""
     end
@@ -40,7 +41,7 @@ module PipelinesHelper
     if who == GoConstants::DEFAULT_APPROVED_BY
       "<span class='label'>#{l.string("AUTO_TRIGGERED")}</span>#{on}".html_safe
     else
-      "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{who}</span>#{on}".html_safe
+      "<span class='label'>#{l.string("Triggered")}</span>&nbsp;#{l.string("by")}&nbsp;<span class='who'>#{h who}</span>#{on}".html_safe
     end
   end
 

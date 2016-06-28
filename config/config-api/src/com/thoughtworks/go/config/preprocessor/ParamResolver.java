@@ -138,7 +138,7 @@ public class ParamResolver {
     }
 
     private <T> List<Field> filterResolvables(T resolvable, final NodeSelectorPredicate predicate) {
-        List<Field> interpolatableFields = new ArrayList<Field>();
+        List<Field> interpolatableFields = new ArrayList<>();
         for (Field declaredField : getFields(resolvable)) {
             if (predicate.shouldSelect(declaredField)) {
                 interpolatableFields.add(declaredField);

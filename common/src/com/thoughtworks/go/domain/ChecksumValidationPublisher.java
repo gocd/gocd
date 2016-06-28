@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,17 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.work.GoPublisher;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletResponse;
-
-import com.thoughtworks.go.work.DefaultGoPublisher;
-
 public class ChecksumValidationPublisher implements com.thoughtworks.go.agent.ChecksumValidationPublisher, Serializable {
-    private Set<String> md5NotFoundPaths = new HashSet<String>();
-    private Set<String> md5MismatchPaths = new HashSet<String>();
+    private Set<String> md5NotFoundPaths = new HashSet<>();
+    private Set<String> md5MismatchPaths = new HashSet<>();
     private boolean md5ChecksumFileWasNotFound;
 
     public void md5Match(String filePath) {
@@ -45,7 +44,7 @@ public class ChecksumValidationPublisher implements com.thoughtworks.go.agent.Ch
         md5ChecksumFileWasNotFound = true;
     }
 
-    public void publish(int httpCode, File artifact, DefaultGoPublisher goPublisher) {
+    public void publish(int httpCode, File artifact, GoPublisher goPublisher) {
         if (!this.md5MismatchPaths.isEmpty()) {
             String mismatchedFilePath = md5MismatchPaths.iterator().next();
             goPublisher.consumeLineWithPrefix(

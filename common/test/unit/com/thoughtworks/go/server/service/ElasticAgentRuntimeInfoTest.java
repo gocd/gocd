@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.websocket.MessageEncoding;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -40,5 +41,12 @@ public class ElasticAgentRuntimeInfoTest {
         assertThat(agentRuntimeInfo.getAgentLauncherVersion(), is(newRuntimeInfo.getAgentLauncherVersion()));
         assertThat(agentRuntimeInfo.getElasticAgentId(), is(newRuntimeInfo.getElasticAgentId()));
         assertThat(agentRuntimeInfo.getElasticPluginId(), is(newRuntimeInfo.getElasticPluginId()));
+    }
+
+    @Test
+    public void dataMapEncodingAndDecoding() {
+        AgentRuntimeInfo info = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, null, "42", "go.cd.elastic-agent-plugin.docker");
+        AgentRuntimeInfo clonedInfo = MessageEncoding.decodeData(MessageEncoding.encodeData(info), AgentRuntimeInfo.class);
+        assertThat(clonedInfo, is(info));
     }
 }

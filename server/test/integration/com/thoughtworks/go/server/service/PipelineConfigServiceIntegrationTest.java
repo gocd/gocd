@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,15 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.listener.PipelineConfigChangedListener;
+import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -43,6 +45,7 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,6 +91,8 @@ public class PipelineConfigServiceIntegrationTest {
     private ConfigCache configCache;
     @Autowired
     private ConfigElementImplementationRegistry registry;
+    @Autowired
+    private Localizer localizer;
 
     private GoConfigFileHelper configHelper;
     private PipelineConfig pipelineConfig;
@@ -138,7 +143,7 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreatePipelineConfigWhenPipelineGroupDoesExist() throws GitAPIException {
+    public void shouldCreatePipelineConfigWhenPipelineGroupDoesNotExist() throws GitAPIException {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
         PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         pipelineConfigService.createPipelineConfig(user, downstream, result, "does-not-exist");
@@ -223,7 +228,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
         assertFalse(pipelineBeingCreated.errors().isEmpty());
-        assertThat(pipelineBeingCreated.errors().on(PipelineConfig.NAME), is(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique.", pipelineConfig.name())));
+        assertThat(pipelineBeingCreated.errors().on(PipelineConfig.NAME), is(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", pipelineConfig.name())));
         assertThat(goConfigDao.loadConfigHolder(), is(goConfigHolderBeforeUpdate));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
     }
@@ -266,6 +271,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), contains("Invalid label"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
@@ -351,6 +357,8 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. Please correct and resubmit.", pipelineConfig.name())));
+
         assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find repository for given package id:[packageid]"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
@@ -358,27 +366,113 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulSave(){
+    public void shouldDeletePipelineConfig() throws Exception {
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+
+        assertTrue(result.isSuccessful());
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(0));
+        assertFalse(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+    }
+
+    @Test
+    public void shouldNotDeleteThePipelineForUnauthorizedUsers() throws Exception {
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(new Username(new CaseInsensitiveString("unauthorized-user")), pipelineConfig, result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.toString(), result.toString().contains("UNAUTHORIZED_TO_DELETE_PIPELINE"), is(true));
+        assertThat(result.httpCode(), is(401));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+    }
+
+    @Test
+    public void shouldNotDeletePipelineConfigWhenItIsUsedInAnEnvironment() throws Exception {
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("Dev"));
+        env.addPipeline(pipelineConfig.name());
+        goConfigService.addEnvironment(env);
+
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.toString(), result.toString().contains("CANNOT_DELETE_PIPELINE_IN_ENVIRONMENT"), is(true));
+        assertThat(result.httpCode(), is(422));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(1));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+    }
+
+    @Test
+    public void shouldNotDeletePipelineConfigWhenItHasDownstreamDependencies() throws Exception {
+        PipelineConfig dependency = GoConfigMother.createPipelineConfigWithMaterialConfig(new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        goConfigService.addPipeline(dependency, groupName);
+
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(2));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+
+        pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.toString(), result.toString().contains("CANNOT_DELETE_PIPELINE_USED_AS_MATERIALS"), is(true));
+        assertThat(result.httpCode(), is(422));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(2));
+        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+    }
+
+    @Test
+    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulUpdate(){
         final String pipelineName = UUID.randomUUID().toString();
         final String templateName = UUID.randomUUID().toString();
         final boolean[] listenerInvoked = {false};
         setupPipelineWithTemplate(pipelineName, templateName);
 
-        PipelineConfigChangedListener pipelineConfigChangedListener = new PipelineConfigChangedListener() {
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<PipelineConfig>() {
             @Override
-            public void onPipelineConfigChange(PipelineConfig pipelineConfig, String group) {
-                listenerInvoked[0] = true;
-                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
+            public void onConfigChange(CruiseConfig newCruiseConfig) {
             }
 
             @Override
-            public void onConfigChange(CruiseConfig newCruiseConfig) {
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                listenerInvoked[0] = true;
+                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
             }
         };
         goConfigService.register(pipelineConfigChangedListener);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
         pipeline.setVariables(new EnvironmentVariablesConfig());
         pipelineConfigService.updatePipelineConfig(user, pipeline, new DefaultLocalizedOperationResult());
+        assertThat(listenerInvoked[0], is(true));
+    }
+
+    @Test
+    public void shouldNotifyListenersWithPreprocessedConfigUponSuccessfulCreate(){
+        final String pipelineName = UUID.randomUUID().toString();
+        final String templateName = UUID.randomUUID().toString();
+        final boolean[] listenerInvoked = {false};
+        setupPipelineWithTemplate(pipelineName, templateName);
+
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onConfigChange(CruiseConfig newCruiseConfig) {
+            }
+
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                listenerInvoked[0] = true;
+                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
+            }
+        };
+        goConfigService.register(pipelineConfigChangedListener);
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(UUID.randomUUID().toString(), templateName);
+        pipeline.setVariables(new EnvironmentVariablesConfig());
+        pipelineConfigService.createPipelineConfig(user, pipeline, new DefaultLocalizedOperationResult(), "group1");
         assertThat(listenerInvoked[0], is(true));
     }
 

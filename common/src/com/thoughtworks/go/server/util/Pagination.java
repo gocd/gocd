@@ -17,9 +17,7 @@
 package com.thoughtworks.go.server.util;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -170,7 +168,7 @@ public class Pagination {
     }
 
     public List<PageNumber> getPages() {
-        ArrayList<PageNumber> pages = new ArrayList<PageNumber>();
+        ArrayList<PageNumber> pages = new ArrayList<>();
         if (getCurrentPage() > getFirstPage()) {
             pages.add(new PageNumber(getCurrentPage() - 1, "prev"));
         }

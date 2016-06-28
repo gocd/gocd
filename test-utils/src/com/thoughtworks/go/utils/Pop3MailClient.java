@@ -66,7 +66,7 @@ public class Pop3MailClient {
         try {
             folder = getInboxFolder();
             Message[] messagesInBox = folder.getMessages();
-            List<Message> messages = new ArrayList<Message>();
+            List<Message> messages = new ArrayList<>();
 
             for (Message message : messagesInBox) {
                 if (message.getSubject().contains(subject)) {
@@ -120,9 +120,9 @@ public class Pop3MailClient {
 
         try {
             folder = getInboxFolder();
-            final Set<String> contents = new HashSet<String>();
+            final Set<String> contents = new HashSet<>();
             Message[] messagesInBox = folder.getMessages();
-            List<Message> messages = new ArrayList<Message>();
+            List<Message> messages = new ArrayList<>();
 
             for (Message message : messagesInBox) {
                 if (messageContains.matches(message)) {

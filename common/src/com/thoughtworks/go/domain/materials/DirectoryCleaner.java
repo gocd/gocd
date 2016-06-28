@@ -35,8 +35,8 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
 public class DirectoryCleaner {
     private File baseFolder;
     private final ConsoleOutputStreamConsumer consumer;
-    private Set<File> allowed = new HashSet<File>();
-    private Set<File> check = new HashSet<File>();
+    private Set<File> allowed = new HashSet<>();
+    private Set<File> check = new HashSet<>();
 
     public DirectoryCleaner(File baseFolder, ConsoleOutputStreamConsumer consumer) {
         this.baseFolder = baseFolder;
@@ -70,7 +70,7 @@ public class DirectoryCleaner {
     }
 
     private ArrayList<File> convertToFiles(List<String> allowedFolders) {
-        ArrayList<File> allowedDirs = new ArrayList<File>();
+        ArrayList<File> allowedDirs = new ArrayList<>();
         for (String folder : allowedFolders) {
             allowedDirs.add(new File(baseFolder, folder));
         }
@@ -83,7 +83,7 @@ public class DirectoryCleaner {
         if (!parentDir.equals(baseFolder) && !allowed.contains(parentDir)) {
             if (!isContainedInOtherAllowedDirs(parentDir, allowedDirs)) {
                 check(parentDir);
-            }            
+            }
             allow(parentDir, allowedDirs);
         }
     }

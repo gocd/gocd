@@ -1,6 +1,5 @@
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.util.FileUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,12 +10,9 @@ import org.springframework.security.intercept.web.DefaultFilterInvocationDefinit
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -50,11 +46,6 @@ public class AcegiSecurityConfigTest {
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.js", "IS_AUTHENTICATED_ANONYMOUSLY");
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.css", "IS_AUTHENTICATED_ANONYMOUSLY");
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.jpg", "IS_AUTHENTICATED_ANONYMOUSLY");
-    }
-
-    @Test
-    public void shouldAllowAnonymousAccessToBackupInProgressPage() {
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/static/backup_in_progress.html?param=foo", "IS_AUTHENTICATED_ANONYMOUSLY");
     }
 
     @Test

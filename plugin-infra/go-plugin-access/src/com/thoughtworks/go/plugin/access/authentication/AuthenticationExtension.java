@@ -42,7 +42,7 @@ public class AuthenticationExtension extends AbstractExtension {
     public static final String REQUEST_AUTHENTICATE_USER = "go.authentication.authenticate-user";
     public static final String REQUEST_SEARCH_USER = "go.authentication.search-user";
 
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public AuthenticationExtension(PluginManager defaultPluginManager) {

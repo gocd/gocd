@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.StageConfigIdentifier;

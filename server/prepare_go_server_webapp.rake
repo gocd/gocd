@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 require 'securerandom'
 require 'rubygems'
+require 'json'
 
 GO_ROOT = File.expand_path('../../', __FILE__)
 SERVER_MODULE_ROOT = File.join(GO_ROOT, 'server')
@@ -23,6 +24,10 @@ SERVER_MODULE_ROOT = File.join(GO_ROOT, 'server')
 # prepare webapp
 VERSION_NUMBER = ENV["VERSION_NUMBER"]
 RELEASE_COMMIT = ENV["RELEASE_COMMIT"]
+
+RELEASE_REVISION = ENV["RELEASE_REVISION"]
+GO_VERSION = ENV["GO_VERSION"]
+GIT_SHA = ENV["GIT_SHA"]
 
 task :prepare_webapp do
   if ENV['SKIP_WAR'] == 'Y'
@@ -105,8 +110,16 @@ end
 task :write_revision_number do
   mkdir_p "target/webapp/WEB-INF/classes/ui/navigation"
 
-  {ADMIN_VERSION_FILE => "%s(%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
+  {ADMIN_VERSION_FILE => "%s (%s)", CRUISE_VERSION_FILE => "%s (%s)"}.each_pair do |path, template|
     File.open(path, "w") { |h| h.write(template % [VERSION_NUMBER, RELEASE_COMMIT]) }
+  end
+
+  File.open('target/webapp/WEB-INF/server_version.json', 'w') do |f|
+    f.puts(JSON.pretty_generate({
+                                  version: GO_VERSION,
+                                  build_number: RELEASE_REVISION,
+                                  git_sha: GIT_SHA,
+                                }))
   end
 end
 

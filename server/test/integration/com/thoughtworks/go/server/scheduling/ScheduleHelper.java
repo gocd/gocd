@@ -48,10 +48,6 @@ import static com.thoughtworks.go.utils.Assertions.assertAlwaysHappens;
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
 import static com.thoughtworks.go.utils.Timeout.TEN_SECONDS;
 import static junit.framework.TestCase.assertNull;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Component

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class UserService {
     }
 
     private List<String> toUserNames(List<User> enabledUsers) {
-        List<String> enabledUserNames = new ArrayList<String>();
+        List<String> enabledUserNames = new ArrayList<>();
         for (User enabledUser : enabledUsers) {
             enabledUserNames.add(enabledUser.getName());
         }
@@ -154,7 +154,7 @@ public class UserService {
 
     public void enable(List<String> usernames, LocalizedOperationResult result) {
         synchronized (enableUserMutex) {
-            Set<String> potentialEnabledUsers = new HashSet<String>(toUserNames(userDao.enabledUsers()));
+            Set<String> potentialEnabledUsers = new HashSet<>(toUserNames(userDao.enabledUsers()));
             potentialEnabledUsers.addAll(usernames);
             userDao.enableUsers(usernames);
         }
@@ -188,7 +188,7 @@ public class UserService {
 
     public Set<String> allUsernames() {
         List<UserModel> userModels = allUsersForDisplay();
-        Set<String> users = new HashSet<String>();
+        Set<String> users = new HashSet<>();
         for (UserModel model : userModels) {
             users.add(model.getUser().getName());
         }
@@ -196,7 +196,7 @@ public class UserService {
     }
 
     public Collection<String> allRoleNames(CruiseConfig cruiseConfig) {
-        List<String> roles = new ArrayList<String>();
+        List<String> roles = new ArrayList<>();
         for (Role role : allRoles(cruiseConfig)) {
             roles.add(CaseInsensitiveString.str(role.getName()));
         }
@@ -212,7 +212,7 @@ public class UserService {
     }
 
     public Set<String> usersThatCanOperateOnStage(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
-        SortedSet<String> users = new TreeSet<String>();
+        SortedSet<String> users = new TreeSet<>();
         PipelineConfigs group = cruiseConfig.findGroupOfPipeline(pipelineConfig);
         if (group.hasAuthorizationDefined()) {
             if (group.hasOperationPermissionDefined()) {
@@ -232,7 +232,7 @@ public class UserService {
 
     public Set<String> rolesThatCanOperateOnStage(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
         PipelineConfigs group = cruiseConfig.findGroupOfPipeline(pipelineConfig);
-        SortedSet<String> roles = new TreeSet<String>();
+        SortedSet<String> roles = new TreeSet<>();
         if (group.hasAuthorizationDefined()) {
             if (group.hasOperationPermissionDefined()) {
                 roles.addAll(group.getOperateRoleNames());
@@ -258,7 +258,7 @@ public class UserService {
         }
     }
 
-    public static enum SortableColumn {
+    public enum SortableColumn {
         EMAIL {
             protected String get(UserModel model) {
                 return model.getUser().getEmail();
@@ -311,7 +311,7 @@ public class UserService {
             }
         };
 
-        private static final AlphaAsciiCollectionComparator<String> STRING_COMPARATOR = new AlphaAsciiCollectionComparator<String>();
+        private static final AlphaAsciiCollectionComparator<String> STRING_COMPARATOR = new AlphaAsciiCollectionComparator<>();
 
 
         public Comparator<UserModel> sorter() {
@@ -327,7 +327,7 @@ public class UserService {
         }
     }
 
-    public static enum SortDirection {
+    public enum SortDirection {
         ASC {
             @Override
             public Comparator<UserModel> forColumn(final SortableColumn column) {
@@ -438,11 +438,11 @@ public class UserService {
 
     private List<UserModel> allUsersForDisplay() {
         Collection<User> users = allUsers();
-        ArrayList<UserModel> userModels = new ArrayList<UserModel>();
+        ArrayList<UserModel> userModels = new ArrayList<>();
         for (User user : users) {
             String userName = user.getName();
 
-            ArrayList<String> roles = new ArrayList<String>();
+            ArrayList<String> roles = new ArrayList<>();
             for (Role role : goConfigService.rolesForUser(new CaseInsensitiveString(userName))) {
                 roles.add(CaseInsensitiveString.str(role.getName()));
             }
@@ -453,7 +453,7 @@ public class UserService {
     }
 
     public Collection<User> allUsers() {
-        Set<User> result = new HashSet<User>();
+        Set<User> result = new HashSet<>();
         result.addAll(userDao.allUsers());
         return result;
     }
@@ -514,7 +514,7 @@ public class UserService {
     }
 
     private HashSet<Role> allRoles(SecurityConfig security) {
-        return new HashSet<Role>(security.getRoles());
+        return new HashSet<>(security.getRoles());
     }
 
     private boolean validate(LocalizedOperationResult result, User user) {

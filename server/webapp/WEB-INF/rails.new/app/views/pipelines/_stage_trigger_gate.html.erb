@@ -16,7 +16,7 @@ trigger_id = "stage_bar_trigger_" + stage_name
 scope[:html_opts] = {:class => clazz, :title=> title, :id => trigger_id }
    
 if scope[:stage_in_status_bar].canRun() && !scope[:stage_in_status_bar].isScheduled() %>
-    <%== blocking_link_to_remote_new :name=>" ", :method => :post, :url => run_stage_path(:stage_name => stage_name), :html => scope[:html_opts], :update => scope[:update_opts], :before => scope[:before_opts] %>
+    <%== blocking_link_to_remote_new :name=>" ", :method => :post, :url => run_stage_path(:stage_name => stage_name), :html => scope[:html_opts], :update => scope[:update_opts], :headers => {Confirm: 'true'}, :before => scope[:before_opts] %>
 <% else %>
     <span class="<%= clazz %>" title="<%= title %>" id="<%= trigger_id %>"> </span>
 <% end %>

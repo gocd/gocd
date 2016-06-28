@@ -34,15 +34,12 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.*;
-import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
-import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -245,7 +242,7 @@ public class PipelineServiceTest {
     public void shouldReturnTheOrderedListOfStageIdentifiers() throws Exception {
         //TODO: does it? while we trust it, may be its a good idea to validate --shilpa & jj
     }
-   
+
     private JobConfigs jobs() {
         JobConfigs configs = new JobConfigs();
         configs.add(new JobConfig("job"));

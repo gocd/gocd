@@ -48,7 +48,7 @@ public class BuildRepositoryRemoteStub implements BuildRepositoryRemote {
     }
 
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
-        return getWork(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null));
+        return getWork(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, isIgnored));
     }
 
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {

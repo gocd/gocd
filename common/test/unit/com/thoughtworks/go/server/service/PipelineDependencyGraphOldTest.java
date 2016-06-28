@@ -31,7 +31,6 @@ import com.thoughtworks.go.helper.PipelineHistoryMother;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.dependencyMaterialConfig;
-import static com.thoughtworks.go.helper.PipelineHistoryMother.singlePipeline;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

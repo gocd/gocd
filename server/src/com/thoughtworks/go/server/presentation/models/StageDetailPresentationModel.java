@@ -83,12 +83,6 @@ public class StageDetailPresentationModel {
         return stage.stageState().toString().toLowerCase();
     }
 
-    public String getMaterialRevisionsJson() {
-        MaterialRevisionsJsonBuilder jsonVisitor = new MaterialRevisionsJsonBuilder(trackingTool);
-        pipeline.getBuildCause().getMaterialRevisions().accept(jsonVisitor);
-        return render(jsonVisitor.json());
-    }
-
     public TimeConverter.ConvertedTime getModificationTime() {
         return this.converter.getConvertedTime(pipeline.getBuildCause().getMaterialRevisions().getDateOfLatestModification());
     }
@@ -103,7 +97,7 @@ public class StageDetailPresentationModel {
 
     public Map<JobInstance, String> getIndexPages() {
         JobInstances nonEmptyIndexPages = stage.getJobInstances().withNonEmptyIndexPages();
-        Map<JobInstance, String> aggregate = new LinkedHashMap<JobInstance, String>();
+        Map<JobInstance, String> aggregate = new LinkedHashMap<>();
         for (JobInstance job : nonEmptyIndexPages) {
             JobIdentifier jobIdentifier = new JobIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
             String filePath = job.getTestIndexPage().getPath();

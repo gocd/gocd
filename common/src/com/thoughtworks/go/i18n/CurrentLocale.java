@@ -22,7 +22,7 @@ import java.util.Locale;
  * @understands what the locale of the current thread is
  */
 public class CurrentLocale {
-    private static ThreadLocal<String> locale = new ThreadLocal<String>();
+    private static ThreadLocal<String> locale = new ThreadLocal<>();
 
     public static void setLocaleString(String locale) {
         CurrentLocale.locale.set(locale);

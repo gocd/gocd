@@ -45,7 +45,7 @@ public class TaskViewModel implements PluggableViewModel {
     }
 
     public Map<String, Object> getParameters() {
-        return new HashMap<String, Object>();
+        return new HashMap<>();
     }
 
     public Object getModel() {

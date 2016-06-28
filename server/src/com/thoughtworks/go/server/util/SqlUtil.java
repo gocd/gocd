@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.util;
 
@@ -20,14 +20,14 @@ import static org.h2.util.StringUtils.quoteStringSQL;
 
 public class SqlUtil {
     public static <T> String joinWithQuotesForSql(T[] array) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < array.length; i++) {
             T t = array[i];
-            buffer.append(quoteStringSQL(t.toString()));
+            builder.append(quoteStringSQL(t.toString()));
             if (i < array.length - 1) {
-                buffer.append(',');
+                builder.append(',');
             }
         }
-        return buffer.toString();
+        return builder.toString();
     }
 }

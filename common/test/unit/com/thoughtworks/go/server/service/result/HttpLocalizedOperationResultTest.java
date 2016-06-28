@@ -26,7 +26,9 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -124,5 +126,13 @@ public class HttpLocalizedOperationResultTest {
         equalResult.unauthorized(LocalizedMessage.string("ANOTHERKEY"), HealthStateType.general(HealthStateScope.GLOBAL));
 
         assertThat(result, is(not(equalResult)));
+    }
+
+    @Test
+    public void shouldTellWhetherTheMessageIsPresentOrNot() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        assertFalse(result.hasMessage());
+        result.setMessage(LocalizedMessage.string("Some Message"));
+        assertTrue(result.hasMessage());
     }
 }

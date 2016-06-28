@@ -30,7 +30,6 @@ import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemUtil;
-import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

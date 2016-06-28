@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,18 @@ package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidMergeException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
+import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -48,7 +52,8 @@ public class MagicalGoConfigXmlLoader {
 
     public static final List<GoConfigPreprocessor> PREPROCESSORS = Arrays.asList(
             new TemplateExpansionPreprocessor(),
-            new ConfigParamPreprocessor());
+            new ConfigParamPreprocessor(),
+            new ConfigRepoPartialPreprocessor());
 
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
             new ArtifactDirValidator(),
@@ -73,18 +78,22 @@ public class MagicalGoConfigXmlLoader {
         CruiseConfig configForEdit;
         CruiseConfig config;
         LOGGER.debug("[Config Save] Loading config holder");
-        String md5 = CachedDigestUtils.md5Hex(content);
-        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
-        LOGGER.debug("[Config Save] Updating config cache with new XML");
-
-        configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
-        setMd5(configForEdit, md5);
-        configForEdit.setOrigins(new FileConfigOrigin());
+        configForEdit = deserializeConfig(content);
         config = preprocessAndValidate(configForEdit);
 
         return new GoConfigHolder(config, configForEdit);
     }
 
+    public CruiseConfig deserializeConfig(String content) throws Exception {
+        String md5 = CachedDigestUtils.md5Hex(content);
+        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
+        LOGGER.debug("[Config Save] Updating config cache with new XML");
+
+        CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
+        setMd5(configForEdit, md5);
+        configForEdit.setOrigins(new FileConfigOrigin());
+        return configForEdit;
+    }
 
     public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {
         Field field = BasicCruiseConfig.class.getDeclaredField("md5");
@@ -103,7 +112,7 @@ public class MagicalGoConfigXmlLoader {
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
         preprocess(config);
-        List<ConfigErrors> validationErrors = new ArrayList<ConfigErrors>();
+        List<ConfigErrors> validationErrors = new ArrayList<>();
         validationErrors.addAll(config.validateAfterPreprocess());
         return validationErrors;
     }
@@ -118,7 +127,10 @@ public class MagicalGoConfigXmlLoader {
         LOGGER.debug("[Config Save] In validateCruiseConfig: Starting.");
         List<ConfigErrors> allErrors = validate(config);
         if (!allErrors.isEmpty()) {
-            throw new GoConfigInvalidException(config, allErrors);
+            if(config.isLocal())
+                throw new GoConfigInvalidException(config, allErrors.get(0).asString());
+            else
+                throw new GoConfigInvalidMergeException("Merged validation failed",config,config.getMergedPartials(),allErrors);
         }
 
         LOGGER.debug("[Config Save] In validateCruiseConfig: Running validate.");
@@ -152,4 +164,12 @@ public class MagicalGoConfigXmlLoader {
         return classParser(element, o, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
     }
 
+    public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends com.thoughtworks.go.config.GoConfigPreprocessor> clazz) {
+        return ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
+            @Override
+            public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {
+                return item.getClass().isAssignableFrom(clazz);
+            }
+        });
+    }
 }

@@ -35,7 +35,7 @@ import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoConfigSubtagLoader {
-    private static Map<Field, ConfigSubtag> isSubTags = new HashMap<Field, ConfigSubtag>();
+    private static Map<Field, ConfigSubtag> isSubTags = new HashMap<>();
 
     private final ConfigUtil configUtil = new ConfigUtil("magic");
     private final Element e;
@@ -81,7 +81,7 @@ public class GoConfigSubtagLoader {
         return GoConfigClassLoader.classParser(configUtil.getChild(e, tag), type, configCache, new GoCipher(), registry, configReferenceElements).parse();
     }
 
-    private Class<?> findTypeOfField() {        
+    private Class<?> findTypeOfField() {
         Class<?> type = field.getType();
         if (isInterface(type)) {
             for (Element subElement : (List<Element>) e.getChildren()) {

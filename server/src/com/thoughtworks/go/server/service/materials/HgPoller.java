@@ -38,6 +38,6 @@ public class HgPoller implements MaterialPoller<HgMaterial> {
 
     @Override
     public void checkout(HgMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        material.checkout(baseDir,revision,execCtx);
+        material.checkout(baseDir,revision, execCtx);
     }
 }

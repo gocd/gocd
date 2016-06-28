@@ -87,7 +87,7 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
     }
 
     public List<AdminUser> getUsers() {
-        List<AdminUser> users = new ArrayList<AdminUser>();
+        List<AdminUser> users = new ArrayList<>();
         for (Admin admin : this) {
             if (admin instanceof AdminUser) {
                 users.add((AdminUser) admin);
@@ -97,7 +97,7 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
     }
 
     public List<AdminRole> getRoles() {
-        List<AdminRole> roles = new ArrayList<AdminRole>();
+        List<AdminRole> roles = new ArrayList<>();
         for (Admin admin : this) {
             if (admin instanceof AdminRole) {
                 roles.add((AdminRole) admin);

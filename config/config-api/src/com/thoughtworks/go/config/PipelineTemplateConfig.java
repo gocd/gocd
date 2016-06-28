@@ -72,7 +72,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
     private void validateStageNameUniqueness() {
-        Map<String, StageConfig> stageNameMap = new HashMap<String, StageConfig>();
+        Map<String, StageConfig> stageNameMap = new HashMap<>();
         for (StageConfig stageConfig : this) {
             stageConfig.validateNameUniqueness(stageNameMap);
         }

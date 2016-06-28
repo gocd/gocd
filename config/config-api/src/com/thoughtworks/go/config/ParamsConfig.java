@@ -65,7 +65,7 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         return isValid;
     }
     public void validate(ValidationContext validationContext) {
-        HashMap<String, ParamConfig> paramConfigMap = new HashMap<String, ParamConfig>();
+        HashMap<String, ParamConfig> paramConfigMap = new HashMap<>();
         for (ParamConfig paramConfig : this) {
             paramConfig.validateName(paramConfigMap, validationContext);
         }

@@ -76,7 +76,7 @@ public class PluginController {
 
     private Map<String, String> getParameterMap(HttpServletRequest request) {
         Map<String, String[]> springParameterMap = request.getParameterMap();
-        Map<String, String> pluginParameterMap = new HashMap<String, String>();
+        Map<String, String> pluginParameterMap = new HashMap<>();
         for (String parameterName : springParameterMap.keySet()) {
             String[] values = springParameterMap.get(parameterName);
             if (values != null && values.length > 0) {

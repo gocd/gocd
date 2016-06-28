@@ -23,7 +23,6 @@ describe "/shared/_application_nav.html.erb" do
     class << view
       include ApplicationHelper
     end
-    stub_server_health_messages
     assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
   end
@@ -57,7 +56,7 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to have_selector(".current_user a[href='#']", text: "maulik suchak")
       expect(response.body).to have_selector(".user .help a[href='https://go.cd/help']", text: "Help")
@@ -71,7 +70,7 @@ describe "/shared/_application_nav.html.erb" do
 
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to_not have_selector(".current_user a[href='#']", text: "maulik suchak")
       expect(response.body).to_not have_selector(".current_user a[href='/tab/mycruise/user']", text: "Preferences")
@@ -88,7 +87,7 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to have_selector("#cruise-header-tab-pipelines.current")
     end
@@ -100,7 +99,7 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to have_selector("#cruise-header-tab-admin.current a[href='/admin/pipelines']")
     end
@@ -113,7 +112,7 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'environments'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "/foo/admin/pipelines"}}
+      render :partial => partial_page
 
       expect(response.body).to_not have_selector("#cruise-header-tab-admin.current")
     end
@@ -125,7 +124,7 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'environments'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to_not have_selector("#cruise-header-tab-pipelines.current")
     end
@@ -136,9 +135,9 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'agents'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
-      expect(response.body).to have_selector("script", visible: false, text: /Util.on_load\(function\(\) {new AjaxRefresher\('\/server\/messages.json', null\);}\);/)
+      expect(response.body).to have_selector("script", visible: false, text: /new AjaxRefresher\('\/server\/messages.json', /)
     end
 
     it "should hookup auto refresh with update once when auto refresh is false" do
@@ -148,7 +147,7 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'agents'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to_not have_selector("script[type='text/javascript']")
     end
@@ -158,9 +157,7 @@ describe "/shared/_application_nav.html.erb" do
     before :each do
       allow(view).to receive(:can_view_admin_page?).and_return(true)
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path, "Server Configuration" => edit_server_config_path, "User Summary" => user_listing_path,
-                        "OAuth Clients" => oauth_engine.clients_path, "Backup" => backup_server_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
-
-      @assert_values.merge!("OAuth Enabled Gadget Providers" => gadgets_oauth_clients_path) if Gadgets.enabled?
+                        "OAuth Clients" => oauth_engine.clients_path, "OAuth Enabled Gadget Providers" => gadgets_oauth_clients_path, "Backup" => backup_server_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
     end
 
     it 'should show dropdown items for admin link on header' do
@@ -249,7 +246,7 @@ describe "/shared/_application_nav.html.erb" do
       controller.request.path_parameters[:controller] = 'pipelines'
       controller.request.path_parameters[:action]     = 'index'
 
-      render :partial => partial_page, :locals => {:scope => {:admin_tab_url => "foo/admin"}}
+      render :partial => partial_page
 
       expect(response.body).to have_selector("li[id='cruise-header-tab-admin'][class='current']")
     end

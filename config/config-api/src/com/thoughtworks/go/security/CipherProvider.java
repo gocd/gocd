@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.security;
 
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.SecureRandom;
+import java.util.UUID;
 
 public class CipherProvider implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(CipherProvider.class);
@@ -71,10 +73,16 @@ public class CipherProvider implements Serializable {
 
     private byte[] generateKey() {
         SecureRandom random = new SecureRandom();
-        random.setSeed("go-server".getBytes());
+        random.setSeed(UUID.randomUUID().toString().getBytes());
         KeyGenerationParameters generationParameters = new KeyGenerationParameters(random, DESParameters.DES_KEY_LENGTH * 8);
         DESKeyGenerator generator = new DESKeyGenerator();
         generator.init(generationParameters);
         return Hex.encode(generator.generateKey());
+    }
+
+    public void resetCipher() {
+        cachedKey = null;
+        FileUtils.deleteQuietly(environment.getCipherFile());
+        primeKeyCache();
     }
 }

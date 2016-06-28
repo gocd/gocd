@@ -117,6 +117,11 @@ public class FileUtilTest {
     }
 
     @Test
+    public void shouldUseSpeficiedFolderIfBaseDirIsEmpty() throws Exception {
+        assertThat(FileUtil.applyBaseDirIfRelative(new File(""), new File("zx")), is(new File("zx")));
+    }
+
+    @Test
     public void shouldAppendToDefaultIfRelative() throws Exception {
         final File relativepath = new File("zx");
         assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), relativepath),

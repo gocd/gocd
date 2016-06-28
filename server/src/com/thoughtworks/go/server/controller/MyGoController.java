@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,10 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.PipelineViewModel;
-import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.ui.controller.Redirection;
 import com.thoughtworks.go.server.util.UserHelper;
-import com.thoughtworks.go.server.view.Escaper;
 import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang.StringUtils;
@@ -56,13 +55,13 @@ public class MyGoController {
     private static final String MESSAGE_KEY = "message";
 
     private final UserService userService;
-    private SecurityService securityService;
+    private final PipelineConfigService pipelineConfigService;
     private final Localizer localizer;
 
     @Autowired
-    public MyGoController(UserService userService, SecurityService securityService, Localizer localizer) {
+    public MyGoController(UserService userService, PipelineConfigService pipelineConfigService, Localizer localizer) {
         this.userService = userService;
-        this.securityService = securityService;
+        this.pipelineConfigService = pipelineConfigService;
         this.localizer = localizer;
     }
 
@@ -104,12 +103,12 @@ public class MyGoController {
             return new Redirection("/mycruise/user")
                     .addParameter(MESSAGE_KEY, "Successfully saved the notification filter.");
         } catch (Exception e) {
-            HashMap<String, Object> date = new HashMap<String, Object>();
-            date.put("pipeline", pipeline);
-            date.put("stage", stage);
-            date.put("event", event);
-            date.put("myCheckin", myCheckin);
-            return render(request, error(MESSAGE_KEY, "Failed to save: " + e.getMessage()), date);
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("pipeline", pipeline);
+            data.put("stage", stage);
+            data.put("event", event);
+            data.put("myCheckin", myCheckin);
+            return render(request, error(MESSAGE_KEY, "Failed to save: " + e.getMessage()), data);
         }
     }
 
@@ -161,19 +160,18 @@ public class MyGoController {
             }
         }
 
-        List<PipelineConfigs> groups = securityService.viewableGroupsFor(getUserName());
+        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(getUserName());
         data.put("pipelines", new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(getPipelineModelsSortedByNameFor(groups)));
         data.put("l", localizer);
-        data.put("escaper", new Escaper());
 
         message.populateModel(data);
         return new ModelAndView("mycruise/mycruise-tab", data);
     }
 
     private List<PipelineViewModel> getPipelineModelsSortedByNameFor(List<PipelineConfigs> groups) {
-        List<PipelineViewModel> pipelineModels = new ArrayList<PipelineViewModel>();
+        List<PipelineViewModel> pipelineModels = new ArrayList<>();
 
-        List<PipelineViewModel.StageViewModel> anyPipelineStageModels= new ArrayList<PipelineViewModel.StageViewModel>();
+        List<PipelineViewModel.StageViewModel> anyPipelineStageModels= new ArrayList<>();
         anyPipelineStageModels.add(new PipelineViewModel.StageViewModel(GoConstants.ANY_STAGE));
         pipelineModels.add(new PipelineViewModel(GoConstants.ANY_PIPELINE, anyPipelineStageModels));
 
@@ -187,7 +185,7 @@ public class MyGoController {
     }
 
     private List<PipelineViewModel.StageViewModel> getStagesModelsFor(PipelineConfig pipelineConfig) {
-        List<PipelineViewModel.StageViewModel> stageModels = new ArrayList<PipelineViewModel.StageViewModel>();
+        List<PipelineViewModel.StageViewModel> stageModels = new ArrayList<>();
         stageModels.add(new PipelineViewModel.StageViewModel(GoConstants.ANY_STAGE));
         for (StageConfig stageConfig : pipelineConfig) {
             stageModels.add(new PipelineViewModel.StageViewModel(CaseInsensitiveString.str(stageConfig.name())));

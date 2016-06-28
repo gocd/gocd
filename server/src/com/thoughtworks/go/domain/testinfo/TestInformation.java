@@ -36,7 +36,7 @@ public class TestInformation {
     public TestInformation(String testName, TestStatus testStatus) {
         this.testName = testName;
         this.testStatus = testStatus;
-        jobIdentifiers = new HashSet<JobIdentifier>();
+        jobIdentifiers = new HashSet<>();
     }
 
     public TestStatus getStatus() {
@@ -48,7 +48,7 @@ public class TestInformation {
     }
 
     public List<String> getJobNames() {
-        List<String> jobNames = new ArrayList<String>();
+        List<String> jobNames = new ArrayList<>();
         for (JobIdentifier jobIdentifier : jobIdentifiers) {
             jobNames.add(jobIdentifier.getBuildName());
         }
@@ -66,7 +66,7 @@ public class TestInformation {
 
 
     public List<JobIdentifier> getJobs() {
-        List<JobIdentifier> ids = new ArrayList<JobIdentifier>(jobIdentifiers);
+        List<JobIdentifier> ids = new ArrayList<>(jobIdentifiers);
         sortJobIdentifiers(ids);
         return ids;
     }

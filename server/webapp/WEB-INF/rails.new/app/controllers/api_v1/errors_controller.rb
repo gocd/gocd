@@ -18,7 +18,7 @@ module ApiV1
   class ErrorsController < BaseController
 
     def not_found
-      render :json_hal_v1 => { :message => 'The resource you requested was not found!' }, :status => 404
+      render DEFAULT_FORMAT => { :message => 'The resource you requested was not found!' }, :status => 404
     end
 
   end

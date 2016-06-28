@@ -15,9 +15,7 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.util.StringUtil;
 
 /**
  * @understands that configuration is defined in versioned source code repository at particular revision.
@@ -36,6 +34,11 @@ public class RepoConfigOrigin implements ConfigOrigin {
         this.revision = revision;
     }
 
+    @Override
+    public String toString() {
+        return displayName();
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -46,7 +49,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) o;
 
-        if (!revision.equals(repoConfigOrigin.revision)) {
+        if (revision != null ? !revision.equals(repoConfigOrigin.revision) : repoConfigOrigin.revision != null) {
             return false;
         }
         if (configRepo != null ? !configRepo.equals(repoConfigOrigin.configRepo) : repoConfigOrigin.configRepo != null) {

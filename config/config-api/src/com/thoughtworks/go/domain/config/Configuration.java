@@ -45,7 +45,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
     }
 
     public String forDisplay(List<ConfigurationProperty> propertiesToDisplay) {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         for (ConfigurationProperty property : propertiesToDisplay) {
             if (!property.isSecure()) {
                 list.add(format("%s=%s", property.getConfigurationKey().getName().toLowerCase(), property.getConfigurationValue().getValue()));
@@ -66,7 +66,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
     }
 
     public List<String> listOfConfigKeys() {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         for (ConfigurationProperty configurationProperty : this) {
             list.add(configurationProperty.getConfigurationKey().getName());
         }
@@ -108,7 +108,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
     }
 
     public void clearEmptyConfigurations() {
-        List<ConfigurationProperty> propertiesToRemove = new ArrayList<ConfigurationProperty>();
+        List<ConfigurationProperty> propertiesToRemove = new ArrayList<>();
         for (ConfigurationProperty configurationProperty : this) {
             ConfigurationValue configurationValue = configurationProperty.getConfigurationValue();
             EncryptedConfigurationValue encryptedValue = configurationProperty.getEncryptedValue();
@@ -121,14 +121,30 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
     }
 
     public void validateUniqueness(String entity) {
-        HashMap<String, ConfigurationProperty> map = new HashMap<String, ConfigurationProperty>();
+        HashMap<String, ConfigurationProperty> map = new HashMap<>();
         for (ConfigurationProperty property : this) {
             property.validateKeyUniqueness(map, entity);
         }
     }
 
+    public void validateTree() {
+        for (ConfigurationProperty property : this) {
+            property.validate(null);
+        }
+    }
+
+    public boolean hasErrors() {
+        for (ConfigurationProperty property : this) {
+            if (property.hasErrors()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public Map<String, Object> getConfigurationAsMap(boolean addSecureFields) {
-        Map<String, Object> configurationMap = new HashMap<String, Object>();
+        Map<String, Object> configurationMap = new HashMap<>();
         for (ConfigurationProperty currentConfiguration : this) {
             if (addSecureFields || !currentConfiguration.isSecure()) {
                 configurationMap.put(currentConfiguration.getConfigKeyName(), currentConfiguration.getValue());

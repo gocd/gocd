@@ -45,6 +45,16 @@ public class GoVersionTest {
         assertThat(goVersion.getModifications(), is(2689));
     }
 
+    @Test
+    public void shouldCreateAGOVersionFromNewStyleServerVersionString(){
+        GoVersion goVersion = new GoVersion("16.5.0 (2689-762ce7739db26e8dc7db45ae12c5acbe5c494a57)");
+
+        assertThat(goVersion.getMajor(), is(16));
+        assertThat(goVersion.getMinor(), is(5));
+        assertThat(goVersion.getPatches(), is(0));
+        assertThat(goVersion.getModifications(), is(2689));
+    }
+
     @Test(expected = VersionFormatException.class)
     public void shouldErrorOutIfStringVersionIsNotInCorrectFormat(){
         new GoVersion("12.abc.1");

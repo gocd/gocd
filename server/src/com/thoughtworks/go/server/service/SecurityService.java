@@ -156,23 +156,13 @@ public class SecurityService {
     }
 
     public List<CaseInsensitiveString> viewablePipelinesFor(Username username) {
-        List<CaseInsensitiveString> pipelines = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> pipelines = new ArrayList<>();
         for (String group : goConfigService.allGroups()) {
             if (hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), group)) {
                 pipelines.addAll(goConfigService.pipelines(group));
             }
         }
         return pipelines;
-    }
-
-    public List<PipelineConfigs> viewableGroupsFor(Username username) {
-        ArrayList<PipelineConfigs> list = new ArrayList<PipelineConfigs>();
-        for (PipelineConfigs pipelineConfigs : goConfigService.getCurrentConfig().getGroups()) {
-            if (hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), pipelineConfigs.getGroup())) {
-                list.add(pipelineConfigs);
-            }
-        }
-        return list;
     }
 
     public boolean isUserGroupAdmin(Username username) {
@@ -183,7 +173,7 @@ public class SecurityService {
         if (isUserAdmin(userName)) {
             return goConfigService.allGroups();
         }
-        List<String> modifiableGroups = new ArrayList<String>();
+        List<String> modifiableGroups = new ArrayList<>();
         for (String group : goConfigService.allGroups()) {
             if (isUserAdminOfGroup(userName.getUsername(), group)) {
                 modifiableGroups.add(group);

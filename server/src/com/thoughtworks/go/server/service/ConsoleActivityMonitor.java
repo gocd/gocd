@@ -54,7 +54,7 @@ public class ConsoleActivityMonitor {
         this.serverHealthService = serverHealthService;
         this.goConfigService = goConfigService;
         this.consoleService = consoleService;
-        this.jobLastActivityMap = new ConcurrentHashMap<JobIdentifier, Long>();
+        this.jobLastActivityMap = new ConcurrentHashMap<>();
         warningThreshold = systemEnvironment.getUnresponsiveJobWarningThreshold();
         jobInstanceService.registerJobStateChangeListener(new ActiveJobListener(this));
     }
@@ -101,7 +101,7 @@ public class ConsoleActivityMonitor {
 
     private void addJobHungWarning(JobIdentifier jobIdentifier, long difference) {
         String namespacedJob = String.format("%s/%s/%s", jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
-        serverHealthService.update(ServerHealthState.warning(
+        serverHealthService.update(ServerHealthState.warningWithHtml(
                 String.format("Job '%s' is not responding", namespacedJob),
                 String.format("Job <a href='/go/tab/build/detail/%s'>%s</a> is currently running but has not shown any console activity in the last %s minute(s). This job may be hung.",
                         jobIdentifier.buildLocator(), namespacedJob, inMinutes(difference)),

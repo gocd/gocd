@@ -38,8 +38,6 @@ import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -65,7 +63,7 @@ public class JobInstanceSqlMapDaoCachingTest {
     @Test
     public void buildByIdWithTransitions_shouldCacheWhenQueriedFor() {
         jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
-        
+
         JobInstance job = JobInstanceMother.assigned("job");
         job.setId(1L);
         when(mockTemplate.queryForObject("buildByIdWithTransitions", 1L)).thenReturn(job);
@@ -90,7 +88,7 @@ public class JobInstanceSqlMapDaoCachingTest {
         assertThat(actual, is(job));
         assertThat(actual == job, is(false));
 
-        jobInstanceDao.updateStateAndResult(job); //Must clear cahced job instance 
+        jobInstanceDao.updateStateAndResult(job); //Must clear cahced job instance
 
         jobInstanceDao.buildByIdWithTransitions(1L);
         verify(mockTemplate, times(2)).queryForObject("buildByIdWithTransitions", 1L);
@@ -198,7 +196,7 @@ public class JobInstanceSqlMapDaoCachingTest {
         jobInstanceDao.activeJobs();//cache it first
 
         jobInstanceDao.updateStateAndResult(instance(1L));//should remove from cache
-        
+
         List<ActiveJob> activeJobs = jobInstanceDao.activeJobs();
 
         assertThat(expectedJobs, is(activeJobs));

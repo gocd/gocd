@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,10 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 
@@ -50,5 +54,24 @@ public class ServerHealthInformationProvider implements ServerInfoProvider {
         for (ServerHealthState log : allLogs) {
             infoCollector.append(String.format("%s\n", render(log.asJson())));
         }
+    }
+
+    @Override
+    public Map<String, Object> asJson() {
+        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+        ServerHealthStates allLogs = service.getAllLogs();
+        json.put("Messages Count", allLogs.size());
+
+        ArrayList<Map<String, String>> messages = new ArrayList<>();
+        for (ServerHealthState log : allLogs) {
+            messages.add(log.asJson());
+        }
+        json.put("Messages", messages);
+        return json;
+    }
+
+    @Override
+    public String name() {
+        return "Server Health Information";
     }
 }

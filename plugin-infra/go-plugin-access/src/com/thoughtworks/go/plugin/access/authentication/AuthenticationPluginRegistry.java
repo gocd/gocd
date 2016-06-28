@@ -28,11 +28,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 @Component
 public class AuthenticationPluginRegistry {
-    private final Map<String, AuthenticationPluginConfiguration> pluginToConfigurationMap = new ConcurrentHashMap<String, AuthenticationPluginConfiguration>();
+    private final Map<String, AuthenticationPluginConfiguration> pluginToConfigurationMap = new ConcurrentHashMap<>();
     // all login page renders will require this set & hence a local cache
-    private final Set<String> pluginsThatSupportsWebBasedAuthentication = new ConcurrentSkipListSet<String>();
+    private final Set<String> pluginsThatSupportsWebBasedAuthentication = new ConcurrentSkipListSet<>();
     // all API (curl) calls will require this set & hence a local cache
-    private final Set<String> pluginsThatSupportsPasswordBasedAuthentication = new ConcurrentSkipListSet<String>();
+    private final Set<String> pluginsThatSupportsPasswordBasedAuthentication = new ConcurrentSkipListSet<>();
 
     public void registerPlugin(String pluginId, AuthenticationPluginConfiguration configuration) {
         pluginToConfigurationMap.put(pluginId, configuration);
@@ -51,7 +51,7 @@ public class AuthenticationPluginRegistry {
     }
 
     public Set<String> getAuthenticationPlugins() {
-        return new HashSet<String>(pluginToConfigurationMap.keySet());
+        return new HashSet<>(pluginToConfigurationMap.keySet());
     }
 
     public Set<String> getPluginsThatSupportsWebBasedAuthentication() {

@@ -19,10 +19,12 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.buildsession.BuildVariables;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.AgentStatus;
+import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.buildsession.ArtifactsRepository;
+import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -33,15 +35,18 @@ import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.NoWork;
+import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.remote.work.Work;
+import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.util.SubprocessLogger;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageCallback;
+import com.thoughtworks.go.websocket.MessageEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +56,10 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
@@ -75,18 +84,22 @@ public class AgentController {
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private AgentWebsocketService websocketService;
+    private final HttpService httpService;
     private final AgentAutoRegistrationPropertiesImpl agentAutoRegistrationProperties;
+    private final Map<String, MessageCallback> callbacks = new ConcurrentHashMap<>();
+    private AtomicReference<BuildSession> buildSession = new AtomicReference<>();
 
     @Autowired
     public AgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator, SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
                            AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger, SystemEnvironment systemEnvironment,
                            PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension,
-                           AgentWebsocketService websocketService) {
+                           AgentWebsocketService websocketService, HttpService httpService) {
         this.agentUpgradeService = agentUpgradeService;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.websocketService = websocketService;
+        this.httpService = httpService;
         ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         this.server = server;
@@ -104,10 +117,12 @@ public class AgentController {
         createPipelinesFolderIfNotExist();
         sslInfrastructureService.createSslInfrastructure();
         AgentIdentifier identifier = agentIdentifier();
+        Boolean buildCommandProtocolEnabled = new SystemEnvironment().get(SystemEnvironment.ENABLE_BUILD_COMMAND_PROTOCOL);
+
         if (agentAutoRegistrationProperties.isElastic()) {
             agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
         } else {
-            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion());
+            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion(), buildCommandProtocolEnabled);
         }
 
         subprocessLogger.registerAsExitHook("Following processes were alive at shutdown: ");
@@ -239,6 +254,7 @@ public class AgentController {
             sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
             if (sslInfrastructureService.isRegistered()) {
                 if (!websocketService.isRunning()) {
+                    callbacks.clear();
                     websocketService.start();
                 }
                 updateServerAgentRuntimeInfo();
@@ -254,23 +270,24 @@ public class AgentController {
 
     public void process(Message message) throws InterruptedException {
         switch (message.getAction()) {
-            case cancelJob:
+            case cancelBuild:
                 cancelJobIfThereIsOneRunning();
+                cancelBuild();
                 break;
             case setCookie:
-                String cookie = (String) message.getData();
+                String cookie = MessageEncoding.decodeData(message.getData(), String.class);
                 agentRuntimeInfo.setCookie(cookie);
                 LOG.info("Got cookie: {}", cookie);
                 break;
             case assignWork:
                 cancelJobIfThereIsOneRunning();
-                Work work = (Work) message.getData();
+                Work work = MessageEncoding.decodeWork(message.getData());
                 LOG.debug("Got work from server: [{}]", work.description());
                 agentRuntimeInfo.idle();
                 runner = new JobRunner();
                 try {
                     runner.run(work, agentIdentifier(),
-                            new AgentWebsocketService.BuildRepositoryRemoteAdapter(runner, websocketService),
+                            websocketService.buildRepositoryRemote(runner),
                             manipulator, agentRuntimeInfo,
                             packageAsRepositoryExtension, scmExtension,
                             taskExtension);
@@ -279,14 +296,75 @@ public class AgentController {
                     updateServerAgentRuntimeInfo();
                 }
                 break;
+            case build:
+                cancelBuild();
+                BuildSettings buildSettings = MessageEncoding.decodeData(message.getData(), BuildSettings.class);
+                runBuild(buildSettings);
+                break;
             case reregister:
                 LOG.warn("Reregister: invalidate current agent certificate fingerprint {} and stop websocket client.", agentRegistry.uuid());
                 websocketService.stop();
                 sslInfrastructureService.invalidateAgentCertificate();
                 break;
+            case ack:
+                callbacks.remove(MessageEncoding.decodeData(message.getData(), String.class)).call();
+                break;
             default:
                 throw new RuntimeException("Unknown action: " + message.getAction());
 
+        }
+    }
+
+    private void runBuild(BuildSettings buildSettings) {
+        URLService urlService = new URLService();
+        ConsoleOutputTransmitter buildConsole = new ConsoleOutputTransmitter(
+                new RemoteConsoleAppender(
+                        urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
+                        httpService,
+                        agentRuntimeInfo.getIdentifier()));
+        ArtifactsRepository artifactsRepository = new UrlBasedArtifactsRepository(
+                httpService,
+                urlService.prefixPartialUrl(buildSettings.getArtifactUploadBaseUrl()),
+                urlService.prefixPartialUrl(buildSettings.getPropertyBaseUrl()),
+                new ZipUtil());
+
+        DefaultBuildStateReporter buildStateReporter = new DefaultBuildStateReporter(websocketService, agentRuntimeInfo);
+
+        TimeProvider clock = new TimeProvider();
+        BuildVariables buildVariables = new BuildVariables(agentRuntimeInfo, clock);
+        BuildSession build = new BuildSession(
+                buildSettings.getBuildId(),
+                buildStateReporter,
+                buildConsole,
+                buildVariables,
+                artifactsRepository,
+                httpService, clock, new File("."));
+
+        this.buildSession.set(build);
+
+        build.setEnv("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"));
+        agentRuntimeInfo.idle();
+        try {
+            agentRuntimeInfo.busy(new AgentBuildingInfo(buildSettings.getBuildLocatorForDisplay(), buildSettings.getBuildLocator()));
+            build.build(buildSettings.getBuildCommand());
+        } finally {
+            try {
+                buildConsole.stop();
+            } finally {
+                agentRuntimeInfo.idle();
+            }
+        }
+        this.buildSession.set(null);
+    }
+
+    private void cancelBuild() throws InterruptedException {
+        BuildSession build = this.buildSession.get();
+        if(build == null) {
+            return;
+        }
+        agentRuntimeInfo.cancel();
+        if(!build.cancel(30, TimeUnit.SECONDS)) {
+            LOG.error("Waited 30 seconds for canceling job finish, but the job is still running. Maybe canceling job does not work as expected, here is buildSession details: " + buildSession.get());
         }
     }
 
@@ -306,7 +384,7 @@ public class AgentController {
         AgentIdentifier agent = agentIdentifier();
         LOG.trace("{} is pinging server [{}]", agent, server);
         agentRuntimeInfo.refreshUsableSpace();
-        websocketService.send(new Message(Action.ping, agentRuntimeInfo));
+        websocketService.sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentRuntimeInfo)));
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 
@@ -317,4 +395,11 @@ public class AgentController {
     protected AgentRuntimeInfo getAgentRuntimeInfo() {
         return agentRuntimeInfo;
     }
+
+    public void sendWithCallback(Message message, MessageCallback callback) {
+        message.generateAckId();
+        callbacks.put(message.getAckId(), callback);
+        websocketService.send(message);
+    }
+
 }

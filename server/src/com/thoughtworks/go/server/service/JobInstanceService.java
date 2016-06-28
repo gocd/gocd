@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -89,7 +89,7 @@ public class JobInstanceService implements JobPlanLoader {
         this.goConfigService = goConfigService;
 		this.securityService = securityService;
         this.pluginManager = pluginManager;
-        this.listeners = new ArrayList<JobStatusListener>(Arrays.asList(listener));
+        this.listeners = new ArrayList<>(Arrays.asList(listener));
     }
 
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName) {
@@ -176,7 +176,7 @@ public class JobInstanceService implements JobPlanLoader {
             public void afterCommit() {
                 List<JobStatusListener> listeners1;
                 synchronized (LISTENERS_MODIFICATION_MUTEX) {
-                    listeners1 = new ArrayList<JobStatusListener>(listeners);
+                    listeners1 = new ArrayList<>(listeners);
                 }
                 for (JobStatusListener jobStatusListener : listeners1) {
                     try {
@@ -214,7 +214,7 @@ public class JobInstanceService implements JobPlanLoader {
 
     public List<WaitingJobPlan> waitingJobPlans() {
         List<JobPlan> jobPlans = orderedScheduledBuilds();
-        List<WaitingJobPlan> waitingJobPlans = new ArrayList<WaitingJobPlan>();
+        List<WaitingJobPlan> waitingJobPlans = new ArrayList<>();
         for (JobPlan jobPlan : jobPlans) {
             String envForJob = environmentConfigService.envForJob(jobPlan.getPipelineName());
             waitingJobPlans.add(new WaitingJobPlan(jobPlan, envForJob));
@@ -334,7 +334,7 @@ public class JobInstanceService implements JobPlanLoader {
 		return new JobInstancesModel(new JobInstances(jobInstances), pagination);
 	}
 
-	public static enum JobHistoryColumns {
+	public enum JobHistoryColumns {
         pipeline("pipelineName"), stage("stageName"), job("name"), result("result"), completed("lastTransitionTime");
 
         private final String columnName;

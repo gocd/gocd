@@ -68,9 +68,11 @@ describe Api::AgentsController do
     end
 
     it "should resolve as /api/agents/UUID/delete" do
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+
       expect(:post => "/api/agents/123abc/delete").to route_to(:uuid => "123abc", :action => "delete", :controller => 'api/agents', :no_layout => true)
       raise_error do
-        {:get =>  "/api/agents/123abc/delete"}
+        {:get => "/api/agents/123abc/delete"}
       end
     end
   end
@@ -85,6 +87,8 @@ describe Api::AgentsController do
     end
 
     it "should resolve as /api/agents/UUID/disable" do
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+
       expect(:post => "/api/agents/123abc/disable").to route_to(:uuid => "123abc", :action => "disable", :controller => 'api/agents', :no_layout => true)
       raise_error do
         {:get => "/api/agents/123abc/disable"}
@@ -97,11 +101,13 @@ describe Api::AgentsController do
       @agent_service.should_receive(:enableAgents).with(@user, anything(), ["UUID1"]) do |user, result, uuids|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
+
       post :enable, :uuid => "UUID1", :no_layout => true
       expect(response.status).to eq(406)
     end
 
     it "should resolve as /api/agents/UUID/enable" do
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
       expect(:post => "/api/agents/123abc/enable").to route_to(:uuid => "123abc", :action => "enable", :controller => 'api/agents', :no_layout => true)
       raise_error do
         {:get => "/api/agents/123abc/enable"}
@@ -112,6 +118,7 @@ describe Api::AgentsController do
   describe :edit_agents do
 
     it "should resolve routes" do
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
       expect(:post => "/api/agents/edit_agents").to route_to({:controller => 'api/agents', :action => 'edit_agents', :no_layout => true})
     end
 

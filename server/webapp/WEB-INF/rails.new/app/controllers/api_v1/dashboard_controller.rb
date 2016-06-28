@@ -22,10 +22,9 @@ module ApiV1
       # TODO: What happens when there is no cookie!
       pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
       pipeline_groups     = pipeline_history_service.allActivePipelineInstances(current_user, pipeline_selections)
-      @pipeline_configs   = security_service.viewableGroupsFor(current_user)
       presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
 
-      render json_hal_v1: presenters.to_hash(url_builder: self)
+      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
     end
 
   end

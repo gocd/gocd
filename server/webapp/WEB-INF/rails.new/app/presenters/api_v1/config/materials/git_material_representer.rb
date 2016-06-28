@@ -27,6 +27,7 @@ module ApiV1
                    value.blank? ? self.setBranch('master') : self.setBranch(value)
                  }
         property :submodule_folder
+        property :shallow_clone
       end
     end
   end

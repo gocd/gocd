@@ -25,7 +25,7 @@ describe ApiV1::Config::PipelineConfigRepresenter do
 
       expect(actual_json).to have_links(:self, :find, :doc)
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/pipelines/wunderbar')
-      expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/pipelines/:name')
+      expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/pipelines/:pipeline_name')
       expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#pipeline_config')
       actual_json.delete(:_links)
       expect(actual_json).to eq(pipeline_hash)
@@ -384,7 +384,7 @@ describe ApiV1::Config::PipelineConfigRepresenter do
                                    type: "svn", attributes: { url: "http://some/svn/url", destination: "svnDir", filter: nil, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil }
                                  },
                                  {
-                                   type:   "git", attributes: { url: nil, destination: nil, filter: nil, name: nil, auto_update: true, branch: "master", submodule_folder: nil },
+                                   type:   "git", attributes: { url: nil, destination: nil, filter: nil, name: nil, auto_update: true, branch: "master", submodule_folder: nil, shallow_clone: false },
                                    errors: { destination: ["Destination directory is required when specifying multiple scm materials"], url: ["URL cannot be blank"] }
                                  }
                                ],

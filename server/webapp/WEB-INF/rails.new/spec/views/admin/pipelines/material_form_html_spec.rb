@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -148,6 +148,9 @@ describe "admin/pipelines/new.html.erb" do
 
           expect(form).to have_selector("label", :text => "Poll for new changes")
           expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
+
+          expect(form).to have_selector("label", :text => "Shallow clone (recommended for large repositories)")
+          expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::SHALLOW_CLONE}]']")
         end
       end
     end

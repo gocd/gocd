@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
@@ -26,9 +26,9 @@ import com.thoughtworks.go.domain.materials.Revision;
 
 public interface MaterialPoller<T extends Material> {
 
-    public List<Modification> latestModification(T material, File baseDir, final SubprocessExecutionContext execCtx);
+    List<Modification> latestModification(T material, File baseDir, final SubprocessExecutionContext execCtx);
 
-    public List<Modification> modificationsSince(T material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx);
+    List<Modification> modificationsSince(T material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx);
 
     void checkout(T material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx);
 }

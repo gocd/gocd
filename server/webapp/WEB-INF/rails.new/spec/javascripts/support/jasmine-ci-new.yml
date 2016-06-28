@@ -28,7 +28,7 @@ src_files:
 #   - stylesheets/*.css
 #
 stylesheets:
-  - assets/pipeline_configs/application.css
+
 
 # helpers
 #

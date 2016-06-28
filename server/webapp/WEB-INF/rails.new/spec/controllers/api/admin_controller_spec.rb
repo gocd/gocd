@@ -19,6 +19,7 @@ require 'spec_helper'
 describe Api::AdminController do
 
   it "should resolve on backup-trigger call" do
+    expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
     expect(:post => '/api/admin/start_backup').to route_to(:action => "start_backup", :controller => 'api/admin', :no_layout => true)
     expect(backup_api_url_path).to eq("/api/admin/start_backup")
   end

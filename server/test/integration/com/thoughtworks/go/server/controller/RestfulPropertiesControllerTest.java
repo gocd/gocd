@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.util.Map;
-import javax.sql.DataSource;
-
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -31,23 +26,26 @@ import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.sql.DataSource;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.Map;
+
 import static com.thoughtworks.go.server.controller.RestfulActionTestHelper.assertContentStatusWithTextPlain;
-import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static javax.servlet.http.HttpServletResponse.SC_CREATED;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -67,8 +65,10 @@ public class RestfulPropertiesControllerTest {
     @Autowired private RestfulService restfulService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineService pipelineService;
+    @Autowired private SystemEnvironment systemEnvironment;
 
     private MockHttpServletResponse response;
+    private MockHttpServletRequest request;
     @Autowired private DatabaseAccessHelper dbHelper;
     private Pipeline oldPipeline;
     private Pipeline newPipeline;
@@ -81,6 +81,7 @@ public class RestfulPropertiesControllerTest {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
         response = new MockHttpServletResponse();
+        request = new MockHttpServletRequest();
 
         dbHelper.onSetUp();
         oldPipeline = dbHelper.saveTestPipeline("pipeline", "stage", "build");
@@ -90,7 +91,8 @@ public class RestfulPropertiesControllerTest {
         newStage = newPipeline.getStages().byName("stage");
 
         configHelper.addPipeline("pipeline", "stage", "build");
-        propertiesController = new PropertiesController(propertiesService, restfulService, pipelineService);
+        propertiesController = new PropertiesController(propertiesService, restfulService, pipelineService, systemEnvironment);
+        request.addHeader("Confirm", "True");
     }
 
     @After public void teardown() throws Exception {
@@ -171,7 +173,7 @@ public class RestfulPropertiesControllerTest {
     }
 
     @Test public void shouldReturn404WhenUnknownBuildOnSettingProperty() throws Exception {
-        propertiesController.setProperty("unknown", "latest", "stage", "1", "build", "foo", "bar", response);
+        propertiesController.setProperty("unknown", "latest", "stage", "1", "build", "foo", "bar", response, request);
         assertValidJsonContentAndStatus(SC_NOT_FOUND, "Job unknown/latest/stage/1/build not found.");
     }
 
@@ -312,13 +314,13 @@ public class RestfulPropertiesControllerTest {
 
     private void setProperty(String property, String value) throws Exception {
         response = new MockHttpServletResponse();
-        propertiesController.setProperty("pipeline", "latest", "stage", null, "build", property, value, response);
+        propertiesController.setProperty("pipeline", "latest", "stage", null, "build", property, value, response, request);
     }
 
     private void setProperty(Pipeline pipeline, String property, String value) throws Exception {
         response = new MockHttpServletResponse();
         propertiesController.setProperty("pipeline", pipeline.getLabel(), "stage", null, "build",
-                property, value, response);
+                property, value, response, request);
         assertThat(response.getContentAsString(), response.getStatus(), is(SC_CREATED));
     }
 

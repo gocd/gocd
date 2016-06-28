@@ -65,7 +65,7 @@ public class DateUtilsConcurrencyTest {
     private void runInThreads(final DoAction action) throws InterruptedException {
         int threadCount = 100;
         Thread[] threads = new Thread[threadCount];
-        final List<Throwable> iHateMyLife = new ArrayList<Throwable>();
+        final List<Throwable> iHateMyLife = new ArrayList<>();
         for (int i = 0; i < threadCount; i++) {
             threads[i] = new Thread(new Runnable() {
                 public void run() {

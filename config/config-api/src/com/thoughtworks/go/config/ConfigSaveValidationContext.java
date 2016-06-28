@@ -40,7 +40,7 @@ public class ConfigSaveValidationContext implements ValidationContext{
     public ConfigSaveValidationContext(Validatable immediateParent, ConfigSaveValidationContext parentContext) {
         this.immediateParent = immediateParent;
         this.parentContext = parentContext;
-        objectOfType = new HashMap<Class, Object>();
+        objectOfType = new HashMap<>();
     }
 
     @Override
@@ -233,7 +233,7 @@ public class ConfigSaveValidationContext implements ValidationContext{
 
     private void primeForMaterialValidations() {
         CruiseConfig cruiseConfig = getCruiseConfig();
-        fingerprintToMaterials = new HashMap<String, MaterialConfigs>();
+        fingerprintToMaterials = new HashMap<>();
         for (PipelineConfig pipelineConfig : cruiseConfig.getAllPipelineConfigs()) {
             for (MaterialConfig material : pipelineConfig.materialConfigs()) {
                 String fingerprint = material.getFingerprint();

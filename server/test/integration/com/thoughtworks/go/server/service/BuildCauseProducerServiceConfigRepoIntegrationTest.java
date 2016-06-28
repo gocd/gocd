@@ -65,8 +65,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.mock;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -92,7 +90,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private MaterialConfigConverter materialConfigConverter;
     @Autowired private ConfigCache configCache;
-    @Autowired private MergedGoConfig mergedGoConfig;
+    @Autowired private CachedGoConfig cachedGoConfig;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private PipelineScheduler buildCauseProducer;
     @Autowired private BuildCauseProducerService buildCauseProducerService;
@@ -347,7 +345,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
         waitForMaterialNotInProgress();
         // config is correct
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(PIPELINE_NAME)));
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()),is(false));
     }
@@ -376,7 +374,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         final HashMap<String, String> environmentVariables = new HashMap<String, String>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
 
         Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(20);
         assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
@@ -395,7 +393,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         // update of commited material happened during manual trigger
         MaterialRevisions modificationsInDb = materialRepository.findLatestModification(gitMaterial);
-        assertThat(modificationsInDb.latestRevision(),is(otherGitRepo.latestModification().getRevision()));
+        assertThat(modificationsInDb.latestRevision(),is(otherGitRepo.latestModification().get(0).getRevision()));
     }
 
 
@@ -405,13 +403,13 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         List<Modification> firstBuildModifications = configTestRepo.addCodeToRepositoryAndPush("a.java", "added first code file", "some java code");
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
 
         final HashMap<String, String> revisions = new HashMap<String, String>();
         final HashMap<String, String> environmentVariables = new HashMap<String, String>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
 
         Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
         assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
@@ -430,7 +428,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         revisions.put(materialConfig.getPipelineUniqueFingerprint(), explicitRevision);
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("Admin")),
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
 
         afterLoad = scheduleHelper.waitForAnyScheduled(5);
         assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
@@ -464,13 +462,13 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         List<Modification> firstBuildModifications = configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
 
         final HashMap<String, String> revisions = new HashMap<String, String>();
         final HashMap<String, String> environmentVariables = new HashMap<String, String>();
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, Username.ANONYMOUS,
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
 
         Map<String, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
         assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));
@@ -488,7 +486,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         revisions.put(materialConfig.getPipelineUniqueFingerprint(), explicitRevision);
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("Admin")),
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
-        mergedGoConfig.throwExceptionIfExists();
+        cachedGoConfig.throwExceptionIfExists();
 
         afterLoad = scheduleHelper.waitForAnyScheduled(5);
         assertThat(afterLoad.keySet(), hasItem(PIPELINE_NAME));

@@ -53,7 +53,7 @@ public class FeatureToggles {
     }
 
     public FeatureToggles overrideWithTogglesIn(FeatureToggles overridingToggles) {
-        List<FeatureToggle> mergedToggles = new ArrayList<FeatureToggle>();
+        List<FeatureToggle> mergedToggles = new ArrayList<>();
 
         for (FeatureToggle availableToggle : toggles) {
             FeatureToggle toggleToAdd = availableToggle;
@@ -74,7 +74,7 @@ public class FeatureToggles {
     }
 
     public FeatureToggles changeToggleValue(String key, boolean newValue) {
-        List<FeatureToggle> newTogglesList = new ArrayList<FeatureToggle>();
+        List<FeatureToggle> newTogglesList = new ArrayList<>();
         boolean toggleHasBeenFound = false;
 
         for (FeatureToggle existingToggle : toggles) {

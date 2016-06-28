@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.CruiseConfig;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 public class ApproveAgentCommandTest {

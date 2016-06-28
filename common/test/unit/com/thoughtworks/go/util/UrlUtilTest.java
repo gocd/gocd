@@ -72,4 +72,10 @@ public class UrlUtilTest {
         String url = "this is not valid url";
         assertThat(UrlUtil.getQueryParamFromUrl(url, "param"),is(""));
     }
+
+    @Test
+    public void concatPathWithBaseUrl() throws Exception {
+        assertThat(UrlUtil.concatPath("http://foo", "bar"), is("http://foo/bar"));
+        assertThat(UrlUtil.concatPath("http://foo/", "bar"), is("http://foo/bar"));
+    }
 }

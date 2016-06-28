@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -59,7 +58,7 @@ public class MaterialService {
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
     private SCMExtension scmExtension;
     private TransactionTemplate transactionTemplate;
-    private Map<Class, MaterialPoller> materialPollerMap = new HashMap<Class, MaterialPoller>();
+    private Map<Class, MaterialPoller> materialPollerMap = new HashMap<>();
 
     @Autowired
     public MaterialService(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService,
@@ -91,14 +90,14 @@ public class MaterialService {
     public List<MatchedRevision> searchRevisions(String pipelineName, String fingerprint, String searchString, Username username, LocalizedOperationResult result) {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
             result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return new ArrayList<MatchedRevision>();
+            return new ArrayList<>();
         }
         try {
             MaterialConfig materialConfig = goConfigService.materialForPipelineWithFingerprint(pipelineName, fingerprint);
             return materialRepository.findRevisionsMatching(materialConfig, searchString);
         } catch (RuntimeException e) {
             result.notFound(LocalizedMessage.materialWithFingerPrintNotFound(pipelineName, fingerprint), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return new ArrayList<MatchedRevision>();
+            return new ArrayList<>();
         }
     }
 

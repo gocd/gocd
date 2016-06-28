@@ -1,53 +1,36 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
@@ -59,13 +42,10 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.TimeProvider;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -73,6 +53,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.UUID;
+
+import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static org.hamcrest.Matchers.hasItems;
@@ -205,7 +192,8 @@ public class ScheduleServiceIntegrationTest {
         configHelper.lockPipeline(pipelineName);
         final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, asList(firstStageName, secondStageName), asList(JOB_NAME, "twist"));
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 materialRepository.save(pipeline.getBuildCause().getMaterialRevisions());
             }
         });
@@ -227,11 +215,12 @@ public class ScheduleServiceIntegrationTest {
         configHelper.lockPipeline(pipelineName);
         final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, asList(firstStageName, secondStageName), asList(JOB_NAME, "twist"));
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 materialRepository.save(pipeline.getBuildCause().getMaterialRevisions());
             }
         });
-        
+
         pipelineService.save(pipeline);
         assertThat(pipelineLockService.isLocked(pipelineName), is(true));
         scheduleService.automaticallyTriggerRelevantStagesFollowingCompletionOf(pipeline.getStages().last());
@@ -292,7 +281,7 @@ public class ScheduleServiceIntegrationTest {
         assertThat(stageDao.stageById(instance.getStageId()).getCompletedByTransitionId(), is(nullValue()));
 
         JobInstance secondJob = pipeline.findStage(firstStageName).getJobInstances().get(1);
-        
+
         scheduleService.failJob(secondJob);
 
         instance = jobInstanceService.buildByIdWithTransitions(secondJob.getId());
@@ -307,7 +296,8 @@ public class ScheduleServiceIntegrationTest {
 
     private void saveRev(final Pipeline pipeline) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 materialRepository.save(pipeline.getBuildCause().getMaterialRevisions());
                 pipelineService.save(pipeline);
             }
@@ -423,7 +413,28 @@ public class ScheduleServiceIntegrationTest {
         assertThat(rerunStage.getFirstJob().getPlan().getVariables(), hasItems(new EnvironmentVariableConfig("K1_updated", "V1_updated"), new EnvironmentVariableConfig("K2", "V2"), new EnvironmentVariableConfig("K3", "V3")));
     }
 
-    private Pipeline runAndPass(PipelineConfig pipelineConfig, int counter){
+    @Test
+    public void shouldTriggerNextStageOfPipelineEvenIfOneOfTheListenersFailWithAnError() throws Exception {
+        String pipelineName = UUID.randomUUID().toString();
+        String firstStage = "firstStage";
+        String secondStage = "secondStage";
+        PipelineConfig pipelineConfig = configHelper.addPipeline(PipelineConfigMother.createPipelineConfigWithStages(pipelineName, firstStage, secondStage));
+        Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, forceBuild(pipelineConfig), new TimeProvider());
+        stageService.addStageStatusListener(new StageStatusListener() {
+            @Override
+            public void stageStatusChanged(Stage stage) {
+                throw new LinkageError("some nasty linkage error");
+            }
+        });
+        JobInstance job = pipeline.getFirstStage().getFirstJob();
+        JobIdentifier jobIdentifier = job.getIdentifier();
+        scheduleService.jobCompleting(jobIdentifier, JobResult.Passed, job.getAgentUuid());
+
+        scheduleService.updateJobStatus(jobIdentifier, JobState.Completed);
+        assertThat(stageService.findLatestStage(pipelineName, secondStage), is(notNullValue()));
+    }
+
+    private Pipeline runAndPass(PipelineConfig pipelineConfig, int counter) {
         BuildCause buildCause = ModificationsMother.modifySomeFiles(pipelineConfig);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         String pipelineName = pipelineConfig.name().toString();

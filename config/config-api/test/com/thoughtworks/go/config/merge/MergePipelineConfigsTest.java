@@ -16,6 +16,8 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -31,8 +33,6 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 
 public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
@@ -60,6 +60,32 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         BasicPipelineConfigs pipelineConfigsRemote = new BasicPipelineConfigs();
         pipelineConfigsRemote.setOrigin(new RepoConfigOrigin());
         return new MergePipelineConfigs(pipelineConfigsLocal,pipelineConfigsRemote);
+    }
+
+    @Test
+    public void shouldReturnNullForGetLocalWhenOnlyRemoteParts()
+    {
+        BasicPipelineConfigs firstPart = new BasicPipelineConfigs();
+        firstPart.setOrigin(new RepoConfigOrigin());
+
+        BasicPipelineConfigs secondPart = new BasicPipelineConfigs();
+        secondPart.setOrigin(new RepoConfigOrigin());
+        MergePipelineConfigs merge = new MergePipelineConfigs(firstPart, secondPart);
+
+        assertNull(merge.getLocal());
+    }
+
+    @Test
+    public void shouldReturnFilePartForGetLocalWhenHasRemoteAndFilePart()
+    {
+        BasicPipelineConfigs filePart = new BasicPipelineConfigs();
+        filePart.setOrigin(new FileConfigOrigin());
+
+        BasicPipelineConfigs secondPart = new BasicPipelineConfigs();
+        secondPart.setOrigin(new RepoConfigOrigin());
+        MergePipelineConfigs merge = new MergePipelineConfigs(filePart, secondPart);
+
+        assertThat(merge.getLocal(), Matchers.<PipelineConfigs>is(filePart));
     }
 
     @Test
@@ -406,6 +432,23 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
 
         tryAddAndAssertThatFailed(group, p1, 5);
         tryAddAndAssertThatFailed(group, p1, 4);
+    }
+    @Test
+    public void shouldReturnOriginAsASumOfAllOrigins()
+    {
+        BasicPipelineConfigs fileConfigs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
+        fileConfigs.setOrigin(new FileConfigOrigin());
+        BasicPipelineConfigs remoteConfigs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
+        remoteConfigs.setOrigin(new RepoConfigOrigin());
+        PipelineConfigs group = new MergePipelineConfigs(fileConfigs, remoteConfigs);
+
+        ConfigOrigin allOrigins = group.getOrigin();
+        assertThat(allOrigins instanceof MergeConfigOrigin,is(true));
+
+        MergeConfigOrigin mergeConfigOrigin = (MergeConfigOrigin)allOrigins;
+        assertThat(mergeConfigOrigin.size(),is(2));
+        assertThat(mergeConfigOrigin.contains(new FileConfigOrigin()),is(true));
+        assertThat(mergeConfigOrigin.contains(new RepoConfigOrigin()),is(true));
     }
 
     private void tryAddAndAssertThatFailed(PipelineConfigs group, PipelineConfig p1, int index) {

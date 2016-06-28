@@ -182,7 +182,6 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'server', "**/DeploymentContextWriter*.class")
     include_fileset_from_target(jar, 'server', "**/BaseUrlProvider*.class")
 
-    include_fileset_from_target(jar, 'app-server', "**/StopJettyFromLocalhostServlet*.class")
     include_fileset_from_target(jar, 'app-server', "**/AppServer.class")
     include_fileset_from_target(jar, 'app-server', "**/ServletHelper.class")
     include_fileset_from_target(jar, 'app-server', "**/ServletRequest.class")
@@ -203,6 +202,7 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9ServletHelper*.class")
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Request.class")
     include_fileset_from_target(jar, 'jetty9', "**/Jetty9Response.class")
+    include_fileset_from_target(jar, 'jetty9', "**/Slf4jRequestLogger.class")
     # # ---- Jetty 9 end ---
 
     include_fileset_from_target(jar, 'common', "**/SubprocessLogger*.class")
@@ -212,7 +212,6 @@ define "cruise:server", :layout => server_layout("server") do
     include_fileset_from_target(jar, 'common', "**/X509PrincipalGenerator*.class")
     include_fileset_from_target(jar, 'common', "**/KeyStoreManager.class")
     include_fileset_from_target(jar, 'common', "**/PKCS12BagAttributeSetter.class")
-    include_fileset_from_target(jar, 'common', "**/KeyPairCreator.class")
     include_fileset_from_target(jar, 'common', "**/Registration.class")
     include_fileset_from_target(jar, 'common', "**/CommandLineException.class")
 

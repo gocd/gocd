@@ -17,15 +17,15 @@
 module ApiV1
   module Admin
     class PipelinesController < ApiV1::BaseController
-      before_action :check_admin_user_and_401
-      before_action :load_pipeline, only: [:show]
+      before_action :check_pipeline_group_admin_user_and_401
+      before_action :load_pipeline, only: [:show, :destroy]
       before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
       def show
         json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
         if stale?(etag: get_etag_for_pipeline(@pipeline_config.name.to_s, json))
-          render json_hal_v1: json
+          render DEFAULT_FORMAT => json
         end
       end
 
@@ -46,6 +46,12 @@ module ApiV1
         handle_config_save_or_update_result(result)
       end
 
+      def destroy
+        result = HttpLocalizedOperationResult.new
+        pipeline_config_service.deletePipelineConfig(current_user, @pipeline_config, result)
+        render_http_operation_result(result)
+      end
+
       private
 
       def get_pipeline_from_request
@@ -54,12 +60,12 @@ module ApiV1
         end
       end
 
-      def handle_config_save_or_update_result(result, pipeline_name = params[:name])
+      def handle_config_save_or_update_result(result, pipeline_name = params[:pipeline_name])
         if result.isSuccessful
           load_pipeline(pipeline_name)
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           response.etag = [get_etag_for_pipeline(@pipeline_config.name.to_s, json)]
-          render json_hal_v1: json
+          render DEFAULT_FORMAT => json
         else
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
           render_http_operation_result(result, {data: json})
@@ -68,7 +74,7 @@ module ApiV1
 
 
       def check_for_attempted_pipeline_rename
-        unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:name])
+        unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:pipeline_name])
           result = HttpLocalizedOperationResult.new
           result.notAcceptable(LocalizedMessage::string("PIPELINE_RENAMING_NOT_ALLOWED"))
           render_http_operation_result(result)
@@ -76,14 +82,14 @@ module ApiV1
       end
 
       def check_for_stale_request
-        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_pipeline_from_cache(params[:name]))}\"")
+        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_pipeline_from_cache(params[:pipeline_name]))}\"")
           result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string("STALE_PIPELINE_CONFIG", params[:name]))
+          result.stale(LocalizedMessage::string("STALE_PIPELINE_CONFIG", params[:pipeline_name]))
           render_http_operation_result(result)
         end
       end
 
-      def load_pipeline(pipeline_name = params[:name])
+      def load_pipeline(pipeline_name = params[:pipeline_name])
         @pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
         raise RecordNotFound if @pipeline_config.nil?
       end
@@ -112,9 +118,9 @@ module ApiV1
       end
 
       def check_if_pipeline_by_same_name_already_exists
-        if (!pipeline_config_service.getPipelineConfig(params[:name]).nil?)
+        if (!pipeline_config_service.getPipelineConfig(params[:pipeline_name]).nil?)
           result = HttpLocalizedOperationResult.new
-          result.unprocessableEntity(LocalizedMessage::string("CANNOT_CREATE_PIPELINE_ALREADY_EXISTS", params[:name]))
+          result.unprocessableEntity(LocalizedMessage::string("CANNOT_CREATE_PIPELINE_ALREADY_EXISTS", params[:pipeline_name]))
           render_http_operation_result(result)
         end
       end

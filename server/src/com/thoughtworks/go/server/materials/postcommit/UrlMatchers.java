@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials.postcommit;
 
@@ -25,7 +25,7 @@ public class UrlMatchers {
     private final ArrayList<UrlMatcher> validators;
 
     public UrlMatchers() {
-        validators = new ArrayList<UrlMatcher>();
+        validators = new ArrayList<>();
         validators.add(new UrlExactMatcher());
         validators.add(new UrlWithFullAuthMatcher());
         validators.add(new UrlWithUserNameAndEmptyPasswordAuthMatcher());
@@ -44,7 +44,7 @@ public class UrlMatchers {
 }
 
 interface UrlMatcher {
-    public boolean isValid(String paramUrl, String materialUrl);
+    boolean isValid(String paramUrl, String materialUrl);
 }
 
 class UrlWithFullAuthMatcher implements UrlMatcher {

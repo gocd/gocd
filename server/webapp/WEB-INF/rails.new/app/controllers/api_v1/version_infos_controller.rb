@@ -29,7 +29,7 @@ module ApiV1
       version_info = version_info_service.updateServerLatestVersion(go_latest_version.latest_version, result)
 
       if result.isSuccessful
-        render :json_hal_v1 => to_json_hal(version_info)
+        render DEFAULT_FORMAT => to_json_hal(version_info)
       else
         render_http_operation_result(result)
       end
@@ -38,7 +38,7 @@ module ApiV1
     def stale
       version_info = version_info_service.getStaleVersionInfo()
 
-      render :json_hal_v1 => to_json_hal(version_info)
+      render DEFAULT_FORMAT => to_json_hal(version_info)
     end
 
     private

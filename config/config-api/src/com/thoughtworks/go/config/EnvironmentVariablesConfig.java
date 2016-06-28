@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
     }
 
     public void validate(ValidationContext validationContext) {
-        Map<String, EnvironmentVariableConfig> map = new HashMap<String, EnvironmentVariableConfig>();
+        Map<String, EnvironmentVariableConfig> map = new HashMap<>();
         for (EnvironmentVariableConfig config : this) {
             config.validateName(map, validationContext);
         }

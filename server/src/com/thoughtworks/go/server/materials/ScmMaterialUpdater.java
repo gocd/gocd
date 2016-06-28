@@ -19,14 +19,12 @@ package com.thoughtworks.go.server.materials;
 import java.io.File;
 import java.util.List;
 
-import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialService;
 import org.apache.log4j.Logger;
@@ -65,8 +63,8 @@ class ScmMaterialUpdater implements MaterialUpdater {
             LOGGER.info(String.format("[Material Update] Found '%s' modifications for material '%s' with flyweight '%s' using working directory '%s'", newChanges.size(), material,
                     material.getFingerprint(), folder.getAbsolutePath()));
 
+            materialRepository.saveModifications(materialInstance, newChanges);
         }
-        materialRepository.saveModifications(materialInstance, newChanges);
     }
 
     public void addNewMaterialWithModifications(Material material, File folder) {

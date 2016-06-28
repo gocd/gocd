@@ -1,34 +1,29 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.xunit;
 
+import com.thoughtworks.studios.shine.semweb.*;
+import com.thoughtworks.studios.shine.semweb.grddl.GRDDLTransformer;
+import com.thoughtworks.studios.shine.semweb.grddl.GrddlTransformException;
+import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
+import org.dom4j.Document;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.studios.shine.semweb.BoundVariables;
-import com.thoughtworks.studios.shine.semweb.Graph;
-import com.thoughtworks.studios.shine.semweb.Resource;
-import com.thoughtworks.studios.shine.semweb.TempGraphFactory;
-import com.thoughtworks.studios.shine.semweb.URIReference;
-import com.thoughtworks.studios.shine.semweb.XMLRDFizer;
-import com.thoughtworks.studios.shine.semweb.grddl.GRDDLTransformer;
-import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
-import com.thoughtworks.studios.shine.semweb.grddl.GrddlTransformException;
-import org.dom4j.Document;
 
 public class AntJUnitReportRDFizer implements XMLRDFizer {
     private TempGraphFactory graphFactory;
@@ -42,9 +37,9 @@ public class AntJUnitReportRDFizer implements XMLRDFizer {
             "}";
     private GRDDLTransformer grddlTransformer;
 
-    public AntJUnitReportRDFizer(TempGraphFactory graphFactory, XSLTTransformerRegistry XSLTTransformerRegistry) {
+    public AntJUnitReportRDFizer(TempGraphFactory graphFactory, XSLTTransformerRegistry xsltTransformerRegistry) {
         this.graphFactory = graphFactory;
-        grddlTransformer = new GRDDLTransformer(XSLTTransformerRegistry.getTransformer("xunit/ant-junit-grddl.xsl"));
+        grddlTransformer = new GRDDLTransformer(xsltTransformerRegistry, XSLTTransformerRegistry.XUNIT_ANT_JUNIT_GRDDL_XSL);
     }
 
     public boolean canHandle(Document doc) {
@@ -71,7 +66,7 @@ public class AntJUnitReportRDFizer implements XMLRDFizer {
     }
 
     private List<URIReference> testCases(Graph xunitGraph) {
-        List<URIReference> testCases = new ArrayList<URIReference>();
+        List<URIReference> testCases = new ArrayList<>();
 
         for (BoundVariables boundVariables : xunitGraph.select(SELECT_TEST_CASES_SPARQL)) {
             testCases.add(boundVariables.getURIReference("testCase"));

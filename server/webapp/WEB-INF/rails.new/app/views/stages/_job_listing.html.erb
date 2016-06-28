@@ -9,8 +9,8 @@
             <% end %>
         </td>
         <td class="job_name">
-            <a href="<%= url_for_job(job) %>">
-                <%= smart_word_breaker(job.getName()) -%></a>
+            <a href="<%= url_for_job(job) %>" class="wrapped_word">
+                <%= job.getName() -%></a>
         </td>
         <td class="job_result">
             <div class="color_code_small <%= l.string(job.getStatus()) -%>">
@@ -28,8 +28,8 @@
         <td class="agent"
             <%- if job.hasAgentInfo() -%>
                 title="<%=job.getAgentLocation()-%>">
-                <% agent_that_job_ran_on = "#{smart_word_breaker(job.getHostname())}(#{job.getIpAddress()})".html_safe %>
-                <%=link_to(agent_that_job_ran_on, agent_detail_path(:uuid => job.getUuid())) %>
+                <% agent_that_job_ran_on = "#{job.getHostname()}(#{job.getIpAddress()})".html_safe %>
+                <%=link_to(agent_that_job_ran_on, agent_detail_path(:uuid => job.getUuid()), :class => 'wrapped_word') %>
             <%- else -%>>
                 <%=l.string('Not yet assigned')%>
             <%- end -%>

@@ -16,9 +16,7 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
-import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
@@ -29,7 +27,6 @@ import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.util.Date;

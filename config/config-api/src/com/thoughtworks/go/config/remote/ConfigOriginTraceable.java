@@ -15,8 +15,6 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.CruiseConfig;
-
 /**
  * Configuration whose origin can be identified.
  */

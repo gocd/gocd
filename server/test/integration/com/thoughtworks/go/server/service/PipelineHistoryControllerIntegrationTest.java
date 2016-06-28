@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -150,6 +151,20 @@ public class PipelineHistoryControllerIntegrationTest {
         Map jsonMap = requestPipelineHistoryPage();
         List groups = (List) jsonMap.get("groups");
         assertThat("Should create group for the coming pipeline", groups.size(), is(1));
+    }
+
+    @Test
+    public void shouldDisplayExceptionPageWhenPipelineIsNotFound() throws Exception {
+        ModelAndView list = controller.list("Un-available");
+        assertThat(list.getViewName(), is("exceptions_page"));
+        assertThat(list.getModel().get("errorMessage"), Is.<Object>is("Pipeline 'Un-available' not found."));
+    }
+
+    @Test
+    public void shouldDisplayPipelineHistoryPage() throws Exception {
+        ModelAndView list = controller.list(fixture.pipelineName);
+        assertThat(list.getViewName(), is("pipeline/pipeline_history"));
+        assertThat(list.getModel().get("pipelineName").toString(), is(fixture.pipelineName));
     }
 
     private String getItemInJson(Map jsonMap, String key) {

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ *
+ */
 
 package com.thoughtworks.go.plugin.access.config;
 
@@ -20,10 +21,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.PluginPreference;
 
 public abstract class PluginPreferenceStore<T extends PluginPreference> {
-    private Map<String, T> pluginIdPreferenceMap = new ConcurrentHashMap<String, T>();
+    private Map<String, T> pluginIdPreferenceMap = new ConcurrentHashMap<>();
 
     public T preferenceFor(String pluginId) {
         return pluginIdPreferenceMap.get(pluginId);
@@ -60,4 +62,5 @@ public abstract class PluginPreferenceStore<T extends PluginPreference> {
         return pluginIdPreferenceMap.keySet();
     }
 
+    public abstract boolean hasOption(String pluginId, String name, Option<Boolean> partOfIdentity);
 }

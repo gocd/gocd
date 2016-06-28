@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -70,7 +70,7 @@ public class ChangesetService {
     }
 
     public List<MaterialRevision> revisionsBetween(List<PipelineRevisionRange> pipelineRevisionRanges, Username username, HttpLocalizedOperationResult result) {
-        ArrayList<MaterialRevision> revisions = new ArrayList<MaterialRevision>();
+        ArrayList<MaterialRevision> revisions = new ArrayList<>();
         for (PipelineRevisionRange pipelineRevisionRange : pipelineRevisionRanges) {
             DependencyMaterialRevision fromDmr = DependencyMaterialRevision.create(pipelineRevisionRange.getFromRevision(), null);
             DependencyMaterialRevision toDmr = DependencyMaterialRevision.create(pipelineRevisionRange.getToRevision(), null);
@@ -83,12 +83,12 @@ public class ChangesetService {
                                                    boolean showBisect) {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
             result.unauthorized(LocalizedMessage.cannotViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return new ArrayList<MaterialRevision>();
+            return new ArrayList<>();
         }
 
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             result.notFound(LocalizedMessage.string("PIPELINE_NOT_FOUND", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return new ArrayList<MaterialRevision>();
+            return new ArrayList<>();
         }
 
         if(fromCounter.equals(toCounter)){
@@ -97,7 +97,7 @@ public class ChangesetService {
 
         if (fromCounter < 0 || toCounter <= 0) {
             result.badRequest(LocalizedMessage.string("NEGATIVE_PIPELINE_COUNTER"));
-            return new ArrayList<MaterialRevision>();
+            return new ArrayList<>();
         }
 
         if (fromCounter > toCounter) {
@@ -109,7 +109,7 @@ public class ChangesetService {
                 Pipeline toPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter);
                 Pipeline fromPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter);
                 if (toPipeline.isBisect() || fromPipeline.isBisect()) {
-                    return new ArrayList<MaterialRevision>();
+                    return new ArrayList<>();
                 }
             }
         }
@@ -131,17 +131,17 @@ public class ChangesetService {
     }
 
     private Set<String> populateReachableFingerprints(PipelineConfigDependencyGraph graph, Username username, boolean skipCheckForMingle, boolean skipTrackingToolMatch) {
-        Set<String> fingerprints = new HashSet<String>();
+        Set<String> fingerprints = new HashSet<>();
         populateViewableMaterialsStartingAt(graph, username, fingerprints, graph.getCurrent().getMingleConfig(), graph.getCurrent().trackingTool(), skipCheckForMingle, skipTrackingToolMatch);
         return fingerprints;
     }
 
-    private static interface FingerprintLoader<T> {
+    private interface FingerprintLoader<T> {
         String getFingerprint(T t);
     }
 
     private <T> List<T> filterFingerprintHolders(List<T> fingerprintHolders, Set<String> reachableFingerprints, Set<String> allMaterialFingerprints, FingerprintLoader<T> fingerprintLoader) {
-        List<T> results = new ArrayList<T>();
+        List<T> results = new ArrayList<>();
         for (T fingerprintHolder : fingerprintHolders) {
             String fingerprint = fingerprintLoader.getFingerprint(fingerprintHolder);
             if (reachableFingerprints.contains(fingerprint)) {
@@ -200,7 +200,7 @@ public class ChangesetService {
     }
 
     private List<MaterialRevision> deduplicateMaterialRevisionsForCommonMaterials(List<MaterialRevision> materialRevisions) {
-        List<Modification> modificationsWithDuplicates = new ArrayList<Modification>();
+        List<Modification> modificationsWithDuplicates = new ArrayList<>();
         for (MaterialRevision revision : materialRevisions) {
             for (Modification modification : revision.getModifications()) {
                 if (! modificationsWithDuplicates.contains(modification)) {//change this with a better data-structure so lookup is not O(n)
@@ -218,7 +218,7 @@ public class ChangesetService {
     }
 
     Map<Material, Modifications> groupModsByMaterial(Collection<Modification> modifications) {
-        Map<Material, Modifications> grouped = new LinkedHashMap<Material, Modifications>();
+        Map<Material, Modifications> grouped = new LinkedHashMap<>();
         for (Modification modification : modifications) {
             Material material = modification.getMaterialInstance().toOldMaterial(null, null, null);
             Modifications mods = mapContainsMaterialWithFingerprint(grouped, material.getFingerprint());
@@ -241,9 +241,9 @@ public class ChangesetService {
     }
 
     private List<MaterialRevision> toMaterialRevisionList(Map<Material, Modifications> map) {
-        List<MaterialRevision> materialRevisionsAcrossPipelines = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> materialRevisionsAcrossPipelines = new ArrayList<>();
         for (Map.Entry<Material, Modifications> materialToModifications : map.entrySet()) {
-            Modifications modifications = new Modifications(new ArrayList<Modification>(materialToModifications.getValue()));
+            Modifications modifications = new Modifications(new ArrayList<>(materialToModifications.getValue()));
             materialRevisionsAcrossPipelines.add(new MaterialRevision(materialToModifications.getKey(), modifications));
         }
         return materialRevisionsAcrossPipelines;

@@ -28,10 +28,12 @@ describe Api::ServerStateController do
   end
 
   it 'should answer to /api/state/active' do
+    expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
     expect(post: '/api/state/active').to route_to(action: 'to_active', controller: 'api/server_state', no_layout: true)
   end
 
   it 'should answer to /api/state/passive' do
+    expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
     expect(post: '/api/state/passive').to route_to(action: 'to_passive', controller: 'api/server_state', no_layout: true)
   end
 

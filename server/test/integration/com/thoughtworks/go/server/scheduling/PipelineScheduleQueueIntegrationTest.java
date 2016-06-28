@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.scheduling;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -219,7 +218,7 @@ public class PipelineScheduleQueueIntegrationTest {
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
         queue.schedule(fixture.pipelineName, cause);
         queue.finishSchedule(fixture.pipelineName, cause, cause);
-        
+
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider()), is(nullValue()));
     }
 

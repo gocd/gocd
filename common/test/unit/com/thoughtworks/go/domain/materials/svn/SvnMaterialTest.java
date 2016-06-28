@@ -27,19 +27,18 @@ import java.util.*;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ClassMockery;
-import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.Matchers;
@@ -53,7 +52,6 @@ import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -128,7 +126,7 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        updateMaterial(svnMaterial, revision, workingCopy);
     }
 
     @Test
@@ -140,7 +138,7 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        updateMaterial(svnMaterial, revision, workingCopy);
         String stdout = outputStreamConsumer.getStdOut();
         assertThat(stdout, containsString(
                 String.format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
@@ -155,8 +153,12 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        updateMaterial(svnMaterial, revision, workingCopy);
         assertThat(workingCopy.exists(), is(false));
+    }
+
+    private void updateMaterial(SvnMaterial svnMaterial, SubversionRevision revision, File workingCopy) {
+        svnMaterial.updateTo(outputStreamConsumer, workingCopy, new RevisionContext(revision), new TestSubprocessExecutionContext());
     }
 
     @Test
@@ -169,7 +171,7 @@ public class SvnMaterialTest {
                 one(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        updateMaterial(svnMaterial, revision, workingCopy);
         assertThat(workingCopy.exists(), is(false));
     }
 
@@ -184,7 +186,7 @@ public class SvnMaterialTest {
                 one(subversion).updateTo(outputStreamConsumer, workingCopy, revision);
             }
         });
-        svnMaterial.updateTo(outputStreamConsumer, revision, workingCopy, new TestSubprocessExecutionContext());
+        updateMaterial(svnMaterial, revision, workingCopy);
     }
 
     @Test

@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
+@Deprecated
 class ApiBasedTaskExtension implements TaskExtensionContract {
     private PluginManager pluginManager;
 

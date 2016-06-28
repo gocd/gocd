@@ -71,13 +71,13 @@ public class PackageDefinitionService {
     }
 
     private HashMap<String, List<String>> fieldErrors(Validatable subject, String filedErrorPrefix) {
-        HashMap<String, List<String>> filedErrors = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> filedErrors = new HashMap<>();
         ErrorCollector.collectFieldErrors(filedErrors, filedErrorPrefix, subject);
         return filedErrors;
     }
 
     private List<String> globalErrors(List<ConfigErrors> allErrorsExceptSubject) {
-        ArrayList<String> globalErrors = new ArrayList<String>();
+        ArrayList<String> globalErrors = new ArrayList<>();
         ErrorCollector.collectGlobalErrors(globalErrors, allErrorsExceptSubject);
         return globalErrors;
     }

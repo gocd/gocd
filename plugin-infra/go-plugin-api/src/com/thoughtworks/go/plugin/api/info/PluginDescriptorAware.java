@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
  * @author Go Team
  */
 @GoPluginApiMarker
+@Deprecated
 public interface PluginDescriptorAware {
 
     /**

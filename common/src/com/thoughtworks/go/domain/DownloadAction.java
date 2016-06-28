@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,25 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.work.GoPublisher;
 import org.apache.log4j.Logger;
 
 public class DownloadAction {
 
     private final HttpService httpService;
-    private final DefaultGoPublisher goPublisher;
+    private final GoPublisher goPublisher;
     private final Clock clock;
     private static final int DOWNLOAD_SLEEP_MILLIS = 5000;
     private static final Logger LOG = Logger.getLogger(DownloadAction.class);
 
 
-    public DownloadAction(HttpService httpService, DefaultGoPublisher goPublisher, Clock clock) {
+    public DownloadAction(HttpService httpService, GoPublisher goPublisher, Clock clock) {
         this.httpService = httpService;
         this.goPublisher = goPublisher;
         this.clock = clock;
     }
 
-    public void perform(String url, FetchHandler handler) throws Exception {
+    public void perform(String url, FetchHandler handler) throws InterruptedException {
         int retryCount = 0;
         while (true) {
             retryCount++;

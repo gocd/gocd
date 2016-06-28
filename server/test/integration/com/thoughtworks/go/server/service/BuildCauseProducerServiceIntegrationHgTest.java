@@ -33,7 +33,6 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;

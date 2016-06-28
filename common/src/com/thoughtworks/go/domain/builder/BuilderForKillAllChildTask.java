@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.jezhumble.javasysmon.JavaSysMon;
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -32,5 +33,10 @@ public class BuilderForKillAllChildTask extends Builder {
     @Override
     public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
         new JavaSysMon().infanticide();
+    }
+
+    @Override
+    public BuildCommand buildCommand() {
+        return BuildCommand.noop(); //killing sub process is built in for build command protocol agent
     }
 }

@@ -95,7 +95,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: passed."));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <fetchartifact pipeline=\"pipeline1\" stage=\"pre-mingle\" job=\"" + JOB_NAME + "\" srcfile=\"lib/hello.jar\" dest=\"lib\" />."));
@@ -109,7 +109,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new FailedToDownloadPublisherStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubPublisher, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed."));
         assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <ant target=\"--help\" />."));
@@ -120,7 +120,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubManipulator, environmentVariableContext,
-                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null), null, null, null);
+                new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), null, null, null);
 
         assertThat((DirHandler) stubManipulator.artifact().get(0), is(new DirHandler("lib",new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
     }

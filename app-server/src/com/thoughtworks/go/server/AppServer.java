@@ -37,8 +37,6 @@ public abstract class AppServer {
 
     abstract void setInitParameter(String name, String value);
 
-    abstract void addStopServlet();
-
     abstract Throwable getUnavailableException();
 
     abstract void configure() throws Exception;

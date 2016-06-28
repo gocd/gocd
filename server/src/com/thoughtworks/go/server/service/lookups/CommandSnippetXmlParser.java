@@ -37,7 +37,7 @@ public class CommandSnippetXmlParser {
 
     public CommandSnippet parse(String xmlContent, String fileName, String relativeFilePath) {
         try {
-            Document document = buildXmlDocument(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"));;
+            Document document = buildXmlDocument(xmlContent, CommandSnippet.class.getResource("command-snippet.xsd"));
             CommandSnippetComment comment = getComment(document);
 
             Element execTag = document.getRootElement();
@@ -68,7 +68,7 @@ public class CommandSnippetXmlParser {
         private final String SPACES = "\\s*";
         private final String content;
         private final Pattern commentLineKeyValuePattern = Pattern.compile(String.format("^%s(.+?)%s:%s(.+?)%s$", SPACES, SPACES, SPACES, SPACES));
-        private Map<String, String> snippetTagMap = new HashMap<String, String>();
+        private Map<String, String> snippetTagMap = new HashMap<>();
 
         public CommandSnippetTextComment(String content) {
             this.content = content;
@@ -104,7 +104,7 @@ public class CommandSnippetXmlParser {
         public List<String> getKeywords() {
             String keywords = snippetTagMap.get("keywords");
             if (StringUtil.isBlank(keywords)) {
-                return new ArrayList<String>();
+                return new ArrayList<>();
             }
             return Arrays.asList(keywords.toLowerCase().split(String.format("%s,%s", SPACES, SPACES)));
         }

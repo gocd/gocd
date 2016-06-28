@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,12 @@ import java.util.TreeSet;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
+import com.thoughtworks.go.domain.materials.git.GitMaterialUpdater;
 import com.thoughtworks.go.util.ObjectUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.log4j.Logger;
@@ -49,7 +48,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     private static final Logger LOGGER = Logger.getLogger(MaterialRevisions.class);
 
     public static final MaterialRevisions EMPTY = new MaterialRevisions();
-    private List<MaterialRevision> revisions = new ArrayList<MaterialRevision>();
+    private List<MaterialRevision> revisions = new ArrayList<>();
 
     public MaterialRevisions(MaterialRevision... revisions) {
         this.revisions.addAll(Arrays.asList(revisions));
@@ -273,7 +272,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     public Map<CaseInsensitiveString, String> getNamedRevisions() {
-        Map<CaseInsensitiveString, String> results = new HashMap<CaseInsensitiveString, String>();
+        Map<CaseInsensitiveString, String> results = new HashMap<>();
         for (MaterialRevision mr : revisions) {
             CaseInsensitiveString materialName = mr.getMaterial().getName();
             if (!CaseInsensitiveString.isBlank(materialName)) {
@@ -375,7 +374,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     public List<String> getCardNumbersFromComments() {
-        List<String> cardNumbers = new ArrayList<String>();
+        List<String> cardNumbers = new ArrayList<>();
         for (Modification modification : collectAllModifications()) {
             collectUniqueCardNumbers(modification, cardNumbers);
         }
@@ -391,10 +390,27 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     private Modifications collectAllModifications() {
-        Set<Modification> mods = new TreeSet<Modification>(Modifications.LATEST_MODIFICATION_FIRST);
+        Set<Modification> mods = new TreeSet<>(Modifications.LATEST_MODIFICATION_FIRST);
         for (MaterialRevision revision : revisions) {
             mods.addAll(revision.getModifications());
         }
-        return new Modifications(new ArrayList<Modification>(mods));
+        return new Modifications(new ArrayList<>(mods));
     }
+
+    public BuildCommand updateToCommand(String baseDir) {
+        List<BuildCommand> commands = new ArrayList<>();
+        for (MaterialRevision revision : revisions) {
+            Material material = revision.getMaterial();
+            if(material instanceof ScmMaterial) {
+                if (material instanceof GitMaterial) {
+                    GitMaterialUpdater updater = new GitMaterialUpdater((GitMaterial) material);
+                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
+                } else {
+                    commands.add(BuildCommand.fail("%s Material is not supported for new build command agent", material.getTypeForDisplay()));
+                }
+            }
+        }
+        return BuildCommand.compose(commands);
+    }
+
 }

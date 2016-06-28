@@ -5,13 +5,14 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.util;
@@ -23,8 +24,10 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -35,6 +38,7 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -45,10 +49,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.mockito.Mockito.mock;
 
 /**
  * @understands how to edit the cruise config file for testing
@@ -87,7 +93,7 @@ public class GoConfigFileHelper {
              sysEnv = new SystemEnvironment();
              sysEnv.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
              initializeConfigFile();
-        } catch (IOException e) {
+         } catch (IOException e) {
             throw bomb("Error creating config file", e);
         }
     }
@@ -114,15 +120,11 @@ public class GoConfigFileHelper {
             configRepository.initialize();
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
+            CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService);
+                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials);
             dataSource.upgradeIfNecessary();
-            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
-            GoConfigWatchList configWatchList = new GoConfigWatchList(fileService);
-            GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList,
-                    new GoConfigPluginService(configCache,configElementImplementationRegistry));
-            GoPartialConfig partialConfig = new GoPartialConfig(repoConfigDataSource,configWatchList);
-            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -139,10 +141,10 @@ public class GoConfigFileHelper {
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService);
+                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService, new CachedGoPartials(serverHealthService));
             dataSource.upgradeIfNecessary();
-            CachedFileGoConfig fileService = new CachedFileGoConfig(dataSource,serverHealthService);
-            MergedGoConfig cachedConfigService = new MergedGoConfig(serverHealthService,fileService,partialConfig);
+            CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -283,6 +285,18 @@ public class GoConfigFileHelper {
     public PipelineConfig addPipelineWithGroupAndTimer(String groupName, String pipelineName, MaterialConfigs materialConfigs, String stageName, TimerConfig timer, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipelineWithGroupAndTimer(cruiseConfig, groupName, pipelineName, materialConfigs, stageName, timer, buildNames);
+        writeConfigFile(cruiseConfig);
+        return pipelineConfig;
+    }
+
+    public interface Updater<T>{
+        void update(T t);
+    }
+
+    public PipelineConfig updatePipeline(CaseInsensitiveString pipelineName, Updater<PipelineConfig> updater) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineName);
+        updater.update(pipelineConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
     }
@@ -513,7 +527,7 @@ public class GoConfigFileHelper {
     public CruiseConfig load() {
         try {
             goConfigDao.forceReload();
-            return new Cloner().deepClone(goConfigDao.load());
+            return new Cloner().deepClone(goConfigDao.loadForEditing());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -535,6 +549,12 @@ public class GoConfigFileHelper {
     public void addConfigRepo(ConfigRepoConfig configRepoConfig) {
         CruiseConfig cruiseConfig = loadForEdit();
         cruiseConfig.getConfigRepos().add(configRepoConfig);
+        writeConfigFile(cruiseConfig);
+    }
+
+    public void setConfigRepos(ConfigReposConfig configRepos) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        cruiseConfig.setConfigRepos(configRepos);
         writeConfigFile(cruiseConfig);
     }
 

@@ -183,6 +183,11 @@ public class AbstractMaterialConfigTest {
         }
 
         @Override
+        public boolean isInvertFilter() {
+            return false;
+        }
+
+        @Override
         public void setConfigAttributes(Object attributes) {
             super.setConfigAttributes(attributes);
             Map map = (Map) attributes;

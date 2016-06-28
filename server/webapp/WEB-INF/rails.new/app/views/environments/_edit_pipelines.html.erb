@@ -1,5 +1,5 @@
 <div id="pipelines_form" class="form_content hidereveal_collapsed" >
-        <% if (scope[:available_pipelines].empty?)  && (scope[:unavailable_pipelines].empty?) %>
+        <% if (scope[:available_pipelines].empty?)  && (scope[:unavailable_pipelines].empty?) && (scope[:remote_pipelines].empty?) %>
                 <%= l.string("NO_PIPELINES") %>
         <% else %>
 
@@ -19,7 +19,18 @@
                             </div>
                  <% end %>
             </div>
-
+            <% if !scope[:remote_pipelines].empty? %>
+                <div class="available_pipelines"><%= l.string("SHOW_UNAVAILABLE_REMOTE_PIPELINES") -%></div>
+                <div class="input">
+                     <% scope[:remote_pipelines].each do |remote_pipeline| %>
+                               <div class="pipeline_selector">
+                                    <%= check_box_tag "environment[pipelines][][name]", remote_pipeline.getPipelineName(), remote_pipeline.isAssociatedWithEnvironment(scope[:environment].name.to_s),
+                                                      :disabled => true,:id => "pipeline_#{remote_pipeline.getPipelineName()}"-%>
+                                    <label for="pipeline_<%= remote_pipeline.getPipelineName() -%>" class="label inline"><%= remote_pipeline.getPipelineName() -%></label>
+                                </div>
+                     <% end %>
+                </div>
+            <% end %>
             <% if !(scope[:unavailable_pipelines].empty?) %>
                 <a id="show_unavailable_pipelines" class="hidereveal_expander"><%= l.string("SHOW_UNAVAILABLE_PIPELINES") -%></a>
                 <div class="unavailable_pipelines hidereveal_content">

@@ -63,7 +63,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     private List<String> allowedFolders() {
-        ArrayList<String> allowed = new ArrayList<String>();
+        ArrayList<String> allowed = new ArrayList<>();
         for (MaterialConfig material : this) {
             if (!StringUtils.isBlank(material.getFolder())) {
                 allowed.add(material.getFolder());
@@ -95,13 +95,13 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public List<CaseInsensitiveString> getDependentPipelineNames() {
-        Set<CaseInsensitiveString> names = new TreeSet<CaseInsensitiveString>();
+        Set<CaseInsensitiveString> names = new TreeSet<>();
         for (MaterialConfig material : this) {
             if (material instanceof DependencyMaterialConfig) {
                 names.add(((DependencyMaterialConfig) material).getPipelineName());
             }
         }
-        return new ArrayList<CaseInsensitiveString>(names);
+        return new ArrayList<>(names);
     }
 
     public boolean hasMaterialWithFingerprint(MaterialConfig other) {
@@ -152,7 +152,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
         validateScmMaterials();
 
-        Set<CaseInsensitiveString> dependencies = new HashSet<CaseInsensitiveString>();
+        Set<CaseInsensitiveString> dependencies = new HashSet<>();
         for (DependencyMaterialConfig material : filterDependencyMaterials()) {
             material.validateUniqueness(dependencies);
         }
@@ -202,7 +202,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     private List<MaterialConfig> getSCMAndPluggableSCMConfigs() {
         List<ScmMaterialConfig> scmMaterials = filterScmMaterials();
         List<PluggableSCMMaterialConfig> pluggableSCMMaterials = filterPluggableSCMMaterials();
-        List<MaterialConfig> allSCMMaterials = new ArrayList<MaterialConfig>();
+        List<MaterialConfig> allSCMMaterials = new ArrayList<>();
         allSCMMaterials.addAll(scmMaterials);
         allSCMMaterials.addAll(pluggableSCMMaterials);
         return allSCMMaterials;
@@ -228,7 +228,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
  */
 
     private List<ScmMaterialConfig> filterScmMaterials() {
-        List<ScmMaterialConfig> scmMaterials = new ArrayList<ScmMaterialConfig>();
+        List<ScmMaterialConfig> scmMaterials = new ArrayList<>();
         for (MaterialConfig material : this) {
             if (material instanceof ScmMaterialConfig) {
                 scmMaterials.add((ScmMaterialConfig) material);
@@ -238,7 +238,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     private List<PluggableSCMMaterialConfig> filterPluggableSCMMaterials() {
-        List<PluggableSCMMaterialConfig> pluggableSCMMaterials = new ArrayList<PluggableSCMMaterialConfig>();
+        List<PluggableSCMMaterialConfig> pluggableSCMMaterials = new ArrayList<>();
         for (MaterialConfig materialConfig : this) {
             if (materialConfig instanceof PluggableSCMMaterialConfig) {
                 pluggableSCMMaterials.add((PluggableSCMMaterialConfig) materialConfig);
@@ -248,7 +248,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     private List<DependencyMaterialConfig> filterDependencyMaterials() {
-        List<DependencyMaterialConfig> dependencyMaterials = new ArrayList<DependencyMaterialConfig>();
+        List<DependencyMaterialConfig> dependencyMaterials = new ArrayList<>();
         for (MaterialConfig material : this) {
             if (material instanceof DependencyMaterialConfig) {
                 dependencyMaterials.add((DependencyMaterialConfig) material);
@@ -273,7 +273,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     private void validateNameUniqueness() {
-        Map<CaseInsensitiveString, AbstractMaterialConfig> materialHashMap = new HashMap<CaseInsensitiveString, AbstractMaterialConfig>();
+        Map<CaseInsensitiveString, AbstractMaterialConfig> materialHashMap = new HashMap<>();
         for (MaterialConfig material : this) {
             material.validateNameUniqueness(materialHashMap);
         }
@@ -379,5 +379,9 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     private void addMaterialConfig(MaterialConfig materialConfig, Map attributes) {
         materialConfig.setConfigAttributes(attributes);
         add(materialConfig);
+    }
+
+    public boolean hasDependencyMaterial(PipelineConfig pipeline) {
+        return findDependencyMaterial(pipeline.name()) != null;
     }
 }

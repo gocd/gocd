@@ -75,7 +75,6 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -148,6 +147,11 @@ public class MaterialServiceTest {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
+        }
+
+        @Override
+        public GitMaterial withShallowClone(boolean value) {
+            return this;
         }
 
         @Override

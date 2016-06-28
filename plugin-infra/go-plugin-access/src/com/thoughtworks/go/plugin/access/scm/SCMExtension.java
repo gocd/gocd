@@ -48,7 +48,7 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     public static final String REQUEST_LATEST_REVISIONS_SINCE = "latest-revisions-since";
     public static final String REQUEST_CHECKOUT = "checkout";
 
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public SCMExtension(PluginManager pluginManager) {

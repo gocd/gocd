@@ -33,7 +33,7 @@ public class DefaultGoApiResponse extends GoApiResponse {
     public static final int VALIDATION_ERROR = 412;
 
     private int responseCode;
-    private Map<String, String> responseHeaders = new HashMap<String, String>();
+    private Map<String, String> responseHeaders = new HashMap<>();
     private String responseBody;
 
     /**

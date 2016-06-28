@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
         
         #foreach ($property in $presenter.getProperties())
         <tr id="property-of-$property.key" class="#if ($velocityCount % 2 == 0) even #else odd #end">
-            <td class="first">$property.key</td>
-            <td>$property.value</td>
+            <td class="first">$esc.html($property.key)</td>
+            <td>$esc.html($property.value)</td>
             <td></td>
         </tr>
         #end

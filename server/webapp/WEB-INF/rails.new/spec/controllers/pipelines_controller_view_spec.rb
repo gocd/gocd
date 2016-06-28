@@ -21,9 +21,6 @@ describe PipelinesController do
   render_views
 
   before(:each) do
-    controller.stub(:populate_health_messages) do
-      controller.instance_variable_set(:@current_server_health_states,com.thoughtworks.go.serverhealth.ServerHealthStates.new)
-    end
     @user = Username.new(CaseInsensitiveString.new("foo"))
     controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
     controller.stub(:go_config_service).and_return(@go_config_service=double())

@@ -1,18 +1,19 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
+
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -33,20 +34,16 @@ import java.util.List;
 public class GoConfigWatchList implements ConfigChangedListener {
     private static final Logger LOGGER = Logger.getLogger(GoConfigWatchList.class);
 
-    private CachedFileGoConfig fileGoConfig;
-
-    private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<ChangedRepoConfigWatchListListener>();
+    private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<>();
     private ConfigReposConfig reposConfig;
 
-    @Autowired public GoConfigWatchList(CachedFileGoConfig fileGoConfig) {
-
-        this.fileGoConfig = fileGoConfig;
-        this.reposConfig  = fileGoConfig.currentConfig().getConfigRepos();
-        this.fileGoConfig.registerListener(this);
+    @Autowired
+    public GoConfigWatchList(CachedGoConfig cachedGoConfig) {
+        this.reposConfig = cachedGoConfig.currentConfig().getConfigRepos();
+        cachedGoConfig.registerListener(this);
     }
 
-    public ConfigReposConfig getCurrentConfigRepos()
-    {
+    public ConfigReposConfig getCurrentConfigRepos() {
         return reposConfig;
     }
 
@@ -57,6 +54,7 @@ public class GoConfigWatchList implements ConfigChangedListener {
         this.reposConfig = partSources;
         notifyListeners(partSources);
     }
+
     private synchronized void notifyListeners(ConfigReposConfig configRepoConfigs) {
         for (ChangedRepoConfigWatchListListener listener : listeners) {
             try {
@@ -77,6 +75,7 @@ public class GoConfigWatchList implements ConfigChangedListener {
 
     public void registerListener(ChangedRepoConfigWatchListListener listener) {
         listeners.add(listener);
+        listener.onChangedRepoConfigWatchList(this.reposConfig);
     }
 
     public boolean hasListener(ChangedRepoConfigWatchListListener listener) {

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -24,7 +24,6 @@ import java.util.Set;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
@@ -34,6 +33,7 @@ import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -64,6 +64,12 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void initialize() {
         goConfigService.register(this);
+        goConfigService.register(new EntityConfigChangedListener<Agents>(){
+            @Override
+            public void onEntityConfigChange(Agents entity) {
+                sync(goConfigService.getEnvironments());
+            }
+        });
     }
 
     public void sync(EnvironmentsConfig environments) {
@@ -76,7 +82,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public List<JobPlan> filterJobsByAgent(List<JobPlan> jobPlans, String agentUuid) {
-        ArrayList<JobPlan> plans = new ArrayList<JobPlan>();
+        ArrayList<JobPlan> plans = new ArrayList<>();
         for (JobPlan jobPlan : jobPlans) {
             if (matchers.match(jobPlan.getPipelineName(), agentUuid)) {
                 plans.add(jobPlan);
@@ -128,7 +134,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public Set<EnvironmentConfig> getEnvironments() {
-        Set<EnvironmentConfig> environmentConfigs = new HashSet<EnvironmentConfig>();
+        Set<EnvironmentConfig> environmentConfigs = new HashSet<>();
         environmentConfigs.addAll(environments);
         return environmentConfigs;
     }
@@ -148,9 +154,9 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     public ConfigElementForEdit<EnvironmentConfig> forEdit(String environmentName, HttpLocalizedOperationResult result) {
         ConfigElementForEdit<EnvironmentConfig> edit = null;
         try {
-            CruiseConfig config = goConfigService.getConfigForEditing();
+            CruiseConfig config = goConfigService.getMergedConfigForEditing();
             EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
-            edit = new ConfigElementForEdit<EnvironmentConfig>(cloner.deepClone(env), config.getMd5());
+            edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
             result.badRequest(LocalizedMessage.string("ENV_NOT_FOUND", environmentName));
         }
@@ -184,9 +190,25 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         }
     }
 
-    public List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user) {
-        List<EnvironmentPipelineModel> pipelines = new ArrayList<EnvironmentPipelineModel>();
-        for (PipelineConfig pipelineConfig : goConfigService.getAllPipelineConfigs()) {
+    public List<EnvironmentPipelineModel> getAllLocalPipelinesForUser(Username user) {
+        List<PipelineConfig> pipelineConfigs = goConfigService.getAllLocalPipelineConfigs();
+        return getAllPipelinesForUser(user, pipelineConfigs);
+    }
+    public List<EnvironmentPipelineModel> getAllRemotePipelinesForUserInEnvironment(Username user,EnvironmentConfig environment) {
+        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
+        for (EnvironmentPipelineConfig pipelineConfig : environment.getRemotePipelines()) {
+            String pipelineName = CaseInsensitiveString.str(pipelineConfig.getName());
+            if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
+                pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(environment.name())));
+            }
+        }
+        Collections.sort(pipelines);
+        return pipelines;
+    }
+
+    private List<EnvironmentPipelineModel> getAllPipelinesForUser(Username user, List<PipelineConfig> pipelineConfigs) {
+        List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
+        for (PipelineConfig pipelineConfig : pipelineConfigs) {
             String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
                 EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
@@ -201,7 +223,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return pipelines;
     }
 
-    public HttpLocalizedOperationResult updateEnvironment(final String named, final EnvironmentConfig newDefinition, final Username username, final String md5) {
+    public HttpLocalizedOperationResult updateEnvironment(final String named, final EnvironmentConfig usersNewDefinition, final Username username, final String md5) {
+        final EnvironmentConfig newDefinition = usersNewDefinition.getLocal();
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", named, username.getDisplayName());
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", named);
@@ -218,7 +241,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return result;
     }
 
-    public static interface EditEnvironments {
+    public interface EditEnvironments {
         void performEdit();
     }
 }

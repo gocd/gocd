@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class EnvironmentVariableContext implements Serializable {
 
     public static final String GO_ENVIRONMENT_NAME = "GO_ENVIRONMENT_NAME";
 
-    private final List<EnvironmentVariable> properties = new ArrayList<EnvironmentVariable>();
+    private final List<EnvironmentVariable> properties = new ArrayList<>();
 
     public EnvironmentVariableContext() {
     }
@@ -126,8 +126,16 @@ public class EnvironmentVariableContext implements Serializable {
         return null;
     }
 
+    public List<String> getPropertyKeys() {
+        ArrayList<String> keys = new ArrayList<>(properties.size());
+        for (EnvironmentVariable property : properties) {
+            keys.add(property.name());
+        }
+        return keys;
+    }
+
     public List<EnvironmentVariable> getSecureEnvironmentVariables() {
-        List<EnvironmentVariable> environmentVariables = new ArrayList<EnvironmentVariable>();
+        List<EnvironmentVariable> environmentVariables = new ArrayList<>();
         for (EnvironmentVariable property : properties) {
             if(property.isSecure()) {
                 environmentVariables.add(property);
@@ -172,7 +180,7 @@ public class EnvironmentVariableContext implements Serializable {
     }
 
     public Map<String, String> getProperties() {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         for (EnvironmentVariable property : properties) {
             map.put(property.name(), property.value());
         }

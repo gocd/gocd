@@ -322,7 +322,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     private void verifyPipelineNameUniqueness() {
-        HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<CaseInsensitiveString, PipelineConfig>();
+        HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<>();
         for(PipelineConfig pipelineConfig : this){
             pipelineConfig.validateNameUniqueness(hashMap);
         }
@@ -375,7 +375,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public List<String> getOperateRoleNames() {
-        List<String> roles = new ArrayList<String>();
+        List<String> roles = new ArrayList<>();
         for (AdminRole role : getOperateRoles()) {
             roles.add(CaseInsensitiveString.str(role.getName()));
         }
@@ -384,7 +384,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public List<String> getOperateUserNames() {
-        List<String> users = new ArrayList<String>();
+        List<String> users = new ArrayList<>();
         for (AdminUser user : getOperateUsers()) {
             users.add(CaseInsensitiveString.str(user.getName()));
         }
@@ -441,7 +441,23 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         }
     }
 
+    public PipelineConfigs getLocal() {
+        if(this.isLocal())
+            return this;
+        return null;
+    }
+
+    @Override
+    public boolean isLocal() {
+        return getOrigin() == null || getOrigin().isLocal();
+    }
+
     public void setOrigin(ConfigOrigin origin) {
         this.configOrigin = origin;
+    }
+
+    @Override
+    public boolean hasRemoteParts() {
+        return getOrigin() != null && !getOrigin().isLocal();
     }
 }

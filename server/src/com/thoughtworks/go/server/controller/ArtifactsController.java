@@ -304,7 +304,7 @@ public class ArtifactsController {
 
     private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final InputStream inputStream) throws Exception {
         File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
-        boolean updated = consoleService.updateConsoleLog(consoleLogFile, inputStream, ConsoleService.LineListener.NO_OP_LINE_LISTENER);
+        boolean updated = consoleService.updateConsoleLog(consoleLogFile, inputStream);
         if (updated) {
             consoleActivityMonitor.consoleUpdatedFor(jobIdentifier);
             return FileModelAndView.fileAppended(consoleLogFile.getPath());

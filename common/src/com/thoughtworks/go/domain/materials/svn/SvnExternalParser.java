@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class SvnExternalParser {
-    private final List<SvnExternalMatcher> matchers = new ArrayList<SvnExternalMatcher>();
+    private final List<SvnExternalMatcher> matchers = new ArrayList<>();
 
     public SvnExternalParser() {
         matchers.add(new Svn14WithRootMatcher());
@@ -40,7 +40,7 @@ public class SvnExternalParser {
     }
 
     public List<SvnExternal> parse(String externals, String repoUrl, String repoRoot) {
-        List<SvnExternal> results = new ArrayList<SvnExternal>();
+        List<SvnExternal> results = new ArrayList<>();
         for (String externalSection : externals.split("\n\n")) {
             parseSection(externalSection, repoUrl, repoRoot, results);
         }

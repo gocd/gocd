@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,10 +99,12 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     }
 
     @Override
-    public void validateContainsOnlyUuids(Set<String> uuids) {
+    public boolean validateContainsOnlyUuids(Set<String> uuids) {
+        boolean isValid = true;
         for (EnvironmentAgentConfig agent : agents) {
-            agent.validateUuidPresent(name, uuids);
+            isValid = agent.validateUuidPresent(name, uuids) && isValid;
         }
+        return isValid;
     }
 
     @Override
@@ -232,7 +234,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public List<CaseInsensitiveString> getPipelineNames() {
-        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<CaseInsensitiveString>();
+        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<>();
         for (EnvironmentPipelineConfig pipeline : pipelines) {
             pipelineNames.add(pipeline.getName());
         }
@@ -283,6 +285,14 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     }
 
     @Override
+    public EnvironmentConfig getLocal() {
+        if(this.isLocal())
+            return this;
+        else
+            return null;
+    }
+
+    @Override
     public ConfigOrigin getOrigin() {
         return origin;
     }
@@ -290,5 +300,45 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.origin = origins;
+        for(EnvironmentVariableConfig environmentVariableConfig : this.variables)
+        {
+            environmentVariableConfig.setOrigins(origins);
+        }
     }
+
+    @Override
+    public EnvironmentPipelinesConfig getRemotePipelines() {
+        if(this.isLocal())
+            return new EnvironmentPipelinesConfig();
+        else
+            return this.pipelines;
+    }
+
+    @Override
+    public EnvironmentAgentsConfig getLocalAgents() {
+        if(this.isLocal())
+            return this.agents;
+        else
+            return new EnvironmentAgentsConfig();
+    }
+
+    public boolean isLocal() {
+        return this.origin == null || this.origin.isLocal();
+    }
+
+    @Override
+    public boolean isEnvironmentEmpty() {
+        return this.variables.isEmpty() && this.agents.isEmpty() && this.pipelines.isEmpty();
+    }
+
+    @Override
+    public boolean containsPipelineRemotely(CaseInsensitiveString pipelineName) {
+        if(this.isLocal())
+            return false;
+        if(!this.containsPipeline(pipelineName))
+            return false;
+
+        return true;
+    }
+
 }

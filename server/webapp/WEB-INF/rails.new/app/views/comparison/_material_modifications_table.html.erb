@@ -10,19 +10,19 @@
         </tr>
         <% scope[:material_revision_in_diff_revisions].getModifications().each do |modification_in_diff_material_revision| %>
             <tr class="change">
-                <td class="revision">
-                    <%== smart_word_breaker(modification_in_diff_material_revision.getRevision()) -%>
+                <td class="revision wrapped_word">
+                    <%= modification_in_diff_material_revision.getRevision() %>
                 </td>
                 <td class="modified_by">
-                    <%== smart_word_breaker(h(modification_in_diff_material_revision.getUserDisplayName())) -%>
+                    <span class="wrapped_word"> <%= modification_in_diff_material_revision.getUserDisplayName() %></span>
                     <br/>
-                    <%== smart_word_breaker(modification_in_diff_material_revision.getModifiedTime().iso8601) -%>
+                    <span class="wrapped_word"> <%= modification_in_diff_material_revision.getModifiedTime().iso8601 %></span>
                 </td>
                 <td class="comment">
                     <%- if params[:pipeline_name] -%>
-                        <%== render_comment(modification_in_diff_material_revision, params[:pipeline_name]) -%>
+                        <%= render_comment(modification_in_diff_material_revision, params[:pipeline_name]) -%>
                     <%- else -%>
-                        <%== modification_in_diff_material_revision.getComment() -%>
+                        <%= modification_in_diff_material_revision.getComment() -%>
                     <%- end -%>
                 </td>
             </tr>

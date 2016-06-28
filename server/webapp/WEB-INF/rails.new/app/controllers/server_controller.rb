@@ -15,4 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class ServerController < ApplicationController
+  def messages
+    @current_server_health_states = server_health_service.logs()
+  end
 end

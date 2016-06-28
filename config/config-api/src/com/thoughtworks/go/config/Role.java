@@ -64,7 +64,7 @@ public class Role implements Validatable {
     }
 
     private void checkForDuplicateUsers(DuplicateHandler dupHandler) {
-        Set<RoleUser> roleUsers = new HashSet<RoleUser>();
+        Set<RoleUser> roleUsers = new HashSet<>();
         for (RoleUser user : users) {
             if (roleUsers.contains(user)) {
                 dupHandler.invoke(user);
@@ -108,7 +108,7 @@ public class Role implements Validatable {
     }
 
     public Set<String> usersOfRole() {
-        Set<String> users = new HashSet<String>();
+        Set<String> users = new HashSet<>();
         for (RoleUser roleUser : this.users) {
             users.add(CaseInsensitiveString.str(roleUser.getName()));
         }
@@ -116,7 +116,7 @@ public class Role implements Validatable {
     }
 
     public List<RoleUser> getUsers() {
-        List<RoleUser> users = new ArrayList<RoleUser>(this.users);
+        List<RoleUser> users = new ArrayList<>(this.users);
         return users;
     }
 

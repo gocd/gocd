@@ -25,11 +25,11 @@ import java.util.Map;
 public class StageIdGenerator {
 
 
-  private static Map<List<String>, Long> stageIds = new HashMap<List<String>, Long>();
+  private static Map<List<String>, Long> stageIds = new HashMap<>();
   private static long lastId = 10000;
 
   public static long idFor(String pipelineName, int pipelineCounter, String stageName, int stageCounter) {
-    List<String> key = new ArrayList<String>();
+    List<String> key = new ArrayList<>();
     key.add(pipelineName);
     key.add(String.valueOf(pipelineCounter));
     key.add(stageName);

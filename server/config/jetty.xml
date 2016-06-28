@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
-<!-- *************************GO-LICENSE-START******************************
- * Copyright 2015 ThoughtWorks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+<!--
+  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
 <!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
 
@@ -53,26 +53,26 @@
     <!-- =========================================================== -->
     <!-- Logging                                                     -->
     <!-- =========================================================== -->
-    <!-- Note: Please create the weblogs directory if not exist -->
-    <!--
+    <!-- To turn this on, set the log level for org.eclipse.jetty.server.RequestLog to INFO -->
     <Get name="handler">
         <Call name="addHandler">
             <Arg>
                 <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
                     <Set name="requestLog">
-                        <New class="org.eclipse.jetty.server.NCSARequestLog">
-                            <Arg><SystemProperty name="jetty.logs" default="./weblogs"/>/jetty-yyyy_mm_dd.request.log</Arg>
-                            <Set name="filenameDateFormat">yyyy_MM_dd</Set>
-                            <Set name="retainDays">7</Set>
-                            <Set name="append">true</Set>
+                        <New class="com.thoughtworks.go.server.logging.Slf4jRequestLogger">
                             <Set name="extended">false</Set>
                             <Set name="logCookies">false</Set>
-                            <Set name="logLatency">false</Set>
+                            <Set name="logLatency">true</Set>
+                            <Set name="ignorePaths">
+                              <Array type="java.lang.String">
+                                <Item>/go/assets/*</Item>
+                                <Item>/go/server/messages.json</Item>
+                              </Array>
+                            </Set>
                         </New>
                     </Set>
                 </New>
             </Arg>
         </Call>
     </Get>
-    -->
 </Configure>

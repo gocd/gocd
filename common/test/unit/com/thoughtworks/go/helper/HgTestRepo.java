@@ -19,10 +19,7 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
@@ -78,8 +75,8 @@ public class HgTestRepo extends TestRepo {
     }
 
     @Override
-    public Modification latestModification() {
-        return latestModifications().get(0);
+    public List<Modification> latestModification() {
+        return latestModifications();
     }
 
     @Override
@@ -149,7 +146,7 @@ public class HgTestRepo extends TestRepo {
     public HgMaterial updateTo(File baseDir) {
         HgMaterial material = material();
         Revision tip = latestRevision(material, baseDir, new TestSubprocessExecutionContext());
-        material.updateTo(ProcessOutputStreamConsumer.inMemoryConsumer(), tip, baseDir, new TestSubprocessExecutionContext());
+        material.updateTo(ProcessOutputStreamConsumer.inMemoryConsumer(), baseDir, new RevisionContext(tip), new TestSubprocessExecutionContext());
         return material;
     }
 

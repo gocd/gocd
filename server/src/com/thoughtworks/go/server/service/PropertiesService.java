@@ -17,9 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -99,7 +97,7 @@ public class PropertiesService implements JobPropertiesReader {
     public List<Properties> loadHistory(String pipelineName, String stageName, String jobName,
                                         Long pipelineId, Integer limitCount) {
         if (limitCount <= 0) {
-            return new ArrayList<Properties>();
+            return new ArrayList<>();
         }
         return propertyDao.loadHistory(pipelineName, stageName, jobName, pipelineId, limitCount);
     }

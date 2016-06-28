@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -82,7 +82,7 @@ public class StageNotificationServiceTest {
     public void setUp() {
         pipelineService = mock(PipelineService.class);
         userService = mock(UserService.class);
-        systemEnvironment = new SystemEnvironment();
+        systemEnvironment = mock(SystemEnvironment.class);
         stageService = mock(StageService.class);
         inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
         serverConfigService = mock(ServerConfigService.class);
@@ -114,6 +114,7 @@ public class StageNotificationServiceTest {
                 return morphURl((String)args[0], expectedBaseUrl);
             }
         });
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
         when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(Arrays.asList(suite1, suite2));
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
 
@@ -148,6 +149,7 @@ public class StageNotificationServiceTest {
     public void shouldNotHaveFailedTestsSectionWhenThereAreNoFailedTests() {
         String jezMail = prepareOneMatchedUser();
         stubPipelineAndStage(new Date());
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
         when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(new ArrayList<TestSuite>());
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
@@ -155,6 +157,34 @@ public class StageNotificationServiceTest {
         String body = inMemoryEmailNotificationTopic.getBody(jezMail);
         assertThat(body, not(containsString(StageNotificationService.FAILED_TEST_SECTION)));
     }
+
+    @Test
+    public void shouldHaveFailedTestsSectionWhenShineIsEnabledAndThereAreFailedTests() {
+        String mail = prepareOneMatchedUser();
+        stubPipelineAndStage(new Date());
+        when(systemEnvironment.isShineEnabled()).thenReturn(true);
+        ArrayList<TestSuite> testSuites = new ArrayList<>();
+        testSuites.add(new TestSuite("blah"));
+        when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(testSuites);
+
+        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
+
+        String body = inMemoryEmailNotificationTopic.getBody(mail);
+        assertThat(body, containsString(StageNotificationService.FAILED_TEST_SECTION));
+    }
+
+    @Test
+    public void shouldNotHaveFailedTestsSectionWhenShineIsDisabled() {
+        String mail = prepareOneMatchedUser();
+        stubPipelineAndStage(new Date());
+        when(systemEnvironment.isShineEnabled()).thenReturn(false);
+
+        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
+
+        String body = inMemoryEmailNotificationTopic.getBody(mail);
+        assertThat(body, not(containsString(StageNotificationService.FAILED_TEST_SECTION)));
+    }
+
 
     @Test
     public void shouldSendEmailWithModificationInfo() throws SQLException {

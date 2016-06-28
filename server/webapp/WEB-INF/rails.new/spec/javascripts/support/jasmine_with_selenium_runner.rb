@@ -52,11 +52,11 @@ class JasmineWithSeleniumRunner
   attr_reader :formatter, :config, :web_driver, :jasmine_server_url, :result_batch_size
 
   def jasmine_testing_started?
-    web_driver.execute_script "return jsApiReporter && jsApiReporter.started"
+    web_driver.execute_script "return window.jsApiReporter && window.jsApiReporter.started"
   end
 
   def jasmine_testing_finished?
-    web_driver.execute_script "return jsApiReporter && jsApiReporter.finished"
+    web_driver.execute_script "return window.jsApiReporter && window.jsApiReporter.finished"
   end
 
   def wait_for_jasmine_to_start

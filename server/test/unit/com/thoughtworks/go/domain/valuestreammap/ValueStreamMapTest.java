@@ -17,16 +17,22 @@
 package com.thoughtworks.go.domain.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.domain.materials.Modifications;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
+import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -55,7 +61,7 @@ public class ValueStreamMapTest {
          */
         String dependent = "P1";
         ValueStreamMap graph = new ValueStreamMap(dependent, null);
-        graph.addUpstreamNode(new SCMDependencyNode("git_fingerprint", "git", "git"), null, dependent);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), null, dependent, new MaterialRevision(null));
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
 
         assertThat(nodesAtEachLevel.size(), is(2));
@@ -77,9 +83,9 @@ public class ValueStreamMapTest {
         String P1 = "P1";
         String currentPipeline = "P2";
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), new Modifications(ModificationsMother.multipleModificationList()), currentPipeline);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), currentPipeline, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(P1, P1), null, currentPipeline);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git2"), new Modifications(ModificationsMother.multipleModificationList()), P1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git2"), P1, new MaterialRevision(null));
 
         SCMDependencyNode node = (SCMDependencyNode) graph.findNode("git_fingerprint");
         HashSet<String> materialNames = new HashSet<String>();
@@ -87,6 +93,33 @@ public class ValueStreamMapTest {
         materialNames.add("git2");
 
         assertThat(node.getMaterialNames(), is(materialNames));
+    }
+
+    @Test
+    public void shouldPopulateSCMDependencyNodeWithMaterialRevisions() {
+        /*
+            git_fingerprint -> P1 ---- \
+                          \              -> p3
+                            -> P2 ---- /
+         */
+
+        String P1 = "P1";
+        String P2 = "P2";
+        String currentPipeline = "P3";
+        ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
+        MaterialRevision revision1 = new MaterialRevision(MaterialsMother.gitMaterial("test/repo1"), oneModifiedFile("revision1"));
+        MaterialRevision revision2 = new MaterialRevision(MaterialsMother.gitMaterial("test/repo2"), oneModifiedFile("revision2"));
+
+        graph.addUpstreamNode(new PipelineDependencyNode(P1, P1), null, currentPipeline);
+        graph.addUpstreamNode(new PipelineDependencyNode(P2, P2), null, currentPipeline);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P1, revision1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P2, revision2);
+
+        SCMDependencyNode node = (SCMDependencyNode) graph.findNode("git_fingerprint");
+
+        assertThat(node.getMaterialRevisions().size(), is(2));
+        assertTrue(node.getMaterialRevisions().contains(revision1));
+        assertTrue(node.getMaterialRevisions().contains(revision2));
     }
 
     @Test
@@ -99,9 +132,9 @@ public class ValueStreamMapTest {
         String P1 = "P1";
         String currentPipeline = "P2";
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), new Modifications(), currentPipeline);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), currentPipeline, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(P1, P1), null, currentPipeline);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), new Modifications(), P1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P1, new MaterialRevision(null));
 
         SCMDependencyNode node = (SCMDependencyNode) graph.findNode("git_fingerprint");
         HashSet<String> materialNames = new HashSet<String>();
@@ -120,9 +153,9 @@ public class ValueStreamMapTest {
         String P1 = "P1";
         String currentPipeline = "P2";
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "http://git.com", "git"), null, new Modifications(), currentPipeline);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "http://git.com", "git"), null, currentPipeline, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(P1, P1), null, currentPipeline);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "http://git.com", "git"), null , new Modifications(), P1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "http://git.com", "git"), null , P1, new MaterialRevision(null));
 
         SCMDependencyNode node = (SCMDependencyNode) graph.findNode("git_fingerprint");
 
@@ -221,10 +254,10 @@ public class ValueStreamMapTest {
 		graph.addUpstreamNode(new PipelineDependencyNode(plugins, plugins), null, acceptance);
 		graph.addUpstreamNode(new PipelineDependencyNode(gitPlugins, gitPlugins), null, plugins);
 		graph.addUpstreamNode(new PipelineDependencyNode(cruise, cruise), null, plugins);
-		graph.addUpstreamNode(new SCMDependencyNode(gitTrunk, gitTrunk, "git"), null, cruise);
-		graph.addUpstreamNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, cruise);
+		graph.addUpstreamMaterialNode(new SCMDependencyNode(gitTrunk, gitTrunk, "git"), null, cruise, new MaterialRevision(null));
+		graph.addUpstreamMaterialNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, cruise, new MaterialRevision(null));
 		graph.addUpstreamNode(new PipelineDependencyNode(cruise, cruise), null, acceptance);
-		graph.addUpstreamNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, acceptance);
+		graph.addUpstreamMaterialNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, acceptance, new MaterialRevision(null));
 
 		List<Node> rootNodes = graph.getRootNodes();
 		assertThat(rootNodes.size(), is(3));
@@ -333,10 +366,10 @@ public class ValueStreamMapTest {
         graph.addUpstreamNode(new PipelineDependencyNode(plugins, plugins), null, acceptance);
         graph.addUpstreamNode(new PipelineDependencyNode(gitPlugins, gitPlugins), null, plugins);
         graph.addUpstreamNode(new PipelineDependencyNode(cruise, cruise), null, plugins);
-        graph.addUpstreamNode(new SCMDependencyNode(gitTrunk, gitTrunk, "git"), null, cruise);
-        graph.addUpstreamNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, cruise);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(gitTrunk, gitTrunk, "git"), null, cruise, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, cruise, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(cruise, cruise), null, acceptance);
-        graph.addUpstreamNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, acceptance);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(hgTrunk, hgTrunk, "hg"), null, acceptance, new MaterialRevision(null));
 
         graph.addDownstreamNode(new PipelineDependencyNode(deployGo03, deployGo03), acceptance);
         graph.addDownstreamNode(new PipelineDependencyNode(publish, publish), deployGo03);
@@ -383,8 +416,8 @@ public class ValueStreamMapTest {
         graph.addDownstreamNode(new PipelineDependencyNode(grandParent, grandParent), child);
         graph.addUpstreamNode(new PipelineDependencyNode(parent, parent), null, currentPipeline);
         graph.addUpstreamNode(new PipelineDependencyNode(grandParent, grandParent), null, parent);
-        graph.addUpstreamNode(new SCMDependencyNode("g","g","git") , null, grandParent);
-        graph.addUpstreamNode(new SCMDependencyNode("g","g","git") , null, parent);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g","g","git") , null, grandParent, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g","g","git") , null, parent, new MaterialRevision(null));
 
         assertThat(graph.hasCycle(), is(true));
     }
@@ -405,7 +438,7 @@ public class ValueStreamMapTest {
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(b, b), null, c);
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(d, d), null, b);
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(a, a), null, d);
-        valueStreamMap.addUpstreamNode(new SCMDependencyNode("g", "g", "git"), null, a);
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, a, new MaterialRevision(null));
 
         assertThat(valueStreamMap.hasCycle(), is(false));
     }
@@ -425,7 +458,7 @@ public class ValueStreamMapTest {
         String c = "C";
         ValueStreamMap graph = new ValueStreamMap(b, null);
         graph.addUpstreamNode(new PipelineDependencyNode(a, a), null, b);
-        graph.addUpstreamNode(new SCMDependencyNode("g","g","git"), null, a);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g","g","git"), null, a, new MaterialRevision(null));
         graph.addDownstreamNode(new PipelineDependencyNode(a, a), b);
         graph.addDownstreamNode(new PipelineDependencyNode(c, c), a);
 
@@ -456,15 +489,48 @@ public class ValueStreamMapTest {
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(p3, p3), null, p4);
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(p2, p2), null, p3);
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(p1, p1), null, p2);
-        valueStreamMap.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p1);
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p1, new MaterialRevision(null));
 
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(p5, p5), new PipelineRevision(p5,2,"2"), current);
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(p6, p6), new PipelineRevision(p6,1,"1"), p5);
         valueStreamMap.addUpstreamNode(new PipelineDependencyNode(p5, p5), new PipelineRevision(p5,1,"1"), p6);
-        valueStreamMap.addUpstreamNode(new SCMDependencyNode(g2,g2,"git"), null, p5);
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode(g2,g2,"git"), null, p5, new MaterialRevision(null));
 
         assertThat(valueStreamMap.hasCycle(), is(true));
     }
 
+    @Test
+    public void currentPipelineShouldHaveWarningsIfBuiltFromIncompatibleRevisions() {
+        String current = "current";
+
+        ValueStreamMap valueStreamMap = new ValueStreamMap(current, null);
+        SCMDependencyNode scmDependencyNode = new SCMDependencyNode("id", "git_node", "git");
+        MaterialRevision rev1 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev1"));
+        MaterialRevision rev2 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev2"));
+
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev1);
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev2);
+
+        valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
+
+        assertThat(valueStreamMap.getCurrentPipeline().getViewType(), is(is(VSMViewType.WARNING)));
+    }
+
+    @Test
+    public void currentPipelineShouldNotHaveWarningsIfBuiltFromMultipleMaterialRevisionsWithSameLatestRevision() {
+        String current = "current";
+
+        ValueStreamMap valueStreamMap = new ValueStreamMap(current, null);
+        SCMDependencyNode scmDependencyNode = new SCMDependencyNode("id", "git_node", "git");
+        MaterialRevision rev1 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev1"));
+        MaterialRevision rev2 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev1"), ModificationsMother.oneModifiedFile("rev2"));
+
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev1);
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev2);
+
+        valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
+
+        assertNull(valueStreamMap.getCurrentPipeline().getViewType());
+    }
 }
 

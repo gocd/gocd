@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -49,10 +49,12 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         configErrors.add(fieldName, message);
     }
 
-    public void validateContainOnlyUuids(Set<String> uuids) {
+    public boolean validateContainOnlyUuids(Set<String> uuids) {
+        boolean isValid = true;
         for (EnvironmentConfig environmentConfig : this) {
-            environmentConfig.validateContainsOnlyUuids(uuids);
+            isValid = environmentConfig.validateContainsOnlyUuids(uuids) && isValid;
         }
+        return isValid;
     }
 
     public void validateContainOnlyPiplines(List<CaseInsensitiveString> pipelineNames) {
@@ -143,6 +145,15 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return false;
     }
 
+    public boolean isPipelineAssociatedWithRemoteEnvironment(final CaseInsensitiveString pipelineName) {
+        for (EnvironmentConfig environment : this) {
+            if (environment.containsPipelineRemotely(pipelineName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isAgentUnderEnvironment(String agentUuid) {
         for (EnvironmentConfig environment : this) {
             if (environment.hasAgent(agentUuid)) {
@@ -153,16 +164,22 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public EnvironmentConfig named(final CaseInsensitiveString envName) throws NoSuchEnvironmentException {
+        EnvironmentConfig environmentConfig = find(envName);
+        if (environmentConfig != null) return environmentConfig;
+        throw new NoSuchEnvironmentException(envName);
+    }
+
+    public EnvironmentConfig find(CaseInsensitiveString envName) {
         for (EnvironmentConfig environmentConfig : this) {
             if(environmentConfig.name().equals(envName)) {
                 return environmentConfig;
             }
         }
-        throw new NoSuchEnvironmentException(envName);
+        return null;
     }
 
     public List<CaseInsensitiveString> names() {
-        ArrayList<CaseInsensitiveString> names = new ArrayList<CaseInsensitiveString>();
+        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
         for (EnvironmentConfig environment : this) {
             names.add(environment.name());
         }
@@ -170,7 +187,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public TreeSet<String> environmentsForAgent(String agentUuid) {
-        TreeSet<String> environmentNames = new TreeSet<String>(new AlphaAsciiComparator());
+        TreeSet<String> environmentNames = new TreeSet<>(new AlphaAsciiComparator());
         for (EnvironmentConfig config : this) {
             if (config.hasAgent(agentUuid)) {
                 environmentNames.add(CaseInsensitiveString.str(config.name()));
@@ -180,12 +197,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {
-        for (EnvironmentConfig environmentConfig : this) {
-            if(environmentConfig.name().equals(environmentName)) {
-                return true;
-            }
-        }
-        return false;
+        return find(environmentName) != null;
     }
 
 
@@ -193,5 +205,16 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         for (EnvironmentConfig environmentConfig : this) {
             environmentConfig.removeAgent(uuid);
         }
+    }
+
+    public EnvironmentsConfig getLocal() {
+        EnvironmentsConfig locals = new EnvironmentsConfig();
+        for(EnvironmentConfig environmentConfig : this)
+        {
+            EnvironmentConfig local = environmentConfig.getLocal();
+            if(local != null)
+                locals.add(local);
+        }
+        return locals;
     }
 }

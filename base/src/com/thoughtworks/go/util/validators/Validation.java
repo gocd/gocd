@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 public class Validation {
     public static final Validation SUCCESS = new Validation();
 
-    private ArrayList<Exception> errors = new ArrayList<Exception>();
+    private ArrayList<Exception> errors = new ArrayList<>();
 
     public boolean isSuccessful() {
         return errors.size() == 0;

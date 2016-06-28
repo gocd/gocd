@@ -2,7 +2,7 @@
 <%== content_wrapper_tag %>
 <div class="notification pagenotfound">
     <div class='biggest'>:(</div>
-    <h3><%== @message -%></h3>
+    <h3><%= @message %></h3>
     <span>Go to <%= link_to "Pipelines", url_for_path('pipelines') %></span>
 </div>
 <%== end_content_wrapper %>

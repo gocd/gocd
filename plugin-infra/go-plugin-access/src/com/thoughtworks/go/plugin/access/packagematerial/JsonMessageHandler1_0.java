@@ -191,7 +191,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     private PackageMaterialProperty toPackageMaterialProperty(String key, Map configuration) {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         String defaultValue = null;
         try {
             defaultValue = (String) configuration.get("default-value");

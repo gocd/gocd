@@ -34,13 +34,11 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,10 +47,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
 
 public class MaterialConfigsTest {
     private GoConfigMother goConfigMother;
@@ -405,6 +402,25 @@ Above scenario allowed
     }
 
     @Test
+    public void shouldAllowModifyingTheAutoUpdateFieldOfMaterials() throws Exception {
+        GitMaterialConfig gitMaterial = new GitMaterialConfig("https://url", "master");
+        gitMaterial.setAutoUpdate(true);
+
+        GitMaterialConfig modifiedGitMaterial = new GitMaterialConfig("https://url", "master");
+        modifiedGitMaterial.setAutoUpdate(false);
+
+        MaterialConfigs configs = new MaterialConfigs();
+        configs.add(gitMaterial);
+
+        CruiseConfig config = GoConfigMother.configWithPipelines("one");
+        PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
+        pipelineOne.setMaterialConfigs(new MaterialConfigs(modifiedGitMaterial));
+
+        configs.validate(ConfigSaveValidationContext.forChain(config));
+        assertTrue(gitMaterial.errors().isEmpty());
+    }
+
+    @Test
     public void shouldNotRunMultipleMaterialsValidationIfPipelineContainsOnlyOneMaterial() {
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -619,5 +635,16 @@ Above scenario allowed
         MaterialConfigs materialConfigs = new MaterialConfigs();
         assertThat(materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig())), is(false));
         assertThat(materialConfigs.errors().firstError(), is("A pipeline must have at least one material"));
+    }
+
+    @Test
+    public void shouldTellWhetherItHasDependencyOnSpecifiedPipeline() throws Exception {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
+        goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
+
+        assertTrue(pipeline2.materialConfigs().hasDependencyMaterial(pipeline1));
+        assertFalse(pipeline1.materialConfigs().hasDependencyMaterial(pipeline2));
     }
 }

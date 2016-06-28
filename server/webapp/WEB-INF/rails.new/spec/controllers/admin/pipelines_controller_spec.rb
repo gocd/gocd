@@ -18,7 +18,6 @@ require 'spec_helper'
 
 describe Admin::PipelinesController do
   before do
-    controller.stub(:populate_health_messages)
     controller.stub(:pipeline_pause_service).with().and_return(@pipeline_pause_service = double('Pipeline Pause Service'))
   end
 
@@ -141,9 +140,6 @@ describe Admin::PipelinesController do
       render_views
 
       before do
-        controller.stub(:populate_health_messages) do
-          controller.instance_variable_set :@current_server_health_states, com.thoughtworks.go.serverhealth.ServerHealthStates.new
-        end
         @go_config_service.stub(:isSecurityEnabled).and_return(false)
       end
 
@@ -638,7 +634,7 @@ describe Admin::PipelinesController do
       @pluggable_task_service.stub(:validate)
       task_view_service = double('Task View Service')
       controller.stub(:task_view_service).and_return(task_view_service)
-      @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
+      @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
       task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       stub_save_for_success
@@ -664,7 +660,7 @@ describe Admin::PipelinesController do
       @pluggable_task_service.stub(:validate) do |task|
         task.getConfiguration().getProperty("key").addError("key", "some error")
       end
-      @new_task = PluggableTask.new("", PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
+      @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
       task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
       task_view_service.should_receive(:getViewModel).with(@new_task, "new").and_return(TaskViewModel.new(nil, nil, nil))
       task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))

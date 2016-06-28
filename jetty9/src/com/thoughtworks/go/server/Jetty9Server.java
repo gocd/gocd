@@ -31,7 +31,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -109,13 +108,6 @@ public class Jetty9Server extends AppServer {
     @Override
     public void setInitParameter(String name, String value) {
         webAppContext.setInitParameter(name, value);
-    }
-
-    @Override
-    public void addStopServlet() {
-        ServletHolder holder = new ServletHolder();
-        holder.setServlet(new StopJettyFromLocalhostServlet(this));
-        webAppContext.addServlet(holder, "/jetty/stop");
     }
 
     @Override

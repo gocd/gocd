@@ -38,7 +38,7 @@ public class GoConfigClassWriter {
     }
 
     public List<GoConfigFieldWriter> getAllFields(Object render) {
-        ArrayList<GoConfigFieldWriter> fields = new ArrayList<GoConfigFieldWriter>();
+        ArrayList<GoConfigFieldWriter> fields = new ArrayList<>();
         for (Field declaredField : configCache.getFieldCache().valuesFor(aClass)) {
             try {
                 declaredField.setAccessible(true);

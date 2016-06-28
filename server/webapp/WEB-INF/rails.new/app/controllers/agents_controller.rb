@@ -40,7 +40,7 @@ class AgentsController < ApplicationController
 
   def index
     @agents = agent_service.agents
-    @agents.filter(params[:filter])
+    @agents.filter(filter)
     @agents.sortBy(ORDERS[params[:column]], specified_order)
 
     @agents_disabled = @agents.disabledCount()
@@ -67,6 +67,10 @@ class AgentsController < ApplicationController
   end
 
   private
+
+  def filter
+    CGI.unescapeHTML(params[:filter]) if params[:filter]
+  end
 
   def populate_agent_for_details
     uuid = params[:uuid]

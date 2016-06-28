@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,20 +69,14 @@
  */
 package com.thoughtworks.go.util.command;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ListUtil.join;
@@ -112,12 +106,12 @@ public class CommandLine {
     private static final Logger LOG = Logger.getLogger(CommandLine.class);
 
     private final String executable;
-    private final List<CommandArgument> arguments = new ArrayList<CommandArgument>();
-    private List<SecretString> secrets = new ArrayList<SecretString>();
+    private final List<CommandArgument> arguments = new ArrayList<>();
+    private List<SecretString> secrets = new ArrayList<>();
 
     private File workingDir = null;
-    private Map<String, String> env = new HashMap<String, String>();
-    private List<String> inputs = new ArrayList<String>();
+    private Map<String, String> env = new HashMap<>();
+    private List<String> inputs = new ArrayList<>();
     private String encoding;
     public static final long NO_TIMEOUT = -1;
     private final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
@@ -159,7 +153,7 @@ public class CommandLine {
      * Returns the executable and all defined arguments.
      */
     String[] getCommandLine() {
-        List<String> args = new ArrayList<String>();
+        List<String> args = new ArrayList<>();
         if (executable != null) {
             args.add(executable);
         }
@@ -171,7 +165,7 @@ public class CommandLine {
     }
 
     private String[] getCommandLineForDisplay() {
-        List<String> args = new ArrayList<String>();
+        List<String> args = new ArrayList<>();
         if (executable != null) {
             args.add(executable);
         }

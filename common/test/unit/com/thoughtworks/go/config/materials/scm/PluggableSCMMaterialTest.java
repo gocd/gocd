@@ -1,17 +1,18 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.thoughtworks.go.config.materials.scm;
@@ -19,6 +20,7 @@ package com.thoughtworks.go.config.materials.scm;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
@@ -29,6 +31,7 @@ import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
@@ -487,6 +490,18 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         assertThat(material.supportsDestinationFolder(), is(true));
     }
+
+    @Test
+    public void shouldUpdateMaterialFromMaterialConfig(){
+        PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+        PluggableSCMMaterialConfig materialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
+        Configuration configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("new_key"), new ConfigurationValue("new_value")));
+        materialConfig.getSCMConfig().setConfiguration(configuration);
+
+        material.updateFromConfig(materialConfig);
+        assertThat(material.getScmConfig().getConfiguration().equals(materialConfig.getSCMConfig().getConfiguration()), is(true));
+    }
+
 
     private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();

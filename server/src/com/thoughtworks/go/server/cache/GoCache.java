@@ -1,25 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.cache;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.PersistentObject;
@@ -28,9 +23,15 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -38,9 +39,9 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * @understands storing and retrieving objects from an underlying LRU cache
  */
 public class GoCache {
-    private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<Boolean>();
+    private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<>();
 
-    private final String SUB_KEY_DELIMITER = "!_#$#_!";
+    static final String SUB_KEY_DELIMITER = "!_#$#_!";
 
     private Cache ehCache;
 
@@ -66,8 +67,13 @@ public class GoCache {
     private GoCache(Cache cache, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.ehCache = cache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
-        this.nullObjectClasses = new HashSet<Class<? extends PersistentObject>>();
+        this.nullObjectClasses = new HashSet<>();
         nullObjectClasses.add(NullUser.class);
+        registerAsCacheEvictionListener();
+    }
+
+    protected void registerAsCacheEvictionListener() {
+        ehCache.getCacheEventNotificationService().registerListener(new CacheEvictionListener(this));
     }
 
     public void stopServingForTransaction() {
@@ -194,6 +200,29 @@ public class GoCache {
         }
     }
 
+    public void removeAssociations(String key, Element element) {
+        if (element.getObjectValue() instanceof KeyList) {
+            synchronized (key.intern()) {
+                for (String subkey : (KeyList) element.getObjectValue()) {
+                    remove(compositeKey(key, subkey));
+                }
+            }
+        } else if (key.contains(SUB_KEY_DELIMITER)) {
+            String[] parts = StringUtils.splitByWholeSeparator(key, SUB_KEY_DELIMITER);
+            String parentKey = parts[0];
+            String childKey = parts[1];
+            synchronized (parentKey.intern()) {
+                Element parent = ehCache.get(parentKey);
+                if (parent == null) {
+                    return;
+                }
+                GoCache.KeyList subKeys = (GoCache.KeyList) parent.getObjectValue();
+                subKeys.remove(childKey);
+            }
+        }
+    }
+
+
     public boolean isKeyInCache(Object key) {
         return ehCache.isKeyInCache(key);
     }
@@ -226,7 +255,7 @@ public class GoCache {
         return ehCache.getCacheConfiguration();
     }
 
-    private static interface Predicate {
+    private interface Predicate {
         boolean isTrue();
     }
 

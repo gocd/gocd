@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 @Component
 public class MaterialUpdateStatusNotifier implements GoMessageListener<MaterialUpdateCompletedMessage> {
     private static final Logger LOGGER = Logger.getLogger(MaterialUpdateStatusNotifier.class);
-    private final ConcurrentMap<String, MaterialUpdateStatusListener> pending = new ConcurrentHashMap<String, MaterialUpdateStatusListener>();
+    private final ConcurrentMap<String, MaterialUpdateStatusListener> pending = new ConcurrentHashMap<>();
 
     @Autowired
     public MaterialUpdateStatusNotifier(MaterialUpdateCompletedTopic topic) {

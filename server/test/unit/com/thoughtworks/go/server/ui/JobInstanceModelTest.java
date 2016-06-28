@@ -20,9 +20,6 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 
-import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
-import static com.thoughtworks.go.helper.JobInstanceMother.passed;
-
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.util.TestingClock;
 import static org.hamcrest.core.Is.is;
@@ -75,7 +72,7 @@ public class JobInstanceModelTest {
         clock.addSeconds(elapsedSeconds);
 
         return new JobInstanceModel(instance, new JobDurationStrategy.ConstantJobDuration(etaSeconds*1000));
-    }   
+    }
 
     @Test
     public void shouldTellIfInProgress() {

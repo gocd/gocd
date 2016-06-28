@@ -32,7 +32,7 @@ import org.openrdf.query.BindingSet;
 
 public class SesameBoundVariables implements BoundVariables, Serializable {
 
-    private Map<String, Value> bindings = new LinkedHashMap<String, Value>();
+    private Map<String, Value> bindings = new LinkedHashMap<>();
 
     SesameBoundVariables(List<String> bindingNames, BindingSet bindingSet) {
 
@@ -57,7 +57,7 @@ public class SesameBoundVariables implements BoundVariables, Serializable {
     }
 
     public List<String> getBoundVariableNames() {
-        return new LinkedList<String>(bindings.keySet());
+        return new LinkedList<>(bindings.keySet());
     }
 
     public URIReference getURIReference(String boundName) {

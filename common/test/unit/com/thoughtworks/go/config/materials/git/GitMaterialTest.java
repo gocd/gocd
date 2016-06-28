@@ -19,8 +19,7 @@ package com.thoughtworks.go.config.materials.git;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.materials.Materials;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -28,14 +27,16 @@ import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
+
+import java.io.*;
+
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
@@ -46,14 +47,9 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.util.*;
 
-import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -66,6 +62,8 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(JunitExtRunner.class)
 public class GitMaterialTest {
@@ -82,11 +80,6 @@ public class GitMaterialTest {
     private static final String GIT_VERSION_1_5_4_3 = "git version 1.5.4.3";
     private static final String GIT_VERSION_1_6_0_2_ON_WINDOWS = "git version 1.6.0.2.1172.ga5ed0";
     private static final String GIT_VERSION_NODE_ON_WINDOWS = "git version ga5ed0asdasd.ga5ed0";
-    private static final StringRevision REVISION_0 = new StringRevision("55502a724dd8574f1e4bcf19b605a1f4f182e892");
-    private static final StringRevision REVISION_1 = new StringRevision("b613aee673d96e967100306222246aa9decbc53c");
-    private static final StringRevision REVISION_2 = new StringRevision("4ab7833f55024c975cf5b918af640954c108825e");
-    private static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
-    private static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
     private static final String SUBMODULE = "submodule-1";
     private GitTestRepo gitFooBranchBundle;
 
@@ -116,6 +109,12 @@ public class GitMaterialTest {
     public void shouldGetLatestModification() throws Exception {
         List<Modification> modifications = git.latestModification(workingDir, new TestSubprocessExecutionContext());
         assertThat(modifications.size(), is(1));
+    }
+
+    @Test
+    public void shouldNotCheckingOutWorkingCopyUponCallingGetLatestModification() throws Exception {
+        git.latestModification(workingDir, new TestSubprocessExecutionContext(true));
+        assertWorkingCopyNotCheckedOut(workingDir);
     }
 
     @Test
@@ -155,6 +154,22 @@ public class GitMaterialTest {
     }
 
     @Test
+    public void shouldRetrieveLatestModificationIfRevisionIsNotFound() throws IOException {
+        List<Modification> modifications = git.modificationsSince(workingDir, NON_EXISTENT_REVISION, new TestSubprocessExecutionContext());
+        assertThat(modifications, is(git.latestModification(workingDir, new TestSubprocessExecutionContext())));
+    }
+
+    @Test
+    public void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() throws Exception {
+        SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
+        GitMaterial material = new GitMaterial(repositoryUrl, true);
+        when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(false);
+
+        material.modificationsSince(workingDir, REVISION_0, new TestSubprocessExecutionContext(mockSystemEnvironment, true));
+        assertWorkingCopyNotCheckedOut(workingDir);
+    }
+
+    @Test
     public void shouldRetrieveModifiedFiles() throws Exception {
         List<Modification> mods = git.modificationsSince(workingDir, REVISION_0, new TestSubprocessExecutionContext());
         List<ModifiedFile> mod1Files = mods.get(0).getModifiedFiles();
@@ -169,13 +184,13 @@ public class GitMaterialTest {
         assertThat(outputStreamConsumer.getStdError(), is(""));
 
         InMemoryStreamConsumer output = inMemoryConsumer();
-        git.updateTo(output, REVISION_1, workingDir, new TestSubprocessExecutionContext());
+        git.updateTo(output, workingDir, new RevisionContext(REVISION_1, REVISION_0, 2), new TestSubprocessExecutionContext());
         assertThat(output.getStdOut(),
                 containsString("Start updating files at revision " + REVISION_1.getRevision()));
         assertThat(newFile.exists(), is(false));
 
         output = inMemoryConsumer();
-        git.updateTo(output, REVISION_2, workingDir, new TestSubprocessExecutionContext());
+        git.updateTo(output, workingDir, new RevisionContext(REVISION_2, REVISION_1, 2), new TestSubprocessExecutionContext());
         assertThat(output.getStdOut(),
                 containsString("Start updating files at revision " + REVISION_2.getRevision()));
         assertThat(newFile.exists(), is(true));
@@ -187,13 +202,14 @@ public class GitMaterialTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-        gitMaterial.updateTo(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
+        StringRevision revision = new StringRevision("origin/master");
+        gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
         assertThat(new File(workingDir, "sub1"), exists());
 
         submoduleRepos.removeSubmodule("sub1");
 
         outputStreamConsumer = inMemoryConsumer();
-        gitMaterial.updateTo(outputStreamConsumer, new StringRevision("origin/master"), workingDir, new TestSubprocessExecutionContext());
+        gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
         assertThat(new File(workingDir, "sub1"), not(exists()));
     }
 
@@ -231,7 +247,7 @@ public class GitMaterialTest {
         FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi");
         assertThat(shouldNotBeRemoved.exists(), is(true));
 
-        git = new GitMaterial("file://" + repositoryUrl);
+        git = new GitMaterial(repositoryUrl.replace("file://", ""));
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
     }
@@ -290,7 +306,8 @@ public class GitMaterialTest {
         git = new GitMaterial(badHost);
         validationBean = git.checkConnection(new TestSubprocessExecutionContext());
         assertThat("Connection should not be valid", validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("Repository " + badHost + " not found!"));
+        assertThat(validationBean.getError(), containsString("Error performing command"));
+        assertThat(validationBean.getError(), containsString("git ls-remote http://nonExistantHost/git refs/heads/master"));
     }
 
     @Test
@@ -362,7 +379,7 @@ public class GitMaterialTest {
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnLinux()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_6_0_2);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }
@@ -370,7 +387,7 @@ public class GitMaterialTest {
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnWindows()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_6_0_2_ON_WINDOWS);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2_ON_WINDOWS);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }
@@ -378,7 +395,7 @@ public class GitMaterialTest {
 
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_NODE_ON_WINDOWS);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_NODE_ON_WINDOWS);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }
@@ -408,14 +425,14 @@ public class GitMaterialTest {
 
     @Test
     public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
-        git.updateTo(outputStreamConsumer, REVISION_1, workingDir, new TestSubprocessExecutionContext());
+        git.updateTo(outputStreamConsumer, workingDir, new RevisionContext(REVISION_1), new TestSubprocessExecutionContext());
         assertThat(outputStreamConsumer.getStdOut(), containsString(
                 format("Start updating %s at revision %s from %s", "files", REVISION_1.getRevision(),
                         git.getUrl())));
     }
 
     @Test
-    public void shouldGetLatestModificationsFromSubmodules() throws Exception {
+    public void shouldGetLatestModificationsFromRepoWithSubmodules() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
@@ -428,10 +445,6 @@ public class GitMaterialTest {
         assertThat(materialRevisions.numberOfRevisions(), is(1));
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
         assertThat(materialRevision.getRevision().getRevision(), is(submoduleRepos.currentRevision(GitSubmoduleRepos.NAME)));
-
-        File file = submoduleRepos.files(SUBMODULE).get(0);
-        File workingSubmoduleFolder = new File(workingDirectory, "sub1");
-        assertThat(new File(workingSubmoduleFolder, file.getName()), exists());
     }
 
     @Test
@@ -566,5 +579,9 @@ public class GitMaterialTest {
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
         assertThat((String) configuration.get("url"), is("http://username:******@gitrepo.com"));
         assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+    }
+
+    private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {
+        assertThat(localWorkingDir.listFiles(), is(new File[]{new File(localWorkingDir, ".git")}));
     }
 }

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.messaging.plugin;
 
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

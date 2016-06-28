@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service.tasks;
 
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
@@ -31,7 +32,6 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -46,9 +47,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class PluggableTaskServiceTest {
@@ -79,7 +80,7 @@ public class PluggableTaskServiceTest {
     @Test
     public void shouldValidateTask() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTask modifiedTask = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("KEY1", "error message"));
         when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
@@ -94,7 +95,7 @@ public class PluggableTaskServiceTest {
     @Test
     public void shouldValidateMandatoryFields() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTask modifiedTask = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
         when(localizer.localize("MANDATORY_CONFIGURATION_FIELD")).thenReturn("MANDATORY_CONFIGURATION_FIELD");
@@ -117,7 +118,7 @@ public class PluggableTaskServiceTest {
     public void shouldPassValidationIfAllRequiredFieldsHaveValues() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         configuration.getProperty("KEY1").setConfigurationValue(new ConfigurationValue("junk"));
-        PluggableTask modifiedTask = new PluggableTask("abc", new PluginConfiguration(pluginId, "1"), configuration);
+        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
 
@@ -125,5 +126,85 @@ public class PluggableTaskServiceTest {
 
         final List<ValidationError> validationErrors = validationResult.getErrors();
         assertTrue(validationErrors.isEmpty());
+    }
+
+    @Test
+    public void isValidShouldValidateThePluggableTask() {
+        PluggableTask pluggableTask = mock(PluggableTask.class);
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("plugin_id", "version");
+
+        when(pluggableTask.isValid()).thenReturn(true);
+        when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
+        when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(new ValidationResult());
+
+        assertTrue(pluggableTaskService.isValid(pluggableTask));
+    }
+
+    @Test
+    public void isValidShouldValidateTaskAgainstPlugin() {
+        TaskConfig taskConfig = mock(TaskConfig.class);
+        ValidationResult validationResult = mock(ValidationResult.class);
+        PluggableTask pluggableTask = mock(PluggableTask.class);
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("plugin_id", "version");
+
+        when(pluggableTask.isValid()).thenReturn(true);
+        when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
+        when(pluggableTask.toTaskConfig()).thenReturn(taskConfig);
+        when(taskExtension.validate(pluginConfiguration.getId(), taskConfig)).thenReturn(validationResult);
+        when(validationResult.isSuccessful()).thenReturn(true);
+
+        assertTrue(pluggableTaskService.isValid(pluggableTask));
+    }
+
+    @Test
+    public void isValidShouldSkipValidationAgainstPluginIfPluggableTaskIsInvalid() {
+        PluggableTask pluggableTask = mock(PluggableTask.class);
+
+        when(pluggableTask.isValid()).thenReturn(false);
+
+        assertFalse(pluggableTaskService.isValid(pluggableTask));
+
+        verifyZeroInteractions(taskExtension);
+    }
+
+    @Test
+    public void isValidShouldMapPluginValidationErrorsToPluggableTaskConfigrations() {
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("plugin_id", "version");
+        Configuration configuration = new Configuration();
+        configuration.add(ConfigurationPropertyMother.create("source", false, "src_dir"));
+        configuration.add(ConfigurationPropertyMother.create("destination", false, "dest_dir"));
+
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("source", "source directory format is invalid"));
+        validationResult.addError(new ValidationError("destination", "destination directory format is invalid"));
+
+        PluggableTask pluggableTask = mock(PluggableTask.class);
+
+        when(pluggableTask.isValid()).thenReturn(true);
+        when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
+        when(pluggableTask.getConfiguration()).thenReturn(configuration);
+        when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(validationResult);
+
+        assertFalse(pluggableTaskService.isValid(pluggableTask));
+        assertThat(configuration.getProperty("source").errors().get("source").get(0), is("source directory format is invalid"));
+        assertThat(configuration.getProperty("destination").errors().get("destination").get(0), is("destination directory format is invalid"));
+    }
+
+    @Test
+    public void isValidShouldMapPluginValidationErrorsToPluggableTaskForMissingConfigurations() {
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("plugin_id", "version");
+
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("source", "source is mandatory"));
+
+        PluggableTask pluggableTask = mock(PluggableTask.class);
+
+        when(pluggableTask.isValid()).thenReturn(true);
+        when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
+        when(pluggableTask.getConfiguration()).thenReturn(new Configuration());
+        when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(validationResult);
+
+        assertFalse(pluggableTaskService.isValid(pluggableTask));
+        verify(pluggableTask).addError("source", "source is mandatory");
     }
 }

@@ -2,7 +2,7 @@
         <ul class="entity_title">
             <!--<li><%= link_to l.string("ADMINISTRATION"), pipeline_groups_path -%></li>-->
             <li><%= link_to l.string("PIPELINES_POPUP_TITLE"), pipeline_groups_path -%></li>
-            <li class="last"><h1><%= word_breaker(@pipeline.name(),25) -%></h1> </li>
+            <li class="last"><h1 class='wrapped_word'><%= @pipeline.name() -%></h1> </li>
         </ul>
     <div id="pause_info_and_controls" class="admin_pause_info_and_controls clear_float">
         <%= render :partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => @pause_info, :pipeline_name => @pipeline.name()}} %>

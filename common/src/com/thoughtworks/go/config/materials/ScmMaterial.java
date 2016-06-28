@@ -19,11 +19,10 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.MatchedRevision;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
 
@@ -45,6 +44,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
     protected Filter filter;
     protected String folder;
     protected boolean autoUpdate = true;
+    protected boolean invertFilter = false;
 
     public ScmMaterial(String typeName) {
         super(typeName);
@@ -61,7 +61,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
         return new File(baseFolder, getFolder());
     }
 
-    protected String updatingTarget() {
+    public String updatingTarget() {
         return StringUtils.isEmpty(getFolder()) ? "files" : getFolder();
     }
 
@@ -85,7 +85,10 @@ public abstract class ScmMaterial extends AbstractMaterial {
         return name.matches(regex);
     }
 
-    public abstract void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) ;
+    public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+        InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
+        this.updateTo(output, baseDir, new RevisionContext(revision), execCtx);
+    }
 
     public abstract String getUserName();
 
@@ -167,6 +170,18 @@ public abstract class ScmMaterial extends AbstractMaterial {
 
     public void setAutoUpdate(boolean value) {
         autoUpdate = value;
+    }
+
+    public boolean isInvertFilter() {
+        return invertFilter;
+    }
+
+    public boolean getInvertFilter() {
+        return invertFilter;
+    }
+
+    public void setInvertFilter(boolean value) {
+        invertFilter = value;
     }
 
     public final MatchedRevision createMatchedRevision(Modification modification, String searchString) {

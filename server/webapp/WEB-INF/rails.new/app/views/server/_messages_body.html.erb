@@ -1,10 +1,10 @@
-<% if !@current_server_health_states.isRealSuccess() %>
-        <% @current_server_health_states.each do |state_in_messages_body| %>
-            <% if !state_in_messages_body.isRealSuccess() %>
-                <div class="<%=state_in_messages_body.getLogLevel().name().downcase%>">
-                    <div class="message"><%=state_in_messages_body.getMessageWithTimestamp()%></div>
-                    <div class="description"><%==state_in_messages_body.getDescription()%></div>
-                </div>
-            <% end %>
-        <% end %>
+<% unless @current_server_health_states.isRealSuccess() %>
+  <% @current_server_health_states.each do |state_in_messages_body| %>
+    <% unless state_in_messages_body.isRealSuccess() %>
+      <div class="<%= state_in_messages_body.getLogLevel().name().downcase %>" data-pipelines="<%= json_escape(server_health_service.getPipelinesWithErrors(state_in_messages_body).to_a) %>">
+        <div class="message"><%== state_in_messages_body.getMessageWithTimestamp() %></div>
+        <div class="description"><%== state_in_messages_body.getDescription() %></div>
+      </div>
+    <% end %>
+  <% end %>
 <% end %>

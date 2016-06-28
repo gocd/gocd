@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Arrays;
-
 import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
+
+import java.util.Arrays;
 
 @ConfigCollection(value = RunIfConfig.class)
 public class RunIfConfigs extends BaseCollection<RunIfConfig> implements Validatable {
@@ -62,6 +62,25 @@ public class RunIfConfigs extends BaseCollection<RunIfConfig> implements Validat
 
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
+    }
+
+    public RunIfConfig resolveToSingle() {
+        if (this.contains(RunIfConfig.ANY)) {
+            return RunIfConfig.ANY;
+        }
+
+        if (this.contains(RunIfConfig.PASSED)) {
+            if (this.contains(RunIfConfig.FAILED)) {
+                return RunIfConfig.ANY;
+            }
+            return RunIfConfig.PASSED;
+        }
+
+        if (this.contains(RunIfConfig.FAILED)) {
+            return RunIfConfig.FAILED;
+        }
+
+        return RunIfConfig.PASSED;
     }
 }
 

@@ -25,5 +25,5 @@ public interface TestReportGenerator {
     public static final String IGNORED_TEST_COUNT = "tests_ignored_count";
     public static final String TEST_TIME = "tests_total_duration";
 
-    Properties generate(File[] allTestFiles);
+    Properties generate(File[] allTestFiles, String uploadDestPath);
 }

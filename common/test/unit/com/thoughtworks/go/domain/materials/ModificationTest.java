@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials;
 
@@ -23,8 +23,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -114,11 +116,17 @@ public class ModificationTest {
     @Test
     public void shouldCopyConstructor() {
         Modification modification = new Modification("user", "comment", "foo@bar.com", new Date(), "pipe/1/stage/2");
+        Map<String, String> additionalData = new HashMap<String, String>();
+        additionalData.put("a1", "v1");
+        additionalData.put("a2", "v2");
+        modification.setAdditionalData(new Gson().toJson(additionalData));
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), true);
         modification.setMaterialInstance(original);
         assertThat(new Modification(modification), is(modification));
         modification = new Modification(new Date(), "rev", "label", 121L);
-        assertThat(new Modification(modification), is(modification));
+        Modification copiedModification = new Modification(modification);
+        assertThat(copiedModification, is(modification));
+        assertThat(copiedModification.getAdditionalDataMap(), is(modification.getAdditionalDataMap()));
     }
 
     @Test

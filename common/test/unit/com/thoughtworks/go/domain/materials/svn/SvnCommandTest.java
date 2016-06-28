@@ -19,10 +19,7 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.ModifiedFile;
-import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
-import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.FileUtil;
@@ -57,7 +54,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
@@ -115,7 +111,7 @@ public class SvnCommandTest {
         assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
-        material.updateTo(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
+        material.updateTo(output2, working, new RevisionContext(new SubversionRevision("4")), new TestSubprocessExecutionContext());
         assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
 
     }
@@ -131,9 +127,13 @@ public class SvnCommandTest {
         assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
-        material.updateTo(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
+        updateMaterial(material, new SubversionRevision("4"), working, output2);
         assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
 
+    }
+
+    private void updateMaterial(SvnMaterial material, SubversionRevision revision, File working, InMemoryStreamConsumer output2) {
+        material.updateTo(output2, working, new RevisionContext(revision), new TestSubprocessExecutionContext());
     }
 
 
@@ -149,7 +149,7 @@ public class SvnCommandTest {
         assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
-        material.updateTo(output2, new SubversionRevision("4"), working, new TestSubprocessExecutionContext());
+        updateMaterial(material, new SubversionRevision("4"), working, output2);
         assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
 
     }

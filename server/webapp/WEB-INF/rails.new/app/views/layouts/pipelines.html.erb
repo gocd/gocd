@@ -7,7 +7,7 @@
 <body id="<%= page_name %>" class="<%= page_name %>">
 <div id="body_bg"><div id="body_bg_highlight"><div id="body_wrapper">
     <div id="header">
-        <%= render :partial => "shared/header", :locals => {:scope => {:admin_tab_url => '/tab/admin'}} %>
+        <%= render :partial => "shared/header" %>
     </div>
     <%
        show_stage_history_widget = !['pipeline','stats'].include?(params[:action])

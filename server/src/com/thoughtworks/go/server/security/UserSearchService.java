@@ -57,7 +57,7 @@ public class UserSearchService {
     }
 
     public List<UserSearchModel> search(String searchText, HttpLocalizedOperationResult result) {
-        List<UserSearchModel> userSearchModels = new ArrayList<UserSearchModel>();
+        List<UserSearchModel> userSearchModels = new ArrayList<>();
         if (isInputValid(searchText, result)) {
             return userSearchModels;
         }
@@ -73,7 +73,7 @@ public class UserSearchService {
 
     private void searchLdap(String searchText, HttpLocalizedOperationResult result, List<UserSearchModel> userSearchModels, boolean passwordSearchFailed) {
         if (goConfigService.isLdapConfigured()) {
-            List<User> users = new ArrayList<User>();
+            List<User> users = new ArrayList<>();
             try {
                 users = ldapUserSearch.search(searchText);
             } catch (LdapUserSearch.NotAllResultsShownException ex) {
@@ -109,7 +109,7 @@ public class UserSearchService {
     }
 
     private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {
-        List<User> searchResults = new ArrayList<User>();
+        List<User> searchResults = new ArrayList<>();
         for (final String pluginId : authenticationPluginRegistry.getAuthenticationPlugins()) {
             try {
                 List<com.thoughtworks.go.plugin.access.authentication.model.User> users = authenticationExtension.searchUser(pluginId, searchText);
@@ -136,7 +136,7 @@ public class UserSearchService {
     }
 
     private List<UserSearchModel> convertUsersToUserSearchModel(List<User> users, UserSourceType source) {
-        List<UserSearchModel> userSearchModels = new ArrayList<UserSearchModel>();
+        List<UserSearchModel> userSearchModels = new ArrayList<>();
         for (User user : users) {
             userSearchModels.add(new UserSearchModel(user, source));
         }

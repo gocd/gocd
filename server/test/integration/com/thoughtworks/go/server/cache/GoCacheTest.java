@@ -1,23 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.cache;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -47,16 +44,14 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.io.IOException;
+import java.util.Arrays;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -65,22 +60,37 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class GoCacheTest {
-    @Autowired private GoCache goCache;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired private SqlMapClient sqlMapClient;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private UserSqlMapDao userSqlMapDao;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private DatabaseStrategy databaseStrategy;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    private SqlMapClient sqlMapClient;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private UserSqlMapDao userSqlMapDao;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private DatabaseStrategy databaseStrategy;
 
     private static String largeObject;
     private LogFixture logFixture;
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private int originalMaxElementsInMemory;
+    private long originalTimeToLiveSeconds;
 
     @Before
     public void setUp() throws Exception {
+        if (originalMaxElementsInMemory == 0) {
+            originalMaxElementsInMemory = goCache.configuration().getMaxElementsInMemory();
+            originalTimeToLiveSeconds = goCache.configuration().getTimeToLiveSeconds();
+        }
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         dbHelper.onSetUp();
@@ -91,6 +101,8 @@ public class GoCacheTest {
     @After
     public void tearDown() throws Exception {
         goCache.clear();
+        goCache.configuration().setTimeToLiveSeconds(originalTimeToLiveSeconds);
+        goCache.configuration().setMaxElementsInMemory(originalMaxElementsInMemory);
         dbHelper.onTearDown();
         configHelper.onTearDown();
     }
@@ -115,7 +127,8 @@ public class GoCacheTest {
     @Test
     public void put_shouldNotUpdateCacheWhenInTransaction() {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 Object o = new Object();
                 goCache.put("someKey", o);
             }
@@ -133,7 +146,7 @@ public class GoCacheTest {
     }
 
     @Test
-    public void get_shouldBombWhenValueIsAPersistentObjectWithoutId() throws Exception{
+    public void get_shouldBombWhenValueIsAPersistentObjectWithoutId() throws Exception {
         HgMaterial material = MaterialsMother.hgMaterial();
         MaterialInstance materialInstance = material.createMaterialInstance();
         materialInstance.setId(10);
@@ -149,7 +162,7 @@ public class GoCacheTest {
     }
 
     @Test
-    public void put_shouldBombWhenValueIsAPersistentObjectWithoutId() throws Exception{
+    public void put_shouldBombWhenValueIsAPersistentObjectWithoutId() throws Exception {
         HgMaterial material = MaterialsMother.hgMaterial();
         MaterialInstance materialInstance = material.createMaterialInstance();
         try {
@@ -256,17 +269,20 @@ public class GoCacheTest {
         final String[] valueInAfterCompletion = new String[1];
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 valueInCleanTxn[0] = (String) goCache.get("foo");
                 User user = new User("loser", "Massive Loser", "boozer@loser.com");
                 userSqlMapDao.saveOrUpdate(user);
                 valueInDirtyTxn[0] = (String) goCache.get("foo");
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
+                    @Override
+                    public void afterCommit() {
                         valueInAfterCommit[0] = (String) goCache.get("foo");
                     }
 
-                    @Override public void afterCompletion(int status) {
+                    @Override
+                    public void afterCompletion(int status) {
                         valueInAfterCompletion[0] = (String) goCache.get("foo");
                     }
                 });
@@ -279,7 +295,7 @@ public class GoCacheTest {
     }
 
     @Test
-    public void shouldRemoveSpecifiedKeysFromCache(){
+    public void shouldRemoveSpecifiedKeysFromCache() {
         goCache.put("foo", "1");
         goCache.put("bar", "2");
         goCache.put("baz", "3");
@@ -287,6 +303,74 @@ public class GoCacheTest {
         assertThat(goCache.get("foo"), is(nullValue()));
         assertThat(goCache.get("bar"), is(nullValue()));
         assertThat((String) goCache.get("baz"), is("3"));
+    }
 
+    @Test
+    public void shouldEvictSubkeyFromParentCacheWhenTheSubkeyEntryGetsEvicted() throws InterruptedException {
+        goCache.configuration().setMaxElementsInMemory(2);
+        String parentKey = "parent";
+        goCache.put(parentKey, "child1", "value");
+        assertThat(goCache.get(parentKey), is(not(nullValue())));
+        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(not(nullValue())));
+        Thread.sleep(1);//so that the timestamps on the cache entries are different
+        goCache.put(parentKey, "child2", "value");
+
+        assertThat(goCache.get(parentKey), is(not(nullValue())));
+        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(nullValue()));
+        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2"), is(not(nullValue())));
+        GoCache.KeyList list = (GoCache.KeyList) goCache.get(parentKey);
+        assertThat(list.size(), is(1));
+        assertThat(list.contains("child2"), is(true));
+    }
+
+    @Test
+    public void shouldEvictSubkeyFromParentCacheWhenTheSubkeyEntryGetsExpired() throws InterruptedException {
+        goCache.configuration().setEternal(false);
+        goCache.configuration().setTimeToLiveSeconds(1);
+        String parentKey = "parent";
+        goCache.put(parentKey, "child1", "value");
+        assertThat(goCache.get(parentKey), is(not(nullValue())));
+        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(not(nullValue())));
+        waitForCacheElementsToExpire();
+
+        goCache.put(parentKey, "child2", "value");
+        assertThat(goCache.get(parentKey), is(not(nullValue())));
+        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(nullValue()));
+        assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2"), is(not(nullValue())));
+        GoCache.KeyList list = (GoCache.KeyList) goCache.get(parentKey);
+        assertThat(list.size(), is(1));
+        assertThat(list.contains("child2"), is(true));
+    }
+
+    @Test
+    public void shouldEvictAllSubkeyCacheEntriesWhenTheParentEntryGetsEvicted() throws InterruptedException {
+        goCache.configuration().setMaxElementsInMemory(2);
+        String parentKey = "parent";
+        goCache.put(parentKey, new GoCache.KeyList());
+        Thread.sleep(1);//so that the timestamps on the cache entries are different
+        assertThat(goCache.get(parentKey), is(not(nullValue())));
+        goCache.put(parentKey, "child1", "value");
+        goCache.put("unrelatedkey", "value");
+        waitForCacheElementsToExpire();
+        assertThat(goCache.getKeys().size(), is(1));
+        assertThat(((String) goCache.get("unrelatedkey")), is("value"));
+    }
+
+    @Test
+    public void shouldHandleNonSerializableValuesDuringEviction() throws InterruptedException {
+        goCache.configuration().setMaxElementsInMemory(1);
+        NonSerializableClass value = new NonSerializableClass();
+        String key = "key";
+        goCache.put(key, value);
+        Thread.sleep(1);//so that the timestamps on the cache entries are different
+        goCache.put("another_entry", "value");
+        assertThat(goCache.get(key), is(nullValue()));
+    }
+
+    private class NonSerializableClass {
+    }
+
+    private void waitForCacheElementsToExpire() throws InterruptedException {
+        Thread.sleep(2000);
     }
 }

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ Go::Application.routes.draw do
     PIPELINE_LOCATOR_CONSTRAINTS = {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}
     STAGE_LOCATOR_CONSTRAINTS = {:stage_name => STAGE_NAME_FORMAT, :stage_counter => STAGE_COUNTER_FORMAT}.merge(PIPELINE_LOCATOR_CONSTRAINTS)
     ENVIRONMENT_NAME_CONSTRAINT = {:name => ENVIRONMENT_NAME_FORMAT}
+    PLUGIN_ID_FORMAT = /[a-zA-Z0-9\-_.]+/
     ALLOW_DOTS = /[^\/]+/
     CONSTANTS = true
   end
@@ -229,9 +230,14 @@ Go::Application.routes.draw do
       end
 
       namespace :admin do
-        resources :pipelines, param: :name, only: [:show, :update, :create]
+        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {name: PIPELINE_NAME_FORMAT}
         resources :command_snippets, only: [:index]
         get 'command_snippets/show', controller: :command_snippets, action: :show, as: :command_snippet
+        post :material_test, controller: :material_test, action: :test, as: :material_test
+        namespace :internal do
+          resources :pipelines, param: :name, only: [:index]
+        end
+        resources :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
 
       get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api
@@ -239,7 +245,7 @@ Go::Application.routes.draw do
 
       get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
 
-      post :material_test, controller: :material_test, action: :test, as: :material_test
+      get 'version', controller: :version, action: :show, as: :version
 
       get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
       patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
@@ -269,8 +275,8 @@ Go::Application.routes.draw do
 
       # state
       get 'state/status' => 'server_state#status'
-      post 'state/active' => 'server_state#to_active'
-      post 'state/passive' => 'server_state#to_passive'
+      post 'state/active' => 'server_state#to_active', constraints: HeaderConstraint.new
+      post 'state/passive' => 'server_state#to_passive', constraints: HeaderConstraint.new
 
       # history
       get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
@@ -293,34 +299,41 @@ Go::Application.routes.draw do
       get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
 
       # stage api's
-      post 'stages/:id/cancel' => 'stages#cancel', as: :cancel_stage
-      post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', as: :cancel_stage_using_pipeline_stage_name
+      post 'stages/:id/cancel' => 'stages#cancel', constraints: HeaderConstraint.new ,as: :cancel_stage
+      constraints pipeline_name: PIPELINE_NAME_FORMAT do
+        post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', constraints: HeaderConstraint.new, as: :cancel_stage_using_pipeline_stage_name
+      end
 
       # pipeline api's
-      post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_action
-      post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_pipeline
-      post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :unpause_pipeline
+      constraints pipeline_name: PIPELINE_NAME_FORMAT do
+        post 'pipelines/:pipeline_name/:action' => 'pipelines#%{action}', :no_layout => true, constraints: HeaderConstraint.new, as: :api_pipeline_action
+        post 'pipelines/:pipeline_name/pause' => 'pipelines#pause', constraints: HeaderConstraint.new, as: :pause_pipeline
+        post 'pipelines/:pipeline_name/unpause' => 'pipelines#unpause', constraints: HeaderConstraint.new, as: :unpause_pipeline
+      end
 
-      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify
+      post 'material/notify/:post_commit_hook_material_type' => 'materials#notify', as: :material_notify, constraints: HeaderConstraint.new
 
-      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload
+      post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 
-      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url
+      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url, constraints: HeaderConstraint.new
 
       scope 'admin/feature_toggles' do
         defaults :no_layout => true, :format => :json do
           get "" => "feature_toggles#index", as: :api_admin_feature_toggles
-          post "/:toggle_key" => "feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :api_admin_feature_toggle_update
+          constraints HeaderConstraint.new do
+            post "/:toggle_key" => "feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :api_admin_feature_toggle_update
+          end
         end
       end
 
       #agents api's
       get 'agents' => 'agents#index', format: 'json', as: :agents_information
-      post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
-      post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
+      constraints HeaderConstraint.new do
+        post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
+        post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
+      end
 
       defaults :format => 'text' do
-        get 'support' => 'server#capture_support_info'
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
         get 'fanin_debug/:name/(:index)' => 'fanin_trace#fanin_debug', constraints: {name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}
         get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
@@ -328,6 +341,7 @@ Go::Application.routes.draw do
 
       defaults :format => 'json' do
         get 'process_list' => 'process_list#process_list'
+        get 'support' => 'server#capture_support_info'
       end
 
       defaults :format => 'xml' do
@@ -353,13 +367,18 @@ Go::Application.routes.draw do
   namespace :api do
     scope :config do
       namespace :internal do
-        post 'pluggable_task/:plugin_id' => 'pluggable_task#validate', as: :pluggable_task_validation, constraints: { plugin_id: /[\w+\.\-]+/ }
+        constraints HeaderConstraint.new do
+          post 'pluggable_task/:plugin_id' => 'pluggable_task#validate', as: :pluggable_task_validation, constraints: {plugin_id: /[\w+\.\-]+/}
+        end
       end
     end
   end
 
+
   post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
-  post 'pipelines/:pipeline_name/:pipeline_counter/comment' => 'pipelines#update_comment', as: :update_comment, constraints: PIPELINE_LOCATOR_CONSTRAINTS, format: :json
+  constraints HeaderConstraint.new do
+    post 'pipelines/:pipeline_name/:pipeline_counter/comment' => 'pipelines#update_comment', as: :update_comment, constraints: PIPELINE_LOCATOR_CONSTRAINTS, format: :json
+  end
   get 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/(:action)' => 'stages#overview', as: :stage_detail_tab, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
@@ -389,10 +408,8 @@ Go::Application.routes.draw do
   get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
   get "errors/inactive" => 'go_errors#inactive'
 
-  if java.lang.System.getProperty('go.gadgets.pipeline_status.enable') == 'Y'
-    get "gadgets/pipeline.xml" => "gadgets/pipeline#index", :format => 'xml', as: :pipeline_status_gadget
-    get "gadgets/pipeline/content" => "gadgets/pipeline#content", :no_layout => true, as: :pipeline_status_gadget_content
-  end
+  get "gadgets/pipeline.xml" => "gadgets/pipeline#index", :format => 'xml', as: :pipeline_status_gadget
+  get "gadgets/pipeline/content" => "gadgets/pipeline#content", :no_layout => true, as: :pipeline_status_gadget_content
 
   get "cctray.xml" => "cctray#index", :format => "xml", as: :cctray
 

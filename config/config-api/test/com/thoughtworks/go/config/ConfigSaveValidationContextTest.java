@@ -31,7 +31,6 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ConfigSaveValidationContextTest {
 
@@ -50,7 +49,7 @@ public class ConfigSaveValidationContextTest {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new PipelineGroups(), new BasicPipelineConfigs(), new PipelineConfig());
         assertThat(context.isWithinTemplates(), is(false));
     }
-    
+
     @Test
     public void shouldReturnAllMaterialsMatchingTheFingerprint() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();

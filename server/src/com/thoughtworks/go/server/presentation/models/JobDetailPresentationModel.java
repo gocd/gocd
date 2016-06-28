@@ -154,7 +154,7 @@ public class JobDetailPresentationModel {
 
     public List<JobStatusJsonPresentationModel> getRecent25() {
         List<JobStatusJsonPresentationModel> recent25StatusJson =
-                new ArrayList<JobStatusJsonPresentationModel>();
+                new ArrayList<>();
         for (JobInstance jobInstance : this.recent25) {
             recent25StatusJson.add(new JobStatusJsonPresentationModel(jobInstance));
         }

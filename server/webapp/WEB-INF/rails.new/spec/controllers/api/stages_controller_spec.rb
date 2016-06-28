@@ -54,7 +54,13 @@ describe Api::StagesController do
     end
 
     it "should resolve route to cancel" do
+      allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
       expect(:post => '/api/stages/424242/cancel').to route_to(:controller => "api/stages", :action => "cancel", :no_layout=>true, :id => "424242")
+    end
+
+    it "should not resolve route to cancel when constraint is not met" do
+      allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+      expect(:post => '/api/stages/424242/cancel').to_not route_to(:controller => "api/stages", :action => "cancel", :no_layout=>true, :id => "424242")
     end
 
     it "should cancel stage" do
@@ -72,9 +78,17 @@ describe Api::StagesController do
     end
 
     it "should resolve route to cancel_stage_using_pipeline_stage_name" do
+      allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
       expect(:post => '/api/stages/blah_pipeline/blah_stage/cancel').to route_to(:controller => "api/stages",
                                                                                    :action => "cancel_stage_using_pipeline_stage_name",
                                                                                    :no_layout=>true, :pipeline_name => "blah_pipeline", :stage_name => "blah_stage")
+    end
+
+    it "should not resolve route to cancel_stage_using_pipeline_stage_name when constraint is not met" do
+      allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+      expect(:post => '/api/stages/blah_pipeline/blah_stage/cancel').to_not route_to(:controller => "api/stages",
+                                                                                 :action => "cancel_stage_using_pipeline_stage_name",
+                                                                                 :no_layout=>true, :pipeline_name => "blah_pipeline", :stage_name => "blah_stage")
     end
 
     it "should cancel stage" do

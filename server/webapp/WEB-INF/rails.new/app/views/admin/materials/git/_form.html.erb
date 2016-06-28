@@ -25,12 +25,19 @@
 
                 <div class="form_item_block">
                     <label><%= l.string('BRANCH') -%></label>
-                    <%= f.text_field com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH, {:class => "form_input", :id => nil} -%>
+                    <%= f.text_field com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH, {:class => "form_input branch", :id => nil} -%>
                     <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH, :css_class => "form_error") %>
                 </div>
 
                 <%= render :partial => 'admin/materials/shared/dest_folder', :locals => {:scope => {:form => f}} %>
-                <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".url", :type => "git"}} %>
+
+                <div class="form_item_block checkbox_row material_options">
+                  <%= f.check_box(com.thoughtworks.go.config.materials.git.GitMaterialConfig::SHALLOW_CLONE, {:class => "form_input"}, "true") -%>
+                  <%= f.label(com.thoughtworks.go.config.materials.git.GitMaterialConfig::SHALLOW_CLONE, l.string('SHALLOW_CLONE')) %>
+                  <%= error_message_on(f.object, com.thoughtworks.go.config.materials.git.GitMaterialConfig::SHALLOW_CLONE, :css_class => "form_error") %>
+                </div>
+
+                <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".url", :type => "git", :branch => ".branch"}} %>
                 <div class="clear"></div>
             </div>
             <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>

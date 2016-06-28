@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -76,7 +75,7 @@ public class ChecksumValidatorTest {
 
         verify(checksumValidationPublisher).md5NotFoundFor("path");
     }
-    
+
     @Test
     public void shouldNotifyPublisherWhenArtifactChecksumFileIsMissing() throws IOException {
         new ChecksumValidator(null).validate(null,null,checksumValidationPublisher);

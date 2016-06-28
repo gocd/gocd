@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.server.util.ServerVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
 public class ServerBasicInfoProvider implements ServerInfoProvider {
@@ -39,5 +42,17 @@ public class ServerBasicInfoProvider implements ServerInfoProvider {
         infoCollector.addSection("Go Server Version");
         infoCollector.append(serverVersion.version());
         infoCollector.append("\n");
+    }
+
+    @Override
+    public Map<String, Object> asJson() {
+        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+        json.put("Version", serverVersion.version());
+        return json;
+    }
+
+    @Override
+    public String name() {
+        return "Go Server Information";
     }
 }

@@ -113,6 +113,11 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         return filter().getStringForDisplay();
     }
 
+    @Override
+    public boolean isInvertFilter() {
+        return false;
+    }
+
     // most of the material such as git, hg, p4 all print the file from the root without '/'. but svn print it with '/', we standardize it here.
     @Override
     public boolean matches(String name, String regex) {

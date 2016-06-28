@@ -52,7 +52,7 @@ class LauncherTempFileHandler implements Runnable {
         try {
             tmpFileReader = new FileReader(LAUNCHER_TMP_FILE_LIST);
             List fileList = IOUtils.readLines(tmpFileReader);
-            Set<String> fileSet = new HashSet<String>(fileList);
+            Set<String> fileSet = new HashSet<>(fileList);
             for (String fileName : fileSet) {
                 File file = new File(fileName);
                 FileUtils.deleteQuietly(file);

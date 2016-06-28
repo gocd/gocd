@@ -41,6 +41,7 @@ public class GitMaterialConfigTest {
         Map<String, String> map = new HashMap<String, String>();
         map.put(GitMaterialConfig.URL, "url");
         map.put(GitMaterialConfig.BRANCH, "some-branch");
+        map.put(GitMaterialConfig.SHALLOW_CLONE, "true");
         map.put(ScmMaterialConfig.FOLDER, "folder");
         map.put(ScmMaterialConfig.AUTO_UPDATE, null);
         map.put(ScmMaterialConfig.FILTER, "/root,/**/*.help");
@@ -53,7 +54,17 @@ public class GitMaterialConfigTest {
         assertThat(gitMaterialConfig.getBranch(), is("some-branch"));
         assertThat(gitMaterialConfig.getName(), is(new CaseInsensitiveString("material-name")));
         assertThat(gitMaterialConfig.isAutoUpdate(), is(false));
+        assertThat(gitMaterialConfig.isShallowClone(), is(true));
         assertThat(gitMaterialConfig.filter(), is(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help"))));
+    }
+
+
+    @Test
+    public void byDefaultShallowCloneShouldBeOff() {
+        assertThat(new GitMaterialConfig("http://url", "foo").isShallowClone(), is(false));
+        assertThat(new GitMaterialConfig("http://url", "foo", false).isShallowClone(), is(false));
+        assertThat(new GitMaterialConfig("http://url", "foo", null).isShallowClone(), is(false));
+        assertThat(new GitMaterialConfig("http://url", "foo", true).isShallowClone(), is(true));
     }
 
     @Test
@@ -114,7 +125,7 @@ public class GitMaterialConfigTest {
     @Test
     public void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
         GitMaterialConfig config1 = new GitMaterialConfig("http://url", null);
-        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), "folder", new CaseInsensitiveString("git"));
+        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), false, "folder", new CaseInsensitiveString("git"), false);
 
         assertThat(config1.getBranch(), is("master"));
         assertThat(config2.getBranch(), is("master"));
@@ -132,6 +143,5 @@ public class GitMaterialConfigTest {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "     "));
         assertThat(gitMaterialConfig.getBranch(), is("master"));
-
     }
 }

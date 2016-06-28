@@ -48,7 +48,7 @@ public class Packages extends BaseCollection<PackageDefinition> implements Valid
 
     @Override
     public void validate(ValidationContext validationContext) {
-        HashMap<String, PackageDefinition> nameMap = new HashMap<String, PackageDefinition>();
+        HashMap<String, PackageDefinition> nameMap = new HashMap<>();
         for(PackageDefinition packageDefinition : this){
             packageDefinition.validateNameUniqueness(nameMap);
         }

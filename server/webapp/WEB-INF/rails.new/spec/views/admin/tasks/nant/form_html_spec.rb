@@ -130,7 +130,7 @@ describe "admin/tasks/nant/new.html.erb" do
       expect(form).to have_selector("input[name='task[onCancelConfig][nantOnCancel][workingDirectory]'][value='#{oncancel.workingDirectory()}']")
       expect(form.all("div[class='contextual_help has_go_tip_right working_directory']")[0]['title']).to eq("The directory from where NAnt is invoked.")
       expect(form).to have_selector("label", :text => "Nant path")
-      expect(form).to have_selector("input[name='task[onCancelConfig][nantOnCancel][nantPath]'][value='#{java.io.File.new(File.dirname(__FILE__)).to_s}']")
+      expect(form).to have_selector("input[name='task[onCancelConfig][nantOnCancel][nantPath]'][value='#{File.dirname(__FILE__)}']")
       expect(form.all("div[class='contextual_help has_go_tip_right nant_path']")[0]['title']).to eq("Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.")
     end
   end

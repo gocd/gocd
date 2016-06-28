@@ -16,24 +16,23 @@
 
 package com.thoughtworks.go.server.valuestreammap;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.Stages;
-import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.VSMTestHelper;
 import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
 import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
 import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
-import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.dao.StageDao;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,8 +59,8 @@ public class RunStagesPopulatorTest {
         graph.addUpstreamNode(new PipelineDependencyNode("p1", "p1"), new PipelineRevision("p1", 1, "labelp1-1"), "p3");
         graph.addUpstreamNode(new PipelineDependencyNode("p2", "p2"), new PipelineRevision("p2", 1, "labelp2-1"), "p3");
         graph.addUpstreamNode(new PipelineDependencyNode("p1", "p1"), new PipelineRevision("p1", 2, "labelp1-2"), "p2");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), new Modifications(ModificationsMother.aCheckIn("1")), "p1");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), new Modifications(ModificationsMother.aCheckIn("1")), "p2");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), "p1", new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), "p2", new MaterialRevision(null));
 
         Stages stagesForP1_1 = stages("stages-for-p1-1");
         Stages stagesForP1_2 = stages("stages-for-p1-2");
@@ -89,7 +88,7 @@ public class RunStagesPopulatorTest {
         ValueStreamMap graph = new ValueStreamMap("p2", new PipelineRevision("p2", 1, ""));
 
         graph.addUpstreamNode(new PipelineDependencyNode("p1", "p1"), new PipelineRevision("p1", 1, "1"), "p2");
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), new Modifications(ModificationsMother.aCheckIn("1")), "p1");
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), "p1", new MaterialRevision(null));
         Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode("p3", "p3"), "p2");
 
         p3_node.addRevision(new PipelineRevision("p3", 1, "1"));

@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CompositeConsumer implements StreamConsumer {
-    private List<StreamConsumer> consumers = new LinkedList<StreamConsumer>();
+    private List<StreamConsumer> consumers = new LinkedList<>();
 
     /**
      * Creates a new instance of CompositeConsumer.

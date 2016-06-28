@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,7 @@ import java.util.TreeSet;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.domain.materials.NullRevision;
-import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 
@@ -152,7 +148,11 @@ public class MaterialRevision implements Serializable {
     }
 
     public void updateTo(File baseDir, ProcessOutputStreamConsumer consumer, final SubprocessExecutionContext execCtx) {
-        material.updateTo(consumer, getRevision(), baseDir, execCtx);
+        material.updateTo(consumer, baseDir, toRevisionContext(), execCtx);
+    }
+
+    public RevisionContext toRevisionContext() {
+        return new RevisionContext(getRevision(), getOldestRevision(), numberOfModifications());
     }
 
     public Boolean hasChangedSince(MaterialRevision original) {
@@ -169,7 +169,7 @@ public class MaterialRevision implements Serializable {
 
     public MaterialRevision latestChanges(Material newMaterial, List<Modification> oldModifications, List<Modification> newModifications) {
         if (newModifications.isEmpty()) {
-            List<Modification> result = new ArrayList<Modification>();
+            List<Modification> result = new ArrayList<>();
             if (!oldModifications.isEmpty()) {
                 result.add(new Modification(oldModifications.get(0)));
             }
@@ -271,7 +271,7 @@ public class MaterialRevision implements Serializable {
     }
 
     public MaterialRevision subtract(MaterialRevision other) {
-        List<Modification> newModifications = new ArrayList<Modification>();
+        List<Modification> newModifications = new ArrayList<>();
         for (Modification modification : modifications) {
             if (!other.hasModification(modification)) {
                 newModifications.add(modification);
@@ -311,7 +311,7 @@ public class MaterialRevision implements Serializable {
     }
 
     public Set<String> getCardNumbersFromComments() {
-        TreeSet<String> cardNumbers = new TreeSet<String>();
+        TreeSet<String> cardNumbers = new TreeSet<>();
         for (Modification modification : modifications) {
             cardNumbers.addAll(modification.getCardNumbersFromComment());
         }

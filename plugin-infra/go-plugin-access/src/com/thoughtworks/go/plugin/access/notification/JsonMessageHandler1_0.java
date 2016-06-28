@@ -100,7 +100,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 throw new RuntimeException("Notify result 'status' is a required field");
             }
 
-            List messages = new ArrayList<String>();
+            List messages = new ArrayList<>();
             if (map.containsKey("messages") && map.get("messages") != null) {
                 Object messagesObj = map.get("messages");
 

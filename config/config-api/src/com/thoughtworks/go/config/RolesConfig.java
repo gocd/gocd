@@ -42,7 +42,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     }
 
     public void validate(ValidationContext validationContext) {
-        if (new HashSet<CaseInsensitiveString>(roleNames()).size() != roleNames().size()){
+        if (new HashSet<>(roleNames()).size() != roleNames().size()){
             this.configErrors.add("role", "Role names should be unique. Duplicate names found.");
         }
     }
@@ -69,7 +69,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     }
 
     public List<Role> memberRoles(Admin admin) {
-        List<Role> memberRoles = new ArrayList<Role>();
+        List<Role> memberRoles = new ArrayList<>();
         for (Role role : this) {
             if (admin.belongsTo(role)) {
                 memberRoles.add(role);
@@ -103,7 +103,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     }
 
     private List<CaseInsensitiveString> roleNames() {
-        List<CaseInsensitiveString> result = new ArrayList<CaseInsensitiveString>();
+        List<CaseInsensitiveString> result = new ArrayList<>();
         for(Role role : this){
             result.add(role.getName());
         }

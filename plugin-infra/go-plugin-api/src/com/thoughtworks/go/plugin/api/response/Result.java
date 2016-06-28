@@ -23,10 +23,12 @@ import java.util.List;
 /**
  * Represents result of a plugin method invocation
  */
+@Deprecated
+//Will be moved to internal scope
 public class Result {
 
     private Status status = Status.SUCCESS;
-    private List<String> messages = new ArrayList<String>();
+    private List<String> messages = new ArrayList<>();
 
     /**
      * Checks if result is successful

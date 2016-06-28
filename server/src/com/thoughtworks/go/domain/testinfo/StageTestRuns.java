@@ -31,8 +31,8 @@ import com.thoughtworks.go.domain.JobIdentifier;
  */
 public class StageTestRuns {
 
-    private LinkedList<FailingTestsInPipeline> failingTestsInPipelines = new LinkedList<FailingTestsInPipeline>();
-    private Map<Integer, FailingTestsInPipeline> failingTestsInPipelineByCounter = new HashMap<Integer, FailingTestsInPipeline>();
+    private LinkedList<FailingTestsInPipeline> failingTestsInPipelines = new LinkedList<>();
+    private Map<Integer, FailingTestsInPipeline> failingTestsInPipelineByCounter = new HashMap<>();
     private int numberOfTests;
     private final int failureCounts;
     private final int errorCounts;
@@ -140,7 +140,7 @@ public class StageTestRuns {
     }
 
     public List<Integer> failingCounters() {
-        List<Integer> list = new ArrayList<Integer>(failingTestsInPipelineByCounter.keySet());
+        List<Integer> list = new ArrayList<>(failingTestsInPipelineByCounter.keySet());
         Collections.sort(list);
         return list;
     }

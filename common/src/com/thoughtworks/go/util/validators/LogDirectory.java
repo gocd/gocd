@@ -51,7 +51,7 @@ class LogDirectory {
 
     public LogDirectory(final String loggingDirectory) {
         this.logDir = loggingDirectory;
-        this.transformers = new ArrayList<LoggingFileTransformer>();
+        this.transformers = new ArrayList<>();
         this.transformers.add(new LoggingConfUpdateTransformer("/log4j.upgrade.shine.properties"));
         this.transformers.add(new LoggingConfUpdateTransformer("/log4j.upgrade.rails.properties"));
         this.transformers.add(new LoggingFileTransformer() {

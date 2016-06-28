@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #end
 
 #if($!message)
-<p id="serverside-message" class="message ${message.level}">${message.message}</p>
+<p id="serverside-message" class="message ${message.level}">$esc.html(${message.message})</p>
 #end
 
 <p id="error-message" class="message error error_message" style="display:none"></p>
@@ -35,17 +35,16 @@
 <div class="content_wrapper_outer"><div class="content_wrapper_inner">
 <div id="email-settings" class="aside">
     <form action="user" method="post" onsubmit="return myCruise.validate();">
+        <input type="hidden" name="post.token" value="$session.getAttribute('post.token')"/>
         <h2>
             Email Settings
         </h2>
         
-        
-        
         <fieldset>
             <legend>Email</legend>
             <p>
-                <input id="email" name="email" type="text" value="$escaper.escape($!{email})" style="display:none"/>
-                <span id="email-text">#if ($email.isEmpty()) Email Not Set #else $escaper.escape($!{email}) #end</span>
+                <input id="email" name="email" type="text" value="$esc.html($!{email})" style="display:none"/>
+                <span id="email-text">#if ($email.isEmpty()) Email Not Set #else $esc.html($!{email}) #end</span>
             </p>
             <p class="checkbox">
                 <input id="emailme" name="emailme"
@@ -62,11 +61,11 @@
             #end
             <p>
             #foreach($matcher in $matchers.toCollection())
-                    <span class="matcher">$escaper.escape($matcher)#if($velocityCount < $matchers.toCollection().size()), #end</span>
+                    <span class="matcher">$esc.html($matcher)#if($velocityCount < $matchers.toCollection().size()), #end</span>
             #end
             </p>
             <p id="matchers-block" style="display:none">
-                <input id="matchers" maxlength="255" name="matchers" type="text" value="$escaper.escape($!{matchers.toString()})" />
+                <input id="matchers" maxlength="255" name="matchers" type="text" value="$esc.html($!{matchers.toString()})" />
                 <span class="tip">(comma separated)</span>
             </p>
         </fieldset>
@@ -76,11 +75,9 @@
         </fieldset>
         
         <fieldset class="save-actions" style="display: none;">
-##            <input id="save-matchers" type="submit" value="Save" name="save"/>
             <button class="submit" id="save-matchers" type="submit" value="Save" name="save">
                 <span>Save</span>
             </button>
-##            <input type="reset" value="Cancel" onclick="myCruise.cancelMatchers()"/>
             <button class="submit" type="reset" value="Cancel" onclick="myCruise.cancelMatchers()">
                 <span>Cancel</span>
             </button>
@@ -91,6 +88,8 @@
 
 <div id="filters-settings" class="section">
     <form action="notification" method="post" id="notification_form" class="add-filter identity">
+        <input type="hidden" name="post.token" value="$session.getAttribute('post.token')"/>
+
         <h2>Filters</h2>
         <fieldset>
             <input id="filterId" name="filterId" type="hidden"/>
@@ -150,12 +149,12 @@
         <tbody>
             #foreach($filter in $notificationFilters)
             <tr class="#if( 0 == $velocityCount%2 ) even #else odd #end">
-                <td>$escaper.escape($filter.pipelineName)</td>
-                <td>$escaper.escape($filter.stageName)</td>
-                <td>$filter.event</td>
+                <td>$esc.html($filter.pipelineName)</td>
+                <td>$esc.html($filter.stageName)</td>
+                <td>$esc.html($filter.event)</td>
                 <td>#if( $filter.myCheckin ) Mine #else All #end</td>
                 <td class="last">
-                    <button id="$escaper.escape("del_${filter.pipelineName}_${filter.stageName}_${filter.event}")" class="submit"
+                    <button id="$esc.html("del_${filter.pipelineName}_${filter.stageName}_${filter.event}")" class="submit"
                             onclick="myCruise.deleteFilter('$filter.id')"><span>Delete</span>
                     </button>
                 </td>

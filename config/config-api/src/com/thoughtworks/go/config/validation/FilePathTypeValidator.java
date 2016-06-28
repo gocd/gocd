@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import com.thoughtworks.go.util.XmlUtils;
 
 public class FilePathTypeValidator {
-    public static final String PATH_PATTERN = "([^. ].+[^. ])|([^. ][^. ])|([^. ])";
+    public static final String PATH_PATTERN = "(([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])";
     private static final Pattern PATH_PATTERN_REGEX = Pattern.compile(String.format("^(%s)$", PATH_PATTERN));
 
     public boolean isPathValid(String path) {

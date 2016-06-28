@@ -8,7 +8,7 @@
 <body id="<%= page_name %>" class="<%= page_name %> admin_templates">
 <div id="body_bg">
     <div id="header">
-        <%= render :partial => "shared/header", :locals => {:scope => {:admin_tab_url => '/tab/admin'}} %>
+        <%= render :partial => "shared/header" %>
     </div>
 
     <div id='body_content'>
@@ -27,7 +27,7 @@
             <div class="admin_workspace has_tree_view">
                 <div class="pipeline_header">
                     <h3 class="title entity_title">
-                        <%= link_to word_breaker(@pipeline.name(),25), template_edit_path(:stage_parent => "templates", :current_tab => 'general') %> &raquo; <%= @stage.name() -%>
+                        <%= link_to @pipeline.name(), template_edit_path(:stage_parent => "templates", :current_tab => 'general'), :class => 'wrapped_word' %> &raquo; <%= @stage.name() -%>
                     </h3>
                 </div>
 

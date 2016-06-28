@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.cruise.stage.details;
 
@@ -53,7 +53,7 @@ public class JobResourceImporter {
 
     public JobResourceImporter(String artifactBaseDir, TempGraphFactory graphFactory, XSLTTransformerRegistry transformerRegistry, XmlApiService xmlApiService, SystemEnvironment systemEnvironment) {
         this.artifactBaseDir = artifactBaseDir;
-        rdfizer = new GoGRDDLResourceRDFizer("job", "cruise/job-grddl.xsl", graphFactory, transformerRegistry, xmlApiService);
+        rdfizer = new GoGRDDLResourceRDFizer("job", XSLTTransformerRegistry.CRUISE_JOB_GRDDL_XSL, graphFactory, transformerRegistry, xmlApiService);
         importer = new XMLArtifactImporter(systemEnvironment);
         AntJUnitReportRDFizer junitRDFizer = new AntJUnitReportRDFizer(graphFactory, transformerRegistry);
         importer.registerHandler(junitRDFizer);
@@ -130,7 +130,7 @@ public class JobResourceImporter {
 
         List<BoundVariables> bvs = graph.select(selectArtifactPaths);
 
-        List<String> result = new ArrayList<String>(bvs.size());
+        List<String> result = new ArrayList<>(bvs.size());
         for (BoundVariables bv : bvs) {
             result.add(bv.getString("artifactPath"));
         }

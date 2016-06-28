@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.ListUtil;
@@ -77,7 +76,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     private void validateNameUniqueness() {
-        HashMap<String, SCMs> map = new HashMap<String, SCMs>();
+        HashMap<String, SCMs> map = new HashMap<>();
 
         for (SCM scm : this) {
             String name = scm.getName().toLowerCase();
@@ -98,7 +97,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     private void validateFingerprintUniqueness() {
-        HashMap<String, SCMs> map = new HashMap<String, SCMs>();
+        HashMap<String, SCMs> map = new HashMap<>();
 
         for (SCM scm : this) {
             String fingerprint = scm.getFingerprint();
@@ -111,7 +110,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
         for (String fingerprint : map.keySet()) {
             SCMs scmsWithSameFingerprint = map.get(fingerprint);
             if (scmsWithSameFingerprint.size() > 1) {
-                List<String> scmNames = new ArrayList<String>();
+                List<String> scmNames = new ArrayList<>();
                 for (SCM scm : scmsWithSameFingerprint) {
                     scmNames.add(scm.getName());
                 }

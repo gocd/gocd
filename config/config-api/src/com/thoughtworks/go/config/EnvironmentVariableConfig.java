@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.security.GoCipher;
@@ -31,13 +39,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
 /**
  * @understands an environment variable value that will be passed to a job when it is run
  */
 @ConfigTag("variable")
-public class EnvironmentVariableConfig extends PersistentObject implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter {
+public class EnvironmentVariableConfig extends PersistentObject implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter, ConfigOriginTraceable {
     @ConfigAttribute(value = "name", optional = false)
     private String name;
 
@@ -57,9 +63,11 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     public static final String NAME = "name";
     public static final String VALUE = "valueForDisplay";
+    public static final String ENCRYPTEDVALUE = "encryptedValue";
     public static final String SECURE = "secure";
     private GoCipher goCipher = null;
     public static final String ISCHANGED = "isChanged";
+    private ConfigOrigin origin;
 
     public EnvironmentVariableConfig() {
         this.goCipher = new GoCipher();
@@ -74,6 +82,13 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         this.name = name;
         this.isSecure = isSecure;
         setValue(value);
+    }
+
+    public EnvironmentVariableConfig(GoCipher goCipher, String name, String encryptedValue) {
+        this(goCipher);
+        this.name = name;
+        this.isSecure = true;
+        this.setEncryptedValue(new EncryptedVariableValueConfig(encryptedValue));
     }
 
     public EnvironmentVariableConfig(EnvironmentVariableConfig variable) {
@@ -185,7 +200,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
      * We should remove this method when we move to Hibernate.
      */
     public Map<String, Object> getSqlCriteria() {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        HashMap<String, Object> map = new HashMap<>();
         map.put("variableName", name);
         map.put("variableValue", getValue());
         map.put("isSecure", isSecure);
@@ -301,18 +316,22 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         setName(name);
         setIsSecure(isSecure);
 
+        if (!isSecure && encryptedValue != null) {
+            errors().add(ENCRYPTEDVALUE, "You may specify encrypted value only when option 'secure' is true.");
+        }
+
+        if (value != null && encryptedValue != null) {
+            addError("value", "You may only specify `value` or `encrypted_value`, not both!");
+            addError(ENCRYPTEDVALUE, "You may only specify `value` or `encrypted_value`, not both!");
+        }
+
+        if (encryptedValue != null) {
+            setEncryptedValue(new EncryptedVariableValueConfig(encryptedValue));
+        }
+
         if (isSecure) {
-            if (isNotBlank(value) && isNotBlank(encryptedValue)) {
-                addError("value", "You may only specify `value` or `encrypted_value`, not both!");
-                addError("encryptedValue", "You may only specify `value` or `encrypted_value`, not both!");
-            }
-
-            if (isNotBlank(value)) {
+            if (value != null) {
                 setEncryptedValue(new EncryptedVariableValueConfig(new GoCipher().encrypt(value)));
-            }
-
-            if (isNotBlank(encryptedValue)) {
-                setEncryptedValue(new EncryptedVariableValueConfig(encryptedValue));
             }
         } else {
             setValue(new VariableValueConfig(value));
@@ -332,5 +351,19 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     public void setEntityType(String entityType) {
         this.entityType = entityType;
+    }
+
+    @Override
+    public ConfigOrigin getOrigin() {
+        return origin;
+    }
+
+    public boolean isRemote()
+    {
+        return origin != null && !origin.isLocal();
+    }
+
+    public void setOrigins(ConfigOrigin origins) {
+        this.origin = origins;
     }
 }

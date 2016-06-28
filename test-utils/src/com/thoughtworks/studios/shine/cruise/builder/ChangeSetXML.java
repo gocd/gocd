@@ -61,7 +61,7 @@ public class ChangeSetXML {
     return changesetXMLs(rev, rev)[0];
   }
   public static ChangeSetXML[] changesetXMLs(int from, int to) {
-    ArrayList<ChangeSetXML> result = new ArrayList<ChangeSetXML>();
+    ArrayList<ChangeSetXML> result = new ArrayList<>();
 
     for (int rev = from; rev <= to; rev++) {
       String time = new DateTime(3600 * rev * 1000).toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z"));

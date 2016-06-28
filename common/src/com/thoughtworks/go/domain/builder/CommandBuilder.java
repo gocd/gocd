@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain.builder;
 
 import java.io.File;
 
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.CommandLine;
@@ -115,5 +116,15 @@ public class CommandBuilder extends BaseCommandBuilder {
         return "CommandBuilder{" +
                 "args='" + args + '\'' +
                 "} " + super.toString();
+    }
+
+    @Override
+    public BuildCommand buildCommand() {
+        String[] argsArray = CommandLine.translateCommandLine(args);
+        BuildCommand exec = BuildCommand.exec(command, argsArray);
+        if (workingDir != null) {
+            exec.setWorkingDirectory(workingDir.getPath());
+        }
+        return exec;
     }
 }

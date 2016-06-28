@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private Date updateHeardTime() throws Exception {
         agentService.requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
-                false, "/var/lib", 0L, "linux"));
+                false, "/var/lib", 0L, "linux", false));
         agentService.approve("uuid");
         artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, "/foo.xml",
                 "uuid", request);
@@ -406,6 +406,32 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(lines[0], is(longLineStr));
         assertThat(lines[1] + "\n", is("Testing:\n"));
         assertThat(lines[2], is(longLineStr));
+        assertStatus(mav, SC_OK);
+    }
+
+    @Test
+    public void shouldPutConsoleOutput_withNoNewLineAtTheAtOfTheLog() throws Exception {
+        String log = "junit report\nstart\n....";
+        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", log);
+
+        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile));
+        String[] lines = consoleLogContent.split("\n");
+        assertThat(lines.length, is(3));
+        assertThat(lines[0], is("junit report"));
+        assertThat(lines[1], is("start"));
+        assertThat(lines[2], is("...."));
+        assertStatus(mav, SC_OK);
+    }
+
+    @Test
+    public void shouldPutConsoleOutput_withoutNewLineChar() throws Exception {
+        String log = "....";
+        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", log);
+
+        String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile));
+        String[] lines = consoleLogContent.split("\n");
+        assertThat(lines.length, is(1));
+        assertThat(lines[0], is("...."));
         assertStatus(mav, SC_OK);
     }
 

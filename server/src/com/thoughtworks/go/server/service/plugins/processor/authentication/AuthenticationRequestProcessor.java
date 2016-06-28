@@ -51,7 +51,7 @@ public class AuthenticationRequestProcessor implements GoPluginApiRequestProcess
 
     private AuthorityGranter authorityGranter;
     private UserService userService;
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<String, JsonMessageHandler>();
+    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public AuthenticationRequestProcessor(DefaultGoApplicationAccessor goApplicationAccessor, AuthorityGranter authorityGranter, UserService userService) {

@@ -1,14 +1,19 @@
 <div class="error_messaging_counter">
   <div id="cruise_message_counts" class="cruise_messages">
-      <%= render :partial => "server/counts.html" -%>
   </div>
-  <div id="cruise_message_body" style="display:none;">
-      <%= render :partial => "server/messages_body.html" -%>
+  <div id="cruise_message_body" style="display:none;" class="cruise_message_body">
   </div>
 
   <%- if auto_refresh? -%>
      <script type="text/javascript">
-        Util.on_load(function() {new AjaxRefresher('<%= main_app.global_message_path() %>', null);});
+        Util.on_load(function() {
+          new AjaxRefresher('<%= main_app.global_message_path %>', null, {
+            executeImmediately: true,
+            afterRefresh: function(){
+              jQuery(document).trigger("server-health-messages-refresh-completed");
+            }
+          });
+        });
      </script>
     <%- end -%>
 </div>

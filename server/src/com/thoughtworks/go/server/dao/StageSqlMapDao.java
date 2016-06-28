@@ -311,7 +311,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
         Stage stage = stageByIdWithBuildsWithNoAssociations(mostRecentId);
 
-        List<JobInstance> jobInstances = new ArrayList<JobInstance>();
+        List<JobInstance> jobInstances = new ArrayList<>();
         jobInstances.addAll(stage.getJobInstances());
         return jobInstances;
     }

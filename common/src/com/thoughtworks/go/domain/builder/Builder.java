@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.Serializable;
 import static java.lang.String.format;
 
 import com.thoughtworks.go.config.RunIfConfig;
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -62,6 +63,10 @@ public abstract class Builder implements Serializable {
 
     public void setCancelBuilder(Builder cancelBuilder) {
         this.cancelBuilder = cancelBuilder;
+    }
+
+    public Builder getCancelBuilder() {
+        return cancelBuilder;
     }
 
     public boolean equals(Object o) {
@@ -117,4 +122,11 @@ public abstract class Builder implements Serializable {
         throw new CruiseControlException(message);
     }
 
+    public BuildCommand buildCommand() {
+        return BuildCommand.fail(format("\"%s\" does not support new build command agent", this.getClass().getName()));
+    }
+
+    public RunIfConfig resolvedRunIfConfig() {
+        return this.conditions.resolveToSingle();
+    }
 }

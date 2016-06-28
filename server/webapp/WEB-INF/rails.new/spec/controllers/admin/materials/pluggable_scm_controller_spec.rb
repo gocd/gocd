@@ -20,10 +20,6 @@ describe Admin::Materials::PluggableScmController do
   include ConfigSaveStubbing
   include MockRegistryModule
 
-  before do
-    controller.stub(:populate_health_messages)
-  end
-
   describe "routes should resolve and generate" do
     it "show_existing" do
       {:get => '/admin/pipelines/pipeline.name/materials/pluggable_scm/show_existing'}.should route_to(:controller => 'admin/materials/pluggable_scm', :action => 'show_existing', :pipeline_name => 'pipeline.name')

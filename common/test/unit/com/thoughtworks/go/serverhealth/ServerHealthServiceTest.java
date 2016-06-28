@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.serverhealth;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.utils.Timeout;
@@ -30,18 +33,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
-import static com.thoughtworks.go.serverhealth.HealthStateScope.forGroup;
-import static com.thoughtworks.go.serverhealth.HealthStateScope.forMaterial;
-import static com.thoughtworks.go.serverhealth.HealthStateScope.forMaterialConfig;
-import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
+import java.util.Collections;
+import java.util.Set;
+
+import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class ServerHealthServiceTest {
     private ServerHealthService serverHealthService;
@@ -166,5 +169,91 @@ public class ServerHealthServiceTest {
         serverHealthService.removeByScope(scope);
         assertThat(serverHealthService.getAllLogs().size(), is(1));
         assertThat(serverHealthService, ServerHealthMatcher.containsState(globalId));
+    }
+
+    @Test
+    public void stateRelatedPipelineNames() {
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
+        CruiseConfig config = new BasicCruiseConfig();
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
+
+        serverHealthService = new ServerHealthService();
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline(PIPELINE_NAME))));
+        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
+
+        serverHealthService = new ServerHealthService();
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forStage(PIPELINE_NAME, "stage1"))));
+        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
+
+
+        serverHealthService = new ServerHealthService();
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forJob(PIPELINE_NAME, "stage1", "job1"))));
+        assertThat((serverHealthService.getAllLogs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
+    }
+
+    @Test
+    public void globalStateRelatedPipelineNames() {
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
+        CruiseConfig config = new BasicCruiseConfig();
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
+
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.invalidConfig()));
+        assertTrue((serverHealthService.getAllLogs().get(0)).getPipelineNames(config).isEmpty());
+
+    }
+
+    @Test
+    public void noPipelineMatchMaterialStateRelatedPipelineNames() {
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
+        CruiseConfig config = new BasicCruiseConfig();
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
+
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(MaterialsMother.p4Material()))));
+        assertTrue((serverHealthService.getAllLogs().get(0)).getPipelineNames(config).isEmpty());
+    }
+
+    @Test
+    public void materialStateRelatedPipelineNames() {
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
+        CruiseConfig config = new BasicCruiseConfig();
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
+
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(hgMaterial))));
+        Set<String> pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config);
+        assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
+    }
+
+    @Test
+    public void materialUpdateStateRelatedPipelineNames() {
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
+        CruiseConfig config = new BasicCruiseConfig();
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
+
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterialUpdate(hgMaterial))));
+        Set<String> pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config);
+        assertEquals(Sets.newHashSet("pipeline", "pipeline2"), pipelines);
+    }
+
+    @Test
+    public void faninErrorStateRelatedPipelineNames() {
+        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
+        CruiseConfig config = new BasicCruiseConfig();
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
+        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
+
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forFanin("pipeline2"))));
+        Set<String> pipelines = (serverHealthService.getAllLogs().get(0)).getPipelineNames(config);
+        assertEquals(Sets.newHashSet("pipeline2"), pipelines);
     }
 }

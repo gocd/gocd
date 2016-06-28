@@ -49,36 +49,43 @@ public class SvnLogXmlParser {
     }
 
     private List<Modification> parseDOMTree(Document document, String path) throws ParseException {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
 
         Element rootElement = document.getRootElement();
         List logEntries = rootElement.getChildren("logentry");
         for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
             Element logEntry = (Element) iterator.next();
 
-            modifications.add(parseLogEntry(logEntry, path));
+            Modification modification = parseLogEntry(logEntry, path);
+            if (modification != null) {
+                modifications.add(modification);
+            }
         }
 
         return modifications;
     }
 
     private Modification parseLogEntry(Element logEntry, String path) throws ParseException {
+        Element logEntryPaths = logEntry.getChild("paths");
+        if (logEntryPaths == null) {
+            /* Path-based access control forbids us from learning
+             * details of this log entry, so skip it. */
+            return null;
+        }
+
         Date modifiedTime = convertDate(logEntry.getChildText("date"));
         String author = logEntry.getChildText("author");
         String comment = logEntry.getChildText("msg");
         String revision = logEntry.getAttributeValue("revision");
 
         Modification modification = new Modification(author, comment, null, modifiedTime, revision);
-
-        Element logEntryPaths = logEntry.getChild("paths");
-        if (logEntryPaths != null) {
-            List paths = logEntryPaths.getChildren("path");
-            for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
-                Element node = (Element) iterator.next();
-                if (underPath(path, node.getText())) {
-                    ModifiedAction action = convertAction(node.getAttributeValue("action"));
-                    modification.createModifiedFile(node.getText(), null, action);
-                }
+        
+        List paths = logEntryPaths.getChildren("path");
+        for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
+            Element node = (Element) iterator.next();
+            if (underPath(path, node.getText())) {
+                ModifiedAction action = convertAction(node.getAttributeValue("action"));
+                modification.createModifiedFile(node.getText(), null, action);
             }
         }
 
@@ -127,7 +134,7 @@ public class SvnLogXmlParser {
     }
 
     public HashMap<String, String> parseInfoToGetUUID(String output, String queryURL, SAXBuilder builder) {
-        HashMap<String, String> uidToUrlMap = new HashMap<String, String>();
+        HashMap<String, String> uidToUrlMap = new HashMap<>();
         try {
             Document document = builder.build(new StringReader(output));
             Element root = document.getRootElement();

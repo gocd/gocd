@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.config;
 
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.net.ssl.SSLSocketFactory;

@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.semweb.sesame;
 
@@ -80,10 +80,10 @@ public class SesameGraph implements Graph {
     private final RepositoryConnection conn;
     private org.openrdf.model.Resource[] contextResource;
     private Var contextVar;
-    private List<Graph> tempGraphs = new ArrayList<Graph>();
+    private List<Graph> tempGraphs = new ArrayList<>();
     private final static Logger LOGGER = Logger.getLogger(SesameGraph.class);
 
-    private Map<RDFProperty, URI> sesameNativeTypeByRDFProperty = new HashMap<RDFProperty, URI>();
+    private Map<RDFProperty, URI> sesameNativeTypeByRDFProperty = new HashMap<>();
 
     public SesameGraph(RepositoryConnection conn) {
         this(conn, null);
@@ -101,7 +101,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addNamespace(Namespace namespace) {
         try {
             conn.setNamespace(namespace.getPrefix(), namespace.getURIText());
@@ -110,7 +110,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public Namespace getNamespaceByPrefix(String prefix) {
         try {
             return new Namespace(prefix, conn.getNamespace(prefix));
@@ -119,7 +119,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addStatement(Resource subject, RDFProperty predicate, Resource object) {
         AbstractSesameResource sesameSubject = (AbstractSesameResource) subject;
         URI sesameNativePredicate = getSesameNativeProperty(predicate);
@@ -132,7 +132,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addStatement(Resource subject, RDFProperty predicate, Integer object) {
         AbstractSesameResource sesameSubject = (AbstractSesameResource) subject;
         URI sesameNativePredicate = getSesameNativeProperty(predicate);
@@ -146,7 +146,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addStatement(Resource subject, RDFProperty predicate, String object) {
         AbstractSesameResource sesameSubject = (AbstractSesameResource) subject;
         URI sesameNativePredicate = getSesameNativeProperty(predicate);
@@ -160,7 +160,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addStatement(Resource subject, RDFProperty predicate, Boolean object) {
         AbstractSesameResource sesameSubject = (AbstractSesameResource) subject;
         URI sesameNativePredicate = getSesameNativeProperty(predicate);
@@ -184,7 +184,7 @@ public class SesameGraph implements Graph {
         return sesameNativeTypeByRDFProperty.get(predicate);
     }
 
-    
+
     public void addTriplesFromGraph(Graph graph) {
         SesameGraph sesameNativeGraph = (SesameGraph) graph;
         try {
@@ -194,7 +194,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addTriplesFromTurtle(String rdf) {
         try {
             conn.add(new StringReader(rdf), "", RDFFormat.TURTLE, contextResource);
@@ -203,7 +203,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addTriplesFromTurtle(InputStream stream) {
         try {
             conn.add(stream, "", RDFFormat.TURTLE, contextResource);
@@ -222,12 +222,12 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public Boolean ask(String sparqlAsk) {
         return getBooleanQueryResult(sparqlAsk);
     }
 
-    
+
     public void clearAllTriples() {
         try {
             conn.clear();
@@ -236,7 +236,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void close() {
         try {
             for (Graph tempGraph : tempGraphs) {
@@ -252,12 +252,12 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public URIReference createFakeBlankNode(RDFType type) {
         return createURIReference(type, UUIDURIGenerator.nextType4());
     }
 
-    
+
     public Graph createTempGraph() {
         try {
             if (!conn.isOpen()) {
@@ -277,7 +277,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void addTriplesFromRDFXMLAbbrev(Reader reader) {
         try {
             conn.add(reader, "", RDFFormat.RDFXML, contextResource);
@@ -288,7 +288,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public URIReference createURIReference(RDFType type, String uri) {
         ArgumentUtil.guaranteeNotNull(type, "Type may not be null.");
         ArgumentUtil.guaranteeNotNull(uri, "URI may not be null.");
@@ -305,7 +305,7 @@ public class SesameGraph implements Graph {
         return new SesameURIReference(sesameNativeURI);
     }
 
-    
+
     public URIReference getURIReference(String uri) {
         // TODO: JS - I'm not sure that this is a good idea. Is there a way to do this without "creating" the uri?
         return new SesameURIReference(conn.getValueFactory().createURI(uri));
@@ -321,7 +321,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void renderSPARQLResultsAsXML(String sparql, OutputStream stream) {
         try {
             Query query = conn.prepareQuery(QueryLanguage.SPARQL, sparql);
@@ -352,7 +352,7 @@ public class SesameGraph implements Graph {
         writer.endQueryResult();
     }
 
-    
+
     public void remove(Resource tripleSubject, RDFProperty triplePredicate, Resource tripleObject) {
         AbstractSesameResource sesameSubject = (AbstractSesameResource) tripleSubject;
         URI sesameNativePredicate = getSesameNativeProperty(triplePredicate);
@@ -367,7 +367,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void remove(Resource tripleSubject, RDFProperty triplePredicate, Integer integer) {
         AbstractSesameResource sesameSubject = (AbstractSesameResource) tripleSubject;
         URI sesameNativePredicate = getSesameNativeProperty(triplePredicate);
@@ -381,13 +381,13 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void removeTypeOn(Resource tripleSubject, RDFType tripleObject) {
         remove(tripleSubject, RDFOntology.TYPE, getURIReference(tripleObject.getURIText()));
     }
 
 
-    
+
     public void remove(Resource tripleSubject, RDFProperty triplePredicate, String tripleObject) {
         AbstractSesameResource sesameSubject = (AbstractSesameResource) tripleSubject;
         URI sesameNativePredicate = getSesameNativeProperty(triplePredicate);
@@ -401,9 +401,9 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public List<BoundVariables> select(String sparqlSelect) {
-        List<BoundVariables> results = new LinkedList<BoundVariables>();
+        List<BoundVariables> results = new LinkedList<>();
         TupleQueryResult tupleQueryResult = getTupleQueryResult(sparqlSelect);
 
         try {
@@ -436,7 +436,7 @@ public class SesameGraph implements Graph {
 
         TupleExpr tupleExpr = ((SailQuery) query).getParsedQuery().getTupleExpr();
         tupleExpr.visit(new QueryModelVisitorBase() {
-            
+
             public void meet(StatementPattern node) throws Exception {
                 if (node.getContextVar() != null) {
                     throw new UnsupportedSPARQLStatementException("Attempted to execute a SPARQL statement with a GRAPH clause against a context aware graph.");
@@ -458,7 +458,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public BoundVariables selectFirst(String sparqlSelect) {
         BoundVariables boundVariables;
 
@@ -483,7 +483,7 @@ public class SesameGraph implements Graph {
         return boundVariables;
     }
 
-    
+
     public long size() {
         try {
             return conn.size(contextResource);
@@ -492,7 +492,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void dump(Writer writer) {
         try {
             if (contextResource.length == 0) {
@@ -514,7 +514,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void validate(String arq) {
         try {
             Query query = conn.prepareQuery(QueryLanguage.SPARQL, arq);
@@ -528,7 +528,7 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public void persistToTurtle(OutputStream outputStream) {
         try {
             conn.export(new N3Writer(outputStream));
@@ -553,9 +553,7 @@ public class SesameGraph implements Graph {
                     xmlWriter.handleStatement(statement);
                 }
             }
-        } catch (RepositoryException e) {
-            throw new RuntimeException(e);
-        } catch (RDFHandlerException e) {
+        } catch (RepositoryException | RDFHandlerException e) {
             throw new RuntimeException(e);
         } finally {
             try {
@@ -566,12 +564,12 @@ public class SesameGraph implements Graph {
         }
     }
 
-    
+
     public boolean containsResourceWithURI(String URI) {
         return ask("ASK WHERE { <" + URI + "> ?p ?o . }");
     }
 
-    
+
     public String toString() {
         if (contextResource.length == 0) {
             return "Graph bound to default context.";

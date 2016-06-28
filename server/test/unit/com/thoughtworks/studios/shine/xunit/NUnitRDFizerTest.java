@@ -1,34 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.xunit;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.StringReader;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
-
-import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
 import com.thoughtworks.studios.shine.cruise.GoOntology;
 import com.thoughtworks.studios.shine.semweb.Graph;
-import com.thoughtworks.studios.shine.semweb.grddl.InvalidGrddlTransformationException;
 import com.thoughtworks.studios.shine.semweb.grddl.XSLTTransformerRegistry;
 import com.thoughtworks.studios.shine.semweb.sesame.InMemoryTempGraphFactory;
 import org.dom4j.Document;
@@ -36,14 +25,20 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.DocumentResult;
 import org.dom4j.io.DocumentSource;
 import org.dom4j.io.SAXReader;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.InputSource;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
+
+import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
+import static org.junit.Assert.*;
+import static org.xmlunit.matchers.CompareMatcher.isIdenticalTo;
 
 public class NUnitRDFizerTest {
     private NUnitRDFizer nUnitRDFizer;
@@ -158,7 +153,7 @@ public class NUnitRDFizerTest {
     @Test
     public void testDoesNotHandleNonNUnitXMLFile() throws DocumentException {
         String invalidXML = "<?xml version='1.0' encoding='UTF-8' ?><foo/>";
-        
+
         assertFalse(nUnitRDFizer.canHandle(document(invalidXML)));
     }
 
@@ -226,25 +221,22 @@ public class NUnitRDFizerTest {
 
         String expectedResultantJunitFormat = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<testsuites>"
-                    + "<testsuite name=\"NUnit.Tests.Assemblies.MockTestFixture\" tests=\"3\" time=\"0.031\" failures=\"1\" errors=\"1\" skipped=\"0\">"
-                        + "<testcase classname=\"NUnit.Tests.Assemblies.MockTestFixture\" name=\"TestWithException\" time=\"0.000\">"
-                            + "<error message=\"Intentional Error\">Some Stack Trace</error><"
-                        + "/testcase><testcase classname=\"NUnit.Tests.Assemblies.MockTestFixture\" name=\"FailingTest\" time=\"0.016\">"
-                            + "<failure message=\"Intentional failure\">Some Stack Trace</failure>"
-                        + "</testcase><testcase classname=\"NUnit.Tests.Assemblies.MockTestFixture\" name=\"MockTest3\" time=\"0.016\"/>"
-                    + "</testsuite>"
+                + "<testsuite name=\"NUnit.Tests.Assemblies.MockTestFixture\" tests=\"3\" time=\"0.031\" failures=\"1\" errors=\"1\" skipped=\"0\">"
+                + "<testcase classname=\"NUnit.Tests.Assemblies.MockTestFixture\" name=\"TestWithException\" time=\"0.000\">"
+                + "<error message=\"Intentional Error\">Some Stack Trace</error><"
+                + "/testcase><testcase classname=\"NUnit.Tests.Assemblies.MockTestFixture\" name=\"FailingTest\" time=\"0.016\">"
+                + "<failure message=\"Intentional failure\">Some Stack Trace</failure>"
+                + "</testcase><testcase classname=\"NUnit.Tests.Assemblies.MockTestFixture\" name=\"MockTest3\" time=\"0.016\"/>"
+                + "</testsuite>"
                 + "</testsuites>";
 
-        InputStream xsl = getClass().getClassLoader().getResourceAsStream("xunit/nunit-to-junit.xsl");
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        DocumentSource source = new DocumentSource(new SAXReader().read(new InputSource(new ByteArrayInputStream(nunitInputXml.getBytes("utf-8")))));
-        DocumentResult result = new DocumentResult();
-        try {
+        try(InputStream xsl = getClass().getClassLoader().getResourceAsStream(XSLTTransformerRegistry.XUNIT_NUNIT_TO_JUNIT_XSL)) {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            DocumentSource source = new DocumentSource(new SAXReader().read(new InputSource(new ByteArrayInputStream(nunitInputXml.getBytes("utf-8")))));
+            DocumentResult result = new DocumentResult();
             Transformer transformer = transformerFactory.newTransformer(new StreamSource(xsl));
             transformer.transform(source, result);
-            assertThat(result.getDocument().asXML(), is(expectedResultantJunitFormat));
-        } catch (TransformerConfigurationException e) {
-            throw new InvalidGrddlTransformationException(e);
+            assertThat(result.getDocument().asXML(), isIdenticalTo(expectedResultantJunitFormat));
         }
     }
 
@@ -297,16 +289,15 @@ public class NUnitRDFizerTest {
                 + "</testsuite>"
                 + "</testsuites>";
 
-        InputStream xsl = getClass().getClassLoader().getResourceAsStream("xunit/nunit-to-junit.xsl");
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        DocumentSource source = new DocumentSource(new SAXReader().read(new InputSource(new ByteArrayInputStream(nunitInputXml.getBytes("utf-8")))));
-        DocumentResult result = new DocumentResult();
-        try {
+        try (InputStream xsl = getClass().getClassLoader().getResourceAsStream(XSLTTransformerRegistry.XUNIT_NUNIT_TO_JUNIT_XSL)) {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            DocumentSource source = new DocumentSource(new SAXReader().read(new InputSource(new ByteArrayInputStream(nunitInputXml.getBytes("utf-8")))));
+            DocumentResult result = new DocumentResult();
             Transformer transformer = transformerFactory.newTransformer(new StreamSource(xsl));
             transformer.transform(source, result);
-            assertThat(result.getDocument().asXML(), is(expectedResultantJunitFormat));
-        } catch (TransformerConfigurationException e) {
-            throw new InvalidGrddlTransformationException(e);
+
+            assertThat(result.getDocument().asXML(), isIdenticalTo(expectedResultantJunitFormat));
         }
     }
 }
+

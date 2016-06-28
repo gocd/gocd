@@ -31,7 +31,6 @@ describe Admin::TasksController do
   end
 
   before :each do
-    controller.stub(:populate_health_messages)
     @on_cancel_task = plugin_task
     @on_cancel_task.configuration.addNewConfiguration("Url", false)
     @on_cancel_task_type = plugin_task.getTaskType()

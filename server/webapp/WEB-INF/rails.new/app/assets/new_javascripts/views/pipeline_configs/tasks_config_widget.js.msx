@@ -1,0 +1,119 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+    'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'helpers/dragula_config', 'models/pipeline_configs/tasks',
+    'models/pipeline_configs/pluggable_tasks', 'js-routes', 'views/pipeline_configs/lookup_command_widget', 'models/pipeline_configs/argument',
+    'helpers/mithril_component_mixins', 'views/pipeline_configs/task_views_widget', 'models/pipeline_configs/plugin_infos'],
+  function (m, _, $, angular, f, dragulaConfig, Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument,
+            ComponentMixins, TaskViews, PluginInfos) {
+
+  var TaskTypeSelector = {
+    controller: function (args) {
+      var self      = this;
+      self.tasks    = args.tasks;
+      self.selected = m.prop('exec');
+      self.addTask  = function (type) {
+        if (Tasks.isBuiltInTaskType(type())) {
+          self.tasks().createTask({type: type()});
+        } else {
+          self.tasks().createTask({type: type(), pluginInfo: PluginInfos.findById(type())});
+        }
+      };
+    },
+
+    view: function (ctrl) {
+      var items = _.transform(_.merge({}, Tasks.Types, PluggableTasks.Types), function (result, value, key) {
+        result[key] = value.description;
+      });
+
+      return (
+        <f.row class='task-selector'>
+          <f.select value={ctrl.selected}
+                    class='inline'
+                    label='Add task of type'
+                    items={items}
+                    size={3}/>
+          <f.column size={2} end={true}>
+            <a class='button add-task' href="javascript:void(0)" onclick={ctrl.addTask.bind(ctrl, ctrl.selected)}>Add</a>
+          </f.column>
+        </f.row>
+      );
+    }
+  };
+
+  var TasksConfigWidget = {
+    controller: function (args) {
+      this.args = args;
+      ComponentMixins.HasViewModel.call(this);
+    },
+
+    view: function (ctrl, args) {
+
+      var dragDropConfig = function (elem, isInitialized) {
+        if (!isInitialized) {
+          var onDrop = function () {
+            var reorderedTasks = _.map($(elem).find('.task-definition:not(.gu-mirror)'), function (eachTaskElem) {
+              return args.tasks().taskAtIndex($(eachTaskElem).attr('data-task-index'));
+            });
+            args.tasks().setTasks(reorderedTasks);
+          };
+
+          var disableDrag = function (el, h) {
+            return !($(h).is('.task-header') || $(h).is('.task-type'));
+          };
+
+          var options = {
+            dragulaOptions: {
+              invalid: disableDrag
+            },
+            onDropCallback: onDrop
+          };
+
+          dragulaConfig(elem, options);
+        }
+      };
+
+      return (
+        <f.accordion accordionTitles={[
+                        (
+                          <span>Tasks</span>
+                        )
+                     ]}
+                     accordionKeys={['job-tasks']}
+                     selectedIndex={ctrl.vmState('tasksSelected', m.prop(0))}
+                     class="accordion-inner">
+          <div class='task-definitions' key="task-definitions">
+            <div config={dragDropConfig}>
+              {args.tasks().mapTasks(function (task, taskIndex) {
+                var taskView = TaskViews[task.type()];
+                return (m.component(taskView, {
+                  task: task,
+                  onRemove: args.tasks().removeTask.bind(args.tasks(), task),
+                  taskIndex: taskIndex,
+                  key: task.uuid()
+                }));
+              })}
+            </div>
+            <TaskTypeSelector tasks={args.tasks} key="task-type-selector"/>
+          </div>
+        </f.accordion>
+      );
+    }
+  };
+
+  return TasksConfigWidget;
+});

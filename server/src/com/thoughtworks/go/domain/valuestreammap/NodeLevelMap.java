@@ -24,7 +24,7 @@ import java.util.TreeSet;
 public class NodeLevelMap {
 
 
-    private HashMap<Integer,List<Node>> map = new HashMap<Integer, List<Node>>();
+    private HashMap<Integer,List<Node>> map = new HashMap<>();
 
     public void add(Node node) {
         int level = node.getLevel();
@@ -48,11 +48,11 @@ public class NodeLevelMap {
     }
 
     private TreeSet<Integer> sortedLevelNumbers() {
-        return new TreeSet<Integer>(map.keySet());
+        return new TreeSet<>(map.keySet());
     }
 
     public List<List<Node>> nodesAtEachLevel() {
-        List<List<Node>> nodesAtEachLevel = new ArrayList<List<Node>>();
+        List<List<Node>> nodesAtEachLevel = new ArrayList<>();
         TreeSet<Integer> sortedLevels = sortedLevelNumbers();
         for (Integer level : sortedLevels) {
             nodesAtEachLevel.add(map.get(level));

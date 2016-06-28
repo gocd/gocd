@@ -106,8 +106,8 @@ Util.on_load(function() {
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('location') -%>
-                <% display_value = smart_word_breaker(agent_in_agent_table.getLocation())%>
-                <%== cell_with_title( display_value, 'location', agent_in_agent_table.getLocation()) %>
+                <% display_value = agent_in_agent_table.getLocation()%>
+                <%== cell_with_title( display_value, 'location wrapped_word', agent_in_agent_table.getLocation()) %>
             <% end -%>
 
             <% unless scope[:exclude_columns].include?('operating_system') -%>

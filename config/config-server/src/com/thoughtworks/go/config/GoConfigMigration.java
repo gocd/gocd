@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -239,7 +238,7 @@ public class GoConfigMigration {
     }
 
     private List<URL> upgradeScripts(int currentVersion, int targetVersion) {
-        ArrayList<URL> xsls = new ArrayList<URL>();
+        ArrayList<URL> xsls = new ArrayList<>();
         for (int i = currentVersion + 1; i <= targetVersion; i++) {
             URL xsl = getResource("/upgrades/" + i + ".xsl");
             bombIfNull(xsl, "Config File upgrade script named " + i + ".xsl is missing. Unable to perform upgrade.");

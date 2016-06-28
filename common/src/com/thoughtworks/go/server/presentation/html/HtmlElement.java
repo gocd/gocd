@@ -31,7 +31,7 @@ public class HtmlElement implements HtmlRenderable {
 
     private final String elementName;
     private final HtmlAttribute[] attributes;
-    private final List<HtmlRenderable> elements = new ArrayList<HtmlRenderable>();
+    private final List<HtmlRenderable> elements = new ArrayList<>();
 
     private HtmlElement(String elementName, HtmlAttribute... attributes) {
         this.elementName = elementName;

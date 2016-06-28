@@ -26,7 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class NotificationPluginRegistry {
-    private final Map<String, Set<String>> notificationNameToPluginsInterestedMap = new ConcurrentHashMap<String, Set<String>>();
+    private final Map<String, Set<String>> notificationNameToPluginsInterestedMap = new ConcurrentHashMap<>();
+    private Set<String> notificationPlugins = new HashSet<>();
 
     public void registerPluginInterests(String pluginId, List<String> notificationNames) {
         if (notificationNames != null && !notificationNames.isEmpty()) {
@@ -61,7 +62,7 @@ public class NotificationPluginRegistry {
     }
 
     public Set<String> getPluginInterests(String pluginId) {
-        Set<String> pluginInterests = new HashSet<String>();
+        Set<String> pluginInterests = new HashSet<>();
         for (String key : notificationNameToPluginsInterestedMap.keySet()) {
             if (notificationNameToPluginsInterestedMap.get(key).contains(pluginId)) {
                 pluginInterests.add(key);
@@ -73,5 +74,17 @@ public class NotificationPluginRegistry {
     @Deprecated
     public void clear() {
         notificationNameToPluginsInterestedMap.clear();
+    }
+
+    public void registerPlugin(String pluginId) {
+        notificationPlugins.add(pluginId);
+    }
+
+    public void deregisterPlugin(String pluginId) {
+        notificationPlugins.remove(pluginId);
+    }
+
+    public Set<String> getNotificationPlugins() {
+        return notificationPlugins;
     }
 }

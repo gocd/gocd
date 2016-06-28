@@ -52,7 +52,7 @@ class AgentAutocompleteController < ApplicationController
 
   def starts_with_search_string(list)
     query = params[:q].downcase
-    list.select { |item| item.downcase.start_with?(query) }.inject("") {|init, item| init + "\n" + item }.strip
+    list.select { |item| item.downcase.start_with?(query) }.inject("") {|init, item| init + "\n" + ERB::Util.h(item) }.strip
   end
 
 end

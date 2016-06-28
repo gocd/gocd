@@ -26,12 +26,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServlet;
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -64,7 +59,7 @@ public class FakeGoServer {
 				WebXmlConfiguration.class.getCanonicalName(),
 				JettyWebXmlConfiguration.class.getCanonicalName()
         });
-        addStopServlet(server, wac);
+
         addFakeArtifactiPublisherServlet(wac);
         addFakeAgentCertificateServlet(wac);
         server.setHandler(wac);
@@ -83,12 +78,6 @@ public class FakeGoServer {
         ServletHolder holder = new ServletHolder();
         holder.setServlet(new FakeAgentCertificateServlet());
         wac.addServlet(holder, "/admin/agent");
-    }
-
-    private static void addStopServlet(Server server, WebAppContext wac) {
-        ServletHolder holder = new ServletHolder();
-        holder.setServlet(new StopTestingServerServlet(server));
-        wac.addServlet(holder, "/jetty/stop");
     }
 
     public void stop() throws Exception {
@@ -136,30 +125,5 @@ public class FakeGoServer {
 
 }
 
-class StopTestingServerServlet extends HttpServlet {
-    private final Server stoppingServer;
-
-    public StopTestingServerServlet(Server jettyServer) {
-        stoppingServer = jettyServer;
-    }
-
-    public void service(ServletRequest request, ServletResponse response)
-            throws ServletException, IOException {
-        try {
-            Thread thread = new Thread() {
-                public void run() {
-                    try {
-                        stoppingServer.stop();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
-            thread.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-}
 
 

@@ -148,7 +148,7 @@ public class ConfigElementImplementationRegistrarTest {
         when(view.displayValue()).thenReturn("Plugin display value");
         PluggableTaskConfigStore.store().setPreferenceFor("plugin1", taskPreference);
 
-        PluggableTask pluggableTask = new PluggableTask("", new PluginConfiguration("plugin1", "2"), new Configuration());
+        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration("plugin1", "2"), new Configuration());
         PluggableViewModel<PluggableTask> pluggableTaskViewModel = registry.getViewModelFor(pluggableTask, "new");
 
         assertEquals(PluggableTaskViewModel.class, pluggableTaskViewModel.getClass());

@@ -20,18 +20,18 @@ module ApiV1
     before_action :load_user, only: [:show, :update, :destroy]
 
     def index
-      render :json_hal_v1 => UsersRepresenter.new(user_service.allUsers).to_hash(url_builder: self)
+      render DEFAULT_FORMAT => UsersRepresenter.new(user_service.allUsers).to_hash(url_builder: self)
     end
 
     def show
-      render :json_hal_v1 => UserRepresenter.new(@user_to_operate).to_hash(url_builder: self)
+      render DEFAULT_FORMAT => UserRepresenter.new(@user_to_operate).to_hash(url_builder: self)
     end
 
     def update
       result           = HttpLocalizedOperationResult.new
       @user_to_operate = save_user(result, @user_to_operate)
       if result.isSuccessful
-        render :json_hal_v1 => UserRepresenter.new(@user_to_operate).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => UserRepresenter.new(@user_to_operate).to_hash(url_builder: self)
       else
         render_http_operation_result(result)
       end
@@ -40,13 +40,13 @@ module ApiV1
     def create
       result = HttpLocalizedOperationResult.new
 
-      user, created = user_service.withEnableUserMutex do
+      user = nil
+      created = false
+      user_service.withEnableUserMutex do
         user = user_service.findUserByName(params[:login_name])
         if user.instance_of?(com.thoughtworks.go.domain.NullUser)
           user = save_user(result, com.thoughtworks.go.domain.User.new(params[:login_name]))
-          [user, true]
-        else
-          [user, false]
+          created = true
         end
       end
 
@@ -56,7 +56,7 @@ module ApiV1
 
       if result.httpCode == 200
         response.location = apiv1_user_url(login_name: params[:login_name])
-        render :json_hal_v1 => UserRepresenter.new(user).to_hash(url_builder: self), status: :created
+        render DEFAULT_FORMAT => UserRepresenter.new(user).to_hash(url_builder: self), status: :created
       else
         render_http_operation_result(result)
       end

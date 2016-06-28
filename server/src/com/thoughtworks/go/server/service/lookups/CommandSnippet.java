@@ -28,7 +28,7 @@ public class CommandSnippet {
 
     private final String baseFileName;
     private String commandName;
-    private List<String> arguments = new ArrayList<String>();
+    private List<String> arguments = new ArrayList<>();
     private CommandSnippetComment comment;
     private String relativeFilePath = "";
 

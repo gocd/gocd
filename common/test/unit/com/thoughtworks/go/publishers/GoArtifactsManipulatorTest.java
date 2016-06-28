@@ -42,9 +42,6 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class GoArtifactsManipulatorTest {
@@ -63,7 +60,7 @@ public class GoArtifactsManipulatorTest {
         tempFile = TestFileUtil.createTestFile(artifactFolder, "file.txt");
         goArtifactsManipulatorStub = new GoArtifactsManipulatorStub(httpService);
         jobIdentifier = new JobIdentifier("pipeline1", 1, "label-1", "stage1", "1", "job1");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("h", "1", "u"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("h", "1", "u"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null, false);
         goPublisher = new DefaultGoPublisher(goArtifactsManipulatorStub, jobIdentifier, new BuildRepositoryRemoteStub(), agentRuntimeInfo);
     }
 

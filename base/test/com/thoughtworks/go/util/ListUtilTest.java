@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 public class ListUtilTest {
     @Test
     public void shouldGetItemForGivenKey(){
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("foo");
         list.add("bar");
         String result = ListUtil.find(list, new ListUtil.Condition() {

@@ -19,9 +19,10 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -33,32 +34,34 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -91,6 +94,10 @@ public class AgentControllerTest {
     private TaskExtension taskExtension;
     @Mock
     private AgentWebsocketService agentWebsocketService;
+    @Mock
+    private HttpService httpService;
+    @Mock
+    private HttpClient httpClient;
 
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
@@ -179,7 +186,7 @@ public class AgentControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService);
+        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, mock(HttpService.class));
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -229,7 +236,7 @@ public class AgentControllerTest {
         verify(agentUpgradeService).checkForUpgrade();
         verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
         verify(agentWebsocketService).start();
-        verify(agentWebsocketService).send(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
+        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
     }
 
     @Test
@@ -255,7 +262,7 @@ public class AgentControllerTest {
         agentController = createAgentController();
         agentController.init();
 
-        agentController.process(new Message(Action.setCookie, "cookie"));
+        agentController.process(new Message(Action.setCookie, MessageEncoding.encodeData("cookie")));
 
         assertThat(agentController.getAgentRuntimeInfo().getCookie(), is("cookie"));
     }
@@ -263,48 +270,135 @@ public class AgentControllerTest {
     @Test
     public void processAssignWorkAction() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                AgentRuntimeInfo info = (AgentRuntimeInfo) invocationOnMock.getArguments()[4];
-                info.busy(new AgentBuildingInfo("locator for display", "build locator"));
-                return null;
-            }
-        }).when(work).doWork(any(AgentIdentifier.class), any(BuildRepositoryRemote.class), any(GoArtifactsManipulator.class), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), any(PackageAsRepositoryExtension.class), any(SCMExtension.class), any(TaskExtension.class));
-
         agentController = createAgentController();
         agentController.init();
-        agentController.process(new Message(Action.assignWork, work));
-
-        verify(work).doWork(eq(agentIdentifier), any(BuildRepositoryRemote.class), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
+        agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
-        verify(agentWebsocketService).send(new Message(Action.ping, agentController.getAgentRuntimeInfo()));
+        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+        verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
+    }
+
+
+    @Test
+    public void processBuildCommand() throws IOException, InterruptedException {
+        when(agentRegistry.uuid()).thenReturn(agentUuid);
+        when(httpService.httpClient()).thenReturn(httpClient);
+        agentController = createAgentController();
+        agentController.init();
+        BuildSettings build = new BuildSettings();
+        build.setBuildId("b001");
+        build.setConsoleUrl("http://foo.bar/console");
+        build.setArtifactUploadBaseUrl("http://foo.bar/artifacts");
+        build.setPropertyBaseUrl("http://foo.bar/properties");
+        build.setBuildLocator("build1");
+        build.setBuildLocatorForDisplay("build1ForDisplay");
+        build.setBuildCommand(BuildCommand.compose(
+                BuildCommand.echo("building"),
+                BuildCommand.reportCurrentStatus(JobState.Building)));
+        agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+
+        AgentRuntimeInfo agentRuntimeInfo  = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
+        agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
+        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
+        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
+
+
+        ArgumentCaptor<PutMethod> putMethodArg = ArgumentCaptor.forClass(PutMethod.class);
+        verify(httpClient).executeMethod(putMethodArg.capture());
+        assertThat(putMethodArg.getValue().getURI(), is(new URI("http://foo.bar/console", false)));
+        assertThat(((StringRequestEntity)putMethodArg.getValue().getRequestEntity()).getContent(), containsString("building"));
+    }
+
+    private AgentRuntimeInfo cloneAgentRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
+        return MessageEncoding.decodeData(MessageEncoding.encodeData(agentRuntimeInfo), AgentRuntimeInfo.class);
     }
 
     @Test
-    public void processCancelJobAction() throws IOException, InterruptedException {
+    public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
+        when(agentRegistry.uuid()).thenReturn(agentUuid);
+        when(httpService.httpClient()).thenReturn(httpClient);
+
         agentController = createAgentController();
         agentController.init();
-        final SleepWork sleep1secWork = new SleepWork();
+        agentController.getAgentRuntimeInfo().setSupportsBuildCommandProtocol(true);
+        final BuildSettings build = new BuildSettings();
+        build.setBuildId("b001");
+        build.setConsoleUrl("http://foo.bar/console");
+        build.setArtifactUploadBaseUrl("http://foo.bar/artifacts");
+        build.setPropertyBaseUrl("http://foo.bar/properties");
+        build.setBuildLocator("build1");
+        build.setBuildLocatorForDisplay("build1ForDisplay");
+        build.setBuildCommand(BuildCommand.compose(
+                BuildSessionBasedTestCase.execSleepScript(MAX_WAIT_IN_TEST / 1000),
+                BuildCommand.reportCurrentStatus(JobState.Building)));
+
 
         Thread buildingThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    agentController.process(new Message(Action.assignWork, sleep1secWork));
+                    agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
         buildingThread.start();
-        sleep1secWork.started.await(MAX_WAIT_IN_TEST, TimeUnit.MILLISECONDS);
 
-        agentController.process(new Message(Action.cancelJob));
+        waitForAgentRuntimeState(agentController.getAgentRuntimeInfo(), AgentRuntimeStatus.Building);
+
+        agentController.process(new Message(Action.cancelBuild));
         buildingThread.join(MAX_WAIT_IN_TEST);
 
-        assertThat(sleep1secWork.done.get(), is(true));
-        assertThat(sleep1secWork.canceled.get(), is(true));
+        AgentRuntimeInfo agentRuntimeInfo  = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
+        agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
+        agentRuntimeInfo.cancel();
+
+        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
+
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+    }
+
+
+    @Test
+    public void processCancelJobAction() throws IOException, InterruptedException {
+        agentController = createAgentController();
+        agentController.init();
+        final SleepWork sleep1secWork = new SleepWork("work1", MAX_WAIT_IN_TEST);
+
+        Thread buildingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(sleep1secWork)));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        buildingThread.start();
+
+        waitForAgentRuntimeState(agentController.getAgentRuntimeInfo(), AgentRuntimeStatus.Building);
+
+        agentController.process(new Message(Action.cancelBuild));
+        buildingThread.join(MAX_WAIT_IN_TEST);
+
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done_canceled"));
+    }
+
+    private void waitForAgentRuntimeState(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus status) throws InterruptedException {
+        int elapsed = 0;
+        int waitStep = 100;
+        while(elapsed <= MAX_WAIT_IN_TEST) {
+            if(runtimeInfo.getRuntimeStatus() == status) {
+                return;
+            }
+            Thread.sleep(waitStep);
+            elapsed += waitStep;
+        }
+        throw new RuntimeException("wait for agent status '" + status.name() + "' timeout, current status is '" + runtimeInfo.getRuntimeStatus().name() + "'" );
     }
 
     @Test
@@ -322,30 +416,46 @@ public class AgentControllerTest {
     public void shouldCancelPreviousRunningJobIfANewAssignWorkMessageIsReceived() throws IOException, InterruptedException {
         agentController = createAgentController();
         agentController.init();
-        final SleepWork work1 = new SleepWork();
+        final SleepWork work1 = new SleepWork("work1", MAX_WAIT_IN_TEST);
         Thread work1Thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    agentController.process(new Message(Action.assignWork, work1));
+                    agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(work1)));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
         work1Thread.start();
-        work1.started.await(MAX_WAIT_IN_TEST, TimeUnit.MILLISECONDS);
-        SleepWork work2 = new SleepWork(0);
-        agentController.process(new Message(Action.assignWork, work2));
+        waitForAgentRuntimeState(agentController.getAgentRuntimeInfo(), AgentRuntimeStatus.Building);
+        SleepWork work2 = new SleepWork("work2", 1);
+        agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(work2)));
         work1Thread.join(MAX_WAIT_IN_TEST);
 
-        assertThat(work1.done.get(), is(true));
-        assertThat(work1.canceled.get(), is(true));
-        assertThat(work2.done.get(), is(true));
-        assertThat(work2.canceled.get(), is(false));
+        verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done_canceled"));
+        verify(artifactsManipulator).setProperty(null, new Property("work2_result", "done"));
+    }
+
+    @Test
+    public void sendWithCallback() throws Exception {
+        final AtomicBoolean callbackIsCalled = new AtomicBoolean(false);
+        agentController = createAgentController();
+        agentController.init();
+        final Message message = new Message(Action.reportCurrentStatus);
+        assertNull(message.getAckId());
+        agentController.sendWithCallback(message, new MessageCallback() {
+            @Override
+            public void call() {
+                callbackIsCalled.set(true);
+            }
+        });
+        assertNotNull(message.getAckId());
+        agentController.process(new Message(Action.ack, MessageEncoding.encodeData(message.getAckId())));
+        assertTrue(callbackIsCalled.get());
     }
 
     private AgentController createAgentController() {
-        return new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService);
+        return new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment,pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, httpService);
     }
 }

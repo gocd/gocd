@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 
 @ConfigTag("authorization")

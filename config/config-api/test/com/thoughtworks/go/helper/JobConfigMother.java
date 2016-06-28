@@ -17,7 +17,6 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.ArtifactType;
 
 import java.util.Arrays;
 

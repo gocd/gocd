@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pipelines group="downstream">
+    <pipeline name="downstream" isLocked="false">
+      <materials>
+        <git url="https://github.com/tomzo/gocd-indep-config-part.git" />
+        <!-- dependency on pipeline which is in external_git_config_repo -->
+        <pipeline pipelineName="pipe1" stageName="test" materialName="upstream" />
+      </materials>
+      <stage name="test">
+        <jobs>
+          <job name="test">
+            <tasks>
+              <rake />
+              <fetchartifact pipeline="pipe1" stage="test" job="test" srcdir="bin">
+                <runif status="passed" />
+              </fetchartifact>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+</cruise>

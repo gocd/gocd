@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,32 +28,29 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.Report;
+import com.thoughtworks.go.websocket.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Component
 @WebSocket
 public class AgentWebsocketService {
-    public static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
+    private static class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
         private JobRunner runner;
         private AgentWebsocketService service;
 
@@ -73,17 +70,20 @@ public class AgentWebsocketService {
 
         @Override
         public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
-            service.send(new Message(Action.reportCurrentStatus, new Report(agentRuntimeInfo, jobIdentifier, jobState)));
+            Report report = new Report(agentRuntimeInfo, jobIdentifier, jobState);
+            service.sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(report)));
         }
 
         @Override
         public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
-            service.send(new Message(Action.reportCompleting, new Report(agentRuntimeInfo, jobIdentifier, result)));
+            Report report = new Report(agentRuntimeInfo, jobIdentifier, result);
+            service.sendAndWaitForAck(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
         }
 
         @Override
         public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
-            service.send(new Message(Action.reportCompleted, new Report(agentRuntimeInfo, jobIdentifier, result)));
+            Report report = new Report(agentRuntimeInfo, jobIdentifier, result);
+            service.sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
         }
 
         @Override
@@ -100,12 +100,14 @@ public class AgentWebsocketService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentWebsocketService.class);
     private AgentController controller;
     private Session session;
+    private final SystemEnvironment environment;
     private URLService urlService;
     private WebSocketClient client;
     private Executor executor = Executors.newFixedThreadPool(5);
 
     @Autowired
-    public AgentWebsocketService(URLService urlService) {
+    public AgentWebsocketService(SystemEnvironment environment, URLService urlService) {
+        this.environment = environment;
         this.urlService = urlService;
     }
 
@@ -118,7 +120,6 @@ public class AgentWebsocketService {
         sslContextFactory.setTrustStorePassword(SslInfrastructureService.AGENT_STORE_PASSWORD);
         sslContextFactory.setWantClientAuth(true);
         if (client == null || client.isStopped()) {
-            SystemEnvironment environment = new SystemEnvironment();
             client = new WebSocketClient(sslContextFactory);
             client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
             client.start();
@@ -127,7 +128,9 @@ public class AgentWebsocketService {
             session.close();
         }
         LOGGER.info("Connecting to websocket endpoint: " + urlService.getAgentRemoteWebSocketUrl());
-        session = client.connect(this, new URI(urlService.getAgentRemoteWebSocketUrl())).get();
+        ClientUpgradeRequest request = new ClientUpgradeRequest();
+        request.addExtensions("fragment;maxLength=" + client.getPolicy().getMaxBinaryMessageBufferSize());
+        session = client.connect(this, new URI(urlService.getAgentRemoteWebSocketUrl()), request).get();
     }
 
     public synchronized void stop() {
@@ -144,11 +147,26 @@ public class AgentWebsocketService {
 
     public void send(Message message) {
         LOGGER.debug("{} send message: {}", sessionName(), message);
+        session.getRemote().sendBytesByFuture(ByteBuffer.wrap(MessageEncoding.encodeMessage(message)));
+    }
+
+    public void sendAndWaitForAck(Message message) {
+        final CountDownLatch wait = new CountDownLatch(1);
+        controller.sendWithCallback(message, new MessageCallback() {
+            @Override
+            public void call() {
+                wait.countDown();
+            }
+        });
         try {
-            session.getRemote().sendBytes(ByteBuffer.wrap(Message.encode(message)));
-        } catch (IOException e) {
+            wait.await(environment.getWebsocketAckMessageTimeout(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
             bomb(e);
         }
+    }
+
+    public BuildRepositoryRemote buildRepositoryRemote(JobRunner runner) {
+        return new BuildRepositoryRemoteAdapter(runner, this);
     }
 
     @OnWebSocketConnect
@@ -158,7 +176,7 @@ public class AgentWebsocketService {
 
     @OnWebSocketMessage
     public void onMessage(InputStream raw) {
-        final Message msg = Message.decode(raw);
+        final Message msg = MessageEncoding.decodeMessage(raw);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(sessionName() + " message: " + msg);
         }
@@ -178,7 +196,7 @@ public class AgentWebsocketService {
 
     @OnWebSocketClose
     public void onClose(int closeCode, String closeReason) {
-        LOGGER.info(sessionName() + " closed.");
+        LOGGER.debug("{} closed. code: {}, reason: {}", sessionName(), closeCode, closeReason);
     }
 
     @OnWebSocketError

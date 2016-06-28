@@ -24,8 +24,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 
 public class DFSCycleDetector {
     public final void topoSort(final CaseInsensitiveString root, final PipelineDependencyState pipelineDependencyState) throws Exception {
-        Hashtable<CaseInsensitiveString, CycleState> state = new Hashtable<CaseInsensitiveString, CycleState>();
-        Stack<CaseInsensitiveString> visiting = new Stack<CaseInsensitiveString>();
+        Hashtable<CaseInsensitiveString, CycleState> state = new Hashtable<>();
+        Stack<CaseInsensitiveString> visiting = new Stack<>();
 
         if (!state.containsKey(root)) {
             tsort(root, pipelineDependencyState, state, visiting);

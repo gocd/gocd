@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MaterialConfigConverter {
-    private static HashMap<Class, Class> map = new HashMap<Class, Class>();
+    private static HashMap<Class, Class> map = new HashMap<>();
 
     static {
         map.put(SvnMaterialConfig.class, SvnMaterialInstance.class);
@@ -75,7 +75,7 @@ public class MaterialConfigConverter {
     }
 
     public Set<Material> toMaterials(Set<MaterialConfig> materialConfigs) {
-        HashSet<Material> materials = new HashSet<Material>();
+        HashSet<Material> materials = new HashSet<>();
         for (MaterialConfig materialConfig : materialConfigs) {
             materials.add(toMaterial(materialConfig));
         }

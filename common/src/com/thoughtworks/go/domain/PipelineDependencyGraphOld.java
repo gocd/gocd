@@ -83,10 +83,10 @@ public class PipelineDependencyGraphOld {
     }
 
     public Map<String, TreeSet<PipelineInstanceModel>> groupedDependencies(){
-        Map<String, TreeSet<PipelineInstanceModel>> pipelineInstanceModelses = new LinkedHashMap<String, TreeSet<PipelineInstanceModel>>();
+        Map<String, TreeSet<PipelineInstanceModel>> pipelineInstanceModelses = new LinkedHashMap<>();
         for (PipelineInstanceModel dependency : dependencies) {
             if (!pipelineInstanceModelses.containsKey(dependency.getName())) {
-                pipelineInstanceModelses.put(dependency.getName(), new TreeSet<PipelineInstanceModel>(new Comparator<PipelineInstanceModel>() {
+                pipelineInstanceModelses.put(dependency.getName(), new TreeSet<>(new Comparator<PipelineInstanceModel>() {
                     public int compare(PipelineInstanceModel me, PipelineInstanceModel her) {
                         return her.getCounter().compareTo(me.getCounter());
                     }

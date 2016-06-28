@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.support;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Appender;
@@ -50,8 +48,44 @@ public class FileLocationProvider implements ServerInfoProvider {
         populateLogFileInfo(infoCollector);
     }
 
+    @Override
+    public Map<String, Object> asJson() {
+        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+        json.put("loc.config.dir", systemEnvironment.configDir().getAbsolutePath());
+
+        List<Logger> loggers = new ArrayList<>();
+        Logger rootLogger = Logger.getRootLogger();
+        loggers.add(rootLogger);
+        Enumeration currentLoggers = rootLogger.getLoggerRepository().getCurrentLoggers();
+        while (currentLoggers.hasMoreElements()) {
+            loggers.add((Logger) currentLoggers.nextElement());
+        }
+
+        int index = 0;
+        for (Logger logger : loggers) {
+            Enumeration appenders = logger.getAllAppenders();
+            while (appenders.hasMoreElements()) {
+                Appender appender = (Appender) appenders.nextElement();
+                if (!isFileAppender(appender)) {
+                    continue;
+                }
+                FileAppender fileAppender = (FileAppender) appender;
+                File logFile = new File(fileAppender.getFile());
+                json.put("loc.log.root." + index, new File(logFile.getAbsolutePath()).getParent());
+                json.put("loc.log.basename." + index, logFile.getName());
+                ++index;
+            }
+        }
+        return json;
+    }
+
+    @Override
+    public String name() {
+        return "Config file locations";
+    }
+
     private void populateLogFileInfo(InformationStringBuilder infoCollector) {
-        List<Logger> loggers = new ArrayList<Logger>();
+        List<Logger> loggers = new ArrayList<>();
         Logger rootLogger = Logger.getRootLogger();
         loggers.add(rootLogger);
         Enumeration currentLoggers = rootLogger.getLoggerRepository().getCurrentLoggers();

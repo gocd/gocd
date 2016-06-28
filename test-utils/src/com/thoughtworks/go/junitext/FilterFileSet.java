@@ -34,7 +34,7 @@ public class FilterFileSet extends FileSet {
 
     public Iterator<FileResource> iterator() {
         boolean started = false;
-        ArrayList<FileResource> list = new ArrayList<FileResource>();
+        ArrayList<FileResource> list = new ArrayList<>();
 
         Iterator<FileResource> iterator = getIterator();
         String skipTo = getProject().getProperty("skipTo");

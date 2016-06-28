@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
-import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -139,7 +138,7 @@ public class ArtifactPlanTest {
    public void validate_shouldFailIfDestDoesNotMatchAFilePattern() {
         ArtifactPlan artifactPlan = new ArtifactPlan("foo/bar", "..");
         artifactPlan.validate(null);
-        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Invalid destination path. Destination path should match the pattern ([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
+        assertThat(artifactPlan.errors().on(ArtifactPlan.DEST), is("Invalid destination path. Destination path should match the pattern (([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"));
     }
 
     @Test

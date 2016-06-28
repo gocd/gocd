@@ -61,6 +61,7 @@ import java.io.File;
 import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -140,34 +141,22 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldWriteOnlyLocalPartOfConfigWhenSavingMergedConfig() throws Exception {
+    public void shouldThrowInvalidConfigWhenAttemptedToSaveMergedConfig() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
         PartialConfig remotePart = PartialConfigMother.withPipeline("some-pipe");
         remotePart.setOrigin(new RepoConfigOrigin());
         BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
-        xmlWriter.write(merged, output, true);
-        assertXmlEquals(xml, output.toString());
-    }
-
-    @Test
-    public void shouldValidateMergedConfigWhenSavingMergedConfig() throws Exception {
-        String xml = ConfigFileFixture.TWO_PIPELINES;
-
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
-        // pipeline1 is in xml and and in config repo - this is an error at merged scope
-        PartialConfig remotePart = PartialConfigMother.withPipelineInGroup("pipeline1", "defaultGroup");
-        remotePart.setOrigin(new RepoConfigOrigin());
-        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
-        List<ConfigErrors> errors = merged.validateAfterPreprocess();
-        assertThat(errors.size(),is(2));
         try {
-            xmlWriter.write(merged, output, false);
-            fail("Should not be able to save config when there are errors in merged config");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+            xmlWriter.write(merged, output, true);
         }
+        catch(GoConfigInvalidException ex) {
+            // ok
+            assertThat(ex.getMessage(),is("Attempted to save merged configuration with patials"));
+            return;
+        }
+        fail("should have thrown when saving merged configuration");
     }
 
     @Test
@@ -188,7 +177,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(cruiseConfig, output, false);
             fail("Should not be able to save config when there are 2 pipelines with same name");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+            assertThat(e.getMessage(), containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
         }
     }
 
@@ -245,7 +234,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteConfigWithTemplates() throws Exception {
-        String content = "<cruise schemaVersion='17'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' >"
                 + "</server>"
                 + "<pipelines>\n"
@@ -416,11 +405,14 @@ public class MagicalGoConfigXmlWriterTest {
         File cipherFile = new SystemEnvironment().getCipherFile();
         FileUtils.deleteQuietly(cipherFile);
         FileUtils.writeStringToFile(cipherFile, "269298bc31c44620");
-        String content = "<cruise schemaVersion='30'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' >"
                 + "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" password=\"password\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"
                 + "<security>"
-                + "<ldap uri=\"ldap://blah.blah.somewhere.com\" managerDn=\"cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com\" managerPassword=\"password\" searchBase=\"ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com\" searchFilter=\"(sAMAccountName={0})\" />"
+                + "<ldap uri=\"ldap://blah.blah.somewhere.com\" managerDn=\"cn=Active Directory Ldap User,ou=SomeSystems,ou=Accounts,ou=Principal,dc=corp,dc=somecompany,dc=com\" "
+                + "managerPassword=\"password\" searchFilter=\"(sAMAccountName={0})\">"
+                + "<bases><base value=\"ou=Employees,ou=Company,ou=Principal,dc=corp,dc=somecompany,dc=com\"/></bases>"
+                + "</ldap>"
                 + "</security>"
                 + "</server>"
                 + "<pipelines>\n"
@@ -505,7 +497,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "      <svn url =\"svnurl\"/>"
                 + "    </materials>\n<stage name='stage'><jobs><job name='job'></job></jobs></stage>"
                 + "</pipeline>\n"
-                + "</pipelines>\n", 19);
+                + "</pipelines>\n", CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         xmlWriter.write(cruiseConfig, out, false);
@@ -532,7 +524,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldAllowParamsInsidePipeline() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"22\">\n"
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' />"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
@@ -570,7 +562,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteFetchMaterialsFlagToStage() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"20\">\n"
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' />"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
@@ -599,7 +591,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteCleanWorkingDirFlagToStage() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"21\">\n"
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' />"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"
@@ -628,7 +620,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldWriteArtifactPurgeSettings() throws Exception {
         String content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
+                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir'/>"
                 + "<pipelines>\n"
                 + "<pipeline name='framework'>\n"

@@ -28,13 +28,9 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.StringUtil;
-import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +51,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     @Override
     public TaskConfig convertJsonToTaskConfig(String configJson) {
         final TaskConfig taskConfig = new TaskConfig();
-        ArrayList<String> exceptions = new ArrayList<String>();
+        ArrayList<String> exceptions = new ArrayList<>();
         try {
             Map<String, Object> configMap = (Map) new GsonBuilder().create().fromJson(configJson, Object.class);
             if (configMap.isEmpty()) {
@@ -118,7 +114,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     @Override
     public ValidationResult toValidationResult(String responseBody) {
         ValidationResult validationResult = new ValidationResult();
-        ArrayList<String> exceptions = new ArrayList<String>();
+        ArrayList<String> exceptions = new ArrayList<>();
         try {
             Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
             if (result == null) return validationResult;
@@ -144,7 +140,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
 
     @Override
     public TaskView toTaskView(String responseBody) {
-        ArrayList<String> exceptions = new ArrayList<String>();
+        ArrayList<String> exceptions = new ArrayList<>();
         try {
             final Map map = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
             if (map.isEmpty()) {
@@ -180,7 +176,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
     @Override
     public ExecutionResult toExecutionResult(String responseBody) {
         ExecutionResult executionResult = new ExecutionResult();
-        ArrayList<String> exceptions = new ArrayList<String>();
+        ArrayList<String> exceptions = new ArrayList<>();
         try {
             Map result = (Map) new GsonBuilder().create().fromJson(responseBody, Object.class);
             if (!(result.containsKey("success") && result.get("success") instanceof Boolean)) {

@@ -38,6 +38,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.security.CipherProvider;
@@ -49,7 +50,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -198,10 +198,13 @@ public class BackupServiceIntegrationTest {
         TestUtils.extractZipToDir(repoZip, repoDir);
         File cloneDir = tempFiles.createUniqueFolder("cloned-config-repo-backup");
         GitMaterial git = new GitMaterial(repoDir.getAbsolutePath());
+
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);
         String latestChangeRev = modifications.get(0).getRevision();
+        git.checkout(cloneDir, new StringRevision(latestChangeRev), subprocessExecutionContext);
         assertThat(FileUtil.readContentFromFile(new File(cloneDir, "cruise-config.xml")).indexOf("too-unique-to-be-present"), greaterThan(0));
-        git.updateTo(new InMemoryStreamConsumer(), new StringRevision(latestChangeRev + "~1"), cloneDir, subprocessExecutionContext);
+        StringRevision revision = new StringRevision(latestChangeRev + "~1");
+        git.updateTo(new InMemoryStreamConsumer(), cloneDir, new RevisionContext(revision), subprocessExecutionContext);
         assertThat(FileUtil.readContentFromFile(new File(cloneDir, "cruise-config.xml")).indexOf("too-unique-to-be-present"), is(-1));
     }
 

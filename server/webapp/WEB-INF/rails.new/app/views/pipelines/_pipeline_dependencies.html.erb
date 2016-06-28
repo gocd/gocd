@@ -14,11 +14,11 @@
                     <% if dependency?(scope[:material]) -%>
                         <% scope[:upstream_pipeline_name] = scope[:rev].getPipelineName() -%>
                         <% scope[:upstream_pipeline_label] = scope[:rev].getPipelineLabel() -%>
-                        <div><%= link_to(smart_word_breaker(scope[:upstream_pipeline_name]), url_for_pipeline(scope[:upstream_pipeline_name])) %></div>
-                        <div><%= smart_word_breaker(revision_in_pipeline_dep.getLatestShortRevision()) %></div>
-                        <%= link_to smart_word_breaker(scope[:upstream_pipeline_label]), url_for_dmr(scope[:rev]) -%>
+                        <div><%= link_to(scope[:upstream_pipeline_name], url_for_pipeline(scope[:upstream_pipeline_name]), :class => 'wrapped_word') %></div>
+                        <div class="wrapped_word"><%= revision_in_pipeline_dep.getLatestShortRevision() %></div>
+                        <%= link_to scope[:upstream_pipeline_label], url_for_dmr(scope[:rev]), :class => 'wrapped_word' -%>
                     <% else -%>
-                        <div><%= smart_word_breaker(scope[:material].getDisplayName()) %> - <%= smart_word_breaker(revision_in_pipeline_dep.getLatestShortRevision()) %></div>
+                        <div class="wrapped_word"><%= scope[:material].getDisplayName() %> - <%= revision_in_pipeline_dep.getLatestShortRevision() %></div>
                     <% end -%>
                 </div>
             </div>
@@ -29,10 +29,10 @@
 
         <div id="current_<%= scope[:current_pipeline_name] %>" class="pipeline">
             <div class="name">
-                <%= link_to(smart_word_breaker(scope[:current_pipeline_name]), url_for_pipeline(scope[:current_pipeline_name])) %>
+                <%= link_to(scope[:current_pipeline_name], url_for_pipeline(scope[:current_pipeline_name]), :class => 'wrapped_word') %>
             </div>
             <div class="content">
-                Label: <%= link_to smart_word_breaker(truncate(scope[:pipeline].getLabel(), :length => 25)), "#", {:title => scope[:pipeline].getLabel()} %>
+                Label: <%= link_to truncate(scope[:pipeline].getLabel(), :length => 25), "#", {:title => scope[:pipeline].getLabel(), :class => 'wrapped_word'} %>
                 <%= render :partial=> 'shared/bare_stage_bar.html', :locals => {:scope => {:pipeline => scope[:pipeline], :total_width => 10.0 }} %>
             </div>
         </div>
@@ -46,13 +46,13 @@
             <div id="downstream_<%=scope[:downstream_pipeline_name]%>" class="pipeline">
 
                 <div class="title">
-                    <span class="name"><%= link_to(smart_word_breaker(scope[:downstream_pipeline_name]), url_for_pipeline(scope[:downstream_pipeline_name])) %></span>
+                    <span class="name"><%= link_to(scope[:downstream_pipeline_name], url_for_pipeline(scope[:downstream_pipeline_name]), :class => 'wrapped_word') %></span>
                 </div>
                 <div class="content">
                     <% scope[:models].each do |model_in_dep| %>
                         <div class="pipeline_instance">
                             <% if model_in_dep.getCounter() > 0 %>
-                                <%= link_to smart_word_breaker(truncate(model_in_dep.getLabel(), :length => 25)), url_for_pipeline_instance(model_in_dep), {:title => model_in_dep.getLabel()} %>
+                                <%= link_to truncate(model_in_dep.getLabel(), :length => 25), url_for_pipeline_instance(model_in_dep), {:title => model_in_dep.getLabel(), :class => 'wrapped_word'} %>
                             <% end %>
                             <%= render :partial=> 'shared/bare_stage_bar.html', :locals => { :scope => {:pipeline => model_in_dep, :total_width => 10.0 }} %>
                         </div>

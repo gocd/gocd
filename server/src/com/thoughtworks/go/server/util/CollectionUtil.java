@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.util;
 
@@ -23,12 +23,12 @@ import java.util.Map;
 import java.util.Set;
 
 public class CollectionUtil {
-    public static interface MapFn<O, T> {
+    public interface MapFn<O, T> {
         T map(O o);
     }
 
     public static <O, T> List<T> map(Collection<O> collection, MapFn<O, T> mapFn) {
-        List<T> values = new java.util.ArrayList<T>();
+        List<T> values = new java.util.ArrayList<>();
         for (O obj : collection) {
             values.add(mapFn.map(obj));
         }
@@ -36,7 +36,7 @@ public class CollectionUtil {
     }
 
     public static <K, V> Map<V, Set<K>> reverse(Map<K, List<V>> inputMap) {
-        Map<V, Set<K>> resultMap = new HashMap<V, Set<K>>();
+        Map<V, Set<K>> resultMap = new HashMap<>();
         CollectionValueMap<V, K> map = collectionValMap(resultMap, new HashSet<K>());
         for (Map.Entry<K, List<V>> entry : inputMap.entrySet()) {
             for (V v : entry.getValue()) {
@@ -47,7 +47,7 @@ public class CollectionUtil {
     }
 
     public static <K, V> CollectionValueMap<K, V> collectionValMap(Map<K, ? extends Collection<V>> map, CollectionCreator<V> collectionCreator) {
-        return new CollectionValueMap<K, V>((Map<K,Collection<V>>) map, collectionCreator);
+        return new CollectionValueMap<>((Map<K, Collection<V>>) map, collectionCreator);
     }
 
     public static class CollectionValueMap<K, V> {
@@ -71,19 +71,19 @@ public class CollectionUtil {
         }
     }
 
-    public static interface CollectionCreator<T> {
+    public interface CollectionCreator<T> {
         Collection<T> create();
     }
 
     public static class HashSet<T> implements CollectionCreator<T> {
         public Collection<T> create() {
-            return new java.util.HashSet<T>();
+            return new java.util.HashSet<>();
         }
     }
 
     public static class ArrayList<T> implements CollectionCreator<T> {
         public Collection<T> create() {
-            return new java.util.ArrayList<T>();
+            return new java.util.ArrayList<>();
         }
     }
 }

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.persistence;
 
 
-import com.thoughtworks.go.database.QueryExtensions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ describe 'pipelines/_pipeline_stage_bar.html.erb' do
 
     render :partial => 'pipelines/pipeline_stage_bar', :locals => {:scope => {:stage_in_status_bar => @sim, :idx_in_status_bar => 1, :stage_name => 'stage_name'}}
     Capybara.string(response.body).find("#operate_stage_name").tap do |f|
-      expect(f).to have_selector("a[onclick=\"AjaxRefreshers.disableAjax();spinny('operate_stage_name'); new Ajax.Request('/api/stages/42/cancel', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}}); return false;\"]")
+      expect(f).to have_selector("a[onclick=\"AjaxRefreshers.disableAjax();spinny('operate_stage_name'); new Ajax.Request('/api/stages/42/cancel', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'Confirm':'true'}}); return false;\"]")
     end
   end
 end

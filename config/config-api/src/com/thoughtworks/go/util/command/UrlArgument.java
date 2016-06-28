@@ -58,7 +58,7 @@ public class UrlArgument extends CommandArgument {
         return url;
     }
 
-    public String hostInfoForDisplay() {
+    protected String hostInfoForDisplay() {
         try {
             URI uri = new URI(url);
             if (uri.getUserInfo()!=null) {
@@ -72,7 +72,7 @@ public class UrlArgument extends CommandArgument {
         }
     }
 
-    public String hostInfoForCommandline() {
+    protected String hostInfoForCommandline() {
         try {
             URI uri = new URI(url);
             if (uri.getUserInfo()!=null) {

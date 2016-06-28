@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,16 @@
 
 package com.thoughtworks.go.remote;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 
 public class AgentIdentifier implements Serializable {
+    @Expose
     private String hostName;
+    @Expose
     private String ipAddress;
+    @Expose
     private String uuid;
 
     public AgentIdentifier(String hostName, String ipAddress, String uuid) {
@@ -80,4 +85,5 @@ public class AgentIdentifier implements Serializable {
         result = 31 * result + (uuid != null ? uuid.hashCode() : 0);
         return result;
     }
+
 }

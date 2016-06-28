@@ -29,11 +29,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultPluginRegistry implements PluginRegistry {
     private static final String PLUGIN_XML = "plugin.xml";
-    protected ConcurrentMap<String, GoPluginDescriptor> idToDescriptorMap = new ConcurrentHashMap<String, GoPluginDescriptor>();
+    protected ConcurrentMap<String, GoPluginDescriptor> idToDescriptorMap = new ConcurrentHashMap<>();
 
     @Override
     public List<GoPluginDescriptor> plugins() {
-        return Collections.unmodifiableList(new ArrayList<GoPluginDescriptor>(idToDescriptorMap.values()));
+        return Collections.unmodifiableList(new ArrayList<>(idToDescriptorMap.values()));
     }
 
     public void loadPlugin(GoPluginDescriptor descriptor) {

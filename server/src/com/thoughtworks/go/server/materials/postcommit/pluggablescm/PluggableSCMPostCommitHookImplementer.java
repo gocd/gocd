@@ -30,7 +30,7 @@ public class PluggableSCMPostCommitHookImplementer implements PostCommitHookImpl
 
     @Override
     public Set<Material> prune(Set<Material> materials, Map params) {
-        HashSet<Material> prunedCollection = new HashSet<Material>();
+        HashSet<Material> prunedCollection = new HashSet<>();
         String paramSCMName = (String) params.get(SCM_NAME);
         if (StringUtils.isNotBlank(paramSCMName)) {
             for (Material material : materials) {

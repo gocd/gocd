@@ -57,7 +57,7 @@ public final class GoPluginDescriptorParser {
     private GoPluginDescriptor descriptor;
     private File pluginBundleLocation;
     private boolean isBundledPlugin;
-    private List<String> targetOperatingSystems = new ArrayList<String>();
+    private List<String> targetOperatingSystems = new ArrayList<>();
     private String pluginJarFileLocation;
 
     private GoPluginDescriptorParser(String pluginJarFileLocation, File pluginBundleLocation, boolean isBundledPlugin) {

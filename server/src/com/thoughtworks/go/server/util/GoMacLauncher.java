@@ -18,12 +18,12 @@ package com.thoughtworks.go.server.util;
 
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationEvent;
-import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class GoMacLauncher extends JFrame {
         String country = System.getProperty("cruise.server.country", "US");
         boolean dbDebugMode = System.getProperty("cruise.server.db_debug_mode") != null;
 
-        final java.util.List<String> arguments = new ArrayList<String>();
+        final java.util.List<String> arguments = new ArrayList<>();
         arguments.add(java);
         arguments.add("-Xms" + startMem + "m");
         arguments.add("-Xmx" + maxMem + "m");
@@ -186,7 +186,7 @@ public class GoMacLauncher extends JFrame {
             progressPane.progressBar.setValue(slept);
             slept++;
             try {
-                HttpURLConnection urlConnection = new HttpURLConnection(url, null);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.connect();
                 if (urlConnection.getResponseCode() == 200) {
                     LOG.info("Server up, let's go");

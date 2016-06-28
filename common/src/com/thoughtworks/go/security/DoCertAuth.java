@@ -20,12 +20,12 @@ package com.thoughtworks.go.security;
  * @understands
  */
 public class DoCertAuth {
-    private static ThreadLocal<Boolean> noCertAuth = new ThreadLocal<Boolean>();
-    
+    private static ThreadLocal<Boolean> noCertAuth = new ThreadLocal<>();
+
     public static void noCertAuthForNextReq() {
         noCertAuth.set(true);
-    } 
-        
+    }
+
     public static boolean shouldCertAuth() {
         Boolean dont = noCertAuth.get();
         if (dont == null || dont == false) {

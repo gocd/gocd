@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 public class GoConfigHolder {
     public final CruiseConfig config;
     public final CruiseConfig configForEdit;
+    public CruiseConfig mergedConfigForEdit;
 
     public GoConfigHolder(CruiseConfig config, CruiseConfig configForEdit) {
         this.config = config;

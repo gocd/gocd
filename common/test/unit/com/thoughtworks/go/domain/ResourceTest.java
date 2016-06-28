@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 
-import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;

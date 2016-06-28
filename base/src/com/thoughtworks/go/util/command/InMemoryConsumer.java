@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package com.thoughtworks.go.util.command;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.thoughtworks.go.util.ListUtil.join;
-import org.apache.log4j.Logger;
 
 public class InMemoryConsumer implements StreamConsumer {
-    private Queue<String> lines = new ConcurrentLinkedQueue<String>();
+    private Queue<String> lines = new ConcurrentLinkedQueue<>();
     private static final Logger LOG = Logger.getLogger(InMemoryConsumer.class);
 
     public void consumeLine(String line) {
@@ -37,7 +38,7 @@ public class InMemoryConsumer implements StreamConsumer {
     }
 
     public List<String> asList() {
-        return new ArrayList<String>(lines);
+        return new ArrayList<>(lines);
     }
 
     public boolean contains(String message) {

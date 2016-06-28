@@ -42,7 +42,7 @@ public class ServerCall {
     public static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
 
     public static ServerResponseWrapper invoke(HttpMethod method) throws Exception {
-        HashMap<String, String> headers = new HashMap<String, String>();
+        HashMap<String, String> headers = new HashMap<>();
         HttpClient httpClient = new HttpClient();
         httpClient.setConnectionTimeout(HTTP_TIMEOUT_IN_MILLISECONDS);
         try {

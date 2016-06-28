@@ -34,7 +34,7 @@ module ApiV1
       else
 
         if result.isSuccess
-          render json_hal_v1: StageRepresenter.new(stage_model).to_hash(url_builder: self)
+          render DEFAULT_FORMAT => StageRepresenter.new(stage_model).to_hash(url_builder: self)
         else
           render_http_operation_result(result)
         end
@@ -56,7 +56,7 @@ module ApiV1
         raise RecordNotFound
       else
         if result.isSuccess()
-          render json_hal_v1: StageHistoryRepresenter.new(stage_history, {pipeline_name: pipeline_name, stage_name: stage_name}).to_hash(url_builder: self)
+          render DEFAULT_FORMAT => StageHistoryRepresenter.new(stage_history, {pipeline_name: pipeline_name, stage_name: stage_name}).to_hash(url_builder: self)
         else
           render_http_operation_result(result)
         end

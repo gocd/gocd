@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -585,7 +585,7 @@ public class ScheduleService {
     }
 
     private List<String> getLiveAgentUuids(AgentInstances knownAgents) {
-        List<String> agents = new ArrayList<String>();
+        List<String> agents = new ArrayList<>();
         for (AgentInstance agent : knownAgents) {
             if (agent.getStatus() != AgentStatus.LostContact) {
                 agents.add(agent.agentConfig().getUuid());
@@ -695,8 +695,8 @@ public class ScheduleService {
     }
 
 
-    public static interface StageInstanceCreator {
-        public Stage create(final String pipelineName, final String stageName, final SchedulingContext context);
+    public interface StageInstanceCreator {
+        Stage create(final String pipelineName, final String stageName, final SchedulingContext context);
     }
 
     public static class NewStageInstanceCreator implements StageInstanceCreator {
@@ -712,7 +712,7 @@ public class ScheduleService {
         }
     }
 
-    public static interface ErrorConditionHandler {
+    public interface ErrorConditionHandler {
         void nullStage();
 
         void cantSchedule(String description, String pipelineName, String stageName);

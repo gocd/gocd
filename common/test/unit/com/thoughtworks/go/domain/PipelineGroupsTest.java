@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.*;
+import java.util.regex.Matcher;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
@@ -31,6 +34,10 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -46,6 +53,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -64,6 +72,18 @@ public class PipelineGroupsTest {
         assertThat(defaultGroup, hasItem(pipelineConfig));
         assertThat(defaultGroup2, not(hasItem(pipelineConfig)));
         assertThat(pipelineGroups.size(), is(2));
+    }
+
+    @Test
+    public void shouldRemovePipelineFromTheGroup() throws Exception {
+        PipelineConfig pipelineConfig = createPipelineConfig("pipeline1", "stage1");
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineConfig);
+        PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup);
+
+        assertThat(pipelineGroups.size(), is(1));
+        pipelineGroups.deletePipeline(pipelineConfig);
+        assertThat(pipelineGroups.size(), is(1));
+        assertThat(defaultGroup.size(), is(0));
     }
 
     @Test
@@ -108,16 +128,37 @@ public class PipelineGroupsTest {
     public void shouldErrorOutIfDuplicatePipelineIsAdded() {
         PipelineConfig pipeline1 = createPipelineConfig("pipeline1", "stage1");
         PipelineConfig pipeline2 = createPipelineConfig("pipeline1", "stage1");
+        PipelineConfig pipeline3 = createPipelineConfig("pipeline1", "stage1");
+        PipelineConfig pipeline4 = createPipelineConfig("pipeline1", "stage1");
+        pipeline3.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "rev1"));
+        pipeline4.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "1"));
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipeline1);
         PipelineConfigs anotherGroup = createGroup("anotherGroup", pipeline2);
-        PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup, anotherGroup);
+        PipelineConfigs thirdGroup = createGroup("thirdGroup", pipeline3);
+        PipelineConfigs fourthGroup = createGroup("fourthGroup", pipeline4);
+        PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup, anotherGroup, thirdGroup, fourthGroup);
 
         pipelineGroups.validate(null);
 
-        assertThat(pipeline1.errors().isEmpty(), is(false));
-        assertThat(pipeline1.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
-        assertThat(pipeline2.errors().isEmpty(), is(false));
-        assertThat(pipeline2.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+        List<String> expectedSources = asList(pipeline1.getOriginDisplayName(), pipeline2.getOriginDisplayName(), pipeline3.getOriginDisplayName(), pipeline4.getOriginDisplayName());
+        assertDuplicateNameErrorOnPipeline(pipeline1, expectedSources, 3);
+        assertDuplicateNameErrorOnPipeline(pipeline2, expectedSources, 3);
+        assertDuplicateNameErrorOnPipeline(pipeline3, expectedSources, 3);
+        assertDuplicateNameErrorOnPipeline(pipeline4, expectedSources, 3);
+    }
+
+    private void assertDuplicateNameErrorOnPipeline(PipelineConfig pipeline, List<String> expectedSources, int sourceCount) {
+        assertThat(pipeline.errors().isEmpty(), is(false));
+        String errorMessage = pipeline.errors().on(PipelineConfig.NAME);
+        assertThat(errorMessage, containsString("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s):"));
+        Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*),\\s(.*)\\].*$").matcher(errorMessage);
+        assertThat(matcher.matches(), is(true));
+        assertThat(matcher.groupCount(), is(sourceCount));
+        List<String> actualSources = new ArrayList<>();
+        for (int i = 1; i <= matcher.groupCount(); i++) {
+            actualSources.add(matcher.group(i));
+        }
+        assertThat(actualSources.containsAll(expectedSources), is(true));
     }
 
     @Test
@@ -130,9 +171,9 @@ public class PipelineGroupsTest {
         pipelineGroups.validate(null);
 
         assertThat(pipeline1.errors().isEmpty(), is(false));
-        assertThat(pipeline1.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+        assertThat(pipeline1.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
         assertThat(pipeline2.errors().isEmpty(), is(false));
-        assertThat(pipeline2.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique."));
+        assertThat(pipeline2.errors().on(PipelineConfig.NAME), is("You have defined multiple pipelines named 'pipeline1'. Pipeline names must be unique. Source(s): [cruise-config.xml]"));
     }
 
     @Test
@@ -244,5 +285,49 @@ public class PipelineGroupsTest {
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesTwo = groups.getPluggableSCMMaterialUsageInPipelines();
         assertSame(pluggableSCMMaterialUsageInPipelinesOne, pluggableSCMMaterialUsageInPipelinesTwo);
+    }
+
+
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsNull()
+    {
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        PipelineGroups groups = new PipelineGroups(defaultGroup);
+        assertThat(groups.getLocal().size(), is(1));
+        assertThat(groups.getLocal().get(0), is(defaultGroup));
+    }
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsFile()
+    {
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        defaultGroup.setOrigins(new FileConfigOrigin());
+        PipelineGroups groups = new PipelineGroups(defaultGroup);
+        assertThat(groups.getLocal().size(), is(1));
+        assertThat(groups.getLocal().get(0), is(defaultGroup));
+    }
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsRepo()
+    {
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        defaultGroup.setOrigins(new RepoConfigOrigin());
+        PipelineGroups groups = new PipelineGroups(defaultGroup);
+        assertThat(groups.getLocal().size(), is(0));
+        assertThat(groups.getLocal().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldGetLocalPartsWhenOriginIsMixed()
+    {
+        PipelineConfigs localGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
+        localGroup.setOrigins(new FileConfigOrigin());
+
+        PipelineConfigs remoteGroup = createGroup("defaultGroup", createPipelineConfig("pipeline2", "stage1"));
+        remoteGroup.setOrigins(new RepoConfigOrigin());
+
+        MergePipelineConfigs mergePipelineConfigs = new MergePipelineConfigs(localGroup, remoteGroup);
+        PipelineGroups groups = new PipelineGroups(mergePipelineConfigs);
+
+        assertThat(groups.getLocal().size(), is(1));
+        assertThat(groups.getLocal(), hasItem(localGroup));
     }
 }

@@ -23,14 +23,31 @@ class Api::ServerController < Api::ApiController
     @config_dir = system_environment.configDir().getAbsolutePath()
   end
 
-  def capture_support_info
-    information = server_status_service.captureServerInfo(current_user, result = HttpLocalizedOperationResult.new)
+  GSON = com.google.gson.GsonBuilder.new.setPrettyPrinting().serializeNulls().create()
 
-    if result.isSuccessful()
-      render text: information, layout: false
-    else
-      render_localized_operation_result(result)
+  def capture_support_info
+    respond_to do |format|
+      format.json do
+        information = server_status_service.asJson(current_user, result = HttpLocalizedOperationResult.new)
+
+        if result.isSuccessful()
+          render json: GSON.toJson(information)
+        else
+          render_localized_operation_result(result)
+        end
+      end
+
+      format.any do
+        information = server_status_service.captureServerInfo(current_user, result = HttpLocalizedOperationResult.new)
+
+        if result.isSuccessful()
+          render text: information, layout: false
+        else
+          render_localized_operation_result(result)
+        end
+      end
     end
 
   end
+
 end

@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import java.io.IOException;
 
-import com.thoughtworks.go.config.MergedGoConfig;
+import com.thoughtworks.go.config.CachedGoConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -46,7 +46,7 @@ public class PipelinePauseServiceIntegrationTest {
     @Autowired
     GoConfigService goConfigService;
     @Autowired
-    MergedGoConfig mergedGoConfig;
+    CachedGoConfig cachedGoConfig;
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @Before
@@ -64,7 +64,7 @@ public class PipelinePauseServiceIntegrationTest {
         String name = "pipeline-name";
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(name);
         configHelper.writeConfigFile(cruiseConfig);
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
 
         Username userName = new Username(new CaseInsensitiveString("UserFoo"));
         pipelinePauseService.pause(name, "tiny pause cause", userName);
@@ -80,7 +80,7 @@ public class PipelinePauseServiceIntegrationTest {
         String name = "pipeline-name";
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(name);
         configHelper.writeConfigFile(cruiseConfig);
-        mergedGoConfig.forceReload();
+        cachedGoConfig.forceReload();
 
         Username userName = new Username(new CaseInsensitiveString("UserFoo"));
         pipelinePauseService.pause(name, "pause for testing", userName);

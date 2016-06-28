@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import org.eclipse.jetty.websocket.api.extensions.ExtensionConfig;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -36,8 +35,6 @@ public class AgentRemoteServlet extends WebSocketServlet {
 
     @Override
     public void configure(WebSocketServletFactory factory) {
-        AgentRemoteSocketCreator bean = wac.getBean(AgentRemoteSocketCreator.class);
-        bean.addExtensionConfig(ExtensionConfig.parse("fragment;maxLength=" + factory.getPolicy().getMaxBinaryMessageBufferSize()));
-        factory.setCreator(bean);
+        factory.setCreator(wac.getBean(AgentRemoteSocketCreator.class));
     }
 }

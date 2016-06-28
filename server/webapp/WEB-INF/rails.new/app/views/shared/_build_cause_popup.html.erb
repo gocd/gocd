@@ -18,7 +18,7 @@
         %>
             <tr id="<%= material_id %>">
                 <td colspan="3" id="material_<%= material_revision_in_build_cause.getMaterial().getPipelineUniqueFingerprint() -%>" class="material<%= changed_css -%>">
-                   <strong> <%= "#{scope[:material].getTypeForDisplay()}" %> - <%= smart_word_breaker(scope[:material].getDisplayName()) -%> </strong>
+                   <strong> <%= "#{scope[:material].getTypeForDisplay()}" %> - <span class="wrapped_word"><%= scope[:material].getDisplayName() -%></span> </strong>
                 </td>
             </tr>
             <% if !dependency_material?(scope[:material]) %>

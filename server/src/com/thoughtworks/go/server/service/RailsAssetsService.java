@@ -86,7 +86,7 @@ public class RailsAssetsService implements ServletContextAware {
 
     class RailsAssetsManifest {
         @SerializedName("assets")
-        private HashMap<String, String> assets = new HashMap<String, String>();
+        private HashMap<String, String> assets = new HashMap<>();
 
         public String getAssetWithDigest(String name) {
             return assets.get(name);

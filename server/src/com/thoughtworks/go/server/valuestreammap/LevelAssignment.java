@@ -40,7 +40,7 @@ public class LevelAssignment {
     }
 
 	private void assignLevelsToDependencies(Node rootNode, LevelAssignmentDirection direction) {
-		List<Node> topologicalOrder = new ArrayList<Node>();
+		List<Node> topologicalOrder = new ArrayList<>();
 		getTopologicalOrder(rootNode, direction, new HashSet<Node>(), topologicalOrder);
 		Collections.reverse(topologicalOrder);
 		assignLevels(topologicalOrder, direction);

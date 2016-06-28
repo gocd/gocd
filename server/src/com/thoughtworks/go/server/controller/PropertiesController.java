@@ -16,17 +16,15 @@
 
 package com.thoughtworks.go.server.controller;
 
-import java.util.List;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.server.controller.actions.BasicRestfulAction;
-import static com.thoughtworks.go.server.controller.actions.BasicRestfulAction.notFound;
+import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,11 +33,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import static com.thoughtworks.go.server.controller.actions.BasicRestfulAction.notFound;
+
 @Controller
 public class PropertiesController {
     private final PropertiesService propertyService;
     private final RestfulService restfulService;
     private final PipelineService pipelineService;
+    private HeaderConstraint headerConstraint;
     private static final Logger LOGGER = Logger.getLogger(PropertiesController.class);
 
     public static final String INVALID_VALUE =
@@ -49,10 +54,11 @@ public class PropertiesController {
 
     @Autowired
     public PropertiesController(PropertiesService propertyService, RestfulService restfulService,
-                                PipelineService pipelineService) {
+                                PipelineService pipelineService, SystemEnvironment systemEnvironment) {
         this.propertyService = propertyService;
         this.restfulService = restfulService;
         this.pipelineService = pipelineService;
+        this.headerConstraint = new HeaderConstraint(systemEnvironment);
     }
 
     @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST)
@@ -63,7 +69,13 @@ public class PropertiesController {
                             @RequestParam("jobName")String buildName,
                             @RequestParam("property")String property,
                             @RequestParam("value")String value,
-                            HttpServletResponse response) throws Exception {
+                            HttpServletResponse response, HttpServletRequest request) throws Exception {
+
+        if(!headerConstraint.isSatisfied(request)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
+            return;
+        }
+
         JobIdentifier jobIdentifier;
         try {
             jobIdentifier = restfulService.findJob(pipelineName, pipelineLabel, stageName, stageCounter, buildName);

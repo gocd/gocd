@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@
                 <ref bean="tabInterceptor"/>
                 <ref bean="myGoInterceptor"/>
                 <ref bean="flashMessageInterceptor"/>
+                <ref bean="tokenInterceptor"/>
             </list>
         </property>
     </bean>
@@ -58,10 +59,9 @@
 
     <!-- Interceptors -->
     <bean id="tabInterceptor" class="com.thoughtworks.go.server.web.TabInterceptor" autowire="autodetect"/>
+    <bean id="tokenInterceptor" class="com.thoughtworks.go.server.web.TokenInterceptor" autowire="autodetect"/>
     <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
 
-    <import resource="tabs/pipelines-tab.xml"/>
-    <import resource="tabs/admin-tab.xml"/>
     <import resource="tabs/mycruise-tab.xml"/>
 
     <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>

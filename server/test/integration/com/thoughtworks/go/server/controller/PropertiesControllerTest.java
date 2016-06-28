@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.Csv;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +54,8 @@ public class PropertiesControllerTest {
     @Autowired private PipelineService pipelineService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    
+    @Autowired private SystemEnvironment systemEnvironment;
+
     private PipelineWithTwoStages fixture;
     private GoConfigFileHelper configHelper;
     private PropertiesController controller;
@@ -64,7 +66,7 @@ public class PropertiesControllerTest {
         configHelper = new GoConfigFileHelper();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
-        controller = new PropertiesController(propertiesService, restfulService, pipelineService);
+        controller = new PropertiesController(propertiesService, restfulService, pipelineService, systemEnvironment);
         response = new MockHttpServletResponse();
     }
 

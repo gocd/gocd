@@ -23,7 +23,7 @@ import java.util.Set;
 
 /* Understands: The set of viewers it has. */
 public class AllowedViewers implements Viewers {
-    private Set<String> allowedUsers = new HashSet<String>();
+    private Set<String> allowedUsers = new HashSet<>();
 
     public AllowedViewers(Set<String> allowedUsers) {
         for (String user : allowedUsers) {

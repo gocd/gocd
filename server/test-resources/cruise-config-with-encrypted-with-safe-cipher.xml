@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="81">
+    <server artifactsdir="logs" commandRepositoryLocation="default" serverId="dev-id">
+        <security>
+            <passwordFile path="../manual-testing/ant_hg/password.properties" />
+            <roles>
+                <role name="xyz" />
+            </roles>
+            <admins>
+                <user>admin</user>
+            </admins>
+        </security>
+    </server>
+    <pipelines group="first">
+        <authorization>
+            <view>
+                <user>operate</user>
+            </view>
+            <admins>
+                <user>operate</user>
+            </admins>
+        </authorization>
+        <pipeline name="up42">
+            <materials>
+                <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
+                <svn url="url" username="user" encryptedPassword="pVyuW5ny9I6YT4Ou+KLZhQ==" dest="des" />
+            </materials>
+            <stage name="up42_stage">
+                <jobs>
+                    <job name="up42_job">
+                        <tasks>
+                            <exec command="ls" />
+                        </tasks>
+                    </job>
+                </jobs>
+            </stage>
+        </pipeline>
+    </pipelines>
+</cruise>
+

@@ -29,6 +29,9 @@ src_files:
 #
 stylesheets:
 #  - assets/pipeline_configs/application.css
+  - assets/frameworks.css
+  - assets/single_page_apps/pipeline_configs.css
+
 
 # helpers
 #

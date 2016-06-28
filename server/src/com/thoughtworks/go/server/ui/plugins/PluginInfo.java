@@ -74,7 +74,6 @@ public class PluginInfo {
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
         return pluggableInstanceSettings != null ? pluggableInstanceSettings.equals(that.pluggableInstanceSettings) : that.pluggableInstanceSettings == null;
-
     }
 
     @Override

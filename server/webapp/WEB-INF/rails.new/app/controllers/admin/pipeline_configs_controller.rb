@@ -37,28 +37,6 @@ module Admin
       raise ApiV1::RecordNotFound if @pipeline_config.nil?
     end
 
-    def plugin_templates
-      store = com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore.store()
-      store.pluginIds().inject([]) do |memo, plugin_id|
-        preference = store.preferenceFor(plugin_id)
-        memo << {
-          plugin_id:     plugin_id,
-          version:       default_plugin_manager.getPluginDescriptorFor(plugin_id).version,
-          name:          preference.getView().displayValue,
-          template:      preference.getView().template,
-          configuration: PluggableTaskConfigStore.store().preferenceFor(plugin_id).getConfig().list().map do |property|
-            {
-              name:  property.getKey(),
-              value: property.getValue()
-            }
-          end
-
-        }
-      end
-    end
-
-    helper_method :plugin_templates
-
     def check_feature_toggle
       unless Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
         render :text => 'This feature is not enabled!'

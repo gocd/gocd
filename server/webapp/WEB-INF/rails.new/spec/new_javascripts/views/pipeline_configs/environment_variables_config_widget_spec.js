@@ -16,7 +16,7 @@
 
 define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "views/pipeline_configs/environment_variables_config_widget"], function ($, m, EnvironmentVariables, EnvironmentVariableWidget) {
   describe("EnvironmentVariable Widget", function () {
-    var $root;
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
     var variables;
 
     beforeEach(function () {
@@ -31,10 +31,6 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
         }
       ]));
 
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-
       m.mount(root,
         m.component(EnvironmentVariableWidget, {variables: variables})
       );
@@ -46,10 +42,6 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
       evObj.initEvent('click', true, false);
       accordion.onclick(evObj);
       m.redraw(true);
-    });
-
-    afterEach(function () {
-      root.parentNode.removeChild(root);
     });
 
     it("should display environment variables", function () {

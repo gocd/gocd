@@ -16,7 +16,7 @@
 
 define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", "views/pipeline_configs/tracking_tool_widget"], function ($, m, _, TrackingTool, TrackingToolWidget) {
   describe("Tracking Tool Widget", function () {
-    var root, $root;
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
     var genericTrackingTool, mingleTrackingTool, trackingToolProp;
 
     beforeEach(function () {
@@ -32,11 +32,7 @@ define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", 
         projectIdentifier:     "gocd",
         mqlGroupingConditions: "status > 'In Dev'"
       });
-
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-
+      
       m.mount(root,
         m.component(TrackingToolWidget, {trackingTool: trackingToolProp})
       );
@@ -47,10 +43,6 @@ define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", 
       evObj.initEvent('click', true, false);
       accordion.onclick(evObj);
       m.redraw(true);
-    });
-
-    afterEach(function () {
-      root.parentNode.removeChild(root);
     });
 
     it("should select none tracking tool when none is selected", function () {

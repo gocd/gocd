@@ -16,13 +16,7 @@
 
 define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "models/pipeline_configs/tasks"], function (m, _, LookupCommandWidget, Tasks) {
   describe("Lookup Command Widget", function () {
-    var $root, root;
-
-    function createRootElement() {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-    }
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     function mount(model, snippet) {
       m.mount(root,
@@ -53,12 +47,7 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
           return enableTextComplete;
         });
 
-        createRootElement();
         mount(model, snippet);
-      });
-
-      afterAll(function () {
-        root.parentNode.removeChild(root);
       });
 
       it("should render a text box with textcomplete enabled", function () {

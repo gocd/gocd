@@ -16,13 +16,7 @@
 
 define(["mithril", "lodash", "views/pipeline_configs/run_if_conditions_widget", "models/pipeline_configs/tasks"], function (m, _, RunIfConditionsWidget, Tasks) {
   describe("RunIfConditions Widget", function() {
-    var $root, root;
-
-    function createRootElement() {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-    }
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     function mount(task) {
       m.mount(root,
@@ -32,13 +26,6 @@ define(["mithril", "lodash", "views/pipeline_configs/run_if_conditions_widget", 
     }
 
     describe("View", function() {
-      beforeAll(function() {
-        createRootElement();
-      });
-
-      afterAll(function () {
-        root.parentNode.removeChild(root);
-      });
 
       it("should render checkbox for runIf conditions", function () {
         var task = new Tasks.Task.Exec({runIf: ['any']});
@@ -60,14 +47,6 @@ define(["mithril", "lodash", "views/pipeline_configs/run_if_conditions_widget", 
     });
 
     describe("Selection", function() {
-      beforeAll(function() {
-        createRootElement();
-      });
-
-      afterAll(function () {
-        root.parentNode.removeChild(root);
-      });
-
       it("should be either 'any' or 'passed || failed'", function() {
         var task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
         mount(task);

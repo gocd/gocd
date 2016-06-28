@@ -16,7 +16,7 @@
 
 define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_configs/tasks_config_widget"], function ($, m, Tasks, TasksConfigWidget) {
   describe("Tasks Widget", function () {
-    var root, $root;
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     describe('Ant Task View', function () {
       var task;
@@ -41,12 +41,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         });
         tasks().addTask(task);
 
-        createRootElement();
         mount(tasks);
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind target', function () {
@@ -91,12 +86,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         });
         tasks().addTask(task);
 
-        createRootElement();
         mount(tasks);
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind target', function () {
@@ -139,12 +129,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         });
         tasks().addTask(task);
 
-        createRootElement();
         mount(tasks);
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       describe('render', function () {
@@ -185,12 +170,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         });
         tasks().addTask(task);
 
-        createRootElement();
         mount(tasks);
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind target', function () {
@@ -230,12 +210,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         });
         tasks().addTask(task);
 
-        createRootElement();
         mount(tasks);
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind pipeline', function () {
@@ -316,12 +291,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
           tasks().addTask(task);
         });
 
-        createRootElement();
         mount(tasks);
-      });
-
-      afterEach(function () {
-        root.parentNode.removeChild(root);
       });
 
       it("should add a new task", function () {
@@ -346,14 +316,5 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
       m.redraw(true);
     };
 
-    function createRootElement() {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-    }
-
-    function removeRootElement() {
-      root.parentNode.removeChild(root);
-    }
   });
 });

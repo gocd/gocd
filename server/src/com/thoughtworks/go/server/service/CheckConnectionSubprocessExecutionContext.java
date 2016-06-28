@@ -42,4 +42,9 @@ public class CheckConnectionSubprocessExecutionContext implements SubprocessExec
     public Boolean isGitShallowClone() {
         throw new UnsupportedOperationException(" This is an unexpected call. Perform this action only on the server.");
     }
+
+    @Override
+    public boolean isServer() {
+        throw new UnsupportedOperationException("This is an unexpected call.");
+    }
 }

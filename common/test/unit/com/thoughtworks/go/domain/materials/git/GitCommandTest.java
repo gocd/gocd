@@ -59,6 +59,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -88,7 +89,7 @@ public class GitCommandTest {
         repoLocation = gitRepo.gitRepository();
         repoUrl = gitRepo.projectRepositoryUrl();
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        int returnCode = git.cloneFrom(outputStreamConsumer, repoUrl);
+        int returnCode = git.cloneWithNoCheckout(outputStreamConsumer, repoUrl);
         if (returnCode > 0) {
             fail(outputStreamConsumer.getAllOutput());
         }
@@ -111,7 +112,7 @@ public class GitCommandTest {
     @Test
     public void shouldCloneFromMasterWhenNoBranchIsSpecified(){
         InMemoryStreamConsumer output = inMemoryConsumer();
-        git.cloneFrom(output, repoUrl);
+        git.clone(output, repoUrl);
         CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir);
         commandLine.run(output, "");
         assertThat(output.getStdOut(), Is.is("* master"));
@@ -123,6 +124,17 @@ public class GitCommandTest {
     }
 
     @Test
+    public void freshCloneOnAgentSideShouldHaveWorkingCopyCheckedOut() {
+        InMemoryStreamConsumer output = inMemoryConsumer();
+        File workingDir = createTempWorkingDirectory();
+        GitCommand git = new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
+
+        git.clone(output, repoUrl);
+
+        assertWorkingCopyCheckedOut(workingDir);
+    }
+
+    @Test
     public void fullCloneIsNotShallow() {
         assertThat(git.isShallow(), is(false));
     }
@@ -130,7 +142,7 @@ public class GitCommandTest {
     @Test
     public void shouldOnlyCloneLimitedRevisionsIfDepthSpecified() throws Exception {
         FileUtil.deleteFolder(this.gitLocalRepoDir);
-        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        git.clone(inMemoryConsumer(), repoUrl, 2);
         assertThat(git.isShallow(), is(true));
         assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_4), is(true));
         assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_3), is(true));
@@ -144,7 +156,7 @@ public class GitCommandTest {
     @Test
     public void unshallowALocalRepoWithArbitraryDepth() throws Exception {
         FileUtil.deleteFolder(this.gitLocalRepoDir);
-        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        git.clone(inMemoryConsumer(), repoUrl, 2);
         git.unshallow(inMemoryConsumer(), 3);
         assertThat(git.isShallow(), is(true));
         assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_2), is(true));
@@ -161,7 +173,7 @@ public class GitCommandTest {
     @Test
     public void unshallowShouldNotResultInWorkingCopyCheckout() {
         FileUtil.deleteFolder(this.gitLocalRepoDir);
-        git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
+        git.cloneWithNoCheckout(inMemoryConsumer(), repoUrl);
         git.unshallow(inMemoryConsumer(), 3);
         assertWorkingCopyNotCheckedOut();
     }
@@ -171,7 +183,7 @@ public class GitCommandTest {
         gitLocalRepoDir = createTempWorkingDirectory();
         git = new GitCommand(null, gitLocalRepoDir, BRANCH, false, new HashMap<String, String>());
         GitCommand branchedGit = new GitCommand(null, gitLocalRepoDir, BRANCH, false, new HashMap<String, String>());
-        branchedGit.cloneFrom(inMemoryConsumer(), gitFooBranchBundle.projectRepositoryUrl());
+        branchedGit.clone(inMemoryConsumer(), gitFooBranchBundle.projectRepositoryUrl());
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, "");
         assertThat(output.getStdOut(), Is.is("* foo"));
@@ -215,7 +227,7 @@ public class GitCommandTest {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
-        gitWithSubmodule.cloneFrom(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
+        gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
         InMemoryStreamConsumer outConsumer = new InMemoryStreamConsumer();
         gitWithSubmodule.resetWorkingDir(outConsumer, new StringRevision("HEAD"));
         Matcher matcher = Pattern.compile(".*^\\s[a-f0-9A-F]{40} sub1 \\(heads/master\\)$.*", Pattern.MULTILINE | Pattern.DOTALL).matcher(outConsumer.getAllOutput());
@@ -227,7 +239,7 @@ public class GitCommandTest {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
         File submoduleFolder = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
-        gitWithSubmodule.cloneFrom(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
+        gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
         FileUtils.deleteDirectory(submoduleFolder);
 
         assertThat(submoduleFolder.exists(), is(false));
@@ -351,7 +363,7 @@ public class GitCommandTest {
     @Test public void shouldRetrieveLatestModificationFromBranch() throws Exception {
         GitTestRepo branchedRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH);
         GitCommand branchedGit = new GitCommand(null, createTempWorkingDirectory(), BRANCH, false, new HashMap<String, String>());
-        branchedGit.cloneFrom(inMemoryConsumer(), branchedRepo.projectRepositoryUrl());
+        branchedGit.clone(inMemoryConsumer(), branchedRepo.projectRepositoryUrl());
 
         Modification mod = branchedGit.latestModification().get(0);
 
@@ -372,7 +384,7 @@ public class GitCommandTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        gitWithSubmodule.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         List<String> folders = gitWithSubmodule.submoduleFolders();
@@ -391,7 +403,7 @@ public class GitCommandTest {
             }
         };
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        gitWithSubmodule.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
 
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
 
@@ -403,7 +415,7 @@ public class GitCommandTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        gitWithSubmodule.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         List<String> folders = gitWithSubmodule.submoduleFolders();
@@ -417,7 +429,7 @@ public class GitCommandTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        gitWithSubmodule.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
 
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
@@ -468,7 +480,7 @@ public class GitCommandTest {
 
         GitCommand gitCommand = new GitCommand("unique-material", null, "master", false, executionContext.getDefaultEnvironmentVariables());
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        gitCommand.cloneFrom(outputStreamConsumer, gitRepo.projectRepositoryUrl());
+        gitCommand.clone(outputStreamConsumer, gitRepo.projectRepositoryUrl());
         GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
     }
 
@@ -563,7 +575,7 @@ public class GitCommandTest {
         File cloneDirectory = createTempWorkingDirectory();
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl()); // Clone repository without submodules
+        clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl()); // Clone repository without submodules
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));  // Pull submodules to working copy - Pipeline counter 1
         File unversionedFile = new File(new File(cloneDirectory, submoduleDirectoryName), "unversioned_file.txt");
         FileUtils.writeStringToFile(unversionedFile, "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!");
@@ -584,7 +596,7 @@ public class GitCommandTest {
 
         /* Simulate an agent checkout of code. */
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
-        clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));
 
         /* Simulate a local modification of file inside submodule, on agent side. */
@@ -616,7 +628,7 @@ public class GitCommandTest {
         /* Simulate an agent checkout of code. */
         File cloneDirectory = createTempWorkingDirectory();
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
-        clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));
     }
 
@@ -630,7 +642,7 @@ public class GitCommandTest {
         File remoteSubmoduleLocation = submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
 
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
-        clonedCopy.cloneFrom(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
+        clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         clonedCopy.fetchAndResetToHead(outputStreamConsumer);
 
         submoduleRepos.changeSubmoduleUrl(submoduleDirectoryName);
@@ -691,5 +703,9 @@ public class GitCommandTest {
 
     private void assertWorkingCopyNotCheckedOut() {
         assertThat(gitLocalRepoDir.listFiles(), Is.is(new File[]{new File(gitLocalRepoDir, ".git")}));
+    }
+
+    private void assertWorkingCopyCheckedOut(File workingDir) {
+        assertTrue(workingDir.listFiles().length > 1);
     }
 }

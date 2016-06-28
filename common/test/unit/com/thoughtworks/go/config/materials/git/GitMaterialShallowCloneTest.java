@@ -171,18 +171,18 @@ public class GitMaterialShallowCloneTest {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(false);
 
-        material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment));
+        material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment, true));
 
         assertThat(localRepoFor(material).isShallow(), is(false));
     }
 
     @Test
-    public void shouldNotUnshallowOnServerSideIfShallowClonePropertyIsOn() {
+    public void shouldNotUnshallowOnServerSideIfShallowClonePropertyIsOnAndRepoIsAlreadyShallow() {
         SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(true);
 
-        material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment));
+        material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment, false));
 
         assertThat(localRepoFor(material).isShallow(), is(true));
     }

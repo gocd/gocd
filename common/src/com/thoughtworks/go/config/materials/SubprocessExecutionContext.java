@@ -25,4 +25,5 @@ public interface SubprocessExecutionContext {
     String getProcessNamespace(String fingerprint);
     Map<String, String> getDefaultEnvironmentVariables();
     Boolean isGitShallowClone();
+    boolean isServer();
 }

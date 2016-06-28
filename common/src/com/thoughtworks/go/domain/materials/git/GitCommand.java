@@ -54,17 +54,22 @@ public class GitCommand extends SCMCommand {
         this.environment = environment;
     }
 
-    public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
-        return cloneFrom(outputStreamConsumer, url, Integer.MAX_VALUE);
+    public int cloneWithNoCheckout(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
+        CommandLine gitClone = cloneCommand().withArg("--no-checkout");
+
+        gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+
+        return run(gitClone, outputStreamConsumer);
+    }
+
+    public int clone(ProcessOutputStreamConsumer outputStreamConsumer, String url) {
+        return clone(outputStreamConsumer, url, Integer.MAX_VALUE);
     }
 
     // Clone repository from url with specified depth.
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
-    public int cloneFrom(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
-        CommandLine gitClone = git(environment)
-                .withArg("clone")
-                .withArg(String.format("--branch=%s", branch))
-                .withArg("--no-checkout");
+    public int clone(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
+        CommandLine gitClone = cloneCommand();
 
         if(depth < Integer.MAX_VALUE) {
             gitClone.withArg(String.format("--depth=%s", depth));
@@ -72,6 +77,12 @@ public class GitCommand extends SCMCommand {
         gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
 
         return run(gitClone, outputStreamConsumer);
+    }
+
+    private CommandLine cloneCommand() {
+        return git(environment)
+                .withArg("clone")
+                .withArg(String.format("--branch=%s", branch));
     }
 
     // http://www.kernel.org/pub/software/scm/git/docs/git-log.html

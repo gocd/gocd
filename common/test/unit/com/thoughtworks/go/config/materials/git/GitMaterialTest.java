@@ -28,6 +28,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.JsonValue;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -61,6 +62,8 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(JunitExtRunner.class)
 public class GitMaterialTest {
@@ -110,7 +113,7 @@ public class GitMaterialTest {
 
     @Test
     public void shouldNotCheckingOutWorkingCopyUponCallingGetLatestModification() throws Exception {
-        git.latestModification(workingDir, new TestSubprocessExecutionContext());
+        git.latestModification(workingDir, new TestSubprocessExecutionContext(true));
         assertWorkingCopyNotCheckedOut(workingDir);
     }
 
@@ -158,7 +161,11 @@ public class GitMaterialTest {
 
     @Test
     public void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() throws Exception {
-        git.modificationsSince(workingDir, REVISION_0, new TestSubprocessExecutionContext());
+        SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
+        GitMaterial material = new GitMaterial(repositoryUrl, true);
+        when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(false);
+
+        material.modificationsSince(workingDir, REVISION_0, new TestSubprocessExecutionContext(mockSystemEnvironment, true));
         assertWorkingCopyNotCheckedOut(workingDir);
     }
 

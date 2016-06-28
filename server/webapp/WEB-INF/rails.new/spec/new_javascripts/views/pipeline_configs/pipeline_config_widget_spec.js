@@ -16,14 +16,10 @@
 
 define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/pipeline", "views/pipeline_configs/pipeline_config_widget"], function ($, m, _, s, Pipeline, PipelineConfigWidget) {
   describe("PipelineConfigWidget", function () {
-    var root, $root;
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
     var pipeline;
 
     beforeAll(function (done) {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/pipeline.json\?_=\d+/).andReturn({
         contentType:  'application/vnd.go.cd.v1+json',
@@ -48,7 +44,6 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/p
     });
 
     afterAll(function () {
-      root.parentNode.removeChild(root);
       jasmine.Ajax.uninstall();
     });
 

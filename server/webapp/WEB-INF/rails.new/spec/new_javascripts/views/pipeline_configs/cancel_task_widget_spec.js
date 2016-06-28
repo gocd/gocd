@@ -16,7 +16,8 @@
 
 define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_configs/cancel_task_widget"], function ($, m, Tasks, CancelTaskWidget) {
   describe('Cancel Task Widget', function () {
-    var root, $root, task;
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
+    var task;
     describe('view task with onCancel task', function () {
       beforeAll(function () {
         task = new Tasks.Task.Ant({
@@ -35,12 +36,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
           }
         });
 
-        createRootElement();
         mount(task);
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind target', function () {
@@ -77,16 +73,11 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
           onCancelTask:     null
         });
 
-        createRootElement();
         mount(task);
 
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
         expect($root.find("input").size()).toBe(1);
         expect($root.find("select").size()).toBe(0);
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
     });
@@ -100,7 +91,6 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
           onCancelTask:      null
         });
 
-        createRootElement();
         mount(task);
 
         $root.find("input[type=checkbox][data-prop-name=checked]").click();
@@ -108,10 +98,6 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
 
         expect($root.find("select :checked").val()).toBe('exec');
         expect(task.onCancelTask.type()).toBe('exec');
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
     });
@@ -134,7 +120,6 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
           }
         });
 
-        createRootElement();
         mount(task);
 
         $root.find('.on-cancel select').val('exec');
@@ -143,10 +128,6 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
 
         expect(task.onCancelTask.type()).toBe('exec');
         expect($root.find("input[data-prop-name='command']").val()).toBe(task.onCancelTask.command());
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
     });
@@ -158,14 +139,5 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
       m.redraw(true);
     };
 
-    function createRootElement() {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-    }
-
-    function removeRootElement() {
-      root.parentNode.removeChild(root);
-    }
   });
 });

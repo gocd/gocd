@@ -17,13 +17,7 @@
 define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget", "models/pipeline_configs/pipelines", "models/pipeline_configs/materials"],
   function (m, _, PipelineStageFieldWidget, Pipelines, Materials) {
   describe("PipelineStageField Widget", function () {
-    var $root, root;
-
-    function createRootElement() {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-    }
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     function mount(material, pipelines) {
       m.mount(root,
@@ -33,10 +27,6 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
     }
 
     describe('view', function () {
-      afterEach(function () {
-        root.parentNode.removeChild(root);
-      });
-
       it('should render the pipeline stage field', function() {
         var material = Materials.create({
           type:     "dependency",
@@ -44,7 +34,6 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
           stage:    "first_stage"
         });
 
-        createRootElement();
         mount(material, Pipelines);
 
         expect($root.find("input[name='pipeline-stage']").val()).toBe('p1 [first_stage]');
@@ -56,7 +45,6 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
           type:     "dependency"
         });
 
-        createRootElement();
         mount(material, Pipelines);
 
         expect(_.isEmpty($root.find("input[name='pipeline-stage']").val())).toBe(true);
@@ -67,7 +55,6 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
           type:     "dependency"
         });
 
-        createRootElement();
         mount(material, Pipelines);
 
         $root.find("input[name='pipeline-stage']").val('pipeline [stage]');
@@ -85,7 +72,6 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
           stage:    "first_stage"
         });
 
-        createRootElement();
         mount(material, Pipelines);
 
         $root.find("input[name='pipeline-stage']").val('invalid-input');
@@ -104,7 +90,6 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
           type:     "dependency"
         });
 
-        createRootElement();
         mount(material, Pipelines);
 
         $root.find("input[name='pipeline-stage']").val('invalid-input');

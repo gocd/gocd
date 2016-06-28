@@ -16,16 +16,12 @@
 
 define(["jquery", "mithril", "models/pipeline_configs/parameters", "views/pipeline_configs/parameters_config_widget"], function ($, m, Parameters, ParametersConfigWidget) {
   describe("Parameter Widget", function () {
-    var root, $root;
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
     var parameters;
     beforeEach(function () {
       parameters = m.prop(new Parameters.fromJSON([
         {name: "COMMAND", value: "echo"}
       ]));
-
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
 
       m.mount(root,
         m.component(ParametersConfigWidget, {parameters: parameters})
@@ -37,10 +33,6 @@ define(["jquery", "mithril", "models/pipeline_configs/parameters", "views/pipeli
       evObj.initEvent('click', true, false);
       accordion.onclick(evObj);
       m.redraw(true);
-    });
-
-    afterEach(function () {
-      root.parentNode.removeChild(root);
     });
 
     it("should display parameters", function () {

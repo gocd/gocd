@@ -17,20 +17,14 @@
 define(["mithril", "lodash", "models/pipeline_configs/materials", "views/pipeline_configs/test_connection_widget"], function (m, _, Materials, TestConnectionWidget) {
   describe("Test Connection Widget", function () {
     describe('view', function() {
-      var $root, root, material;
+      var $root = $('#mithril-mount-point'), root = $root.get(0);
+      var material;
       beforeEach(function () {
         material = new Materials().createMaterial({
           type: 'git',
           url: "http://git.example.com/git/myProject"
         });
 
-        root = document.createElement("div");
-        document.body.appendChild(root);
-        $root = $(root);
-      });
-
-      afterEach(function () {
-        root.parentNode.removeChild(root);
       });
 
       it("should render test connection button", function () {

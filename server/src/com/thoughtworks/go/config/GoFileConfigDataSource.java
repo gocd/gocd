@@ -314,12 +314,8 @@ public class GoFileConfigDataSource {
                     try {
                         String configAsXml = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
                         validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastValidPartials);
-                        // These have changed now
-                        int previousValidPartialsCount = lastValidPartials.size();
-                        lastValidPartials = cachedGoPartials.lastValidPartials();
                         updateMergedConfigForEdit(validatedConfigHolder, lastValidPartials);
-                        LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials. Now there are %s LAST VALID partials",
-                                previousValidPartialsCount, lastValidPartials.size()));
+                        LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials.", lastValidPartials.size()));
                     } catch (GoConfigInvalidException fallbackFailed) {
                         LOGGER.warn(String.format(
                                 "Merged config update operation failed using fallback LAST VALID %s partials. Exception message was: %s",
@@ -424,7 +420,6 @@ public class GoFileConfigDataSource {
         return mergedConfigXml;
     }
 
-    //TODO: jyoti - write a test for a case with config-repo post-merge validation failing
     private CruiseConfig validateMergedXML(String mergedConfigXml, String latestMd5, final List<PartialConfig> partials) throws Exception {
         LOGGER.debug("[Config Save] -=- Converting merged config to XML");
         try {

@@ -19,7 +19,7 @@ define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", 
     var root, $root;
     var genericTrackingTool, mingleTrackingTool, trackingToolProp;
 
-    beforeEach(function () {
+    beforeAll(function () {
       trackingToolProp = m.prop();
 
       genericTrackingTool = new TrackingTool.Generic({
@@ -49,7 +49,7 @@ define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", 
       m.redraw(true);
     });
 
-    afterEach(function () {
+    afterAll(function () {
       root.parentNode.removeChild(root);
     });
 

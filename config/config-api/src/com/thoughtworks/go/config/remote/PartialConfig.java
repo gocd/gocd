@@ -56,7 +56,7 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
 
     @Override
     public ConfigErrors errors() {
-        return null;
+        return new ConfigErrors();
     }
 
     @Override

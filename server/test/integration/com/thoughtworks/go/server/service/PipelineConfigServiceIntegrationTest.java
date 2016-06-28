@@ -164,6 +164,12 @@ public class PipelineConfigServiceIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
+        for (PartialConfig partial : cachedGoPartials.lastValidPartials()) {
+            assertThat(ErrorCollector.getAllErrors(partial).isEmpty(), is(true));
+        }
+        for (PartialConfig partial : cachedGoPartials.lastKnownPartials()) {
+            assertThat(ErrorCollector.getAllErrors(partial).isEmpty(), is(true));
+        }
         cachedGoPartials.clear();
         configHelper.onTearDown();
         dbHelper.onTearDown();

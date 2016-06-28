@@ -16,10 +16,10 @@
 
 define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "views/pipeline_configs/environment_variables_config_widget"], function ($, m, EnvironmentVariables, EnvironmentVariableWidget) {
   describe("EnvironmentVariable Widget", function () {
-    var $root;
+    var $root, root;
     var variables;
 
-    beforeEach(function () {
+    beforeAll(function () {
       variables = m.prop(EnvironmentVariables.fromJSON([
         {
           name:  "COMMAND",
@@ -48,7 +48,7 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
       m.redraw(true);
     });
 
-    afterEach(function () {
+    afterAll(function () {
       root.parentNode.removeChild(root);
     });
 

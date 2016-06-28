@@ -18,11 +18,15 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
   describe("Lookup Command Widget", function () {
     var $root, root;
 
-    function createRootElement() {
+    beforeAll(function() {
       root = document.createElement("div");
       document.body.appendChild(root);
       $root = $(root);
-    }
+    });
+
+    afterAll(function() {
+      root.parentNode.removeChild(root);
+    });
 
     function mount(model, snippet) {
       m.mount(root,
@@ -53,12 +57,7 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
           return enableTextComplete;
         });
 
-        createRootElement();
         mount(model, snippet);
-      });
-
-      afterAll(function () {
-        root.parentNode.removeChild(root);
       });
 
       it("should render a text box with textcomplete enabled", function () {

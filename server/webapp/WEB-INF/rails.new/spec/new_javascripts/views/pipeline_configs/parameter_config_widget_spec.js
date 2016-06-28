@@ -16,8 +16,8 @@
 
 define(["jquery", "mithril", "models/pipeline_configs/parameters", "views/pipeline_configs/parameters_config_widget"], function ($, m, Parameters, ParametersConfigWidget) {
   describe("Parameter Widget", function () {
-    var root, $root;
-    var parameters;
+    var root, $root, parameters;
+
     beforeEach(function () {
       parameters = m.prop(new Parameters.fromJSON([
         {name: "COMMAND", value: "echo"}
@@ -40,6 +40,7 @@ define(["jquery", "mithril", "models/pipeline_configs/parameters", "views/pipeli
     });
 
     afterEach(function () {
+      m.mount(root, null);
       root.parentNode.removeChild(root);
     });
 

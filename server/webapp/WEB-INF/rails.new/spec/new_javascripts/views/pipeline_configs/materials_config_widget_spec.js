@@ -17,10 +17,19 @@
 define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipeline_configs/materials_config_widget"], function ($, m, Materials, MaterialsConfigWidget) {
   describe("Material Widget", function () {
     var $root, root;
+
     beforeAll(function() {
+      root = document.createElement("div");
+      document.body.appendChild(root);
+      $root = $(root);
+
       spyOn(m, 'request').and.callFake(function() {
         return $.Deferred().promise();
       });
+    });
+
+    afterAll(function() {
+      root.parentNode.removeChild(root);
     });
 
     describe('SVN View', function () {
@@ -39,13 +48,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           filter:         new Materials.Filter({ignore: ['*.doc']})
         });
 
-        createRootElement();
         mount(materials);
         viewMaterial();
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind url', function () {
@@ -96,13 +100,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           shallowClone: true
         });
 
-        createRootElement();
         mount(materials);
         viewMaterial();
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind url', function () {
@@ -147,13 +146,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           filter:      new Materials.Filter({ignore: ['*.doc']})
         });
 
-        createRootElement();
         mount(materials);
         viewMaterial();
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind url', function () {
@@ -194,13 +188,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           filter:      new Materials.Filter({ignore: ['*.doc']})
         });
 
-        createRootElement();
         mount(materials);
         viewMaterial();
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind port', function () {
@@ -257,13 +246,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           filter:      new Materials.Filter({ignore: ['*.doc']})
         });
 
-        createRootElement();
         mount(materials);
         viewMaterial();
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind url', function () {
@@ -316,13 +300,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
 
         });
 
-        createRootElement();
         mount(materials);
         viewMaterial();
-      });
-
-      afterAll(function () {
-        removeRootElement();
       });
 
       it('should bind name', function () {
@@ -333,16 +312,6 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
         expect($root.find("input[name='pipeline-stage']").val()).toBe('pipeline1 [stage1]');
       });
     });
-
-    function createRootElement() {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-      $root = $(root);
-    }
-
-    function removeRootElement() {
-      root.parentNode.removeChild(root);
-    }
 
     function mount(materials) {
       m.mount(root,

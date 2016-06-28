@@ -56,29 +56,36 @@ public class SvnLogXmlParser {
         for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
             Element logEntry = (Element) iterator.next();
 
-            modifications.add(parseLogEntry(logEntry, path));
+            Modification modification = parseLogEntry(logEntry, path);
+            if (modification != null) {
+                modifications.add(modification);
+            }
         }
 
         return modifications;
     }
 
     private Modification parseLogEntry(Element logEntry, String path) throws ParseException {
+        Element logEntryPaths = logEntry.getChild("paths");
+        if (logEntryPaths == null) {
+            /* Path-based access control forbids us from learning
+             * details of this log entry, so skip it. */
+            return null;
+        }
+
         Date modifiedTime = convertDate(logEntry.getChildText("date"));
         String author = logEntry.getChildText("author");
         String comment = logEntry.getChildText("msg");
         String revision = logEntry.getAttributeValue("revision");
 
         Modification modification = new Modification(author, comment, null, modifiedTime, revision);
-
-        Element logEntryPaths = logEntry.getChild("paths");
-        if (logEntryPaths != null) {
-            List paths = logEntryPaths.getChildren("path");
-            for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
-                Element node = (Element) iterator.next();
-                if (underPath(path, node.getText())) {
-                    ModifiedAction action = convertAction(node.getAttributeValue("action"));
-                    modification.createModifiedFile(node.getText(), null, action);
-                }
+        
+        List paths = logEntryPaths.getChildren("path");
+        for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
+            Element node = (Element) iterator.next();
+            if (underPath(path, node.getText())) {
+                ModifiedAction action = convertAction(node.getAttributeValue("action"));
+                modification.createModifiedFile(node.getText(), null, action);
             }
         }
 

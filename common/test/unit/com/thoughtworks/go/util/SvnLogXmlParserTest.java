@@ -126,6 +126,31 @@ public class SvnLogXmlParserTest {
     }
 
     @Test
+    public void shouldParseLogWithEmptyRevision() throws ParseException {
+        SvnLogXmlParser parser = new SvnLogXmlParser();
+        List<Modification> materialRevisions = parser.parse("<?xml version=\"1.0\"?>\n"
+                + "<log>\n"
+                + "<logentry\n"
+                + "   revision=\"2\">\n"
+                + "</logentry>\n"
+                + "<logentry\n"
+                + "   revision=\"3\">\n"
+                + "<author>cceuser</author>\n"
+                + "<date>2008-03-11T07:52:41.162075Z</date>\n"
+                + "<paths>\n"
+                + "<path\n"
+                + "   action=\"A\">/trunk/revision3.txt</path>\n"
+                + "</paths>\n"
+                + "</logentry>\n"
+                + "</log>", "", new SAXBuilder());
+        assertThat(materialRevisions.size(), is(1));
+        Modification mod = materialRevisions.get(0);
+        assertThat(mod.getRevision(), is("3"));
+        assertThat(mod.getComment(), is(nullValue()));
+    }
+    
+
+    @Test
     public void shouldParseBJCruiseLogCorrectly() {
         String firstChangeLog = "<?xml version=\"1.0\"?>\n"
                 + "<log>\n"

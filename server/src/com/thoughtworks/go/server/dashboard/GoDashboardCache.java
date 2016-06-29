@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -30,6 +31,6 @@ public class GoDashboardCache {
      * will always be called from the same thread (queueProcessor in GoDashboardActivityListener). So, not surrounding
      * it with a synchronizedMap. Also, uses {@link LinkedHashMap} to preserve insertion order.
      */
-    private LinkedHashMap<CaseInsensitiveString, GoDashboardPipelineModel> cache;
-    private volatile List<GoDashboardPipelineModel> orderedEntries;
+    private LinkedHashMap<CaseInsensitiveString, PipelineModel> cache;
+    private volatile List<PipelineModel> orderedEntries;
 }

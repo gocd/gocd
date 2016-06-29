@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -259,6 +261,22 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(models.get(0).getPipelineModel("pipeline2").getLatestPipelineInstance().isLockable(), is(false));
         assertThat(models.get(0).getPipelineModel("pipeline2").getLatestPipelineInstance().isCurrentlyLocked(), is(false));
         assertThat(models.get(0).getPipelineModel("pipeline2").getLatestPipelineInstance().canUnlock(), is(false));
+    }
+
+    @Test
+    public void shouldUpdateAdministrabilityOfAPipelineBasedOnItsOrigin() throws Exception {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        p1Config.setOrigin(new FileConfigOrigin());
+
+        PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
+        p2Config.setOrigin(new RepoConfigOrigin());
+
+        when(pipelineSqlMapDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+
+        List<PipelineGroupModel> models = loader.allPipelines();
+
+        assertThat(models.get(1).getPipelineModel("pipeline1").canAdminister(), is(true));
+        assertThat(models.get(0).getPipelineModel("pipeline2").canAdminister(), is(false));
     }
 
     private void assertModel(PipelineGroupModel groupModel, String group, PipelineInstanceModel... pims) {

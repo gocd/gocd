@@ -81,9 +81,11 @@ public class GoDashboardCurrentStateLoader {
         String pipelineName = str(pipelineConfig.name());
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
-        PipelineModel pipelineModel = new PipelineModel(pipelineName, true, true, pauseInfo);
-        pipelineModel.addPipelineInstances(instancesFor(pipelineConfig, activeInstances));
 
+        PipelineModel pipelineModel = new PipelineModel(pipelineName, true, true, pauseInfo);
+        pipelineModel.updateAdministrability(pipelineConfig.isLocal());
+
+        pipelineModel.addPipelineInstances(instancesFor(pipelineConfig, activeInstances));
         return pipelineModel;
     }
 

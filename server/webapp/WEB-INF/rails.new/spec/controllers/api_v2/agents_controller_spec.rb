@@ -328,4 +328,116 @@ describe ApiV2::AgentsController do
     end
   end
 
+  describe :bulk_delete do
+    describe :security do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:delete, :bulk_destroy)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:delete, :bulk_destroy)
+      end
+
+      it 'should not allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:delete, :bulk_destroy)
+      end
+    end
+
+    describe 'as user' do
+      it 'should not allow normal users to bulk_destroy the agents' do
+        login_as_user
+
+        delete_with_api_header :bulk_destroy, :uuids => ['foo']
+        expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
+      end
+    end
+
+    describe 'as admin user' do
+      before(:each) do
+        login_as_admin
+      end
+
+      it 'should allow admin users to delete a group of agents' do
+        agent1 = AgentInstanceMother.idle()
+        agent2= AgentInstanceMother.idle()
+
+        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
+          result.ok('Deleted 2 agent(s).')
+        end
+
+        delete_with_api_header :bulk_destroy, :uuids => [agent1.getUuid(), agent2.getUuid()]
+        expect(response).to be_ok
+        expect(response).to have_api_message_response(200, 'Deleted 2 agent(s).')
+      end
+
+      it 'should render result in case of error' do
+        agent1 = AgentInstanceMother.idle()
+        agent2 = AgentInstanceMother.idle()
+
+        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
+          result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
+        end
+
+        delete_with_api_header :bulk_destroy, :uuids => [agent1.getUuid(), agent2.getUuid()]
+        expect(response).to have_api_message_response(406, 'Not Acceptable')
+      end
+    end
+
+  end
+
+  describe :bulk_update do
+    describe :security do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:patch, :bulk_update)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:patch, :bulk_update)
+      end
+
+      it 'should not allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:patch, :bulk_update)
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:patch, :bulk_update)
+      end
+    end
+
+    describe 'as user ' do
+      it 'should not allow normal users to bulk_destroy the agents' do
+        login_as_user
+
+        patch_with_api_header :bulk_update, :uuids => ['foo']
+        expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
+      end
+    end
+
+    describe 'as admin user' do
+      before(:each) do
+        login_as_admin
+      end
+
+      it 'should allow admin users to update a group of agents' do
+        uuids = %w(agent-1 agent-2)
+        @agent_service.should_receive(:bulkUpdateAgentAttributes).with(@user, anything(), uuids, anything(), anything(), anything(), anything(), anything()) do |user, result, uuids, r_add, r_remove, e_add, e_remove, state|
+          result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", uuids.to_s));
+        end
+
+        patch_with_api_header :bulk_update, :uuids => uuids
+        expect(response).to be_ok
+        expect(response).to have_api_message_response(200, "Updated agent(s) with uuid(s): [\"agent-1\", \"agent-2\"].")
+      end
+    end
+  end
+
 end

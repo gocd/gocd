@@ -262,6 +262,8 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
       resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
         patch :update, on: :member
+        patch on: :collection, action: :bulk_update
+        delete on: :collection, action: :bulk_destroy
       end
 
       match '*url', via: :all, to: 'errors#not_found'

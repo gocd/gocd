@@ -16,17 +16,26 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
+import com.thoughtworks.go.server.domain.PipelinePauseChangeListener.Event;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.LogFixture;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class PipelinePauseServiceTest {
@@ -190,4 +199,65 @@ public class PipelinePauseServiceTest {
         verify(pipelineDao).pause(VALID_PIPELINE, "", VALID_USER.getUsername().toString());
     }
 
+    @Test
+    public void shouldNotifyListenersAfterPipelineIsPaused() throws Exception {
+        setUpValidPipelineWithAuth();
+
+        PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
+        PipelinePauseChangeListener listener2 = mock(PipelinePauseChangeListener.class);
+
+        pipelinePauseService.registerListener(listener1);
+        pipelinePauseService.registerListener(listener2);
+        pipelinePauseService.pause(VALID_PIPELINE, null, VALID_USER, new HttpLocalizedOperationResult());
+
+        verify(listener1).pauseStatusChanged(Event.pause(VALID_PIPELINE, VALID_USER));
+        verify(listener2).pauseStatusChanged(Event.pause(VALID_PIPELINE, VALID_USER));
+    }
+
+    @Test
+    public void shouldNotifyListenersAfterPipelineIsUnpaused() throws Exception {
+        setUpValidPipelineWithAuth();
+
+        PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
+        PipelinePauseChangeListener listener2 = mock(PipelinePauseChangeListener.class);
+
+        pipelinePauseService.registerListener(listener1);
+        pipelinePauseService.registerListener(listener2);
+        pipelinePauseService.unpause(VALID_PIPELINE, VALID_USER, new HttpLocalizedOperationResult());
+
+        verify(listener1).pauseStatusChanged(Event.unPause(VALID_PIPELINE, VALID_USER));
+        verify(listener2).pauseStatusChanged(Event.unPause(VALID_PIPELINE, VALID_USER));
+    }
+
+    @Test
+    public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() throws Exception {
+        setUpValidPipelineWithAuth();
+
+        PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
+        PipelinePauseChangeListener listener2 = mock(PipelinePauseChangeListener.class, "ListenerWhichFails");
+        doThrow(new RuntimeException("Ouch.")).when(listener2).pauseStatusChanged(org.mockito.Matchers.<Event>anyObject());
+        PipelinePauseChangeListener listener3 = mock(PipelinePauseChangeListener.class);
+
+        try (LogFixture logFixture = logFixtureFor(PipelinePauseService.class, Level.WARN)) {
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+            pipelinePauseService.registerListener(listener1);
+            pipelinePauseService.registerListener(listener2);
+            pipelinePauseService.registerListener(listener3);
+            pipelinePauseService.pause(VALID_PIPELINE, "reason", VALID_USER, result);
+
+            synchronized (logFixture) {
+                assertTrue(logFixture.getLog(), logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"));
+            }
+            assertThat(result.isSuccessful(), is(true));
+            assertThat(result.httpCode(), is(HttpStatus.SC_OK));
+        }
+
+        verify(pipelineDao).pause(VALID_PIPELINE, "reason", VALID_USER.getUsername().toString());
+
+        verify(listener1).pauseStatusChanged(Event.pause(VALID_PIPELINE, VALID_USER));
+        verify(listener2).pauseStatusChanged(Event.pause(VALID_PIPELINE, VALID_USER));
+        verify(listener3).pauseStatusChanged(Event.pause(VALID_PIPELINE, VALID_USER));
+
+    }
 }

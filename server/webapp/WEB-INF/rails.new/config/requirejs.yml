@@ -10,7 +10,7 @@ paths:
   angular: 'lib/angular-1.0.8'
   jquery: 'lib/jquery-2.2.0'
   jquery.textcomplete: 'lib/jquery.textcomplete-0.8.1'
-  mithril: 'lib/mithril-0.2.0'
+  mithril: 'lib/mithril-0.2.5'
   lodash: 'lib/lodash'
   dragula: 'lib/dragula-3.1.0'
   js-routes: 'js-routes'

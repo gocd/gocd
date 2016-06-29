@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/materials"], function (_, Materials) {
+define(['mithril', 'lodash', "models/pipeline_configs/materials"], function (m, _, Materials) {
   var materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial;
   beforeEach(function () {
     materials = new Materials();

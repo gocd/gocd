@@ -142,10 +142,13 @@ define([
                                 end={true}/>
             </f.row>
             <f.row>
-              <f.inputWithLabel attrName='type'
-                                model={task.source()}/>
-              <f.inputWithLabel attrName='location'
-                                model={task.source()}
+              <f.inputWithLabel attrName='source'
+                                model={task}/>
+              <f.checkBox attrName='isSourceAFile'
+                                model={task}
+                                class='check'
+                                label='Source is a file'
+                                addPadding={true}
                                 end={true}/>
             </f.row>
           </div>

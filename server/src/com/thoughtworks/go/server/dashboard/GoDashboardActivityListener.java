@@ -23,35 +23,46 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.StageService;
+import com.thoughtworks.go.server.service.PipelinePauseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /* Listens to all activity that is needed to keep the dashboard updated and sets it up for processing.
  */
 @Component
-public class GoDashboardActivityListener implements Initializer, JobStatusListener, ConfigChangedListener {
+public class GoDashboardActivityListener implements Initializer, JobStatusListener, ConfigChangedListener, PipelinePauseChangeListener {
     private final GoConfigService goConfigService;
     private final StageService stageService;
+    private final PipelinePauseService pipelinePauseService;
     private final GoDashboardJobStatusChangeHandler jobStatusChangeHandler;
     private final GoDashboardStageStatusChangeHandler stageStatusChangeHandler;
     private final GoDashboardConfigChangeHandler configChangeHandler;
+    private final GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler;
 
     private final MultiplexingQueueProcessor processor;
 
     @Autowired
-    public GoDashboardActivityListener(GoConfigService goConfigService, StageService stageService, GoDashboardJobStatusChangeHandler jobStatusChangeHandler,
-                                       GoDashboardStageStatusChangeHandler stageStatusChangeHandler, GoDashboardConfigChangeHandler configChangeHandler) {
+    public GoDashboardActivityListener(GoConfigService goConfigService,
+                                       StageService stageService,
+                                       PipelinePauseService pipelinePauseService,
+                                       GoDashboardJobStatusChangeHandler jobStatusChangeHandler,
+                                       GoDashboardStageStatusChangeHandler stageStatusChangeHandler,
+                                       GoDashboardConfigChangeHandler configChangeHandler,
+                                       GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler) {
         this.goConfigService = goConfigService;
         this.stageService = stageService;
+        this.pipelinePauseService = pipelinePauseService;
         this.jobStatusChangeHandler = jobStatusChangeHandler;
         this.stageStatusChangeHandler = stageStatusChangeHandler;
         this.configChangeHandler = configChangeHandler;
+        this.pauseStatusChangeHandler = pauseStatusChangeHandler;
 
         this.processor = new MultiplexingQueueProcessor("Dashboard");
     }
@@ -61,6 +72,7 @@ public class GoDashboardActivityListener implements Initializer, JobStatusListen
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
         stageService.addStageStatusListener(stageStatusChangedListener());
+        pipelinePauseService.registerListener(this);
         processor.start();
     }
 
@@ -130,5 +142,20 @@ public class GoDashboardActivityListener implements Initializer, JobStatusListen
                 });
             }
         };
+    }
+
+    @Override
+    public void pauseStatusChanged(final Event event) {
+        processor.add(new Action() {
+            @Override
+            public void call() {
+                pauseStatusChangeHandler.call(event);
+            }
+
+            @Override
+            public String description() {
+                return "pause event: " + event;
+            }
+        });
     }
 }

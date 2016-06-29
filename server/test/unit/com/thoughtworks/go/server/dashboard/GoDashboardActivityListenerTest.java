@@ -26,30 +26,36 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.StageService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardActivityListenerTest {
+    @Mock
     private GoConfigService goConfigService;
+    @Mock
     private StageService stageService;
+    @Mock
+    private PipelinePauseService pipelinePauseService;
 
     @Before
     public void setUp() throws Exception {
-        goConfigService = mock(GoConfigService.class);
-        stageService = mock(StageService.class);
+        initMocks(this);
     }
 
     @Test
     public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() throws Exception {
-        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, null, null, null);
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, null, null, null, null);
 
         listener.initialize();
 
@@ -60,7 +66,7 @@ public class GoDashboardActivityListenerTest {
     public void shouldInvokeJobChangeHandlerWhenJobStatusChanges() throws Exception {
         JobInstance aJob = JobInstanceMother.cancelled("job1");
         GoDashboardJobStatusChangeHandler handler = mock(GoDashboardJobStatusChangeHandler.class);
-        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, handler, null, null);
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, handler, null, null, null);
 
         listener.initialize();
         listener.jobStatusChanged(aJob);
@@ -77,7 +83,7 @@ public class GoDashboardActivityListenerTest {
         ArgumentCaptor<StageStatusListener> captor = ArgumentCaptor.forClass(StageStatusListener.class);
         doNothing().when(stageService).addStageStatusListener(captor.capture());
 
-        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, null, handler, null);
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, null, handler, null, null);
         listener.initialize();
 
         StageStatusListener stageStatusListener = captor.getAllValues().get(0);
@@ -92,7 +98,7 @@ public class GoDashboardActivityListenerTest {
     public void shouldInvokeConfigChangeHandlerWhenConfigChanges() throws Exception {
         CruiseConfig aConfig = GoConfigMother.defaultCruiseConfig();
         GoDashboardConfigChangeHandler handler = mock(GoDashboardConfigChangeHandler.class);
-        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, null, null, handler);
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, null, null, handler, null);
 
         listener.initialize();
         listener.onConfigChange(aConfig);
@@ -109,12 +115,35 @@ public class GoDashboardActivityListenerTest {
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
 
-        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, null, null, handler);
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, null, null, handler, null);
         listener.initialize();
         ((EntityConfigChangedListener<PipelineConfig>) captor.getAllValues().get(1)).onEntityConfigChange(pipelineConfig);
         waitForProcessingToHappen();
 
         verify(handler).call(pipelineConfig);
+    }
+
+    @Test
+    public void shouldRegisterSelfForPipelineStatusChangeHandlingOnInitialization() throws Exception {
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, null, null, null, null);
+
+        listener.initialize();
+
+        verify(pipelinePauseService).registerListener(listener);
+    }
+
+    @Test
+    public void shouldInvokePipelinePauseStatusChangeHandlerWhenPipelinePauseEventOccurs() throws Exception {
+        GoDashboardPipelinePauseStatusChangeHandler handler = mock(GoDashboardPipelinePauseStatusChangeHandler.class);
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, null, null, null, handler);
+
+        PipelinePauseChangeListener.Event pauseEvent = PipelinePauseChangeListener.Event.pause("pipeline1", Username.valueOf("user1"));
+
+        listener.initialize();
+        listener.pauseStatusChanged(pauseEvent);
+        waitForProcessingToHappen();
+
+        verify(handler).call(pauseEvent);
     }
 
     private void waitForProcessingToHappen() throws InterruptedException {

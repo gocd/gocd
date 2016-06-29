@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class PipelineGroupModel {
     }
 
     public void add(PipelineModel pipelineModel) {
-        PipelineModel model = pipelineModelForPipelineName(pipelineModel.getName(), pipelineModel.canForce(), pipelineModel.canOperate(), pipelineModel.getPausedInfo());
+        PipelineModel model = getExistingPipelineModelOrCacheThisOneAndGetItBack(new PipelineModel(pipelineModel, false));
         for (PipelineInstanceModel pipelineInstanceModel : pipelineModel.getActivePipelineInstances()) {
             model.addPipelineInstance(pipelineInstanceModel);
         }
@@ -48,8 +48,7 @@ public class PipelineGroupModel {
     }
 
     public PipelineModel pipelineModelForPipelineName(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
-        if (!containsPipeline(pipelineName)) { pipelineModels.add(new PipelineModel(pipelineName, canForce, canOperate, pipelinePauseInfo)); }
-        return getPipelineModel(pipelineName);
+        return getExistingPipelineModelOrCacheThisOneAndGetItBack(new PipelineModel(pipelineName, canForce, canOperate, pipelinePauseInfo));
     }
 
     public boolean containsPipeline(String pipelineName) {
@@ -67,5 +66,12 @@ public class PipelineGroupModel {
 
     public void remove(PipelineModel pipelineModel) {
         pipelineModels.remove(pipelineModel);
+    }
+
+    private PipelineModel getExistingPipelineModelOrCacheThisOneAndGetItBack(PipelineModel model) {
+        if (!containsPipeline(model.getName())) {
+            pipelineModels.add(model);
+        }
+        return getPipelineModel(model.getName());
     }
 }

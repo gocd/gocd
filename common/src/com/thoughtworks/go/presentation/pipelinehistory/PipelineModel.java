@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,15 @@ public class PipelineModel {
         this.pipelinePauseInfo = pipelinePauseInfo;
         this.canOperate = canOperate;
         activePipelineInstances = PipelineInstanceModels.createPipelineInstanceModels();
+    }
+
+    public PipelineModel(PipelineModel other, boolean copyInstances) {
+        this(other.pipelineName, other.canForce, other.canOperate, other.pipelinePauseInfo);
+        this.canAdminister = other.canAdminister;
+
+        if (copyInstances) {
+            this.activePipelineInstances.addAll(other.activePipelineInstances);
+        }
     }
 
     public void addPipelineInstance(PipelineInstanceModel pipelineInstanceModel) {

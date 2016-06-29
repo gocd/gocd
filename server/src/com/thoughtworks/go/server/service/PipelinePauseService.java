@@ -70,6 +70,32 @@ public class PipelinePauseService {
         }
     }
 
+    public void unpause(String pipelineName) {
+        unpause(pipelineName, UserHelper.getUserName(), new DefaultLocalizedOperationResult());
+    }
+
+    public void unpause(String pipelineName, Username unpausedBy, LocalizedOperationResult result) {
+        String unpauseByUserName = unpausedBy == null ? "" : unpausedBy.getUsername().toString();
+        if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, unpauseByUserName, result)) {
+            return;
+        }
+        try {
+            unpausePipeline(pipelineName, unpausedBy);
+        } catch (Exception e) {
+            LOGGER.error("[Pipeline Unpause] Failed to unpause pipeline", e);
+            result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
+        }
+    }
+
+    public PipelinePauseInfo pipelinePauseInfo(String pipelineName) {
+        PipelinePauseInfo pipelinePauseInfo = pipelineSqlMapDao.pauseState(pipelineName);
+        return pipelinePauseInfo == null ? PipelinePauseInfo.notPaused() : pipelinePauseInfo;
+    }
+
+    public boolean isPaused(String pipelineName) {
+        return pipelinePauseInfo(pipelineName).isPaused();
+    }
+
     private void pausePipeline(String pipelineName, String pauseCause, Username pauseBy) {
         String mutexPipelineName = mutexForPausePipeline(pipelineName);
         synchronized (mutexPipelineName) {
@@ -100,38 +126,12 @@ public class PipelinePauseService {
         return true;
     }
 
-    public void unpause(String pipelineName) {
-        unpause(pipelineName, UserHelper.getUserName(), new DefaultLocalizedOperationResult());
-    }
-
-    public void unpause(String pipelineName, Username unpausedBy, LocalizedOperationResult result) {
-        String unpauseByUserName = unpausedBy == null ? "" : unpausedBy.getUsername().toString();
-        if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, unpauseByUserName, result)) {
-            return;
-        }
-        try {
-            unpausePipeline(pipelineName, unpausedBy);
-        } catch (Exception e) {
-            LOGGER.error("[Pipeline Unpause] Failed to unpause pipeline", e);
-            result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
-        }
-    }
-
     private void unpausePipeline(String pipelineName, Username unpausedBy) {
         String mutextPipelineName = mutexForPausePipeline(pipelineName);
         synchronized (mutextPipelineName) {
             pipelineSqlMapDao.unpause(pipelineName);
             LOGGER.info("[Pipeline Unpause] Pipeline [{}] is unpaused by [{}]", pipelineName, unpausedBy);
         }
-    }
-
-    public PipelinePauseInfo pipelinePauseInfo(String pipelineName) {
-        PipelinePauseInfo pipelinePauseInfo = pipelineSqlMapDao.pauseState(pipelineName);
-        return pipelinePauseInfo == null ? PipelinePauseInfo.notPaused() : pipelinePauseInfo;
-    }
-
-    public boolean isPaused(String pipelineName) {
-        return pipelinePauseInfo(pipelineName).isPaused();
     }
 
     /*

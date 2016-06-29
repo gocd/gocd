@@ -43,16 +43,18 @@ public class GoDashboardCurrentStateLoader {
     private PipelinePauseService pipelinePauseService;
     private PipelineLockService pipelineLockService;
     private PipelineUnlockApiService pipelineUnlockApiService;
+    private SchedulingCheckerService schedulingCheckerService;
 
     @Autowired
     public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
                             PipelinePauseService pipelinePauseService, PipelineLockService pipelineLockService,
-                            PipelineUnlockApiService pipelineUnlockApiService) {
+                            PipelineUnlockApiService pipelineUnlockApiService, SchedulingCheckerService schedulingCheckerService) {
         this.pipelineDao = pipelineDao;
         this.triggerMonitor = triggerMonitor;
         this.pipelinePauseService = pipelinePauseService;
         this.pipelineLockService = pipelineLockService;
         this.pipelineUnlockApiService = pipelineUnlockApiService;
+        this.schedulingCheckerService = schedulingCheckerService;
     }
 
     public List<PipelineGroupModel> allPipelines(CruiseConfig config) {
@@ -81,8 +83,9 @@ public class GoDashboardCurrentStateLoader {
         String pipelineName = str(pipelineConfig.name());
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
+        boolean canBeForced = schedulingCheckerService.pipelineCanBeTriggeredManually(pipelineConfig);
 
-        PipelineModel pipelineModel = new PipelineModel(pipelineName, true, true, pauseInfo);
+        PipelineModel pipelineModel = new PipelineModel(pipelineName, canBeForced, true, pauseInfo);
         pipelineModel.updateAdministrability(pipelineConfig.isLocal());
 
         pipelineModel.addPipelineInstances(instancesFor(pipelineConfig, activeInstances));

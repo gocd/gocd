@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,31 +18,34 @@ package com.thoughtworks.go.server.service;
 
 import com.google.caja.util.Sets;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.AgentsEntityConfigUpdateCommand;
 import com.thoughtworks.go.config.update.AgentsUpdateCommand;
 import com.thoughtworks.go.config.update.ModifyEnvironmentCommand;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.validation.AgentConfigsUpdateValidator;
 import com.thoughtworks.go.validation.ConfigUpdateValidator;
 import com.thoughtworks.go.validation.DoNothingValidator;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -150,6 +153,7 @@ public class AgentConfigService {
         updateAgents(command, new DoNothingValidator(), currentUser);
     }
 
+
     /**
      * @understands how to delete agent
      */
@@ -228,6 +232,20 @@ public class AgentConfigService {
         }
     }
 
+    public void bulkUpdateAgentAttributes(final Username username, final LocalizedOperationResult result, final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable) {
+        EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
+
+        try {
+            goConfigService.updateConfig(agentsEntityConfigUpdateCommand, username);
+            if(result.isSuccessful()){
+                result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", StringUtils.join(uuids, ", ")));
+            }
+        } catch (Exception e) {
+            if (e.getMessage() == null) {
+                result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
+            }
+        }
+    }
 
     public AgentConfig updateAgentAttributes(final String uuid, Username username, String hostname, String resources, String environments, TriState enable, AgentInstances agentInstances, HttpOperationResult result) {
         final GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand();

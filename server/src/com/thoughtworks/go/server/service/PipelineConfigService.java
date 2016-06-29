@@ -151,7 +151,7 @@ public class PipelineConfigService {
         return list;
     }
 
-    public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
+        public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
         validatePluggableTasks(pipelineConfig);
         CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);

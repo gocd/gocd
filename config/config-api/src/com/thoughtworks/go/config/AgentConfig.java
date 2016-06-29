@@ -16,15 +16,13 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemUtil;
+
+import java.util.Collection;
 
 import static java.lang.String.format;
 
@@ -134,6 +132,10 @@ public class AgentConfig implements Validatable {
 
     public void setDisabled(Boolean disabled) {
         isDisabled = disabled;
+    }
+
+    public void enable() {
+        disable(Boolean.FALSE);
     }
 
     public void disable() {

@@ -77,7 +77,8 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -1216,6 +1217,14 @@ public class GoConfigServiceTest {
         group.add(pipelineConfig);
         expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isPipelineEditableViaUI("pipeline"), is(true));
+    }
+
+    @Test
+    public void shouldTellIfAnUserIsAdministrator() throws Exception {
+        final Username user = new Username(new CaseInsensitiveString("user"));
+        expectLoad(mock(BasicCruiseConfig.class));
+        goConfigService.isAdministrator(user.getUsername());
+        verify(goConfigDao.load()).isAdministrator(user.getUsername().toString());
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

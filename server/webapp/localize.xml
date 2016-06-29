@@ -622,6 +622,7 @@
     <entry key="DURATION_HEADER">Duration</entry>
     <entry key="DOES_NOT_APPLY">-</entry>
     <entry key="AGENT_WITH_UUID_NOT_FOUND">Agent with uuid ''{0}'' not found.</entry>
+    <entry key="AGENTS_WITH_UUIDS_NOT_FOUND">Agent(s) with uuid(s) [{0}] not found.</entry>
     <entry key="CLONE">Clone</entry>
     <entry key="CLONE_PIPELINE">Clone Pipeline</entry>
     <entry key="AGENT_NO_JOB_RUN_HISTORY">This agent has no completed job runs.</entry>
@@ -801,4 +802,6 @@
     <entry key="PIPELINE_DELETE_SUCCESSFUL">Pipeline ''{0}'' was deleted successfully.</entry>
     <entry key="UNAUTHORIZED_TO_DELETE_PIPELINE">Unauthorized to delete pipeline.</entry>
     <entry key="PIPELINE_GROUP_MANDATORY_FOR_PIPELINE_CREATE">Pipeline group must be specified for creating a pipeline.</entry>
+    <entry key="UNAUTHORIZED_TO_OPERATE">You are not authorized to perform this operation.</entry>
+    <entry key="BULK_AGENT_UPDATE_SUCESSFUL">Updated agent(s) with uuid(s): [{0}].</entry>
 </properties>

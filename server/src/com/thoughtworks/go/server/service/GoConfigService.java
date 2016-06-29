@@ -976,6 +976,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cruiseConfig().getSCMs();
     }
 
+    public boolean isAdministrator(CaseInsensitiveString username) {
+        return isAdministrator(username.toString());
+    }
+
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;

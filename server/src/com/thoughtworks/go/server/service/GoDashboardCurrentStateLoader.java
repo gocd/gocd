@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
+import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -39,11 +40,13 @@ import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceM
 public class GoDashboardCurrentStateLoader {
     private PipelineDao pipelineDao;
     private TriggerMonitor triggerMonitor;
+    private PipelinePauseService pipelinePauseService;
 
     @Autowired
-    public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor) {
+    public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor, PipelinePauseService pipelinePauseService) {
         this.pipelineDao = pipelineDao;
         this.triggerMonitor = triggerMonitor;
+        this.pipelinePauseService = pipelinePauseService;
     }
 
     public List<PipelineGroupModel> allPipelines(CruiseConfig config) {
@@ -69,8 +72,12 @@ public class GoDashboardCurrentStateLoader {
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {
-        PipelineModel pipelineModel = new PipelineModel(str(pipelineConfig.name()), false, false, null);
+        String pipelineName = str(pipelineConfig.name());
+
+        PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
+        PipelineModel pipelineModel = new PipelineModel(pipelineName, true, true, pauseInfo);
         pipelineModel.addPipelineInstances(instancesFor(pipelineConfig, activeInstances));
+
         return pipelineModel;
     }
 

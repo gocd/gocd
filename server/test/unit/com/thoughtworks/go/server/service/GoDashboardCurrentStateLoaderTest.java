@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -46,6 +47,8 @@ public class GoDashboardCurrentStateLoaderTest {
     private PipelineSqlMapDao pipelineSqlMapDao;
     @Mock
     private TriggerMonitor triggerMonitor;
+    @Mock
+    private PipelinePauseService pipelinePauseService;
 
     private GoConfigMother goConfigMother;
     private CruiseConfig config;
@@ -56,7 +59,7 @@ public class GoDashboardCurrentStateLoaderTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        loader = new GoDashboardCurrentStateLoader(pipelineSqlMapDao, triggerMonitor);
+        loader = new GoDashboardCurrentStateLoader(pipelineSqlMapDao, triggerMonitor, pipelinePauseService);
 
         goConfigMother = new GoConfigMother();
         config = goConfigMother.defaultCruiseConfig();
@@ -206,6 +209,25 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(pimForP2.getStageHistory().get(0).getCounter(), is(COUNTER));
         assertThat(pimForP2.getStageHistory().get(1).getCounter(), is(counterForAStageAddedFromConfig));
         assertThat(pimForP2.getStageHistory().get(2).getCounter(), is(counterForAStageAddedFromConfig));
+    }
+
+    @Test
+    public void shouldAddPipelinePauseInfoAtPipelineLevel() throws Exception {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
+
+        PipelinePauseInfo pipeline1PauseInfo = PipelinePauseInfo.notPaused();
+        PipelinePauseInfo pipeline2PauseInfo = PipelinePauseInfo.paused("Reason 1", "user1");
+
+        when(pipelineSqlMapDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+        when(pipelinePauseService.pipelinePauseInfo("pipeline1")).thenReturn(pipeline1PauseInfo);
+        when(pipelinePauseService.pipelinePauseInfo("pipeline2")).thenReturn(pipeline2PauseInfo);
+
+        List<PipelineGroupModel> models = loader.allPipelines(config);
+
+        assertThat(models.size(), is(2));
+        assertThat(models.get(1).getPipelineModel("pipeline1").getPausedInfo(), is(pipeline1PauseInfo));
+        assertThat(models.get(0).getPipelineModel("pipeline2").getPausedInfo(), is(pipeline2PauseInfo));
     }
 
     private void assertModel(PipelineGroupModel groupModel, String group, PipelineInstanceModel... pims) {

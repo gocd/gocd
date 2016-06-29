@@ -55,6 +55,8 @@ public class GoDashboardCurrentStateLoaderTest {
     private PipelineLockService pipelineLockService;
     @Mock
     private PipelineUnlockApiService pipelineUnlockApiService;
+    @Mock
+    private SchedulingCheckerService schedulingCheckerService;
 
     private GoConfigMother goConfigMother;
     private CruiseConfig config;
@@ -66,7 +68,7 @@ public class GoDashboardCurrentStateLoaderTest {
     public void setUp() throws Exception {
         initMocks(this);
         loader = new GoDashboardCurrentStateLoader(pipelineSqlMapDao, triggerMonitor, pipelinePauseService,
-                pipelineLockService, pipelineUnlockApiService);
+                pipelineLockService, pipelineUnlockApiService, schedulingCheckerService);
 
         goConfigMother = new GoConfigMother();
         config = goConfigMother.defaultCruiseConfig();
@@ -273,10 +275,25 @@ public class GoDashboardCurrentStateLoaderTest {
 
         when(pipelineSqlMapDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
 
-        List<PipelineGroupModel> models = loader.allPipelines();
+        List<PipelineGroupModel> models = loader.allPipelines(config);
 
         assertThat(models.get(1).getPipelineModel("pipeline1").canAdminister(), is(true));
         assertThat(models.get(0).getPipelineModel("pipeline2").canAdminister(), is(false));
+    }
+
+    @Test
+    public void shouldAddPipelineSchedulabilityInformationAtPipelineLevel() throws Exception {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
+
+        when(pipelineSqlMapDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+        when(schedulingCheckerService.pipelineCanBeTriggeredManually(p1Config)).thenReturn(true);
+        when(schedulingCheckerService.pipelineCanBeTriggeredManually(p2Config)).thenReturn(false);
+
+        List<PipelineGroupModel> models = loader.allPipelines(config);
+
+        assertThat(models.get(1).getPipelineModel("pipeline1").canForce(), is(true));
+        assertThat(models.get(0).getPipelineModel("pipeline2").canForce(), is(false));
     }
 
     private void assertModel(PipelineGroupModel groupModel, String group, PipelineInstanceModel... pims) {

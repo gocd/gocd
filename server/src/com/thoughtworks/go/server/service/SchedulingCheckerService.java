@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
-import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
+import com.thoughtworks.go.server.service.result.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +38,8 @@ public class SchedulingCheckerService {
     private final SystemEnvironment systemEnvironment;
     private final SecurityService securityService;
     private final PipelineLockService pipelineLockService;
-    private final UserService userService;
     private final TriggerMonitor triggerMonitor;
     private final PipelineScheduleQueue pipelineScheduleQueue;
-    private ServerHealthService serverHealthService;
     private PipelinePauseService pipelinePauseService;
 
     @Autowired
@@ -52,7 +49,6 @@ public class SchedulingCheckerService {
                                     SecurityService securityService,
                                     PipelineLockService pipelineLockService,
                                     TriggerMonitor triggerMonitor, PipelineScheduleQueue pipelineScheduleQueue,
-                                    UserService userService, ServerHealthService serverHealthService,
                                     PipelinePauseService pipelinePauseService) {
         this.goConfigService = goConfigService;
         this.activityService = activityService;
@@ -61,8 +57,6 @@ public class SchedulingCheckerService {
         this.pipelineLockService = pipelineLockService;
         this.triggerMonitor = triggerMonitor;
         this.pipelineScheduleQueue = pipelineScheduleQueue;
-        this.userService = userService;
-        this.serverHealthService = serverHealthService;
         this.pipelinePauseService = pipelinePauseService;
     }
 
@@ -103,6 +97,13 @@ public class SchedulingCheckerService {
         SchedulingChecker checker = buildScheduleCheckers(asList(manualTriggerCheckers(pipelineConfig, username)));
         checker.check(result);
         return result.getServerHealthState().isSuccess();
+    }
+
+    public boolean pipelineCanBeTriggeredManually(PipelineConfig pipelineConfig) {
+        SchedulingChecker checker = buildScheduleCheckers(asList(manualTriggerCheckersWithoutPermissionsCheck(pipelineConfig)));
+        OperationResult result = new HttpOperationResult();
+        checker.check(result);
+        return result.canContinue();
     }
 
     public boolean canAutoTriggerConsumer(PipelineConfig pipelineConfig) {
@@ -159,14 +160,18 @@ public class SchedulingCheckerService {
         return new CompositeChecker(schedulingCheckers.toArray(new SchedulingChecker[schedulingCheckers.size()]));
     }
 
-
-    SchedulingChecker manualTriggerCheckers(PipelineConfig pipelineConfig, String username) {
+    private SchedulingChecker manualTriggerCheckers(PipelineConfig pipelineConfig, String username) {
         String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
         String stageName = CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name());
-        return new CompositeChecker(timerTriggerCheckers(pipelineConfig), new StageAuthorizationChecker(pipelineName, stageName, username, securityService));
+        StageAuthorizationChecker stageAuthorizationChecker = new StageAuthorizationChecker(pipelineName, stageName, username, securityService);
+        return new CompositeChecker(manualTriggerCheckersWithoutPermissionsCheck(pipelineConfig), stageAuthorizationChecker);
     }
 
-    SchedulingChecker timerTriggerCheckers(PipelineConfig pipelineConfig) {
+    private SchedulingChecker manualTriggerCheckersWithoutPermissionsCheck(PipelineConfig pipelineConfig) {
+        return timerTriggerCheckers(pipelineConfig);
+    }
+
+    private SchedulingChecker timerTriggerCheckers(PipelineConfig pipelineConfig) {
         String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
         String stageName = CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name());
 
@@ -178,7 +183,7 @@ public class SchedulingCheckerService {
                 diskCheckers());
     }
 
-    SchedulingChecker diskCheckers() {
+    private SchedulingChecker diskCheckers() {
         ArtifactsDiskSpaceFullChecker artifactsDiskSpaceFullChecker =
                 new ArtifactsDiskSpaceFullChecker(systemEnvironment, goConfigService);
 

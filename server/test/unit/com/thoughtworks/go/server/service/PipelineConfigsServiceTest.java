@@ -328,17 +328,19 @@ public class PipelineConfigsServiceTest {
 
         service.updateAuthorization(authorization, groupName, result, validUser);
         assertThat(result.httpCode(), is(422));
+        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED")));
     }
 
     @Test
     public void shouldRetrunInternalServerErrorForAnyOtherExceptions() throws Exception {
         Authorization authorization = mock(Authorization.class);
-        Exception exception = new NullPointerException();       //replace NullPointerException with valid one
+        Exception exception = new RuntimeException();       //replace RuntimeException() with valid one
         doThrow(exception).when(goConfigService).updateConfig(any(PipelineConfigsUpdateCommand.class), eq(validUser));
         String groupName = "groupName";
 
         service.updateAuthorization(authorization, groupName, result, validUser);
         assertThat(result.httpCode(), is(500));
+        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("INTERNAL_SERVER_ERROR")));
     }
 
     @Test

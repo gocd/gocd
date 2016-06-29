@@ -41,12 +41,18 @@ public class GoDashboardCurrentStateLoader {
     private PipelineDao pipelineDao;
     private TriggerMonitor triggerMonitor;
     private PipelinePauseService pipelinePauseService;
+    private PipelineLockService pipelineLockService;
+    private PipelineUnlockApiService pipelineUnlockApiService;
 
     @Autowired
-    public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor, PipelinePauseService pipelinePauseService) {
+    public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
+                            PipelinePauseService pipelinePauseService, PipelineLockService pipelineLockService,
+                            PipelineUnlockApiService pipelineUnlockApiService) {
         this.pipelineDao = pipelineDao;
         this.triggerMonitor = triggerMonitor;
         this.pipelinePauseService = pipelinePauseService;
+        this.pipelineLockService = pipelineLockService;
+        this.pipelineUnlockApiService = pipelineUnlockApiService;
     }
 
     public List<PipelineGroupModel> allPipelines(CruiseConfig config) {
@@ -84,8 +90,12 @@ public class GoDashboardCurrentStateLoader {
     private PipelineInstanceModels instancesFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {
         PipelineInstanceModels pims = findPIMsWithFallbacks(pipelineConfig, activeInstances);
 
+        boolean isCurrentlyLocked = pipelineLockService.isLocked(str(pipelineConfig.name()));
+        boolean isUnlockable = pipelineUnlockApiService.isUnlockable(str(pipelineConfig.name()));
+
         for (PipelineInstanceModel instanceModel : pims) {
             populateStagesWhichHaventRunFromConfig(instanceModel, pipelineConfig);
+            populateLockStatus(instanceModel, pipelineConfig.isLock(), isCurrentlyLocked, isUnlockable);
         }
 
         return pims;
@@ -111,7 +121,7 @@ public class GoDashboardCurrentStateLoader {
         return createPipelineInstanceModels(createEmptyPipelineInstanceModel(pipelineName, createWithEmptyModifications(), new StageInstanceModels()));
     }
 
-    /* TODO Same as: com.thoughtworks.go.server.service.PipelineHistoryService.appendFollowingStagesFromConfig */
+    /* TODO Same as: com.thoughtworks.go.server.service.PipelineHistoryService.appendFollowingStagesFromConfig. Move to PipelineConfig? */
     private PipelineInstanceModel populateStagesWhichHaventRunFromConfig(PipelineInstanceModel instanceModel, PipelineConfig pipelineConfig) {
         StageInstanceModels stageHistory = instanceModel.getStageHistory();
         StageInstanceModel lastStage = stageHistory.last();
@@ -123,5 +133,12 @@ public class GoDashboardCurrentStateLoader {
         }
 
         return instanceModel;
+    }
+
+    /* TODO: This belongs in PipelineModel, not in PIM */
+    private void populateLockStatus(PipelineInstanceModel instanceModel, boolean isLockable, boolean isCurrentlyLocked, boolean canBeUnlocked) {
+        instanceModel.setIsLockable(isLockable);
+        instanceModel.setCurrentlyLocked(isCurrentlyLocked);
+        instanceModel.setCanUnlock(canBeUnlocked);
     }
 }

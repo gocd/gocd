@@ -49,6 +49,10 @@ public class GoDashboardCurrentStateLoaderTest {
     private TriggerMonitor triggerMonitor;
     @Mock
     private PipelinePauseService pipelinePauseService;
+    @Mock
+    private PipelineLockService pipelineLockService;
+    @Mock
+    private PipelineUnlockApiService pipelineUnlockApiService;
 
     private GoConfigMother goConfigMother;
     private CruiseConfig config;
@@ -59,7 +63,8 @@ public class GoDashboardCurrentStateLoaderTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        loader = new GoDashboardCurrentStateLoader(pipelineSqlMapDao, triggerMonitor, pipelinePauseService);
+        loader = new GoDashboardCurrentStateLoader(pipelineSqlMapDao, triggerMonitor, pipelinePauseService,
+                pipelineLockService, pipelineUnlockApiService);
 
         goConfigMother = new GoConfigMother();
         config = goConfigMother.defaultCruiseConfig();
@@ -228,6 +233,32 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(models.size(), is(2));
         assertThat(models.get(1).getPipelineModel("pipeline1").getPausedInfo(), is(pipeline1PauseInfo));
         assertThat(models.get(0).getPipelineModel("pipeline2").getPausedInfo(), is(pipeline2PauseInfo));
+    }
+
+    /* TODO: Even though the test is right, the correct place for lock info is pipeline level, not PIM level */
+    @Test
+    public void shouldAddPipelineLockInformationAtPipelineInstanceLevel() throws Exception {
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        p1Config.lockExplicitly();
+
+        PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
+
+        when(pipelineSqlMapDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+        when(pipelineLockService.isLocked("pipeline1")).thenReturn(true);
+        when(pipelineUnlockApiService.isUnlockable("pipeline1")).thenReturn(true);
+
+        when(pipelineLockService.isLocked("pipeline2")).thenReturn(false);
+        when(pipelineUnlockApiService.isUnlockable("pipeline2")).thenReturn(false);
+
+        List<PipelineGroupModel> models = loader.allPipelines(config);
+
+        assertThat(models.get(1).getPipelineModel("pipeline1").getLatestPipelineInstance().isLockable(), is(true));
+        assertThat(models.get(1).getPipelineModel("pipeline1").getLatestPipelineInstance().isCurrentlyLocked(), is(true));
+        assertThat(models.get(1).getPipelineModel("pipeline1").getLatestPipelineInstance().canUnlock(), is(true));
+
+        assertThat(models.get(0).getPipelineModel("pipeline2").getLatestPipelineInstance().isLockable(), is(false));
+        assertThat(models.get(0).getPipelineModel("pipeline2").getLatestPipelineInstance().isCurrentlyLocked(), is(false));
+        assertThat(models.get(0).getPipelineModel("pipeline2").getLatestPipelineInstance().canUnlock(), is(false));
     }
 
     private void assertModel(PipelineGroupModel groupModel, String group, PipelineInstanceModel... pims) {

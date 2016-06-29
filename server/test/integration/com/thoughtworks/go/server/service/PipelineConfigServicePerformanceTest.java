@@ -95,6 +95,8 @@ public class PipelineConfigServicePerformanceTest {
     private DatabaseAccessHelper dbHelper;
     @Autowired
     private GoConfigMigration goConfigMigration;
+    @Autowired
+    private EntityHashingService entityHashingService;
 
     private GoConfigFileHelper configHelper;
     private final int numberOfRequests = 100;
@@ -142,7 +144,7 @@ public class PipelineConfigServicePerformanceTest {
                 PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
                 pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
                 PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
-                pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+                pipelineConfigService.updatePipelineConfig(user, pipelineConfig, entityHashingService.md5ForPipelineConfig(pipelineConfig.name().toString()), result);
                 updateTimer.stop();
                 results.put(Thread.currentThread().getName(), result.isSuccessful());
                 if (!result.isSuccessful()) {

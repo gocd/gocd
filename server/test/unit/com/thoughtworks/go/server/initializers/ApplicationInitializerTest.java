@@ -128,6 +128,8 @@ public class ApplicationInitializerTest {
     private ServerVersionInfoManager serverVersionInfoManager;
     @Mock
     private ConfigCipherUpdater configCipherUpdater;
+    @Mock
+    private EntityHashingService entityHashingService;
 
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();

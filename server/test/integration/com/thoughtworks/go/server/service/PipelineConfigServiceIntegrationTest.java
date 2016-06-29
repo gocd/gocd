@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -39,13 +38,13 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.util.EntityDigest;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,6 +92,8 @@ public class PipelineConfigServiceIntegrationTest {
     private ConfigElementImplementationRegistry registry;
     @Autowired
     private Localizer localizer;
+    @Autowired
+    private EntityHashingService entityHashingService;
 
     private GoConfigFileHelper configHelper;
     private PipelineConfig pipelineConfig;
@@ -100,6 +101,7 @@ public class PipelineConfigServiceIntegrationTest {
     private String headCommitBeforeUpdate;
     private HttpLocalizedOperationResult result;
     private String groupName = "jumbo";
+    private String pipelineConfigMD5 = "md5";
 
     @Before
     public void setup() throws Exception {
@@ -117,6 +119,12 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.updateConfig(command);
         result = new HttpLocalizedOperationResult();
         headCommitBeforeUpdate = configRepository.getCurrentRevCommit().name();
+        entityHashingService.initializeWith(new EntityDigest() {
+            @Override
+            public String md5ForPipeline(PipelineConfig pipelineConfig) {
+                return pipelineConfigMD5;
+            }
+        });
     }
 
     @After
@@ -252,7 +260,7 @@ public class PipelineConfigServiceIntegrationTest {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
 
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(true));
         assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
@@ -268,7 +276,7 @@ public class PipelineConfigServiceIntegrationTest {
     public void shouldNotUpdatePipelineConfigInCaseOfValidationErrors() throws GitAPIException {
         GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
         pipelineConfig.setLabelTemplate("LABEL");
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
@@ -286,7 +294,7 @@ public class PipelineConfigServiceIntegrationTest {
         GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
         pipelineConfig.clear();
         pipelineConfig.setTemplateName(templateName);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.toString().contains("Parameter 'SOME_PARAM' is not defined"), is(true));
@@ -304,7 +312,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.clear();
         pipelineConfig.setTemplateName(templateName);
         pipelineConfig.addStageWithoutValidityAssertion(StageConfigMother.stageConfig("local-stage"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(pipelineConfig.errors().on("stages"), is(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName)));
@@ -320,7 +328,7 @@ public class PipelineConfigServiceIntegrationTest {
         saveTemplateWithParamToConfig(templateName);
 
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
-        pipelineConfigService.updatePipelineConfig(new Username(new CaseInsensitiveString("unauthorized_user")), pipelineConfig, result);
+        pipelineConfigService.updatePipelineConfig(new Username(new CaseInsensitiveString("unauthorized_user")), pipelineConfig, null, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.httpCode(), is(401));
@@ -337,7 +345,7 @@ public class PipelineConfigServiceIntegrationTest {
         saveScmMaterialToConfig(scmid);
         PluggableSCMMaterialConfig scmMaterialConfig = new PluggableSCMMaterialConfig(scmid);
         pipelineConfig.materialConfigs().add(scmMaterialConfig);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
@@ -354,7 +362,7 @@ public class PipelineConfigServiceIntegrationTest {
         saveScmMaterialToConfig(packageid);
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageid);
         pipelineConfig.materialConfigs().add(packageMaterialConfig);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is(String.format("Validations failed for pipeline '%s'. Please correct and resubmit.", pipelineConfig.name())));
@@ -447,7 +455,7 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.register(pipelineConfigChangedListener);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
         pipeline.setVariables(new EnvironmentVariablesConfig());
-        pipelineConfigService.updatePipelineConfig(user, pipeline, new DefaultLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(user, pipeline, pipelineConfigMD5, new DefaultLocalizedOperationResult());
         assertThat(listenerInvoked[0], is(true));
     }
 

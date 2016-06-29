@@ -23,8 +23,8 @@ module ApiV1
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
       def show
-        json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
-        if stale?(etag: get_etag_for_pipeline(@pipeline_config.name.to_s, json))
+        if stale?(etag: get_etag_for_pipeline(@pipeline_config.name.to_s))
+          json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           render DEFAULT_FORMAT => json
         end
       end
@@ -42,7 +42,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         get_pipeline_from_request
-        pipeline_config_service.updatePipelineConfig(current_user, @pipeline_config_from_request, result)
+        pipeline_config_service.updatePipelineConfig(current_user, @pipeline_config_from_request, get_etag_for_pipeline(params[:pipeline_name]), result)
         handle_config_save_or_update_result(result)
       end
 
@@ -64,14 +64,13 @@ module ApiV1
         if result.isSuccessful
           load_pipeline(pipeline_name)
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
-          response.etag = [get_etag_for_pipeline(@pipeline_config.name.to_s, json)]
+          response.etag = [get_etag_for_pipeline(@pipeline_config.name.to_s)]
           render DEFAULT_FORMAT => json
         else
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
           render_http_operation_result(result, {data: json})
         end
       end
-
 
       def check_for_attempted_pipeline_rename
         unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:pipeline_name])
@@ -81,40 +80,25 @@ module ApiV1
         end
       end
 
+      def get_etag_for_pipeline(pipeline_name)
+        entity_hashing_service.md5ForPipelineConfig(pipeline_name)
+      end
+
       def check_for_stale_request
-        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_pipeline_from_cache(params[:pipeline_name]))}\"")
-          result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string("STALE_PIPELINE_CONFIG", params[:pipeline_name]))
-          render_http_operation_result(result)
-        end
+        return unless stale_request?
+
+        result = HttpLocalizedOperationResult.new
+        result.stale(LocalizedMessage::string("STALE_PIPELINE_CONFIG", params[:pipeline_name]))
+        render_http_operation_result(result)
+      end
+
+      def stale_request?
+        request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_pipeline(params[:pipeline_name]))}\""
       end
 
       def load_pipeline(pipeline_name = params[:pipeline_name])
         @pipeline_config = pipeline_config_service.getPipelineConfig(pipeline_name)
         raise RecordNotFound if @pipeline_config.nil?
-      end
-
-      def get_etag_for_pipeline(pipeline_name, json)
-        cache_key = pipeline_name.downcase
-        etag      = go_cache.get("GO_PIPELINE_CONFIGS_ETAGS_CACHE", cache_key)
-
-        unless etag
-          etag = Digest::MD5.hexdigest(JSON.generate(json))
-          go_cache.put("GO_PIPELINE_CONFIGS_ETAGS_CACHE", cache_key, etag)
-        end
-        etag
-      end
-
-      def get_etag_for_pipeline_from_cache(pipeline_name)
-        cache_key = pipeline_name.downcase
-        etag      = go_cache.get("GO_PIPELINE_CONFIGS_ETAGS_CACHE", cache_key)
-
-        unless (etag)
-          load_pipeline
-          json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
-          etag = get_etag_for_pipeline(pipeline_name, json)
-        end
-        etag
       end
 
       def check_if_pipeline_by_same_name_already_exists

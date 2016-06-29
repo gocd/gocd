@@ -38,6 +38,7 @@ class Spring
           @context =  load_context
           begin
             self.bean("viewRenderingService").registerRenderer(com.thoughtworks.go.plugins.presentation.Renderer.ERB, ErbRenderer.new) if @context
+            self.bean("entityHashingService").initializeWith(PipelineDigest.new) if @context
           rescue => e
             raise $! if Rails.configuration.fail_if_unable_to_register_renderer
             puts "WARNING: Failed to register renderer. Continuing, though: #{e}"

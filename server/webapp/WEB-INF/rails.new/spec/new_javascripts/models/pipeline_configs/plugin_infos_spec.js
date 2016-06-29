@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/plugin_infos"], function (_, PluginInfos) {
+define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (m, _, PluginInfos) {
   describe('PluginInfos', function () {
     describe('init', function () {
       var requestArgs, deferred;

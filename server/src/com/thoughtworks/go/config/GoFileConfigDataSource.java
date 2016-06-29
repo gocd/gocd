@@ -232,8 +232,8 @@ public class GoFileConfigDataSource {
         } catch (Exception e) {
             bomb(e);
         }
-        List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
-        List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
+        List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
+        List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
         if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
             return trySavingEntity(updatingCommand, currentUser, modifiedConfig, lastValidPartials);
         }
@@ -298,8 +298,8 @@ public class GoFileConfigDataSource {
             // If our cruiseConfig fails XSD validation, we don't want to write it incorrectly.
             GoConfigHolder validatedConfigHolder;
 
-            List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
-            List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
+            List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
+            List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
             try {
                 String configAsXml = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastKnownPartials);

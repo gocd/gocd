@@ -265,7 +265,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldFailWhenTryingToAddPipelineWithTheSameNameAsAnotherPipelineDefinedRemotely() throws Exception {
+    public void shouldFailWhenTryingToAddPipelineWithTheSameNameAsAnotherPipelineDefinedRemotely_EntitySave() throws Exception {
         assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
         assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
@@ -282,6 +282,40 @@ public class CachedGoConfigIntegrationTest {
             Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)\\].*$").matcher(errorMessage);
             assertThat(matcher.matches(), is(true));
             assertThat(matcher.groupCount(), is(2));
+            List<String> expectedSources = asList(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
+            List<String> actualSources = new ArrayList<>();
+            for (int i = 1; i <= matcher.groupCount(); i++) {
+                actualSources.add(matcher.group(i));
+            }
+            assertThat(actualSources.size(), is(expectedSources.size()));
+            assertThat(actualSources.containsAll(expectedSources), is(true));
+        }
+    }
+
+    @Test
+    public void shouldFailWhenTryingToAddPipelineWithTheSameNameAsAnotherPipelineDefinedRemotely_FullConfigSave() throws Exception {
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
+        repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1")), is(true));
+
+        final PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
+                "www.spring.com");
+        try {
+            goConfigDao.updateConfig(new UpdateConfigCommand() {
+                @Override
+                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                    cruiseConfig.getGroups().first().add(dupPipelineConfig);
+                    return cruiseConfig;
+                }
+            });
+            fail("Should have thrown");
+        } catch (RuntimeException ex) {
+            String errorMessage = ex.getMessage();
+            assertThat(errorMessage, containsString("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):"));
+            Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)\\].*$").matcher(errorMessage);
+            assertThat(matcher.matches(), is(true));
+            assertThat(matcher.groupCount(), is(2));
+            PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
             List<String> expectedSources = asList(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
             List<String> actualSources = new ArrayList<>();
             for (int i = 1; i <= matcher.groupCount(); i++) {

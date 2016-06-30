@@ -326,13 +326,6 @@ Go::Application.routes.draw do
         end
       end
 
-      #agents api's
-      get 'agents' => 'agents#index', format: 'json', as: :agents_information
-      constraints HeaderConstraint.new do
-        post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
-        post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
-      end
-
       defaults :format => 'text' do
         get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
         get 'fanin_debug/:name/(:index)' => 'fanin_trace#fanin_debug', constraints: {name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}

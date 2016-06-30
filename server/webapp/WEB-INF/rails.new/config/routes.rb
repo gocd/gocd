@@ -235,7 +235,9 @@ Go::Application.routes.draw do
         get 'command_snippets/show', controller: :command_snippets, action: :show, as: :command_snippet
         post :material_test, controller: :material_test, action: :test, as: :material_test
         namespace :internal do
-          resources :pipelines, param: :name, only: [:index]
+          resources :pipelines, only: [:index]
+          resources :resources, only: [:index]
+          resources :environments, only: [:index]
         end
         resources :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end

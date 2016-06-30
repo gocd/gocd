@@ -47,4 +47,9 @@ public class GoDashboardPipeline {
     public CaseInsensitiveString name() {
         return new CaseInsensitiveString(pipelineModel.getName());
     }
+
+    @Override
+    public String toString() {
+        return String.format("GoDashboardPipeline{name='%s',groupName='%s'}", name(), groupName);
+    }
 }

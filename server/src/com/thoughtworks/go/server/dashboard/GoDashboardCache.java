@@ -20,17 +20,53 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /* Understands how to cache dashboard statuses, for every pipeline. */
 @Component
 public class GoDashboardCache {
     /**
-     * Assumption: The put(), putAll() and replaceAllEntriesInCacheWith() methods, which change this cache,
-     * will always be called from the same thread (queueProcessor in GoDashboardActivityListener). So, not surrounding
-     * it with a synchronizedMap. Also, uses {@link LinkedHashMap} to preserve insertion order.
+     * Assumption: The put() and replaceAllEntriesInCacheWith() methods, which change this cache,
+     * will always be called from the same thread (queueProcessor in GoDashboardActivityListener). Even get() will be.
+     * So, not surrounding it with a synchronizedMap. Also, uses {@link LinkedHashMap} to preserve insertion order. That
+     * order is not very important in this case, but it comes for free (almost) because of the map.
      */
-    private LinkedHashMap<CaseInsensitiveString, PipelineModel> cache;
-    private volatile List<PipelineModel> orderedEntries;
+    private LinkedHashMap<CaseInsensitiveString, GoDashboardPipeline> cache;
+    private volatile List<GoDashboardPipeline> orderedEntries;
+
+    public GoDashboardCache() {
+        cache = new LinkedHashMap<>();
+        orderedEntries = new ArrayList<>();
+    }
+
+    public GoDashboardPipeline get(CaseInsensitiveString pipelineName) {
+        return cache.get(pipelineName);
+    }
+
+    public void put(GoDashboardPipeline pipeline) {
+        cache.put(pipeline.name(), pipeline);
+        cacheHasChanged();
+    }
+
+    public void replaceAllEntriesInCacheWith(List<GoDashboardPipeline> newPipelinesToCache) {
+        cache.clear();
+        cache.putAll(createMapFor(newPipelinesToCache));
+        cacheHasChanged();
+    }
+
+    public List<GoDashboardPipeline> allEntriesInOrder() {
+        return orderedEntries;
+    }
+
+    private void cacheHasChanged() {
+        orderedEntries = new ArrayList<>(cache.values());
+    }
+
+    private Map<CaseInsensitiveString, GoDashboardPipeline> createMapFor(List<GoDashboardPipeline> pipelines) {
+        Map<CaseInsensitiveString, GoDashboardPipeline> result = new LinkedHashMap<>();
+        for (GoDashboardPipeline pipeline : pipelines) {
+            result.put(pipeline.name(), pipeline);
+        }
+        return result;
+    }
 }

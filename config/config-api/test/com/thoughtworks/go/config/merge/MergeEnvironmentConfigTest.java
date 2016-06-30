@@ -91,6 +91,24 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat(environmentConfig.getLocal(),is(uatLocalPart2));
     }
 
+    @Test
+    public void hasSamePipelinesAs_shouldReturnTrueWhenAnyPipelineNameIsEqualToOther(){
+        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
+        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig();
+        config.addPipeline(new CaseInsensitiveString("pipe2"));
+        assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config),is(true));
+    }
+
+    @Test
+    public void hasSamePipelinesAs_shouldReturnFalseWhenNoneOfOtherPipelinesIsEqualToOther(){
+        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
+        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig();
+        config.addPipeline(new CaseInsensitiveString("pipe3"));
+        assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config),is(false));
+    }
+
     // merges
 
     @Test

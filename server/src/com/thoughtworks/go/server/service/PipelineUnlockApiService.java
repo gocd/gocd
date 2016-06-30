@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.OperationResult;
+import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,14 @@ public class PipelineUnlockApiService {
             result.unauthorized(msg, msg, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return false;
         }
+        return isUnlockable(pipelineName, result);
+    }
+
+    public boolean isUnlockable(String pipelineName) {
+        return isUnlockable(pipelineName, new ServerHealthStateOperationResult());
+    }
+
+    private boolean isUnlockable(String pipelineName, OperationResult result) {
         if (!goConfigService.isLockable(pipelineName)) {
             result.notAcceptable(format("no lock exists within the pipeline configuration for %s", pipelineName), HealthStateType.general(HealthStateScope.GLOBAL));
             return false;

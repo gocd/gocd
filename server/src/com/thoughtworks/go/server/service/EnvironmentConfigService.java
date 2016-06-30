@@ -16,20 +16,13 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.ConfigElementForEdit;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
-import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.config.update.AddEnvironmentCommand;
+import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
+import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -40,15 +33,22 @@ import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 /**
  * @understands grouping of agents and pipelines within an environment
  */
 @Service
 public class EnvironmentConfigService implements ConfigChangedListener {
+
     public final GoConfigService goConfigService;
     private final SecurityService securityService;
 
@@ -64,7 +64,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void initialize() {
         goConfigService.register(this);
-        goConfigService.register(new EntityConfigChangedListener<Agents>(){
+        goConfigService.register(new EntityConfigChangedListener<Agents>() {
             @Override
             public void onEntityConfigChange(Agents entity) {
                 sync(goConfigService.getEnvironments());
@@ -151,6 +151,10 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return environments.named(new CaseInsensitiveString(environmentName));
     }
 
+    public EnvironmentConfig getEnvironmentConfig(String environmentName) throws NoSuchEnvironmentException {
+        return environments.named(new CaseInsensitiveString(environmentName));
+    }
+
     public ConfigElementForEdit<EnvironmentConfig> forEdit(String environmentName, HttpLocalizedOperationResult result) {
         ConfigElementForEdit<EnvironmentConfig> edit = null;
         try {
@@ -163,7 +167,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return edit;
     }
 
-    public void createEnvironment(final BasicEnvironmentConfig config, Username user, final LocalizedOperationResult result) {
+    public void createEnvironment(final BasicEnvironmentConfig config, final Username user, final LocalizedOperationResult result) {
         Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", user.getDisplayName());
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
         editEnvironments(new EditEnvironments() {
@@ -172,12 +176,12 @@ public class EnvironmentConfigService implements ConfigChangedListener {
                     result.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", config.name()));
                     return;
                 }
-                goConfigService.addEnvironment(config);
+                goConfigService.updateConfig(new AddEnvironmentCommand(config, user));
             }
-        }, config, user, result, noPermission, actionFailed);
+        }, user, result, noPermission, actionFailed);
     }
 
-    private void editEnvironments(EditEnvironments edit, EnvironmentConfig config, Username user, LocalizedOperationResult result,
+    private void editEnvironments(EditEnvironments edit, Username user, LocalizedOperationResult result,
                                   Localizable noPermissionMessage, Localizable.CurryableLocalizable actionFailedMessage) {
         if (!securityService.isUserAdmin(user)) {
             result.unauthorized(noPermissionMessage, HealthStateType.unauthorised());
@@ -223,22 +227,53 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return pipelines;
     }
 
-    public HttpLocalizedOperationResult updateEnvironment(final String named, final EnvironmentConfig usersNewDefinition, final Username username, final String md5) {
-        final EnvironmentConfig newDefinition = usersNewDefinition.getLocal();
+    @Deprecated //No need of md5
+    public HttpLocalizedOperationResult updateEnvironment(final String named, final EnvironmentConfig newDefinition, final Username username, final String md5) {
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", named, username.getDisplayName());
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", named);
         editEnvironments(new EditEnvironments() {
             public void performEdit() {
-                ConfigSaveState configSaveState = goConfigService.updateEnvironment(named, newDefinition, md5);
+                ConfigSaveState configSaveState = goConfigService.updateEnvironment(named, newDefinition, username, md5);
                 if (ConfigSaveState.MERGED.equals(configSaveState)) {
                     result.setMessage(LocalizedMessage.composite(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", named), LocalizedMessage.string("CONFIG_MERGED")));
                 } else if (ConfigSaveState.UPDATED.equals(configSaveState)) {
                     result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", named));
                 }
             }
-        }, newDefinition, username, result, noPermission, actionFailed);
+        }, username, result, noPermission, actionFailed);
         return result;
+    }
+
+    public void updateEnvironment(final String environmentName, final EnvironmentConfig newEnvironmentConfig, final Username username, final HttpLocalizedOperationResult result) {
+        Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", environmentName, username.getDisplayName());
+        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", environmentName);
+        editEnvironments(new EditEnvironments() {
+            public void performEdit() {
+                ConfigSaveState configSaveState = goConfigService.updateConfig(new UpdateEnvironmentCommand(environmentName, newEnvironmentConfig, username));
+                if (ConfigSaveState.MERGED.equals(configSaveState)) {
+                    result.setMessage(LocalizedMessage.composite(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName), LocalizedMessage.string("CONFIG_MERGED")));
+                } else if (ConfigSaveState.UPDATED.equals(configSaveState)) {
+                    result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName));
+                }
+            }
+        }, username, result, noPermission, actionFailed);
+    }
+
+    public void deleteEnvironment(final String environmentName, final Username username, final HttpLocalizedOperationResult result) {
+        Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_DELETE_ENVIRONMENT", environmentName, username.getDisplayName());
+        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_DELETE_FAILED", environmentName);
+        editEnvironments(new EditEnvironments() {
+            public void performEdit() {
+                try {
+                    EnvironmentConfig config = getEnvironmentConfig(environmentName);
+                    goConfigService.updateConfig(new DeleteEnvironmentCommand(config, username));
+                    result.setMessage(LocalizedMessage.string("ENVIRONMENT_DELETE_SUCCESSFUL", environmentName));
+                } catch (NoSuchEnvironmentException e) {
+                    result.notFound(LocalizedMessage.string("ENVIRONMENT_NOT_FOUND", environmentName), HealthStateType.general(HealthStateScope.GLOBAL));
+                }
+            }
+        }, username, result, noPermission, actionFailed);
     }
 
     public interface EditEnvironments {

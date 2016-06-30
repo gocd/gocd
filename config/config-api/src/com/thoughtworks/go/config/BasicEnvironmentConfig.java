@@ -167,9 +167,18 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         return name;
     }
 
+    public void setName(CaseInsensitiveString name) {
+        this.name = name;
+    }
+
     @Override
     public EnvironmentAgentsConfig getAgents() {
         return agents;
+    }
+
+    public void setAgents(List<EnvironmentAgentConfig> agents) {
+        this.agents.clear();
+        this.agents.addAll(agents);
     }
 
     @Override
@@ -246,6 +255,11 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         return pipelines;
     }
 
+    public void setPipelines(List<EnvironmentPipelineConfig> pipelines) {
+        this.pipelines.clear();
+        this.pipelines.addAll(pipelines);
+    }
+
     @Override
     public boolean hasVariable(String variableName) {
         return variables.hasVariable(variableName);
@@ -254,6 +268,10 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public EnvironmentVariablesConfig getVariables() {
         return variables;
+    }
+
+    public void setVariables(EnvironmentVariablesConfig environmentVariables) {
+        this.variables = environmentVariables;
     }
 
     @Override

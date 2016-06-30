@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.domain;
 
@@ -31,6 +31,10 @@ public class Username implements Serializable {
 
     public Username(final CaseInsensitiveString userName) {
         this(userName, CaseInsensitiveString.str(userName));
+    }
+
+    public Username(final String userName) {
+        this(new CaseInsensitiveString(userName));
     }
 
     public Username(final Username userName, String displayName) {

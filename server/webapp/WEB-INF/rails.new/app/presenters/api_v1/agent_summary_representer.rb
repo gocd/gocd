@@ -15,30 +15,21 @@
 ##########################################################################
 
 module ApiV1
-  class UserRepresenter < ApiV1::UserSummaryRepresenter
-    attr_reader :user
+  class AgentSummaryRepresenter < ApiV1::BaseRepresenter
+    alias_method :agent, :represented
 
-    def initialize(user)
-      @user = user
-      super(user.name)
+    link :self do |opts|
+      opts[:url_builder].apiv1_agent_url(agent.getUuid())
     end
 
-    property :displayName, as: :display_name
-    property :isEnabled, as: :enabled
-    property :email, exec_context: :decorator
-    property :isEmailMe, as: :email_me
-    property :checkin_aliases, exec_context: :decorator
-
-    def email
-      user.email.blank? ? nil : user.email
+    link :doc do |opts|
+      'http://api.go.cd/#agents'
     end
 
-    def checkin_aliases
-      user.getMatchers().to_a
+    link :find do |opts|
+      opts[:url_builder].apiv1_agent_url(':uuid')
     end
 
-    def represented
-      user
-    end
+    property :uuid
   end
 end

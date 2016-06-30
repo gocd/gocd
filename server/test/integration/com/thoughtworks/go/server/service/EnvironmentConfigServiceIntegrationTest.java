@@ -45,7 +45,10 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -108,17 +111,18 @@ public class EnvironmentConfigServiceIntegrationTest {
         BasicEnvironmentConfig uat = environmentConfig("uat");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
-        agentConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), Username.ANONYMOUS);
-        agentConfigService.addAgent(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), Username.ANONYMOUS);
+        Username user = Username.ANONYMOUS;
+        agentConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), user);
+        agentConfigService.addAgent(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), user);
         uat.addPipeline(new CaseInsensitiveString("foo"));
         uat.addAgent("uuid-2");
         uat.addEnvironmentVariable("env-one", "ONE");
         uat.addEnvironmentVariable("env-two", "TWO");
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("dev")));
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("qa")));
-        goConfigService.addEnvironment(uat);
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("acceptance")));
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("function_testing")));
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("dev")), user);
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("qa")), user);
+        goConfigService.addEnvironment(uat, user);
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("acceptance")), user);
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("function_testing")), user);
         EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
         newUat.addPipeline(new CaseInsensitiveString("bar"));
         newUat.addAgent("uuid-1");
@@ -159,6 +163,101 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")),  goConfigDao.md5OfConfigFile());
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));
+    }
+
+    @Test
+    public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() throws Exception{
+        BasicEnvironmentConfig uat = environmentConfig("uat");
+        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
+        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
+        Username user = Username.ANONYMOUS;
+        agentConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), user);
+        agentConfigService.addAgent(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), user);
+        uat.addPipeline(new CaseInsensitiveString("foo"));
+        uat.addAgent("uuid-2");
+        uat.addEnvironmentVariable("env-one", "ONE");
+        uat.addEnvironmentVariable("env-two", "TWO");
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("dev")), user);
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("qa")), user);
+        goConfigService.addEnvironment(uat, user);
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("acceptance")), user);
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("function_testing")), user);
+        EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
+        newUat.addPipeline(new CaseInsensitiveString("bar"));
+        newUat.addAgent("uuid-1");
+        newUat.addEnvironmentVariable("env-three", "THREE");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.updateEnvironment("uat", newUat, new Username(new CaseInsensitiveString("foo")), result);
+        EnvironmentConfig updatedEnv = service.named("prod");
+        assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
+        assertThat(updatedEnv.getAgents().getUuids(), is(Arrays.asList("uuid-1")));
+        assertThat(updatedEnv.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("bar"))));
+        EnvironmentVariablesConfig updatedVariables = new EnvironmentVariablesConfig();
+        updatedVariables.add("env-three", "THREE");
+        assertThat(updatedEnv.getVariables(), is(updatedVariables));
+        EnvironmentsConfig currentEnvironments = goConfigService.getCurrentConfig().getEnvironments();
+        assertThat(currentEnvironments.indexOf(updatedEnv), is(2));
+        assertThat(currentEnvironments.size(), is(5));
+    }
+
+    @Test
+    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToUpdate_ForNewUpdateEnvironmentMethod() throws IOException {
+        configHelper.addEnvironments("foo");
+        configHelper.turnOnSecurity();
+        configHelper.addAdmins("super_hero");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), result);
+        assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
+    }
+
+    @Test
+    public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenDuplicateEnvironmentExists_ForNewUpdateEnvironmentMethod() {
+        configHelper.addEnvironments("foo-env");
+        configHelper.addEnvironments("bar-env");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
+        assertThat(result.message(localizer), is("Failed to update environment 'bar-env'. Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"."));
+    }
+
+    @Test
+    public void shouldReturnBadRequestForUpdateWhenUsingInvalidEnvName_ForNewUpdateEnvironmentMethod_ForNewUpdateEnvironmentMethod() {
+        configHelper.addEnvironments("foo-env");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
+        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));
+    }
+
+    @Test
+    public void shouldDeleteAnEnvironment() throws Exception {
+        String environmentName = "dev";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)), Username.ANONYMOUS);
+
+        assertTrue(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
+        service.deleteEnvironment(environmentName, new Username(new CaseInsensitiveString("foo")), result);
+        assertFalse(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
+        assertThat(result.message(localizer), containsString("Environment 'dev' was deleted successfully."));
+    }
+
+    @Test
+    public void shouldFailDeleteEnvironmentWhenEnvironmentIsNotPresent() throws Exception {
+        String environmentName = "dev";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        assertFalse(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
+        service.deleteEnvironment(environmentName, new Username(new CaseInsensitiveString("foo")), result);
+        assertThat(result.message(localizer), containsString("Environment 'dev' not found."));
+    }
+
+    @Test
+    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToDelete() throws IOException {
+        configHelper.addEnvironments("foo");
+        configHelper.turnOnSecurity();
+        configHelper.addAdmins("super_hero");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.deleteEnvironment("foo", new Username(new CaseInsensitiveString("evil_hacker")), result);
+        assertThat(result.message(localizer), is("Failed to delete environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
     }
 
     @Test

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,30 +15,23 @@
 ##########################################################################
 
 module ApiV1
-  class UserRepresenter < ApiV1::UserSummaryRepresenter
-    attr_reader :user
+  module Config
+    class PipelineConfigSummaryRepresenter < ApiV1::BaseRepresenter
+      alias_method :pipeline, :represented
 
-    def initialize(user)
-      @user = user
-      super(user.name)
-    end
+      link :self do |opts|
+        opts[:url_builder].apiv1_admin_pipeline_url(pipeline.getName())
+      end
 
-    property :displayName, as: :display_name
-    property :isEnabled, as: :enabled
-    property :email, exec_context: :decorator
-    property :isEmailMe, as: :email_me
-    property :checkin_aliases, exec_context: :decorator
+      link :doc do |opts|
+        'http://api.go.cd/#pipeline_config'
+      end
 
-    def email
-      user.email.blank? ? nil : user.email
-    end
+      link :find do |opts|
+        opts[:url_builder].apiv1_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
+      end
 
-    def checkin_aliases
-      user.getMatchers().to_a
-    end
-
-    def represented
-      user
+      property :name, case_insensitive_string: true
     end
   end
 end

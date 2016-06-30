@@ -19,11 +19,13 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.update.AddEnvironmentCommand;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.ExceptionUtils;
 import org.slf4j.Logger;
@@ -36,7 +38,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 /**
  * @understands how to modify the cruise config sources
@@ -64,8 +65,8 @@ public class GoConfigDao {
         updateConfig(pipelineAdder(pipelineConfig, groupName));
     }
 
-    public void addEnvironment(BasicEnvironmentConfig environmentConfig) {
-        updateConfig(environmentAdder(environmentConfig));
+    public void addEnvironment(BasicEnvironmentConfig environmentConfig, Username user) {
+        updateConfig(new AddEnvironmentCommand(environmentConfig, user));
     }
 
     public CruiseConfig loadForEditing() {
@@ -211,7 +212,6 @@ public class GoConfigDao {
     }
 
 
-
     private UpdateConfigCommand pipelineAdder(final PipelineConfig pipelineConfig, final String groupName) {
         return new UpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) {
@@ -220,16 +220,6 @@ public class GoConfigDao {
             }
         };
     }
-
-    private UpdateConfigCommand environmentAdder(final BasicEnvironmentConfig environmentConfig) {
-        return new UpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.addEnvironment(environmentConfig);
-                return cruiseConfig;
-            }
-        };
-    }
-
 
     public UpdateConfigCommand mailHostUpdater(final MailHost mailHost) {
         return new UpdateConfigCommand() {
@@ -308,39 +298,8 @@ public class GoConfigDao {
         }
     }
 
-    public static class ModifyEnvironmentCommand implements UpdateConfigCommand {
-        private final String uuid;
-        private final String environmentName;
-        private final TriStateSelection.Action action;
-
-        public ModifyEnvironmentCommand(String uuid, String environmentName, TriStateSelection.Action action) {
-            this.uuid = uuid;
-            this.environmentName = environmentName;
-            this.action = action;
-        }
-
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-            AgentConfig agentConfig = cruiseConfig.agents().getAgentByUuid(uuid);
-            bombIfNull(agentConfig, "Unable to set agent resources; Agent [" + uuid + "] not found.");
-            EnvironmentConfig environmentConfig = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(environmentName));
-            if (environmentConfig == null) {
-                agentConfig.addError("environments", "Environment [" + environmentName + "] does not exist.");
-            } else {
-                if (action.equals(TriStateSelection.Action.add)) {
-                    environmentConfig.addAgentIfNew(uuid);
-                } else if (action.equals(TriStateSelection.Action.remove)) {
-                    environmentConfig.removeAgent(uuid);
-                } else if (action.equals(TriStateSelection.Action.nochange)) {
-                    //do nothing
-                } else {
-                    bomb(String.format("unsupported action '%s'", action));
-                }
-            }
-            return cruiseConfig;
-        }
-    }
-
     public GoConfigHolder loadConfigHolder() {
         return cachedConfigService.loadConfigHolder();
     }
+
 }

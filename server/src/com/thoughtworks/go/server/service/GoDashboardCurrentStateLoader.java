@@ -17,17 +17,22 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
+import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
@@ -44,39 +49,49 @@ public class GoDashboardCurrentStateLoader {
     private PipelineLockService pipelineLockService;
     private PipelineUnlockApiService pipelineUnlockApiService;
     private SchedulingCheckerService schedulingCheckerService;
+    private GoConfigPipelinePermissionsAuthority permissionsAuthority;
 
     @Autowired
     public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
                             PipelinePauseService pipelinePauseService, PipelineLockService pipelineLockService,
-                            PipelineUnlockApiService pipelineUnlockApiService, SchedulingCheckerService schedulingCheckerService) {
+                            PipelineUnlockApiService pipelineUnlockApiService, SchedulingCheckerService schedulingCheckerService,
+                            GoConfigPipelinePermissionsAuthority permissionsAuthority) {
         this.pipelineDao = pipelineDao;
         this.triggerMonitor = triggerMonitor;
         this.pipelinePauseService = pipelinePauseService;
         this.pipelineLockService = pipelineLockService;
         this.pipelineUnlockApiService = pipelineUnlockApiService;
         this.schedulingCheckerService = schedulingCheckerService;
+        this.permissionsAuthority = permissionsAuthority;
     }
 
-    public List<PipelineGroupModel> allPipelines(CruiseConfig config) {
+    public List<GoDashboardPipeline> allPipelines(CruiseConfig config) {
         final PipelineInstanceModels activeInstances = pipelineDao.loadActivePipelines();
-        final List<PipelineGroupModel> groupModels = new ArrayList<>();
+        final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = permissionsAuthority.pipelinesAndTheirPermissions();
+
+        final List<GoDashboardPipeline> pipelines = new ArrayList<>();
 
         config.accept(new PipelineGroupVisitor() {
             @Override
             public void visit(final PipelineConfigs group) {
-                final PipelineGroupModel groupModel = new PipelineGroupModel(group.getGroup());
-                groupModels.add(groupModel);
-
                 group.accept(new PiplineConfigVisitor() {
                     @Override
                     public void visit(PipelineConfig pipelineConfig) {
-                        groupModel.add(pipelineModelFor(pipelineConfig, activeInstances));
+                        pipelines.add(getDashboardPipeline(pipelineConfig, activeInstances, pipelinesAndTheirPermissions, group.getGroup()));
                     }
                 });
             }
         });
 
-        return groupModels;
+        return pipelines;
+    }
+
+    private GoDashboardPipeline getDashboardPipeline(PipelineConfig pipelineConfig, PipelineInstanceModels allPipelineInstances,
+                                             Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions, String groupName) {
+        PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, allPipelineInstances);
+        Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+
+        return new GoDashboardPipeline(pipelineModel, permissions, groupName);
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {
@@ -145,5 +160,12 @@ public class GoDashboardCurrentStateLoader {
         instanceModel.setIsLockable(isLockable);
         instanceModel.setCurrentlyLocked(isCurrentlyLocked);
         instanceModel.setCanUnlock(canBeUnlocked);
+    }
+
+    private Permissions permissionsFor(PipelineConfig pipelineConfig, Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions) {
+        if (pipelinesAndTheirPermissions.containsKey(pipelineConfig.name())) {
+            return pipelinesAndTheirPermissions.get(pipelineConfig.name());
+        }
+        return new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE);
     }
 }

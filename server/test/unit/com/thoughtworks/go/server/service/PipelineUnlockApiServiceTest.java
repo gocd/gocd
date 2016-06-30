@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,7 @@ import org.mockito.Mockito;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 
 public class PipelineUnlockApiServiceTest {
     private PipelineUnlockApiService pipelineUnlockApiService;
@@ -50,24 +49,24 @@ public class PipelineUnlockApiServiceTest {
     }
 
     @Test public void unlockShouldSetResultToOkWhenSuccessful() throws Exception {
-        Mockito.when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        Mockito.when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
-        Mockito.when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
-        Mockito.when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(new StageIdentifier("pipeline-name", 10, "10", "stage", "2"));
+        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
+        when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
+        when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(new StageIdentifier("pipeline-name", 10, "10", "stage", "2"));
         Pipeline pipeline = new Pipeline();
-        Mockito.when(pipelineDao.findPipelineByNameAndCounter("pipeline-name", 10)).thenReturn(pipeline);
+        when(pipelineDao.findPipelineByNameAndCounter("pipeline-name", 10)).thenReturn(pipeline);
         HttpOperationResult result = new HttpOperationResult();
 
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
 
         assertThat(result.httpCode(), is(200));
         assertThat(result.message(), is("pipeline lock released for pipeline-name"));
-        Mockito.verify(pipelineLockService).unlock("pipeline-name");
+        verify(pipelineLockService).unlock("pipeline-name");
     }
 
     @Test public void unlockShouldSetResultToNotFoundWhenPipelineDoesNotExist() throws Exception {
-        Mockito.when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        Mockito.when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("does-not-exist"))).thenReturn(false);
+        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("does-not-exist"))).thenReturn(false);
         Pipeline pipeline = new Pipeline();
         HttpOperationResult result = new HttpOperationResult();
 
@@ -80,9 +79,9 @@ public class PipelineUnlockApiServiceTest {
     }
 
     @Test public void unlockShouldSetResultToNotAcceptableWhenPipelineIsNotLockable() throws Exception {
-        Mockito.when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        Mockito.when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
-        Mockito.when(goConfigService.isLockable("pipeline-name")).thenReturn(false);
+        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
+        when(goConfigService.isLockable("pipeline-name")).thenReturn(false);
 
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
@@ -107,12 +106,12 @@ public class PipelineUnlockApiServiceTest {
 
 
     @Test public void unlockShouldSetResultToNotAcceptableWhenAPipelineInstanceIsCurrentlyRunning() throws Exception {
-        Mockito.when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        Mockito.when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
-        Mockito.when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
+        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
+        when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
         StageIdentifier identifier = new StageIdentifier("pipeline-name", 10, "10", "stage", "1");
-        Mockito.when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(identifier);
-        Mockito.when(currentActivityService.isAnyStageActive(identifier.pipelineIdentifier())).thenReturn(true);
+        when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(identifier);
+        when(currentActivityService.isAnyStageActive(identifier.pipelineIdentifier())).thenReturn(true);
 
         HttpOperationResult result = new HttpOperationResult();
         pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
@@ -135,5 +134,16 @@ public class PipelineUnlockApiServiceTest {
 
         assertThat(result.httpCode(), is(401));
         assertThat(result.message(), is("user does not have operate permission on the pipeline"));
+    }
+
+    @Test
+    public void shouldBeAbleToVerifyUnlockStatusOfAPipelineWithoutCheckingForUserPermissions() throws Exception {
+        when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
+        when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(new StageIdentifier("pipeline-name", 10, "10", "stage", "2"));
+        when(currentActivityService.isAnyStageActive(new PipelineIdentifier("pipeline-name", 10, "10"))).thenReturn(false);
+
+        assertThat(pipelineUnlockApiService.isUnlockable("pipeline-name"), is(true));
+
+        verify(pipelineLockService, times(0)).unlock("pipeline-name");
     }
 }

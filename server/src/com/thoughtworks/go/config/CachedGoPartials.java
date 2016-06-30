@@ -52,6 +52,7 @@ public class CachedGoPartials {
     public void removeKnown(String fingerprint) {
         if (fingerprintToLatestKnownConfigMap.containsKey(fingerprint)) {
             fingerprintToLatestKnownConfigMap.remove(fingerprint);
+            serverHealthService.removeByScope(HealthStateScope.forPartialConfigRepo(fingerprint));
         }
     }
 

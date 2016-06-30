@@ -27,12 +27,17 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
+import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.presentation.TriStateSelection;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.util.EntityDigest;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -895,6 +900,67 @@ public class CachedGoConfigIntegrationTest {
         });
         assertThat(state, is(ConfigSaveState.UPDATED));
         assertThat(goConfigService.getCurrentConfig().server().getCommandRepositoryLocation(), is("newlocation"));
+    }
+
+    @Test
+    public void shouldRemoveCorrespondingRemotePipelinesFromCachedGoConfigIfTheConfigRepoIsDeleted(){
+        final ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), XmlPartialConfigProvider.providerName);
+        final ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
+        goConfigService.updateConfig(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.getConfigRepos().add(repoConfig1);
+                cruiseConfig.getConfigRepos().add(repoConfig2);
+                return cruiseConfig;
+            }
+        });
+        PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
+        PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, partialConfigInRepo1);
+        goPartialConfig.onSuccessPartialConfig(repoConfig2, partialConfigInRepo2);
+
+        // introduce an invalid change in repo1 so that there is a server health message corresponding to it
+        PartialConfig invalidPartialInRepo1Revision2 = PartialConfigMother.invalidPartial("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r2"));
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, invalidPartialInRepo1Revision2);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;;  -  Config-Repo: url1 at repo1_r2"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+
+        int countBeforeDeletion = cachedGoConfig.currentConfig().getConfigRepos().size();
+        ConfigSaveState configSaveState = cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.getConfigRepos().remove(repoConfig1);
+                return cruiseConfig;
+            }
+        });
+        assertThat(configSaveState, is(ConfigSaveState.UPDATED));
+        assertThat(cachedGoConfig.currentConfig().getConfigRepos().size(), is(countBeforeDeletion - 1));
+        assertThat(cachedGoConfig.currentConfig().getConfigRepos().contains(repoConfig2), is(true));
+        assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1")), is(false));
+        assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
+        assertThat(cachedGoPartials.lastKnownPartials().size(), is(1));
+        assertThat(((RepoConfigOrigin)cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
+        assertThat(ListUtil.find(cachedGoPartials.lastKnownPartials(), new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                PartialConfig partialConfig = (PartialConfig) item;
+                return ((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getMaterialConfig().getFingerprint());
+            }
+        }), is(nullValue()));
+        assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
+        assertThat(((RepoConfigOrigin)cachedGoPartials.lastValidPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
+        assertThat(ListUtil.find(cachedGoPartials.lastValidPartials(), new ListUtil.Condition() {
+            @Override
+            public <T> boolean isMet(T item) {
+                PartialConfig partialConfig = (PartialConfig) item;
+                return ((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getMaterialConfig().getFingerprint());
+            }
+        }), is(nullValue()));
+
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
     }
 
     private void addPipelineWithParams(CruiseConfig cruiseConfig) {

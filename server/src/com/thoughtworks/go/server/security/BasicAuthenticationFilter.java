@@ -53,7 +53,7 @@ public class BasicAuthenticationFilter extends BasicProcessingFilter {
             isProcessingBasicAuth.set(true);
             super.doFilterHttp(httpRequest, httpResponse, chain);
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.toString()); // NPE and others do not have messages, their types are important too
             LOG.debug(e.getMessage(), e);
             handleException(httpRequest, httpResponse, e);
         } finally {

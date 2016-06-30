@@ -77,11 +77,7 @@ public class AdminUser implements Admin {
 
         AdminUser adminUser = (AdminUser) o;
 
-        if (!name.equals(adminUser.name)) {
-            return false;
-        }
-
-        return true;
+        return name.equals(adminUser.name);
     }
 
     public int hashCode() {

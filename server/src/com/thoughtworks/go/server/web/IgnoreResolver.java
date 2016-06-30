@@ -34,7 +34,6 @@ public class IgnoreResolver {
                     isGoingToPlugin(request) ||
                     isDownloadAgentJar(request) ||
                     isGoingToLogin(request) ||
-                    isGoingToServerInfo(request) ||
                     isPost(request) ||
                     isPut(request) ||
                     isStaticFile(request);
@@ -51,10 +50,6 @@ public class IgnoreResolver {
             }
         }
         return false;
-    }
-
-    private boolean isGoingToServerInfo(HttpServletRequest request) {
-        return StringUtils.equals(request.getRequestURI(), request.getContextPath() + "/api/server.xml");
     }
 
     private boolean isPut(HttpServletRequest request) {

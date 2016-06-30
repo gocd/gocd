@@ -241,7 +241,6 @@
                 /auth/login=IS_AUTHENTICATED_ANONYMOUSLY
                 /auth/logout=IS_AUTHENTICATED_ANONYMOUSLY
                 /auth/security_check=IS_AUTHENTICATED_ANONYMOUSLY
-                /api/server.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /shine/sparql.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /compressed/*=IS_AUTHENTICATED_ANONYMOUSLY
                 /assets/**=IS_AUTHENTICATED_ANONYMOUSLY

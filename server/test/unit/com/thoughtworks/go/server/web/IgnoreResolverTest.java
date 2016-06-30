@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import java.net.URISyntaxException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
@@ -25,6 +23,8 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.net.URISyntaxException;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -36,7 +36,6 @@ public class IgnoreResolverTest {
     @DataPoint public static final String URL_DOWNLOAD_AGENT_JAR = "/go/admin/agent";
     @DataPoint public static final String URL_ABOUT = "/go/about";
     @DataPoint public static final String URL_PLUGIN_INTERACT = "/go/plugin/interact/plugin.id/request.name";
-    @DataPoint public static final String URL_SERVER_INFO = "/go/api/server.xml";
     @DataPoint public static final String STYLESHEETS = "/go/stylesheets/foo.css?world=hello";
     @DataPoint public static final String STYLESHEETS_FROM_CSS_DIRECTORY = "/go/css/hello.css?foo=bar";
     @DataPoint public static final String JAVASCRIPTS = "/go/javascripts/hello.js?foo=bar";

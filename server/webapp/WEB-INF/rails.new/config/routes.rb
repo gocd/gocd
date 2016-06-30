@@ -350,7 +350,6 @@ Go::Application.routes.draw do
 
       defaults :format => 'xml' do
         get 'users.xml' => 'users#index'
-        get 'server.xml' => 'server#info', as: :server
 
         # stage api's
         get 'stages/:id.xml' => 'stages#index', as: :stage

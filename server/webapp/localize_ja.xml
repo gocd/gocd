@@ -745,7 +745,7 @@
     <entry key="USER_NOT_FOUND">User ''{0}'' not found.</entry>
     <entry key="USER_NOT_DISABLED">User ''{0}'' is not disabled.</entry>
     <entry key="ENVIRONMENT_DELETE_SUCCESSFUL">Environment ''{0}'' was deleted successfully.</entry>
-    <entry key="ENVIRONMENT_NOT_FOUND">Environment ''{0}'' not found.</entry>
+    <entry key="RESOURCE_NOT_FOUND">{0} ''{1}'' not found.</entry>
     <entry key="VIEW">View</entry>
     <entry key="ADD_NEW_REPOSITORY">Add New Repository</entry>
     <entry key="MANDATORY_CONFIGURATION_FIELD">This field is required</entry>
@@ -789,10 +789,8 @@
     <entry key="GARAGE_MESSAGE">{0}</entry>
     <entry key="GLOBAL_SCM_WARNING">This is a global copy. All pipelines using this SCM will be affected.</entry>
     <entry key="SCM_USED_IN_PIPELINES_LINK">Show pipelines using this SCM</entry>
-    <entry key="STALE_PIPELINE_CONFIG">Someone has modified the configuration for pipeline ''{0}''. Please update your copy of the config with the changes.</entry>
+    <entry key="STALE_RESOURCE_CONFIG">Someone has modified the configuration for {0} ''{1}''. Please update your copy of the config with the changes.</entry>
     <entry key="ENTITY_CONFIG_VALIDATION_FAILED">Validations failed for {0} ''{1}''. Error(s): [{2}]. Please correct and resubmit.</entry>
-    <entry key="STALE_ENVIRONMENT_CONFIG">Someone has modified the configuration for environment ''{0}''. Please update your copy of the config with the changes.</entry>
-    <entry key="PIPELINE_CONFIG_VALIDATION_FAILED">Validations failed for pipeline ''{0}''. Please correct and resubmit.</entry>
     <entry key="PIPELINE_RENAMING_NOT_ALLOWED">Renaming of pipeline is not supported by this API.</entry>
     <entry key="CANNOT_CREATE_PIPELINE_ALREADY_EXISTS">Failed to create pipeline ''{0}'' as another pipeline by the same name already exists.</entry>
     <entry key="PIPELINE_DELETE_SUCCESSFUL">Pipeline ''{0}'' was deleted successfully.</entry>

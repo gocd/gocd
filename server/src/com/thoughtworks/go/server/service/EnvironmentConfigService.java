@@ -40,9 +40,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-
 /**
  * @understands grouping of agents and pipelines within an environment
  */
@@ -270,7 +267,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
                     goConfigService.updateConfig(new DeleteEnvironmentCommand(config, username));
                     result.setMessage(LocalizedMessage.string("ENVIRONMENT_DELETE_SUCCESSFUL", environmentName));
                 } catch (NoSuchEnvironmentException e) {
-                    result.notFound(LocalizedMessage.string("ENVIRONMENT_NOT_FOUND", environmentName), HealthStateType.general(HealthStateScope.GLOBAL));
+                    result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName), HealthStateType.general(HealthStateScope.GLOBAL));
                 }
             }
         }, username, result, noPermission, actionFailed);

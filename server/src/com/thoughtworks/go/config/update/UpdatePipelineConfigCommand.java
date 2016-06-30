@@ -87,7 +87,7 @@ public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
         boolean freshRequest = entityHashingService.md5ForPipelineConfig(pipelineConfig.name().toString()).equals(md5);
 
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_PIPELINE_CONFIG", pipelineConfig.name().toString()));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "pipeline", pipelineConfig.name().toString()));
         }
 
         return freshRequest;

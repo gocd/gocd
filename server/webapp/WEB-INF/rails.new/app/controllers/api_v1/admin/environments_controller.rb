@@ -84,7 +84,7 @@ module ApiV1
         json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
         if request.env['HTTP_IF_MATCH'] != "\"#{get_etag_for_environment(json)}\""
           result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string('STALE_ENVIRONMENT_CONFIG', params[:name]))
+          result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'environment', params[:name]))
           render_http_operation_result(result)
         end
       end

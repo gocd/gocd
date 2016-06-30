@@ -88,7 +88,7 @@ module ApiV1
         return unless stale_request?
 
         result = HttpLocalizedOperationResult.new
-        result.stale(LocalizedMessage::string("STALE_PIPELINE_CONFIG", params[:pipeline_name]))
+        result.stale(LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name]))
         render_http_operation_result(result)
       end
 

@@ -264,6 +264,8 @@
                 /admin/package_definitions/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/material_test=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/internal/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/internal/resources=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/internal/environments=ROLE_SUPERVISOR
                 /api/admin/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/pipelines/*=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/**=ROLE_SUPERVISOR

@@ -77,7 +77,10 @@ public class GoDashboardCurrentStateLoader {
                 group.accept(new PiplineConfigVisitor() {
                     @Override
                     public void visit(PipelineConfig pipelineConfig) {
-                        pipelines.add(getDashboardPipeline(pipelineConfig, activeInstances, pipelinesAndTheirPermissions, group.getGroup()));
+                        Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+                        PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activeInstances);
+
+                        pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup()));
                     }
                 });
             }
@@ -86,12 +89,13 @@ public class GoDashboardCurrentStateLoader {
         return pipelines;
     }
 
-    private GoDashboardPipeline getDashboardPipeline(PipelineConfig pipelineConfig, PipelineInstanceModels allPipelineInstances,
-                                             Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions, String groupName) {
-        PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, allPipelineInstances);
-        Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
+    public GoDashboardPipeline pipelineFor(PipelineConfig pipelineConfig, PipelineConfigs groupConfig) {
+        PipelineInstanceModels activePipelineInstances = pipelineDao.loadActivePipelineInstancesFor(str(pipelineConfig.name()));
 
-        return new GoDashboardPipeline(pipelineModel, permissions, groupName);
+        Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
+        PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activePipelineInstances);
+
+        return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup());
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {

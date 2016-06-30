@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -48,6 +49,8 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -340,6 +343,27 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(permissions.operators(), is(NoOne.INSTANCE));
         assertThat(permissions.admins(), is(NoOne.INSTANCE));
         assertThat(permissions.pipelineOperators(), is(NoOne.INSTANCE));
+    }
+
+    @Test
+    public void shouldGetAGoDashboardPipelineGivenASinglePipelineConfigAndItsGroupConfig() throws Exception {
+        String pipelineNameStr = "pipeline1";
+        CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineNameStr);
+        Permissions permissions = new Permissions(Everyone.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE);
+        PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", pipelineNameStr, "stage1", "job1");
+        PipelineInstanceModels pipelineInstanceModels = createPipelineInstanceModels(pim(p1Config));
+
+        when(pipelineSqlMapDao.loadActivePipelineInstancesFor(pipelineNameStr)).thenReturn(pipelineInstanceModels);
+        when(permissionsAuthority.permissionsForPipeline(pipelineName)).thenReturn(permissions);
+
+        GoDashboardPipeline pipeline = loader.pipelineFor(p1Config, config.findGroup("group1"));
+
+        assertThat(pipeline.name(), is(pipelineName));
+        assertThat(pipeline.permissions(), is(permissions));
+        assertThat(pipeline.model().getActivePipelineInstances(), is(pipelineInstanceModels));
+
+        verify(pipelineSqlMapDao).loadActivePipelineInstancesFor("pipeline1");
+        verifyNoMoreInteractions(pipelineSqlMapDao);
     }
 
     private void assertModel(GoDashboardPipeline pipeline, String group, PipelineInstanceModel... pims) {

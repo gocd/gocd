@@ -223,7 +223,14 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
 
     @Override
     public boolean hasSamePipelinesAs(EnvironmentConfig other) {
-        throw new RuntimeException("not impl");
+        for (CaseInsensitiveString pipeline : getPipelineNames()) {
+            for(CaseInsensitiveString name : other.getPipelineNames())
+            {
+                if(name.equals(pipeline))
+                    return  true;
+            }
+        }
+        return false;
     }
 
     @Override

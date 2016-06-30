@@ -8,9 +8,7 @@ import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PartialConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.*;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +21,7 @@ import java.util.Set;
 import static com.thoughtworks.go.helper.PartialConfigMother.createRepoOrigin;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -46,6 +45,23 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Override
     protected BasicCruiseConfig createCruiseConfig() {
         return new BasicCruiseConfig(new BasicCruiseConfig(), new PartialConfig());
+    }
+
+    @Test
+    public void shouldMergeWhenSameEnvironmentExistsInManyPartials(){
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
+        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
+        PartialConfig partialConfigInRepo1 = PartialConfigMother.withEnvironment("environment", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
+        RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig2, "repo2_r1");
+        PartialConfig partialConfigInRepo2 = PartialConfigMother.withEnvironment("environment", configOrigin);
+        BasicEnvironmentConfig environment2InRepo2 = EnvironmentConfigMother.environment("environment2_in_repo2");
+        environment2InRepo2.setOrigins(configOrigin);
+        partialConfigInRepo2.getEnvironments().add(environment2InRepo2);
+        cruiseConfig.merge(asList(partialConfigInRepo2, partialConfigInRepo1), false);
+        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment")),is(true));
+        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment2_in_repo2")),is(true));
     }
 
     @Test

@@ -118,8 +118,6 @@ public class SchedulingCheckerServiceIntegrationTest {
     }
 
     @Test
-    //This test doesn't have an assert. This video gives an insight about Hitler's opinion on Unit testing :)
-    //www.youtube.com/watch?v=T-Qn_-F2x1c
     public void shouldPassCheckingWhenUserHasPermissionForRerun() throws Exception {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         assertTrue(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, new ServerHealthStateOperationResult()));

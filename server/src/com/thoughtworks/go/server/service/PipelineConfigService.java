@@ -16,14 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.PipelineConfigurationCache;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
@@ -34,10 +27,7 @@ import com.thoughtworks.go.config.update.DeletePipelineConfigCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
@@ -45,17 +35,13 @@ import com.thoughtworks.go.util.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @understands providing services around a pipeline configuration
  */
 @Service
-public class PipelineConfigService implements ConfigChangedListener, Initializer {
+public class PipelineConfigService {
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
     private final PluggableTaskService pluggableTaskService;
@@ -68,21 +54,6 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         this.securityService = securityService;
         this.pluggableTaskService = pluggableTaskService;
         this.entityHashingService = entityHashingService;
-    }
-
-    public void initialize() {
-        goConfigService.register(this);
-        goConfigService.register(pipelineConfigChangedListener());
-    }
-
-    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
-            @Override
-            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-                PipelineConfigurationCache.getInstance().onPipelineConfigChange(pipelineConfig);
-                PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
-            }
-        };
     }
 
     public Map<CaseInsensitiveString, CanDeleteResult> canDeletePipelines() {
@@ -144,7 +115,7 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
                 if(!result.hasMessage()){
-                    result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class).value(), CaseInsensitiveString.str(pipelineConfig.name())));
+                    result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", pipelineConfig.getClass().getAnnotation(ConfigTag.class).value(), CaseInsensitiveString.str(pipelineConfig.name()), e.getMessage()));
                 }
             } else if (!(e instanceof ConfigUpdateCheckFailedException)) {
                 LOGGER.error(e.getMessage(), e);
@@ -192,11 +163,6 @@ public class PipelineConfigService implements ConfigChangedListener, Initializer
         if(result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("PIPELINE_DELETE_SUCCESSFUL", pipelineConfig.name()));
         }
-    }
-
-    @Override
-    public void onConfigChange(CruiseConfig newCruiseConfig) {
-        PipelineConfigurationCache.getInstance().onConfigChange(goConfigService.cruiseConfig());
     }
 
     private boolean hasViewOrOperatePermissionForGroup(Username username, String group) {

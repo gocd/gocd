@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,6 @@ public class ApprovalTest {
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "not-present");
         Approval approval = stage.getApproval();
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
@@ -98,7 +97,6 @@ public class ApprovalTest {
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "not-present");
         Approval approval = stage.getApproval();
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
@@ -120,7 +118,6 @@ public class ApprovalTest {
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithRoles(stage, "role");
         Approval approval = stage.getApproval();
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
@@ -303,7 +300,7 @@ public class ApprovalTest {
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "first", "some-other-user-who-is-not-operate-authorized");
         Approval approval = stage.getApproval();
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
+        
 
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
@@ -335,8 +332,7 @@ public class ApprovalTest {
         cruiseConfig.server().security().adminsConfig().addRole(new AdminRole(new CaseInsensitiveString("super-admin")));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs());
         cruiseConfig.addPipeline("g1", pipelineConfig);
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
-
+        
         assertThat(approval.validateTree(PipelineConfigSaveValidationContext.forChain(true, "g1", cruiseConfig, pipelineConfig)), is(false));
         assertThat(approval.getAuthConfig().errors().isEmpty(), is(false));
         assertThat(approval.getAuthConfig().errors().firstError(), is("Role \"role\" does not exist."));

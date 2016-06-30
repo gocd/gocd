@@ -97,15 +97,14 @@ public class BasicCruiseConfig implements CruiseConfig {
         MergeStrategy mergeStrategy = new MergeStrategy(partList,forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
-        this.resetAllPipelineConfigsCache();
         environments = mergeStrategy.mergeEnvironmentConfigs();
-        //TODO temporary to check if this causes #1901
-        pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
-        allPipelineConfigs = null;
+        this.resetAllPipelineConfigsCache();
     }
 
     private void resetAllPipelineConfigsCache() {
         allPipelineConfigs = null;
+        //TODO temporary to check if this causes #1901
+        pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
     }
 
     private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList,boolean forEdit) {
@@ -138,6 +137,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     public void initializeServer() {
         serverConfig.ensureServerIdExists();
     }
+
 
     private interface CruiseStrategy {
         ConfigOrigin getOrigin();
@@ -297,9 +297,6 @@ public class BasicCruiseConfig implements CruiseConfig {
             // then add from each part
             for (PartialConfig part : this.parts) {
                 for (PipelineConfigs partPipesConf : part.getGroups()) {
-                    for (PipelineConfig pipelineConfig : partPipesConf) {
-                        BasicCruiseConfig.this.getAllPipelineConfigs().add(pipelineConfig);
-                    }
                     allPipelineConfigs.add(partPipesConf);
                 }
             }
@@ -1220,6 +1217,16 @@ public class BasicCruiseConfig implements CruiseConfig {
         walker.walk(new GoConfigParallelGraphWalker.Handler() {
             public void handle(Validatable rawObject, Validatable objectWithErrors) {
                 rawObject.errors().addAll(objectWithErrors.errors());
+            }
+        });
+    }
+
+    public static void clearErrors(Validatable obj) {
+        GoConfigGraphWalker walker = new GoConfigGraphWalker(obj);
+        walker.walk(new GoConfigGraphWalker.Handler() {
+            @Override
+            public void handle(Validatable validatable, ValidationContext ctx) {
+                validatable.errors().clear();
             }
         });
     }

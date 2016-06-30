@@ -48,6 +48,10 @@ public class AgentsUpdateCommand implements EntityConfigUpdateCommand<Agents> {
     }
 
     @Override
+    public void clearErrors() {
+    }
+
+    @Override
     public Agents getPreprocessedEntityConfig() {
         return updatedConfig.agents();
     }

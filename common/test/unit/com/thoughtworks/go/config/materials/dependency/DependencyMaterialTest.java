@@ -204,21 +204,20 @@ public class DependencyMaterialTest {
 
     @Test
     public void shouldHandleNullOriginDuringValidationWhenUpstreamPipelineDoesNotExist() {
-        PipelineConfigurationCache.getInstance().onConfigChange(new BasicCruiseConfig());
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipeline.setOrigin(null);
-        dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipeline));
+        dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), pipeline));
         assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), is("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"));
     }
 
     @Test
     public void shouldHandleNullOriginDuringValidationWhenUpstreamStageDoesNotExist() {
-        PipelineConfigurationCache.getInstance().onConfigChange(GoConfigMother.pipelineHavingJob("upstream_pipeline", "upstream_stage", "j1", null, null));
+        CruiseConfig cruiseConfig = GoConfigMother.pipelineHavingJob("upstream_pipeline", "upstream_stage", "j1", null, null);
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("does_not_exist"));
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("downstream"), new MaterialConfigs());
         pipeline.setOrigin(null);
-        dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipeline));
+        dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, pipeline));
         assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), is("Stage with name 'does_not_exist' does not exist on pipeline 'upstream_pipeline', it is being referred to from pipeline 'downstream' (cruise-config.xml)"));
     }
     

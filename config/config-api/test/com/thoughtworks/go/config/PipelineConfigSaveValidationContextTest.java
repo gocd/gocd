@@ -1,18 +1,37 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.util.Node;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Mockito.mock;
@@ -58,11 +77,33 @@ public class PipelineConfigSaveValidationContextTest {
     @Test
     public void shouldGetAllMaterialsByFingerPrint() throws Exception {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithPipelineUsingTwoMaterials();
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
         MaterialConfig expectedMaterial = MaterialConfigsMother.multipleMaterialConfigs().get(1);
-        MaterialConfigs allMaterialsByFingerPrint = pipelineContext.getAllMaterialsByFingerPrint(expectedMaterial.getFingerprint());
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
+        MaterialConfigs allMaterialsByFingerPrint = context.getAllMaterialsByFingerPrint(expectedMaterial.getFingerprint());
         assertThat(allMaterialsByFingerPrint.size(), is(1));
         assertThat(allMaterialsByFingerPrint.first(), is(expectedMaterial));
+    }
+    @Test
+    public void shouldReturnNullIfMatchingMaterialConfigIsNotFound() throws Exception {
+        CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithPipelineUsingTwoMaterials();
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
+        assertThat(context.getAllMaterialsByFingerPrint("does_not_exist"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldGetDependencyMaterialsForPipelines(){
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2", "p3");
+        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
+        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"),new CaseInsensitiveString("stage") ));
+        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
+        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"),new CaseInsensitiveString("stage") ));
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
+
+
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p1")).getDependencies().isEmpty(), is(true));
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p2")).getDependencies(), contains(new Node.DependencyNode(new CaseInsensitiveString("p1"),new CaseInsensitiveString("stage"))));
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p3")).getDependencies(), contains(new Node.DependencyNode(new CaseInsensitiveString("p2"),new CaseInsensitiveString("stage"))));
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("junk")).getDependencies().isEmpty(), is(true));
     }
 
     @Test
@@ -75,11 +116,17 @@ public class PipelineConfigSaveValidationContextTest {
     @Test
     public void shouldFindPipelineByName(){
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
-        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
         assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1")), is(cruiseConfig.allPipelines().get(0)));
+    }
+
+    @Test
+    public void shouldReturnNullWhenNoMatchingPipelineIsFound() throws Exception {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
         assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist")), is(nullValue()));
     }
+
 
     @Test
     public void shouldGetPipelineGroupForPipelineInContext(){

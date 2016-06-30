@@ -41,7 +41,6 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -85,11 +84,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private RailsAssetsService railsAssetsService;
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
-    @Autowired private PipelineConfigService pipelineConfigService;
     @Autowired private ServerVersionInfoManager serverVersionInfoManager;
-    @Autowired private GoPartialConfig goPartialConfig;
-    @Autowired private ConfigCache configCache;
-    @Autowired private ConfigElementImplementationRegistry configElementImplementationRegistry;
     @Autowired private EntityHashingService entityHashingService;
 
     @Override
@@ -105,15 +100,11 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             //config
 
             configCipherUpdater.migrate(); // Should be done before configs get loaded
-            MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry);
-            ConfigRepoPartialPreprocessor preprocessor = (ConfigRepoPartialPreprocessor) loader.getPreprocessorOfType(ConfigRepoPartialPreprocessor.class);
-            preprocessor.init(goPartialConfig);
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();
             goFileConfigDataSource.upgradeIfNecessary();
             cachedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
-            pipelineConfigService.initialize();
             entityHashingService.initialize();
 
             //artifacts

@@ -74,14 +74,23 @@ public class MagicalGoConfigXmlLoader {
         this.registry = registry;
     }
 
-    public GoConfigHolder loadConfigHolder(final String content) throws Exception {
+    public interface Callback {
+        void call(CruiseConfig cruiseConfig);
+    }
+
+    public GoConfigHolder loadConfigHolder(final String content, Callback callback) throws Exception {
         CruiseConfig configForEdit;
         CruiseConfig config;
         LOGGER.debug("[Config Save] Loading config holder");
         configForEdit = deserializeConfig(content);
+        if (callback != null) callback.call(configForEdit);
         config = preprocessAndValidate(configForEdit);
 
         return new GoConfigHolder(config, configForEdit);
+    }
+
+    public GoConfigHolder loadConfigHolder(final String content) throws Exception {
+        return loadConfigHolder(content, null);
     }
 
     public CruiseConfig deserializeConfig(String content) throws Exception {

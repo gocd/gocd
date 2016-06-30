@@ -56,7 +56,7 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
 
     @Override
     public ConfigErrors errors() {
-        return null;
+        return new ConfigErrors();
     }
 
     @Override
@@ -108,5 +108,26 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
      */
     public void validatePart() {
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PartialConfig that = (PartialConfig) o;
+
+        if (!pipelines.equals(that.pipelines)) return false;
+        if (!getEnvironments().equals(that.getEnvironments())) return false;
+        return getOrigin() != null ? getOrigin().equals(that.getOrigin()) : that.getOrigin() == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pipelines.hashCode();
+        result = 31 * result + getEnvironments().hashCode();
+        result = 31 * result + (getOrigin() != null ? getOrigin().hashCode() : 0);
+        return result;
     }
 }

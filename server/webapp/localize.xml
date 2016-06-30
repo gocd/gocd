@@ -790,7 +790,7 @@
     <entry key="GLOBAL_SCM_WARNING">This is a global copy. All pipelines using this SCM will be affected.</entry>
     <entry key="SCM_USED_IN_PIPELINES_LINK">Show pipelines using this SCM</entry>
     <entry key="STALE_PIPELINE_CONFIG">Someone has modified the configuration for pipeline ''{0}''. Please update your copy of the config with the changes.</entry>
-    <entry key="ENTITY_CONFIG_VALIDATION_FAILED">Validations failed for {0} ''{1}''. Please correct and resubmit.</entry>
+    <entry key="ENTITY_CONFIG_VALIDATION_FAILED">Validations failed for {0} ''{1}''. Error(s): [{2}]. Please correct and resubmit.</entry>
     <entry key="PIPELINE_RENAMING_NOT_ALLOWED">Renaming of pipeline is not supported by this API.</entry>
     <entry key="CANNOT_CREATE_PIPELINE_ALREADY_EXISTS">Failed to create pipeline ''{0}'' as another pipeline by the same name already exists.</entry>
     <entry key="PIPELINE_DELETE_SUCCESSFUL">Pipeline ''{0}'' was deleted successfully.</entry>

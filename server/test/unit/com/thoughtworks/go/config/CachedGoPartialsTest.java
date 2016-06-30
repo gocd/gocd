@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -84,7 +85,7 @@ public class CachedGoPartialsTest {
     }
 
     @Test
-    public void shouldRemoveServerHealthMessageForPartialWhenItIsMarkedAsValid(){
+    public void shouldRemoveServerHealthMessageForPartialWhenItIsMarkedAsValid() {
         serverHealthService.update(ServerHealthState.error("error-repo-1", "error-desc-1", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1))));
         serverHealthService.update(ServerHealthState.error("error-repo-2", "error-desc-2", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2))));
         partials.markAsValid(fingerprintForRepo1, part1);

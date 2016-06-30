@@ -32,10 +32,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.server.service.StubGoCache;
-import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -60,14 +56,11 @@ import org.springframework.security.userdetails.User;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
-import static com.thoughtworks.go.util.ArrayUtil.asList;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -114,16 +107,9 @@ public class GoFileConfigDataSourceTest {
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();
         configHelper.usingCruiseConfigDao(goConfigDao);
-        ConfigRepoPartialPreprocessor preprocessor = (ConfigRepoPartialPreprocessor) ListUtil.find(MagicalGoConfigXmlLoader.PREPROCESSORS, new ListUtil.Condition() {
-            @Override
-            public <GoConfigPreprocessor> boolean isMet(GoConfigPreprocessor item) {
-                return item instanceof ConfigRepoPartialPreprocessor;
-            }
-        });
         GoConfigWatchList configWatchList = new GoConfigWatchList(cachedGoConfig);
         ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
         GoConfigPluginService configPluginService = new GoConfigPluginService(mock(ConfigRepoExtension.class), new ConfigCache(), configElementImplementationRegistry, cachedGoConfig);
-        preprocessor.init(new GoPartialConfig(new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService), configWatchList, new GoConfigService(goConfigDao, null, new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry), new StubGoCache(new TestTransactionSynchronizationManager()), configRepository, configCache, configElementImplementationRegistry, new InstanceFactory(), cachedGoPartials), cachedGoPartials, serverHealthService));
         repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
         configHelper.addConfigRepo(repoConfig);
     }
@@ -561,7 +547,45 @@ public class GoFileConfigDataSourceTest {
         } catch (Exception e) {
             verifyZeroInteractions(configRepository);
             verifyZeroInteractions(serverHealthService);
-            verify(loader, times(1)).loadConfigHolder(Matchers.any(String.class));
+            verify(loader, times(1)).loadConfigHolder(Matchers.any(String.class), Matchers.any(MagicalGoConfigXmlLoader.Callback.class));
         }
+    }
+
+    @Test
+    public void shouldReturnTrueWhenBothValidAndKnownPartialsListsAreEmpty() {
+        assertThat(dataSource.areKnownPartialsSameAsValidPartials(new ArrayList<PartialConfig>(), new ArrayList<PartialConfig>()), is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenValidPartialsListIsSameAsKnownPartialList() {
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin");
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(repo1, "git_r1"));
+        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(repo2, "svn_r1"));
+        List<PartialConfig> known = asList(partialConfig1, partialConfig2);
+        List<PartialConfig> valid = asList(partialConfig1, partialConfig2);
+        assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenValidPartialsListIsNotTheSameAsKnownPartialList() {
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
+        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r1"));
+        PartialConfig partialConfig3 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r2"));
+        PartialConfig partialConfig4 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r2"));
+        List<PartialConfig> known = asList(partialConfig1, partialConfig2);
+        List<PartialConfig> valid = asList(partialConfig3, partialConfig4);
+        assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenValidPartialsListIsEmptyWhenKnownListIsNot() {
+        ConfigRepoConfig repo1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin");
+        ConfigRepoConfig repo2 = new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin");
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(repo1, "git_r1"));
+        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(repo2, "svn_r1"));
+        List<PartialConfig> known = asList(partialConfig1, partialConfig2);
+        List<PartialConfig> valid = new ArrayList<>();
+        assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(false));
     }
 }

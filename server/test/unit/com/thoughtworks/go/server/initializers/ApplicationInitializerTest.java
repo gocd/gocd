@@ -154,11 +154,6 @@ public class ApplicationInitializerTest {
     }
 
     @Test
-    public void shouldInitializePipelineConfigServiceAfterGoConfigServiceIsInitialized() throws Exception {
-        verifyOrder(goConfigService, pipelineConfigService);
-    }
-
-    @Test
     public void shouldRunConfigCipherUpdaterBeforeInitializationOfOtherConfigRelatedServicesAndDatastores() throws Exception {
         InOrder inOrder = inOrder(configCipherUpdater, configElementImplementationRegistrar, configRepository, goFileConfigDataSource, cachedGoConfig, goConfigService);
         inOrder.verify(configCipherUpdater).migrate();

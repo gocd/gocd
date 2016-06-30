@@ -65,7 +65,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       material_configs = MaterialConfigs.new(git_config);
       material_configs.add(dup_git_material)
 
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)
     end
 
@@ -183,7 +183,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     def existing_material_with_errors
       svn_config       = SvnMaterialConfig.new(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(svn_config);
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)
     end
 
@@ -241,7 +241,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     def existing_material_with_errors
       hg_config        = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(hg_config);
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)
     end
 
@@ -294,7 +294,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     def existing_material_with_errors
       tfs_config       = TfsMaterialConfig.new(GoCipher.new, com.thoughtworks.go.util.command::HgUrlArgument.new(''), '', '', '', '/some-path/')
       material_configs = MaterialConfigs.new(tfs_config);
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.first()
     end
 
@@ -354,7 +354,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     def existing_material_with_errors
       p4_config        = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, false, '/dest/')
       material_configs = MaterialConfigs.new(p4_config);
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.first()
     end
 
@@ -416,7 +416,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       material_configs  = MaterialConfigs.new(dependency_config);
       pipeline = PipelineConfig.new(CaseInsensitiveString.new("p"), material_configs)
       pipeline.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipeline))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), pipeline))
       material_configs.first()
     end
 
@@ -480,7 +480,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     it "should render errors" do
       package_config   = PackageMaterialConfig.new(CaseInsensitiveString.new(''), '', nil)
       material_configs = MaterialConfigs.new(package_config);
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
 
       presenter              = ApiV1::Config::Materials::MaterialRepresenter.new(material_configs.first())
       actual_json            = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -562,7 +562,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     it "should render errors" do
       pluggable_scm_material = PluggableSCMMaterialConfig.new(CaseInsensitiveString.new(''), nil, '/dest', nil)
       material_configs       = MaterialConfigs.new(pluggable_scm_material);
-      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", PipelineConfig.new()))
+      material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
 
       presenter              = ApiV1::Config::Materials::MaterialRepresenter.new(material_configs.first())
       actual_json            = presenter.to_hash(url_builder: UrlBuilder.new)

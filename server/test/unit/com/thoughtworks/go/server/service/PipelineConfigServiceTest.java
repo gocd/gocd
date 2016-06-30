@@ -57,22 +57,19 @@ public class PipelineConfigServiceTest {
         cruiseConfig = new BasicCruiseConfig(configs);
         cruiseConfig.addEnvironment(environment("foo", "in_env"));
         PipelineConfig remotePipeline = PipelineConfigMother.pipelineConfig("remote");
-        remotePipeline.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("url"),"plugin"),"1234"));
-        cruiseConfig.addPipeline("group",remotePipeline);
+        remotePipeline.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin"), "1234"));
+        cruiseConfig.addPipeline("group", remotePipeline);
 
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         pluggableTaskService = mock(PluggableTaskService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
         pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null);
-
     }
 
     @Test
     public void shouldBeAbleToGetTheCanDeleteStatusOfAllPipelines() {
-
         Map<CaseInsensitiveString, CanDeleteResult> pipelineToCanDeleteIt = pipelineConfigService.canDeletePipelines();
 
         assertThat(pipelineToCanDeleteIt.size(), is(4));
@@ -85,7 +82,6 @@ public class PipelineConfigServiceTest {
     @Test
     public void shouldGetPipelineConfigBasedOnName() {
         String pipelineName = "pipeline";
-        PipelineConfigurationCache.getInstance().onConfigChange(cruiseConfig);
         PipelineConfig pipeline = pipelineConfigService.getPipelineConfig(pipelineName);
         assertThat(pipeline, is(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName))));
     }
@@ -106,8 +102,8 @@ public class PipelineConfigServiceTest {
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(cruiseConfig.getGroups()).thenReturn(new PipelineGroups(new BasicPipelineConfigs("group1", null, p1),
-                                                                     new BasicPipelineConfigs("group2", null, p2),
-                                                                     new BasicPipelineConfigs("group3", null, p3)));
+                new BasicPipelineConfigs("group2", null, p2),
+                new BasicPipelineConfigs("group3", null, p3)));
 
         when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group1")).thenReturn(true);
 
@@ -133,7 +129,7 @@ public class PipelineConfigServiceTest {
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(cruiseConfig.getGroups()).thenReturn(new PipelineGroups(new BasicPipelineConfigs("group1", null, p1),
-                                                                     new BasicPipelineConfigs("group2", null, p2)));
+                new BasicPipelineConfigs("group2", null, p2)));
 
         when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group1")).thenReturn(true);
         when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), "group2")).thenReturn(false);

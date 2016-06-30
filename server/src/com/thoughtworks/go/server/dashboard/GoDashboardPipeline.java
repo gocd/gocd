@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.dashboard;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 
@@ -41,5 +42,9 @@ public class GoDashboardPipeline {
 
     public Permissions permissions() {
         return permissions;
+    }
+
+    public CaseInsensitiveString name() {
+        return new CaseInsensitiveString(pipelineModel.getName());
     }
 }

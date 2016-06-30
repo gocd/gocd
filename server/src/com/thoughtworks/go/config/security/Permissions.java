@@ -22,7 +22,7 @@ public class Permissions {
     private final Users viewers;
     private final Users operators;
     private final Users admins;
-    private Users pipelineOperators;
+    private final Users pipelineOperators;
 
     public Permissions(Users viewers, Users operators, Users admins, Users pipelineOperators) {
         this.viewers = viewers;

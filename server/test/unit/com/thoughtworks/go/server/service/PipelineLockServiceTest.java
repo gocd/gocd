@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.server.dao.PipelineStateDao;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener.Event;
 import com.thoughtworks.go.util.LogFixture;
-import org.apache.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -264,7 +264,9 @@ public class PipelineLockServiceTest {
             pipelineLockService.registerListener(listener3);
             pipelineLockService.unlock("pipeline1");
 
-            assertTrue(logFixture.allLogs(), logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"));
+            synchronized (logFixture) {
+                assertTrue(logFixture.getLog(), logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"));
+            }
         }
 
         verify(listener1).lockStatusChanged(Event.unLock("pipeline1"));

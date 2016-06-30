@@ -225,10 +225,6 @@ Go::Application.routes.draw do
         patch :update, on: :member
       end
 
-      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
-        patch :update, on: :member
-      end
-
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {name: PIPELINE_NAME_FORMAT}
         resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: ENVIRONMENT_NAME_CONSTRAINT
@@ -349,8 +345,6 @@ Go::Application.routes.draw do
       end
 
       defaults :format => 'xml' do
-        get 'users.xml' => 'users#index'
-
         # stage api's
         get 'stages/:id.xml' => 'stages#index', as: :stage
 

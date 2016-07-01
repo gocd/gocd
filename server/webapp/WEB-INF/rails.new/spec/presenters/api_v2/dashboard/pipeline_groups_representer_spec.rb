@@ -17,15 +17,23 @@
 require 'spec_helper'
 
 describe ApiV2::Dashboard::PipelineGroupsRepresenter do
+  include GoDashboardPipelineMother
 
-  it 'renders pipeline dashboard  with hal representation' do
-    model       = PipelineGroupModel.new('bla')
-    presenter   = ApiV2::Dashboard::PipelineGroupsRepresenter.new([model])
+  it 'renders pipeline dashboard with hal representation' do
+    pipeline1_in_group1 = dashboard_pipeline("pipeline1", "group1")
+    pipeline2_in_group1 = dashboard_pipeline("pipeline2", "group1")
+    pipeline3_in_group2 = dashboard_pipeline("pipeline2", "group2")
+
+    model       = [pipeline1_in_group1, pipeline2_in_group1, pipeline3_in_group2]
+    presenter   = ApiV2::Dashboard::PipelineGroupsRepresenter.new(model)
+
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/dashboard')
     expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/current/#dashboard')
-    actual_json.fetch(:_embedded)[:pipeline_groups].should == [expected_embedded_pipeline_groups(model)]
+    actual_json.fetch(:_embedded)[:pipeline_groups].should ==
+        [expected_embedded_pipeline_groups({:name => 'group1', :pipelines => [pipeline1_in_group1, pipeline2_in_group1]}),
+         expected_embedded_pipeline_groups({:name => 'group2', :pipelines => [pipeline3_in_group2]})]
   end
 
   private
@@ -33,5 +41,4 @@ describe ApiV2::Dashboard::PipelineGroupsRepresenter do
   def expected_embedded_pipeline_groups(model)
     ApiV2::Dashboard::PipelineGroupRepresenter.new(model).to_hash(url_builder: UrlBuilder.new)
   end
-
 end

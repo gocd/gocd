@@ -18,7 +18,7 @@ module ApiV2
   module Dashboard
     class PipelineGroupsRepresenter < ApiV2::BaseRepresenter
 
-      alias_method :pipeline_groups, :represented
+      alias_method :all_pipelines_across_groups, :represented
 
       link :self do |opts|
         opts[:url_builder].apiv2_show_dashboard_url
@@ -30,6 +30,11 @@ module ApiV2
 
       collection :pipeline_groups, embedded: true, exec_context: :decorator, decorator: PipelineGroupRepresenter
 
+      def pipeline_groups
+        all_pipelines_across_groups
+            .group_by {|pipeline| pipeline.groupName()}
+            .collect {|group_name, pipelines_in_group| {:name => group_name, :pipelines => pipelines_in_group}}
+      end
     end
   end
 end

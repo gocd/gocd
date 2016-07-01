@@ -18,7 +18,7 @@ module ApiV2
   module Dashboard
 
     class PipelineGroupRepresenter < ApiV2::BaseRepresenter
-      alias_method :pipeline_dashboard, :represented
+      alias_method :pipeline_group, :represented
 
       link :self do |opts|
         opts[:url_builder].pipeline_group_config_list_api_url
@@ -28,11 +28,15 @@ module ApiV2
         'https://api.go.cd/current/#pipeline-groups'
       end
 
-      property :getName, as: :name
+      property :name, as: :name, exec_context: :decorator
       collection :pipelines, embedded: true, exec_context: :decorator, decorator: PipelineRepresenter
 
+      def name
+        pipeline_group[:name]
+      end
+
       def pipelines
-        pipeline_dashboard.getPipelineModels()
+        pipeline_group[:pipelines].collect {|pipeline| pipeline.model()}
       end
     end
   end

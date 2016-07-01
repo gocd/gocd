@@ -21,18 +21,19 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.server.dashboard.GoDashboardCache;
+import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /* Understands how to update the GoDashboardCache cache, given some pipeline related information. */
 @Service
-public class GoDashboardCacheUpdateService {
+public class GoDashboardService {
     private final GoDashboardCache cache;
     private final GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
     private final GoConfigService goConfigService;
 
     @Autowired
-    public GoDashboardCacheUpdateService(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigService goConfigService) {
+    public GoDashboardService(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigService goConfigService) {
         this.cache = cache;
         this.dashboardCurrentStateLoader = dashboardCurrentStateLoader;
         this.goConfigService = goConfigService;

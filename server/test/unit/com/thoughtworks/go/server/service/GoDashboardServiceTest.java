@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dashboard.GoDashboardCache;
+import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class GoDashboardCacheUpdateServiceTest {
+public class GoDashboardServiceTest {
     @Mock
     private GoDashboardCache cache;
     @Mock
@@ -43,7 +44,7 @@ public class GoDashboardCacheUpdateServiceTest {
     @Mock
     private GoConfigService goConfigService;
 
-    private GoDashboardCacheUpdateService service;
+    private GoDashboardService service;
 
     private GoConfigMother configMother;
     private CruiseConfig config;
@@ -55,7 +56,7 @@ public class GoDashboardCacheUpdateServiceTest {
         configMother = new GoConfigMother();
         config = configMother.defaultCruiseConfig();
 
-        service = new GoDashboardCacheUpdateService(cache, dashboardCurrentStateLoader, goConfigService);
+        service = new GoDashboardService(cache, dashboardCurrentStateLoader, goConfigService);
     }
 
     @Test

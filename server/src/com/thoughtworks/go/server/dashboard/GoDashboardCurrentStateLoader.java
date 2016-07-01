@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
@@ -27,7 +27,12 @@ import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
+import com.thoughtworks.go.server.service.PipelineLockService;
+import com.thoughtworks.go.server.service.PipelinePauseService;
+import com.thoughtworks.go.server.service.PipelineUnlockApiService;
+import com.thoughtworks.go.server.service.SchedulingCheckerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,7 +46,7 @@ import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceM
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
 
 /* Understands the current state of a pipeline, which is to be shown on the dashboard. */
-@Service
+@Component
 public class GoDashboardCurrentStateLoader {
     private PipelineDao pipelineDao;
     private TriggerMonitor triggerMonitor;

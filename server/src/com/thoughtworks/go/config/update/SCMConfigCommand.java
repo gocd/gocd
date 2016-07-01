@@ -72,4 +72,9 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
         }
         return true;
     }
+
+    @Override
+    public void clearErrors() {
+        BasicCruiseConfig.clearErrors(globalScmConfig);
+    }
 }

@@ -33,6 +33,6 @@ public class GoDashboardPipelineLockStatusChangeHandler {
     }
 
     public void call(PipelineLockStatusChangeListener.Event event) {
-        cacheUpdateService.updateForPipeline(new CaseInsensitiveString(event.pipelineName()));
+        cacheUpdateService.updateCacheForPipeline(new CaseInsensitiveString(event.pipelineName()));
     }
 }

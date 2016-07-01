@@ -47,7 +47,7 @@ public class GoDashboardConfigChangeHandlerTest {
 
         handler.call(config);
 
-        verify(cacheUpdateService).updateForAllPipelinesIn(config);
+        verify(cacheUpdateService).updateCacheForAllPipelinesIn(config);
     }
 
     @Test
@@ -57,6 +57,6 @@ public class GoDashboardConfigChangeHandlerTest {
 
         handler.call(pipelineConfig);
 
-        verify(cacheUpdateService).updateForPipeline(pipelineConfig);
+        verify(cacheUpdateService).updateCacheForPipeline(pipelineConfig);
     }
 }

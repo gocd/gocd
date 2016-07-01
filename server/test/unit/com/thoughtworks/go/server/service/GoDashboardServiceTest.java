@@ -68,7 +68,7 @@ public class GoDashboardServiceTest {
         when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupConfig);
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
-        service.updateForPipeline(new CaseInsensitiveString("pipeline1"));
+        service.updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
 
         verify(cache).put(pipeline);
     }
@@ -82,7 +82,7 @@ public class GoDashboardServiceTest {
         when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupConfig);
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
-        service.updateForPipeline(pipelineConfig);
+        service.updateCacheForPipeline(pipelineConfig);
 
         verify(cache).put(pipeline);
     }
@@ -97,7 +97,7 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipeline> pipelines = asList(pipeline1, pipeline2);
         when(dashboardCurrentStateLoader.allPipelines(config)).thenReturn(pipelines);
 
-        service.updateForAllPipelinesIn(config);
+        service.updateCacheForAllPipelinesIn(config);
 
         verify(cache).replaceAllEntriesInCacheWith(pipelines);
     }

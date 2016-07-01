@@ -44,6 +44,6 @@ public class GoDashboardPipelinePauseStatusChangeHandlerTest {
     public void shouldHandlePipelinePauseStatusChangeByRefreshingPipelineInCache() throws Exception {
         handler.call(PipelinePauseChangeListener.Event.pause("pipeline1", Username.valueOf("user1")));
 
-        verify(cacheUpdateService).updateForPipeline(new CaseInsensitiveString("pipeline1"));
+        verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
     }
 }

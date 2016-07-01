@@ -43,6 +43,6 @@ public class GoDashboardPipelineLockStatusChangeHandlerTest {
     public void shouldHandlePipelineLockStatusChangeByRefreshingPipelineInCache() throws Exception {
         handler.call(PipelineLockStatusChangeListener.Event.lock("pipeline1"));
 
-        verify(cacheUpdateService).updateForPipeline(new CaseInsensitiveString("pipeline1"));
+        verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
     }
 }

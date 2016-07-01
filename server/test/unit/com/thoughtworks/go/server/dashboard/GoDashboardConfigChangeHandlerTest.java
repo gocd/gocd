@@ -21,8 +21,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.server.service.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -37,42 +36,32 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardConfigChangeHandlerTest {
     @Mock
-    private GoDashboardCache cache;
-    @Mock
-    private GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
-    @Mock
-    private GoConfigService goConfigService;
+    private GoDashboardCacheUpdateService cacheUpdateService;
 
     private GoDashboardConfigChangeHandler handler;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        handler = new GoDashboardConfigChangeHandler(cache, dashboardCurrentStateLoader, goConfigService);
+        handler = new GoDashboardConfigChangeHandler(cacheUpdateService);
     }
 
     @Test
     public void shouldReplaceAllEntriesInCacheWithNewEntriesWhenTheWholeConfigHasChanged() throws Exception {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2");
-        List<GoDashboardPipeline> newPipelines = asList(pipeline("pipeline1"), pipeline("pipeline2"));
-        when(dashboardCurrentStateLoader.allPipelines(config)).thenReturn(newPipelines);
 
         handler.call(config);
 
-        verify(cache).replaceAllEntriesInCacheWith(newPipelines);
+        verify(cacheUpdateService).updateForAllPipelinesIn(config);
     }
 
     @Test
     public void shouldReplaceOnlyTheExistingPipelineEntryInCacheWithANewEntryWhenOnlyPipelineConfigHasChanged() throws Exception {
-        BasicCruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2");
-        PipelineConfig pipelineConfig = config.getPipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-
-        GoDashboardPipeline newPipeline = pipeline("pipeline1");
-        when(goConfigService.findGroupByPipeline(pipelineConfig.name())).thenReturn(config.getGroups().first());
-        when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, config.getGroups().first())).thenReturn(newPipeline);
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
 
         handler.call(pipelineConfig);
 
-        verify(cache).put(newPipeline);
+        verify(cacheUpdateService).updateForPipeline(pipelineConfig);
     }
 }

@@ -16,55 +16,33 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.server.service.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardStageStatusChangeHandlerTest {
     @Mock
-    private GoDashboardCache cache;
-    @Mock
-    private GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
-    @Mock
-    private GoConfigService goConfigService;
+    GoDashboardCacheUpdateService cacheUpdateService;
 
-    private BasicCruiseConfig config;
-    private GoConfigMother configMother;
     private GoDashboardStageStatusChangeHandler handler;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        configMother = new GoConfigMother();
-        config = configMother.defaultCruiseConfig();
 
-        handler = new GoDashboardStageStatusChangeHandler(cache, dashboardCurrentStateLoader, goConfigService);
+        handler = new GoDashboardStageStatusChangeHandler(cacheUpdateService);
     }
 
     @Test
     public void shouldRefreshPipelineInCacheWhenStageStatusChanges() throws Exception {
-        PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
-        PipelineConfigs groupConfig = config.findGroup("group1");
-        GoDashboardPipeline pipeline = pipeline("pipeline1", "group1");
-
-        when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupConfig);
-        when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
-
         handler.call(StageMother.scheduledStage("pipeline1", 1, "stage1", 2, "job1"));
 
-        verify(cache).put(pipeline);
+        verify(cacheUpdateService).updateForPipeline(new CaseInsensitiveString("pipeline1"));
     }
 }

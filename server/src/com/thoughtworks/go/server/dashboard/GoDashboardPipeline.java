@@ -48,6 +48,10 @@ public class GoDashboardPipeline {
         return new CaseInsensitiveString(pipelineModel.getName());
     }
 
+    public boolean canBeViewedBy(String userName) {
+        return permissions.viewers().contains(userName);
+    }
+
     @Override
     public String toString() {
         return String.format("GoDashboardPipeline{name='%s',groupName='%s'}", name(), groupName);

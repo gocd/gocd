@@ -19,11 +19,14 @@ module ApiV2
     include ApplicationHelper
 
     def dashboard
-      # TODO: What happens when there is no cookie!
-      pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
-      pipeline_groups     = pipeline_history_service.allActivePipelineInstances(current_user, pipeline_selections)
-      presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
+      name_of_current_user = CaseInsensitiveString.str(current_user.getUsername())
 
+      pipelines_across_groups = go_dashboard_service.allPipelinesForDashboard()
+      pipelines_viewable_by_user = pipelines_across_groups.select do |pipeline|
+        pipeline.canBeViewedBy(name_of_current_user)
+      end
+
+      presenters              = Dashboard::PipelineGroupsRepresenter.new(pipelines_viewable_by_user)
       render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
     end
 

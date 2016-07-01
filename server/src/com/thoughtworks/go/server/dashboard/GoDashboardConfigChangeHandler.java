@@ -33,10 +33,10 @@ public class GoDashboardConfigChangeHandler {
     }
 
     public void call(PipelineConfig pipelineConfig) {
-        cacheUpdateService.updateForPipeline(pipelineConfig);
+        cacheUpdateService.updateCacheForPipeline(pipelineConfig);
     }
 
     public void call(CruiseConfig config) {
-        cacheUpdateService.updateForAllPipelinesIn(config);
+        cacheUpdateService.updateCacheForAllPipelinesIn(config);
     }
 }

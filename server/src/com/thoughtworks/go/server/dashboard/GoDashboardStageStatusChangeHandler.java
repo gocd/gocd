@@ -33,6 +33,6 @@ public class GoDashboardStageStatusChangeHandler {
     }
 
     public void call(Stage stage) {
-        cacheUpdateService.updateForPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()));
+        cacheUpdateService.updateCacheForPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()));
     }
 }

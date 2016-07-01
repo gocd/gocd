@@ -25,7 +25,7 @@ import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/* Understands how to update the GoDashboardCache cache, given some pipeline related information. */
+/* Understands how to interact with the GoDashboardCache cache. */
 @Service
 public class GoDashboardService {
     private final GoDashboardCache cache;
@@ -39,18 +39,18 @@ public class GoDashboardService {
         this.goConfigService = goConfigService;
     }
 
-    public void updateForPipeline(CaseInsensitiveString pipelineName) {
+    public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
         PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
         PipelineConfig pipelineConfig = group.findBy(pipelineName);
 
         updateCache(group, pipelineConfig);
     }
 
-    public void updateForPipeline(PipelineConfig pipelineConfig) {
+    public void updateCacheForPipeline(PipelineConfig pipelineConfig) {
         updateCache(goConfigService.findGroupByPipeline(pipelineConfig.name()), pipelineConfig);
     }
 
-    public void updateForAllPipelinesIn(CruiseConfig config) {
+    public void updateCacheForAllPipelinesIn(CruiseConfig config) {
         cache.replaceAllEntriesInCacheWith(dashboardCurrentStateLoader.allPipelines(config));
     }
 

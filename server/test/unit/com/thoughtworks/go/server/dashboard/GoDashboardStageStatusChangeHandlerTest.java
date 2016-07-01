@@ -43,6 +43,6 @@ public class GoDashboardStageStatusChangeHandlerTest {
     public void shouldRefreshPipelineInCacheWhenStageStatusChanges() throws Exception {
         handler.call(StageMother.scheduledStage("pipeline1", 1, "stage1", 2, "job1"));
 
-        verify(cacheUpdateService).updateForPipeline(new CaseInsensitiveString("pipeline1"));
+        verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
     }
 }

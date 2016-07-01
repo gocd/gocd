@@ -17,25 +17,20 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.users.Everyone;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused;
+import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
 public class GoDashboardCacheTest {
-
     private GoDashboardCache cache;
 
     @Before
@@ -126,18 +121,6 @@ public class GoDashboardCacheTest {
         assertThat(allPipelinesAfterPut.get(0), is(sameInstance(pipeline1)));
         assertThat(allPipelinesAfterPut.get(1), is(sameInstance(newPipeline2)));
         assertThat(allPipelinesAfterPut.get(2), is(sameInstance(pipeline3)));
-    }
-
-    private GoDashboardPipeline pipeline(String pipelineName) {
-        return pipeline(pipelineName, "group1");
-    }
-
-    private GoDashboardPipeline pipeline(String pipelineName, String groupName) {
-        return new GoDashboardPipeline(new PipelineModel(pipelineName, false, false, notPaused()), somePermissions(), groupName);
-    }
-
-    private Permissions somePermissions() {
-        return new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE);
     }
 
     private CaseInsensitiveString cis(String value) {

@@ -20,10 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import com.thoughtworks.go.server.service.GoDashboardCurrentStateLoader;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
@@ -32,7 +29,7 @@ import org.mockito.Mock;
 
 import java.util.List;
 
-import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused;
+import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,10 +74,5 @@ public class GoDashboardConfigChangeHandlerTest {
         handler.call(pipelineConfig);
 
         verify(cache).put(newPipeline);
-    }
-
-    private GoDashboardPipeline pipeline(String pipelineName) {
-        Permissions permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE);
-        return new GoDashboardPipeline(new PipelineModel(pipelineName, false, false, notPaused()), permissions, "group1");
     }
 }

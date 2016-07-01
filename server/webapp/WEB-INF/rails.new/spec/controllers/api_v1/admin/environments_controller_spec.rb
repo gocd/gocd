@@ -159,7 +159,9 @@ describe ApiV1::Admin::EnvironmentsController do
     describe :security do
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:patch, :update)
+        controller.should_receive(:get_etag_for_environment).and_return('some-digest')
+        controller.request.env['HTTP_IF_MATCH'] = '"some-digest"'
+        expect(controller).to allow_action(:patch, :update, name: @environment_name)
       end
 
       it 'should disallow anonymous users, with security enabled' do
@@ -210,7 +212,7 @@ describe ApiV1::Admin::EnvironmentsController do
     describe :security do
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:delete, :destroy)
+        expect(controller).to allow_action(:delete, :destroy, name: @environment_name)
       end
 
       it 'should disallow anonymous users, with security enabled' do

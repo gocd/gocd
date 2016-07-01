@@ -39,7 +39,7 @@ public class AdminRole implements Admin {
     }
 
     public boolean isSameAs(Admin admin, List<Role> memberRoles) {
-        if (this.name == null) {
+        if (this.name == null || memberRoles == null) {
             return false;
         }
         for (Role memberRole : memberRoles) {
@@ -76,11 +76,7 @@ public class AdminRole implements Admin {
 
         AdminRole adminRole = (AdminRole) o;
 
-        if (!name.equals(adminRole.name)) {
-            return false;
-        }
-
-        return true;
+        return name.equals(adminRole.name);
     }
 
     public int hashCode() {

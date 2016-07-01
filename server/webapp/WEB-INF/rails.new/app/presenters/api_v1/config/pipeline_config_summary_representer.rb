@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'http://api.go.cd/#pipeline_config'
+        'http://api.go.cd/#pipeline-config'
       end
 
       link :find do |opts|

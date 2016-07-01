@@ -63,6 +63,14 @@ public class AdminsConfigTest {
     }
 
     @Test
+    public void shouldReturnFalseIfAUserBelongsToAnAdminRoleNoRolesGiven() {
+        CaseInsensitiveString username = new CaseInsensitiveString("USER1");
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(username));
+        // this is how isAdmin() is used in TemplatesConfig
+        assertThat(adminsConfig.isAdmin(new AdminUser(username), null), is(false));
+    }
+
+    @Test
     public void shouldUnderstandIfAUserIsAnAdminThroughRole() {
         AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("Role1")));
         assertThat(adminsConfig.isAdminRole(Arrays.asList(new Role(new CaseInsensitiveString("first")), new Role(new CaseInsensitiveString("role1")))), is(true));

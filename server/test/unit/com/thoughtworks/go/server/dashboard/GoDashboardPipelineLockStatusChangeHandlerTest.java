@@ -18,23 +18,31 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
-import com.thoughtworks.go.server.service.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
-/* Understands what needs to be done to keep the dashboard cache updated, when a pipeline is locked or unlocked. */
-@Component
-public class GoDashboardPipelineLockStatusChangeHandler {
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class GoDashboardPipelineLockStatusChangeHandlerTest {
+    @Mock
     private GoDashboardCacheUpdateService cacheUpdateService;
 
-    @Autowired
-    public GoDashboardPipelineLockStatusChangeHandler(GoDashboardCacheUpdateService cacheUpdateService) {
-        this.cacheUpdateService = cacheUpdateService;
+    private GoDashboardPipelineLockStatusChangeHandler handler;
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+
+        handler = new GoDashboardPipelineLockStatusChangeHandler(cacheUpdateService);
     }
 
-    public void call(PipelineLockStatusChangeListener.Event event) {
-        cacheUpdateService.updateForPipeline(new CaseInsensitiveString(event.pipelineName()));
+    @Test
+    public void shouldHandlePipelineLockStatusChangeByRefreshingPipelineInCache() throws Exception {
+        handler.call(PipelineLockStatusChangeListener.Event.lock("pipeline1"));
+
+        verify(cacheUpdateService).updateForPipeline(new CaseInsensitiveString("pipeline1"));
     }
 }

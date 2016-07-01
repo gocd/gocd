@@ -54,6 +54,10 @@ public interface PipelineLockStatusChangeListener {
         public String toString() {
             return ToStringBuilder.reflectionToString(this);
         }
+
+        public String pipelineName() {
+            return pipelineName;
+        }
     }
 
     enum EventType {LOCKED, UNLOCKED}

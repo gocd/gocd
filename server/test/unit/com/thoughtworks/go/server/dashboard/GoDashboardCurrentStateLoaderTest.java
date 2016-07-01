@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
@@ -31,8 +31,13 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
+import com.thoughtworks.go.server.service.PipelineLockService;
+import com.thoughtworks.go.server.service.PipelinePauseService;
+import com.thoughtworks.go.server.service.PipelineUnlockApiService;
+import com.thoughtworks.go.server.service.SchedulingCheckerService;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.junit.Before;

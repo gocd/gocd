@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
+import com.thoughtworks.go.server.service.GoDashboardService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,7 +28,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardStageStatusChangeHandlerTest {
     @Mock
-    GoDashboardCacheUpdateService cacheUpdateService;
+    GoDashboardService cacheUpdateService;
 
     private GoDashboardStageStatusChangeHandler handler;
 

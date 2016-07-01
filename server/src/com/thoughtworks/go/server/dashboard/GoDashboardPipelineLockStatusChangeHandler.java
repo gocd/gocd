@@ -18,19 +18,17 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
-import com.thoughtworks.go.server.service.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
+import com.thoughtworks.go.server.service.GoDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /* Understands what needs to be done to keep the dashboard cache updated, when a pipeline is locked or unlocked. */
 @Component
 public class GoDashboardPipelineLockStatusChangeHandler {
-    private GoDashboardCacheUpdateService cacheUpdateService;
+    private GoDashboardService cacheUpdateService;
 
     @Autowired
-    public GoDashboardPipelineLockStatusChangeHandler(GoDashboardCacheUpdateService cacheUpdateService) {
+    public GoDashboardPipelineLockStatusChangeHandler(GoDashboardService cacheUpdateService) {
         this.cacheUpdateService = cacheUpdateService;
     }
 

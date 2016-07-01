@@ -17,26 +17,21 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
+import com.thoughtworks.go.server.service.GoDashboardService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.List;
-
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
-import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardConfigChangeHandlerTest {
     @Mock
-    private GoDashboardCacheUpdateService cacheUpdateService;
+    private GoDashboardService cacheUpdateService;
 
     private GoDashboardConfigChangeHandler handler;
 

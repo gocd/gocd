@@ -18,17 +18,17 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
+import com.thoughtworks.go.server.service.GoDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /* Understands what needs to be done to keep the dashboard cache updated, when a stage status changes. */
 @Component
 public class GoDashboardStageStatusChangeHandler {
-    private GoDashboardCacheUpdateService cacheUpdateService;
+    private GoDashboardService cacheUpdateService;
 
     @Autowired
-    public GoDashboardStageStatusChangeHandler(GoDashboardCacheUpdateService cacheUpdateService) {
+    public GoDashboardStageStatusChangeHandler(GoDashboardService cacheUpdateService) {
         this.cacheUpdateService = cacheUpdateService;
     }
 

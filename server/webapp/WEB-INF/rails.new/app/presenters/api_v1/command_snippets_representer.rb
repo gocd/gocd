@@ -21,7 +21,7 @@ module ApiV1
     end
 
     link :doc do
-      'http://api.go.cd/#command_snippets'
+      'https://api.go.cd/current/#command_snippets'
     end
 
     collection :command_snippets, embedded: true, exec_context: :decorator, decorator: CommandSnippetRepresenter

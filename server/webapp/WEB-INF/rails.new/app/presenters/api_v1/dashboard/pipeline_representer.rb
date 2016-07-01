@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do
-        'http://api.go.cd/current/#pipelines'
+        'https://api.go.cd/current/#pipelines'
       end
 
       link :settings_path do |opts|

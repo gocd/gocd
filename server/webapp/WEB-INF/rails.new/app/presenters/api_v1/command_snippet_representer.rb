@@ -22,7 +22,7 @@ module ApiV1
     end
 
     link :doc do |opts|
-      'http://api.go.cd/#command_snippets'
+      'https://api.go.cd/current/#command_snippets'
     end
 
     property :getName, as: :name

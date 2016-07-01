@@ -26,7 +26,7 @@ module ApiV1
       end
 
       link :doc do
-        'http://api.go.cd/#scms'
+        'https://api.go.cd/current/#scms'
       end
       property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
       property :id

@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do
-        'http://api.go.cd/#plugin_info'
+        'https://api.go.cd/current/#plugin_info'
       end
 
       collection :plugin_infos,

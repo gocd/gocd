@@ -74,6 +74,8 @@ describe ApiV1::Admin::PipelinesController do
     describe :update do
       it 'should allow anyone, with security disabled' do
         disable_security
+        controller.stub(:check_for_stale_request).and_return(nil)
+        controller.stub(:check_for_attempted_pipeline_rename).and_return(nil)
         expect(controller).to allow_action(:put, :update)
       end
 
@@ -85,6 +87,8 @@ describe ApiV1::Admin::PipelinesController do
 
       it 'should allow admin users, with security enabled' do
         login_as_pipeline_group_admin_user(@group)
+        controller.stub(:check_for_stale_request).and_return(nil)
+        controller.stub(:check_for_attempted_pipeline_rename).and_return(nil)
         expect(controller).to allow_action(:put, :update)
       end
     end
@@ -110,6 +114,9 @@ describe ApiV1::Admin::PipelinesController do
     end
 
     describe :destroy do
+      before(:each) do
+        @pipeline_config_service.stub(:getPipelineConfig).with(anything()).and_return(PipelineConfig.new)
+      end
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:delete, :destroy)
@@ -130,6 +137,7 @@ describe ApiV1::Admin::PipelinesController do
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
+        @security_service.stub(:isUserAdminOfGroup).and_return(true)
         expect(controller).to allow_action(:delete, :destroy)
       end
     end

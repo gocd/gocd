@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,15 @@
 
 package com.thoughtworks.go.presentation.pipelinehistory;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.StageContainer;
 
 import java.util.Date;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 
 public class StageInstanceModels extends BaseCollection<StageInstanceModel> implements StageContainer {
 
@@ -99,5 +104,15 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
 
     public boolean isLatestStage(StageInstanceModel stage) {
         return latestStage().equals(stage);
+    }
+
+    public void updateFutureStagesFrom(PipelineConfig pipelineConfig) {
+        StageInstanceModel lastStage = this.last();
+
+        StageConfig nextStage = lastStage == null ? pipelineConfig.getFirstStageConfig() : pipelineConfig.nextStage(new CaseInsensitiveString(lastStage.getName()));
+        while (nextStage != null && !this.hasStage(str(nextStage.name()))) {
+            this.addFutureStage(str(nextStage.name()), !nextStage.requiresApproval());
+            nextStage = pipelineConfig.nextStage(nextStage.name());
+        }
     }
 }

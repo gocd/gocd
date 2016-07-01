@@ -145,18 +145,8 @@ public class GoDashboardCurrentStateLoader {
         return createPipelineInstanceModels(createEmptyPipelineInstanceModel(pipelineName, createWithEmptyModifications(), new StageInstanceModels()));
     }
 
-    /* TODO Same as: com.thoughtworks.go.server.service.PipelineHistoryService.appendFollowingStagesFromConfig. Move to PipelineConfig? */
-    private PipelineInstanceModel populateStagesWhichHaventRunFromConfig(PipelineInstanceModel instanceModel, PipelineConfig pipelineConfig) {
-        StageInstanceModels stageHistory = instanceModel.getStageHistory();
-        StageInstanceModel lastStage = stageHistory.last();
-
-        StageConfig nextStage = lastStage == null ? pipelineConfig.getFirstStageConfig() : pipelineConfig.nextStage(new CaseInsensitiveString(lastStage.getName()));
-        while (nextStage != null && !stageHistory.hasStage(str(nextStage.name()))) {
-            stageHistory.addFutureStage(str(nextStage.name()), !nextStage.requiresApproval());
-            nextStage = pipelineConfig.nextStage(nextStage.name());
-        }
-
-        return instanceModel;
+    private void populateStagesWhichHaventRunFromConfig(PipelineInstanceModel instanceModel, PipelineConfig pipelineConfig) {
+        instanceModel.getStageHistory().updateFutureStagesFrom(pipelineConfig);
     }
 
     /* TODO: This belongs in PipelineModel, not in PIM */

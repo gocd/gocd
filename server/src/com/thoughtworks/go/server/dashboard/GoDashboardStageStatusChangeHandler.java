@@ -17,33 +17,22 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.server.service.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /* Understands what needs to be done to keep the dashboard cache updated, when a stage status changes. */
 @Component
 public class GoDashboardStageStatusChangeHandler {
-    private final GoDashboardCache cache;
-    private final GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
-    private GoConfigService goConfigService;
+    private GoDashboardCacheUpdateService cacheUpdateService;
 
     @Autowired
-    public GoDashboardStageStatusChangeHandler(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigService goConfigService) {
-        this.cache = cache;
-        this.dashboardCurrentStateLoader = dashboardCurrentStateLoader;
-        this.goConfigService = goConfigService;
+    public GoDashboardStageStatusChangeHandler(GoDashboardCacheUpdateService cacheUpdateService) {
+        this.cacheUpdateService = cacheUpdateService;
     }
 
     public void call(Stage stage) {
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString(stage.getIdentifier().getPipelineName());
-        PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
-        PipelineConfig pipelineConfig = group.findBy(pipelineName);
-
-        cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, group));
+        cacheUpdateService.updateForPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()));
     }
 }

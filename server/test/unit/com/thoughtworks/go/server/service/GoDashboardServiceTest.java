@@ -32,6 +32,8 @@ import java.util.List;
 
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static java.util.Arrays.asList;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -100,5 +102,16 @@ public class GoDashboardServiceTest {
         service.updateCacheForAllPipelinesIn(config);
 
         verify(cache).replaceAllEntriesInCacheWith(pipelines);
+    }
+
+    @Test
+    public void shouldRetrieveTheLatestKnownSetOfPipelinesFromTheCache() throws Exception {
+        List<GoDashboardPipeline> cachedPipelines = asList(pipeline("pipeline1"), pipeline("pipeline2"));
+
+        when(cache.allEntriesInOrder()).thenReturn(cachedPipelines);
+
+        List<GoDashboardPipeline> currentPipelines = service.allPipelinesForDashboard();
+
+        assertThat(currentPipelines, is(cachedPipelines));
     }
 }

@@ -206,6 +206,7 @@ module JavaImports
   java_import com.thoughtworks.go.domain.packagerepository.PackageRepository unless defined? PackageRepository
   java_import com.thoughtworks.go.domain.packagerepository.PackageDefinition unless defined? PackageDefinition
   java_import com.thoughtworks.go.domain.packagerepository.PackageRepositories unless defined? PackageRepositories
+  java_import com.thoughtworks.go.domain.scm.SCM unless defined? SCM
   java_import com.thoughtworks.go.domain.config.Configuration unless defined? Configuration
   java_import com.thoughtworks.go.domain.config.ConfigurationProperty unless defined? ConfigurationProperty
   java_import com.thoughtworks.go.domain.packagerepository.Packages unless defined? Packages

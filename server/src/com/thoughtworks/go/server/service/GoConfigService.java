@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -969,6 +970,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private boolean isOriginLocal(ConfigOrigin origin) {
         // when null we assume that it comes from file or UI
         return origin == null || origin.isLocal();
+    }
+
+    public ArrayList<SCM> getSCMs() {
+        return cruiseConfig().getSCMs();
     }
 
     public abstract class XmlPartialSaver<T> {

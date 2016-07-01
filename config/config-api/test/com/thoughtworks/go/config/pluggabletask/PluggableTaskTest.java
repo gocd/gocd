@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
+import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
@@ -294,6 +295,8 @@ public class PluggableTaskTest {
         TaskConfig taskConfig = new TaskConfig();
         Configuration configuration = new Configuration();
         ConfigurationPropertyBuilder builder = mock(ConfigurationPropertyBuilder.class);
+        Property property = new Property("key");
+        property.with(Property.SECURE, false);
 
         PluggableTaskConfigStore.store().setPreferenceFor(pluginConfiguration.getId(), taskPreference);
         TaskConfigProperty taskConfigProperty = taskConfig.addProperty("key");
@@ -304,8 +307,7 @@ public class PluggableTaskTest {
         pluggableTask.addConfigurations(configurationProperties);
 
         assertThat(configuration.size(), is(2));
-        verify(builder).create("key", "value", "encValue", taskConfigProperty);
-        verify(builder).create(null, null, null, null);
+        verify(builder).create("key", "value", "encValue", false);
     }
 
     @Test
@@ -320,7 +322,6 @@ public class PluggableTaskTest {
         pluggableTask.addConfigurations(configurationProperties);
 
         assertThat(configuration.size(), is(1));
-        verify(builder).create("key", "value", "encValue", null);
     }
 
     @Test

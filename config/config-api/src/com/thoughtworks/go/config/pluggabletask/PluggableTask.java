@@ -121,16 +121,26 @@ public class PluggableTask extends AbstractTask {
             String encryptedValue = property.getEncryptedValue() != null ? property.getEncryptedValue().getValue() : null;
             String configValue = property.getConfigurationValue() != null ? property.getConfigValue() : null;
 
-            configuration.add(this.builder.create(configKey, configValue, encryptedValue, propertyFor(configKey)));
+        TaskPreference taskPreference = taskPreference();
+            if(isValidPluginConfiguration(configKey, taskPreference)) {
+                configuration.add(this.builder.create(configKey, configValue, encryptedValue, pluginConfigurationFor(configKey, taskPreference).getOption(Property.SECURE)));
+            } else
+            {
+                configuration.add(property);
+            }
         }
     }
 
-    private Property propertyFor(String key) {
-        TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
-        if(taskPreference != null) {
-            return taskPreference.getConfig().get(key);
-        }
-        return null;
+    private boolean isValidPluginConfiguration(String configKey, TaskPreference taskPreference) {
+        return taskPreference != null && pluginConfigurationFor(configKey, taskPreference) != null;
+    }
+
+    private Property pluginConfigurationFor(String configKey, TaskPreference taskPreference) {
+        return taskPreference.getConfig().get(configKey);
+    }
+
+    private TaskPreference taskPreference() {
+        return PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
     }
 
     @Override
@@ -168,7 +178,7 @@ public class PluggableTask extends AbstractTask {
     public List<TaskProperty> getPropertiesForDisplay() {
         ArrayList<TaskProperty> taskProperties = new ArrayList<>();
         if (PluggableTaskConfigStore.store().hasPreferenceFor(pluginConfiguration.getId())) {
-            TaskPreference preference = PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
+            TaskPreference preference = taskPreference();
             List<? extends Property> propertyDefinitions = preference.getConfig().list();
             for (Property propertyDefinition : propertyDefinitions) {
                 ConfigurationProperty configuredProperty = configuration.getProperty(propertyDefinition.getKey());

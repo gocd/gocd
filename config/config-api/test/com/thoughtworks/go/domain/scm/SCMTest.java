@@ -386,6 +386,19 @@ public class SCMTest {
     }
 
     @Test
+    public void shouldAddConfigurationPropertiesForAnyPlugin() {
+        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("key", "value", "encValue"));
+        Configuration configuration = new Configuration();
+        SCM scm = SCMMother.create("id", "name", "does_not_exist", "1.1", configuration);
+
+        assertThat(configuration.size(), is(0));
+
+        scm.addConfigurations(configurationProperties);
+
+        assertThat(configuration.size(), is(1));
+    }
+
+    @Test
     public void shouldGetSCMTypeCorrectly() {
         SCM scm = SCMMother.create("scm-id");
         assertThat(scm.getSCMType(), is("pluggable_material_plugin"));

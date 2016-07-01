@@ -15,7 +15,7 @@ public class ConfigurationPropertyBuilderTest {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", key);
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", true);
 
         assertThat(property.getConfigKeyName(), is("key"));
         assertThat(property.getEncryptedValue().getValue(), is("enc_value"));
@@ -27,7 +27,7 @@ public class ConfigurationPropertyBuilderTest {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, key);
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, true);
 
         assertThat(property.getConfigKeyName(), is("key"));
         assertThat(property.getEncryptedValue().getValue(), is(new GoCipher().encrypt("value")));
@@ -39,7 +39,7 @@ public class ConfigurationPropertyBuilderTest {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, null, key);
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, null, true);
 
         assertThat(property.getConfigKeyName(), is("key"));
         assertNull(property.getEncryptedValue());
@@ -51,7 +51,7 @@ public class ConfigurationPropertyBuilderTest {
         Property key = new Property("key");
         key.with(Property.SECURE, true);
 
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", key);
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", true);
 
         assertThat(property.errors().get("configurationValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
         assertThat(property.errors().get("encryptedValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
@@ -64,7 +64,7 @@ public class ConfigurationPropertyBuilderTest {
         Property key = new Property("key");
         key.with(Property.SECURE, false);
 
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", key);
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", false);
 
         assertThat(property.errors().get("configurationValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
         assertThat(property.errors().get("encryptedValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
@@ -77,7 +77,7 @@ public class ConfigurationPropertyBuilderTest {
         Property key = new Property("key");
         key.with(Property.SECURE, false);
 
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", key);
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", false);
 
         assertThat(property.errors().get("encryptedValue").get(0), is("encrypted_value cannot be specified to a unsecured property."));
         assertThat(property.getEncryptedValue().getValue(), is("enc_value"));
@@ -88,18 +88,9 @@ public class ConfigurationPropertyBuilderTest {
         Property key = new Property("key");
         key.with(Property.SECURE, false);
 
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, key);
+        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, false);
 
         assertThat(property.getConfigurationValue().getValue(), is("value"));
         assertNull(property.getEncryptedValue());
     }
-
-    @Test
-    public void shouldCreateInAbsenceOfProperty() {
-        ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", null);
-
-        assertThat(property.getConfigurationValue().getValue(), is("value"));
-        assertThat(property.getEncryptedValue().getValue(), is("enc_value"));
-    }
-
 }

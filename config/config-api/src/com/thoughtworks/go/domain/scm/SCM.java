@@ -20,6 +20,7 @@ package com.thoughtworks.go.domain.scm;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -56,6 +57,7 @@ public class SCM implements Serializable, Validatable {
     public static final String ERRORS_KEY = "errors";
 
     private ConfigErrors errors = new ConfigErrors();
+    private ConfigurationPropertyBuilder builder;
 
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
@@ -77,6 +79,7 @@ public class SCM implements Serializable, Validatable {
     private Configuration configuration = new Configuration();
 
     public SCM() {
+        this.builder = new ConfigurationPropertyBuilder();
     }
 
     public SCM(String id, PluginConfiguration pluginConfiguration, Configuration configuration) {
@@ -84,6 +87,7 @@ public class SCM implements Serializable, Validatable {
         this.pluginConfiguration = pluginConfiguration;
         this.configuration = configuration;
     }
+
 
     public String getId() {
         return id;
@@ -130,6 +134,31 @@ public class SCM implements Serializable, Validatable {
         this.configuration = configuration;
     }
 
+    public void addConfigurations(List<ConfigurationProperty> configurations) {
+        for (ConfigurationProperty property : configurations) {
+            String configKey = property.getConfigurationKey() != null ? property.getConfigKeyName() : null;
+            String encryptedValue = property.getEncryptedValue() != null ? property.getEncryptedValue().getValue() : null;
+            String configValue = property.getConfigurationValue() != null ? property.getConfigValue() : null;
+
+            SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(getPluginId());
+            if (isValidPluginConfiguration(configKey, scmConfigurations)) {
+                configuration.add(this.builder.create(configKey, configValue, encryptedValue, scmConfigurationFor(configKey, scmConfigurations).getOption(SCMConfiguration.SECURE)));
+            }
+            else {
+                configuration.add(property);
+            }
+
+        }
+    }
+
+    private boolean isValidPluginConfiguration(String configKey, SCMConfigurations scmConfigurations) {
+        return doesPluginExist() && scmConfigurationFor(configKey, scmConfigurations) != null;
+    }
+
+    private SCMConfiguration scmConfigurationFor(String configKey, SCMConfigurations scmConfigurations) {
+        return scmConfigurations.get(configKey);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -173,6 +202,7 @@ public class SCM implements Serializable, Validatable {
         } else if (new NameTypeValidator().isNameInvalid(name)) {
             errors().add(NAME, NameTypeValidator.errorMessage("SCM", name));
         }
+        configuration.validateTree();
         configuration.validateUniqueness(String.format("SCM '%s'", name));
     }
 
@@ -294,6 +324,10 @@ public class SCM implements Serializable, Validatable {
 
     public void clearEmptyConfigurations() {
         configuration.clearEmptyConfigurations();
+    }
+
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
     }
 
     @PostConstruct

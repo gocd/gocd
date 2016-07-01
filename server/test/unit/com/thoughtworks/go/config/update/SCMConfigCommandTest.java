@@ -83,6 +83,19 @@ public class SCMConfigCommandTest {
     }
 
     @Test
+    public void shouldClearErrorsFromCruiseConfigAfterValidation() {
+        cruiseConfig.setSCMs(scms);
+
+        CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
+
+        assertThat(command.isValid(cruiseConfig), is(false));
+
+        command.clearErrors();
+        assertTrue(cruiseConfig.errors().isEmpty());
+
+    }
+
+    @Test
     public void shouldValidateSCMName() {
         scm.setName("+!@");
         cruiseConfig.setSCMs(scms);

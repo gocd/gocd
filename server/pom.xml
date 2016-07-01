@@ -39,7 +39,7 @@
         <db.password></db.password>
         <db.name>cruise</db.name>
         <db.port></db.port>
-        <jetty.version>9.2.11.v20150529</jetty.version>
+        <jetty.version>9.2.17.v20160517</jetty.version>
     </properties>
 
     <dependencies>

@@ -14,15 +14,18 @@ public class CRHgMaterialTest extends CRBaseTest<CRHgMaterial> {
     private final CRHgMaterial simpleHg;
     private final CRHgMaterial customHg;
     private final CRHgMaterial invalidHgNoUrl;
+    private final CRHgMaterial invalidHgWhitelistAndIgnores;
 
     public CRHgMaterialTest()
     {
         simpleHg = new CRHgMaterial();
         simpleHg.setUrl("myHgRepo");
 
-        customHg = new CRHgMaterial("hgMaterial1","dir1",false,"repos/myhg","externals","tools");
+        customHg = new CRHgMaterial("hgMaterial1","dir1",false,"repos/myhg",false,"externals","tools");
 
         invalidHgNoUrl = new CRHgMaterial();
+        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1","dir1",false,"repos/myhg",false,"externals","tools");
+        invalidHgWhitelistAndIgnores.setWhitelistNoCheck("src","tests");
     }
 
     @Override
@@ -34,6 +37,7 @@ public class CRHgMaterialTest extends CRBaseTest<CRHgMaterial> {
     @Override
     public void addBadExamples(Map<String, CRHgMaterial> examples) {
         examples.put("invalidHgNoUrl",invalidHgNoUrl);
+        examples.put("invalidHgWhitelistAndIgnores",invalidHgWhitelistAndIgnores);
     }
 
     @Test

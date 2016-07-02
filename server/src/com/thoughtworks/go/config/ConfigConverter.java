@@ -283,7 +283,7 @@ public class ConfigConverter {
 
         return new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
                 scmConfig, crPluggableScmMaterial.getDirectory(),
-                toFilter(crPluggableScmMaterial.getFilterIgnores()));
+                toFilter(crPluggableScmMaterial.getFilterList()));
     }
 
     private SCMs getSCMs() {
@@ -298,9 +298,10 @@ public class ConfigConverter {
             String gitBranch = git.getBranch();
             if (StringUtils.isBlank(gitBranch))
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
-            return new GitMaterialConfig(new UrlArgument(git.getUrl()), gitBranch,
-                    null, git.isAutoUpdate(), filter, false, crScmMaterial.getDirectory(),
-                    toMaterialName(materialName), git.shallowClone());
+            GitMaterialConfig gitConfig = new GitMaterialConfig(git.getUrl(), gitBranch, git.shallowClone());
+            setCommonMaterialMembers(gitConfig, crScmMaterial);
+            setCommonScmMaterialMembers(gitConfig, git);
+            return gitConfig;
         } else if (crScmMaterial instanceof CRHgMaterial) {
             CRHgMaterial hg = (CRHgMaterial) crScmMaterial;
             return new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
@@ -361,10 +362,11 @@ public class ConfigConverter {
         scmMaterialConfig.setFolder(crScmMaterial.getDirectory());
         scmMaterialConfig.setAutoUpdate(crScmMaterial.isAutoUpdate());
         scmMaterialConfig.setFilter(toFilter(crScmMaterial));
+        scmMaterialConfig.setInvertFilter(crScmMaterial.isWhitelist());
     }
 
     private Filter toFilter(CRScmMaterial crScmMaterial) {
-        List<String> filterList = crScmMaterial.getFilterIgnores();
+        List<String> filterList = crScmMaterial.getFilterList();
         return toFilter(filterList);
     }
 

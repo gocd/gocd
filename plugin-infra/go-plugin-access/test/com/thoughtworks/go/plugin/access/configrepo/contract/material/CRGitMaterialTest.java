@@ -17,6 +17,8 @@ public class CRGitMaterialTest extends CRBaseTest<CRGitMaterial> {
     private final CRGitMaterial simpleGitBranch;
     private final CRGitMaterial veryCustomGit;
     private final CRGitMaterial invalidNoUrl;
+    private final CRGitMaterial whitelistGit;
+    private final CRGitMaterial invalidBothWhiteListAndIgnore;
 
     public CRGitMaterialTest()
     {
@@ -27,9 +29,12 @@ public class CRGitMaterialTest extends CRBaseTest<CRGitMaterial> {
         simpleGitBranch.setUrl(url2);
         simpleGitBranch.setBranch("develop");
 
-        veryCustomGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12","externals","tools");
+        veryCustomGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false,"externals","tools");
+        whitelistGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",true,"externals","tools");
 
-        invalidNoUrl = new CRGitMaterial("gitMaterial1","dir1",false,true,null,"feature12","externals","tools");
+        invalidNoUrl = new CRGitMaterial("gitMaterial1","dir1",false,true,null,"feature12",false,"externals","tools");
+        invalidBothWhiteListAndIgnore = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false,"externals","tools");
+        invalidBothWhiteListAndIgnore.setWhitelistNoCheck("src","tests");
     }
 
     @Override
@@ -37,13 +42,14 @@ public class CRGitMaterialTest extends CRBaseTest<CRGitMaterial> {
         examples.put("simpleGit",simpleGit);
         examples.put("simpleGitBranch",simpleGitBranch);
         examples.put("veryCustomGit",veryCustomGit);
+        examples.put("whitelistGit",whitelistGit);
     }
 
     @Override
     public void addBadExamples(Map<String, CRGitMaterial> examples) {
         examples.put("invalidNoUrl",invalidNoUrl);
+        examples.put("invalidBothWhiteListAndIgnore",invalidBothWhiteListAndIgnore);
     }
-
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials()

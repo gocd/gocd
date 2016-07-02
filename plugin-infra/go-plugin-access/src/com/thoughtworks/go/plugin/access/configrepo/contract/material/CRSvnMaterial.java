@@ -9,10 +9,10 @@ import java.util.List;
 public class CRSvnMaterial extends CRScmMaterial {
 
 
-    public static CRSvnMaterial withEncryptedPassword(String name, String destination, boolean autoUpdate, List<String> filter,
+    public static CRSvnMaterial withEncryptedPassword(String name, String destination, boolean autoUpdate,boolean whitelist, List<String> filter,
                                                       String url, String userName, String encryptedPassword, boolean checkExternals)
     {
-        CRSvnMaterial crSvnMaterial = new CRSvnMaterial(name, destination, autoUpdate, filter,
+        CRSvnMaterial crSvnMaterial = new CRSvnMaterial(name, destination, autoUpdate,whitelist, filter,
                 url, userName, null, checkExternals);
         crSvnMaterial.setEncryptedPassword(encryptedPassword);
         return crSvnMaterial;
@@ -32,24 +32,24 @@ public class CRSvnMaterial extends CRScmMaterial {
     }
 
     public CRSvnMaterial(String materialName, String folder, boolean autoUpdate,String url,
-                         boolean checkExternals,String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, filters);
+                         boolean checkExternals,boolean whitelist,String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
         this.url = url;
         this.check_externals = checkExternals;
     }
 
     public CRSvnMaterial(String materialName, String folder, boolean autoUpdate,String url,String userName,String password,
-                         boolean checkExternals,String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, filters);
+                         boolean checkExternals,boolean whitelist,String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
         this.url = url;
         this.username = userName;
         this.password = password;
         this.check_externals = checkExternals;
     }
 
-    public CRSvnMaterial(String name, String folder, boolean autoUpdate, List<String> filter,
+    public CRSvnMaterial(String name, String folder, boolean autoUpdate,boolean whitelist, List<String> filter,
                          String url, String userName, String password, boolean checkExternals) {
-        super(TYPE_NAME, name, folder, autoUpdate, filter);
+        super(TYPE_NAME, name, folder, autoUpdate,whitelist, filter);
         this.url = url;
         this.username = userName;
         this.password = password;
@@ -164,6 +164,7 @@ public class CRSvnMaterial extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
+        getCommonErrors(errors,location);
         errors.checkMissing(location,"url",url);
         validatePassword(errors,location);
     }

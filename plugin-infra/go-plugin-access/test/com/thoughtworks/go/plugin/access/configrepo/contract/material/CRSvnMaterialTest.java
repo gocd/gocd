@@ -28,7 +28,7 @@ public class CRSvnMaterialTest extends CRBaseTest<CRSvnMaterial> {
         simpleSvnAuth.setPassword("pa$sw0rd");
 
         customSvn = new CRSvnMaterial("svnMaterial1","destDir1", false,
-                "http://svn","user1","pass1",true,"tools","lib");
+                "http://svn","user1","pass1",true,false,"tools","lib");
 
         invalidNoUrl = new CRSvnMaterial();
         invalidPasswordAndEncyptedPasswordSet = new CRSvnMaterial();

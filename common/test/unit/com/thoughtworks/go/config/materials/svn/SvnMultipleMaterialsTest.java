@@ -217,6 +217,15 @@ public class SvnMultipleMaterialsTest {
         assertThat(new File(pipelineDir, "part1").exists(), is(true));
     }
 
+    @Test
+    public void shouldIgnoreDestinationFolderWhenServerSide() throws Exception {
+        SvnMaterial material1 = repo.createMaterial("multiple-materials/trunk/part1", "part1");
+
+        MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
+        materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext(true));
+
+        assertThat(new File(pipelineDir, "part1").exists(), is(false));
+    }
 
     @Test
     public void shouldFindModificationForEachMaterial() throws Exception {

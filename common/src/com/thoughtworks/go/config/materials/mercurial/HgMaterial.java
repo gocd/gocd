@@ -125,7 +125,8 @@ public class HgMaterial extends ScmMaterial {
         Revision revision = revisionContext.getLatestRevision();
         try {
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url.forDisplay()));
-            hg(workingdir(baseDir), outputStreamConsumer).updateTo(revision, outputStreamConsumer);
+            File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
+            hg(workingDir, outputStreamConsumer).updateTo(revision, outputStreamConsumer);
             outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);

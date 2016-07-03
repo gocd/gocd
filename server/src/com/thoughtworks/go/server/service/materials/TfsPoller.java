@@ -38,6 +38,6 @@ public class TfsPoller implements MaterialPoller<TfsMaterial> {
 
     @Override
     public void checkout(TfsMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        material.checkout(baseDir,revision, execCtx);
+        material.checkout(baseDir, revision, execCtx);
     }
 }

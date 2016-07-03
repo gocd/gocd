@@ -111,7 +111,7 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
 
     private void updateConfigurationFromCheckout(File folder, Revision revision, Material material) {
         MaterialPoller poller = this.materialService.getPollerImplementation(material);
-        poller.checkout(material,folder,revision,this.subprocessExecutionContext);
+        poller.checkout(material,folder, revision,this.subprocessExecutionContext);
         this.repoConfigDataSource.onCheckoutComplete(material.config(),folder, revision.getRevision());
     }
 

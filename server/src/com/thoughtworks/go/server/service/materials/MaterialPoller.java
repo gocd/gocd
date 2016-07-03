@@ -30,6 +30,9 @@ public interface MaterialPoller<T extends Material> {
 
     List<Modification> modificationsSince(T material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx);
 
+    /**
+     * Performs a server-side checkout of this material. Ignores destination directory, always checkouts directly to flyweight folder.
+     */
     void checkout(T material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx);
 }
 

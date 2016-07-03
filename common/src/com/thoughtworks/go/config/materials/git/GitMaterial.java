@@ -148,7 +148,8 @@ public class GitMaterial extends ScmMaterial {
         Revision revision = revisionContext.getLatestRevision();
         try {
             outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
-            GitCommand git = git(outputStreamConsumer, workingdir(baseDir), revisionContext.numberOfModifications() + 1, execCtx);
+            File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
+            GitCommand git = git(outputStreamConsumer, workingDir, revisionContext.numberOfModifications() + 1, execCtx);
             git.fetch(outputStreamConsumer);
             unshallowIfNeeded(git, outputStreamConsumer, revisionContext.getOldestRevision(), baseDir);
             git.resetWorkingDir(outputStreamConsumer, revision);

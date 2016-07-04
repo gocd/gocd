@@ -1,9 +1,6 @@
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.UpdateConfigCommand;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -38,6 +35,11 @@ public class PipelineConfigsUpdateCommand implements EntityConfigUpdateCommand<P
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void clearErrors() {
+        BasicCruiseConfig.clearErrors(updatedConfig);
     }
 
     @Override

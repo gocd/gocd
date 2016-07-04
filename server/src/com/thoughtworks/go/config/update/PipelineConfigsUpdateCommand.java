@@ -30,7 +30,7 @@ public class PipelineConfigsUpdateCommand implements EntityConfigUpdateCommand<P
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         updatedConfig = preprocessedConfig.findGroup(groupName);
-        updatedConfig.validate(ConfigSaveValidationContext.forChain(preprocessedConfig));
+        updatedConfig.validate(null);
         if(updatedConfig.errors().isEmpty()) {
             return true;
         }
@@ -39,7 +39,7 @@ public class PipelineConfigsUpdateCommand implements EntityConfigUpdateCommand<P
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(updatedConfig);
+
     }
 
     @Override

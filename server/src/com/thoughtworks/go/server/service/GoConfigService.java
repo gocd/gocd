@@ -1159,4 +1159,9 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return registry;
     }
 
+    public boolean canEditPipelineGroup(String groupName, Username username, HttpLocalizedOperationResult result) {
+        CruiseConfig cruiseConfig = getCurrentConfig();
+        return (isValidGroup(groupName, cruiseConfig, result) && isAdminOfGroup(groupName, username, result));
+    }
+
 }

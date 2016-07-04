@@ -20,12 +20,21 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
-import java.util.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Random;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class SystemUtil {
     private static final Logger LOG = Logger.getLogger(SystemUtil.class);
-    private static List<NetworkInterface> localInterfaces;
+    private static final List<NetworkInterface> localInterfaces;
     private static String hostName;
 
     static {
@@ -40,7 +49,7 @@ public class SystemUtil {
 
     public static boolean isWindows() {
         String osName = System.getProperty("os.name");
-        return osName.indexOf("Windows") > -1;
+        return osName.contains("Windows");
     }
 
     public static String getLocalhostName() {
@@ -55,22 +64,18 @@ public class SystemUtil {
         if (hostName != null) {
             return hostName;
         }
-
         try {
             hostName = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             hostName = "unknown-host-" + Math.abs(new Random(System.currentTimeMillis()).nextInt()) % 1000;
             LOG.warn("Unable to resolve hostname: " + e.getMessage() + ". Using: " + hostName);
         }
-
         return hostName;
     }
 
     public static String getFirstLocalNonLoopbackIpAddress() {
         SortedSet<String> addresses = new TreeSet<>();
-        Iterator<NetworkInterface> iterator = localInterfaces.iterator();
-        while (iterator.hasNext()) {
-            NetworkInterface networkInterface = iterator.next();
+        for (NetworkInterface networkInterface : localInterfaces) {
             Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses();
             while (inetAddressEnumeration.hasMoreElements()) {
                 InetAddress address = inetAddressEnumeration.nextElement();
@@ -98,23 +103,7 @@ public class SystemUtil {
         }
     }
 
-    public static boolean isLocalPortOccupied(int portNum) {
-        Socket s = new Socket();
-        try {
-            s.connect(new InetSocketAddress(portNum));
-            return s.isConnected();
-        } catch (Exception e) {
-            return false;
-        } finally {
-            try {
-                s.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public static boolean isLocalhost(String hostname, String ipAddress) {
+    static boolean isLocalhost(String hostname, String ipAddress) {
         try {
             return isLocalhostWithLoopbackIpAddress(hostname, ipAddress) || isLocalhostWithNonLoopbackIpAddress(ipAddress);
         } catch (Exception e) {
@@ -127,9 +116,7 @@ public class SystemUtil {
     }
 
     private static boolean isLocalhostWithNonLoopbackIpAddress(String ipAddress) throws SocketException {
-        Iterator<NetworkInterface> iterator = localInterfaces.iterator();
-        while (iterator.hasNext()) {
-            NetworkInterface networkInterface = iterator.next();
+        for (NetworkInterface networkInterface : localInterfaces) {
             Enumeration<InetAddress> inetAddressEnumeration = networkInterface.getInetAddresses();
             while (inetAddressEnumeration.hasMoreElements()) {
                 InetAddress address = inetAddressEnumeration.nextElement();
@@ -141,7 +128,7 @@ public class SystemUtil {
         return false;
     }
 
-    public static boolean isLocalhostWithLoopbackIpAddress(String forAddress, final String ipAddress) throws Exception {
+    private static boolean isLocalhostWithLoopbackIpAddress(String forAddress, final String ipAddress) throws Exception {
         InetAddress[] allMatchingAddresses;
         try {
             allMatchingAddresses = InetAddress.getAllByName(forAddress);

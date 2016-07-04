@@ -1,6 +1,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -22,6 +23,7 @@ public class PipelineConfigsUpdateCommandTest {
     String groupName;
     PipelineConfigsUpdateCommand pipelineConfigsUpdateCommand;
     CruiseConfig cruiseConfig;
+    ConfigErrors configErrors;
 
     @Before
     public void setUp() throws Exception {
@@ -32,6 +34,7 @@ public class PipelineConfigsUpdateCommandTest {
         groupName = "groupName";
         pipelineConfigsUpdateCommand = new PipelineConfigsUpdateCommand(goConfigService, updateAuthorizationCommand, result, currentUser, groupName);
         cruiseConfig = mock(CruiseConfig.class);
+        configErrors = new ConfigErrors();
     }
 
     @Test
@@ -50,6 +53,7 @@ public class PipelineConfigsUpdateCommandTest {
     public void shouldReturnTrueIfConfigIsValid() throws Exception {
         PipelineConfigs pipelineConfigs = mock(PipelineConfigs.class);
         when(cruiseConfig.findGroup(groupName)).thenReturn(pipelineConfigs);
+        when(pipelineConfigs.errors()).thenReturn(configErrors);
         assertThat(true, is(pipelineConfigsUpdateCommand.isValid(cruiseConfig)));
     }
 
@@ -57,7 +61,17 @@ public class PipelineConfigsUpdateCommandTest {
     public void shouldReturnUpdatedPipelineConfigs() throws Exception {
         PipelineConfigs pipelineConfigs = mock(PipelineConfigs.class);
         when(cruiseConfig.findGroup(groupName)).thenReturn(pipelineConfigs);
+        when(pipelineConfigs.errors()).thenReturn(configErrors);
         pipelineConfigsUpdateCommand.isValid(cruiseConfig);
         assertThat(pipelineConfigs, is(pipelineConfigsUpdateCommand.getPreprocessedEntityConfig()));
+    }
+
+    @Test
+    public void shouldReturnFalseIfConfigIsInvalid() throws Exception {
+        PipelineConfigs pipelineConfigs = mock(PipelineConfigs.class);
+        when(cruiseConfig.findGroup(groupName)).thenReturn(pipelineConfigs);
+        configErrors.add(groupName, "error");
+        when(pipelineConfigs.errors()).thenReturn(configErrors);
+        assertThat(false, is(pipelineConfigsUpdateCommand.isValid(cruiseConfig)));
     }
 }

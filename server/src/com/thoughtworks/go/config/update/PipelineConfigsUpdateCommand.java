@@ -1,5 +1,6 @@
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.UpdateConfigCommand;
@@ -7,7 +8,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.validation.ConfigUpdateValidator;
 
 public class PipelineConfigsUpdateCommand implements EntityConfigUpdateCommand<PipelineConfigs> {
     private final GoConfigService goConfigService;
@@ -33,7 +33,11 @@ public class PipelineConfigsUpdateCommand implements EntityConfigUpdateCommand<P
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         updatedConfig = preprocessedConfig.findGroup(groupName);
-        return true;
+        updatedConfig.validate(ConfigSaveValidationContext.forChain(preprocessedConfig));
+        if(updatedConfig.errors().isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     @Override

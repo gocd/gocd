@@ -58,8 +58,6 @@
                         <%= link_to(l.string("CHANGES"), build_cause_path(:pipeline_name => active_pipeline_in_pipeline.getName(), :pipeline_counter => active_pipeline_in_pipeline.getCounter()), :id => scope[:show_changes_id], :class => "show_panel submit_small dashboard_build_cause_button") -%>
                     </span>
 
-                    <script type="text/javascript">
-                    </script>
                 <% end -%>
                 <%= render :partial=> 'pipelines/pipeline_instance_details.html', :locals => {:scope =>{:active_pipeline_in_pipeline => active_pipeline_in_pipeline}} %>
             </div>

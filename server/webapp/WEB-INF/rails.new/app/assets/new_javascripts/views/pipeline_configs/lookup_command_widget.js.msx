@@ -53,7 +53,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
 
           return m.request({
             method:        'GET',
-            url:           Routes.apiv1AdminCommandSnippetsPath({prefix: term}),
+            url:           Routes.apiv1AdminInternalCommandSnippetsPath({prefix: term}),
             config:        xhrConfig,
             unwrapSuccess: unwrap,
             type:          LookupCommandWidget.Command.Snippet

@@ -175,7 +175,7 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
 
       it('should get snippets from admin_command_snippets url', function () {
         expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('/go/api/admin/command_snippets?prefix=rake')
+        expect(requestArgs.url).toBe('/go/api/admin/internal/command_snippets?prefix=rake')
       });
 
       it('should post required headers', function () {

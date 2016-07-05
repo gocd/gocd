@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe ApiV1::Admin::CommandSnippetsController do
+describe ApiV1::Admin::Internal::CommandSnippetsController do
   describe :index do
     describe :authorization do
       it 'should allow all with security disabled' do

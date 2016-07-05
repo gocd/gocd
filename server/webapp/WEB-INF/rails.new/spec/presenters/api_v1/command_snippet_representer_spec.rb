@@ -23,8 +23,6 @@ describe ApiV1::CommandSnippetRepresenter do
     presenter   = ApiV1::CommandSnippetRepresenter.new(snippet)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_command_snippet_url(relative_path: snippet.getRelativePath()))
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#command_snippets')
     actual_json.delete(:_links)
 
     expect(actual_json).to eq({ name:          snippet.getName(),

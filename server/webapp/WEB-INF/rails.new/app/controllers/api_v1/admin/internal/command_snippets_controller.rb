@@ -16,21 +16,15 @@
 
 module ApiV1
   module Admin
-    class CommandSnippetsController < ApiV1::BaseController
-      before_action :check_admin_user_and_401
+    module Internal
+      class CommandSnippetsController < ApiV1::BaseController
+        before_action :check_admin_user_and_401
 
-      def index
-        command_snippets = command_repository_service.lookupCommand(params[:prefix])
+        def index
+          command_snippets = command_repository_service.lookupCommand(params[:prefix])
 
-        render DEFAULT_FORMAT => CommandSnippetsRepresenter.new(command_snippets.to_a).to_hash(url_builder: self, prefix: params[:prefix])
-      end
-
-      def show
-        command_snippet = command_repository_service.getCommandSnippetByRelativePath(params[:relative_path])
-
-        raise RecordNotFound if command_snippet.nil?
-
-        render DEFAULT_FORMAT => CommandSnippetRepresenter.new(command_snippet).to_hash(url_builder: self)
+          render DEFAULT_FORMAT => CommandSnippetsRepresenter.new(command_snippets.to_a).to_hash(url_builder: self, prefix: params[:prefix])
+        end
       end
     end
   end

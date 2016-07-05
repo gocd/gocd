@@ -18,7 +18,6 @@ JsRoutes.setup do |config|
   config.include    = [
     /^api_internal/,
     /^apiv1/,
-    /^apiv2/,
-    /^apiv1_admin_command_snippets/,
+    /^apiv2/
   ]
 end

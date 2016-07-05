@@ -174,7 +174,7 @@ public class AgentServiceTest {
 
         doThrow(new RuntimeException()).when(agentConfigService).deleteAgents(username, agentInstance);
 
-        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+        when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(agentInstance);
 
         AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
                 mock(GoConfigService.class), securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class));

@@ -57,7 +57,6 @@ public class SCM implements Serializable, Validatable {
     public static final String ERRORS_KEY = "errors";
 
     private ConfigErrors errors = new ConfigErrors();
-    private ConfigurationPropertyBuilder builder;
 
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
@@ -79,7 +78,6 @@ public class SCM implements Serializable, Validatable {
     private Configuration configuration = new Configuration();
 
     public SCM() {
-        this.builder = new ConfigurationPropertyBuilder();
     }
 
     public SCM(String id, PluginConfiguration pluginConfiguration, Configuration configuration) {
@@ -135,6 +133,7 @@ public class SCM implements Serializable, Validatable {
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurations) {
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurations) {
             String configKey = property.getConfigurationKey() != null ? property.getConfigKeyName() : null;
             String encryptedValue = property.getEncryptedValue() != null ? property.getEncryptedValue().getValue() : null;
@@ -142,7 +141,7 @@ public class SCM implements Serializable, Validatable {
 
             SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(getPluginId());
             if (isValidPluginConfiguration(configKey, scmConfigurations)) {
-                configuration.add(this.builder.create(configKey, configValue, encryptedValue, scmConfigurationFor(configKey, scmConfigurations).getOption(SCMConfiguration.SECURE)));
+                configuration.add(builder.create(configKey, configValue, encryptedValue, scmConfigurationFor(configKey, scmConfigurations).getOption(SCMConfiguration.SECURE)));
             }
             else {
                 configuration.add(property);

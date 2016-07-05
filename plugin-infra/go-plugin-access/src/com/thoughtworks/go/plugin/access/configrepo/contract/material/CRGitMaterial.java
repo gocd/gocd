@@ -18,14 +18,14 @@ public class CRGitMaterial extends CRScmMaterial {
         type = TYPE_NAME;
     }
 
-    public CRGitMaterial(String materialName, String folder, boolean autoUpdate,Boolean shallow_clone,String url,String branch, String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, filters);
+    public CRGitMaterial(String materialName, String folder, boolean autoUpdate,Boolean shallow_clone,String url,String branch,boolean whitelist, String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
         this.url = url;
         this.branch = branch;
         this.shallow_clone = shallow_clone;
     }
-    public CRGitMaterial(String name, String folder, boolean autoUpdate,Boolean shallow_clone, List<String> filter,String url,String branch) {
-        super(name, folder, autoUpdate, filter);
+    public CRGitMaterial(String name, String folder, boolean autoUpdate,Boolean shallow_clone, List<String> filter,String url,String branch,boolean whitelist) {
+        super(name, folder, autoUpdate,whitelist, filter);
         this.url = url;
         this.branch = branch;
         this.shallow_clone = shallow_clone;
@@ -93,6 +93,7 @@ public class CRGitMaterial extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        getCommonErrors(errors,location);
         errors.checkMissing(location,"url",url);
     }
 

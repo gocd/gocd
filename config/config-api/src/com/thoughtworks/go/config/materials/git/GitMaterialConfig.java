@@ -41,8 +41,6 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     private String submoduleFolder;
 
-
-
     public static final String TYPE = "GitMaterial";
     public static final String URL = "url";
     public static final String BRANCH = "branch";
@@ -69,7 +67,6 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         this(url, branch);
         setShallowClone(shallowClone);
     }
-
 
     public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());

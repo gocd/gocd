@@ -25,7 +25,7 @@ public class CRP4MaterialTest extends CRBaseTest<CRP4Material> {
         p4simple = new CRP4Material("10.18.3.102:1666",exampleView);
 
         p4custom= new CRP4Material(
-                "p4materialName", "dir1", false,"10.18.3.102:1666",exampleView,"user1","pass1", false,"lib","tools");
+                "p4materialName", "dir1", false,"10.18.3.102:1666",exampleView,"user1","pass1", false,false,"lib","tools");
 
         invalidP4NoView = new CRP4Material("10.18.3.102:1666",null);
         invalidP4NoServer =  new CRP4Material(null,exampleView);

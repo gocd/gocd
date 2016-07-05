@@ -22,13 +22,13 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
         super(TYPE_NAME,materialName);
         this.scm_id = scmId;
         this.destination = folder;
-        this.filter = new CRFilter(Arrays.asList(filters));
+        this.filter = new CRFilter(Arrays.asList(filters),false/*not supported in 16.6*/);
     }
     public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter) {
         super(TYPE_NAME,name);
         this.scm_id = scmId;
         this.destination = directory;
-        this.filter = new CRFilter(filter);
+        this.filter = new CRFilter(filter,false);
     }
 
     @Override
@@ -79,10 +79,10 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
         this.scm_id = scmId;
     }
 
-    public List<String> getFilterIgnores() {
+    public List<String> getFilterList() {
         if(filter == null)
             return null;
-        return filter.getIgnore();
+        return filter.getList();
     }
 
     public void setFilterIgnore(List<String> filter) {

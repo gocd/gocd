@@ -16,13 +16,13 @@ public class CRHgMaterial extends CRScmMaterial {
         type = TYPE_NAME;
     }
 
-    public CRHgMaterial(String materialName, String folder, boolean autoUpdate,String url, String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, filters);
+    public CRHgMaterial(String materialName, String folder, boolean autoUpdate,String url, boolean whitelist,String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
         this.url = url;
     }
 
-    public CRHgMaterial(String name, String folder, boolean autoUpdate, List<String> filter, String url) {
-        super(TYPE_NAME, name, folder, autoUpdate, filter);
+    public CRHgMaterial(String name, String folder, boolean autoUpdate,boolean whitelist, List<String> filter, String url) {
+        super(TYPE_NAME, name, folder, autoUpdate, whitelist, filter);
         this.url = url;
     }
 
@@ -70,6 +70,7 @@ public class CRHgMaterial extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        getCommonErrors(errors,location);
         errors.checkMissing(location,"url",url);
     }
 

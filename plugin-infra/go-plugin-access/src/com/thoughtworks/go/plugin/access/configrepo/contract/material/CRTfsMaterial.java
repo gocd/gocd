@@ -8,16 +8,16 @@ import java.util.List;
 public class CRTfsMaterial extends CRScmMaterial {
 
     public static CRTfsMaterial withEncryptedPassword(String name, String directory, boolean autoUpdate,
-                                                      List<String> filter, String url, String domain, String username,
+                                                      boolean whitelist,List<String> filter, String url, String domain, String username,
                                                       String encrypted_password, String project) {
-        return new CRTfsMaterial(name,directory,autoUpdate,filter,
+        return new CRTfsMaterial(name,directory,autoUpdate,whitelist,filter,
                 url,username,null,encrypted_password,project,domain);
     }
 
     public static CRTfsMaterial withPlainPassword(String name, String directory, boolean autoUpdate,
-                                               List<String> filter, String url, String domain, String username,
+                                                  boolean whitelist,List<String> filter, String url, String domain, String username,
                                                String password, String project) {
-        return new CRTfsMaterial(name,directory,autoUpdate,filter,
+        return new CRTfsMaterial(name,directory,autoUpdate,whitelist,filter,
                 url,username,password,null,project,domain);
     }
 
@@ -31,11 +31,11 @@ public class CRTfsMaterial extends CRScmMaterial {
     private String project;
 
     private CRTfsMaterial(
-            String name, String folder, boolean autoUpdate, List<String> filter,
+            String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter,
             String url,String userName,
             String password,String encryptedPassword,
             String projectPath,String domain) {
-        super(name, folder, autoUpdate, filter);
+        super(name, folder, autoUpdate, whitelist, filter);
         this.url = url;
         this.username = userName;
         this.domain = domain;
@@ -59,8 +59,8 @@ public class CRTfsMaterial extends CRScmMaterial {
 
     public CRTfsMaterial(String materialName, String folder, boolean autoUpdate,String url,String userName,
                          String password,String encryptedPassword,
-                         String projectPath,String domain,String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, filters);
+                         String projectPath,String domain,boolean whitelist,String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
         this.url = url;
         this.username = userName;
         this.password = password;
@@ -186,6 +186,7 @@ public class CRTfsMaterial extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
+        getCommonErrors(errors,location);
         errors.checkMissing(location,"url",url);
         errors.checkMissing(location,"username",username);
         errors.checkMissing(location,"project",project);

@@ -23,7 +23,7 @@ public class CRTfsMaterialTest extends CRBaseTest<CRTfsMaterial> {
         simpleTfs = new CRTfsMaterial("url1","user1","projectDir");
 
         customTfs = new CRTfsMaterial("tfsMaterialName", "dir1", false,"url3","user4",
-            "pass",null,"projectDir","example.com","tools","externals");
+            "pass",null,"projectDir","example.com",false,"tools","externals");
 
         invalidTfsNoUrl = new CRTfsMaterial(null,"user1","projectDir");
         invalidTfsNoUser = new CRTfsMaterial("url1",null,"projectDir");

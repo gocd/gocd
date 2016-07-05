@@ -1,5 +1,6 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.material;
 
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
@@ -13,35 +14,47 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
 
     public CRScmMaterial() {
     }
-    public CRScmMaterial(String type,String materialName,String folder,boolean autoUpdate, String... filters)
+    public CRScmMaterial(String type,String materialName,String folder,boolean autoUpdate,boolean whitelist, String... filters)
     {
         super(type,materialName);
         this.destination = folder;
-        this.filter = new CRFilter(Arrays.asList(filters));
+        this.filter = new CRFilter(Arrays.asList(filters),whitelist);
         this.auto_update = autoUpdate;
     }
 
-    public CRScmMaterial(String type,String materialName, String folder, boolean autoUpdate, List<String> filter) {
+    public CRScmMaterial(String type,String materialName, String folder, boolean autoUpdate,boolean whitelist, List<String> filter) {
         super(type,materialName);
         this.destination = folder;
-        this.filter = new CRFilter(filter);
+        this.filter = new CRFilter(filter,whitelist);
         this.auto_update = autoUpdate;
     }
-    public CRScmMaterial(String name,String folder,boolean autoUpdate,List<String> filter) {
+    public CRScmMaterial(String name,String folder,boolean autoUpdate,boolean whitelist,List<String> filter) {
         super(name);
         this.destination = folder;
-        this.filter = new CRFilter(filter);
+        this.filter = new CRFilter(filter,whitelist);
         this.auto_update = autoUpdate;
     }
 
-    public List<String> getFilterIgnores() {
+    public List<String> getFilterList() {
         if(filter == null)
             return null;
-        return filter.getIgnore();
+        return filter.getList();
     }
 
-    public void setFilterIgnore(List<String> filter) {
-        this.filter.setIgnore(filter);
+    public boolean isWhitelist() {
+        if(this.filter != null)
+            return this.filter.isWhitelist();
+        return false;
+    }
+
+    protected void getCommonErrors(ErrorCollection errors, String parentLocation) {
+        String location = getLocation(parentLocation);
+        if(this.filter != null)
+            this.filter.getErrors(errors,location);
+    }
+
+    public void setWhitelistNoCheck(String... filters) { //for tests
+        this.filter.setWhitelistNoCheck(Arrays.asList(filters));
     }
 
     public boolean isAutoUpdate() {
@@ -95,5 +108,4 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
         result = 31 * result + (filter != null ? filter.hashCode() : 0);
         return result;
     }
-
 }

@@ -11,13 +11,14 @@ public class CRP4Material extends CRScmMaterial {
     public static final String TYPE_NAME = "p4";
 
     public static CRP4Material withPlainPassword(
-            String name, String folder, boolean autoUpdate, List<String> filter,
+            String name, String folder, boolean autoUpdate,boolean whitelist, List<String> filter,
             String serverAndPort, String userName, String password, boolean useTickets,String view)
     {
         return new CRP4Material(
                 name,
                 folder,
                 autoUpdate,
+                whitelist,
                 filter,
                 serverAndPort,
                 userName,
@@ -27,13 +28,14 @@ public class CRP4Material extends CRScmMaterial {
                 view);
     }
     public static CRP4Material withEncryptedPassword(
-            String name, String folder, boolean autoUpdate, List<String> filter,
+            String name, String folder, boolean autoUpdate,boolean whitelist, List<String> filter,
             String serverAndPort, String userName, String encryptedPassword, boolean useTickets,String view)
     {
         return new CRP4Material(
                 name,
                 folder,
                 autoUpdate,
+                whitelist,
                 filter,
                 serverAndPort,
                 userName,
@@ -43,9 +45,9 @@ public class CRP4Material extends CRScmMaterial {
                 view);
     }
     
-    private CRP4Material(String name, String folder, boolean autoUpdate, List<String> filter,
+    private CRP4Material(String name, String folder, boolean autoUpdate,boolean whitelist, List<String> filter,
                          String serverAndPort, String userName, String password,String encryptedPassword, boolean useTickets,String view) {
-        super(TYPE_NAME,name, folder, autoUpdate, filter);
+        super(TYPE_NAME,name, folder, autoUpdate,whitelist, filter);
         this.port = serverAndPort;
         this.username = userName;
         this.password = password;
@@ -73,8 +75,8 @@ public class CRP4Material extends CRScmMaterial {
     }
 
     public CRP4Material(String materialName, String folder, boolean autoUpdate,String serverAndPort,String view,String userName,String password,
-                        boolean useTickets,String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, filters);
+                        boolean useTickets,boolean whitelist,String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
         this.port = serverAndPort;
         this.username = userName;
         this.password = password;
@@ -202,6 +204,7 @@ public class CRP4Material extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        getCommonErrors(errors,location);
         errors.checkMissing(location,"port",port);
         errors.checkMissing(location,"view",view);
         validatePassword(errors,parentLocation);

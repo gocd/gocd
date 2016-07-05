@@ -107,7 +107,7 @@ public class ConfigConverterTest {
         crStage = new CRStage("stageName",true,true,true, approval,environmentVariables,jobs);
         stages.add(crStage);
 
-        git = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch");
+        git = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch",false);
         materials.add(git);
 
         trackingTool = new CRTrackingTool("link","regex");
@@ -294,7 +294,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertGitMaterial() {
-        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch");
+        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch",false);
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
@@ -302,10 +302,28 @@ public class ConfigConverterTest {
         assertThat(gitMaterialConfig.getName().toLower(), is("name"));
         assertThat(gitMaterialConfig.getFolder(), is("folder"));
         assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(gitMaterialConfig.isInvertFilter(), is(false));
         assertThat(gitMaterialConfig.getFilterAsString(), is("filter"));
         assertThat(gitMaterialConfig.getUrl(), is("url"));
         assertThat(gitMaterialConfig.getBranch(), is("branch"));
     }
+
+    @Test
+    public void shouldConvertGitMaterialWhenWhitelist() {
+        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch",true);
+
+        GitMaterialConfig gitMaterialConfig =
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
+
+        assertThat(gitMaterialConfig.getName().toLower(), is("name"));
+        assertThat(gitMaterialConfig.getFolder(), is("folder"));
+        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(gitMaterialConfig.isInvertFilter(), is(true));
+        assertThat(gitMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(gitMaterialConfig.getUrl(), is("url"));
+        assertThat(gitMaterialConfig.getBranch(), is("branch"));
+    }
+
     @Test
     public void shouldConvertGitMaterialWhenNulls() {
         CRGitMaterial crGitMaterial = new CRGitMaterial();
@@ -325,7 +343,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertHgMaterial() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, filter, "url");
+        CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, false, filter, "url");
 
         HgMaterialConfig hgMaterialConfig =
                 (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
@@ -338,7 +356,7 @@ public class ConfigConverterTest {
     }
     @Test
     public void shouldConvertHgMaterialWhenNullName() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, filter, "url");
+        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, filter, "url");
 
         HgMaterialConfig hgMaterialConfig =
                 (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
@@ -351,7 +369,7 @@ public class ConfigConverterTest {
     }
     @Test
     public void shouldConvertHgMaterialWhenEmptyName() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial("", "folder", true, filter, "url");
+        CRHgMaterial crHgMaterial = new CRHgMaterial("", "folder", true, false, filter, "url");
 
         HgMaterialConfig hgMaterialConfig =
                 (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
@@ -367,7 +385,7 @@ public class ConfigConverterTest {
     public void shouldConvertP4MaterialWhenEncryptedPassword()
     {
         CRP4Material crp4Material = CRP4Material.withEncryptedPassword(
-                "name","folder",false,filter,"server:port","user","encryptedvalue",true,"view");
+                "name","folder",false,false, filter,"server:port","user","encryptedvalue",true,"view");
 
         P4MaterialConfig p4MaterialConfig =
                 (P4MaterialConfig)configConverter.toMaterialConfig(crp4Material);
@@ -388,7 +406,7 @@ public class ConfigConverterTest {
     public void shouldConvertP4MaterialWhenPlainPassword()
     {
         CRP4Material crp4Material = CRP4Material.withPlainPassword(
-                "name", "folder", false, filter, "server:port", "user", "secret", true, "view");
+                "name", "folder", false, false, filter, "server:port", "user", "secret", true, "view");
 
         P4MaterialConfig p4MaterialConfig =
                 (P4MaterialConfig)configConverter.toMaterialConfig(crp4Material);
@@ -408,7 +426,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertSvmMaterialWhenEncryptedPassword()
     {
-        CRSvnMaterial crSvnMaterial = CRSvnMaterial.withEncryptedPassword("name", "folder", true, filter, "url", "username", "encryptedvalue", true);
+        CRSvnMaterial crSvnMaterial = CRSvnMaterial.withEncryptedPassword("name", "folder", true, false, filter, "url", "username", "encryptedvalue", true);
 
         SvnMaterialConfig svnMaterialConfig =
                 (SvnMaterialConfig)configConverter.toMaterialConfig(crSvnMaterial);
@@ -426,7 +444,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertSvmMaterialWhenPlainPassword()
     {
-        CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name","folder",true,filter,"url","username","secret",true);
+        CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name","folder",true,false, filter,"url","username","secret",true);
 
         SvnMaterialConfig svnMaterialConfig =
                 (SvnMaterialConfig)configConverter.toMaterialConfig(crSvnMaterial);
@@ -445,7 +463,7 @@ public class ConfigConverterTest {
     public void shouldConvertTfsMaterialWhenPlainPassword()
     {
         CRTfsMaterial crTfsMaterial = CRTfsMaterial.withPlainPassword(
-                "name", "folder", false, filter, "url", "domain" ,"user", "secret", "project");
+                "name", "folder", false, false, filter, "url", "domain" ,"user", "secret", "project");
 
         TfsMaterialConfig tfsMaterialConfig =
                 (TfsMaterialConfig)configConverter.toMaterialConfig(crTfsMaterial);
@@ -465,7 +483,7 @@ public class ConfigConverterTest {
     public void shouldConvertTfsMaterialWhenEncryptedPassword()
     {
         CRTfsMaterial crTfsMaterial = CRTfsMaterial.withEncryptedPassword(
-                "name", "folder", false, filter, "url", "domain", "user", "encryptedvalue", "project");
+                "name", "folder", false, false, filter, "url", "domain", "user", "encryptedvalue", "project");
 
         TfsMaterialConfig tfsMaterialConfig =
                 (TfsMaterialConfig)configConverter.toMaterialConfig(crTfsMaterial);

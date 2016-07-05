@@ -132,8 +132,9 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
 
             for (String environment : environmentsToRemove) {
                 EnvironmentConfig environmentConfig = preprocessedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
-                if (environmentConfig != null)
+                if (environmentConfig != null) {
                     environmentConfig.removeAgent(agentConfig.getUuid());
+                }
             }
         }
     }

@@ -47,7 +47,6 @@ public class PluggableTask extends AbstractTask {
     public static final String TYPE = "pluggable_task";
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
-    private ConfigurationPropertyBuilder builder;
 
     @ConfigSubtag
     private PluginConfiguration pluginConfiguration = new PluginConfiguration();
@@ -56,19 +55,11 @@ public class PluggableTask extends AbstractTask {
     private Configuration configuration = new Configuration();
 
     public PluggableTask() {
-        this.builder = new ConfigurationPropertyBuilder();
     }
 
     public PluggableTask(PluginConfiguration pluginConfiguration, Configuration configuration) {
-        this();
         this.pluginConfiguration = pluginConfiguration;
         this.configuration = configuration;
-    }
-
-    //For Tests Only
-    protected PluggableTask(PluginConfiguration pluginConfiguration, Configuration configuration, ConfigurationPropertyBuilder builder) {
-        this(pluginConfiguration, configuration);
-        this.builder = builder;
     }
 
     public PluginConfiguration getPluginConfiguration() {
@@ -116,6 +107,7 @@ public class PluggableTask extends AbstractTask {
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurations) {
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurations) {
             String configKey = property.getConfigurationKey() != null ? property.getConfigKeyName() : null;
             String encryptedValue = property.getEncryptedValue() != null ? property.getEncryptedValue().getValue() : null;
@@ -123,7 +115,7 @@ public class PluggableTask extends AbstractTask {
 
         TaskPreference taskPreference = taskPreference();
             if(isValidPluginConfiguration(configKey, taskPreference)) {
-                configuration.add(this.builder.create(configKey, configValue, encryptedValue, pluginConfigurationFor(configKey, taskPreference).getOption(Property.SECURE)));
+                configuration.add(builder.create(configKey, configValue, encryptedValue, pluginConfigurationFor(configKey, taskPreference).getOption(Property.SECURE)));
             } else
             {
                 configuration.add(property);

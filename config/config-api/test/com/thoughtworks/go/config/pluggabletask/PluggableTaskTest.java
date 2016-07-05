@@ -18,16 +18,17 @@ package com.thoughtworks.go.config.pluggabletask;
 
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.OnCancelConfig;
-import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.domain.TaskProperty;
-import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
-import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
@@ -43,7 +44,9 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -294,7 +297,6 @@ public class PluggableTaskTest {
         TaskPreference taskPreference = mock(TaskPreference.class);
         TaskConfig taskConfig = new TaskConfig();
         Configuration configuration = new Configuration();
-        ConfigurationPropertyBuilder builder = mock(ConfigurationPropertyBuilder.class);
         Property property = new Property("key");
         property.with(Property.SECURE, false);
 
@@ -303,11 +305,10 @@ public class PluggableTaskTest {
 
         when(taskPreference.getConfig()).thenReturn(taskConfig);
 
-        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration, builder);
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration);
         pluggableTask.addConfigurations(configurationProperties);
 
         assertThat(configuration.size(), is(2));
-        verify(builder).create("key", "value", "encValue", false);
     }
 
     @Test
@@ -316,9 +317,8 @@ public class PluggableTaskTest {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("does_not_exist", "1.1");
 
         Configuration configuration = new Configuration();
-        ConfigurationPropertyBuilder builder = mock(ConfigurationPropertyBuilder.class);
 
-        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration, builder);
+        PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, configuration);
         pluggableTask.addConfigurations(configurationProperties);
 
         assertThat(configuration.size(), is(1));

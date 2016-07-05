@@ -23,7 +23,7 @@ module ApiV1
     end
 
     link :doc do
-      'http://api.go.cd/#version'
+      'https://api.go.cd/current/#version'
     end
 
     property :version

@@ -23,7 +23,7 @@ module ApiV1
     end
 
     link :doc do
-      'http://api.go.cd/#versionInfo'
+      'https://api.go.cd/current/#versionInfo'
     end
 
     link :self do |opts|

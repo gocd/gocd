@@ -35,7 +35,7 @@ describe ApiV2::AgentsRepresenter do
 
     expect(actual_json).to have_links(:self, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/agents')
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#agents')
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/current/#agents')
     actual_json.delete(:_links)
     actual_json.fetch(:_embedded).should == { :agents => [ApiV2::AgentRepresenter.new(idle_agent).to_hash(url_builder: UrlBuilder.new)] }
   end

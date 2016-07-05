@@ -17,11 +17,7 @@
 module ApiV1
   class CommandSnippetsRepresenter < ApiV1::BaseRepresenter
     link :self do |opts|
-      opts[:url_builder].apiv1_admin_command_snippets_url(:prefix => opts[:prefix])
-    end
-
-    link :doc do
-      'http://api.go.cd/#command_snippets'
+      opts[:url_builder].apiv1_admin_internal_command_snippets_url(:prefix => opts[:prefix])
     end
 
     collection :command_snippets, embedded: true, exec_context: :decorator, decorator: CommandSnippetRepresenter

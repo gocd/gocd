@@ -17,13 +17,6 @@
 module ApiV1
   class CommandSnippetRepresenter < ApiV1::BaseRepresenter
     alias_method :command_snippet, :represented
-    link :self do |opts|
-      opts[:url_builder].apiv1_admin_command_snippet_url(relative_path: command_snippet.getRelativePath())
-    end
-
-    link :doc do |opts|
-      'http://api.go.cd/#command_snippets'
-    end
 
     property :getName, as: :name
     property :getDescription, as: :description

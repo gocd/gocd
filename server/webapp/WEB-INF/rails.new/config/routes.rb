@@ -228,13 +228,12 @@ Go::Application.routes.draw do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {name: PIPELINE_NAME_FORMAT}
         resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: ENVIRONMENT_NAME_CONSTRAINT
-        resources :command_snippets, only: [:index]
-        get 'command_snippets/show', controller: :command_snippets, action: :show, as: :command_snippet
         post :material_test, controller: :material_test, action: :test, as: :material_test
         namespace :internal do
           resources :pipelines, only: [:index]
           resources :resources, only: [:index]
           resources :environments, only: [:index]
+          resources :command_snippets, only: [:index]
         end
         resources :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
         resources :scms, param: :material_name, controller: :pluggable_scms, except: [:delete]

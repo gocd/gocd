@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
@@ -179,6 +180,10 @@ public class AgentService {
         return null;
     }
 
+    public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove, List<String> environmentsToAdd, List<String> environmentsToRemove, TriState enable) {
+        agentConfigService.bulkUpdateAgentAttributes(username, result, uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable);
+    }
+
     public void enableAgents(Username username, OperationResult operationResult, List<String> uuids) {
         if (!hasOperatePermission(username, operationResult)) {
             return;
@@ -227,12 +232,8 @@ public class AgentService {
             return;
         }
         List<AgentInstance> agents = new ArrayList<>();
-        for (String uuid : uuids) {
-            AgentInstance agentInstance = findAgent(uuid);
-            if (isUnknownAgent(agentInstance, operationResult)) {
-                return;
-            }
-            agents.add(agentInstance);
+        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)){
+            return;
         }
 
         List<AgentInstance> failedToDeleteAgents = new ArrayList<>();

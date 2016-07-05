@@ -15,13 +15,6 @@
 ##########################GO-LICENSE-END##################################
 
 class Api::ServerController < Api::ApiController
-  def info
-    @base_url = system_environment.getBaseUrlForShine()
-    @base_ssl_url = system_environment.getBaseSslUrlForShine()
-    @artifacts_dir = go_config_service.artifactsDir().getAbsolutePath()
-    @shine_db_path = system_environment.shineDb().getAbsolutePath()
-    @config_dir = system_environment.configDir().getAbsolutePath()
-  end
 
   GSON = com.google.gson.GsonBuilder.new.setPrettyPrinting().serializeNulls().create()
 

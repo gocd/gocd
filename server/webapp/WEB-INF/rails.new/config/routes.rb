@@ -225,10 +225,6 @@ Go::Application.routes.draw do
         patch :update, on: :member
       end
 
-      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
-        patch :update, on: :member
-      end
-
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {name: PIPELINE_NAME_FORMAT}
         resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: ENVIRONMENT_NAME_CONSTRAINT
@@ -319,8 +315,6 @@ Go::Application.routes.draw do
 
       post 'admin/command-repo-cache/reload' => 'commands#reload_cache', as: :admin_command_cache_reload, constraints: HeaderConstraint.new
 
-      post 'admin/start_backup' => 'admin#start_backup', as: :backup_api_url, constraints: HeaderConstraint.new
-
       scope 'admin/feature_toggles' do
         defaults :no_layout => true, :format => :json do
           get "" => "feature_toggles#index", as: :api_admin_feature_toggles
@@ -328,13 +322,6 @@ Go::Application.routes.draw do
             post "/:toggle_key" => "feature_toggles#update", constraints: {toggle_key: /[^\/]+/}, as: :api_admin_feature_toggle_update
           end
         end
-      end
-
-      #agents api's
-      get 'agents' => 'agents#index', format: 'json', as: :agents_information
-      constraints HeaderConstraint.new do
-        post 'agents/edit_agents' => 'agents#edit_agents', as: :api_disable_agent
-        post 'agents/:uuid/:action' => 'agents#%{action}', constraints: {action: /enable|disable|delete/}, as: :agent_action
       end
 
       defaults :format => 'text' do
@@ -349,9 +336,6 @@ Go::Application.routes.draw do
       end
 
       defaults :format => 'xml' do
-        get 'users.xml' => 'users#index'
-        get 'server.xml' => 'server#info', as: :server
-
         # stage api's
         get 'stages/:id.xml' => 'stages#index', as: :stage
 

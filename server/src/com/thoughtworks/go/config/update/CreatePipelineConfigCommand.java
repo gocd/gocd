@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+
+import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
 
 public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
     private final GoConfigService goConfigService;
@@ -53,7 +52,9 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
         boolean isValid = preprocessedPipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig));
-        if (!isValid) BasicCruiseConfig.copyErrors(preprocessedPipelineConfig, pipelineConfig);
+        if (!isValid) {
+            copyErrors(preprocessedPipelineConfig, pipelineConfig);
+        }
         return isValid;
     }
 

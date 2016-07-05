@@ -298,6 +298,49 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrors() throws GitAPIException {
+        ExecTask execTask = new ExecTask("ls", "-al", "#{foo}");
+        FetchTask fetchTask = new FetchTask(pipelineConfig.name(), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "srcfile", "/usr/dest");
+
+        JobConfig job = new JobConfig("default-job");
+        job.addTask(execTask);
+        job.addTask(fetchTask);
+
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("default-stage"), new JobConfigs(job));
+
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        pipeline.addParam(new ParamConfig("foo", "."));
+        pipeline.addStageWithoutValidityAssertion(stage);
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        String expectedError = String.format("Task of job 'default-job' in stage 'default-stage' of pipeline '%s' has dest path '/usr/dest' which is outside the working directory.", pipeline.name());
+        assertThat(fetchTask.errors().on("dest"), is(expectedError));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingUpdatedHasErrors() throws GitAPIException {
+        ExecTask execTask = new ExecTask("ls", "-al", "#{foo}");
+        FetchTask fetchTask = new FetchTask(pipelineConfig.name(), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "srcfile", "/usr/dest");
+        JobConfig job = new JobConfig("default-job");
+        job.addTask(execTask);
+        job.addTask(fetchTask);
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("default-stage"), new JobConfigs(job));
+
+        pipelineConfig.add(stage);
+        pipelineConfig.addParam(new ParamConfig("foo", "."));
+
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, pipelineConfigMD5,  result);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        String expectedError = String.format("Task of job 'default-job' in stage 'default-stage' of pipeline '%s' has dest path '/usr/dest' which is outside the working directory.", pipelineConfig.name());
+        assertThat(fetchTask.errors().on("dest"), is(expectedError));
+    }
+
+    @Test
     public void shouldUpdatePipelineConfig() throws GitAPIException {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
 

@@ -48,7 +48,7 @@ describe RepoViewModel do
     model.properties[0].display_name.should == "Key 1"
     model.properties[0].value.should == "v1"
     model.properties[1].display_name.should == "Key 2"
-    model.properties[1].value.should == secure_property.getEncryptedValue().getValue()
+    model.properties[1].value.should == secure_property.getEncryptedValue()
   end
 
   it "should create repo view model from metadata when repo doesn't have all configuration " do

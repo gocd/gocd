@@ -18,7 +18,7 @@ public class ConfigurationPropertyBuilderTest {
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", true);
 
         assertThat(property.getConfigKeyName(), is("key"));
-        assertThat(property.getEncryptedValue().getValue(), is("enc_value"));
+        assertThat(property.getEncryptedValue(), is("enc_value"));
         assertNull(property.getConfigurationValue());
     }
 
@@ -30,7 +30,7 @@ public class ConfigurationPropertyBuilderTest {
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, true);
 
         assertThat(property.getConfigKeyName(), is("key"));
-        assertThat(property.getEncryptedValue().getValue(), is(new GoCipher().encrypt("value")));
+        assertThat(property.getEncryptedValue(), is(new GoCipher().encrypt("value")));
         assertNull(property.getConfigurationValue());
     }
 
@@ -42,7 +42,7 @@ public class ConfigurationPropertyBuilderTest {
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, null, true);
 
         assertThat(property.getConfigKeyName(), is("key"));
-        assertNull(property.getEncryptedValue());
+        assertNull(property.getEncryptedConfigurationValue());
         assertNull(property.getConfigurationValue());
     }
 
@@ -56,7 +56,7 @@ public class ConfigurationPropertyBuilderTest {
         assertThat(property.errors().get("configurationValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
         assertThat(property.errors().get("encryptedValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
         assertThat(property.getConfigurationValue().getValue(), is("value"));
-        assertThat(property.getEncryptedValue().getValue(), is("enc_value"));
+        assertThat(property.getEncryptedValue(), is("enc_value"));
     }
 
     @Test
@@ -69,7 +69,7 @@ public class ConfigurationPropertyBuilderTest {
         assertThat(property.errors().get("configurationValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
         assertThat(property.errors().get("encryptedValue").get(0), is("You may only specify `value` or `encrypted_value`, not both!"));
         assertThat(property.getConfigurationValue().getValue(), is("value"));
-        assertThat(property.getEncryptedValue().getValue(), is("enc_value"));
+        assertThat(property.getEncryptedValue(), is("enc_value"));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ConfigurationPropertyBuilderTest {
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", false);
 
         assertThat(property.errors().get("encryptedValue").get(0), is("encrypted_value cannot be specified to a unsecured property."));
-        assertThat(property.getEncryptedValue().getValue(), is("enc_value"));
+        assertThat(property.getEncryptedValue(), is("enc_value"));
     }
 
     @Test
@@ -91,6 +91,6 @@ public class ConfigurationPropertyBuilderTest {
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", null, false);
 
         assertThat(property.getConfigurationValue().getValue(), is("value"));
-        assertNull(property.getEncryptedValue());
+        assertNull(property.getEncryptedConfigurationValue());
     }
 }

@@ -55,8 +55,8 @@ public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
         SCMs scms = goConfigHolder.config.getSCMs();
         assertThat(scms, is(configToSave.getSCMs()));
         assertThat(scms.get(0).getConfiguration().first().getConfigurationValue().getValue(), is("http://go"));
-        assertThat(scms.get(0).getConfiguration().first().getEncryptedValue(), is(nullValue()));
-        assertThat(scms.get(0).getConfiguration().last().getEncryptedValue().getValue(), is(new GoCipher().encrypt("secure")));
+        assertThat(scms.get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
+        assertThat(scms.get(0).getConfiguration().last().getEncryptedValue(), is(new GoCipher().encrypt("secure")));
         assertThat(scms.get(0).getConfiguration().last().getConfigurationValue(), is(nullValue()));
     }
 

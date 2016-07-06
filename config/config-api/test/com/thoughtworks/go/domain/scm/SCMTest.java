@@ -146,8 +146,8 @@ public class SCMTest {
 
         //assert SCM properties
         assertThat(secureProperty.isSecure(), is(true));
-        assertThat(secureProperty.getEncryptedValue(), is(notNullValue()));
-        assertThat(secureProperty.getEncryptedValue().getValue(), is(goCipher.encrypt("value1")));
+        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
+        assertThat(secureProperty.getEncryptedValue(), is(goCipher.encrypt("value1")));
 
         assertThat(nonSecureProperty.isSecure(), is(false));
         assertThat(nonSecureProperty.getValue(), is("value2"));
@@ -163,11 +163,11 @@ public class SCMTest {
 
         scm.applyPluginMetadata();
 
-        assertThat(secureProperty.getEncryptedValue(), is(notNullValue()));
+        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
         assertThat(secureProperty.getConfigurationValue(), is(nullValue()));
 
         assertThat(nonSecureProperty.getConfigurationValue(), is(notNullValue()));
-        assertThat(nonSecureProperty.getEncryptedValue(), is(nullValue()));
+        assertThat(nonSecureProperty.getEncryptedConfigurationValue(), is(nullValue()));
     }
 
     @Test
@@ -205,7 +205,7 @@ public class SCMTest {
         assertThat(scm.getConfigAsMap().get("password").get(SCM.VALUE_KEY), is("pass"));
 
         assertThat(scm.getConfiguration().getProperty("password").getConfigurationValue(), is(nullValue()));
-        assertThat(scm.getConfiguration().getProperty("password").getEncryptedValue(), is(not(nullValue())));
+        assertThat(scm.getConfiguration().getProperty("password").getEncryptedConfigurationValue(), is(not(nullValue())));
     }
 
     @Test

@@ -97,8 +97,8 @@ public class PackageDefinitionServiceTest {
         service.performPluginValidationsFor(packageDefinition);
 
         assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
-        assertThat(packageDefinition.getConfiguration().get(1).getEncryptedValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
-        assertThat(packageDefinition.getConfiguration().get(2).getEncryptedValue().errors().isEmpty(), is(true));
+        assertThat(packageDefinition.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
+        assertThat(packageDefinition.getConfiguration().get(2).getEncryptedConfigurationValue().errors().isEmpty(), is(true));
         assertThat(packageDefinition.getConfiguration().get(3).getConfigurationValue().errors().isEmpty(), is(true));
         assertThat(packageDefinition.getConfiguration().get(4).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("invalid spec")));
     }

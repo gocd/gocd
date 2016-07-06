@@ -47,6 +47,7 @@ import java.util.*;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
@@ -150,6 +151,19 @@ public class TaskViewServiceTest {
         assertThat(pluggableTask.getConfiguration().getProperty("key1").getValue(), is("default1"));
         assertThat(pluggableTask.getConfiguration().getProperty("key2").getValue(), is("default2"));
         assertNull(pluggableTask.getConfiguration().getProperty("key3").getValue());
+    }
+
+    @Test
+    public void shouldFetchPluggableTasksWithSecureConfigurations() throws Exception {
+        String plugin = "task-plugin";
+        when(pluginManager.getPluginDescriptorFor(plugin)).thenReturn(new GoPluginDescriptor(plugin, "1", null, null, null, false));
+        Property taskConfigProperty = new TaskConfigProperty("key1", null).with(Property.SECURE, true);
+
+        storeTaskPreferences(plugin, taskConfigProperty);
+        when(registry.implementersOf(Task.class)).thenReturn(Arrays.<Class<? extends Task>>asList(PluggableTask.class));
+
+        PluggableTask pluggableTask = (PluggableTask) taskViewService.taskInstanceFor(new PluggableTask(new PluginConfiguration(plugin, "1"), null).getTaskType());
+        assertTrue(pluggableTask.getConfiguration().first().isSecure());
     }
 
     @Test

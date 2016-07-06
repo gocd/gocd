@@ -222,7 +222,7 @@ public class PackageRepositoryServiceTest {
         service.performPluginValidationsFor(packageRepository);
 
         assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
-        assertThat(packageRepository.getConfiguration().get(1).getEncryptedValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
+        assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("mandatory field")));
     }
 
     @Test

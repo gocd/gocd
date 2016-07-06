@@ -225,10 +225,10 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         assertThat(definition.getName(), is("package-name"));
         assertThat(definition.getConfiguration().size(), is(3));
         assertThat(definition.getConfiguration().getProperty("key1").getConfigurationValue().getValue(), is("value1"));
-        assertThat(definition.getConfiguration().getProperty("key1").getEncryptedValue(), is(nullValue()));
-        assertThat(definition.getConfiguration().getProperty("key2").getEncryptedValue().getValue(), is(encryptedValue));
+        assertThat(definition.getConfiguration().getProperty("key1").getEncryptedConfigurationValue(), is(nullValue()));
+        assertThat(definition.getConfiguration().getProperty("key2").getEncryptedValue(), is(encryptedValue));
         assertThat(definition.getConfiguration().getProperty("key2").getConfigurationValue(), is(nullValue()));
-        assertThat(definition.getConfiguration().getProperty("key3").getEncryptedValue().getValue(), is("encrypted-value"));
+        assertThat(definition.getConfiguration().getProperty("key3").getEncryptedValue(), is("encrypted-value"));
         assertThat(definition.getConfiguration().getProperty("key3").getConfigurationValue(), is(nullValue()));
     }
 

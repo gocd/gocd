@@ -1,21 +1,22 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.*;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
@@ -41,14 +42,13 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void getAllLocalPipelineConfigs_shouldReturnOnlyLocalPipelinesWhenNoRemotes()
-    {
+    public void getAllLocalPipelineConfigs_shouldReturnOnlyLocalPipelinesWhenNoRemotes() {
         PipelineConfig pipeline1 = createPipelineConfig("local-pipe-1", "stage1");
         cruiseConfig.getGroups().addPipeline("existing_group", pipeline1);
 
         List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
-        assertThat(localPipelines.size(),is(1));
-        assertThat(localPipelines,hasItem(pipeline1));
+        assertThat(localPipelines.size(), is(1));
+        assertThat(localPipelines, hasItem(pipeline1));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
         PipelineConfig p4 = createPipelineConfig("p4", "s4", "j1");
         p4.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
-        pipelines.addAll(Arrays.asList(p4, p2, p1, p3));
+        pipelines.addAll(asList(p4, p2, p1, p3));
         Map<String, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
         assertThat(expectedPipelines.size(), is(4));
         assertThat(expectedPipelines.get("p1"), hasItems(p2, p3));
@@ -84,6 +84,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         mainCruiseConfig.setOrigins(new FileConfigOrigin());
         assertThat(pipe.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
+
     @Test
     public void shouldSetOriginInEnvironments() {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
@@ -119,5 +120,32 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PipelineConfigs group2 = createGroup("group2", createPipelineConfig("pipeline2", "stage2"));
         CruiseConfig config = new BasicCruiseConfig(group1, group2);
         assertThat("shouldReturnFalseForPipelineThatNotInFirstGroup", config.isInFirstGroup(new CaseInsensitiveString("pipeline2")), is(false));
+    }
+
+    @Test
+    public void shouldIncludeRemotePipelinesAsPartOfCachedPipelineConfigs() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
+        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
+        PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
+        PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
+
+        cruiseConfig.merge(asList(partialConfigInRepo1, partialConfigInRepo2), false);
+        assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1")), is(true));
+        assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
+    }
+
+    @Test
+    public void shouldRejectRemotePipelinesNotOriginatingFromRegisteredConfigReposFromCachedPipelineConfigs() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
+        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig2));
+        PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
+        PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
+        cruiseConfig.merge(asList(partialConfigInRepo1, partialConfigInRepo2), false);
+        assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1")), is(false));
+        assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
     }
 }

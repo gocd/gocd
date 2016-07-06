@@ -39,6 +39,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
+import org.apache.commons.collections.ListUtils;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -92,13 +93,28 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (partList.isEmpty()) {
             return;
         }
-        if(this.strategy instanceof MergeStrategy)
+        partList = removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(partList);
+
+        if (this.strategy instanceof MergeStrategy)
             throw new RuntimeException("cannot merge partials to already merged configuration");
-        MergeStrategy mergeStrategy = new MergeStrategy(partList,forEdit);
+        MergeStrategy mergeStrategy = new MergeStrategy(partList, forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
         environments = mergeStrategy.mergeEnvironmentConfigs();
         this.resetAllPipelineConfigsCache();
+    }
+
+    private List<PartialConfig> removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(List<PartialConfig> partList) {
+        List<Object> notToBeMerged = new ArrayList<>();
+        for (PartialConfig partialConfig : partList) {
+            if (partialConfig.getOrigin() instanceof RepoConfigOrigin) {
+                RepoConfigOrigin origin = (RepoConfigOrigin) partialConfig.getOrigin();
+                if (!configRepos.hasMaterialWithFingerprint(origin.getMaterial().getFingerprint()))
+                    notToBeMerged.add(partialConfig);
+            }
+        }
+        partList = ListUtils.removeAll(partList, notToBeMerged);
+        return partList;
     }
 
     private void resetAllPipelineConfigsCache() {

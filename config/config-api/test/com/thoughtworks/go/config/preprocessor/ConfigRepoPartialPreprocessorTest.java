@@ -19,7 +19,11 @@ package com.thoughtworks.go.config.preprocessor;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Test;
@@ -29,12 +33,24 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class ConfigRepoPartialPreprocessorTest {
+
+    private final ConfigReposConfig reposConfig;
+    private final ConfigRepoConfig configRepoConfig;
+
+    public ConfigRepoPartialPreprocessorTest(){
+        reposConfig = new ConfigReposConfig();
+        configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplug");
+        reposConfig.add(configRepoConfig);
+    }
+
     @Test
     public void shouldMergePartialsSetOnConfig() {
         final PartialConfig partialConfig = PartialConfigMother.withPipeline("partial");
+        partialConfig.setOrigin(new RepoConfigOrigin(configRepoConfig,"sha-1"));
         ConfigRepoPartialPreprocessor preprocessor = new ConfigRepoPartialPreprocessor();
         PipelineConfig pipelineInMain = PipelineConfigMother.createPipelineConfig("main_pipeline", "stage", "job");
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineInMain));
+        cruiseConfig.setConfigRepos(reposConfig);
         cruiseConfig.setPartials(asList(partialConfig));
         preprocessor.process(cruiseConfig);
         assertThat(cruiseConfig.getAllPipelineNames().contains(pipelineInMain.name()), is(true));

@@ -110,14 +110,18 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
         cruiseConfig = new BasicCruiseConfig(pipelines);
+        ConfigReposConfig reposConfig = new ConfigReposConfig();
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplug");
+        reposConfig.add(configRepoConfig);
+        cruiseConfig.setConfigRepos(reposConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
-        partialConfig.getGroups().get(0).setOrigins(new RepoConfigOrigin());
 
         BasicEnvironmentConfig remoteEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         remoteEnvironment.setOrigins(new RepoConfigOrigin());
         // remote environment declares a local pipeline as member
         remoteEnvironment.addPipeline(new CaseInsensitiveString("local-pipeline-1"));
         partialConfig.getEnvironments().add(remoteEnvironment);
+        partialConfig.setOrigins(new RepoConfigOrigin(configRepoConfig,"123"));
 
         cruiseConfig.merge(Arrays.asList(partialConfig),true);
         assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")),is(true));

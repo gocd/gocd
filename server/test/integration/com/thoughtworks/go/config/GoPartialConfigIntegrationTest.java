@@ -99,7 +99,9 @@ public class GoPartialConfigIntegrationTest {
 
     @Test
     public void shouldNotSaveConfigWhenANewInValidPartialGetsAdded() {
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.invalidPartial("p1"));
+        PartialConfig invalidPartial = PartialConfigMother.invalidPartial("p1");
+        invalidPartial.setOrigins(new RepoConfigOrigin(repoConfig1,"sha-2"));
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, invalidPartial);
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1")), is(false));
         List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStates.isEmpty(), is(false));

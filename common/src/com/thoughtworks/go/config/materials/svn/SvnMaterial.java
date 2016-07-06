@@ -138,7 +138,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
-        File workingDir = workingdir(baseDir);
+        File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Updating to revision: " + revision + " in workingdirectory " + workingDir);
         }

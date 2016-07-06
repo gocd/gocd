@@ -38,6 +38,6 @@ public class SvnPoller implements MaterialPoller<SvnMaterial> {
 
     @Override
     public void checkout(SvnMaterial material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        material.checkout(baseDir,revision, execCtx);
+        material.checkout(baseDir, revision, execCtx);
     }
 }

@@ -148,7 +148,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
-        File workingDir = workingdir(baseDir);
+        File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[TFS] Updating to revision: " + revision + " in workingdirectory " + workingDir);
         }

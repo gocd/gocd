@@ -38,6 +38,6 @@ public class P4Poller implements MaterialPoller<P4Material> {
 
     @Override
     public void checkout(P4Material material, File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
-        material.checkout(baseDir,revision, execCtx);
+        material.checkout(baseDir, revision, execCtx);
     }
 }

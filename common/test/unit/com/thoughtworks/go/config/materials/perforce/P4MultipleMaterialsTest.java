@@ -88,6 +88,18 @@ public class P4MultipleMaterialsTest {
     }
 
     @Test
+    public void shouldIgnoreDestinationFolderWhenUpdateToOnServerSide() {
+        P4Material p4Material = p4Fixture.material(VIEW_SRC, "dest1");
+
+        MaterialRevision revision = new MaterialRevision(p4Material, p4Material.latestModification(clientFolder, new TestSubprocessExecutionContext()));
+
+        revision.updateTo(clientFolder, inMemoryConsumer(), new TestSubprocessExecutionContext(true));
+
+        assertThat(new File(clientFolder, "dest1/net").exists(), is(false));
+        assertThat(new File(clientFolder, "net").exists(), is(true));
+    }
+
+    @Test
     public void shouldFoundModificationsForEachMaterial() throws Exception {
         P4Material p4Material1 = p4Fixture.material(VIEW_SRC, "src");
         P4Material p4Material2 = p4Fixture.material(VIEW_LIB, "lib");

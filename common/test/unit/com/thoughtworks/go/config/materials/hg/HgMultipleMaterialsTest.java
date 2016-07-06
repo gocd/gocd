@@ -75,6 +75,18 @@ public class HgMultipleMaterialsTest {
     }
 
     @Test
+    public void shouldIgnoreDestinationFolderWhenServerSide() throws Exception {
+        HgMaterial material1 = repo.createMaterial("dest1");
+
+        MaterialRevision materialRevision = new MaterialRevision(material1, material1.latestModification(pipelineDir, new TestSubprocessExecutionContext()));
+
+        materialRevision.updateTo(pipelineDir, ProcessOutputStreamConsumer.inMemoryConsumer(), new TestSubprocessExecutionContext(true));
+
+        assertThat(new File(pipelineDir, "dest1").exists(), is(false));
+        assertThat(new File(pipelineDir, ".hg").exists(), is(true));
+    }
+
+    @Test
     public void shouldFindModificationsForBothMaterials() throws Exception {
         Materials materials = new Materials(repo.createMaterial("dest1"), repo.createMaterial("dest2"));
         repo.commitAndPushFile("SomeDocumentation.txt");

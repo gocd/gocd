@@ -114,12 +114,12 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
-        P4Client p4 = getP4(baseDir);
+        P4Client p4 = getP4(execCtx.isServer() ? baseDir : workingdir(baseDir));
         return p4.latestChange();
     }
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
-        P4Client p4 = getP4(baseDir);
+        P4Client p4 = getP4(execCtx.isServer() ? baseDir : workingdir(baseDir));
         return p4.changesSince(revision);
     }
 
@@ -151,11 +151,12 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     public void updateTo(ProcessOutputStreamConsumer outputConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
-        boolean cleaned = cleanDirectoryIfRepoChanged(workingdir(baseDir), outputConsumer);
+        File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
+        boolean cleaned = cleanDirectoryIfRepoChanged(workingDir, outputConsumer);
         String revision = revisionContext.getLatestRevision().getRevision();
         try {
             outputConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision, serverAndPort));
-            p4(baseDir, outputConsumer).sync(parseLong(revision), cleaned, outputConsumer);
+            p4(workingDir, outputConsumer).sync(parseLong(revision), cleaned, outputConsumer);
             outputConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);
@@ -218,9 +219,9 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     /**
      * not for use externally, created for testing convenience
      */
-    P4Client _p4(File baseDir, ProcessOutputStreamConsumer consumer, boolean failOnError) throws Exception {
-        String clientName = clientName(baseDir);
-        return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName,this.useTickets, workingdir(baseDir), p4view(clientName), consumer, failOnError);
+    P4Client _p4(File workDir, ProcessOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+        String clientName = clientName(workDir);
+        return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName,this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }
 
     @Override

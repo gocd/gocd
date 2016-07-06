@@ -1,27 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
+
 
 package com.thoughtworks.go.util;
 
-import java.io.IOException;
 import java.util.Date;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
 
 public class TimeReportingUtil {
     private Date begin;
@@ -42,12 +38,6 @@ public class TimeReportingUtil {
             testAction.perform();
         } catch (Exception e) {
             throw e;
-        } finally {
-            try {
-                t.report();
-            } catch (IOException e) {
-                //IGNORE
-            }
         }
     }
 
@@ -62,30 +52,6 @@ public class TimeReportingUtil {
 
     public void begin() {
         begin = new Date();
-    }
-
-    public void report() throws IOException {
-        long difference = new Date().getTime() - begin.getTime();
-        HttpClient httpClient = new HttpClient();
-        HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(httpClient);
-        PostMethod post = factory.createPost("http://host:3000/properties");
-        post.addParameter("property[key]", key);
-        post.addParameter("property[value]", String.valueOf(difference));
-        try {
-            httpClient.executeMethod(post);
-        } finally {
-            begin = null;
-        }
-        if (shouldThrowUp()) {
-            if (post.getStatusCode() != HttpStatus.SC_OK) {
-                throw new RuntimeException(String.format("[Error] Posting [Key: %s] [Value: %s] failed.with status code %s", key, difference, post.getStatusCode()));
-            }
-        }
-    }
-
-    private boolean shouldThrowUp() {
-        String envVariableValue = System.getenv("TIME_REPORTING_FAIL_ON_ERROR");
-        return envVariableValue != null && "Y".equals(envVariableValue);
     }
 
     public static interface TestAction {

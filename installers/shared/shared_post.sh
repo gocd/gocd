@@ -143,8 +143,10 @@ function create_necessary_agent_directories {
 }
 
 function print_agent_configuration_suggestions {
-    echo "Now please edit $GO_AGENT_DEFAULTS and set GO_SERVER to the IP address of your Go Server."
-    echo "Once that is done start the Go Agent with '/etc/init.d/go-agent start'"
+    echo "Now please edit $GO_AGENT_DEFAULTS and set GO_SERVER_URL to the url address of your GoCD Server (https://example.com:8154/go)."
+    echo "To ensure full end-to-end transport security between the agent and server"
+    echo "see https://docs.go.cd/current/installation/ssl_tls/end_to_end_transport_security.html"
+    echo "Once that is done start the GoCD Agent with '/etc/init.d/go-agent start'"
 }
 
 function set_go_server_defaults_path {

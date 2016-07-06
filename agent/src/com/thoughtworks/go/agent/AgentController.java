@@ -19,12 +19,14 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.buildsession.ArtifactsRepository;
+import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildVariables;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.buildsession.ArtifactsRepository;
-import com.thoughtworks.go.buildsession.BuildSession;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.AgentStatus;
+import com.thoughtworks.go.domain.BuildSettings;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -320,8 +322,7 @@ public class AgentController {
         ConsoleOutputTransmitter buildConsole = new ConsoleOutputTransmitter(
                 new RemoteConsoleAppender(
                         urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
-                        httpService,
-                        agentRuntimeInfo.getIdentifier()));
+                        httpService));
         ArtifactsRepository artifactsRepository = new UrlBasedArtifactsRepository(
                 httpService,
                 urlService.prefixPartialUrl(buildSettings.getArtifactUploadBaseUrl()),

@@ -1,78 +1,79 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.launcher;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.thoughtworks.go.agent.ServerUrlGenerator;
+import com.thoughtworks.go.agent.common.util.Downloader;
+import com.thoughtworks.go.util.FileDigester;
+import com.thoughtworks.go.util.PerfTimer;
+import com.thoughtworks.go.util.SslVerificationMode;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.agent.ServerUrlGenerator;
-import com.thoughtworks.go.agent.common.util.Downloader;
-import com.thoughtworks.go.util.FileDigester;
-import com.thoughtworks.go.util.PerfTimer;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static java.lang.String.format;
 
 public class ServerBinaryDownloader implements Downloader {
+
+    private final ServerCall serverCall = new ServerCall();
+
     private static final Log LOG = LogFactory.getLog(ServerBinaryDownloader.class);
     private static final String MD5_HEADER = "Content-MD5";
+    @Deprecated // for backward compatibility
     private static final String SSL_PORT_HEADER = "Cruise-Server-Ssl-Port";
     private final ServerUrlGenerator urlGenerator;
+    private File rootCertFile;
     private String md5 = null;
     private DownloadableFile downloadableFile;
+    private SslVerificationMode sslVerificationMode;
+    private String sslPort;
 
     public static final class DownloadResult {
         public final boolean performedDownload;
-        private final Map<String, String> headers;
-        private final ServerUrlGenerator urlGenerator;
 
-        public DownloadResult(boolean performedDownload, Map<String, String> headers, ServerUrlGenerator urlGenerator) {
+        public DownloadResult(boolean performedDownload) {
             this.performedDownload = performedDownload;
-            this.headers = headers;
-            this.urlGenerator = urlGenerator;
         }
 
-        public String serverBaseUrl() {
-            return urlGenerator.serverSslBaseUrl(Integer.parseInt(headers.get(SSL_PORT_HEADER)));
-        }
     }
 
-    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, final DownloadableFile downloadableFile) {
+    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, final DownloadableFile downloadableFile, File rootCertFile, SslVerificationMode sslVerificationMode) {
+        this.rootCertFile = rootCertFile;
         this.urlGenerator = urlGenerator;
         this.downloadableFile = downloadableFile;
+        this.sslVerificationMode = sslVerificationMode;
     }
 
     public String md5() {
         return md5;
+    }
+
+    public String sslPort() {
+        return sslPort;
     }
 
     public DownloadResult downloadAlways() {
@@ -92,10 +93,10 @@ public class ServerBinaryDownloader implements Downloader {
                 }
             }
         }
-        return new DownloadResult(downloaded, null, urlGenerator);
+        return new DownloadResult(downloaded);
     }
 
-    public DownloadResult downloadIfNecessary() {
+    public boolean downloadIfNecessary() {
         synchronized (downloadableFile.mutex()) {
             Map<String, String> headers = new HashMap<>();
             boolean updated = false;
@@ -105,6 +106,7 @@ public class ServerBinaryDownloader implements Downloader {
                     headers = headers();
                     File localFile = new File(downloadableFile.getLocalFileName());
                     md5 = headers.get(MD5_HEADER);
+                    sslPort = headers.get(SSL_PORT_HEADER);
                     if (!localFile.exists() || !checksOut(localFile, md5)) {
                         PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
                         downloaded = download();
@@ -120,13 +122,15 @@ public class ServerBinaryDownloader implements Downloader {
                     } catch (InterruptedException ie) { /* we don't care. Stupid checked exception.*/ }
                 }
             }
-            return new DownloadResult(downloaded, headers, urlGenerator);
+            return downloaded;
         }
     }
 
     Map<String, String> headers() throws Exception {
-        Map<String, String> headers = ServerCall.invoke(new HeadMethod(checkUrl())).headers;
-        checkHeaders(headers, downloadableFile.url(urlGenerator));
+        Map<String, String> headers = serverCall.invoke(new HttpHead(checkUrl()), rootCertFile, sslVerificationMode).headers;
+        if (!headers.containsKey(MD5_HEADER)) {
+            LOG.error(format("Contacted server at URL %s but the server did not send back a response containing the header %s", downloadableFile.url(urlGenerator), MD5_HEADER));
+        }
         return headers;
     }
 
@@ -141,45 +145,24 @@ public class ServerBinaryDownloader implements Downloader {
         return url;
     }
 
-    private static void checkHeaders(Map<String, String> headers, String url) {
-        if (!headers.containsKey(MD5_HEADER) || !headers.containsKey(SSL_PORT_HEADER)) {
-            LOG.error("Contacted server at URL " + url + " but it didn't give me the information I wanted. Please check the hostname and port.");
-        }
-    }
-
     private static boolean checksOut(File file, String expectedSignature) {
-        FileInputStream input = null;
-        try {
-            try {
-                input = new FileInputStream(file);
-                FileDigester fileDigester = new FileDigester(input, new NullOutputStream());
-                fileDigester.copy();
-                return expectedSignature.equals(fileDigester.md5());
-            } finally {
-                if (input != null) {
-                    input.close();
-                }
-            }
+        try (FileInputStream input = new FileInputStream(file)) {
+            FileDigester fileDigester = new FileDigester(input, new NullOutputStream());
+            fileDigester.copy();
+            return expectedSignature.equals(fileDigester.md5());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     private boolean download() throws Exception {
-        HttpClient httpClient = new HttpClient();
-        HttpMethod method = new GetMethod(checkUrl());
         InputStream body = null;
-        OutputStream outputFile = null;
-        httpClient.setConnectionTimeout(ServerCall.HTTP_TIMEOUT_IN_MILLISECONDS);
-        try {
-            LOG.info("download started at " + new Date());
-            final int status = httpClient.executeMethod(method);
-            if (status != 200) {
-                throw new Exception("Got status " + status + " " + method.getStatusText() + " from server");
-            }
-            body = new BufferedInputStream(method.getResponseBodyAsStream());
+        File toDownload = new File(downloadableFile.getLocalFileName());
+        try (OutputStream outputFile = new BufferedOutputStream(new FileOutputStream(toDownload))) {
+            LOG.info("download of " + toDownload + " started at " + new Date());
+            ServerCall.ServerResponseWrapper invoke = serverCall.invoke(new HttpGet(checkUrl()), rootCertFile, sslVerificationMode);
+            body = invoke.body;
             LOG.info("got server response at " + new Date());
-            outputFile = new BufferedOutputStream(new FileOutputStream(new File(downloadableFile.getLocalFileName())));
             IOUtils.copy(body, outputFile);
             LOG.info("pipe the stream to " + downloadableFile + " at " + new Date());
             return true;
@@ -189,8 +172,6 @@ public class ServerBinaryDownloader implements Downloader {
             throw new Exception(message, e);
         } finally {
             IOUtils.closeQuietly(body);
-            IOUtils.closeQuietly(outputFile);
-            method.releaseConnection();
         }
     }
 }

@@ -1,34 +1,37 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.thoughtworks.go.agent.common.AgentBootstrapperBackwardCompatibility;
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
 import com.thoughtworks.go.agent.launcher.ServerBinaryDownloader;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.agent.common.util.LoggingHelper.CONSOLE_NDC.STDERR;
 import static com.thoughtworks.go.agent.common.util.LoggingHelper.CONSOLE_NDC.STDOUT;
@@ -44,19 +47,23 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     static final String GO_AGENT_STDOUT_LOG = "go-agent-stdout.log";
     private static final Log LOG = LogFactory.getLog(AgentProcessParentImpl.class);
 
-    public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env) {
+    public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context) {
         int exitValue = 0;
         LOG.info("Agent is version: " + JarUtil.getGoVersion(Downloader.AGENT_BINARY));
         String command[] = new String[]{};
 
         try {
-            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT);
-            String serverBaseUrl = agentDownloader.downloadIfNecessary().serverBaseUrl();
+            AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
+            File rootCertFile = backwardCompatibility.rootCertFile();
+            SslVerificationMode sslVerificationMode = backwardCompatibility.sslVerificationMode();
 
-            ServerBinaryDownloader pluginZipDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT_PLUGINS);
-            pluginZipDownloader.downloadIfNecessary().serverBaseUrl();
+            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT, rootCertFile, sslVerificationMode);
+            agentDownloader.downloadIfNecessary();
 
-            command = agentInvocationCommand(serverBaseUrl, agentDownloader.md5(), launcherMd5, env, launcherVersion, pluginZipDownloader.md5());
+            ServerBinaryDownloader pluginZipDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT_PLUGINS, rootCertFile, sslVerificationMode);
+            pluginZipDownloader.downloadIfNecessary();
+
+            command = agentInvocationCommand(agentDownloader.md5(), launcherMd5, pluginZipDownloader.md5(), env, context, agentDownloader.sslPort(), launcherVersion);
             LOG.info("Launching Agent with command: " + join(command, " "));
 
             Process agent = invoke(command);
@@ -87,6 +94,10 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         return exitValue;
     }
 
+    private AgentBootstrapperBackwardCompatibility backwardCompatibility(Map context) {
+        return new AgentBootstrapperBackwardCompatibility(context);
+    }
+
     private void removeShutdownHook(Shutdown shutdownHook) {
         try {
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -94,9 +105,12 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         }
     }
 
-    private String[] agentInvocationCommand(String serverBaseUrl, String md5, String launcherMd5, Map<String, String> env, String launcherVersion, String agentPluginsZipMd5) {
-        String startupArgsString = env.get(AGENT_STARTUP_ARGS);
+    private String[] agentInvocationCommand(String agentMD5, String launcherMd5, String agentPluginsZipMd5, Map<String, String> env, Map context,
+                                            @Deprecated String sslPort, // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
+                                            String launcherVersion) {
+        AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
 
+        String startupArgsString = env.get(AGENT_STARTUP_ARGS);
         List<String> commandSnippets = new ArrayList<>();
         commandSnippets.add(javaCmd());
         if (!isEmpty(startupArgsString)) {
@@ -110,11 +124,24 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         }
         commandSnippets.add(property(GoConstants.AGENT_LAUNCHER_VERSION, launcherVersion));
         commandSnippets.add(property(GoConstants.AGENT_PLUGINS_MD5, agentPluginsZipMd5));
-        commandSnippets.add(property(GoConstants.AGENT_JAR_MD5, md5));
+        commandSnippets.add(property(GoConstants.AGENT_JAR_MD5, agentMD5));
         commandSnippets.add(property(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, launcherMd5));
         commandSnippets.add("-jar");
+
         commandSnippets.add(Downloader.AGENT_BINARY);
-        commandSnippets.add(serverBaseUrl);
+
+        commandSnippets.add("-serverUrl");
+        commandSnippets.add(backwardCompatibility.sslServerUrl(sslPort));
+
+        if (backwardCompatibility.sslVerificationMode() != null) {
+            commandSnippets.add("-sslVerificationMode");
+            commandSnippets.add(backwardCompatibility.sslVerificationMode().toString());
+        }
+
+        if (backwardCompatibility.rootCertFileAsString() != null) {
+            commandSnippets.add("-rootCertFile");
+            commandSnippets.add(backwardCompatibility.rootCertFileAsString());
+        }
 
         return commandSnippets.toArray(new String[]{});
     }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentController;
 import com.thoughtworks.go.agent.JobRunner;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -112,12 +113,13 @@ public class AgentWebsocketService {
     }
 
     public synchronized void start() throws Exception {
+        GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(environment);
         SslContextFactory sslContextFactory = new SslContextFactory();
-        sslContextFactory.setKeyStorePath(SslInfrastructureService.AGENT_CERTIFICATE_FILE.getAbsolutePath());
-        sslContextFactory.setKeyStorePassword(SslInfrastructureService.AGENT_STORE_PASSWORD);
-        sslContextFactory.setKeyManagerPassword(SslInfrastructureService.AGENT_STORE_PASSWORD);
-        sslContextFactory.setTrustStorePath(SslInfrastructureService.AGENT_TRUST_FILE.getAbsolutePath());
-        sslContextFactory.setTrustStorePassword(SslInfrastructureService.AGENT_STORE_PASSWORD);
+        sslContextFactory.setKeyStore(builder.agentKeystore());
+        sslContextFactory.setKeyStorePassword(builder.keystorePassword());
+        sslContextFactory.setKeyManagerPassword(builder.keystorePassword());
+        sslContextFactory.setTrustStore(builder.agentTruststore());
+        sslContextFactory.setTrustStorePassword(builder.keystorePassword());
         sslContextFactory.setWantClientAuth(true);
         if (client == null || client.isStopped()) {
             client = new WebSocketClient(sslContextFactory);

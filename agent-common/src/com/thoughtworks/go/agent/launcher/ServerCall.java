@@ -1,38 +1,40 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.launcher;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
+import com.thoughtworks.go.util.SslVerificationMode;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+
+import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @understands calling any server url
@@ -41,35 +43,39 @@ public class ServerCall {
     private static final Log LOG = LogFactory.getLog(ServerCall.class);
     public static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
 
-    public static ServerResponseWrapper invoke(HttpMethod method) throws Exception {
+    public ServerResponseWrapper invoke(HttpRequestBase request, File rootCertFile, SslVerificationMode sslVerificationMode) throws Exception {
         HashMap<String, String> headers = new HashMap<>();
-        HttpClient httpClient = new HttpClient();
-        httpClient.setConnectionTimeout(HTTP_TIMEOUT_IN_MILLISECONDS);
-        try {
-            final int status = httpClient.executeMethod(method);
-            if (status == HttpStatus.SC_NOT_FOUND) {
+
+        HttpClientBuilder httpClientBuilder = new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode).httpClientBuilder(HttpClients.custom());
+
+        request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
+
+        try (
+                CloseableHttpClient httpClient = httpClientBuilder.build();
+                final CloseableHttpResponse response = httpClient.execute(request);
                 StringWriter sw = new StringWriter();
-                PrintWriter out = new PrintWriter(sw);
-                out.println("Return Code: " + status);
+                PrintWriter out = new PrintWriter(sw)
+        ) {
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                out.println("Return Code: " + response.getStatusLine().getStatusCode());
                 out.println("Few Possible Causes: ");
                 out.println("1. Your Go Server is down or not accessible.");
                 out.println("2. This agent might be incompatible with your Go Server.Please fix the version mismatch between Go Server and Go Agent.");
-                out.close();
                 throw new Exception(sw.toString());
             }
-            if (status != HttpStatus.SC_OK) {
-                throw new Exception("Got status " + status + " " + method.getStatusText() + " from server");
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                throw new Exception("Got status " + response.getStatusLine().getStatusCode() + " " + response.getStatusLine() + " from server");
             }
-            for (Header header : method.getResponseHeaders()) {
+            for (Header header : response.getAllHeaders()) {
                 headers.put(header.getName(), header.getValue());
             }
-            return new ServerResponseWrapper(headers, method.getResponseBodyAsStream());
+            try (InputStream content = response.getEntity() != null ? response.getEntity().getContent() : null) {
+                return new ServerResponseWrapper(headers, content);
+            }
         } catch (Exception e) {
-            String message = "Couldn't access Go Server with base url: " + method.getURI() + ": " + e.toString();
+            String message = "Couldn't access Go Server with base url: " + request.getURI() + ": " + e.toString();
             LOG.error(message);
             throw new Exception(message, e);
-        } finally {
-            method.releaseConnection();
         }
     }
 
@@ -86,10 +92,10 @@ public class ServerCall {
             if (body == null) {
                 return null;
             }
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(body, baos);
-            baos.close();
-            return new ByteArrayInputStream(baos.toByteArray());
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                IOUtils.copy(body, baos);
+                return new ByteArrayInputStream(baos.toByteArray());
+            }
         }
     }
 }

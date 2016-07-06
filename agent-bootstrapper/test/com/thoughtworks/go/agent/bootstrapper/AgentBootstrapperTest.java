@@ -1,34 +1,36 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.bootstrapper;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
+import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
@@ -38,16 +40,6 @@ public class AgentBootstrapperTest {
     @Before
     public void setUp() throws Exception {
         System.setProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS, "0");
-    }
-
-    @Test
-    public void shouldDieIfNoArguments() {
-        try {
-            AgentBootstrapper.main(null);
-            fail("We need an argument -- where is the server?");
-        } catch (Exception e) {
-            // Yeah!!!!
-        }
     }
 
     @Test
@@ -98,7 +90,7 @@ public class AgentBootstrapperTest {
         });
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(true, "ghost-name", 3518);
+            spyBootstrapper.go(true, new AgentBootstrapperArgs(new URL("http://" + "ghost-name" + ":" + 3518 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             fail("should not have propagated exception thrown while creating launcher");
@@ -129,7 +121,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         try {
-            spyBootstrapper.go(true, "ghost-name", 3518);
+            spyBootstrapper.go(true, new AgentBootstrapperArgs(new URL("http://" + "ghost-name" + ":" + 3518 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
         } catch (Exception e) {
             fail("should not have propagated exception thrown while invoking the launcher");
         }
@@ -180,7 +172,7 @@ public class AgentBootstrapperTest {
         });
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(true, "ghost-name", 3518);
+            spyBootstrapper.go(true, new AgentBootstrapperArgs(new URL("http://" + "ghost-name" + ":" + 3518 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             fail("should not have propagated exception thrown while invoking the launcher");
@@ -188,7 +180,7 @@ public class AgentBootstrapperTest {
     }
 
     @Test
-    public void shouldRetainStateAcrossLauncherInvocations() {
+    public void shouldRetainStateAcrossLauncherInvocations() throws Exception {
 
         final Map expectedContext = new HashMap();
         AgentBootstrapper agentBootstrapper = new AgentBootstrapper() {
@@ -227,7 +219,7 @@ public class AgentBootstrapperTest {
             }
         };
         AgentBootstrapper spy = stubJVMExit(agentBootstrapper);
-        spy.go(true, "localhost", 80);
+        spy.go(true, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 80 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
     }
 
     private AgentBootstrapper stubJVMExit(AgentBootstrapper bootstrapper) {

@@ -1,27 +1,27 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.service;
 
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.Header;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,12 +31,12 @@ import java.io.IOException;
 @Service
 public class AgentUpgradeService {
     private static final Logger LOGGER = Logger.getLogger(AgentUpgradeService.class);
-    private final HttpClient httpClient;
+    private final GoAgentServerHttpClient httpClient;
     private final SystemEnvironment systemEnvironment;
     private URLService urlService;
 
     @Autowired
-    public AgentUpgradeService(URLService urlService, HttpClient httpClient, SystemEnvironment systemEnvironment) throws Exception {
+    public AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment) throws Exception {
         this.httpClient = httpClient;
         this.systemEnvironment = systemEnvironment;
         this.urlService = urlService;
@@ -49,16 +49,15 @@ public class AgentUpgradeService {
     }
 
     void checkForUpgrade(String md5, String launcherMd5, String agentPluginsMd5) throws Exception {
-        HttpMethod method = getAgentLatestStatusGetMethod();
-        try {
-            final int status = httpClient.executeMethod(method);
-            if (status != 200) {
-                LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", status, method.getStatusText()));
+        HttpGet method = getAgentLatestStatusGetMethod();
+        try(final CloseableHttpResponse response = httpClient.execute(method)) {
+            if (response.getStatusLine().getStatusCode() != 200) {
+                LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", response.getStatusLine().getStatusCode(), response.getStatusLine()));
                 return;
             }
-            validateIfLatestAgent(md5, method);
-            validateIfLatestLauncher(launcherMd5, method);
-            validateIfLatestPluginZipAvailable(agentPluginsMd5, method);
+            validateIfLatestAgent(md5, response);
+            validateIfLatestLauncher(launcherMd5, response);
+            validateIfLatestPluginZipAvailable(agentPluginsMd5, response);
         } catch (IOException ioe) {
             String message = String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString());
             LOGGER.error(message);
@@ -69,8 +68,8 @@ public class AgentUpgradeService {
         }
     }
 
-    private void validateIfLatestPluginZipAvailable(String agentPluginsMd5, HttpMethod method) {
-        final Header newLauncherMd5 = method.getResponseHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER);
+    private void validateIfLatestPluginZipAvailable(String agentPluginsMd5, CloseableHttpResponse response) {
+        final Header newLauncherMd5 = response.getFirstHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER);
         if (!"".equals(agentPluginsMd5)) {
             if (!agentPluginsMd5.equals(newLauncherMd5.getValue())) {
                 LOGGER.fatal(
@@ -82,8 +81,8 @@ public class AgentUpgradeService {
         }
     }
 
-    private void validateIfLatestLauncher(String launcherMd5, HttpMethod method) {
-        final Header newLauncherMd5 = method.getResponseHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER);
+    private void validateIfLatestLauncher(String launcherMd5, CloseableHttpResponse response) {
+        final Header newLauncherMd5 = response.getFirstHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER);
         if (!"".equals(launcherMd5)) {
             if (!launcherMd5.equals(newLauncherMd5.getValue())) {
                 LOGGER.fatal(
@@ -94,16 +93,16 @@ public class AgentUpgradeService {
         }
     }
 
-    private void validateIfLatestAgent(String md5, HttpMethod method) {
-        final Header newAgentMd5 = method.getResponseHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER);
+    private void validateIfLatestAgent(String md5, CloseableHttpResponse response) {
+        final Header newAgentMd5 = response.getFirstHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER);
         if (!md5.equals(newAgentMd5.getValue())) {
             LOGGER.fatal(String.format("[Agent Upgrade] Agent needs to upgrade itself. Currently has md5 [%s] but server version has md5 [%s]. Exiting.", md5, newAgentMd5));
             jvmExit();
         }
     }
 
-    GetMethod getAgentLatestStatusGetMethod() {
-        return new GetMethod(urlService.getAgentLatestStatusUrl());
+    HttpGet getAgentLatestStatusGetMethod() {
+        return new HttpGet(urlService.getAgentLatestStatusUrl());
     }
 
     void jvmExit() {

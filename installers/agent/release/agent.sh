@@ -26,11 +26,11 @@ if [ "$PRODUCTION_MODE" == "Y" ]; then
 fi
 
 yell() {
-  echo "$*" >&2;
+  echo "WARN: $*" >&2;
 }
 
 die() {
-    yell "$1"
+    yell "FATAL: $1"
     exit ${2:-1}
 }
 
@@ -63,14 +63,36 @@ location of your Java installation."
   echo "$java_cmd"
 }
 
+declare -a _stringToArgs
+function stringToArgsArray() {
+  _stringToArgs=("$@")
+}
+
+function autoDetectGoServerUrl() {
+  local url
+
+  if [[ ! -z "${GO_SERVER}" || ! -z "${GO_SERVER_PORT}" ]]; then
+    yell "The environment variable GO_SERVER and GO_SERVER_PORT has been deprecated in favor of GO_SERVER_URL. Please set GO_SERVER_URL instead to a https url (https://example.com:8154/go)"
+  fi
+
+  if [ -z "${GO_SERVER_URL}" ]; then
+    if [ -z "${GO_SERVER}" ]; then
+      url="https://127.0.0.1:8154/go"
+    else
+      url="https://${GO_SERVER}:8154/go"
+    fi
+  else
+    url="${GO_SERVER_URL}"
+  fi
+
+  echo "${url}"
+}
 
 CWD="$(dirname "$0")"
 AGENT_DIR="$(cd "$CWD" && pwd)"
 
 AGENT_MEM=${AGENT_MEM:-"128m"}
 AGENT_MAX_MEM=${AGENT_MAX_MEM:-"256m"}
-GO_SERVER=${GO_SERVER:-"127.0.0.1"}
-GO_SERVER_PORT=${GO_SERVER_PORT:-"8153"}
 JVM_DEBUG_PORT=${JVM_DEBUG_PORT:-"5006"}
 VNC=${VNC:-"N"}
 
@@ -143,7 +165,10 @@ export AGENT_STARTUP_ARGS
 export LOG_DIR
 export LOG_FILE
 
-RUN_CMD=("$(autoDetectJavaExecutable)" "-jar" "$AGENT_DIR/agent-bootstrapper.jar" "$GO_SERVER" "$GO_SERVER_PORT")
+eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
+AGENT_BOOTSTRAPPER_ARGS=("${_stringToArgs[@]}")
+
+RUN_CMD=("$(autoDetectJavaExecutable)" "-jar" "$AGENT_DIR/agent-bootstrapper.jar" "-serverUrl" "$(autoDetectGoServerUrl)" "${AGENT_BOOTSTRAPPER_ARGS[@]}")
 
 echo "[$(date)] Starting Go Agent Bootstrapper with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
 echo "[$(date)] Starting Go Agent Bootstrapper in directory: $AGENT_WORK_DIR" >>"$STDOUT_LOG_FILE"

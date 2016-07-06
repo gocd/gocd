@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Map;
-import java.util.UUID;
-
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.util.SystemEnvironment;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class CheckConnectionSubprocessExecutionContext implements SubprocessExecutionContext {
     private SystemEnvironment systemEnvironment;

@@ -1,22 +1,24 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.bootstrapper;
 
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
+import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
+import com.thoughtworks.go.agent.common.AgentCLI;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.validators.FileValidator;
@@ -26,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.NDC;
 
 public class AgentBootstrapper {
-    private static final int DEFAULT_PORT = 8153;
+
     private static final int DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS = 10000;
     public static final String WAIT_TIME_BEFORE_RELAUNCH_IN_MS = "agent.bootstrapper.wait.time.before.relaunch.in.ms";
 
@@ -46,24 +48,20 @@ public class AgentBootstrapper {
         this.launcherCreator = launcherCreator;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] argv) {
         BootstrapperLoggingHelper.initLog4j();
-        if (args.length < 1 || args.length > 3) {
-            System.out.println("Usage: agent-bootstrapper.jar <hostname> [port]");
-            System.exit(1);
-        }
-        int port = args.length >= 2 ? Integer.parseInt(args[1]) : DEFAULT_PORT;
-        new AgentBootstrapper().go(true, args[0], port);
+        AgentBootstrapperArgs args = new AgentCLI().parse(argv);
+        new AgentBootstrapper().go(true, args);
     }
 
-    public void go(boolean shouldLoop, String hostname, int port) {
+    public void go(boolean shouldLoop, AgentBootstrapperArgs bootstrapperArgs) {
         loop = shouldLoop;
         launcherThread = Thread.currentThread();
 
         validate();
 
         int returnValue = 0;
-        DefaultAgentLaunchDescriptorImpl descriptor = new DefaultAgentLaunchDescriptorImpl(hostname, port, this);
+        DefaultAgentLaunchDescriptorImpl descriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, this);
 
         do {
             ClassLoader tccl = launcherThread.getContextClassLoader();
@@ -181,5 +179,4 @@ public class AgentBootstrapper {
         }
         return launcherCreator;
     }
-
 }

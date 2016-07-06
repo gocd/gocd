@@ -17,28 +17,30 @@
 package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.*;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class RemoteRegistrationRequesterTest {
     private String original;
@@ -57,7 +59,8 @@ public class RemoteRegistrationRequesterTest {
     @Test
     public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {
         String url = "http://cruise.com/go";
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
+        GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
+        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(mock(CloseableHttpResponse.class));
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
@@ -66,13 +69,15 @@ public class RemoteRegistrationRequesterTest {
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
 
         remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
-        verify(httpClient).executeMethod(argThat(hasAllParams(defaultAgentRegistry.uuid(), "", "")));
+        verify(httpClient).execute(argThat(hasAllParams(defaultAgentRegistry.uuid(), "", "")));
     }
 
     @Test
     public void shouldPassAllParametersToPostForRegistrationOfElasticAgent() throws IOException, ClassNotFoundException {
         String url = "http://cruise.com/go";
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
+        GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
+        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(mock(CloseableHttpResponse.class));
+
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
         Properties properties = new Properties();
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
@@ -83,26 +88,41 @@ public class RemoteRegistrationRequesterTest {
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID, "tw.go.elastic-agent.docker");
 
         remoteRegistryRequester(url, httpClient, defaultAgentRegistry).requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
-        verify(httpClient).executeMethod(argThat(hasAllParams(defaultAgentRegistry.uuid(), "42", "tw.go.elastic-agent.docker")));
+        verify(httpClient).execute(argThat(hasAllParams(defaultAgentRegistry.uuid(), "42", "tw.go.elastic-agent.docker")));
     }
 
-    private TypeSafeMatcher<HttpMethod> hasAllParams(final String uuid, final String elasticAgentId, final String elasticPluginId) {
-        return new TypeSafeMatcher<HttpMethod>() {
+    private TypeSafeMatcher<HttpRequestBase> hasAllParams(final String uuid, final String elasticAgentId, final String elasticPluginId) {
+        return new TypeSafeMatcher<HttpRequestBase>() {
             @Override
-            public boolean matchesSafely(HttpMethod item) {
-                PostMethod postMethod = (PostMethod) item;
-                assertThat(postMethod.getParameter("hostname").getValue(), is("cruise.com"));
-                assertThat(postMethod.getParameter("uuid").getValue(), is(uuid));
-                String workingDir = SystemUtil.currentWorkingDirectory();
-                assertThat(postMethod.getParameter("location").getValue(), is(workingDir));
-                assertThat(postMethod.getParameter("operatingSystem").getValue(), is("minix"));
-                assertThat(postMethod.getParameter("agentAutoRegisterKey").getValue(), is("t0ps3cret"));
-                assertThat(postMethod.getParameter("agentAutoRegisterResources").getValue(), is("linux, java"));
-                assertThat(postMethod.getParameter("agentAutoRegisterEnvironments").getValue(), is("uat, staging"));
-                assertThat(postMethod.getParameter("agentAutoRegisterHostname").getValue(), is("agent01.example.com"));
-                assertThat(postMethod.getParameter("elasticAgentId").getValue(), is(elasticAgentId));
-                assertThat(postMethod.getParameter("elasticPluginId").getValue(), is(elasticPluginId));
-                return true;
+            public boolean matchesSafely(HttpRequestBase item) {
+                try {
+                    HttpEntityEnclosingRequestBase postMethod = (HttpEntityEnclosingRequestBase) item;
+                    List<NameValuePair> params = URLEncodedUtils.parse(postMethod.getEntity());
+
+                    assertThat(getParameter(params, "hostname"), is("cruise.com"));
+                    assertThat(getParameter(params, "uuid"), is(uuid));
+                    String workingDir = SystemUtil.currentWorkingDirectory();
+                    assertThat(getParameter(params, "location"), is(workingDir));
+                    assertThat(getParameter(params, "operatingSystem"), is("minix"));
+                    assertThat(getParameter(params, "agentAutoRegisterKey"), is("t0ps3cret"));
+                    assertThat(getParameter(params, "agentAutoRegisterResources"), is("linux, java"));
+                    assertThat(getParameter(params, "agentAutoRegisterEnvironments"), is("uat, staging"));
+                    assertThat(getParameter(params, "agentAutoRegisterHostname"), is("agent01.example.com"));
+                    assertThat(getParameter(params, "elasticAgentId"), is(elasticAgentId));
+                    assertThat(getParameter(params, "elasticPluginId"), is(elasticPluginId));
+                    return true;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            private String getParameter(List<NameValuePair> params, String paramName) {
+                for (NameValuePair param : params) {
+                    if (param.getName().equals(paramName)) {
+                        return param.getValue();
+                    }
+                }
+                return null;
             }
 
             public void describeTo(Description description) {
@@ -111,7 +131,7 @@ public class RemoteRegistrationRequesterTest {
         };
     }
 
-    private SslInfrastructureService.RemoteRegistrationRequester remoteRegistryRequester(final String url, final HttpClient httpClient, final DefaultAgentRegistry defaultAgentRegistry) {
+    private SslInfrastructureService.RemoteRegistrationRequester remoteRegistryRequester(final String url, final GoAgentServerHttpClient httpClient, final DefaultAgentRegistry defaultAgentRegistry) {
         return new SslInfrastructureService.RemoteRegistrationRequester(url, defaultAgentRegistry, httpClient) {
             @Override
             protected Registration readResponse(InputStream is) throws IOException, ClassNotFoundException {

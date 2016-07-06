@@ -443,6 +443,11 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     public void shouldUpdatePipelineConfigsListWhenAPartialIsMerged(){
         cruiseConfig = new BasicCruiseConfig(pipelines);
         PartialConfig partial = PartialConfigMother.withPipeline("pipeline3");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplug");
+        partial.setOrigins(new RepoConfigOrigin(configRepoConfig,"123"));
+        ConfigReposConfig reposConfig = new ConfigReposConfig();
+        reposConfig.add(configRepoConfig);
+        cruiseConfig.setConfigRepos(reposConfig);
 
         cruiseConfig.merge(Arrays.asList(partial), false);
         PipelineConfig pipeline3 = partial.getGroups().first().findBy(new CaseInsensitiveString("pipeline3"));

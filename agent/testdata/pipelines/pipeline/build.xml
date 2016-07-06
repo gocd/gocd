@@ -15,13 +15,13 @@
  *************************GO-LICENSE-END******************************* -->
 
 <project name="agent" default="all">
-    <property environment="cruise" />
+    <property environment="cruise"/>
     <target name="all">
-        <echo message="Building all!" />
-        <echo message="CRUISE_SERVER_URL: ${cruise.CRUISE_SERVER_URL}" />
-        <echo message="CRUISE_PIPELINE_NAME: ${cruise.CRUISE_PIPELINE_NAME}" />
-        <echo message="CRUISE_PIPELINE_LABEL: ${cruise.CRUISE_PIPELINE_LABEL}" />
-        <echo message="CRUISE_STAGE_NAME: ${cruise.CRUISE_STAGE_NAME}" />
-        <echo message="CRUISE_JOB_NAME: ${cruise.CRUISE_JOB_NAME}" />
+        <echo message="Building all!"/>
+        <echo message="CRUISE_SERVER_URL: ${cruise.CRUISE_SERVER_URL}"/>
+        <echo message="CRUISE_PIPELINE_NAME: ${cruise.CRUISE_PIPELINE_NAME}"/>
+        <echo message="CRUISE_PIPELINE_LABEL: ${cruise.CRUISE_PIPELINE_LABEL}"/>
+        <echo message="CRUISE_STAGE_NAME: ${cruise.CRUISE_STAGE_NAME}"/>
+        <echo message="CRUISE_JOB_NAME: ${cruise.CRUISE_JOB_NAME}"/>
     </target>
 </project>

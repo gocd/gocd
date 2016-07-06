@@ -29,10 +29,19 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
-import com.thoughtworks.go.websocket.*;
+import com.thoughtworks.go.websocket.Action;
+import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageCallback;
+import com.thoughtworks.go.websocket.MessageEncoding;
+import com.thoughtworks.go.websocket.Report;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.*;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketFrame;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
@@ -44,7 +53,10 @@ import org.springframework.stereotype.Component;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -59,6 +71,7 @@ public class AgentWebsocketService {
             this.runner = runner;
             this.service = service;
         }
+
         @Override
         public AgentInstruction ping(AgentRuntimeInfo info) {
             throw new UnsupportedOperationException();

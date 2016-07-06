@@ -50,7 +50,7 @@ public class AgentUpgradeService {
 
     void checkForUpgrade(String md5, String launcherMd5, String agentPluginsMd5) throws Exception {
         HttpGet method = getAgentLatestStatusGetMethod();
-        try(final CloseableHttpResponse response = httpClient.execute(method)) {
+        try (final CloseableHttpResponse response = httpClient.execute(method)) {
             if (response.getStatusLine().getStatusCode() != 200) {
                 LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", response.getStatusLine().getStatusCode(), response.getStatusLine()));
                 return;

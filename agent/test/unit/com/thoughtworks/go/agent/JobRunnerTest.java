@@ -18,9 +18,25 @@ package com.thoughtworks.go.agent;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactPlans;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.BasicPipelineConfigs;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.ExecTask;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.JobConfigs;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.Tasks;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.DefaultSchedulingContext;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.helper.BuilderMother;
@@ -36,7 +52,6 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.work.FakeWork;
 import org.junit.After;
 import org.junit.Before;
@@ -60,59 +75,16 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(JunitExtRunner.class)
 public class JobRunnerTest {
+    private static final String SERVER_URL = "somewhere-does-not-matter";
+    private static final String JOB_PLAN_NAME = "run-ant";
     private JobRunner runner;
     private FakeWork work;
     private List<String> consoleOut;
     private List<Enum> statesAndResult;
     private List<Property> properties;
-    private static final String SERVER_URL = "somewhere-does-not-matter";
-
-    private static final String JOB_PLAN_NAME = "run-ant";
-
-    private static final String TASK_WITH_CANCEL = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <exec command=\"echo\" args=\"should run me before cancellation\" />\n"
-            + "    <exec command=\"sleep\" args=\"10\">\n"
-            + "      <oncancel>\n"
-            + "        <exec command=\"echo\" args=\"cancel in progress\" />\n"
-            + "      </oncancel>\n"
-            + "    </exec>\n"
-            + "    <exec command=\"echo\" args=\"should not run after cancellation\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
-
-    private static final String TASK_WITH_LONG_RUNNING_CANCEL = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
-            + "  <tasks>\n"
-            + "    <exec command=\"echo\" args=\"should run me before cancellation\" />\n"
-            + "    <exec command=\"sleep\" args=\"10\">\n"
-            + "      <oncancel>\n"
-            + "        <exec command=\"sleep\" args=\"15\" />\n"
-            + "      </oncancel>\n"
-            + "    </exec>\n"
-            + "    <exec command=\"echo\" args=\"should not run after cancellation\" />\n"
-            + "  </tasks>\n"
-            + "</job>";
     private BuildWork buildWork;
     private AgentIdentifier agentIdentifier;
     private UpstreamPipelineResolver resolver;
-
-    @Before
-    public void setUp() throws Exception {
-        runner = new JobRunner();
-        work = new FakeWork();
-        consoleOut = new ArrayList<>();
-        statesAndResult = new ArrayList<>();
-        properties = new ArrayList<>();
-        agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-
-        new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
-        resolver = mock(UpstreamPipelineResolver.class);
-    }
-
-    @After
-    public void tearDown() {
-        verifyNoMoreInteractions(resolver);
-    }
 
     public static String withJob(String jobXml) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -138,6 +110,24 @@ public class JobRunnerTest {
                 + "</cruise>";
     }
 
+    @Before
+    public void setUp() throws Exception {
+        runner = new JobRunner();
+        work = new FakeWork();
+        consoleOut = new ArrayList<>();
+        statesAndResult = new ArrayList<>();
+        properties = new ArrayList<>();
+        agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
+
+        new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
+        resolver = mock(UpstreamPipelineResolver.class);
+    }
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(resolver);
+    }
+
     private BuildWork getWork(JobConfig jobConfig) {
         CruiseConfig config = new BasicCruiseConfig();
         config.server().setArtifactsDir("logs");
@@ -158,14 +148,14 @@ public class JobRunnerTest {
     }
 
     @Test
-    public void shouldDoNothingWhenJobIsNotCancelled() throws CruiseControlException {
+    public void shouldDoNothingWhenJobIsNotCancelled() {
         runner.setWork(work);
         runner.handleInstruction(new AgentInstruction(false), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         assertThat(work.getCallCount(), is(0));
     }
 
     @Test
-    public void shouldCancelOncePerJob() throws CruiseControlException {
+    public void shouldCancelOncePerJob() {
         runner.setWork(work);
         runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         assertThat(work.getCallCount(), is(1));
@@ -175,7 +165,7 @@ public class JobRunnerTest {
     }
 
     @Test
-    public void shoudReturnTrueOnGetJobIsCancelledWhenJobIsCancelled() {
+    public void shouldReturnTrueOnGetJobIsCancelledWhenJobIsCancelled() {
         assertThat(runner.isJobCancelled(), is(false));
         runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
         assertThat(runner.isJobCancelled(), is(true));
@@ -272,7 +262,7 @@ public class JobRunnerTest {
     }
 
     private GoArtifactsManipulatorStub stubPublisher(final List<Property> properties,
-                                                                     final List<String> consoleOuts) {
+                                                     final List<String> consoleOuts) {
         return new GoArtifactsManipulatorStub(properties, consoleOuts);
     }
 

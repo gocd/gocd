@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.agent.testhelpers;
 
-import java.io.File;
-
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.util.TestFileUtil;
+
+import java.io.File;
 
 public class AgentCertificateMother {
     private static String authorityKeystorePath = "tempAuthorityKeystore";

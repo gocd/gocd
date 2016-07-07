@@ -111,7 +111,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> {
         List<ConfigurationProperty> propertiesToRemove = new ArrayList<>();
         for (ConfigurationProperty configurationProperty : this) {
             ConfigurationValue configurationValue = configurationProperty.getConfigurationValue();
-            EncryptedConfigurationValue encryptedValue = configurationProperty.getEncryptedValue();
+            EncryptedConfigurationValue encryptedValue = configurationProperty.getEncryptedConfigurationValue();
 
             if (StringUtil.isBlank(configurationProperty.getValue()) && (configurationValue == null || configurationValue.errors().isEmpty()) && (encryptedValue == null || encryptedValue.errors().isEmpty())) {
                 propertiesToRemove.add(configurationProperty);

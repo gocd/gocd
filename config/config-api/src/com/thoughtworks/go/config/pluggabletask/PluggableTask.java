@@ -34,6 +34,7 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.util.ListUtil;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,10 +89,12 @@ public class PluggableTask extends AbstractTask {
         for (Property property : taskConfig.list()) {
             String key = property.getKey();
             if (attributes.containsKey(key)) {
+                Boolean isSecure = property.getOption(Property.SECURE);
                 if (configuration.getProperty(key) == null) {
-                    configuration.addNewConfiguration(property.getKey(), property.getOption(Property.SECURE));
+                    configuration.addNewConfiguration(property.getKey(), isSecure);
                 }
                 configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
+                configuration.getProperty(key).handleSecureValueConfiguration(isSecure);
             }
         }
     }
@@ -109,30 +112,39 @@ public class PluggableTask extends AbstractTask {
     public void addConfigurations(List<ConfigurationProperty> configurations) {
         ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurations) {
-            String configKey = property.getConfigurationKey() != null ? property.getConfigKeyName() : null;
-            String encryptedValue = property.getEncryptedValue() != null ? property.getEncryptedValue().getValue() : null;
-            String configValue = property.getConfigurationValue() != null ? property.getConfigValue() : null;
 
-        TaskPreference taskPreference = taskPreference();
-            if(isValidPluginConfiguration(configKey, taskPreference)) {
-                configuration.add(builder.create(configKey, configValue, encryptedValue, pluginConfigurationFor(configKey, taskPreference).getOption(Property.SECURE)));
-            } else
-            {
+            if(isValidPluginConfiguration(property.getConfigKeyName())) {
+                configuration.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(),
+                                                 pluginConfigurationFor(property.getConfigKeyName()).getOption(Property.SECURE)));
+            } else {
                 configuration.add(property);
             }
         }
     }
 
-    private boolean isValidPluginConfiguration(String configKey, TaskPreference taskPreference) {
-        return taskPreference != null && pluginConfigurationFor(configKey, taskPreference) != null;
+    private boolean isValidPluginConfiguration(String configKey) {
+        return taskPreference() != null && pluginConfigurationFor(configKey) != null;
     }
 
-    private Property pluginConfigurationFor(String configKey, TaskPreference taskPreference) {
-        return taskPreference.getConfig().get(configKey);
+    private Property pluginConfigurationFor(String configKey) {
+        TaskPreference taskPreference = taskPreference();
+        return taskPreference != null ? taskPreference.getConfig().get(configKey) : null;
     }
 
     private TaskPreference taskPreference() {
         return PluggableTaskConfigStore.store().preferenceFor(pluginConfiguration.getId());
+    }
+
+    @PostConstruct
+    public void applyPluginMetadata() {
+        if (taskPreference() != null) {
+            for (ConfigurationProperty configurationProperty : configuration) {
+                if (isValidPluginConfiguration(configurationProperty.getConfigKeyName())) {
+                    Boolean isSecure = pluginConfigurationFor(configurationProperty.getConfigKeyName()).getOption(Property.SECURE);
+                    configurationProperty.handleSecureValueConfiguration(isSecure);
+                }
+            }
+        }
     }
 
     @Override
@@ -190,7 +202,7 @@ public class PluggableTask extends AbstractTask {
         Map<String, Map<String, String>> configMap = new HashMap<>();
         for (ConfigurationProperty property : configuration) {
             Map<String, String> mapValue = new HashMap<>();
-            mapValue.put(VALUE_KEY, property.getConfigValue());
+            mapValue.put(VALUE_KEY, property.getValue());
             if (!property.errors().isEmpty()) {
                 mapValue.put(ERRORS_KEY, ListUtil.join(property.errors().getAll()));
             }

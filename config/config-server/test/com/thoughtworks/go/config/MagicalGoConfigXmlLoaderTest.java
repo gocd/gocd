@@ -37,6 +37,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -53,8 +54,15 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedPluggableTask;
+import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
+import com.thoughtworks.go.plugin.api.config.*;
+import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.HgUrlArgument;
@@ -92,6 +100,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -3078,12 +3087,12 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(packageMaterialConfig.getPackageDefinition(), is(packageDefinition));
         Configuration repoConfig = packageMaterialConfig.getPackageDefinition().getRepository().getConfiguration();
         assertThat(repoConfig.get(0).getConfigurationValue().getValue(), is("value"));
-        assertThat(repoConfig.get(1).getEncryptedValue().getValue(), is(new GoCipher().encrypt("secure-value")));
-        assertThat(repoConfig.get(2).getEncryptedValue().getValue(), is(encryptedValue));
+        assertThat(repoConfig.get(1).getEncryptedValue(), is(new GoCipher().encrypt("secure-value")));
+        assertThat(repoConfig.get(2).getEncryptedValue(), is(encryptedValue));
         Configuration packageConfig = packageMaterialConfig.getPackageDefinition().getConfiguration();
         assertThat(packageConfig.get(0).getConfigurationValue().getValue(), is("value"));
-        assertThat(packageConfig.get(1).getEncryptedValue().getValue(), is(new GoCipher().encrypt("secure-value")));
-        assertThat(packageConfig.get(2).getEncryptedValue().getValue(), is(encryptedValue));
+        assertThat(packageConfig.get(1).getEncryptedValue(), is(new GoCipher().encrypt("secure-value")));
+        assertThat(packageConfig.get(2).getEncryptedValue(), is(encryptedValue));
     }
 
     @Test
@@ -3523,6 +3532,67 @@ public class MagicalGoConfigXmlLoaderTest {
             }
         });
         assertThat(new ArrayList<String>(values), is(asList("http://fake-go-server", "godev", "password")));
+    }
+
+    @Test
+    public void shouldBeAbleToResolveSecureConfigPropertiesForPluggableTasks() throws Exception {
+        String encryptedValue = new GoCipher().encrypt("password");
+        String configString =
+                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                        + " <pipelines>"
+                        + "<pipeline name='pipeline1'>"
+                        + "    <materials>"
+                        + "      <svn url='svnurl' username='admin' password='%s'/>"
+                        + "    </materials>"
+                        + "  <stage name='mingle'>"
+                        + "    <jobs>"
+                        + "      <job name='do-something'><tasks>"
+                        + "        <task>"
+                        + "          <pluginConfiguration id='plugin-id-1' version='1.0'/>"
+                        + "          <configuration>"
+                        + "            <property><key>username</key><value>godev</value></property>"
+                        + "            <property><key>password</key><value>password</value></property>"
+                        + "          </configuration>"
+                        + "        </task> </tasks>"
+                        + "      </job>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline></pipelines>"
+                        + "</cruise>";
+
+        //meta data of package
+        PluggableTaskConfigStore.store().setPreferenceFor("plugin-id-1", new TaskPreference(new com.thoughtworks.go.plugin.api.task.Task() {
+            @Override
+            public TaskConfig config() {
+                TaskConfig taskConfig = new TaskConfig();
+                taskConfig.addProperty("username").with(Property.SECURE, false);
+                taskConfig.addProperty("password").with(Property.SECURE, true);
+                return taskConfig;
+            }
+
+            @Override
+            public TaskExecutor executor() {
+                return null;
+            }
+
+            @Override
+            public TaskView view() {
+                return null;
+            }
+
+            @Override
+            public ValidationResult validate(TaskConfig configuration) {
+                return null;
+            }
+        }));
+
+        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(configString);
+
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PluggableTask task = (PluggableTask) pipelineConfig.getStage("mingle").getJobs().getJob(new CaseInsensitiveString("do-something")).getTasks().first();
+
+        assertFalse(task.getConfiguration().getProperty("username").isSecure());
+        assertTrue(task.getConfiguration().getProperty("password").isSecure());
     }
 
     @Test

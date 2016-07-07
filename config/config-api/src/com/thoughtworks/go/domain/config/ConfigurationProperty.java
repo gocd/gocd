@@ -147,7 +147,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
         return format("%s=%s", configurationKey.getName(), getValue());
     }
 
-    public EncryptedConfigurationValue getEncryptedValue() {
+    public EncryptedConfigurationValue getEncryptedConfigurationValue() {
         return encryptedValue;
     }
 
@@ -206,7 +206,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
 
     public void addErrorAgainstConfigurationValue(String message) {
         if (isSecure()) {
-            getEncryptedValue().errors().add("value", message);
+            getEncryptedConfigurationValue().errors().add("value", message);
         } else {
             getConfigurationValue().errors().add("value", message);
         }
@@ -214,7 +214,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
 
     public boolean doesNotHaveErrorsAgainstConfigurationValue() {
         if (isSecure()) {
-            List<String> errorsOnValue = getEncryptedValue().errors().getAllOn("value");
+            List<String> errorsOnValue = getEncryptedConfigurationValue().errors().getAllOn("value");
             return errorsOnValue == null || errorsOnValue.isEmpty();
         } else {
             List<String> errorsOnValue = getConfigurationValue().errors().getAllOn("value");
@@ -278,11 +278,15 @@ public class ConfigurationProperty implements Serializable, Validatable {
     }
 
     public String getConfigKeyName() {
-        return configurationKey.getName();
+        return configurationKey != null ? configurationKey.getName() : null;
     }
 
     public String getConfigValue() {
-        return configurationValue.getValue();
+        return configurationValue != null ? configurationValue.getValue() : null;
+    }
+
+    public String getEncryptedValue() {
+        return encryptedValue != null ? encryptedValue.getValue() : null;
     }
 
     public String getDisplayValue() {

@@ -81,7 +81,7 @@ public class ConfigurationPropertyTest {
                 goCipher);
         property.handleSecureValueConfiguration(true);
         assertThat(property.isSecure(), is(true));
-        assertThat(property.getEncryptedValue().getValue(), is(encryptedText));
+        assertThat(property.getEncryptedValue(), is(encryptedText));
         assertThat(property.getConfigurationKey().getName(), is("secureKey"));
         assertThat(property.getConfigurationValue(), is(nullValue()));
     }
@@ -94,7 +94,7 @@ public class ConfigurationPropertyTest {
         assertThat(property.isSecure(), is(false));
         assertThat(property.getConfigurationKey().getName(), is("secureKey"));
         assertThat(property.getConfigurationValue().getValue(), is("secureValue"));
-        assertThat(property.getEncryptedValue(), is(nullValue()));
+        assertThat(property.getEncryptedConfigurationValue(), is(nullValue()));
     }
 
     @Test
@@ -105,8 +105,8 @@ public class ConfigurationPropertyTest {
         assertThat(property.isSecure(), is(true));
         assertThat(property.getConfigurationKey().getName(), is("secureKey"));
         assertThat(property.getConfigurationValue(), is(nullValue()));
-        assertThat(property.getEncryptedValue(), is(notNullValue()));
-        assertThat(property.getEncryptedValue().getValue(), is("secureValue"));
+        assertThat(property.getEncryptedConfigurationValue(), is(notNullValue()));
+        assertThat(property.getEncryptedValue(), is("secureValue"));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ConfigurationPropertyTest {
         GoCipher goCipher = mock(GoCipher.class);
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("secureKey"), new ConfigurationValue(""), new EncryptedConfigurationValue("old"), goCipher);
         property.handleSecureValueConfiguration(true);
-        assertThat(property.getEncryptedValue().getValue(), is(""));
+        assertThat(property.getEncryptedValue(), is(""));
         verify(cipher, never()).decrypt(anyString());
     }
 
@@ -175,7 +175,7 @@ public class ConfigurationPropertyTest {
         assertThat(configurationProperty.getConfigurationKey().getName(), is("key"));
         assertThat(configurationProperty.getConfigurationValue(), is(notNullValue()));
         assertThat(configurationProperty.getConfigurationValue().getValue(), is(""));
-        assertThat(configurationProperty.getEncryptedValue(), is(nullValue()));
+        assertThat(configurationProperty.getEncryptedConfigurationValue(), is(nullValue()));
         Method initializeMethod = ReflectionUtils.findMethod(ConfigurationProperty.class, "initialize");
         assertThat(initializeMethod.getAnnotation(PostConstruct.class), is(notNullValue()));
     }
@@ -204,7 +204,7 @@ public class ConfigurationPropertyTest {
 
         assertThat(configurationProperty.getConfigurationKey().getName(), is(secureKey));
         assertThat(configurationProperty.getConfigurationValue(), is(nullValue()));
-        assertThat(configurationProperty.getEncryptedValue().getValue(), is(encryptedValue));
+        assertThat(configurationProperty.getEncryptedValue(), is(encryptedValue));
     }
 
     @Test
@@ -231,7 +231,7 @@ public class ConfigurationPropertyTest {
 
         assertThat(configurationProperty.getConfigurationKey().getName(), is(secureKey));
         assertThat(configurationProperty.getConfigurationValue(), is(nullValue()));
-        assertThat(configurationProperty.getEncryptedValue().getValue(), is("encryptedValue"));
+        assertThat(configurationProperty.getEncryptedValue(), is("encryptedValue"));
     }
 
     @Test
@@ -249,7 +249,7 @@ public class ConfigurationPropertyTest {
 
         assertThat(configurationProperty.getConfigurationKey().getName(), is("fooKey"));
         assertThat(configurationProperty.getConfigurationValue().getValue(), is("fooValue"));
-        assertThat(configurationProperty.getEncryptedValue(), is(nullValue()));
+        assertThat(configurationProperty.getEncryptedConfigurationValue(), is(nullValue()));
     }
 
     @Test

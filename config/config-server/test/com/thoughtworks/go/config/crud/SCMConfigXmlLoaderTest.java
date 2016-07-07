@@ -339,7 +339,7 @@ public class SCMConfigXmlLoaderTest extends BaseConfigXmlLoaderTest {
         assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(scmConfig));
         Configuration configuration = pluggableSCMMaterialConfig.getSCMConfig().getConfiguration();
         assertThat(configuration.get(0).getConfigurationValue().getValue(), is("value"));
-        assertThat(configuration.get(1).getEncryptedValue().getValue(), is(new GoCipher().encrypt("secure-value")));
-        assertThat(configuration.get(2).getEncryptedValue().getValue(), is(encryptedValue));
+        assertThat(configuration.get(1).getEncryptedValue(), is(new GoCipher().encrypt("secure-value")));
+        assertThat(configuration.get(2).getEncryptedValue(), is(encryptedValue));
     }
 }

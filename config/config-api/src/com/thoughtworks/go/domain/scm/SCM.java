@@ -135,18 +135,14 @@ public class SCM implements Serializable, Validatable {
     public void addConfigurations(List<ConfigurationProperty> configurations) {
         ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurations) {
-            String configKey = property.getConfigurationKey() != null ? property.getConfigKeyName() : null;
-            String encryptedValue = property.getEncryptedValue() != null ? property.getEncryptedValue().getValue() : null;
-            String configValue = property.getConfigurationValue() != null ? property.getConfigValue() : null;
-
             SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(getPluginId());
-            if (isValidPluginConfiguration(configKey, scmConfigurations)) {
-                configuration.add(builder.create(configKey, configValue, encryptedValue, scmConfigurationFor(configKey, scmConfigurations).getOption(SCMConfiguration.SECURE)));
+            if (isValidPluginConfiguration(property.getConfigKeyName(), scmConfigurations)) {
+                configuration.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(),
+                                                 scmConfigurationFor(property.getConfigKeyName(), scmConfigurations).getOption(SCMConfiguration.SECURE)));
             }
             else {
                 configuration.add(property);
             }
-
         }
     }
 

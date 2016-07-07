@@ -64,8 +64,8 @@ public class PluggableTaskTest {
                 new ConfigurationProperty(new ConfigurationKey(keys.get(0)), new ConfigurationValue(values.get(0))),
                 new ConfigurationProperty(new ConfigurationKey(keys.get(1)), new ConfigurationValue(values.get(1))),
                 new ConfigurationProperty(new ConfigurationKey(keys.get(2)), new ConfigurationValue(values.get(2))),
-                new ConfigurationProperty(new ConfigurationKey(keys.get(3)), new ConfigurationValue(values.get(3)),
-                        new EncryptedConfigurationValue(cipher.encrypt(values.get(3))), cipher));
+                new ConfigurationProperty(new ConfigurationKey(keys.get(3)), null, new EncryptedConfigurationValue(cipher.encrypt(values.get(3))), cipher)
+        );
 
         PluggableTask task = new PluggableTask(pluginConfiguration, configuration);
 
@@ -221,6 +221,27 @@ public class PluggableTaskTest {
 
         assertThat(task.configAsMap().get("KEY1").get(PluggableTask.VALUE_KEY), is("value1"));
         assertThat(task.configAsMap().get("Key2").get(PluggableTask.VALUE_KEY), is("value2"));
+    }
+
+    @Test
+    public void shouldHandleSecureConfigurations() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
+        Configuration configuration = new Configuration();
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
+
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
+        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
+
+        TaskConfig taskConfig = new TaskConfig();
+        taskConfig.addProperty("KEY1").with(Property.SECURE, true);
+
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
+
+        task.setTaskConfigAttributes(attributeMap);
+
+        assertThat(task.getConfiguration().size(), is(1));
+        assertTrue(task.getConfiguration().first().isSecure());
+        assertThat(task.getConfiguration().first().getValue(), is("value1"));
     }
 
     @Test
@@ -413,6 +434,56 @@ public class PluggableTaskTest {
         when(configuration.hasErrors()).thenReturn(true);
 
         assertFalse(pluggableTask.validateTree(null));
+    }
+
+    @Test
+    public void postConstructShouldHandleSecureConfigurationForConfigurationProperties() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
+        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1");
+        Configuration configuration = new Configuration(configurationProperty);
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
+
+        TaskConfig taskConfig = new TaskConfig();
+        taskConfig.addProperty("KEY1").with(Property.SECURE, true);
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
+
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
+
+        assertFalse(configurationProperty.isSecure());
+
+        task.applyPluginMetadata();
+        assertTrue(configurationProperty.isSecure());
+    }
+
+    @Test
+    public void postConstructShouldDoNothingForPluggableTaskWithoutCorrespondingPlugin() throws Exception {
+        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1");
+        Configuration configuration = new Configuration(configurationProperty);
+
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
+
+        assertFalse(configurationProperty.isSecure());
+
+        task.applyPluginMetadata();
+        assertFalse(configurationProperty.isSecure());
+    }
+
+    @Test
+    public void postConstructShouldDoNothingForAInvalidConfigurationProperty() throws Exception {
+        TaskPreference taskPreference = mock(TaskPreference.class);
+        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("KEY1");
+        Configuration configuration = new Configuration(configurationProperty);
+        PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
+
+        TaskConfig taskConfig = new TaskConfig();
+        when(taskPreference.getConfig()).thenReturn(taskConfig);
+
+        PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
+
+        assertFalse(configurationProperty.isSecure());
+
+        task.applyPluginMetadata();
+        assertFalse(configurationProperty.isSecure());
     }
 
     private void assertProperty(TaskProperty taskProperty, String name, String value, String cssClass) {

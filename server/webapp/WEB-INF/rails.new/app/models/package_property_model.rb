@@ -23,9 +23,9 @@ class PackagePropertyModel
     @is_secure = package_configuration.getOption(com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration::SECURE)
     if config_property
       if (@is_secure)
-        @value = config_property.getEncryptedValue().getValue()
+        @value = config_property.getEncryptedValue()
       else
-        @value = config_property.getConfigurationValue().getValue()
+        @value = config_property.getConfigValue()
       end
     end
     @name = package_configuration.getKey()

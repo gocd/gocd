@@ -35,7 +35,7 @@ module ApiV1
       end
 
       def encrypted_value
-        configuration_property.getEncryptedValue.getValue if configuration_property.isSecure
+        configuration_property.getEncryptedValue if configuration_property.isSecure
       end
 
       def value=(val)

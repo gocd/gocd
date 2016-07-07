@@ -29,7 +29,6 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -58,7 +57,6 @@ import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
@@ -854,12 +852,12 @@ public class MagicalGoConfigXmlWriterTest {
         PackageRepositories packageRepositories = goConfigHolder.config.getPackageRepositories();
         assertThat(packageRepositories, is(configToSave.getPackageRepositories()));
         assertThat(packageRepositories.get(0).getConfiguration().first().getConfigurationValue().getValue(), is("http://go"));
-        assertThat(packageRepositories.get(0).getConfiguration().first().getEncryptedValue(), is(nullValue()));
-        assertThat(packageRepositories.get(0).getConfiguration().last().getEncryptedValue().getValue(), is(new GoCipher().encrypt("secure")));
+        assertThat(packageRepositories.get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
+        assertThat(packageRepositories.get(0).getConfiguration().last().getEncryptedValue(), is(new GoCipher().encrypt("secure")));
         assertThat(packageRepositories.get(0).getConfiguration().last().getConfigurationValue(), is(nullValue()));
         assertThat(packageRepositories.get(0).getPackages().get(0), is(packageDefinition));
         assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getConfigurationValue().getValue(), is("go-agent"));
-        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getEncryptedValue(), is(nullValue()));
+        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getEncryptedConfigurationValue(), is(nullValue()));
     }
 
     @Test

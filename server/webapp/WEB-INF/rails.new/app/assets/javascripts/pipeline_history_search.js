@@ -5,7 +5,8 @@ function applyLabelFilter() {
         removeLabelFilter();
         return;
     }
-
+    jQuery('#search-message').text("");
+    jQuery('#labelFilterClear').show();
     jQuery.get("/go/pipelineHistory.json?pipelineName="+pipelineName+"&start=0&perPage=25&labelFilter="+inputVal, function (data) {
         filterHistories(data, inputVal);
     });
@@ -15,14 +16,9 @@ function applyLabelFilter() {
 function filterHistories(pipelineHistory, filter) {
     //Need to stop periodic executor to show only the pipelines matching the filter
     dashboard_periodical_executer.stop();
-
-    jQuery("#labelFilterField").prop("readonly", true);
-    jQuery('#filterLabelsButton').hide();
-    jQuery('#removeFilterButton').show();
     $('page_links').innerHTML = "";
 
     var histories = pipelineHistory.groups[0].history;
-
     var count = histories.length;
     if(count == 0) {
         jQuery('.pipeline-history-group').html("");
@@ -42,22 +38,21 @@ function filterHistories(pipelineHistory, filter) {
 
 // Removes the applied filter (if there is one) and resumes the periodic executer
 function removeLabelFilter() {
-    jQuery("#labelFilterField").prop("readonly", false);
     jQuery("#labelFilterField").val("");
-    jQuery('#filterLabelsButton').show();
-    jQuery('#removeFilterButton').hide();
     jQuery('#search-message').text("");
+    jQuery('#labelFilterClear').hide();
 
     if(!dashboard_periodical_executer.is_execution_start)
         dashboard_periodical_executer.start();
 }
 
 jQuery( document ).ready(function() {
-    //Trigger search when enterkey is pressed from the search field
-    jQuery('#labelFilterField').keypress(function (e) {
-        if (e.keyCode == 13)
-            applyLabelFilter();
+    //Trigger filter when the input field changes
+    jQuery('#labelFilterField').on('input', function () {
+        applyLabelFilter();
     });
-    jQuery("#filterLabelsButton").click(applyLabelFilter);
-    jQuery("#removeFilterButton").click(removeLabelFilter);
+    jQuery('#labelFilterClear').hide();
+    jQuery('#labelFilterClear').click(function(){
+        removeLabelFilter();
+    });
 });

@@ -41,9 +41,8 @@
 
     <!-- Pipeline Label Filter -->
     <div class="label-filter-group">
+        <button title="Clear" class="filter-clear-icon" style="display: block;" id="labelFilterClear"></button>
         <input type="text" id="labelFilterField" placeholder='Filter history...'>
-        <button id="filterLabelsButton" type="button" class="submit button">Search</button>
-        <button id="removeFilterButton" type="button" class="submit button">Remove Filter</button>
     </div>
 
     <div class="yui-b">

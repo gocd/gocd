@@ -21,7 +21,7 @@ import static org.mockito.AdditionalMatchers.not;
 
 public abstract class CRBaseTest<T extends CRBase> {
 
-    private boolean printExamples = true;
+    private boolean printExamples = false;
     protected Gson gson;
 
     @Before

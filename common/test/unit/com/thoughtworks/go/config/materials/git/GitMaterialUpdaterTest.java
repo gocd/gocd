@@ -52,6 +52,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -223,7 +224,6 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         File unversionedFile = new File(new File(workingDir, submoduleDirectoryName), "unversioned_file.txt");
         FileUtils.writeStringToFile(unversionedFile, "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!");
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Passed);
-        System.out.println("console = " + console);
         assertThat(unversionedFile.exists(), Matchers.is(false));
     }
 
@@ -278,7 +278,11 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         FileUtils.deleteDirectory(submoduleFolder);
         assertThat(submoduleFolder.exists(), Matchers.is(false));
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Failed);
-        assertThat(console.output(), containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())));
+        assertThat(console.output(), anyOf(
+                containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())),
+                containsString(String.format("clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath()))
+                )
+        );
     }
 
 
@@ -287,7 +291,7 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         JobResult result = buildSession.build(new GitMaterialUpdater(material).updateTo("working", revisionContext));
         assertThat(buildInfo(), result, is(expectedResult));
     }
-    
+
     private GitCommand localRepoFor(GitMaterial material) {
         return new GitCommand(material.getFingerprint(), workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
     }

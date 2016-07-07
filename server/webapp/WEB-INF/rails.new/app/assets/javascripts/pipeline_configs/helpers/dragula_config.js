@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-define(['dragula'], function (dragula) {
-  var dragulaConfig = function (elem, isInitialized, onDropCallback) {
-    if (isInitialized) {
-      return;
-    }
+define(['dragula', 'lodash'], function (dragula, _) {
+  var dragulaConfig = function (elem, options) {
 
-    var drake = dragula([elem], {
-      revertOnSpill:   true,
-      mirrorContainer: elem
-    });
+    var opts = _.extend({revertOnSpill: true, mirrorContainer: elem}, options.dragulaOptions);
+
+    var drake = dragula([elem], opts);
 
     drake.on('drop', function () {
       m.startComputation();
       try {
-        onDropCallback();
+        options.onDropCallback();
       } finally {
         m.endComputation();
       }

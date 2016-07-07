@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util;
 
@@ -22,6 +22,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,8 +102,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String CONFIG_CIPHER = "cipher";
     public static final String HOSTNAME_SHINE_USES = "localhost";
-    public static final String SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE = "shine.xsl.transformer.registry.cache.size";
-    private static final String DEFAULT_SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE = "20";
     public static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
@@ -181,12 +180,13 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Long> GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT = new GoLongSystemProperty("go.websocket.ack.message.timeout", 300 * 1000L);
 
     public static GoSystemProperty<Long> GO_WEBSOCKET_MAX_IDLE_TIME = new GoLongSystemProperty("go.websocket.max.idle.time", 60 * 1000L);
-    public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", true);
+    public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);
     public static GoSystemProperty<Boolean> GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP = new GoBooleanSystemProperty("go.server.scheduledPipelineLoader.globalMaterialLookup", false);
     public static GoSystemProperty<Boolean> PLUGIN_UPLOAD_ENABLED = new GoBooleanSystemProperty("go.plugin.upload.enabled", false);
 
     public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
     public static GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);
+    public static GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
 
     public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
 
@@ -480,8 +480,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private Properties properties() {
         if (properties == null) {
             properties = new Properties();
-            try {
-                properties.load(getClass().getResourceAsStream(CRUISE_PROPERTIES));
+            try(InputStream is = getClass().getResourceAsStream(CRUISE_PROPERTIES)) {
+                properties.load(is);
             } catch (Exception e) {
                 LOG.error("Unable to load newProperties file " + CRUISE_PROPERTIES);
             }
@@ -580,10 +580,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getCruiseDbCacheSize() {
         return getPropertyImpl(CRUISE_DB_CACHE_SIZE, CRUISE_DB_CACHE_SIZE_DEFAULT);
-    }
-
-    public int getShineXslTransformerRegistryCacheSize() {
-        return Integer.parseInt(getPropertyImpl(SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE, DEFAULT_SHINE_XSL_TRANSFORMER_REGISTRY_CACHE_SIZE));
     }
 
     public long getUnresponsiveJobWarningThreshold() {

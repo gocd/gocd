@@ -82,7 +82,7 @@ public abstract class TestBaseForDatabaseUpdater {
         updater.updateMaterial(material);
 
         Modification modification = materialRepository.findLatestModification(material).getMaterialRevision(0).getModification(0);
-        assertEquals(testRepo.latestModification(), modification);
+        assertThat(testRepo.latestModification().get(0), is(modification));
 
     }
 

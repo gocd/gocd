@@ -17,5 +17,5 @@
 package com.thoughtworks.go.domain.valuestreammap;
 
 public enum VSMViewType {
-    NO_PERMISSION, DELETED
+    NO_PERMISSION, DELETED, WARNING
 }

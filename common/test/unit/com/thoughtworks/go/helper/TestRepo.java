@@ -47,7 +47,7 @@ public abstract class TestRepo {
 
     public abstract List<Modification> checkInOneFile(String fileName, String comment) throws Exception;
 
-    public abstract Modification latestModification();
+    public abstract List<Modification> latestModification();
 
     public void onSetup() throws Exception {
 

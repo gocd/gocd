@@ -136,8 +136,8 @@ describe ValueStreamMapController do
         pipeline = "current"
         vsm = ValueStreamMap.new(pipeline, nil)
         vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_1, pipeline)
-        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"),CaseInsensitiveString.new("git"), modifications, "p1")
-        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git2", "http://git.com", "Git"), nil, modifications, "p1")
+        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"),CaseInsensitiveString.new("git"), "p1", MaterialRevision.new(nil, false, modification))
+        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git2", "http://git.com", "Git"), nil, "p1", MaterialRevision.new(nil, false, modifications))
         model = vsm.presentationModel()
         @value_stream_map_service.should_receive(:getValueStreamMap).with(pipeline, 1,@user, @result).and_return(model)
 
@@ -180,14 +180,19 @@ describe ValueStreamMapController do
                 "parents": [],
                 "locator": "",
                 "depth": 1,
-                "instances": [
+                "instances": [],
+                "material_revisions": [
                   {
-                    "comment": "comment",
-                    "revision": "r1",
-                    "user": "user",
-                    "modified_time": "less than a minute ago",
-                    "locator": "/materials/value_stream_map/git1/r1"
-                  }
+                  "modifications": [
+                    {
+                     "comment": "comment",
+                     "revision": "r1",
+                     "user": "user",
+                     "modified_time": "less than a minute ago",
+                     "locator": "/materials/value_stream_map/git1/r1"
+                    }
+                  ]
+                 }
                 ],
                 "dependents": [
                   "p1"
@@ -201,7 +206,10 @@ describe ValueStreamMapController do
                 "parents": [],
                 "locator": "",
                 "depth": 2,
-                "instances": [
+                "instances":[],
+                "material_revisions": [
+                  {
+                  "modifications": [
                   {
                     "comment": "comment",
                     "revision": "r1",
@@ -209,6 +217,8 @@ describe ValueStreamMapController do
                     "modified_time": "less than a minute ago",
                     "locator": "/materials/value_stream_map/git2/r1"
                   }
+                 ]
+                }
                 ],
                 "dependents": [
                   "p1"

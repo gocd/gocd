@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
 import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
@@ -55,9 +55,9 @@ public class LevelAssignmentTest {
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current, 1, "1"));
         valueStreamMap.addUpstreamNode(p1, new PipelineRevision("p1", 1, "1"), current);
         valueStreamMap.addUpstreamNode(p2, new PipelineRevision("p2", 1, "1"), current);
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), new Modifications(ModificationsMother.aCheckIn("1")), "p1");
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), new Modifications(ModificationsMother.aCheckIn("1")), "p3");
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), new Modifications(ModificationsMother.aCheckIn("1")), "p2");
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), "p1", new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), "p3", new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), "p2", new MaterialRevision(null));
         NodeLevelMap levelToNodeMap = new LevelAssignment().apply(valueStreamMap);
 
         assertThat(valueStreamMap.getCurrentPipeline().getLevel(), is(0));
@@ -88,7 +88,7 @@ public class LevelAssignmentTest {
         Node gitNode = new SCMDependencyNode("git", "g", "git");
 
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current, 1, "1"));
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), new Modifications(ModificationsMother.aCheckIn("1")), "p");
+        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), "p", new MaterialRevision(null));
 
         valueStreamMap.addDownstreamNode(p1, current);
         valueStreamMap.addDownstreamNode(p2, current);

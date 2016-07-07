@@ -1,6 +1,6 @@
 #!/bin/bash
-#*************************GO-LICENSE-START********************************
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,20 +13,62 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#*************************GO-LICENSE-END**********************************
-
+##########################################################################
 
 MANUAL_SETTING=${MANUAL_SETTING:-"N"}
 
 if [ "$MANUAL_SETTING" == "N" ]; then
     if [ -f /etc/default/go-server ]; then
-        echo "using default settings from /etc/default/go-server"
+        echo "[$(date)] using default settings from /etc/default/go-server"
         . /etc/default/go-server
     fi
 fi
 
-CWD=`dirname "$0"`
-SERVER_DIR=`(cd "$CWD" && pwd)`
+yell() {
+  echo "$*" >&2;
+}
+
+die() {
+    yell "$1"
+    exit ${2:-1}
+}
+
+function autoDetectJavaExecutable() {
+  local java_cmd
+  # Prefer using GO_JAVA_HOME, over JAVA_HOME
+  GO_JAVA_HOME=${GO_JAVA_HOME:-"$JAVA_HOME"}
+
+  if [ -n "$GO_JAVA_HOME" ] ; then
+      if [ -x "$GO_JAVA_HOME/jre/sh/java" ] ; then
+          # IBM's JDK on AIX uses strange locations for the executables
+          java_cmd="$GO_JAVA_HOME/jre/sh/java"
+      else
+          java_cmd="$GO_JAVA_HOME/bin/java"
+      fi
+      if [ ! -x "$java_cmd" ] ; then
+          die "ERROR: GO_JAVA_HOME is set to an invalid directory: $GO_JAVA_HOME
+
+Please set the GO_JAVA_HOME variable in your environment to match the
+location of your Java installation."
+      fi
+  else
+      java_cmd="java"
+      which java >/dev/null 2>&1 || die "ERROR: GO_JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the GO_JAVA_HOME variable in your environment to match the
+location of your Java installation."
+  fi
+
+  echo "$java_cmd"
+}
+
+declare -a _stringToArgs
+function stringToArgsArray() {
+  _stringToArgs=("$@")
+}
+
+CWD="$(dirname "$0")"
+SERVER_DIR="$(cd "$CWD" && pwd)"
 
 [ ! -z $SERVER_MEM ] || SERVER_MEM="512m"
 [ ! -z $SERVER_MAX_MEM ] || SERVER_MAX_MEM="1024m"
@@ -98,46 +140,51 @@ else
 fi
 
 if [ "$JVM_DEBUG" != "" ]; then
-    JVM_DEBUG="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+    JVM_DEBUG=("-Xdebug" "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005")
 else
-    JVM_DEBUG=""
+    JVM_DEBUG=()
 fi
 
 if [ "$GC_LOG" != "" ]; then
-    GC_LOG="-verbose:gc -Xloggc:go-server-gc.log -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+PrintGCDetails -XX:+PrintGC"
+    GC_LOG=("-verbose:gc" "-Xloggc:go-server-gc.log" "-XX:+PrintGCTimeStamps" "-XX:+PrintTenuringDistribution" "-XX:+PrintGCDetails" "-XX:+PrintGC")
 else
-    GC_LOG=""
+    GC_LOG=()
 fi
 
+eval stringToArgsArray "$GO_SERVER_SYSTEM_PROPERTIES"
+GO_SERVER_SYSTEM_PROPERTIES=("${_stringToArgs[@]}")
+
 if [ ! -z $SERVER_LISTEN_HOST ]; then
-    GO_SERVER_SYSTEM_PROPERTIES="$GO_SERVER_SYSTEM_PROPERTIES -Dcruise.listen.host=$SERVER_LISTEN_HOST"
+    GO_SERVER_SYSTEM_PROPERTIES+=(-Dcruise.listen.host=$SERVER_LISTEN_HOST)
 fi
-SERVER_STARTUP_ARGS+=("-server $YOURKIT")
-SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM -Xmx$SERVER_MAX_MEM -XX:PermSize=$SERVER_MIN_PERM_GEN -XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
-SERVER_STARTUP_ARGS+=("$JVM_DEBUG $GC_LOG $GO_SERVER_SYSTEM_PROPERTIES")
-SERVER_STARTUP_ARGS+=("-Duser.language=en -Djruby.rack.request.size.threshold.bytes=30000000")
-SERVER_STARTUP_ARGS+=("-Duser.country=US -Dcruise.config.dir=$GO_CONFIG_DIR -Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
-SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT -Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
+SERVER_STARTUP_ARGS=("-server")
+
+if [ ! -z $YOURKIT ]; then
+    SERVER_STARTUP_ARGS+=("$YOURKIT")
+fi
 if [ "$TMPDIR" != "" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.io.tmpdir=$TMPDIR")
 fi
 if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.security.egd=file:/dev/./urandom")
 fi
-CMD="$JAVA_HOME/bin/java ${SERVER_STARTUP_ARGS[@]} -jar $SERVER_DIR/go.jar"
 
-echo "Starting Go Server with command: $CMD" >> $STDOUT_LOG_FILE
-echo "Starting Go Server in directory: $GO_WORK_DIR" >> $STDOUT_LOG_FILE
+SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM" "-Xmx$SERVER_MAX_MEM" "-XX:PermSize=$SERVER_MIN_PERM_GEN" "-XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
+SERVER_STARTUP_ARGS+=("${JVM_DEBUG[@]}" "${GC_LOG[@]}" "${GO_SERVER_SYSTEM_PROPERTIES[@]}")
+SERVER_STARTUP_ARGS+=("-Duser.language=en" "-Djruby.rack.request.size.threshold.bytes=30000000")
+SERVER_STARTUP_ARGS+=("-Duser.country=US" "-Dcruise.config.dir=$GO_CONFIG_DIR" "-Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")
+SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT" "-Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
+
+RUN_CMD=("$(autoDetectJavaExecutable)" "${SERVER_STARTUP_ARGS[@]}" "-jar" "$SERVER_DIR/go.jar")
+
+echo "[$(date)] Starting Go Server with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
+echo "[$(date)] Starting Go Server in directory: $SERVER_WORK_DIR" >> $STDOUT_LOG_FILE
 cd "$SERVER_WORK_DIR"
 
-if [ "$JAVA_HOME" == "" ]; then
-    echo "Please set JAVA_HOME to proceed."
-    exit 1
-fi
-
 if [ "$DAEMON" == "Y" ]; then
-    eval exec nohup "$CMD" >> $STDOUT_LOG_FILE 2>&1 &
-    echo $! >$PID_FILE
+    exec nohup "${RUN_CMD[@]}" >> "$STDOUT_LOG_FILE" 2>&1 &
+    disown $!
+    echo $! >"$PID_FILE"
 else
-    eval exec "$CMD"
+    exec "${RUN_CMD[@]}"
 fi

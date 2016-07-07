@@ -80,13 +80,14 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
       beforeAll(function () {
         var materials = new Materials();
         material = materials.createMaterial({
-          type:        'git',
-          url:         "http://git.example.com/git/myProject",
-          branch:      "release-1.2",
-          destination: "projectA",
-          name:        "git-repo",
-          autoUpdate:  true,
-          filter:      new Materials.Filter({ignore: ['*.doc']})
+          type:         'git',
+          url:          "http://git.example.com/git/myProject",
+          branch:       "release-1.2",
+          destination:  "projectA",
+          name:         "git-repo",
+          autoUpdate:   true,
+          filter:       new Materials.Filter({ignore: ['*.doc']}),
+          shallowClone: true
         });
 
         createRootElement();
@@ -120,6 +121,10 @@ define(["jquery", "mithril", "pipeline_configs/models/materials", "pipeline_conf
 
       it('should bind autoUpdate value', function () {
         expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
+      });
+
+      it('should bind shallow clone value', function () {
+        expect($root.find("input[data-prop-name='shallowClone']").val()).toBe('on');
       });
     });
 

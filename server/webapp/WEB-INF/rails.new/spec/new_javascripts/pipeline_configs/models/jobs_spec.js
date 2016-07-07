@@ -216,7 +216,9 @@ define(['lodash', "pipeline_configs/models/jobs", "string-plus"], function (_, J
               attributes: {
                 target:            "clean",
                 working_directory: "dir",
-                build_file:        ""
+                build_file:        "",
+                run_if:            ['any'],
+                on_cancel:         null
               }
             }
           ],

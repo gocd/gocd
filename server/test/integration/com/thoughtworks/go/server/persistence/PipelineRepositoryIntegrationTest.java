@@ -123,7 +123,6 @@ public class PipelineRepositoryIntegrationTest {
         u.checkinInOrder(git1, "g1");
 
         GitMaterial git2 = u.wf(new GitMaterial("git"), "folder2");
-        u.checkinInOrder(git2, "g1");
 
         ScheduleTestUtil.AddedPipeline p = u.saveConfigWith("P", u.m(git1), u.m(git2));
         CruiseConfig cruiseConfig = goConfigDao.load();

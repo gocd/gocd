@@ -189,9 +189,9 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     private void consume(final BuildCause buildCause) throws SQLException {
+        dbHelper.saveRevs(buildCause.getMaterialRevisions());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
-                materialRepository.save(buildCause.getMaterialRevisions());
                 Pipeline latestPipeline = pipelineScheduleQueue.createPipeline(buildCause, mingleConfig, new DefaultSchedulingContext(buildCause.getApprover(), new Agents()), "md5",
                         new TimeProvider());
 //        Pipeline latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);

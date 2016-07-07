@@ -197,9 +197,10 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
 
   Materials.Material.Git = function (data) {
     Materials.Material.call(this, "git", true, data);
-    this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
-    this.url         = m.prop(s.defaultToIfBlank(data.url, ''));
-    this.branch      = m.prop(s.defaultToIfBlank(data.branch, ''));
+    this.destination  = m.prop(s.defaultToIfBlank(data.destination, ''));
+    this.url          = m.prop(s.defaultToIfBlank(data.url, ''));
+    this.branch       = m.prop(s.defaultToIfBlank(data.branch, 'master'));
+    this.shallowClone = m.prop(data.shallowClone);
 
     this.validate = function () {
       var errors = new Mixins.Errors();
@@ -215,21 +216,23 @@ define(['mithril', 'lodash', 'string-plus', './model_mixins', './encrypted_value
 
     this._attributesToJSON = function () {
       return {
-        destination: this.destination(),
-        url:         this.url(),
-        branch:      this.branch()
+        destination:   this.destination(),
+        url:           this.url(),
+        branch:        this.branch(),
+        shallow_clone: this.shallowClone()
       };
     };
   };
 
   Materials.Material.Git.fromJSON = function (data) {
     return new Materials.Material.Git({
-      url:         data.url,
-      branch:      data.branch,
-      destination: data.destination,
-      name:        data.name,
-      autoUpdate:  data.auto_update,
-      filter:      Materials.Filter.fromJSON(data.filter)
+      url:          data.url,
+      branch:       data.branch,
+      destination:  data.destination,
+      name:         data.name,
+      autoUpdate:   data.auto_update,
+      filter:       Materials.Filter.fromJSON(data.filter),
+      shallowClone: data.shallow_clone
     });
   };
 

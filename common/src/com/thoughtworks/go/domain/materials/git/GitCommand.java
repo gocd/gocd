@@ -79,12 +79,13 @@ public class GitCommand extends SCMCommand {
         return "%cn <%ce>%n%H%n%ai%n%n%s%n%b%n" + separator;
     }
 
-    public Modification latestModification() {
-        return gitLog("-1", "--date=iso", "--pretty=medium").get(0);
+    public List<Modification> latestModification() {
+        return gitLog("-1", "--date=iso", "--pretty=medium", remoteBranch());
+
     }
 
     public List<Modification> modificationsSince(Revision revision) {
-        return gitLog("--date=iso", "--pretty=medium", String.format("%s..", revision.getRevision()));
+        return gitLog("--date=iso", "--pretty=medium", String.format("%s..%s", revision.getRevision(), remoteBranch()));
     }
 
     private List<Modification> gitLog(String... args) {
@@ -99,8 +100,7 @@ public class GitCommand extends SCMCommand {
             throw new RuntimeException(String.format("Working directory: %s\n%s", workingDir, outputStreamConsumer.getStdError()), e);
         }
 
-        CommandLine gitCmd = git(environment).withArg("log").withArg(remoteBranch()).withArgs(args).withWorkingDir(workingDir);
-
+        CommandLine gitCmd = git(environment).withArg("log").withArgs(args).withWorkingDir(workingDir);
         ConsoleResult result = runOrBomb(gitCmd);
 
         GitModificationParser parser = new GitModificationParser();
@@ -235,8 +235,16 @@ public class GitCommand extends SCMCommand {
         return new UrlArgument(runOrBomb(gitConfig).outputForDisplay().get(0));
     }
 
-    public static void checkConnection(UrlArgument repoUrl, Map<String, String> environment) {
-        commandToCheckConnection(repoUrl, environment).runOrBomb(repoUrl.forDisplay());
+    public static void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
+        CommandLine commandLine = git(environment).withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
+        ConsoleResult result = commandLine.runOrBomb(repoUrl.forDisplay());
+        if(!hasOnlyOneMatchingBranch(result)){
+            throw new CommandLineException(String.format("The branch %s could not be found.", branch));
+        }
+    }
+
+    private static boolean hasOnlyOneMatchingBranch(ConsoleResult branchList) {
+        return (branchList.output().size() == 1);
     }
 
     public static CommandLine commandToCheckConnection(UrlArgument url, Map<String, String> environment) {
@@ -291,7 +299,7 @@ public class GitCommand extends SCMCommand {
 
     public void fetch(ProcessOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Fetching changes");
-        CommandLine gitFetch = git(environment).withArgs("fetch", "origin").withWorkingDir(workingDir);
+        CommandLine gitFetch = git(environment).withArgs("fetch", "origin", "--prune").withWorkingDir(workingDir);
 
         int result = run(gitFetch, outputStreamConsumer);
         if (result != 0) {
@@ -429,11 +437,12 @@ public class GitCommand extends SCMCommand {
         return new File(workingDir, ".git/shallow").exists();
     }
 
-    public boolean hasRevision(Revision revision) {
-        CommandLine cmd = git(environment).withArg("cat-file").withArg("-t").withArg(revision.getRevision()).withWorkingDir(workingDir);
+    public boolean containsRevisionInBranch(Revision revision) {
+        String[] args = {"branch", "-r", "--contains", revision.getRevision()};
+        CommandLine gitCommand = git(environment).withArgs(args).withWorkingDir(workingDir);
         try {
-            ConsoleResult consoleResult = runOrBomb(cmd);
-            return "commit".equals(consoleResult.outputAsString());
+            ConsoleResult consoleResult = runOrBomb(gitCommand);
+            return (consoleResult.outputAsString()).contains(remoteBranch());
         } catch (CommandLineException e) {
             return false;
         }

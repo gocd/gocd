@@ -31,8 +31,8 @@ describe ValueStreamMapModel do
     #
     vsm = ValueStreamMap.new("current", PipelineRevision.new("current", 1, "current-1"))
     vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), PipelineRevision.new("p1", 1, "p1-1"), "current")
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), modifications(), "p1")
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git2"), modifications(), "current")
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), "p1", material_revision)
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git2"), "current", material_revision)
 
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
     materialNames = Array.new
@@ -112,7 +112,7 @@ describe ValueStreamMapModel do
     vsm.addUpstreamNode(PipelineDependencyNode.new("p2", "p2"), revision_p2_1, "current")
     vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_2, "p2")
     modifications = modifications()
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), modifications, "p1")
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), "p1", material_revision)
     p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new("p3", "p3"), "current");
     p3_node.addRevision(revision_p3_1);
 
@@ -186,8 +186,10 @@ describe ValueStreamMapModel do
     nodeGit = graph_model.levels[0].nodes[0]
     nodeGit.id.should == "git"
     nodeGit.node_type.should == "GIT"
-    nodeGit.instances.size.should == 1
-    git_instance = nodeGit.instances[0]
+    nodeGit.instances.size.should == 0
+    nodeGit.material_revisions.size.should == 1
+    nodeGit.material_revisions[0].modifications.size.should == 1
+    git_instance = nodeGit.material_revisions[0].modifications[0]
     modification = modifications.get(0)
     git_instance.revision.should == modification.getRevision()
     git_instance.locator.should == "some/path/to/git/r1"
@@ -210,7 +212,7 @@ describe ValueStreamMapModel do
     vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_1, "current")
     vsm.addUpstreamNode(PipelineDependencyNode.new("p2", "p2"), revision_p2_1, "current")
     vsm.addUpstreamNode(PipelineDependencyNode.new("p1", "p1"), revision_p1_1, "p2")
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), modifications(), "p1")
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), "p1", material_revision)
 
     p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new("p3", "p3"), "current");
     p3_node.setViewType(com.thoughtworks.go.domain.valuestreammap.VSMViewType::NO_PERMISSION)
@@ -269,22 +271,25 @@ describe ValueStreamMapModel do
     nodeGit = graph_model.levels[0].nodes[0]
     nodeGit.id.should == "git"
     nodeGit.node_type.should == "GIT"
-    nodeGit.instances.size.should == 1
-    nodeGit.instances[0].revision.should == "r1"
-    nodeGit.instances[0].locator.should == "some/path/to/git/r1"
+    nodeGit.material_revisions.size.should == 1
+    nodeGit.material_revisions[0].modifications.size.should == 1
+    nodeGit.material_revisions[0].modifications[0].revision.should == "r1"
+    nodeGit.material_revisions[0].modifications[0].locator.should == "some/path/to/git/r1"
   end
 
-  it "should populate details of material modification like revision, user, comment and modified_time" do
+  it "should populate details of material_revisions with modifications" do
     # git -> current
 
     vsm = ValueStreamMap.new("current", PipelineRevision.new("current", 1, "current-1"))
     modifications = modifications()
-    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), modifications, "current")
+    vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), CaseInsensitiveString.new("git1"), "current", material_revision)
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
     git_node = graph_model.levels[0].nodes[0]
-    git_node.instances.size.should == 1
 
-    git_instance = git_node.instances[0]
+    git_node.material_revisions.size.should == 1
+    git_node.material_revisions[0].modifications.size.should == 1
+
+    git_instance = git_node.material_revisions[0].modifications[0]
     modification = modifications.get(0)
     git_instance.revision.should == modification.getRevision()
     git_instance.user.should == modification.getUserName()
@@ -305,9 +310,10 @@ describe ValueStreamMapModel do
     graph_model.current_material.should == material.getFingerprint()
 
     git_node = graph_model.levels[0].nodes[0]
-    git_node.instances.size.should == 1
+    git_node.material_revisions.size.should == 1
+    git_node.material_revisions[0].modifications.size.should == 1
 
-    git_instance = git_node.instances[0]
+    git_instance = git_node.material_revisions[0].modifications[0]
     modification = modifications.get(0)
     git_instance.revision.should == modification.getRevision()
     git_instance.user.should == modification.getUserName()
@@ -320,4 +326,7 @@ describe ValueStreamMapModel do
     return com.thoughtworks.go.domain.materials.Modifications.new([modification].to_java(com.thoughtworks.go.domain.materials.Modification))
   end
 
+  def material_revision
+    return MaterialRevision.new(GitMaterial.new("url"), false, modifications)
+  end
 end

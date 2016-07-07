@@ -1,0 +1,235 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'lodash', 'jquery', 'angular', '../helpers/form_helper', '../models/pluggable_tasks', 'js-routes',
+  '../models/argument'
+], function (m, _, $, angular, f, PluggableTasks, Routes, Argument) {
+
+  var TaskBasicViews = {
+    ant: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
+          <f.row>
+            <f.inputWithLabel attrName='target'
+                              model={task}/>
+            <f.inputWithLabel attrName='buildFile'
+                              model={task}/>
+            <f.inputWithLabel attrName='workingDirectory'
+                              model={task}
+                              end={true}/>
+          </f.row>
+        );
+      }
+    },
+
+    nant: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
+          <f.row>
+            <f.row>
+              <f.inputWithLabel attrName='target'
+                                model={task}/>
+              <f.inputWithLabel attrName='workingDirectory'
+                                model={task}/>
+              <f.inputWithLabel attrName='buildFile'
+                                model={task}
+                                end={true}/>
+            </f.row>
+            <f.row>
+              <f.inputWithLabel attrName='nantPath'
+                                model={task}
+                                end={true}/>
+            </f.row>
+          </f.row>
+        );
+      }
+    },
+
+    exec: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        var vm = Argument.vm(task.args());
+        var arguments = function () {
+          if (task.args().isList()) {
+            return (
+              <f.column size={8}>
+                <f.textareaWithLabel attrName="data"
+                                     model={vm}
+                                     label="Args"
+                                     size={12}/>
+              </f.column>)
+          }
+          return (
+            <f.column size={8}>
+              <f.inputWithLabel attrName='data'
+                                model={vm}
+                                label="Args"
+                                size={12}
+                                largeSize={12}/>
+            </f.column>)
+        };
+
+        return (
+          <f.row>
+            <f.column size={4}>
+              <f.row>
+                <f.inputWithLabel attrName='command'
+                                  model={task}
+                                  size={12}
+                                  largeSize={12}/>
+                <f.inputWithLabel attrName='workingDirectory'
+                                  model={task}
+                                  end={true}
+                                  size={12}
+                                  largeSize={12}/>
+              </f.row>
+            </f.column>
+            {arguments()}
+          </f.row>
+        );
+      }
+    },
+
+    rake: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
+          <f.row>
+            <f.inputWithLabel attrName='target'
+                              model={task}/>
+            <f.inputWithLabel attrName='buildFile'
+                              model={task}/>
+            <f.inputWithLabel attrName='workingDirectory'
+                              model={task}
+                              end={true}/>
+          </f.row>
+        );
+      }
+    },
+
+    fetchartifact: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
+          <f.row>
+            <f.row>
+              <f.inputWithLabel attrName='pipeline'
+                                model={task}/>
+              <f.inputWithLabel attrName='stage'
+                                model={task}/>
+              <f.inputWithLabel attrName='job'
+                                model={task}
+                                end={true}/>
+            </f.row>
+            <f.row>
+              <f.inputWithLabel attrName='type'
+                                model={task.source()}/>
+              <f.inputWithLabel attrName='location'
+                                model={task.source()}
+                                end={true}/>
+            </f.row>
+          </f.row>
+        );
+      }
+    },
+
+    plugin: {
+      controller: function (args) {
+        this.task = args.task;
+        this.templateHTML = PluggableTasks.Types[this.task.pluginId()].templateHTML;
+        this.defaultTaskConfig = PluggableTasks.Types[this.task.pluginId()].configuration;
+        this.ngControllerName = 'controller-' + this.task.uuid();
+        this.appName = 'app-' + this.task.uuid();
+        this.ngModule = angular.module(this.appName, []);
+
+        this.hasBootstrapped = false;
+
+        var ctrl = this;
+
+        this.ngController = angular.module(this.appName).controller(this.ngControllerName, ['$scope', '$http', function ($scope, $http) {
+          $scope.addError = function (field) {
+            this.GOINPUTNAME[field.name] = {
+              $error: {
+                server: field.errors.join()
+              }
+            };
+          };
+
+          $scope.clearErrors = function () {
+            this.GOINPUTNAME = {};
+            this.pluggableTaskGenericError = null;
+          };
+
+          $scope.clearErrors();
+
+          var ajaxValidator = _.debounce(function (configuration, config, newValue) {
+            configuration.setConfiguration(config.name, newValue);
+            var req = {
+              url: Routes.apiInternalPluggableTaskValidationPath({plugin_id: ctrl.task.pluginId()}),
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
+              },
+              data: JSON.stringify(configuration)
+            };
+
+            $http(req).then(
+              $scope.clearErrors.bind($scope),
+              function (response) {
+                if (response.status === 422) {
+                  _.each(response.data, $scope.addError, $scope);
+                } else if (response.status === 520) {
+                  $scope.pluggableTaskGenericError = response.data.error;
+                } else {
+                  console.log('Something went wrong, we do not know what!');
+                }
+              });
+          }, 250);
+
+          _.map(ctrl.defaultTaskConfig, function (config) {
+            var configuration = ctrl.task.configuration();
+            var value = configuration.valueFor(config.name);
+
+            if (!value) {
+              value = config.value;
+            }
+
+            $scope[config.name] = value;
+
+            $scope.$watch(config.name, function (newValue, oldValue) {
+              ajaxValidator(configuration, config, newValue);
+            });
+          });
+        }]);
+      },
+
+      view: function (ctrl) {
+        return (
+          <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName}>
+            <div class="alert-box alert"
+                 ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
+            {m.trust(ctrl.templateHTML)}
+          </div>
+        );
+      }
+    }
+  };
+  return TaskBasicViews;
+});

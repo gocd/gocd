@@ -1,22 +1,21 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.git;
 
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
@@ -32,15 +31,13 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.Is;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -49,7 +46,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
+import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import static com.thoughtworks.go.util.DateUtils.parseRFC822;
 import static com.thoughtworks.go.util.FileUtil.readLines;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -66,7 +63,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(JunitExtRunner.class)
 public class GitCommandTest {
     private static final String BRANCH = "foo";
     private static final String SUBMODULE = "submodule-1";
@@ -81,6 +77,9 @@ public class GitCommandTest {
 
     @Mock
     private TestSubprocessExecutionContext testSubprocessExecutionContext;
+
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Before public void setup() throws Exception {
         gitRepo = new GitTestRepo();
@@ -133,12 +132,12 @@ public class GitCommandTest {
         FileUtil.deleteFolder(this.gitLocalRepoDir);
         git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
         assertThat(git.isShallow(), is(true));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_4), is(true));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_3), is(true));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_4), is(true));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_3), is(true));
         // can not assert on revision_2, because on old version of git (1.7)
         // depth '2' actually clone 3 revisions
-        assertThat(git.hasRevision(GitTestRepo.REVISION_1), is(false));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(false));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_1), is(false));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0), is(false));
 
     }
 
@@ -148,15 +147,15 @@ public class GitCommandTest {
         git.cloneFrom(inMemoryConsumer(), repoUrl, 2);
         git.unshallow(inMemoryConsumer(), 3);
         assertThat(git.isShallow(), is(true));
-        assertThat(git.hasRevision(GitTestRepo.REVISION_2), is(true));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_2), is(true));
         // can not assert on revision_1, because on old version of git (1.7)
         // depth '3' actually clone 4 revisions
-        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(false));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0), is(false));
 
         git.unshallow(inMemoryConsumer(), Integer.MAX_VALUE);
         assertThat(git.isShallow(), is(false));
 
-        assertThat(git.hasRevision(GitTestRepo.REVISION_0), is(true));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0), is(true));
     }
 
     @Test
@@ -236,13 +235,17 @@ public class GitCommandTest {
             gitWithSubmodule.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("HEAD"));
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())));
+            assertThat(e.getMessage(), CoreMatchers.anyOf(
+                    containsString(String.format("Clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath())),
+                    containsString(String.format("clone of '%s' into submodule path 'sub1' failed", submoduleFolder.getAbsolutePath()))
+                    )
+            );
         }
     }
 
     @Test
     public void shouldRetrieveLatestModification() throws Exception {
-        Modification mod = git.latestModification();
+        Modification mod = git.latestModification().get(0);
         assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
         assertThat(mod.getComment(), is("Added 'run-till-file-exists' ant target"));
         assertThat(mod.getModifiedTime(), is(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800")));
@@ -267,10 +270,83 @@ public class GitCommandTest {
     }
 
     @Test
+    public void shouldReturnNothingForModificationsSinceIfARebasedCommitSHAIsPassed() throws IOException {
+        GitTestRepo remoteRepo = new GitTestRepo();
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, new HashMap<String, String>());
+
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+
+        assertThat(command.modificationsSince(new StringRevision(modification.getRevision())).isEmpty(), is(true));
+
+    }
+
+    @Test
+    public void shouldReturnTheRebasedCommitForModificationsSinceTheRevisionBeforeRebase() throws IOException {
+        GitTestRepo remoteRepo = new GitTestRepo();
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, new HashMap<String, String>());
+
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+
+        assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
+
+    }
+
+    @Test(expected = CommandLineException.class)
+    public void shouldBombIfCheckedForModificationsSinceWithASHAThatNoLongerExists() throws IOException {
+        GitTestRepo remoteRepo = new GitTestRepo();
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, new HashMap<String, String>());
+
+        Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").get(0);
+        remoteRepo.addFileAndAmend("bar", "amendedCommit");
+
+        command.modificationsSince(new StringRevision(modification.getRevision()));
+    }
+
+    @Test(expected = CommandLineException.class)
+    public void shouldBombIfCheckedForModificationsSinceWithANonExistentRef() throws IOException {
+        GitTestRepo remoteRepo = new GitTestRepo();
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "non-existent-branch", false, new HashMap<String, String>());
+
+        Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").get(0);
+
+        command.modificationsSince(new StringRevision(modification.getRevision()));
+    }
+
+    @Test
+    public void shouldBombWhileRetrievingLatestModificationFromANonExistentRef() throws IOException {
+        expectedException.expect(CommandLineException.class);
+        expectedException.expectMessage("ambiguous argument 'origin/non-existent-branch': unknown revision or path not in the working tree.");
+        GitTestRepo remoteRepo = new GitTestRepo();
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "non-existent-branch", false, new HashMap<String, String>());
+
+        command.latestModification();
+    }
+
+    @Test
+    public void shouldReturnTrueIfTheGivenBranchContainsTheRevision() {
+        assertThat(git.containsRevisionInBranch(REVISION_4), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseIfTheGivenBranchDoesNotContainTheRevision() {
+        assertThat(git.containsRevisionInBranch(NON_EXISTENT_REVISION), is(false));
+    }
+
+    @Test
     public void shouldRetrieveFilenameForInitialRevision() throws IOException {
         GitTestRepo testRepo = new GitTestRepo(GitTestRepo.GIT_SUBMODULE_REF_BUNDLE);
         GitCommand gitCommand = new GitCommand(null, testRepo.gitRepository(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
-        Modification modification = gitCommand.latestModification();
+        Modification modification = gitCommand.latestModification().get(0);
         assertThat(modification.getModifiedFiles().size(), is(1));
         assertThat(modification.getModifiedFiles().get(0).getFileName(), is("remote.txt"));
     }
@@ -280,7 +356,7 @@ public class GitCommandTest {
         GitCommand branchedGit = new GitCommand(null, createTempWorkingDirectory(), BRANCH, false, new HashMap<String, String>());
         branchedGit.cloneFrom(inMemoryConsumer(), branchedRepo.projectRepositoryUrl());
 
-        Modification mod = branchedGit.latestModification();
+        Modification mod = branchedGit.latestModification().get(0);
 
         assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
         assertThat(mod.getComment(), is("Started foo branch"));
@@ -365,18 +441,14 @@ public class GitCommandTest {
     }
 
     @Test public void shouldCheckIfRemoteRepoExists() throws Exception {
-        try {
-            final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
-            GitCommand.checkConnection(git.workingRepositoryUrl(), executionContext.getDefaultEnvironmentVariables());
-        } catch (Exception e) {
-            fail();
-        }
+        final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
+        GitCommand.checkConnection(git.workingRepositoryUrl(), "master", executionContext.getDefaultEnvironmentVariables());
     }
 
     @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenRepoNotExist() throws Exception {
         final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
-        GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), executionContext.getDefaultEnvironmentVariables());
+        GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master", executionContext.getDefaultEnvironmentVariables());
     }
 
     @Test(expected = Exception.class)
@@ -386,7 +458,7 @@ public class GitCommandTest {
         whiteListWhichDoesNotContainFileProtocol.put("GIT_ALLOW_PROTOCOL", "git");
 
         when(testSubprocessExecutionContext.getDefaultEnvironmentVariables()).thenReturn(whiteListWhichDoesNotContainFileProtocol);
-        GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), testSubprocessExecutionContext.getDefaultEnvironmentVariables());
+        GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "master", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
     }
 
     @Test(expected = Exception.class)
@@ -400,6 +472,12 @@ public class GitCommandTest {
         GitCommand gitCommand = new GitCommand("unique-material", null, "master", false, executionContext.getDefaultEnvironmentVariables());
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitCommand.cloneFrom(outputStreamConsumer, gitRepo.projectRepositoryUrl());
+        GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
+    }
+
+    @Test(expected = Exception.class)
+    public void shouldThrowExceptionWhenRemoteBranchDoesNotExist() throws Exception {
+        GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "Invalid_Branch", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
     }
 
     @Test
@@ -415,10 +493,10 @@ public class GitCommandTest {
 
 
     @Test public void shouldIncludeNewChangesInModificationCheck() throws Exception {
-        String originalNode = git.latestModification().getRevision();
+        String originalNode = git.latestModification().get(0).getRevision();
         File testingFile = checkInNewRemoteFile();
 
-        Modification modification = git.latestModification();
+        Modification modification = git.latestModification().get(0);
         assertThat(modification.getRevision(), is(not(originalNode)));
         assertThat(modification.getComment(), is("New checkin of " + testingFile.getName()));
         assertThat(modification.getModifiedFiles().size(), is(1));
@@ -426,10 +504,10 @@ public class GitCommandTest {
     }
 
     @Test public void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
-        String originalNode = git.latestModification().getRevision();
+        String originalNode = git.latestModification().get(0).getRevision();
         File testingFile = checkInNewRemoteFileInFuture(THREE_DAYS_FROM_NOW);
 
-        Modification modification = git.latestModification();
+        Modification modification = git.latestModification().get(0);
         assertThat(modification.getRevision(), is(not(originalNode)));
         assertThat(modification.getComment(), is("New checkin of " + testingFile.getName()));
         assertThat(modification.getModifiedTime(), is(THREE_DAYS_FROM_NOW));
@@ -452,7 +530,7 @@ public class GitCommandTest {
         String message = "司徒空在此";
         gitRepo.addFileAndPush(filename, message);
 
-        Modification modification = git.latestModification();
+        Modification modification = git.latestModification().get(0);
         assertThat(modification.getModifiedFiles().get(0).getFileName(), containsString(filename));
         assertThat(modification.getComment(), is(message));
     }

@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.thoughtworks.go</groupId>
         <artifactId>gocd</artifactId>
-        <version>16.4.0</version>
+        <version>16.5.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -640,6 +640,20 @@
             <artifactId>websocket-server</artifactId>
             <version>${jetty.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
+            <version>2.0.0-alpha-03</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-matchers</artifactId>
+            <version>2.0.0-alpha-03</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

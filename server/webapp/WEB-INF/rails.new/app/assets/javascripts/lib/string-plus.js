@@ -53,10 +53,6 @@ define(['string', 'lodash', 'mithril'], function (s, _, m) {
       }
     },
 
-    isUndefinedOrNull: function (value) {
-      return _.isUndefined(value) || _.isNull(value);
-    },
-
     isPositiveInteger: function (value) {
       return POSITIVE_INTEGER.test(String(value).trim())
     },

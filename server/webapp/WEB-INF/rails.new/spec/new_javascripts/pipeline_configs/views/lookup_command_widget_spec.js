@@ -53,7 +53,7 @@ define(["mithril", "lodash", "pipeline_configs/views/lookup_command_widget", "pi
           return enableTextComplete;
         });
 
-        createRootElement()
+        createRootElement();
         mount(model, snippet);
       });
 

@@ -18,11 +18,13 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
@@ -65,7 +67,8 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     private PipelineConfigService pipelineConfigService;
     @Autowired
     private ServerStatusService serverStatusService;
-
+    @Autowired
+    private Localizer localizer;
     private GoConfigFileHelper configHelper;
     private final int TWO_MINUTES = 2 * 60 * 1000;
 
@@ -87,7 +90,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             .outerRule(new TestWatcher() {
                 @Override
                 protected void failed(Throwable e, Description description) {
-                    if(e.getMessage().contains("test timed out") || e instanceof TimeoutException){
+                    if (e.getMessage().contains("test timed out") || e instanceof TimeoutException) {
                         try {
                             fail("Test timed out, possible deadlock. Thread Dump:" + serverStatusService.captureServerInfo(Username.ANONYMOUS, new HttpLocalizedOperationResult()));
                         } catch (IOException e1) {
@@ -122,15 +125,12 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                     @Override
                     public void run() {
                         try {
-                            File configFile = new File(goConfigDao.fileLocation());
-                            String currentConfig = FileUtil.readContentFromFile(configFile);
-                            String updatedConfig = currentConfig.replaceFirst("artifactsdir=\".*\"", "artifactsdir=\"" + UUID.randomUUID().toString() + "\"");
-                            FileUtil.writeContentToFile(updatedConfig, configFile);
-                        } catch (IOException e) {
+                            writeConfigToFile(new File(goConfigDao.fileLocation()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
                             fail("Failed with error: " + e.getMessage());
                         }
                         cachedFileGoConfig.forceReload();
-
                     }
                 }, "timer-thread");
             } catch (InterruptedException e) {
@@ -149,12 +149,44 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         assertThat(goConfigService.getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount));
     }
 
+    private void writeConfigToFile(File configFile) throws IOException {
+        if (!SystemUtil.isWindows()) {
+            update(configFile);
+            return;
+        }
+        int retries = 1;
+        while (retries <= 5) {
+            try {
+                update(configFile);
+                return;
+            } catch (IOException e) {
+                try {
+                    System.out.println(String.format("Retry attempt - %s. Error: %s", retries, e.getMessage()));
+                    e.printStackTrace();
+                    Thread.sleep(10);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                retries = retries + 1;
+            }
+        }
+        throw new RuntimeException(String.format("Could not write to config file after %s attempts", retries));
+    }
+
+    private void update(File configFile) throws IOException {
+        String currentConfig = FileUtil.readContentFromFile(configFile);
+        String updatedConfig = currentConfig.replaceFirst("artifactsdir=\".*\"", "artifactsdir=\"" + UUID.randomUUID().toString() + "\"");
+        FileUtil.writeContentToFile(updatedConfig, configFile);
+    }
+
     private Thread pipelineSaveThread(int counter) throws InterruptedException {
         return createThread(new Runnable() {
             @Override
             public void run() {
                 PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
-                pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, new HttpLocalizedOperationResult(), "default");
+                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+                pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
+                assertThat(result.message(localizer), result.isSuccessful(), is(true));
             }
         }, "pipeline-config-save-thread" + counter);
     }
@@ -180,7 +212,8 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         Thread thread = new Thread(runnable, name);
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread t, Throwable e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage(), e);
             }
         });
         return thread;

@@ -39,10 +39,7 @@ import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.thoughtworks.go.util.command.StreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrLookup;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -156,6 +153,12 @@ public class GitMaterialTest {
         assertThat(modifications.get(2).getComment(), is("Created second.txt from first.txt"));
         assertThat(modifications.get(3).getRevision(), is(REVISION_1.getRevision()));
         assertThat(modifications.get(3).getComment(), is("Added second line"));
+    }
+
+    @Test
+    public void shouldRetrieveLatestModificationIfRevisionIsNotFound() throws IOException {
+        List<Modification> modifications = git.modificationsSince(workingDir, NON_EXISTENT_REVISION, new TestSubprocessExecutionContext());
+        assertThat(modifications, is(git.latestModification(workingDir, new TestSubprocessExecutionContext())));
     }
 
     @Test
@@ -301,7 +304,8 @@ public class GitMaterialTest {
         git = new GitMaterial(badHost);
         validationBean = git.checkConnection(new TestSubprocessExecutionContext());
         assertThat("Connection should not be valid", validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("Repository " + badHost + " not found!"));
+        assertThat(validationBean.getError(), containsString("Error performing command"));
+        assertThat(validationBean.getError(), containsString("git ls-remote http://nonExistantHost/git refs/heads/master"));
     }
 
     @Test
@@ -373,7 +377,7 @@ public class GitMaterialTest {
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnLinux()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_6_0_2);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }
@@ -381,7 +385,7 @@ public class GitMaterialTest {
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnWindows()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_6_0_2_ON_WINDOWS);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2_ON_WINDOWS);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }
@@ -389,7 +393,7 @@ public class GitMaterialTest {
 
     @Test
     public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_NODE_ON_WINDOWS);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_NODE_ON_WINDOWS);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
     }

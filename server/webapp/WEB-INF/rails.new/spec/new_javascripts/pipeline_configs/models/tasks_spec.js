@@ -18,11 +18,12 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
   describe("Task Model", function () {
     var task;
     describe("Ant", function () {
-      beforeEach(function () {
+      beforeAll(function () {
         task = new Tasks.Task.Ant({
           buildFile:        'build-moduleA.xml',
           target:           "clean",
-          workingDirectory: "moduleA"
+          workingDirectory: "moduleA",
+          runIf:            ['any']
         });
       });
 
@@ -38,12 +39,35 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.workingDirectory()).toBe("moduleA");
       });
 
+      it("should initialize task model with runIfConditions", function () {
+        expect(task.runIf().data()).toEqual(['any']);
+      });
+
       it("should initialize task model with buildFile", function () {
         expect(task.buildFile()).toBe("build-moduleA.xml");
       });
 
       it('should have a string representation', function () {
         expect(task.toString()).toBe('clean build-moduleA.xml');
+      });
+
+      it('should initialize onCancel task', function() {
+        var cancelTask = 'cancelTask';
+        spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
+
+        var task = new Tasks.Task.Ant({
+          onCancelTask: {type: 'Nant'}
+        });
+
+        expect(task.onCancelTask).toBe(cancelTask);
+      });
+
+      it('should not have onCancel task if not specified', function(){
+        var task = new Tasks.Task.Ant({
+          onCancelTask: null
+        });
+
+        expect(task.onCancelTask).toBe(null);
       });
 
       describe("Serialization from/to JSON", function () {
@@ -55,6 +79,8 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.type()).toBe("ant");
           expect(task.target()).toBe('clean');
           expect(task.workingDirectory()).toBe("moduleA");
+          expect(task.runIf().data()).toEqual(['any']);
+          expect(task.onCancelTask.type()).toBe('nant');
         });
 
         it("should serialize to JSON", function () {
@@ -67,7 +93,19 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
             attributes: {
               build_file:        'build-moduleA.xml',
               target:            'clean',
-              working_directory: "moduleA"
+              working_directory: "moduleA",
+              run_if:            ['any'],
+              on_cancel: {
+                type:       "nant",
+                attributes: {
+                  build_file:        'build-moduleA.xml',
+                  target:            'clean',
+                  working_directory: "moduleA",
+                  nant_path:         "C:\\NAnt",
+                  run_if:            ['passed'],
+                  on_cancel:         null
+                }
+              }
             }
           };
         }
@@ -75,12 +113,13 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     });
 
     describe("NAnt", function () {
-      beforeEach(function () {
+      beforeAll(function () {
         task = new Tasks.Task.NAnt({
           buildFile:        'build-moduleA.xml',
           target:           "clean",
           workingDirectory: "moduleA",
-          nantPath:         'C:\\NAnt'
+          nantPath:         'C:\\NAnt',
+          runIf:            ['any']
         });
       });
 
@@ -103,10 +142,32 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.nantPath()).toBe("C:\\NAnt");
       });
 
+      it("should initialize task model with runIfConditions", function () {
+        expect(task.runIf().data()).toEqual(['any']);
+      });
+
       it('should have a string representation', function () {
         expect(task.toString()).toBe('clean build-moduleA.xml');
       });
 
+      it('should initialize onCancel task', function() {
+        var cancelTask = 'cancelTask';
+        spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
+
+        var task = new Tasks.Task.NAnt({
+          onCancelTask: {type: 'Nant'}
+        });
+
+        expect(task.onCancelTask).toBe(cancelTask);
+      });
+
+      it('should not have onCancel task if not specified', function(){
+        var task = new Tasks.Task.NAnt({
+          onCancelTask: null
+        });
+
+        expect(task.onCancelTask).toBe(null);
+      });
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
           task = Tasks.Task.fromJSON(sampleTaskJSON());
@@ -117,6 +178,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.target()).toBe('clean');
           expect(task.workingDirectory()).toBe("moduleA");
           expect(task.nantPath()).toBe("C:\\NAnt");
+          expect(task.runIf().data()).toEqual(['any']);
         });
 
         it("should serialize to JSON", function () {
@@ -130,7 +192,19 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
               build_file:        'build-moduleA.xml',
               target:            'clean',
               working_directory: "moduleA",
-              nant_path:         "C:\\NAnt"
+              nant_path:         "C:\\NAnt",
+              run_if:            ['any'],
+              on_cancel: {
+                type:       "nant",
+                attributes: {
+                  build_file:        'build-moduleA.xml',
+                  target:            'clean',
+                  working_directory: "moduleA",
+                  nant_path:         "C:\\NAnt",
+                  run_if:            ['passed'],
+                  on_cancel:         null
+                }
+              }
             }
           };
         }
@@ -140,10 +214,11 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     describe("Exec", function () {
       describe('initialize', function () {
         var taskJSON, task;
-        beforeEach(function(){
+        beforeAll(function(){
           taskJSON = {
             command:          'bash',
-            workingDirectory: 'moduleA'
+            workingDirectory: 'moduleA',
+            runIf:            ['any']
           };
 
           task = new Tasks.Task.Exec(taskJSON);
@@ -173,11 +248,34 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.args().data()).toEqual('-a');
         });
 
+        it("should initialize task model with runIfConditions", function () {
+          expect(task.runIf().data()).toEqual(['any']);
+        });
+
         it('should have a string representation', function () {
           taskJSON['args'] = '-a';
           var task = new Tasks.Task.Exec(taskJSON);
 
           expect(task.toString()).toBe("bash -a");
+        });
+
+        it('should initialize onCancel task', function() {
+          var cancelTask = 'cancelTask';
+          spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
+
+          var task = new Tasks.Task.Exec({
+            onCancelTask: {type: 'Nant'}
+          });
+
+          expect(task.onCancelTask).toBe(cancelTask);
+        });
+
+        it('should not have onCancel task if not specified', function(){
+          var task = new Tasks.Task.Exec({
+            onCancelTask: null
+          });
+
+          expect(task.onCancelTask).toBe(null);
         });
       });
 
@@ -191,6 +289,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.type()).toBe("exec");
           expect(task.command()).toBe('bash');
           expect(task.args().data()).toEqual(['-c', 'ls -al /']);
+          expect(task.runIf().data()).toEqual(['any']);
         });
 
         it("should serialize to JSON", function () {
@@ -203,7 +302,19 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
             attributes: {
               command:           'bash',
               arguments:         ['-c', 'ls -al /'],
-              working_directory: "moduleA"
+              working_directory: "moduleA",
+              run_if:            ['any'],
+              on_cancel: {
+                type:       "nant",
+                attributes: {
+                  build_file:        'build-moduleA.xml',
+                  target:            'clean',
+                  working_directory: "moduleA",
+                  nant_path:         "C:\\NAnt",
+                  run_if:            ['passed'],
+                  on_cancel:         null
+                }
+              }
             }
           };
         }
@@ -211,11 +322,12 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     });
 
     describe("Rake", function () {
-      beforeEach(function () {
+      beforeAll(function () {
         task = new Tasks.Task.Rake({
           buildFile:        'foo.rake',
           target:           "clean",
-          workingDirectory: "moduleA"
+          workingDirectory: "moduleA",
+          runIf:            ['any']
         });
       });
 
@@ -235,10 +347,32 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.buildFile()).toBe("foo.rake");
       });
 
+      it("should initialize task model with runIfConditions", function () {
+        expect(task.runIf().data()).toEqual(['any']);
+      });
+
       it('should have a string representation', function () {
         expect(task.toString()).toBe('clean foo.rake');
       });
 
+      it('should initialize onCancel task', function() {
+        var cancelTask = 'cancelTask';
+        spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
+
+        var task = new Tasks.Task.Rake({
+          onCancelTask: {type: 'Nant'}
+        });
+
+        expect(task.onCancelTask).toBe(cancelTask);
+      });
+
+      it('should not have onCancel task if not specified', function(){
+        var task = new Tasks.Task.Rake({
+          onCancelTask: null
+        });
+
+        expect(task.onCancelTask).toBe(null);
+      });
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
           task = Tasks.Task.fromJSON(sampleTaskJSON());
@@ -248,6 +382,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.type()).toBe("rake");
           expect(task.target()).toBe('clean');
           expect(task.workingDirectory()).toBe("moduleA");
+          expect(task.runIf().data()).toEqual(['any']);
         });
 
         it("should serialize to JSON", function () {
@@ -260,7 +395,19 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
             attributes: {
               build_file:        'foo.rake',
               target:            'clean',
-              working_directory: "moduleA"
+              working_directory: "moduleA",
+              run_if:            ['any'],
+              on_cancel: {
+                type:       "nant",
+                attributes: {
+                  build_file:        'build-moduleA.xml',
+                  target:            'clean',
+                  working_directory: "moduleA",
+                  nant_path:         "C:\\NAnt",
+                  run_if:            ['passed'],
+                  on_cancel:         null
+                }
+              }
             }
           };
         }
@@ -268,12 +415,13 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     });
 
     describe("FetchArtifact", function () {
-      beforeEach(function () {
+      beforeAll(function () {
         task = new Tasks.Task.FetchArtifact({
           pipeline: 'Build',
           stage:    "Dist",
           job:      "RPM",
-          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'})
+          source:   new Tasks.Task.FetchArtifact.Source({type: 'dir', location: 'pkg'}),
+          runIf:   ['any']
         });
       });
 
@@ -294,10 +442,32 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.source().location()).toBe("pkg");
       });
 
+      it("should initialize task model with runIfConditions", function () {
+        expect(task.runIf().data()).toEqual(['any']);
+      });
+
       it('should have a string representation', function () {
         expect(task.toString()).toBe('Build Dist RPM');
       });
 
+      it('should initialize onCancel task', function() {
+        var cancelTask = 'cancelTask';
+        spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
+
+        var task = new Tasks.Task.FetchArtifact({
+          onCancelTask: {type: 'Nant'}
+        });
+
+        expect(task.onCancelTask).toBe(cancelTask);
+      });
+
+      it('should not have onCancel task if not specified', function(){
+        var task = new Tasks.Task.FetchArtifact({
+          onCancelTask: null
+        });
+
+        expect(task.onCancelTask).toBe(null);
+      });
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
           task = Tasks.Task.fromJSON(sampleTaskJSON());
@@ -310,6 +480,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.job()).toBe("RPM");
           expect(task.source().type()).toBe("dir");
           expect(task.source().location()).toBe("pkg");
+          expect(task.runIf().data()).toEqual(['any']);
         });
 
         it("should serialize to JSON", function () {
@@ -326,6 +497,18 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
               source:   {
                 type:     'dir',
                 location: 'pkg'
+              },
+              run_if:   ['any'],
+              on_cancel: {
+                type:       "nant",
+                attributes: {
+                  build_file:        'build-moduleA.xml',
+                  target:            'clean',
+                  working_directory: "moduleA",
+                  nant_path:         "C:\\NAnt",
+                  run_if:            ['passed'],
+                  on_cancel:         null
+                }
               }
             }
           };
@@ -334,14 +517,15 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
     });
 
     describe("Plugin Task", function () {
-      beforeEach(function () {
+      beforeAll(function () {
         task = new Tasks.Task.PluginTask({
           pluginId:      'indix.s3fetch',
           version:       1,
           configuration: Tasks.Task.PluginTask.Configurations.fromJSON([
             {name: "Repo", value: "foo"},
             {name: "Package", value: "foobar-widgets"}
-          ])
+          ]),
+          runIf:        ['any']
         });
       });
 
@@ -362,6 +546,10 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
         expect(task.configuration().collectConfigurationProperty('value')).toEqual(['foo', 'foobar-widgets']);
       });
 
+      it("should initialize task model with runIfConditions", function () {
+        expect(task.runIf().data()).toEqual(['any']);
+      });
+
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
           var data = sampleTaskJSON();
@@ -372,6 +560,7 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
           expect(task.type()).toBe("plugin");
           expect(task.pluginId()).toBe("indix.s3fetch");
           expect(task.version()).toBe(1);
+          expect(task.runIf().data()).toEqual(['any']);
 
           expect(task.configuration().collectConfigurationProperty('name')).toEqual(['Repo', 'Package']);
           expect(task.configuration().collectConfigurationProperty('value')).toEqual(['foo', 'foobar-widgets']);
@@ -390,12 +579,23 @@ define(['lodash', "pipeline_configs/models/tasks", "string-plus"], function (_, 
               configuration: [
                 {name: "Repo", value: "foo"},
                 {name: "Package", value: "foobar-widgets"}
-              ]
+              ],
+              run_if:        ['any'],
+              on_cancel: {
+                type:       "nant",
+                attributes: {
+                  build_file:        'build-moduleA.xml',
+                  target:            'clean',
+                  working_directory: "moduleA",
+                  nant_path:         "C:\\NAnt",
+                  run_if:            ['passed'],
+                  on_cancel:         null
+                }
+              }
             }
           };
         }
       });
     });
-
   });
 });

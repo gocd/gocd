@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.valuestreammap;
 
 import java.util.Arrays;
 
+import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
 import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
@@ -55,10 +56,10 @@ public class CrossingMinimizationTest {
         String g2 = "g2";
         ValueStreamMap graph = new ValueStreamMap(p3, null);
         graph.addUpstreamNode(new PipelineDependencyNode(p1, p1), null, p3);
-        graph.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p1);
-        graph.addUpstreamNode(new SCMDependencyNode(g2, g2, "git"), null, p1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g2, g2, "git"), null, p1, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(p2, p2), null, p3);
-        graph.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p2);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p2, new MaterialRevision(null));
 
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         assertThat(levelToNodesMap.get(-1), is(Arrays.asList(graph.findNode(p1), graph.findNode(p2))));
@@ -99,12 +100,12 @@ public class CrossingMinimizationTest {
         ValueStreamMap graph = new ValueStreamMap(p, null);
 
         graph.addUpstreamNode(new PipelineDependencyNode(p1, p1), null, p);
-        graph.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p1, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(p2, p2), null, p);
-        graph.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p2);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p2, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(p3, p3), null, p);
-        graph.addUpstreamNode(new SCMDependencyNode(g2, g2, "git"), null, p3);
-        graph.addUpstreamNode(new SCMDependencyNode(g3, g3, "git"), null, p3);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g2, g2, "git"), null, p3, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g3, g3, "git"), null, p3, new MaterialRevision(null));
 
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
@@ -131,7 +132,7 @@ public class CrossingMinimizationTest {
          */
 
         ValueStreamMap graph = new ValueStreamMap("P", null);
-        Node g1 = graph.addUpstreamNode(new SCMDependencyNode("g1","g1", "git"), null, "P");
+        Node g1 = graph.addUpstreamMaterialNode(new SCMDependencyNode("g1","g1", "git"), null, "P", new MaterialRevision(null));
         Node p1 = graph.addDownstreamNode(new PipelineDependencyNode("p1","p1"), "P");
         Node p2 = graph.addDownstreamNode(new PipelineDependencyNode("P2", "P2"), "P");
         Node p3 = graph.addDownstreamNode(new PipelineDependencyNode("P3", "P3"), "P2");
@@ -163,12 +164,12 @@ public class CrossingMinimizationTest {
         */
 
         ValueStreamMap graph = new ValueStreamMap("P", null);
-        Node g4 = graph.addUpstreamNode(new SCMDependencyNode("g4", "g4", "git"), null, "P");
+        Node g4 = graph.addUpstreamMaterialNode(new SCMDependencyNode("g4", "g4", "git"), null, "P", new MaterialRevision(null));
         Node p1 = graph.addUpstreamNode(new PipelineDependencyNode("P1", "P1"), null, "P");
-        Node g1 = graph.addUpstreamNode(new SCMDependencyNode("g1", "g1", "git"), null, "P1");
-        Node g2 = graph.addUpstreamNode(new SCMDependencyNode("g2", "g2", "git"), null, "P1");
+        Node g1 = graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), null, "P1", new MaterialRevision(null));
+        Node g2 = graph.addUpstreamMaterialNode(new SCMDependencyNode("g2", "g2", "git"), null, "P1", new MaterialRevision(null));
         Node p2 = graph.addUpstreamNode(new PipelineDependencyNode("P2", "P2"), null, "P");
-        Node g3 = graph.addUpstreamNode(new SCMDependencyNode("g3", "g3", "git"), null, "P2");
+        Node g3 = graph.addUpstreamMaterialNode(new SCMDependencyNode("g3", "g3", "git"), null, "P2", new MaterialRevision(null));
 
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
@@ -206,7 +207,7 @@ public class CrossingMinimizationTest {
         String p4 = "P4";
         String p5 = "P5";
         ValueStreamMap graph = new ValueStreamMap(p, null);
-        graph.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p, new MaterialRevision(null));
         graph.addDownstreamNode(new PipelineDependencyNode(p1, p1), p);
         graph.addDownstreamNode(new PipelineDependencyNode(p4, p4), p1);
         graph.addDownstreamNode(new PipelineDependencyNode(p2, p2), p);
@@ -248,10 +249,10 @@ public class CrossingMinimizationTest {
         String p = "P";
 
         ValueStreamMap graph = new ValueStreamMap(p, null);
-        graph.addUpstreamNode(new SCMDependencyNode(g3, g3, "git"), null, p);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g3, g3, "git"), null, p, new MaterialRevision(null));
         graph.addUpstreamNode(new PipelineDependencyNode(p1, p1), null, p);
-        graph.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p1);
-        graph.addUpstreamNode(new SCMDependencyNode(g2, g2, "git"), null, p1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g2, g2, "git"), null, p1, new MaterialRevision(null));
 
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
@@ -290,8 +291,8 @@ public class CrossingMinimizationTest {
         ValueStreamMap graph = new ValueStreamMap(p, null);
         graph.addUpstreamNode(new PipelineDependencyNode(p1, p1), null, p);
         graph.addUpstreamNode(new PipelineDependencyNode(p2, p2), null, p);
-        graph.addUpstreamNode(new SCMDependencyNode(g2, g2, "git"), null, p2);
-        graph.addUpstreamNode(new SCMDependencyNode(g1, g1, "git"), null, p1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g2, g2, "git"), null, p2, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p1, new MaterialRevision(null));
 
         graph.addDownstreamNode(new PipelineDependencyNode(p3, p3), p);
         graph.addDownstreamNode(new PipelineDependencyNode(p4, p4), p);

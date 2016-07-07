@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['dragula', 'lodash'], function (dragula, _) {
+define(['mithril', 'dragula', 'lodash'], function (m, dragula, _) {
   var dragulaConfig = function (elem, options) {
 
     var opts = _.extend({revertOnSpill: true, mirrorContainer: elem}, options.dragulaOptions);

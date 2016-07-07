@@ -54,6 +54,7 @@
     @include icon-only(caret-right);
     position: absolute;
     left: 16px;
+    margin-top: -1.0rem;
   }
 
   .is-active > &::before {

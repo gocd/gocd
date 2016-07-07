@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -187,6 +188,17 @@ public class SystemUtil {
             return Integer.parseInt(System.getProperty(propertyName));
         } catch (NumberFormatException e) {
             return defaultValue;
+        }
+    }
+    
+    public static String getClientIp(String serviceUrl) {
+        try {
+            URL url = new URL(serviceUrl);
+            try (Socket socket = new Socket(url.getHost(), url.getPort())) {
+                return socket.getLocalAddress().getHostAddress();
+            }
+        } catch (Exception e){
+            return SystemUtil.getFirstLocalNonLoopbackIpAddress();
         }
     }
 }

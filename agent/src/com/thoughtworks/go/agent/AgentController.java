@@ -44,7 +44,13 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.util.SubprocessLogger;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.SystemUtil;
+import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageCallback;
@@ -57,6 +63,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -102,7 +110,7 @@ public class AgentController {
         this.taskExtension = taskExtension;
         this.websocketService = websocketService;
         this.httpService = httpService;
-        ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
+        ipAddress = SystemUtil.getClientIp(systemEnvironment.getServiceUrl());
         hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         this.server = server;
         this.manipulator = manipulator;
@@ -113,6 +121,7 @@ public class AgentController {
         PluginManagerReference.reference().setPluginManager(pluginManager);
         this.agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
     }
+
 
     void init() throws IOException {
         websocketService.setController(this);
@@ -360,11 +369,11 @@ public class AgentController {
 
     private void cancelBuild() throws InterruptedException {
         BuildSession build = this.buildSession.get();
-        if(build == null) {
+        if (build == null) {
             return;
         }
         agentRuntimeInfo.cancel();
-        if(!build.cancel(30, TimeUnit.SECONDS)) {
+        if (!build.cancel(30, TimeUnit.SECONDS)) {
             LOG.error("Waited 30 seconds for canceling job finish, but the job is still running. Maybe canceling job does not work as expected, here is buildSession details: " + buildSession.get());
         }
     }

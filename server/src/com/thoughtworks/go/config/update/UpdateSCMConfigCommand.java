@@ -18,11 +18,11 @@ package com.thoughtworks.go.config.update;
 
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -30,21 +30,55 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
-    public UpdateSCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result) {
+    private String md5;
+    private EntityHashingService entityHashingService;
+
+    public UpdateSCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
         super(globalScmConfig, pluggableScmService, goConfigService, currentUser, result);
+        this.md5 = md5;
+        this.entityHashingService = entityHashingService;
     }
 
     @Override
     public void update(CruiseConfig modifiedConfig) throws Exception {
-        SCMs scms = modifiedConfig.getSCMs();
-        SCM scm = scms.find(globalScmConfig.getSCMId());
-        if (scm != null) {
-            scm.setAutoUpdate(globalScmConfig.isAutoUpdate());
-            scm.setConfiguration(globalScmConfig.getConfiguration());
+        SCM scm = findSCM(modifiedConfig);
+        scm.setAutoUpdate(globalScmConfig.isAutoUpdate());
+        scm.setConfiguration(globalScmConfig.getConfiguration());
+
+    }
+
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        return isUserAuthorized() && isRequestFresh(cruiseConfig);
+    }
+
+    private boolean isRequestFresh(CruiseConfig cruiseConfig) {
+        SCM existingSCM = findSCM(cruiseConfig);
+        boolean freshRequest =  entityHashingService.md5ForEntity(existingSCM, existingSCM.getName()).equals(md5);
+        if (!freshRequest) {
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "SCM", globalScmConfig.getName()));
         }
-        else {
-            result.notFound(LocalizedMessage.string("SCM_MATERIAL_NOT_FOUND"), HealthStateType.notFound());
+
+        return freshRequest;
+    }
+
+    private boolean isUserAuthorized() {
+        if (!(goConfigService.isUserAdmin(currentUser)) || goConfigService.isGroupAdministrator(currentUser.getUsername())) {
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
+    }
+
+    private SCM findSCM(CruiseConfig modifiedConfig) {
+        SCMs scms = modifiedConfig.getSCMs();
+        SCM existingSCM = scms.find(globalScmConfig.getSCMId());
+        if (existingSCM == null) {
+            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND"), HealthStateType.notFound());
             throw new NullPointerException(String.format("The pluggable scm material with id '%s' is not found.", globalScmConfig.getSCMId()));
+        } else {
+            return existingSCM;
         }
     }
 

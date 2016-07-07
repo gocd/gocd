@@ -22,7 +22,9 @@ describe ApiV1::Admin::PluggableScmsController do
                    Configuration.new(ConfigurationProperty.new(ConfigurationKey.new("url"), ConfigurationValue.new("some-url"))))
     @scm.setName('material')
     @pluggable_scm_service = double('pluggable_scm_service')
+    @entity_hashing_service = double('entity_hashing_service')
     controller.stub(:pluggable_scm_service).and_return(@pluggable_scm_service)
+    controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
   end
 
   describe :index do
@@ -117,7 +119,8 @@ describe ApiV1::Admin::PluggableScmsController do
       end
 
       it 'should render the pluggable scm material of specified name' do
-        @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('material').and_return(@scm)
+        @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('material').exactly(2).times.and_return(@scm)
+        @entity_hashing_service.should_receive(:md5ForEntity).with(@scm, 'material').and_return('md5')
 
         get_with_api_header :show, material_name: 'material'
 
@@ -179,6 +182,7 @@ describe ApiV1::Admin::PluggableScmsController do
       end
 
       it 'should deserialize scm object from given parameters' do
+        controller.stub(:get_etag_for_scm_object).and_return('some-md5')
         hash = {id: 'scm-id', name: 'foo', auto_update: false, plugin_metadata: {id: 'foo', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
         @pluggable_scm_service.should_receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
         post_with_api_header :create, pluggable_scm: hash
@@ -191,6 +195,7 @@ describe ApiV1::Admin::PluggableScmsController do
       end
 
       it 'should generate id if id is not provided by user' do
+        controller.stub(:get_etag_for_scm_object).and_return('some-md5')
         hash = {name: 'foo', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "encrypted_value" => 'baz'}]}
         @pluggable_scm_service.should_receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
 
@@ -263,7 +268,10 @@ describe ApiV1::Admin::PluggableScmsController do
         controller.stub(:check_for_stale_request).and_return(nil)
 
         hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
-        @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
+
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), anything).exactly(2).times.and_return('md5')
+        @pluggable_scm_service.should_receive(:findPluggableScmMaterial).exactly(2).times.and_return(@scm)
+        @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything, 'md5')
 
         put_with_api_header :update, material_name: 'material', pluggable_scm: hash
 
@@ -288,7 +296,9 @@ describe ApiV1::Admin::PluggableScmsController do
 
         result = HttpLocalizedOperationResult.new
 
-        @pluggable_scm_service.stub(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), result)  do |user, scm, result|
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), anything).and_return('md5')
+        @pluggable_scm_service.should_receive(:findPluggableScmMaterial).and_return(@scm)
+        @pluggable_scm_service.stub(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), result, anything)  do |user, scm, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
         end
 
@@ -302,6 +312,7 @@ describe ApiV1::Admin::PluggableScmsController do
       it 'should fail update if etag does not match' do
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
         params = {id: '1', name: 'foo', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), anything).and_return('another-etag')
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('foo').and_return(@scm)
 
         put_with_api_header :update, material_name: 'foo', pluggable_scm: params
@@ -311,12 +322,12 @@ describe ApiV1::Admin::PluggableScmsController do
       end
 
       it 'should proceed with update if etag matches.' do
-        hash_for_existing_scm = ApiV1::Scms::PluggableScmRepresenter.new(@scm).to_hash(url_builder: controller)
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(JSON.generate(hash_for_existing_scm))}\""
+        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
         hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
 
-        @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('material').and_return(@scm)
-        @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), 'material').exactly(3).times.and_return('md5')
+        @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('material').exactly(3).times.and_return(@scm)
+        @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything, "md5")
 
         put_with_api_header :update, material_name: 'material', pluggable_scm: hash
 

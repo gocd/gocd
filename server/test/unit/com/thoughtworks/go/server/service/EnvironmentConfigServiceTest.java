@@ -54,7 +54,7 @@ public class EnvironmentConfigServiceTest {
     private SecurityService securityService;
     private AgentService agentService;
     private GoConfigDao goConfigDao;
-
+    private EntityHashingService entityHashingService;
 
     @Before
     public void setUp() throws Exception {
@@ -63,7 +63,8 @@ public class EnvironmentConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class);
         securityService = mock(SecurityService.class);
         agentService = mock(AgentService.class);
-        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService);
+        entityHashingService = mock(EntityHashingService.class);
+        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService);
     }
 
     @Test
@@ -390,7 +391,8 @@ public class EnvironmentConfigServiceTest {
         when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.MERGED);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, result);
+        String md5 = "md5";
+        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
@@ -406,7 +408,8 @@ public class EnvironmentConfigServiceTest {
         when(securityService.isUserAdmin(user)).thenReturn(true);
         when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.UPDATED);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, result);
+        String md5 = "md5";
+        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));

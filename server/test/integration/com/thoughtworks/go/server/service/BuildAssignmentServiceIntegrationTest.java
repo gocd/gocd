@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -51,13 +52,9 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.util.EntityDigest;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.server.websocket.AgentStub;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.SerializationTester;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
@@ -130,7 +127,8 @@ public class BuildAssignmentServiceIntegrationTest {
     private String md5 = "md5-test";
     private Username loserUser = new Username(new CaseInsensitiveString("loser"));
     private AgentStub agent;
-    private String pipelineConfigMD5 = "md5";
+    private ConfigCache configCache;
+    private ConfigElementImplementationRegistry registry;
 
 
     @BeforeClass
@@ -145,6 +143,8 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+        configCache = new ConfigCache();
+        registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
@@ -161,12 +161,6 @@ public class BuildAssignmentServiceIntegrationTest {
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
 
         agent = new AgentStub();
-        entityHashingService.initializeWith(new EntityDigest() {
-            @Override
-            public String md5ForPipeline(PipelineConfig pipelineConfig) {
-                return pipelineConfigMD5;
-            }
-        });
     }
 
     @After
@@ -273,9 +267,11 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
+        String md5 = CachedDigestUtils.md5Hex(xml);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         pipelineConfig.remove(devStage);
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineConfigMD5, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, md5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
@@ -293,9 +289,11 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
+        String md5 = CachedDigestUtils.md5Hex(xml);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
-        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineConfigMD5, new HttpLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, md5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance deletedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);

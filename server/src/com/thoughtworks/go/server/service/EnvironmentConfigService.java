@@ -49,15 +49,17 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public final GoConfigService goConfigService;
     private final SecurityService securityService;
+    private EntityHashingService entityHashingService;
 
     private EnvironmentsConfig environments;
     private EnvironmentPipelineMatchers matchers;
     private static final Cloner cloner = new Cloner();
 
     @Autowired
-    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService) {
+    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
+        this.entityHashingService = entityHashingService;
     }
 
     public void initialize() {
@@ -244,9 +246,9 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return result;
     }
 
-    public void updateEnvironment(final EnvironmentConfig oldEnvironmentConfig, final EnvironmentConfig newEnvironmentConfig, final Username username, final HttpLocalizedOperationResult result) {
+    public void updateEnvironment(final EnvironmentConfig oldEnvironmentConfig, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfig.name());
-        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, username, actionFailed, result);
+        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result);
         update(updateEnvironmentCommand, oldEnvironmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentConfig.name()));

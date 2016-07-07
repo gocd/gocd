@@ -26,11 +26,11 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.StringUtil;
@@ -46,12 +46,14 @@ public class PluggableScmService {
     private Localizer localizer;
     private GoConfigService goConfigService;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluggableScmService.class);
+    private EntityHashingService entityHashingService;
 
     @Autowired
-    public PluggableScmService(SCMExtension scmExtension, Localizer localizer, GoConfigService goConfigService) {
+    public PluggableScmService(SCMExtension scmExtension, Localizer localizer, GoConfigService goConfigService, EntityHashingService entityHashingService) {
         this.scmExtension = scmExtension;
         this.localizer = localizer;
         this.goConfigService = goConfigService;
+        this.entityHashingService = entityHashingService;
     }
 
     public void validate(final SCM scmConfig) {
@@ -129,8 +131,8 @@ public class PluggableScmService {
         update(currentUser, result, command);
     }
 
-    public void updatePluggableScmMaterial(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result) {
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(globalScmConfig, this, goConfigService, currentUser, result);
+    public void updatePluggableScmMaterial(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result, String md5) {
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(globalScmConfig, this, goConfigService, currentUser, result, md5, entityHashingService);
         update(currentUser, result, command);
     }
 

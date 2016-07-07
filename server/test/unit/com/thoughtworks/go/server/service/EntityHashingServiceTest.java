@@ -1,58 +1,73 @@
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigCache;
+import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.util.EntityDigest;
+import com.thoughtworks.go.util.CachedDigestUtils;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class EntityHashingServiceTest {
-    private EntityDigest entityDigest;
     private GoConfigService goConfigService;
     private GoCache goCache;
     private EntityHashingService entityHashingService;
+    private ConfigCache configCache;
+    private ConfigElementImplementationRegistry registry;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() {
-        this.entityDigest = mock(EntityDigest.class);
         this.goConfigService = mock(GoConfigService.class);
         this.goCache = mock(GoCache.class);
-        this.entityHashingService = new EntityHashingService(this.goConfigService, this.goCache);
+        this.configCache = new ConfigCache();
+        this.registry = ConfigElementImplementationRegistryMother.withNoPlugins();
+        this.entityHashingService = new EntityHashingService(this.goConfigService, this.goCache, configCache, registry);
 
-        this.entityHashingService.initializeWith(entityDigest);
     }
 
     @Test
-    public void shouldGenerateMD5ForAPipelineConfig() {
-        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+    public void shouldThrowAnExceptionWhenObjectIsNull() {
+        thrown.expect(NullPointerException.class);
+        entityHashingService.md5ForEntity(null, null);
+    }
 
-        when(goConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(pipelineConfig);
-        when(entityDigest.md5ForPipeline(pipelineConfig)).thenReturn("pipeline_config_md5");
+    @Test
+    public void shouldComputeTheMD5OfAGivenXmlPartialGeneratedFromAnObject() {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("P1");
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
 
-        String md5ForPipeline = entityHashingService.md5ForPipelineConfig("P1");
-
-        assertThat(md5ForPipeline, is("pipeline_config_md5"));
-        verify(goCache).put("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p1", "pipeline_config_md5");
+        assertThat(entityHashingService.md5ForEntity(pipelineConfig, "P1"), is(CachedDigestUtils.md5Hex(xml)));
     }
 
     @Test
     public void shouldReturnCachedMD5IfPresent() {
-        when(goCache.get("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p1")).thenReturn("pipeline_config_md5");
+        when(goCache.get("GO_ETAG_CACHE", "p1")).thenReturn("pipeline_config_md5");
 
         assertThat(entityHashingService.md5ForPipelineConfig("P1"), is("pipeline_config_md5"));
 
         verifyZeroInteractions(goConfigService);
-        verifyZeroInteractions(entityDigest);
+    }
+
+    @Test
+    public void shouldMakeCaseInsensitiveComparisonsOnCacheKeyWhileRetrievingMD5() {
+        when(goCache.get("GO_ETAG_CACHE", "foo")).thenReturn("something");
+
+        assertThat(entityHashingService.md5ForPipelineConfig("FOO"), is("something"));
     }
 
     @Test
@@ -67,15 +82,16 @@ public class EntityHashingServiceTest {
     public void shouldInvalidatePipelineConfigEtagsFromCacheOnConfigChange() {
         entityHashingService.onConfigChange(null);
 
-        verify(goCache).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE");
+        verify(goCache).remove("GO_ETAG_CACHE");
     }
 
     @Test
     public void shouldInvalidatePipelineConfigEtagsFromCacheOnPipelineChange() {
         EntityHashingService.PipelineConfigChangedListener listener = entityHashingService.new PipelineConfigChangedListener();
 
-        listener.onEntityConfigChange(PipelineConfigMother.pipelineConfig("P1"));
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("P1");
+        listener.onEntityConfigChange(pipelineConfig);
 
-        verify(goCache).remove("GO_PIPELINE_CONFIGS_ETAGS_CACHE", "p1");
+        verify(goCache).remove("GO_ETAG_CACHE", (pipelineConfig.getClass().getName() + "p1").toLowerCase());
     }
 }

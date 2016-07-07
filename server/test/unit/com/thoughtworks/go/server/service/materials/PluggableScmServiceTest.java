@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.ListUtil;
 import org.junit.After;
@@ -59,6 +60,8 @@ public class PluggableScmServiceTest {
     private SCMPreference preference;
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private EntityHashingService entityHashingService;
 
     private PluggableScmService pluggableScmService;
     private SCMConfigurations scmConfigurations;
@@ -67,7 +70,7 @@ public class PluggableScmServiceTest {
     public void setUp() throws Exception {
         initMocks(this);
 
-        pluggableScmService = new PluggableScmService(scmExtension, localizer, goConfigService);
+        pluggableScmService = new PluggableScmService(scmExtension, localizer, goConfigService, entityHashingService);
 
         SCMPropertyConfiguration scmConfig = new SCMPropertyConfiguration();
         scmConfig.add(new SCMProperty("KEY1").with(Property.REQUIRED, true));

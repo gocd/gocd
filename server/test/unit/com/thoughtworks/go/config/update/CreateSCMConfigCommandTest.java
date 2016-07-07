@@ -32,6 +32,7 @@ import org.mockito.Mock;
 
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.hamcrest.core.Is.is;
 
@@ -66,6 +67,16 @@ public class CreateSCMConfigCommandTest {
         assertThat(cruiseConfig.getSCMs().contains(scm), is(false));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getSCMs().contains(scm), is(true));
+    }
+
+    @Test
+    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+
+        CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
+
+        assertThat(command.canContinue(cruiseConfig), is(false));
     }
 
 }

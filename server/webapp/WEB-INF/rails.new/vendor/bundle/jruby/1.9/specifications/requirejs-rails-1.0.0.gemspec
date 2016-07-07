@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
-# stub: requirejs-rails 0.9.9 ruby lib
+# stub: requirejs-rails 1.0.0 ruby lib
 
 Gem::Specification.new do |s|
   s.name = "requirejs-rails"
-  s.version = "0.9.9"
+  s.version = "1.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["John Whitley"]
-  s.date = "2015-07-22"
+  s.date = "2015-12-14"
   s.description = "This gem provides RequireJS support for your Rails 3 application."
   s.email = ["whitley@bangpath.org"]
   s.homepage = "http://github.com/jwhitley/requirejs-rails"

@@ -1,0 +1,28 @@
+language: ruby
+sudo: false
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - 2.1.10
+  - 2.2.5
+  - 2.3.1
+  - ruby-head
+  - jruby-1.7.20
+  - jruby-9.0.5.0
+  - jruby-9.1.0.0
+  - jruby-head
+  - rbx-2
+  - rbx
+before_install:
+  - gem update bundler --no-document
+before_script:
+  - unset JRUBY_OPTS
+script: ruby -Ilib exe/rake
+matrix:
+  allow_failures:
+    - rvm: jruby-head
+    - rvm: rbx
+notifications:
+  email:
+  - hsbt@ruby-lang.org
+  - drbrain@segment7.net

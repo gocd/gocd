@@ -2,6 +2,14 @@ require "requirejs/error"
 require "requirejs/rails/view_proxy"
 
 module RequirejsHelper
+  if defined?(Sass::Rails::VERSION)
+    sass_rails_version_pattern = Regexp.new("\\A(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\z")
+
+    SASS_RAILS_3_COMPATIBILITY = sass_rails_version_pattern.match(Sass::Rails::VERSION)[1].to_i < 4
+  else
+    SASS_RAILS_3_COMPATIBILITY = false
+  end
+
   # EXPERIMENTAL: Additional priority settings appended to
   # any user-specified priority setting by requirejs_include_tag.
   # Used for JS test suite integration.
@@ -79,7 +87,11 @@ module RequirejsHelper
 
   def javascript_path(source, options = {})
     if defined?(super)
-      super
+      if !SASS_RAILS_3_COMPATIBILITY
+        super
+      else
+        super(source)
+      end
     else
       view_proxy.javascript_path(source, options)
     end

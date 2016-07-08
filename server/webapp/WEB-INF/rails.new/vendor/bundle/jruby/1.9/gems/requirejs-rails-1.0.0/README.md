@@ -134,7 +134,7 @@ This gem supports single-file builds with
 config.requirejs.loader = :almond
 ```
 
-Almond builds have the restriction that there must be exactly one modules entry in
+Almond builds have the restriction that there must be exactly one `modules` entry in
 `requirejs.yml`.  Typically the [wrap option](https://github.com/jrburke/r.js/blob/master/build/example.build.js#L275) will be used to create a self-contained build:
 
 ```yaml

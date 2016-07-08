@@ -25,7 +25,7 @@ dependencies {
   compile(group: 'commons-digester', name: 'commons-digester', version: '1.8') {
     exclude(module: 'commons-logging')
   }
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.12'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
   testCompile project(':test-utils')
   testCompile group: 'org.ops4j.pax.exam', name: 'pax-exam-container-native', version: '3.0.0.M4'

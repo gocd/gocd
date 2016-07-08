@@ -182,9 +182,9 @@ dependencies {
     exclude(module: 'xercesImpl')
     exclude(module: 'jdom')
   }
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.12'
-  compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.12'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.21'
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.1.0.201509280440-r'
   testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
   testCompile project(path: ':common', configuration: 'testOutput')
@@ -540,7 +540,7 @@ task verifyWar(type: VerifyJarTask) {
           "jta-1.1.jar",
           "juel-api-2.1.2.jar",
           "juel-impl-2.1.2.jar",
-          "jul-to-slf4j-1.7.12.jar",
+          "jul-to-slf4j-1.7.21.jar",
           "kahadb-5.5.0.jar",
           "kxml2-2.3.0.jar",
           "kxml2-min-2.3.0.jar",
@@ -566,8 +566,8 @@ task verifyWar(type: VerifyJarTask) {
           "shindig-common-1.1-BETA5-incubating.jar",
           "shindig-features-1.1-BETA5-incubating.jar",
           "shindig-gadgets-1.1-BETA5-incubating.jar",
-          "slf4j-api-1.7.12.jar",
-          "slf4j-log4j12-1.7.12.jar",
+          "slf4j-api-1.7.21.jar",
+          "slf4j-log4j12-1.7.21.jar",
           "smtp-1.4.4.jar",
           "spring-aop-3.1.3.RELEASE.jar",
           "spring-asm-3.1.3.RELEASE.jar",

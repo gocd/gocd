@@ -1,0 +1,84 @@
+import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import org.gradle.internal.os.OperatingSystem
+
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def browser = { ->
+  if (System.getenv('BROWSER')) {
+    return System.getenv('BROWSER')
+  }
+
+  if (OperatingSystem.current().isWindows()) {
+    return 'ie'
+  }
+
+  return 'firefox'
+}
+
+task jasmineNew(type: ExecuteUnderRailsTask) {
+  dependsOn ':server:testJar'
+  outputs.upToDateWhen { false }
+
+  description = 'Run new jasmine tests'
+
+  railsCommand = './bin/rake --trace jasmine:ci'
+  environment += [
+      'RAILS_ENV'          : 'test',
+      'REPORTERS'          : 'console,junit',
+      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-new.yml',
+      'REQUIRE_JS'         : 'true',
+      'BROWSER'            : browser(),
+  ]
+}
+
+task jasmineOld(type: ExecuteUnderRailsTask) {
+  dependsOn ':server:testJar'
+  outputs.upToDateWhen { false }
+
+  description = 'Run old jasmine tests'
+
+  railsCommand = './bin/rake --trace jasmine:ci'
+  environment += [
+      'RAILS_ENV'          : 'test',
+      'REPORTERS'          : 'console,junit',
+      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-old.yml',
+      'BROWSER'            : browser(),
+  ]
+}
+
+task jasmine(dependsOn: [jasmineNew, jasmineOld])
+
+task jasmineNewServer(type: ExecuteUnderRailsTask) {
+  description 'Run a web server to run jasmine tests locally'
+  railsCommand = './bin/rake --trace jasmine:server'
+  environment += [
+      'RAILS_ENV'          : 'test',
+      'REPORTERS'          : 'console,junit',
+      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-new.yml',
+      'REQUIRE_JS'         : 'true'
+  ]
+}
+
+task jasmineOldServer(type: ExecuteUnderRailsTask) {
+  description 'Run a web server to run jasmine tests locally'
+  railsCommand = './bin/rake --trace jasmine:server'
+  environment += [
+      'RAILS_ENV'          : 'test',
+      'REPORTERS'          : 'console, junit',
+      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-old.yml'
+  ]
+}

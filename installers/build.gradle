@@ -1,0 +1,65 @@
+import groovy.json.JsonOutput
+
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'GoCD Installers'
+
+configurations {
+  agentBootstrapperJar
+  serverJar
+}
+
+dependencies {
+  agentBootstrapperJar project(path: ':agent-bootstrapper', configuration: 'fatJarConfig')
+  serverJar project(path: ':server-launcher', configuration: 'fatJarConfig')
+}
+
+task versionFile {
+  outputs.upToDateWhen { false }
+  def versionFile = file("${project.convention.plugins.get("base").distsDir}/meta/version.json")
+
+  inputs.property('goVersion', rootProject.goVersion)
+  inputs.property('distVersion', rootProject.distVersion)
+  inputs.property('gitRevision', rootProject.gitRevision)
+
+  outputs.file versionFile
+  doLast {
+    versionFile.getParentFile().mkdirs()
+    versionFile.withWriter { out ->
+      out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
+          go_version      : rootProject.goVersion,
+          go_build_number : rootProject.distVersion,
+          go_full_version : rootProject.fullVersion,
+          git_sha         : rootProject.gitRevision,
+          pipeline_name   : System.getenv('GO_PIPELINE_NAME'),
+          pipeline_counter: System.getenv('GO_PIPELINE_COUNTER'),
+          pipeline_label  : System.getenv('GO_PIPELINE_LABEL'),
+          stage_name      : System.getenv('GO_STAGE_NAME'),
+          stage_counter   : System.getenv('GO_STAGE_COUNTER'),
+          job_name        : System.getenv('GO_JOB_NAME')
+      ])))
+    }
+  }
+}
+
+assemble.dependsOn(':installers:versionFile')
+
+apply from: 'osx.gradle'
+apply from: 'generic.gradle'
+apply from: 'linux.gradle'
+apply from: 'windows.gradle'
+apply from: 'release-notes.gradle'

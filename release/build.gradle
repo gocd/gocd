@@ -1,0 +1,94 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'GoCD Release Scripts'
+
+task updateBuildMap {
+  outputs.upToDateWhen { false }
+  def checkoutDir = "${project.buildDir}/build-map"
+
+  doFirst {
+    exec {
+      commandLine = ['git', 'clone', '--quiet', "https://github.com/gocd/build_map", checkoutDir]
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+
+    exec {
+      commandLine = ['./build_go_cd_commit_to_package']
+      workingDir = checkoutDir
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+  }
+}
+
+task bumpCommandRepoVersion {
+  outputs.upToDateWhen { false }
+  def repoName = "gocd/go-command-repo"
+
+  def checkoutDir = "${project.buildDir}/go-command-repo-for-push"
+  def versionFile = file("${checkoutDir}/version.txt")
+  String username = System.getenv('COMMAND_REPO_USER')
+  String password = System.getenv('COMMAND_REPO_PASSWORD')
+
+  doFirst {
+    if (username == null) {
+      throw new GradleException("Environment variable: COMMAND_REPO_USER is unset. Needs to be set to a user with access to the command repo.")
+    }
+    if (password == null) {
+      throw new GradleException("Environment variable: COMMAND_REPO_PASSWORD is unset. Needs to be set.")
+    }
+  }
+
+  doFirst {
+    project.delete(checkoutDir)
+
+    exec {
+
+      commandLine = ['git', 'clone', '--quiet', "https://github.com/${repoName}", checkoutDir]
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+
+    def versionString = versionFile.text
+    def (discard, commandRepoVersion) = versionString.split('=')
+
+    commandRepoVersion = String.valueOf(Integer.parseInt(commandRepoVersion) + 1)
+    versionFile.write("${project.goVersion}=${commandRepoVersion}")
+
+    exec {
+      commandLine = ['git', 'add', 'version.txt']
+      standardOutput = System.out
+      errorOutput = System.err
+      workingDir = checkoutDir
+    }
+
+    exec {
+      commandLine = ['git', 'commit', '--author', 'gocd <go-cd@googlegroups.com>', '--message', "Version - ${commandRepoVersion}"]
+      standardOutput = System.out
+      errorOutput = System.err
+      workingDir = checkoutDir
+    }
+
+    exec {
+      commandLine = ['git', 'push', "https://${username}:${password}@github.com/${repoName}", "master"]
+      standardOutput = System.out
+      errorOutput = System.err
+      workingDir = checkoutDir
+    }
+  }
+}

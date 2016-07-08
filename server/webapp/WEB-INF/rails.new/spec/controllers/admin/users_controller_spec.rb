@@ -277,26 +277,4 @@ describe Admin::UsersController do
 
   end
 
-  describe "delete_all" do
-    before do
-      controller.stub(:user_service).and_return(@user_service = double("user_service"))
-    end
-
-    it "should match /users/delete_all to" do
-      expect(:delete => "/admin/users/delete_all").to route_to({:controller => "admin/users", :action => 'delete_all', :no_layout=>true})
-      expect(controller.send(:users_delete_path)).to eq("/admin/users/delete_all")
-    end
-
-    it "should delete all users" do
-      @user_service.should_receive(:deleteAll)
-      delete :delete_all, :no_layout => true
-    end
-
-    it "should render success message" do
-      @user_service.stub(:deleteAll)
-      delete :delete_all, :no_layout => true
-      expect(response.body).to eq("Deleted")
-    end
-  end
-
 end

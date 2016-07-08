@@ -18,8 +18,6 @@ class Admin::BackupController < ApplicationController
 
   layout "admin"
 
-  protect_from_forgery :except => :delete_all #NOT_IN_PRODUCTION don't remove this line, the build will remove this line when packaging the war
-
   def index
     @tab_name = "backup"
     @backup_location = backup_service.backupLocation()
@@ -32,10 +30,4 @@ class Admin::BackupController < ApplicationController
     backup_service.startBackup(current_user, op_result = HttpLocalizedOperationResult.new())
     redirect_with_flash(op_result.message(Spring.bean("localizer")), :action => :index, :class => op_result.isSuccessful() ? "success" : "error")
   end
-
-  # Used only in Twist tests. Don't remove the #NOT_IN_PRODUCTION comments, these are used to strip out lines when building the distributable'
-  def delete_all #NOT_IN_PRODUCTION
-    backup_service.deleteAll() #NOT_IN_PRODUCTION
-    render :text => 'Deleted' #NOT_IN_PRODUCTION
-  end #NOT_IN_PRODUCTION
 end

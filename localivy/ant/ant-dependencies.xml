@@ -1,9 +1,0 @@
-<ivy-module version="1.0">
-    <info organisation="tw" module="ant" revision="1.7.1" />
-	<publications>
-	    <artifact name="ant" />
-	    <artifact name="ant-junit" />
-	    <artifact name="ant-jdepend" />
-	    <artifact name="ant-launcher" />
-	</publications>
-</ivy-module>

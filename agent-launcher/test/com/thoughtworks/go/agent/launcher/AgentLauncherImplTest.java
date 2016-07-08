@@ -19,7 +19,6 @@ package com.thoughtworks.go.agent.launcher;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
-import com.thoughtworks.cruise.agent.launcher.AgentLauncherImpl;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
@@ -63,7 +62,9 @@ public class AgentLauncherImplTest {
 
     @After
     public void tearDown() {
-        new File("testdata/agent-launcher.jar").delete();
+        FileUtils.deleteQuietly(new File("testdata/agent-launcher.jar"));
+        FileUtils.deleteQuietly(new File(Downloader.AGENT_BINARY));
+        FileUtils.deleteQuietly(new File(Downloader.AGENT_LAUNCHER));
         new Lockfile(new File(AgentLauncherImpl.AGENT_BOOTSTRAPPER_LOCK_FILE)).delete();
     }
 

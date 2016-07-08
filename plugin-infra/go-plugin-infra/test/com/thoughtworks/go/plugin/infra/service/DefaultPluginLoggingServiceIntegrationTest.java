@@ -206,7 +206,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws Exception {
         List linesInLog = FileUtils.readLines(pluginLogFile);
         for (Object line : linesInLog) {
-            if (((String)line).matches(String.format("^.*%s \\[main\\] %s:.* - %s$", expectedLoggingLevel, loggerName, expectedLogMessage))) {
+            if (((String)line).matches(String.format("^.*%s \\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
                 return;
             }
         }
@@ -215,7 +215,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     private void assertMessageInLog(File pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws Exception {
         String fileContent = FileUtils.readFileToString(pluginLogFile);
-        if (fileContent.matches(String.format("^.*%s\\s\\[main\\]\\s%s:.*\\s-\\s%s[\\s\\S]*%s", loggingLevel, loggerName, message, stackTracePattern))) {
+        if (fileContent.matches(String.format("^.*%s\\s\\[%s\\]\\s%s:.*\\s-\\s%s[\\s\\S]*%s", loggingLevel, Thread.currentThread().getName(), loggerName, message, stackTracePattern))) {
             return;
         }
         fail(String.format("Message not found in log file. File content is: %s", fileContent));

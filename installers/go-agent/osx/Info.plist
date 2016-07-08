@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ~ Copyright @currentYear@ ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<plist version="1.0">
+    <dict>
+        <key>CFBundleDevelopmentRegion</key>
+        <string>English</string>
+        <key>CFAllowMixedLocations</key>
+        <string>true</string>
+        <key>CFBundleExecutable</key>
+        <string>go-agent</string>
+        <key>CFBundleIconFile</key>
+        <string>go-agent.icns</string>
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+        <key>CFBundleName</key>
+        <string>Go Agent</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleIdentifier</key>
+        <string>com.thoughtworks.studios.cruise.agent</string>
+        <key>CFBundleSignature</key>
+        <string>????</string>
+        <key>CFBundleGetInfoString</key>
+        <string>Go Agent @version@.@distVersion@. Copyright ThoughtWorks Inc., (c) 2000-@currentYear@</string>
+        <key>CFBundleShortVersionString</key>
+        <string>@version@.@distVersion@</string>
+        <key>CFBundleVersion</key>
+        <string>@distVersion@</string>
+        <key>LSMultipleInstancesProhibited</key>
+        <string>true</string>
+        <key>LSEnvironment</key>
+        <dict>
+            <key>AGENT_STARTUP_ARGS</key>
+            <string>-Xms128m -Xmx256m</string>
+        </dict>
+        <key>JavaX</key>
+        <dict>
+            <key>ClassPath</key>
+            <string>$APP_PACKAGE/agent-bootstrapper.jar</string>
+            <key>MainClass</key>
+            <string>com.simontuffs.onejar.Boot</string>
+            <key>Arguments</key>
+            <string>127.0.0.1 8153</string>
+            <key>Properties</key>
+            <dict>
+                <key>com.apple.mrj.application.apple.menu.about.name</key>
+                <string>Go Agent</string>
+                <key>apple.laf.useScreenMenuBar</key>
+                <string>true</string>
+                <key>cruise.server.host</key>
+                <string>127.0.0.1</string>
+                <key>cruise.server.port</key>
+                <string>8153</string>
+                <key>one-jar.main.class</key>
+                <string>com.thoughtworks.go.agent.bootstrapper.osx.AgentMacWindow</string>
+            </dict>
+        </dict>
+    </dict>
+</plist>

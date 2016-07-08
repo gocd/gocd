@@ -1,39 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="81">
   <server artifactsdir="logs" commandRepositoryLocation="default" serverId="dev-id">
-    <security>
-      <passwordFile path="../manual-testing/ant_hg/password.properties" />
-      <roles>
-        <role name="xyz" />
-      </roles>
-      <admins>
-        <user>admin</user>
-      </admins>
-    </security>
   </server>
-  <pipelines group="first">
-    <authorization>
-      <view>
-        <user>operate</user>
-      </view>
-      <admins>
-        <user>operate</user>
-      </admins>
-    </authorization>
-    <pipeline name="up42">
-      <materials>
-        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
-      </materials>
-      <stage name="up42_stage">
-        <jobs>
-          <job name="up42_job">
-            <tasks>
-              <exec command="ls" />
-            </tasks>
-          </job>
-        </jobs>
-      </stage>
-    </pipeline>
-  </pipelines>
 </cruise>
 

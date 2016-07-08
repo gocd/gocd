@@ -1,0 +1,82 @@
+import com.thoughtworks.go.build.VerifyJarTask
+
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'Agent Launcher Jar'
+
+dependencies {
+  compile project(':agent-common')
+  testCompile project(':test-utils')
+}
+
+jar {
+  classifier 'classes'
+}
+
+task fatJar(type: Jar, dependsOn: [':agent-launcher:jar', ':agent-common:jar']) {
+  manifest {
+    attributes 'Go-Agent-Launcher-Class': 'com.thoughtworks.go.agent.launcher.AgentLauncherImpl'
+    attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'
+  }
+
+  from(configurations.compile) { into "libs/" }
+  from(jar.archivePath) { into('libs/') }
+
+  doLast {
+    verifyJar.execute()
+  }
+}
+
+task verifyJar(type: VerifyJarTask) {
+  jarTask = fatJar
+  expectedJars = [
+      "libs": [
+          "agent-common-${project.version}.jar",
+          "agent-launcher-${project.version}-classes.jar",
+          "base-${project.version}.jar",
+          "commons-codec-1.4.jar",
+          "fluent-hc-4.5.2.jar",
+          "httpclient-4.5.2.jar",
+          "httpcore-4.4.4.jar",
+          "jcommander-1.48.jar",
+          "commons-io-2.4.jar",
+          "commons-lang-2.6.jar",
+          "commons-logging-1.1.1.jar",
+          "joda-time-2.3.jar",
+          "log4j-1.2.17.jar",
+      ]
+  ]
+}
+
+
+task prepare(dependsOn: [':test-agent:jar']) {
+  doFirst {
+    project.copy {
+      from { project(':test-agent').jar.archivePath }
+      into "testdata"
+      rename "(.*)-${project.version}.jar", '$1.jar'
+    }
+  }
+}
+
+test {
+  dependsOn prepare
+}
+
+artifacts {
+  fatJarConfig fatJar
+}

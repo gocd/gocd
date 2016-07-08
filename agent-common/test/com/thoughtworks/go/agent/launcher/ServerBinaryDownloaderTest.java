@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.agent.launcher;
 
+import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,12 +35,17 @@ import static org.junit.Assert.assertThat;
 @RunWith(FakeBootstrapperServer.class)
 public class ServerBinaryDownloaderTest {
 
+    @After
+    public void tearDown() throws Exception {
+        FileUtils.deleteQuietly(new File(Downloader.AGENT_BINARY));
+    }
+
     @Test
     public void shouldGetAllHeaders() throws Exception {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", 9090), DownloadableFile.AGENT, null, SslVerificationMode.NONE);
         Map<String, String> headers = downloader.headers();
         assertNotNull(headers.get("Content-MD5"));
-        assertThat(headers.get("Cruise-Server-Ssl-Port"), is("9443"));
+        assertThat(headers.get("Cruise-Server-Ssl-Port"), is("9091"));
     }
 
     @Test

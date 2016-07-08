@@ -16,32 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineNotFoundException;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.StageNotFoundException;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.CannotRerunJobException;
-import com.thoughtworks.go.domain.CannotScheduleException;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineIdentifier;
-import com.thoughtworks.go.domain.SchedulingContext;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -76,6 +52,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
@@ -463,7 +443,7 @@ public class ScheduleService {
             String user = username == null ? null : username.getUsername().toString();
 
             if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, user)) {
-                opResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE_STAGE", new String[]{stageName}), HealthStateType.unauthorised());
+                opResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE_STAGE", stageName), HealthStateType.unauthorised());
                 return null;
             }
 

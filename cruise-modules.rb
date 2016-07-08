@@ -83,7 +83,7 @@ define "cruise:agent-bootstrapper", :layout => agent_bootstrapper_layout("agent-
     task :windows_data => exploded_zip do
       mkdir_p windows_dir
       cp_r explode, win_pkg_content_dir_child('go-agent', '')
-      cp win_pkg_src('agent', 'ServerIP.ini'), windows_dir
+      cp win_pkg_src('agent', 'ServerURL.ini'), windows_dir
       cp win_pkg_src('agent', 'JavaHome.ini'), windows_dir
       mkdir_p win_pkg_content_dir_child('go-agent', 'tmp')
     end

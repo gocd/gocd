@@ -26,6 +26,7 @@
 <script>
   <%
     require_config = YAML.load(File.read(Rails.root.join("config/requirejs.yml")))
+    require_config['waitSeconds'] = 30 if ENV['GO_SERVER_URL']
     require_config['baseUrl'] = 'assets'
     require_config['paths'].merge!(
       'jasmine'           => '/__jasmine__/jasmine',

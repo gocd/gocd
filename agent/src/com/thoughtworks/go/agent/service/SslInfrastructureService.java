@@ -47,7 +47,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @Service
 public class SslInfrastructureService {
 
-    public static final String CHAIN_ALIAS = "agent";
+    private static final String CHAIN_ALIAS = "agent";
     private static final Logger LOGGER = Logger.getLogger(SslInfrastructureService.class);
     private static final int REGISTER_RETRY_INTERVAL = 5000;
     private final RemoteRegistrationRequester remoteRegistrationRequester;
@@ -117,7 +117,7 @@ public class SslInfrastructureService {
         storeChainIntoAgentStore(keyEntry);
     }
 
-    void storeChainIntoAgentStore(Registration keyEntry) {
+    private void storeChainIntoAgentStore(Registration keyEntry) {
         try {
             keyStoreManager.storeCertificate(CHAIN_ALIAS, GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword(), keyEntry);
             LOGGER.info(String.format("[Agent Registration] Stored registration for cert with hash code: %s not valid before: %s", md5Fingerprint(keyEntry.getFirstCertificate()),
@@ -138,7 +138,7 @@ public class SslInfrastructureService {
         }
     }
 
-    public void deleteKeyStores() {
+    private void deleteKeyStores() {
         FileUtils.deleteQuietly(GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE);
         FileUtils.deleteQuietly(GoAgentServerHttpClientBuilder.AGENT_TRUST_FILE);
     }

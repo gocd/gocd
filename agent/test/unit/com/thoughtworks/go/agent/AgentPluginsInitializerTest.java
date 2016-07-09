@@ -23,27 +23,36 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class AgentPluginsInitializerTest {
-    @Mock private ZipUtil zipUtil;
-    @Mock private PluginManager pluginManager;
-    @Mock private DefaultPluginJarLocationMonitor pluginJarLocationMonitor;
-    @Mock private SystemEnvironment systemEnvironment;
+    @Mock
+    private ZipUtil zipUtil;
+    @Mock
+    private PluginManager pluginManager;
+    @Mock
+    private DefaultPluginJarLocationMonitor pluginJarLocationMonitor;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     private AgentPluginsInitializer agentPluginsInitializer;
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
         agentPluginsInitializer = new AgentPluginsInitializer(pluginManager, pluginJarLocationMonitor, zipUtil, systemEnvironment);
         when(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH)).thenReturn(SystemEnvironment.PLUGINS_PATH);
     }
@@ -61,7 +70,7 @@ public class AgentPluginsInitializerTest {
         inOrder.verify(zipUtil).unzip(new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName()), new File(SystemEnvironment.PLUGINS_PATH));
         inOrder.verify(pluginJarLocationMonitor).initialize();
         inOrder.verify(pluginManager).startInfrastructure();
-        verify(pluginManager,never()).registerPluginsFolderChangeListener();
+        verify(pluginManager, never()).registerPluginsFolderChangeListener();
     }
 
     @Test

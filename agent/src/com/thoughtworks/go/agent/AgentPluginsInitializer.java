@@ -35,9 +35,8 @@ import java.io.IOException;
 @Component
 public class AgentPluginsInitializer implements ApplicationListener<ContextRefreshedEvent> {
     private static final Log LOG = LogFactory.getLog(AgentPluginsInitializer.class);
-    private PluginManager pluginManager;
-
     private final DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
+    private PluginManager pluginManager;
     private ZipUtil zipUtil;
     private SystemEnvironment systemEnvironment;
 

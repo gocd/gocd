@@ -63,8 +63,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -121,7 +119,6 @@ public class AgentController {
         PluginManagerReference.reference().setPluginManager(pluginManager);
         this.agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
     }
-
 
     void init() throws IOException {
         websocketService.setController(this);
@@ -251,15 +248,11 @@ public class AgentController {
         if (e == null) {
             return false;
         }
-        if (e instanceof GeneralSecurityException) {
-            return true;
-        } else {
-            return isCausedBySecurity(e.getCause());
-        }
+        return (e instanceof GeneralSecurityException) || isCausedBySecurity(e.getCause());
     }
 
 
-    public void websocketPing() {
+    private void websocketPing() {
         try {
             agentUpgradeService.checkForUpgrade();
             sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
@@ -398,11 +391,11 @@ public class AgentController {
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 
-    protected AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
+    AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
         return agentAutoRegistrationProperties;
     }
 
-    protected AgentRuntimeInfo getAgentRuntimeInfo() {
+    AgentRuntimeInfo getAgentRuntimeInfo() {
         return agentRuntimeInfo;
     }
 

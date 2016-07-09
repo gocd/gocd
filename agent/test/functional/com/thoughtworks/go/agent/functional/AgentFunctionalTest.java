@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.agent.functional;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.testhelpers.GoServerRunner;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -27,6 +24,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.thoughtworks.go.agent.testhelpers.FakeArtifactPublisherServlet.consoleOutput;
 import static com.thoughtworks.go.agent.testhelpers.FakeArtifactPublisherServlet.receivedFiles;

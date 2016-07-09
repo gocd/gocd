@@ -39,7 +39,7 @@ public class AgentConsoleLogThread extends Thread {
     private String consoleFileName;
 
     public AgentConsoleLogThread(InputStream consoleError, CONSOLE_NDC ndc, String consoleFileName) {
-        this.setName(ndc+": Logger"+this.getName());
+        this.setName(ndc + ": Logger" + this.getName());
         this.consoleError = consoleError;
         this.ndc = ndc;
         this.consoleFileName = consoleFileName;
@@ -76,7 +76,7 @@ public class AgentConsoleLogThread extends Thread {
         }
     }
 
-    public void stopAndJoin() throws InterruptedException {
+    void stopAndJoin() throws InterruptedException {
         keepRunning = false;
         join();
     }

@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.agent.functional;
 
-import java.io.File;
-import java.util.List;
-
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
 import com.thoughtworks.go.agent.testhelpers.FakeGoServer;
@@ -34,6 +31,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Building;
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;

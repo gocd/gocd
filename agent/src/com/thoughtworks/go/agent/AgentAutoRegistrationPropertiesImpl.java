@@ -23,7 +23,11 @@ import org.apache.commons.configuration.PropertiesConfigurationLayout;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.Writer;
 import java.util.Properties;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -54,7 +58,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
         return configFile.exists();
     }
 
-    public boolean isElastic() {
+    boolean isElastic() {
         return exist() && !isBlank(agentAutoRegisterElasticPluginId());
     }
 
@@ -134,7 +138,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
 
     private class FilteringOutputWriterFactory extends PropertiesConfiguration.DefaultIOFactory {
         class FilteringPropertiesWriter extends PropertiesConfiguration.PropertiesWriter {
-            public FilteringPropertiesWriter(Writer out, char delimiter) {
+            FilteringPropertiesWriter(Writer out, char delimiter) {
                 super(out, delimiter);
             }
 

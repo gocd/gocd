@@ -20,9 +20,11 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.log4j.PropertyConfigurator;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 /**
@@ -96,19 +98,17 @@ public class DevelopmentServer {
     }
 
     private static void copyActivatorJarToClassPath() throws IOException {
-        File activatorJarFromTarget = new File("../plugin-infra/go-plugin-activator/target/go-plugin-activator.jar");
-        File activatorJarFromMaven = new File(System.getProperty("user.home") + "/.m2/repository/com/thoughtworks/go/go-plugin-activator/1.0/go-plugin-activator-1.0.jar");
-        File activatorJar = activatorJarFromTarget.exists() ? activatorJarFromTarget : activatorJarFromMaven;
+        File activatorJar = new File("../plugin-infra/go-plugin-activator/target/libs/").listFiles((FileFilter) new WildcardFileFilter("go-plugin-activator-*.jar"))[0];
         new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
 
         if (activatorJar.exists()) {
-            FileUtils.copyFileToDirectory(activatorJar, classpath());
+            FileUtils.copyFile(activatorJar, new File(classpath(), "go-plugin-activator.jar"));
         } else {
             System.err.println("Could not find plugin activator jar, Plugin framework will not be loaded.");
         }
     }
 
     private static File classpath() {
-        return new File("target/classes");
+        return new File("target/classes/main");
     }
 }

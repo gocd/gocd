@@ -38,7 +38,7 @@ describe "/navigation_elements/_footer" do
       'github'         => 'https://github.com/gocd/gocd',
       'forums'         => 'https://groups.google.com/d/forum/go-cd',
       'documentation'  => 'https://go.cd/current/documentation',
-      'plugins'        => 'http://www.go.cd/community/plugins.html',
+      'plugins'        => 'https://www.go.cd/community/plugins.html',
       'api'            => 'https://api.go.cd',
       'server-details' => url_for_path('about'),
       'cctray'         => url_for_path('cctray.xml')

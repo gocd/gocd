@@ -14,25 +14,32 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************#
 
-            <div id="footer">
-                <ul class="copyright" onclick="dashboard_periodical_executer.stop();">
-                    <li>Copyright &copy; 2016 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
-                        Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">$l.localize("APACHE_LICENSE_2_0")</a>.
-                        Go includes <a href="$req.getContextPath()/NOTICE/cruise_notice_file.pdf" target="_blank">$l.localize("THIRD_PARTY_SOFTWARE")</a>.</li>
-                    <li class="last">$l.localize("GO_VERSION"): #include("admin/admin_version.txt.vm")</li>
-                </ul>
-                <ul class="links">
-                    <li><a target="_blank" href="$req.getContextPath()/cctray.xml">(cc) $l.localize("CCTRAY_FEED")</a></li>
-                    <li><a target="_blank" href="http://api.go.cd">$l.localize("APIS")</a></li>
-                    <li><a target="_blank" href="http://www.go.cd/community/plugins.html">$l.localize("PLUGINS")</a></li>
-                    <li><a target="_blank" href="http://www.go.cd/community/resources.html">$l.localize("COMMUNITY")</a></li>
-                    <li><a href="$req.getContextPath()/about">$l.localize("SERVER_DETAILS")</a></li>
-                    <li class="last"><a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a></li>
-                </ul>
+            <div id="footer-new-foundation">
+              <footer class="footer">
+                <div class="row">
+                  <div class="small-12 medium-6 large-8 columns">
+                    <p class="copyright">Copyright &copy; 2016
+                      <a href="http://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
+                      Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.<br>
+                      Go includes <a href="/go/NOTICE/cruise_notice_file.pdf" target="_blank">third-party software</a>.
+                      Go Version: #include("admin/admin_version.txt.vm").
+                    </p>
 
-                <ul id="footer-links">
-                </ul>
-                <div class="clear"></div>
+                  </div>
+                  <div class="small-12 medium-6 large-4 columns">
+                    <span class="inline-list social">
+                        <a href="http://twitter.com/goforcd" title="twitter" class="twitter"></a>
+                        <a href="https://github.com/gocd/gocd" title="github" class="github"></a>
+                        <a href="https://groups.google.com/d/forum/go-cd" title="forums" class="forums"></a>
+                        <a href="https://go.cd/current/documentation" title="documentation" class="documentation"></a>
+                        <a href="https://www.go.cd/community/plugins.html" title="plugins" class="plugins"></a>
+                        <a href="https://api.go.cd" title="api" class="api"></a>
+                        <a href="$req.getContextPath()/about" title="about" class="server-details"></a>
+                        <a href="$req.getContextPath()/cctray.xml" title="cctray" class="cctray"></a>
+                    </span>
+                  </div>
+                </div>
+              </footer>
             </div>
         </div>
         <!-- end content -->

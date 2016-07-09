@@ -1,10 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc. *
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +25,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static java.lang.System.getProperty;
@@ -34,12 +36,6 @@ public class FileUtil {
 
     private static final boolean ON_NETWARE = Os.isFamily("netware");
     private static final boolean ON_DOS = Os.isFamily("dos");
-
-    public static final FileFilter NONHIDDEN_FILE_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !isHidden(pathname);
-        }
-    };
 
     public static boolean isFolderEmpty(File folder) {
         if (folder == null) {
@@ -54,28 +50,16 @@ public class FileUtil {
     }
 
     public static String makepath(String... paths) {
-        StringBuilder fullPath = new StringBuilder();
-        for (String path : paths) {
-            fullPath.append(path);
-            fullPath.append("/");
-        }
-        return fullPath.toString().substring(0, fullPath.length() - 1);
+        return StringUtils.join(paths, "/");
     }
 
     public static String readToEnd(File file) throws IOException {
-        FileInputStream input = new FileInputStream(file);
-        return readToEnd(input);
+        return FileUtils.readFileToString(file, Charset.defaultCharset());
     }
 
     public static String readToEnd(InputStream input) throws IOException {
         try {
-            @SuppressWarnings("unchecked") List<String> list = IOUtils.readLines(input);
-            StringBuilder builder = new StringBuilder();
-            for (String line : list) {
-                builder.append(line);
-                builder.append(lineSeparator());
-            }
-            return builder.toString().trim();
+            return IOUtils.toString(input, Charset.defaultCharset());
         } finally {
             IOUtils.closeQuietly(input);
         }
@@ -86,40 +70,20 @@ public class FileUtil {
     }
 
     public static void writeContentToFile(String content, File file) throws IOException {
-        OutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(file);
-            IOUtils.write(content, outputStream);
-        } finally {
-            IOUtils.closeQuietly(outputStream);
-        }
+        FileUtils.write(file, content, Charset.defaultCharset());
     }
 
     public static void writeContentToFile(byte[] content, File file) throws IOException {
-        OutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(file);
-            IOUtils.write(content, outputStream);
-        } finally {
-            IOUtils.closeQuietly(outputStream);
-        }
+        FileUtils.writeByteArrayToFile(file, content);
     }
 
     public static String readContentFromFile(File file) throws IOException {
-        FileInputStream input = null;
-        try {
-            input = new FileInputStream(file);
-            return IOUtils.toString(input);
-        } finally {
-            IOUtils.closeQuietly(input);
-        }
+        return FileUtils.readFileToString(file, Charset.defaultCharset());
     }
-
 
     public static boolean deleteFolder(File testFolder) {
         return FileUtils.deleteQuietly(testFolder);
     }
-
 
     public static String normalizePath(File fileToNormalize) {
         return normalizePath(fileToNormalize.getPath());
@@ -419,8 +383,11 @@ public class FileUtil {
     }
 
     public static List<String> readLines(InputStream resource) throws IOException {
-        String output = readToEnd(resource);
-        return Arrays.asList(output.split("[\r\n]+"));
+        try {
+            return IOUtils.readLines(resource, Charset.defaultCharset());
+        } finally {
+            IOUtils.closeQuietly(resource);
+        }
     }
 
     public static File createTempFolder() {
@@ -459,13 +426,7 @@ public class FileUtil {
     }
 
     public static void writeToFile(InputStream stream, File dest) throws IOException {
-        FileOutputStream fos = null;
-        try {
-            fos = FileUtils.openOutputStream(dest);
-            IOUtils.copy(stream, fos);
-        } finally {
-            IOUtils.closeQuietly(fos);
-        }
+        FileUtils.copyInputStreamToFile(stream, dest);
     }
 
     public static void tryDeleting(final File file) {

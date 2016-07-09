@@ -107,7 +107,7 @@ task verifyJar(type: VerifyJarTask) {
           "httpmime-4.5.2.jar",
           "httpcore-4.4.4.jar",
           "jcommander-1.48.jar",
-          "commons-io-2.4.jar",
+          "commons-io-2.5.jar",
           "commons-lang-2.6.jar",
           "commons-logging-1.2.jar",
           "config-api-${project.version}.jar",

@@ -444,7 +444,7 @@ task verifyWar(type: VerifyJarTask) {
           "httpclient-4.5.2.jar",
           "httpcore-4.4.4.jar",
           "httpmime-4.5.2.jar",
-          "commons-io-2.4.jar",
+          "commons-io-2.5.jar",
           "commons-lang-2.6.jar",
           "commons-logging-1.2.jar",
           "commons-net-2.0.jar",

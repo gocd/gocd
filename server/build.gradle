@@ -195,8 +195,8 @@ dependencies {
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
   testCompile group: 'org.jsoup', name: 'jsoup', version: '1.8.1'
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: '1.7.0'
-  testCompile group: 'org.xmlunit', name: 'xmlunit-core', version: '2.0.0-alpha-03'
-  testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.0.0-alpha-03'
+  testCompile group: 'org.xmlunit', name: 'xmlunit-core', version: '2.2.1'
+  testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.2.1'
   compileOnly project(':app-server')
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: '9.2.17.v20160517'

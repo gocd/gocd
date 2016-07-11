@@ -46,6 +46,9 @@ tags
 # virtual machine crash logs
 hs_err_pid*
 
+# intellij has a tendency to cache rake tasks
+.rakeTasks
+
 addon-api/database/target/
 agent-bootstrapper/.agent-bootstrapper.running
 agent-bootstrapper/.tmp.file.list
@@ -60,15 +63,18 @@ agent-bootstrapper/testdata/test-agent.jar
 agent-common/target/
 agent-common/testdata/
 agent-launcher/target/
+agent-launcher/testdata/test-agent.jar
 agent-process-launcher/target/
 agent-process-launcher/testdata/agent-launcher.jar
 agent-process-launcher/testdata/test-agent.jar
 agent/*.log
+agent/agent-plugins.zip
 agent/config/
 agent/log4j.properties
 agent/pipelines/
 agent/plugins_work/
 agent/target/
+agent/testdata/test-agent.jar
 app-server/target/
 base/target/
 buildSrc/.gradle/
@@ -101,17 +107,24 @@ server/db/config.git/
 server/db/h2db/
 server/db/h2deltas/
 server/db/shine/
+server/felix-cache/
 server/logs/
 server/pipelines/
 server/plugins_work/
 server/plugins/
 server/target/
 server/test-addons/
+server/testdata/agent-launcher.jar
 server/testdata/test-agent.jar
+server/webapp/WEB-INF/rails.new/*.log
+server/webapp/WEB-INF/rails.new/config/cipher
 server/webapp/WEB-INF/rails.new/db/config.git/
+server/webapp/WEB-INF/rails.new/historical_jars/
 server/webapp/WEB-INF/rails.new/log/
 server/webapp/WEB-INF/rails.new/logs/
 server/webapp/WEB-INF/rails.new/public/assets/
+server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/doc/
+target/
 test-addon/target/
 test-agent/target/
 test-utils/target/

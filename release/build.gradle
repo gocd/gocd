@@ -40,6 +40,7 @@ task updateBuildMap {
 
 task bumpCommandRepoVersion {
   outputs.upToDateWhen { false }
+  onlyIf { System.getenv().containsKey("BUMP_COMMAND_REPO_VERSION") }
   def repoName = "gocd/go-command-repo"
 
   def checkoutDir = "${project.buildDir}/go-command-repo-for-push"
@@ -54,9 +55,7 @@ task bumpCommandRepoVersion {
     if (password == null) {
       throw new GradleException("Environment variable: COMMAND_REPO_PASSWORD is unset. Needs to be set.")
     }
-  }
 
-  doFirst {
     project.delete(checkoutDir)
 
     exec {

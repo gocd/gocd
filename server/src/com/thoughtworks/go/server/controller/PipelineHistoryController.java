@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.UserHelper;
+import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -108,7 +109,7 @@ public class PipelineHistoryController {
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
         boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
-        PipelineInstanceModels pipelineHistory = (labelFilter == null || labelFilter.trim().isEmpty()) ?
+        PipelineInstanceModels pipelineHistory = StringUtil.isBlank(labelFilter) ?
                 pipelineHistoryService.load(pipelineName, pagination, username, true) :
                 pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, UserHelper.getUserName(), new HttpLocalizedOperationResult());
 

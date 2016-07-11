@@ -21,6 +21,8 @@ task updateBuildMap {
   def checkoutDir = "${project.buildDir}/build-map"
 
   doFirst {
+    project.delete(checkoutDir)
+
     exec {
       commandLine = ['git', 'clone', '--quiet', "https://github.com/gocd/build_map", checkoutDir]
       standardOutput = System.out
@@ -28,7 +30,7 @@ task updateBuildMap {
     }
 
     exec {
-      commandLine = ['./build_go_cd_commit_to_package']
+      commandLine = ['./build_go_cd_commit_to_package.rb']
       workingDir = checkoutDir
       standardOutput = System.out
       errorOutput = System.err

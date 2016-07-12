@@ -33,7 +33,7 @@ module ApiV1
 
       def create
         result = HttpLocalizedOperationResult.new
-        @scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params)
+        @scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params[:pluggable_scm])
         @scm.ensureIdExists
         pluggable_scm_service.createPluggableScmMaterial(current_user, @scm, result)
 
@@ -43,7 +43,7 @@ module ApiV1
 
       def update
         result = HttpLocalizedOperationResult.new
-        @scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params)
+        @scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params[:pluggable_scm])
         pluggable_scm_service.updatePluggableScmMaterial(current_user, @scm, result)
 
         json = ApiV1::Scms::PluggableScmRepresenter.new(@scm).to_hash(url_builder: self)
@@ -67,7 +67,7 @@ module ApiV1
       end
 
       def check_for_scm_rename
-        unless params[:name].downcase == params[:material_name].downcase
+        unless params[:pluggable_scm][:name].downcase == params[:material_name].downcase
           render_message('Renaming of SCM material is not supported by this API.', :unprocessable_entity)
         end
       end

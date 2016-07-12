@@ -26,7 +26,7 @@ describe ApiV1::Scms::PluggableScmRepresenter do
     @scm.setName('material')
   end
 
-  it 'should render a pluggable scm material with hal representation' do
+  it 'should render all of pluggable scm material with hal representation' do
     actual_json = ApiV1::Scms::PluggableScmRepresenter.new(@scm).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_scm_url(material_name: @scm.get_name))
@@ -39,7 +39,7 @@ describe ApiV1::Scms::PluggableScmRepresenter do
   it 'should deserialize given json to scm object' do
     deserialized_scm = SCM.new
     ApiV1::Scms::PluggableScmRepresenter.new(deserialized_scm).from_hash(json)
-    expect(deserialized_scm.getId).to eq(@scm.getId)
+    expect(deserialized_scm).to eq(@scm)
   end
 
   it 'should render configuration value with hal representation' do
@@ -100,13 +100,11 @@ describe ApiV1::Scms::PluggableScmRepresenter do
         configuration: [
             {
                 key: "username",
-                value: "user",
-                secure: false
+                value: "user"
             },
             {
                 key: "password",
-                encrypted_value: "bar",
-                secure: true
+                encrypted_value: "bar"
             }
         ]
     }

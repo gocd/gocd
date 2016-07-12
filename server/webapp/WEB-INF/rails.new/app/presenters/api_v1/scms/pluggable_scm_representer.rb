@@ -16,26 +16,10 @@
 
 module ApiV1
   module Scms
-    class PluggableScmRepresenter < BaseRepresenter
-      alias_method :scm, :represented
+    class PluggableScmRepresenter < ApiV1::Scms::PluggableScmSummaryRepresenter
+      alias_method :scm_config, :represented
 
-      error_representer
-
-      link :self do |opts|
-        opts[:url_builder].apiv1_admin_scm_url(material_name: scm.getName) if scm.getName
-      end
-
-      link :doc do
-        'http://api.go.cd/#scms'
-      end
-      property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
-      property :id
-      property :name
-      property :auto_update
-      property :plugin_configuration, as: :plugin_metadata,
-               decorator: ApiV1::Config::PluginConfigurationRepresenter,
-               class: com.thoughtworks.go.domain.config.PluginConfiguration
-
+      property   :auto_update
       collection :configuration,
                  exec_context: :decorator,
                  decorator: ApiV1::Config::PluginConfigurationPropertyRepresenter,
@@ -51,3 +35,4 @@ module ApiV1
     end
   end
 end
+

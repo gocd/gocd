@@ -181,7 +181,7 @@ describe ApiV1::Admin::PluggableScmsController do
       it 'should deserialize scm object from given parameters' do
         hash = {id: 'scm-id', name: 'foo', auto_update: false, plugin_metadata: {id: 'foo', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
         @pluggable_scm_service.should_receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
-        post_with_api_header :create, hash
+        post_with_api_header :create, pluggable_scm: hash
 
         expect(response).to be_ok
         real_response = actual_response
@@ -261,10 +261,11 @@ describe ApiV1::Admin::PluggableScmsController do
 
       it 'should deserialize scm object from given parameters' do
         controller.stub(:check_for_stale_request).and_return(nil)
+
         hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
         @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
-        params = {material_name: 'material', id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
-        put_with_api_header :update, params
+
+        put_with_api_header :update, material_name: 'material', pluggable_scm: hash
 
         expect(response).to be_ok
         real_response = actual_response
@@ -274,9 +275,9 @@ describe ApiV1::Admin::PluggableScmsController do
 
       it 'should not allow rename of material name' do
         controller.stub(:check_for_stale_request).and_return(nil)
-        params = {material_name: 'foo', id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
+        params = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
 
-        put_with_api_header :update, params
+        put_with_api_header :update, material_name: 'foo', pluggable_scm: params
 
         expect(response).to have_api_message_response(422, 'Renaming of SCM material is not supported by this API.')
       end
@@ -300,10 +301,10 @@ describe ApiV1::Admin::PluggableScmsController do
 
       it 'should fail update if etag does not match' do
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
-        params = {material_name: 'foo', id: '1', name: 'foo', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
+        params = {id: '1', name: 'foo', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('foo').and_return(@scm)
 
-        put_with_api_header :update, params
+        put_with_api_header :update, material_name: 'foo', pluggable_scm: params
 
         expect(response).to have_api_message_response(412, "Someone has modified the global SCM 'foo'. Please update your copy of the config with the changes." )
 
@@ -313,12 +314,11 @@ describe ApiV1::Admin::PluggableScmsController do
         hash_for_existing_scm = ApiV1::Scms::PluggableScmRepresenter.new(@scm).to_hash(url_builder: controller)
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(JSON.generate(hash_for_existing_scm))}\""
         hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
-        params = {material_name: 'material', id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
 
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('material').and_return(@scm)
         @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
 
-        put_with_api_header :update, params
+        put_with_api_header :update, material_name: 'material', pluggable_scm: hash
 
         expect(response).to be_ok
         real_response = actual_response

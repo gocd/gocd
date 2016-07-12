@@ -20,33 +20,31 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import static com.thoughtworks.go.util.OperatingSystem.LINUX;
-import static com.thoughtworks.go.util.OperatingSystem.WINDOWS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class GoPluginDescriptorTest {
     @Test
     public void shouldMatchValidOSesAgainstCurrentOS() throws Exception {
-        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin(LINUX), is(true));
-        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin(WINDOWS), is(true));
+        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Linux"), is(true));
+        assertThat(descriptorWithTargetOSes().isCurrentOSValidForThisPlugin("Windows"), is(true));
 
-        assertThat(descriptorWithTargetOSes("Linux").isCurrentOSValidForThisPlugin(LINUX), is(true));
-        assertThat(descriptorWithTargetOSes("Windows").isCurrentOSValidForThisPlugin(LINUX), is(false));
+        assertThat(descriptorWithTargetOSes("Linux").isCurrentOSValidForThisPlugin("Linux"), is(true));
+        assertThat(descriptorWithTargetOSes("Windows").isCurrentOSValidForThisPlugin("Linux"), is(false));
 
-        assertThat(descriptorWithTargetOSes("Windows", "Linux").isCurrentOSValidForThisPlugin(LINUX), is(true));
-        assertThat(descriptorWithTargetOSes("Windows", "SunOS", "Mac OS X").isCurrentOSValidForThisPlugin(LINUX), is(false));
+        assertThat(descriptorWithTargetOSes("Windows", "Linux").isCurrentOSValidForThisPlugin("Linux"), is(true));
+        assertThat(descriptorWithTargetOSes("Windows", "SunOS", "Mac OS X").isCurrentOSValidForThisPlugin("Linux"), is(false));
     }
 
     @Test
     public void shouldDoACaseInsensitiveMatchForValidOSesAgainstCurrentOS() throws Exception {
-        assertThat(descriptorWithTargetOSes("linux").isCurrentOSValidForThisPlugin(LINUX), is(true));
-        assertThat(descriptorWithTargetOSes("LiNuX").isCurrentOSValidForThisPlugin(LINUX), is(true));
-        assertThat(descriptorWithTargetOSes("windows").isCurrentOSValidForThisPlugin(LINUX), is(false));
-        assertThat(descriptorWithTargetOSes("windOWS").isCurrentOSValidForThisPlugin(LINUX), is(false));
+        assertThat(descriptorWithTargetOSes("linux").isCurrentOSValidForThisPlugin("Linux"), is(true));
+        assertThat(descriptorWithTargetOSes("LiNuX").isCurrentOSValidForThisPlugin("Linux"), is(true));
+        assertThat(descriptorWithTargetOSes("windows").isCurrentOSValidForThisPlugin("Linux"), is(false));
+        assertThat(descriptorWithTargetOSes("windOWS").isCurrentOSValidForThisPlugin("Linux"), is(false));
 
-        assertThat(descriptorWithTargetOSes("WinDOWs", "LINUx").isCurrentOSValidForThisPlugin(LINUX), is(true));
-        assertThat(descriptorWithTargetOSes("WINDows", "Sunos", "Mac os x").isCurrentOSValidForThisPlugin(LINUX), is(false));
+        assertThat(descriptorWithTargetOSes("WinDOWs", "LINUx").isCurrentOSValidForThisPlugin("Linux"), is(true));
+        assertThat(descriptorWithTargetOSes("WINDows", "Sunos", "Mac os x").isCurrentOSValidForThisPlugin("Linux"), is(false));
     }
 
     private GoPluginDescriptor descriptorWithTargetOSes(String... oses) {

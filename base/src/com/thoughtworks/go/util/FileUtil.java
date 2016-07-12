@@ -32,14 +32,8 @@ public class FileUtil {
     private static final String CRUISE_TMP_FOLDER = "cruise" + "-" + UUID.randomUUID().toString();
     private static final Logger LOGGER = Logger.getLogger(FileUtil.class);
 
-    private static final boolean ON_NETWARE = Os.isFamily("netware");
-    private static final boolean ON_DOS = Os.isFamily("dos");
-
-    public static final FileFilter NONHIDDEN_FILE_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !isHidden(pathname);
-        }
-    };
+    private static final boolean ON_NETWARE = OperatingSystem.isFamily("netware");
+    private static final boolean ON_DOS = OperatingSystem.isFamily("dos");
 
     public static boolean isFolderEmpty(File folder) {
         if (folder == null) {

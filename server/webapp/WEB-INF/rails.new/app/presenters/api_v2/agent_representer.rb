@@ -47,7 +47,7 @@ module ApiV2
     property :build_state, exec_context: :decorator
     property :resources, exec_context: :decorator
     property :environments, exec_context: :decorator
-    property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
+    property :errors, exec_context: :decorator, decorator: ApiV2::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
 
     def agent_config_state
       agent.getAgentConfigStatus()

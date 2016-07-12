@@ -117,23 +117,5 @@ module ApiV2
         memo
       end
     end
-
-    def from_hash(data, options={})
-      super(with_default_values(data), options)
-    end
-
-    private
-    def with_default_values(hash)
-      hash ||= {}
-
-      if hash.respond_to?(:has_key?)
-        hash = hash.deep_symbolize_keys
-      end
-
-      self.collection_items.inject(hash) do |memo, item|
-        memo[item] ||= []
-        memo
-      end
-    end
   end
 end

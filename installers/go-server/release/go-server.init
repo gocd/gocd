@@ -64,17 +64,13 @@ start_go_server() {
         exit 0
     fi
 
-    if [ "$JAVA_HOME" != "" ]; then
-        if [ "${CUR_USER}" == "root" ]; then
-            start_daemon /bin/su - go -c /usr/share/go-server/server.sh
-        else
-            start_daemon /usr/share/go-server/server.sh
-        fi
+    if [ "${CUR_USER}" == "root" ]; then
+        start_daemon /bin/su - go -c /usr/share/go-server/server.sh
     else
-        log_failure_msg "Starting up of Go Server requires JAVA_HOME to be set in /etc/default/go-server. Please set JAVA_HOME to proceed."
+        start_daemon /usr/share/go-server/server.sh
     fi
 
-    # Sleep for a while to see if Cruise bleats about anything
+    # Sleep for a while to see if GoCD bleats about anything
     sleep 30
     check_proc
 

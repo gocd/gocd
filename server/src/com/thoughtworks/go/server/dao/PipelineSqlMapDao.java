@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
+import com.thoughtworks.go.presentation.pipelinehistory.MatchedPipelineRevision;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -672,9 +673,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return pagination.getCurrentPage();
     }
 
-    public PipelineInstanceModels findPipelineHistoryByRevision(String revision) {
-        return PipelineInstanceModels.createPipelineInstanceModels(
-                (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("getPipelineHistoryByRevision", arguments("revision", revision).asMap()));
+    public List<MatchedPipelineRevision> findPipelineVSMByRevision(String revision, int limit) {
+        return (List<MatchedPipelineRevision>) getSqlMapClientTemplate().queryForList("getPipelineVSMByRevision",
+                arguments("revision", "%" + revision + "%").and("limit", limit).asMap());
     }
 
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit) {

@@ -575,12 +575,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return instanceModels;
     }
 
-    public PipelineInstanceModels findPipelineInstancesByRevision(String revision) {
-        PipelineInstanceModels models = pipelineDao.findPipelineHistoryByRevision(revision);
-        for (PipelineInstanceModel model : models) {
-            populateMaterialRevisionsOnBuildCause(model);
-        }
-        return models;
+    public List<MatchedPipelineRevision>  findPipelineInstancesByRevision(String revision, int limit) {
+        return pipelineDao.findPipelineVSMByRevision(revision, limit);
     }
 
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit, Username userName, HttpLocalizedOperationResult result) {

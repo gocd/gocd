@@ -275,11 +275,5 @@
         <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
         <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
     </rule>
-
-    <rule>
-        <name>Revision search</name>
-        <from>/tab/pipeline/search/([^/]+)</from>
-        <to type="forward">/tab/pipeline/search?revision=$1</to>
-    </rule>
 </urlrewrite>
 

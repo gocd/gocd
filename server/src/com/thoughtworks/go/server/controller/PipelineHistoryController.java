@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.presentation.pipelinehistory.MatchedPipelineRevision;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryJsonPresentationModel;
@@ -133,34 +134,16 @@ public class PipelineHistoryController {
 
     @RequestMapping(value = "/**/revisionsearch.json", method = RequestMethod.GET)
     public ModelAndView revisionSearchJson(@RequestParam("revision") String revision,
+                                           @RequestParam(value = "limit", required = false) Integer limit,
                                            HttpServletResponse response, HttpServletRequest request) throws Exception {
-        String username = CaseInsensitiveString.str(UserHelper.getUserName().getUsername());
-        PipelineInstanceModels pipelineHistory = pipelineHistoryService.findPipelineInstancesByRevision(revision);
-        if(pipelineHistory.isEmpty())
-            return jsonNotFound(null).respond(response);
-
-        String pipelineName = pipelineHistory.first().getName();
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        Pagination pagination = Pagination.pageStartingAt(0, pipelineHistory.size(), pipelineHistory.size());
-        boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineName);
-
-        PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
-        boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(CaseInsensitiveString.str(pipelineConfig.name()));
-        PipelineHistoryJsonPresentationModel historyJsonPresenter = new PipelineHistoryJsonPresentationModel(
-                pauseInfo,
-                pipelineHistory,
-                pipelineConfig,
-                pagination, canForce(pipelineConfig, username),
-                hasForcedBuildCause, hasBuildCauseInBuffer, canPause(pipelineConfig, username));
-        Map jsonMap = historyJsonPresenter.toJson();
-
-        ArrayList<String> pipelineNameList = new ArrayList<String>(pipelineHistory.size());
-        for(PipelineInstanceModel model : pipelineHistory)
-            pipelineNameList.add(model.getName());
-
-        jsonMap.put("pipelineNames", pipelineNameList);
-        return jsonFound(jsonMap).respond(response);
-
+        limit = (limit == null || limit <= 0) ? 5 : limit;
+        List<MatchedPipelineRevision> revisions = pipelineHistoryService.findPipelineInstancesByRevision(revision, limit);
+        List<Map> jsonList = new ArrayList<>(revisions.size());
+        for(MatchedPipelineRevision rev : revisions) {
+            if(securityService.hasViewPermissionForPipeline(UserHelper.getUserName(),rev.getPipelineName()))
+                jsonList.add(rev.toJson());
+        }
+        return jsonFound(jsonList).respond(response);
     }
 
     private boolean canPause(PipelineConfig pipelineConfig, String username) {

@@ -69,17 +69,13 @@ start_go_agent() {
         exit 0
     fi
 
-    if [ "$JAVA_HOME" != "" ]; then
-        if [ "${CUR_USER}" == "root" ]; then
-            start_daemon "/bin/su - go -c '/usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}'"
-        else
-            start_daemon /usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}
-        fi
+    if [ "${CUR_USER}" == "root" ]; then
+        start_daemon "/bin/su - go -c '/usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}'"
     else
-        log_failure_msg "Starting up of Go Agent requires JAVA_HOME to be set in /etc/default/go-agent. Please set JAVA_HOME to proceed."
+        start_daemon /usr/share/${SERVICE_NAME}/agent.sh ${SERVICE_NAME}
     fi
 
-    # Sleep for a while to see if Cruise bleats about anything
+    # Sleep for a while to see if GoCD bleats about anything
     sleep 15
     check_proc
 

@@ -128,7 +128,6 @@ public class PackageMaterial extends AbstractMaterial {
         jsonMap.put("action", "Modified");
         jsonMap.put("location", getUriForDisplay());
         jsonMap.put("materialName", getDisplayName());
-        jsonMap.put("fingerprint", getFingerprint());
     }
 
     @Override

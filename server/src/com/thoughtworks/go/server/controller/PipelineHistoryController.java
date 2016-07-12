@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.pipelinehistory.MatchedPipelineRevision;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -42,11 +41,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
-import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotFound;
 import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 
 @Controller
@@ -121,15 +120,6 @@ public class PipelineHistoryController {
                 pagination, canForce(pipelineConfig, username),
                 hasForcedBuildCause, hasBuildCauseInBuffer, canPause(pipelineConfig, username));
         return jsonFound(historyJsonPresenter.toJson()).respond(response);
-    }
-
-    @RequestMapping(value = "/tab/pipeline/search", method = RequestMethod.GET)
-    public ModelAndView revisionSearch(@RequestParam("revision") String revision,
-                                       HttpServletResponse response, HttpServletRequest request) throws Exception {
-        Map model = new HashMap();
-        model.put("revision", revision);
-        model.put("l", localizer);
-        return new ModelAndView("pipeline/pipeline_revision_search", model);
     }
 
     @RequestMapping(value = "/**/revisionsearch.json", method = RequestMethod.GET)

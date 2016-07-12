@@ -28,6 +28,6 @@ describe ApiV1::Scms::PluggableScmsRepresenter do
     expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#scms')
     actual_json.delete(:_links)
 
-    actual_json.fetch(:_embedded).should == { :scms => [ApiV1::Scms::PluggableScmRepresenter.new(scm).to_hash(url_builder: UrlBuilder.new)] }
+    actual_json.fetch(:_embedded).should == { :scms => [ApiV1::Scms::PluggableScmSummaryRepresenter.new(scm).to_hash(url_builder: UrlBuilder.new)] }
   end
 end

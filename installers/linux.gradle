@@ -34,7 +34,7 @@ def agent = [
         '/usr/share/go-agent/agent-bootstrapper.jar': [mode: 0644, owner: 'root', group: 'root', source: configurations.agentBootstrapperJar.singleFile.path],
         '/usr/share/go-agent/agent.sh'              : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/agent.sh').path],
         '/usr/share/go-agent/stop-agent.sh'         : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/stop-agent.sh').path],
-        '/var/lib/go-agent/log4j.properties'        : [mode: 0660, owner: 'root', group: 'root', source: project(':agent').file('properties/log4j.properties').path, confFile: true],
+        '/var/lib/go-agent/log4j.properties'        : [mode: 0660, owner: 'root', group: 'go', source: project(':agent').file('properties/log4j.properties').path, confFile: true],
     ],
     description: '''
       Go Agent Component

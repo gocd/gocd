@@ -250,5 +250,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         public Configuration configuration() {
             return repoConfig.getConfiguration();
         }
+
+        @Override
+        public MaterialConfig configMaterial() {
+            return this.repoConfig.getMaterialConfig();
+        }
     }
 }

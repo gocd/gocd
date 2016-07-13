@@ -44,7 +44,7 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
         Collection<CRConfigurationProperty> cRconfigurations = getCrConfigurations(context.configuration());
         CRParseResult crPartialConfig = parseDirectory(configRepoCheckoutDirectory, cRconfigurations);
-        return configConverter.toPartialConfig(crPartialConfig);
+        return configConverter.toPartialConfig(crPartialConfig, context);
     }
 
     @Override

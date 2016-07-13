@@ -1,5 +1,6 @@
 package com.thoughtworks.go.config;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -27,6 +28,8 @@ import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -34,16 +37,18 @@ import java.util.*;
  * Helper to transform config repo classes to config-api classes
  */
 public class ConfigConverter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigConverter.class);
 
     private final GoCipher cipher;
     private final CachedGoConfig cachedGoConfig;
+    private Cloner cloner = new Cloner();
 
     public ConfigConverter(GoCipher goCipher, CachedGoConfig cachedGoConfig) {
         this.cipher = goCipher;
         this.cachedGoConfig = cachedGoConfig;
     }
 
-    public PartialConfig toPartialConfig(CRParseResult crPartialConfig) {
+    public PartialConfig toPartialConfig(CRParseResult crPartialConfig, PartialConfigLoadContext context) {
         PartialConfig partialConfig = new PartialConfig();
         for (CREnvironment crEnvironment : crPartialConfig.getEnvironments()) {
             EnvironmentConfig environment = toEnvironmentConfig(crEnvironment);
@@ -51,7 +56,7 @@ public class ConfigConverter {
         }
         Map<String, List<CRPipeline>> pipesByGroup = groupPipelinesByGroupName(crPartialConfig.getPipelines());
         for (Map.Entry<String, List<CRPipeline>> crPipelineGroup : pipesByGroup.entrySet()) {
-            BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup);
+            BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup, context);
             partialConfig.getGroups().add(pipelineConfigs);
         }
         return partialConfig;
@@ -69,12 +74,12 @@ public class ConfigConverter {
         return map;
     }
 
-    public BasicPipelineConfigs toBasicPipelineConfigs(Map.Entry<String, List<CRPipeline>> crPipelineGroup) {
+    public BasicPipelineConfigs toBasicPipelineConfigs(Map.Entry<String, List<CRPipeline>> crPipelineGroup, PartialConfigLoadContext context) {
         String name = crPipelineGroup.getKey();
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.setGroup(name);
         for (CRPipeline crPipeline : crPipelineGroup.getValue()) {
-            pipelineConfigs.add(toPipelineConfig(crPipeline));
+            pipelineConfigs.add(toPipelineConfig(crPipeline,context));
         }
         return pipelineConfigs;
     }
@@ -241,7 +246,7 @@ public class ConfigConverter {
         materialConfig.setName(toMaterialName(crMaterial.getName()));
     }
 
-    public MaterialConfig toMaterialConfig(CRMaterial crMaterial) {
+    public MaterialConfig toMaterialConfig(CRMaterial crMaterial,PartialConfigLoadContext context) {
         if (crMaterial == null)
             throw new ConfigConvertionException("material cannot be null");
 
@@ -256,9 +261,30 @@ public class ConfigConverter {
         } else if (crMaterial instanceof CRPackageMaterial) {
             CRPackageMaterial crPackageMaterial = (CRPackageMaterial) crMaterial;
             return toPackageMaterial(crPackageMaterial);
+        } else if(crMaterial instanceof CRConfigMaterial) {
+            CRConfigMaterial crConfigMaterial = (CRConfigMaterial)crMaterial;
+            MaterialConfig repoMaterial = cloner.deepClone(context.configMaterial());
+            if(StringUtils.isNotEmpty(crConfigMaterial.getName()))
+                repoMaterial.setName(new CaseInsensitiveString(crConfigMaterial.getName()));
+            if(StringUtils.isNotEmpty(crConfigMaterial.getDestination()))
+                setDestination(repoMaterial,crConfigMaterial.getDestination());
+            return repoMaterial;
         } else
             throw new ConfigConvertionException(
                     String.format("unknown material type '%s'", crMaterial));
+    }
+
+    private void setDestination(MaterialConfig repoMaterial, String destination) {
+        if(repoMaterial instanceof ScmMaterialConfig)
+        {
+            ((ScmMaterialConfig)repoMaterial).setFolder(destination);
+        }
+        else if(repoMaterial instanceof PluggableSCMMaterialConfig)
+        {
+            ((PluggableSCMMaterialConfig)repoMaterial).setFolder(destination);
+        }
+        else
+            LOGGER.warn("Unknown material type " + repoMaterial.getTypeForDisplay());
     }
 
     public PackageMaterialConfig toPackageMaterial(CRPackageMaterial crPackageMaterial) {
@@ -489,10 +515,10 @@ public class ConfigConverter {
         return jobConfigs;
     }
 
-    public PipelineConfig toPipelineConfig(CRPipeline crPipeline) {
+    public PipelineConfig toPipelineConfig(CRPipeline crPipeline,PartialConfigLoadContext context) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         for (CRMaterial crMaterial : crPipeline.getMaterials()) {
-            materialConfigs.add(toMaterialConfig(crMaterial));
+            materialConfigs.add(toMaterialConfig(crMaterial,context));
         }
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(crPipeline.getName()), materialConfigs);

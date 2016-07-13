@@ -1,6 +1,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -14,6 +15,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.label.PipelineLabel;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -23,6 +25,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.command.HgUrlArgument;
 import org.apache.commons.collections.map.HashedMap;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Before;
@@ -43,6 +46,7 @@ public class ConfigConverterTest {
 
     private ConfigConverter configConverter;
     private GoCipher goCipher;
+    private PartialConfigLoadContext context;
     private List<String> filter = new ArrayList<>();
     private CachedGoConfig cachedGoConfig;
 
@@ -79,6 +83,7 @@ public class ConfigConverterTest {
 
         cachedGoConfig = mock(CachedGoConfig.class);
         goCipher = mock(GoCipher.class);
+        context = mock(PartialConfigLoadContext.class);
         configConverter = new ConfigConverter(goCipher, cachedGoConfig);
         String encryptedText = "secret";
         when(goCipher.decrypt("encryptedvalue")).thenReturn(encryptedText);
@@ -286,7 +291,7 @@ public class ConfigConverterTest {
     public void shouldConvertDependencyMaterial() {
         CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial("name", "pipe", "stage");
         DependencyMaterialConfig dependencyMaterialConfig =
-                (DependencyMaterialConfig) configConverter.toMaterialConfig(crDependencyMaterial);
+                (DependencyMaterialConfig) configConverter.toMaterialConfig(crDependencyMaterial,context);
 
         assertThat(dependencyMaterialConfig.getName().toLower(), is("name"));
         assertThat(dependencyMaterialConfig.getPipelineName().toLower(), is("pipe"));
@@ -298,7 +303,7 @@ public class ConfigConverterTest {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch",false);
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial,context);
 
         assertThat(gitMaterialConfig.getName().toLower(), is("name"));
         assertThat(gitMaterialConfig.getFolder(), is("folder"));
@@ -314,7 +319,7 @@ public class ConfigConverterTest {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true,true, filter, "url", "branch",true);
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial,context);
 
         assertThat(gitMaterialConfig.getName().toLower(), is("name"));
         assertThat(gitMaterialConfig.getFolder(), is("folder"));
@@ -331,7 +336,7 @@ public class ConfigConverterTest {
         crGitMaterial.setUrl("url");
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial,context);
 
         assertNull(crGitMaterial.getName());
         assertNull(crGitMaterial.getDirectory());
@@ -343,11 +348,66 @@ public class ConfigConverterTest {
     }
 
     @Test
+    public void shouldConvertConfigMaterialWhenConfigRepoIsGitWithUrlOnly() {
+        // this url would be configured inside xml config-repo section
+        GitMaterialConfig configRepoMaterial = new GitMaterialConfig("url");
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial();
+
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
+        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode",materialConfig.getName());
+
+        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig)materialConfig;
+        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(gitMaterialConfig.getUrl(), is("url"));
+        assertNull(gitMaterialConfig.getFolder());
+        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(gitMaterialConfig.isShallowClone(), is(false));
+        assertThat(gitMaterialConfig.filter(), is(new Filter()));
+        assertThat(gitMaterialConfig.getUrl(), is("url"));
+        assertThat(gitMaterialConfig.getBranch(), is("master"));
+    }
+
+    @Test
+    public void shouldConvertConfigMaterialWhenConfigRepoIsHg() {
+        // these parameters would be configured inside xml config-repo section
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"),true,new Filter(new IgnoredFiles("ignore")),false,"folder",new CaseInsensitiveString("name"));
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null);
+
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
+        assertThat("shouldSetMaterialNameAsInConfigRepoSourceCode",materialConfig.getName().toLower(), is("example"));
+        assertThat("shouldUseFolderFromXMLWhenConfigRepoHasNone",materialConfig.getFolder(), is("folder"));
+
+        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig)materialConfig;
+        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(hgMaterialConfig.getFilterAsString(), is("ignore"));
+        assertThat(hgMaterialConfig.getUrl(), is("url"));
+    }
+
+    @Test
+    public void shouldConvertConfigMaterialWhenConfigRepoIsHgWithDestination() {
+        // these parameters would be configured inside xml config-repo section
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"),true,new Filter(new IgnoredFiles("ignore")),false,"folder",new CaseInsensitiveString("name"));
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1");
+
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
+        assertThat("shouldSetMaterialNameAsInConfigRepoSourceCode",materialConfig.getName().toLower(), is("example"));
+        assertThat("shouldUseFolderFromConfigRepoWhenSpecified",materialConfig.getFolder(), is("dest1"));
+
+        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig)materialConfig;
+        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(hgMaterialConfig.getFilterAsString(), is("ignore"));
+        assertThat(hgMaterialConfig.getUrl(), is("url"));
+    }
+
+    @Test
     public void shouldConvertHgMaterial() {
         CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, false, filter, "url");
 
         HgMaterialConfig hgMaterialConfig =
-                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial,context);
 
         assertThat(hgMaterialConfig.getName().toLower(), is("name"));
         assertThat(hgMaterialConfig.getFolder(), is("folder"));
@@ -360,7 +420,7 @@ public class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, filter, "url");
 
         HgMaterialConfig hgMaterialConfig =
-                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial,context);
 
         assertNull(hgMaterialConfig.getName());
         assertThat(hgMaterialConfig.getFolder(), is("folder"));
@@ -373,7 +433,7 @@ public class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial("", "folder", true, false, filter, "url");
 
         HgMaterialConfig hgMaterialConfig =
-                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial);
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial,context);
 
         assertNull(hgMaterialConfig.getName());
         assertThat(hgMaterialConfig.getFolder(), is("folder"));
@@ -389,7 +449,7 @@ public class ConfigConverterTest {
                 "name","folder",false,false, filter,"server:port","user","encryptedvalue",true,"view");
 
         P4MaterialConfig p4MaterialConfig =
-                (P4MaterialConfig)configConverter.toMaterialConfig(crp4Material);
+                (P4MaterialConfig)configConverter.toMaterialConfig(crp4Material,context);
 
         assertThat(p4MaterialConfig.getName().toLower(), is("name"));
         assertThat(p4MaterialConfig.getFolder(), is("folder"));
@@ -410,7 +470,7 @@ public class ConfigConverterTest {
                 "name", "folder", false, false, filter, "server:port", "user", "secret", true, "view");
 
         P4MaterialConfig p4MaterialConfig =
-                (P4MaterialConfig)configConverter.toMaterialConfig(crp4Material);
+                (P4MaterialConfig)configConverter.toMaterialConfig(crp4Material,context);
 
         assertThat(p4MaterialConfig.getName().toLower(), is("name"));
         assertThat(p4MaterialConfig.getFolder(), is("folder"));
@@ -430,7 +490,7 @@ public class ConfigConverterTest {
         CRSvnMaterial crSvnMaterial = CRSvnMaterial.withEncryptedPassword("name", "folder", true, false, filter, "url", "username", "encryptedvalue", true);
 
         SvnMaterialConfig svnMaterialConfig =
-                (SvnMaterialConfig)configConverter.toMaterialConfig(crSvnMaterial);
+                (SvnMaterialConfig)configConverter.toMaterialConfig(crSvnMaterial,context);
 
         assertThat(svnMaterialConfig.getName().toLower(), is("name"));
         assertThat(svnMaterialConfig.getFolder(), is("folder"));
@@ -448,7 +508,7 @@ public class ConfigConverterTest {
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name","folder",true,false, filter,"url","username","secret",true);
 
         SvnMaterialConfig svnMaterialConfig =
-                (SvnMaterialConfig)configConverter.toMaterialConfig(crSvnMaterial);
+                (SvnMaterialConfig)configConverter.toMaterialConfig(crSvnMaterial,context);
 
         assertThat(svnMaterialConfig.getName().toLower(), is("name"));
         assertThat(svnMaterialConfig.getFolder(), is("folder"));
@@ -467,7 +527,7 @@ public class ConfigConverterTest {
                 "name", "folder", false, false, filter, "url", "domain" ,"user", "secret", "project");
 
         TfsMaterialConfig tfsMaterialConfig =
-                (TfsMaterialConfig)configConverter.toMaterialConfig(crTfsMaterial);
+                (TfsMaterialConfig)configConverter.toMaterialConfig(crTfsMaterial,context);
 
         assertThat(tfsMaterialConfig.getName().toLower(), is("name"));
         assertThat(tfsMaterialConfig.getFolder(), is("folder"));
@@ -487,7 +547,7 @@ public class ConfigConverterTest {
                 "name", "folder", false, false, filter, "url", "domain", "user", "encryptedvalue", "project");
 
         TfsMaterialConfig tfsMaterialConfig =
-                (TfsMaterialConfig)configConverter.toMaterialConfig(crTfsMaterial);
+                (TfsMaterialConfig)configConverter.toMaterialConfig(crTfsMaterial,context);
 
         assertThat(tfsMaterialConfig.getName().toLower(), is("name"));
         assertThat(tfsMaterialConfig.getFolder(), is("folder"));
@@ -514,7 +574,7 @@ public class ConfigConverterTest {
         CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name","scmid","directory",filter);
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig)configConverter.toMaterialConfig(crPluggableScmMaterial);
+                (PluggableSCMMaterialConfig)configConverter.toMaterialConfig(crPluggableScmMaterial,context);
 
         assertThat(pluggableSCMMaterialConfig.getName().toLower(),is("name"));
         assertThat(pluggableSCMMaterialConfig.getSCMConfig(),is(myscm));
@@ -540,7 +600,7 @@ public class ConfigConverterTest {
         CRPackageMaterial crPackageMaterial = new CRPackageMaterial("name","package-id");
 
         PackageMaterialConfig packageMaterialConfig =
-                (PackageMaterialConfig)configConverter.toMaterialConfig(crPackageMaterial);
+                (PackageMaterialConfig)configConverter.toMaterialConfig(crPackageMaterial,context);
 
         assertThat(packageMaterialConfig.getName().toLower(),is("name"));
         assertThat(packageMaterialConfig.getPackageId(),is("package-id"));
@@ -663,7 +723,7 @@ public class ConfigConverterTest {
         CRPipeline crPipeline = new CRPipeline("pipename","group1","label",true,
                 trackingTool,null,timer,environmentVariables,materials,stages);
 
-        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline);
+        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline,context);
         assertThat(pipelineConfig.name().toLower(),is("pipename"));
         assertThat(pipelineConfig.materialConfigs().first() instanceof GitMaterialConfig,is(true));
         assertThat(pipelineConfig.first().name().toLower(),is("stagename"));
@@ -696,7 +756,7 @@ public class ConfigConverterTest {
         min_materials.add(crSvnMaterial);
         crPipeline.setMaterials(min_materials);
 
-        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline);
+        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline,context);
         assertThat(pipelineConfig.name().toLower(),is("p1"));
         assertThat(pipelineConfig.materialConfigs().first() instanceof SvnMaterialConfig,is(true));
         assertThat(pipelineConfig.first().name().toLower(),is("build"));;
@@ -712,7 +772,7 @@ public class ConfigConverterTest {
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put("group",pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
-        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
         assertThat(pipelineConfigs.getGroup(),is("group"));
         assertThat(pipelineConfigs.getPipelines().size(),is(1));
     }
@@ -725,7 +785,7 @@ public class ConfigConverterTest {
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put(null,pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
-        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
         assertThat(pipelineConfigs.getGroup(),is(PipelineConfigs.DEFAULT_GROUP));
         assertThat(pipelineConfigs.getPipelines().size(),is(1));
     }
@@ -738,7 +798,7 @@ public class ConfigConverterTest {
         Map<String,List<CRPipeline>> map = new HashedMap();
         map.put("",pipelines);
         Map.Entry<String,List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
-        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
         assertThat(pipelineConfigs.getGroup(),is(PipelineConfigs.DEFAULT_GROUP));
         assertThat(pipelineConfigs.getPipelines().size(),is(1));
     }
@@ -759,7 +819,7 @@ public class ConfigConverterTest {
 
         crPartialConfig.getPipelines().add(pipeline);
 
-        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig);
+        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
         assertThat(partialConfig.getGroups().size(),is(1));
         assertThat(partialConfig.getEnvironments().size(),is(1));
     }

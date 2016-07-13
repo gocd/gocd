@@ -53,7 +53,7 @@ public abstract class LinuxPackagingTask extends DefaultTask {
     def cmd = []
     cmd += ['fpm']
 
-  cmd += ['--debug']
+    cmd += ['--debug']
 //  cmd += ['-e']
 //  cmd += ['--debug-workspace']
     cmd += ['--conflicts', packageName.replaceFirst(/^go-/, 'cruise-')]
@@ -126,10 +126,7 @@ public abstract class LinuxPackagingTask extends DefaultTask {
 
     File propertiesFile = project.fileTree(buildRoot()) { include("**/*/log4j.properties") }.files.first()
 
-    def text = propertiesFile.getText().
-        replaceAll(/go-agent\.log/, '/var/log/go-agent/go-agent.log').
-        replaceAll(/go-server\.log/, '/var/log/go-agent/go-server.log').
-        replaceAll(/go-shine\.log/, '/var/log/go-agent/go-shine.log')
+    def text = propertiesFile.getText().replaceAll(/\.File=(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
 
     propertiesFile.write(text)
 

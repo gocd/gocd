@@ -20,9 +20,6 @@
     # initialize init script symlinks on first install
     /sbin/chkconfig --add <%= name %>
 <% elsif type == 'deb' -%>
-    # initialize init script symlinks on first install
-    update-rc.d <%= name %> defaults 99
-
     # Setup permissions on directories
     <% JSON.parse(File.read(dir_permissions)).delete_if {|k, v| !v['ownedByPackage']}.each do |each_dir, permissions| %>
     chmod <%= permissions['mode'].to_s(8) %> <%= each_dir %>
@@ -34,7 +31,15 @@
     chmod <%= permissions['mode'].to_s(8) %> <%= each_file %>
     chown <%= permissions['owner']%>:<%= permissions['group'] %> <%= each_file %>
     <% end -%>
+
+    # initialize init script symlinks on first install
+    update-rc.d <%= name %> defaults 99
 <% else raise "Unsupported package type #{type}" -%>
+<% end -%>
+
+<% if name == 'go-server' -%>
+    # Start the service
+    /etc/init.d/go-server start
 <% end -%>
 
 <% if name == 'go-agent' -%>

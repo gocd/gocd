@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,177 +15,138 @@
  *************************GO-LICENSE-END***********************************#
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
 
-    <link rel="shortcut icon" href="$req.getContextPath()/$concatenatedCruiseIconFilePath?#include("admin/admin_version.txt.vm")"/>
-    <link href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
-    <link href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" rel="stylesheet" type="text/css"></link>
-    <!--[if lte IE 7]><link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link><![endif]-->
-    <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
-    <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
+  <link href="$req.getContextPath()/$concatenatedCruiseIconFilePath?#include("admin/admin_version.txt.vm")"
+        rel="shortcut icon"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath"
+        media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath"
+        media="all"/>
+  <script type="text/javascript">var contextPath = "$req.getContextPath()";</script>
+  <script src="$req.getContextPath()/$concatenatedJavascriptFilePath" type="text/javascript"></script>
 
-    <style type="text/css">
-        body {
-            background: #000;
-        }
-        #bd {
-            background: #000;
-            border: none;
-            padding-top:0;
-        }
-        h1, h2, h3, h4 {
-            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-            font-weight: 500;
-        }
-        a:link.help, a:visited.help {
-            float: right;
-            text-decoration: underline;
+  <style type="text/css">
+    body {
+      background: #000;
+    }
 
-            padding-top: 0.2em;
-        }
-        a{
-            cursor: pointer;
-            color: #FFF;
-            text-decoration: none;
-        }
-        a:hover{
-            color: #FFF;
-        }
-        #footer {
-            background: none repeat scroll 0 0 #333333;
-            clear: both;
-            font-size: 11px;
-            padding: 15px;
-            width: auto;
-        }
-        #footer a {
-            color: #FFFFFF;
-        }
-        #footer ul li {
-            border-right: 1px dotted #CCCCCC;
-            color: #BBBBBB !important;
-            display: inline;
-            padding: 0 0.5em;
-        }
-        #footer ul li.last {
-            border: 0 none !important;
-        }
-        #footer ul li, #footer ul li a, #footer ul li span {
-            font-size: 11px !important;
-        }
-        #footer .copyright {
-            float: left;
-        }
-        #footer ul.links {
-            float: right;
-        }
-        #footer #copyright {
-            clear: both;
-            color: #1F2314;
-            float: left;
-            font-size: 0.9em;
-            padding-left: 2em;
-            width: 20em;
-        }
-        #footer #copyright a, #footer #copyright a:visited {
-            color: #1F2314;
-        }
+    #bd {
+      background: #000;
+      border: none;
+      padding-top: 0;
+    }
 
-    </style>
-    <title>Go - Login</title>
+    h1, h2, h3, h4 {
+      font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+      font-weight: 500;
+    }
+
+    a:link.help, a:visited.help {
+      float: right;
+      text-decoration: underline;
+
+      padding-top: 0.2em;
+    }
+
+    a {
+      cursor: pointer;
+      color: #FFF;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #FFF;
+    }
+
+  </style>
+  <title>Go - Login</title>
 </head>
 <body id="login-page">
 <div id="doc3" class="yui-t7">
-    <div id="bd">
-        <div id="yui-main">
-            <div id="main" class="yui-b">
-                #if ($login_error && $SPRING_SECURITY_LAST_EXCEPTION)
-                <div id="error-container" style="">
-                    <div class="ab-bg">
-                        <span class="ab-corner lvl1"></span>
-                        <span class="ab-corner lvl2"></span>
-                        <span class="ab-corner lvl3"></span>
-                        <span class="ab-corner lvl4"></span>
-                    </div>
-                    <div id="error-box">
-                        $SPRING_SECURITY_LAST_EXCEPTION.message.replaceAll(";.*", "")
-                        <a target="_blank" href="http://www.go.cd/documentation/user/current/configuration/dev_authentication.html#common-errors">Help Topic: Authentication</a>
-                    </div>
-                    <div class="ab-bg">
-                        <span class="ab-corner lvl4"></span>
-                        <span class="ab-corner lvl3"></span>
-                        <span class="ab-corner lvl2"></span>
-                        <span class="ab-corner lvl1"></span>
-                    </div>
-                </div>
-                #end
+  <div id="bd">
+    <div id="yui-main">
+      <div id="main" class="yui-b">
+        #if ($login_error && $SPRING_SECURITY_LAST_EXCEPTION)
+          <div id="error-container" style="">
+            <div class="ab-bg">
+              <span class="ab-corner lvl1"></span>
+              <span class="ab-corner lvl2"></span>
+              <span class="ab-corner lvl3"></span>
+              <span class="ab-corner lvl4"></span>
+            </div>
+            <div id="error-box">
+              $SPRING_SECURITY_LAST_EXCEPTION.message.replaceAll(";.*", "")
+              <a target="_blank"
+                 href="https://docs.go.cd/current/configuration/dev_authentication.html#common-errors">Help
+                Topic: Authentication</a>
+            </div>
+            <div class="ab-bg">
+              <span class="ab-corner lvl4"></span>
+              <span class="ab-corner lvl3"></span>
+              <span class="ab-corner lvl2"></span>
+              <span class="ab-corner lvl1"></span>
+            </div>
+          </div>
+        #end
+        <div class='clear-both'><!-- Clear floats --></div>
+        <div id="graphic-dialog-container" style="padding-top:1px">
+          <div id="graphic-dialog" class="graphic-dialog-${edition.getDisplayType()}">
+            <div id="logo-login"><h2>&nbsp;</h2></div>
+            <div id="graphic-dialog-input">
+              <!-- <h3>$l.localize("PLEASE_SIGN_IN")</h3> -->
+              <form action="security_check" id="login_form" method="post">
+                <p>
+                  <label for="user_login">$l.localize("USERNAME")</label>
+                  <input class="" id="user_login" name="j_username" onfocus="true"
+                         type="text"/>
+                </p>
+
+                <p>
+                  <label for="user_password">$l.localize("PASSWORD")</label>
+                  <input class="" type="password" name="j_password" id="user_password"
+                         value=""/>
+                </p>
+
+                <p id="login-actions">
+                  <a target="_blank" href="https://go.cd/help"
+                     title="Click to open help documentation" class="help">$l.localize("HELP_SMALL")</a>
+                ##                                    <input class="default" name="commit" type="submit" id="signin" value="Sign in &#187;"/>
+
+                  <button class="submit_hover submit primary" type="submit" id="signin2" value="Sign in &#187;">
+                    <span>$l.localize("SIGN_IN")</span>
+                  </button>
+
+                </p>
+
                 <div class='clear-both'><!-- Clear floats --></div>
-                <div id="graphic-dialog-container" style="padding-top:1px">
-                    <div id="graphic-dialog" class="graphic-dialog-${edition.getDisplayType()}">
-                        <div id="logo-login"><h2>&nbsp;</h2></div>
-                        <div id="graphic-dialog-input">
-                            <!-- <h3>$l.localize("PLEASE_SIGN_IN")</h3> -->
-                            <form action="security_check" id="login_form" method="post">
-                                <p>
-                                    <label for="user_login">$l.localize("USERNAME")</label>
-                                    <input class="" id="user_login" name="j_username" onfocus="true"
-                                           type="text"/>
-                                </p>
-
-                                <p>
-                                    <label for="user_password">$l.localize("PASSWORD")</label>
-                                    <input class="" type="password" name="j_password" id="user_password"
-                                           value=""/>
-                                </p>
-
-                                <p id="login-actions">
-                                    <a target="_blank" href="https://go.cd/help"
-                                       title="Click to open help documentation" class="help">$l.localize("HELP_SMALL")</a>
-##                                    <input class="default" name="commit" type="submit" id="signin" value="Sign in &#187;"/>
-
-                                    <button class="submit_hover submit primary" type="submit" id="signin2" value="Sign in &#187;">
-                                        <span>$l.localize("SIGN_IN")</span>
-                                    </button>
-
-                                </p>
-
-                                <div class='clear-both'><!-- Clear floats --></div>
-                            </form>
-                        </div>
-
-                        #foreach ($authentication_plugin_id in $authentication_plugin_registry.getPluginsThatSupportsWebBasedAuthentication())
-                            <a href="/go/plugin/interact/$authentication_plugin_id/index"><img src="$authentication_plugin_registry.getDisplayImageURLFor($authentication_plugin_id)" alt="$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)" /></a>
-                        #end
-
-                    </div>
-                </div>
-
-               <div id="footer">
-                <ul class="copyright" onclick="dashboard_periodical_executer.stop();">
-                    <li>Copyright &copy; 2016 <a href="http://www.thoughtworks.com/products" target='blank'>ThoughtWorks, Inc.</a>
-                        Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">$l.localize("APACHE_LICENSE_2_0")</a>.
-                        Go includes <a href="$req.getContextPath()/NOTICE/cruise_notice_file.pdf" target="_blank">$l.localize("THIRD_PARTY_SOFTWARE")</a>.</li>
-                    <li class="last">$l.localize("GO_VERSION"): #include("admin/admin_version.txt.vm")</li>
-                </ul>
-                <ul class="links">
-                    <li><a target="_blank" href="http://api.go.cd">$l.localize("APIS")</a></li>
-                    <li><a target="_blank" href="http://www.go.cd/community/plugins.html">$l.localize("PLUGINS")</a></li>
-                    <li><a target="_blank" href="http://www.go.cd/community/resources.html">$l.localize("COMMUNITY")</a></li>
-                    <li class="last"><a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a></li>
-                </ul>
-                <div class="clear"></div>
-                <script type="text/javascript">
-                    var url = "security_check" + self.document.location.hash;
-                    document.getElementById('login_form').action = url;
-                    document.getElementById('user_login').focus();
-                </script>
+              </form>
             </div>
-            </div>
+
+            #foreach ($authentication_plugin_id in $authentication_plugin_registry.getPluginsThatSupportsWebBasedAuthentication())
+              <a href="/go/plugin/interact/$authentication_plugin_id/index"><img
+                  src="$authentication_plugin_registry.getDisplayImageURLFor($authentication_plugin_id)"
+                  alt="$authentication_plugin_registry.getDisplayNameFor($authentication_plugin_id)"/></a>
+            #end
+
+          </div>
         </div>
+
+        <script type="text/javascript">
+          var url = "security_check" + self.document.location.hash;
+          document.getElementById('login_form').action = url;
+          document.getElementById('user_login').focus();
+        </script>
+      </div>
     </div>
+  </div>
+
+  #parse("shared/_copyright_license_info.vm")
+
 </div>
 </body>
 </html>

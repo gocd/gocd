@@ -15,16 +15,6 @@ import java.security.SecureRandom
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-  id 'com.github.ben-manes.versions' version '0.13.0'
-  id "org.standardout.versioneye" version "1.4.0"
-}
-
-versioneye {
-  includeSubProjects = true
-  determineScopeStrategy = CONFIGURATIONS
-}
-
 
 def script = this
 

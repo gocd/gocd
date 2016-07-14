@@ -41,6 +41,7 @@ public class MyCruisePreferencePageVelocityTemplateTest {
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
         view.setupAdditionalRealTemplate("shared/_header.vm");
         view.setupAdditionalRealTemplate("shared/_breadcrumbs.vm");
+        view.setupAdditionalRealTemplate("shared/_copyright_license_info.vm");
         view.setupAdditionalRealTemplate("shared/_footer.vm");
         view.setupAdditionalRealTemplate("shared/_page_intro_top.vm");
         view.setupAdditionalRealTemplate("shared/_page_intro_bottom.vm");

@@ -22,14 +22,23 @@ import java.io.IOException;
 import static java.text.MessageFormat.format;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.validators.Validation;
-import com.thoughtworks.go.util.validators.Validator;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class JettyWorkDirValidator implements Validator {
+
+    private SystemEnvironment systemEnvironment;
+
+    public JettyWorkDirValidator() {
+        this(new SystemEnvironment());
+    }
+
+    protected JettyWorkDirValidator(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
+    }
+
     public Validation validate(Validation val) {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
-        if (SystemEnvironment.getProperty("jetty.home", "").equals("")) {
+        if (StringUtils.isBlank(systemEnvironment.getPropertyImpl("jetty.home"))) {
             systemEnvironment.setProperty("jetty.home", systemEnvironment.getPropertyImpl("user.dir"));
         }
         systemEnvironment.setProperty("jetty.base", systemEnvironment.getPropertyImpl("jetty.home"));

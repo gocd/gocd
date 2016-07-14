@@ -28,7 +28,10 @@ import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
@@ -39,6 +42,7 @@ import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.TestUtils.isEquivalentPathName;
 import static com.thoughtworks.go.util.TestUtils.isSameAsPath;
+import static com.thoughtworks.go.util.TestUtils.suppressConsoleOutput;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
@@ -54,11 +58,19 @@ import static org.mockito.Mockito.when;
 public class FileUtilTest {
     private List<File> filesNeedToDelete = new ArrayList<File>();
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Before
+    public void setup() throws IOException {
+        temporaryFolder.create();
+    }
     @After
     public void tearDown() {
         for (File file : filesNeedToDelete) {
             FileUtils.deleteQuietly(file);
         }
+        temporaryFolder.delete();
     }
 
     @Test
@@ -286,31 +298,35 @@ public class FileUtilTest {
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldReturnFalseIfGivenFolderIsAbsolute() {
-        assertThat(FileUtil.isFolderInsideSandbox("c:\\foo"), is(false));
+    public void shouldReturnFalseIfGivenFolderIsAbsolute() throws IOException {
+        temporaryFolder.newFolder("folder1", "folder2");
+        assertThat(FileUtil.isFolderInsideSandbox(temporaryFolder.getRoot(), "c:\\foo"), is(false));
     }
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldReturnFalseIfGivenFolderIsAbsoluteUnderLinux() {
-        assertThat(FileUtil.isFolderInsideSandbox("/tmp"), is(false));
+    public void shouldReturnFalseIfGivenFolderIsAbsoluteUnderLinux() throws IOException {
+        temporaryFolder.newFolder("folder1", "folder2");
+        assertThat(FileUtil.isFolderInsideSandbox(temporaryFolder.getRoot(), "/tmp"), is(false));
     }
 
     @Test
-    public void shouldReturnFalseIfGivenFolderWithRelativeTakesYouOutOfSandbox() {
-        assertThat(FileUtil.isFolderInsideSandbox("../tmp"), is(false));
-        assertThat(FileUtil.isFolderInsideSandbox("tmp/../../../pavan"), is(false));
+    public void shouldReturnFalseIfGivenFolderWithRelativeTakesYouOutOfSandbox() throws IOException {
+        temporaryFolder.newFolder("folder1", "folder2");
+        assertThat(FileUtil.isFolderInsideSandbox(temporaryFolder.getRoot(), "../outsideSandbox"), is(false));
+        assertThat(FileUtil.isFolderInsideSandbox(temporaryFolder.getRoot(), "folder1/../.."), is(false));
     }
 
     @Test
-    public void shouldReturnTrueIfGivenFolderWithRelativeKeepsYouInsideSandbox() {
-        assertThat(FileUtil.isFolderInsideSandbox("tmp/../home/cruise"), is(true));
+    public void shouldReturnTrueIfGivenFolderWithRelativeKeepsYouInsideSandbox() throws IOException {
+        temporaryFolder.newFolder("folder1", "folder2");
+        assertThat(FileUtil.isFolderInsideSandbox(temporaryFolder.getRoot(), "folder1/../folder2/subDirectory2"), is(true));
     }
 
     @Test
     public void shouldReturnFalseEvenIfAnAbsolutePathKeepsYouInsideSandbox() {
         File file = new File("somethingInsideCurrentFolder");
-        assertThat(FileUtil.isFolderInsideSandbox(file.getAbsolutePath()), is(false));
+        assertThat(FileUtil.isFolderInsideSandbox(temporaryFolder.getRoot(), file.getAbsolutePath()), is(false));
     }
 
     @Test

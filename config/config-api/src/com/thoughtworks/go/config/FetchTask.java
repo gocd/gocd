@@ -313,7 +313,7 @@ public class FetchTask extends AbstractTask implements Serializable {
         if (path == null) {
             return;
         }
-        if (!FileUtil.isFolderInsideSandbox(path)) {
+        if (!FileUtil.isFolderInsideSandbox(new File("."), path)) {
             String parentType = validationContext.isWithinPipelines() ? "pipeline" : "template";
             CaseInsensitiveString parentName = validationContext.isWithinPipelines() ? validationContext.getPipeline().name() : validationContext.getTemplate().name();
             String message = String.format("Task of job '%s' in stage '%s' of %s '%s' has %s path '%s' which is outside the working directory.",

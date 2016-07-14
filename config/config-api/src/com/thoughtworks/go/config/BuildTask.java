@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +89,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
     }
 
     private void validateWorkingDirectory(ValidationContext validationContext, String stageParentType, Object stageParentName) {
-        if (workingDirectory != null && !FileUtil.isFolderInsideSandbox(workingDirectory)) {
+        if (workingDirectory != null && !FileUtil.isFolderInsideSandbox(new File("."), workingDirectory)) {
             errors.add(WORKING_DIRECTORY, String.format("Task of job '%s' in stage '%s' of %s '%s' has path '%s' which is outside the working directory.", validationContext.getJob().name(),
                     validationContext.getStage().name(), stageParentType, stageParentName, workingDirectory));
         }

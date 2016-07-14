@@ -15,6 +15,16 @@ import java.security.SecureRandom
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+  id 'com.github.ben-manes.versions' version '0.13.0'
+  id "org.standardout.versioneye" version "1.4.0"
+}
+
+versioneye {
+  includeSubProjects = true
+  determineScopeStrategy = CONFIGURATIONS
+}
+
 
 def script = this
 
@@ -109,7 +119,10 @@ allprojects {
     extractedAtTopLevel { transitive false }
     fatJarConfig
 
-    testOutput
+    testOutput {
+      extendsFrom testRuntime
+      transitive true
+    }
   }
 
   sourceSets {
@@ -181,7 +194,7 @@ allprojects {
     from sourceSets.test.output
   }
 
-  test {
+  tasks.withType(Test) { testTask ->
     dependsOn 'jar'
     // run tests even when inputs have not changed
     outputs.upToDateWhen { false }
@@ -201,8 +214,8 @@ allprojects {
       tmpDir.mkdirs()
 
       def files = []
-      project.sourceSets.test.output.classesDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
-        def relPath = new File(project.sourceSets.test.output.classesDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+      testTask.testClassesDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+        def relPath = new File(testTask.testClassesDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
         files << relPath
       }
 

@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -597,15 +597,15 @@ body#login-page {
 }
 
 body#login-page #bd {
-    background: transparent;
+    height:100%;
+    background: #444444;
 }
 
 body#login-page #yui-main {
     border: 0;
 }
 
-    
-    
+
 /* Graphical dialog */
 #graphic-dialog-container {
 

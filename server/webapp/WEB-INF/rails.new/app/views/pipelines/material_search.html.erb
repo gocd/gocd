@@ -4,7 +4,7 @@
             <div class="revision" title="<%= matched_revision.getLongRevision() %>"><%= matched_revision.getShortRevision() %></div>
             <div class="user"><%= matched_revision.getUser().blank? ? "anonymous" : h(matched_revision.getUser()) %></div>
             <div class="date"><%= matched_revision.getCheckinTime().display_time %></div>
-            <div class="comment"><%= truncate(h(render_simple_comment(matched_revision.getComment())), :length => 40) %></div>
+            <div class="comment"><%= truncate(render_simple_comment(matched_revision.getComment()), :length => 40) %></div>
         </li>
     <% end %>
 </ul>

@@ -30,7 +30,7 @@ public class PreparingToScheduleInstanceTest {
         stages.addFutureStage("unit1", false);
         stages.addFutureStage("unit2", false);
 
-        PipelineInstanceModel pipeline = PipelineInstanceModel.createPreparingToSchedule("pipeline-name", "display-name", stages);
+        PipelineInstanceModel pipeline = PipelineInstanceModel.createPreparingToSchedule("pipeline-name", stages);
 
         assertThat(pipeline.getPipelineStatusMessage(), Matchers.is("Preparing to schedule (0/2)"));
     }
@@ -38,7 +38,7 @@ public class PreparingToScheduleInstanceTest {
 
     @Test
     public void shouldNotReturnNullForScheduledDate() throws Exception {
-        PipelineInstanceModel pipeline = PipelineInstanceModel.createPreparingToSchedule("pipeline-name", "display-name", new StageInstanceModels());
+        PipelineInstanceModel pipeline = PipelineInstanceModel.createPreparingToSchedule("pipeline-name", new StageInstanceModels());
         assertThat(pipeline.getScheduledDate(), is(not(nullValue())));
     }
 }

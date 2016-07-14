@@ -1,6 +1,6 @@
 <ul class="entity_title">
     <!--<li><%= link_to "Pipelines", url_for_path('pipelines') %></li>-->
-    <li class="name"><%= link_to scope[:pipeline].getName(), url_for_pipeline(scope[:pipeline].getName()) %></li>
+    <li class="name"><%= link_to scope[:pipeline].getDisplayName(), url_for_pipeline(scope[:pipeline].getName()) %></li>
 
     <% if scope[:third][:link] %>
         <li><%= link_to scope[:third][:text], scope[:third][:link] %> </li>

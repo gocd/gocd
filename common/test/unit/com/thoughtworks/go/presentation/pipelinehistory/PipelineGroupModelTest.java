@@ -33,8 +33,8 @@ public class PipelineGroupModelTest {
     }
 
     private PipelineModel pipelineModel(String pipelineName) {
-        PipelineModel pipelineModel = new PipelineModel(pipelineName, pipelineName, true, true, PipelinePauseInfo.notPaused());
-        pipelineModel.addPipelineInstance(new PipelineInstanceModel(pipelineName, pipelineName, 1, "label", BuildCause.createManualForced(), new StageInstanceModels()));
+        PipelineModel pipelineModel = new PipelineModel(pipelineName, true, true, PipelinePauseInfo.notPaused());
+        pipelineModel.addPipelineInstance(new PipelineInstanceModel(pipelineName, 1, "label", BuildCause.createManualForced(), new StageInstanceModels()));
         return pipelineModel;
     }
 }

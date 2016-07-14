@@ -65,7 +65,7 @@ public class UnrunStagesPopulator {
 
     private void populateUnrunStages(Node node) {
         List<Revision> revisions = node.revisions();
-        PipelineConfig pipelineConfig = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(node.getName()));
+        PipelineConfig pipelineConfig = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(node.getId()));
         if (revisions.isEmpty()) {
             populateConfiguredStages(node, pipelineConfig);
         }
@@ -84,7 +84,7 @@ public class UnrunStagesPopulator {
     }
 
     private void populateConfiguredStages(Node node, PipelineConfig pipelineConfig) {
-        UnrunPipelineRevision unrunPipelineRevision = new UnrunPipelineRevision(node.getName());
+        UnrunPipelineRevision unrunPipelineRevision = new UnrunPipelineRevision(node.getId());
         for (StageConfig stageConfig : pipelineConfig) {
             unrunPipelineRevision.addStage(new NullStage(stageConfig.name().toString()));
         }

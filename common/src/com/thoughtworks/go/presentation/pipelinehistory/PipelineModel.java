@@ -17,6 +17,7 @@
 package com.thoughtworks.go.presentation.pipelinehistory;
 
 import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.util.StringUtil;
 
 public class PipelineModel {
 
@@ -28,6 +29,10 @@ public class PipelineModel {
     private final PipelinePauseInfo pipelinePauseInfo;
     private final PipelineInstanceModels activePipelineInstances;
 
+
+    public PipelineModel(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
+        this(pipelineName, pipelineName, canForce, canOperate, pipelinePauseInfo);
+    }
 
     public PipelineModel(String pipelineName, String pipelineDisplayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
         this.pipelineName = pipelineName;
@@ -51,6 +56,8 @@ public class PipelineModel {
     }
 
     public String getDisplayName() {
+        if(StringUtil.isBlank(pipelineDisplayName))
+            return pipelineName;
         return pipelineDisplayName;
     }
 

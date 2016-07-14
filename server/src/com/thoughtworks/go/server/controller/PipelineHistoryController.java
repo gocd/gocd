@@ -81,6 +81,7 @@ public class PipelineHistoryController {
         try {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
             model.put("pipelineName", pipelineConfig.name());
+            model.put("pipelineDisplayName", pipelineConfig.getDisplayName());
             model.put("l", localizer);
             return new ModelAndView("pipeline/pipeline_history", model);
         } catch (PipelineNotFoundException e) {

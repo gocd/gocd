@@ -16,9 +16,19 @@
 
 package com.thoughtworks.go.server.service;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.http.HttpServletResponse;
+
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
@@ -53,6 +63,13 @@ public class EnvironmentConfigServiceTest {
     private AgentService agentService;
     private GoConfigDao goConfigDao;
     private EntityHashingService entityHashingService;
+
+    private List<PipelineConfig> createConfigs(String... pipelines) {
+        List<PipelineConfig> configs = new ArrayList<>(pipelines.length);
+        for(String pipeline : pipelines)
+            configs.add(new PipelineConfig(new CaseInsensitiveString(pipeline), new MaterialConfigs(), new StageConfig[0]));
+        return configs;
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -136,9 +153,13 @@ public class EnvironmentConfigServiceTest {
     @Test
     public void shouldFindPipelinesNamesForAGivenEnvironmentName() throws Exception {
         environmentConfigService.sync(environments("uat", "prod"));
+        List<PipelineConfig> configs = createConfigs("uat-pipeline", "prod-pipeline");
+        when(mockGoConfigService.pipelineConfigNamed(new CaseInsensitiveString("uat-pipeline"))).thenReturn(configs.get(0));
+        when(mockGoConfigService.pipelineConfigNamed(new CaseInsensitiveString("prod-pipeline"))).thenReturn(configs.get(1));
+
         assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat")).size(), is(1));
-        assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat")), hasItem(new CaseInsensitiveString("uat-pipeline")));
-        assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("prod")), hasItem(new CaseInsensitiveString("prod-pipeline")));
+        assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat")), hasItem(configs.get(0)));
+        assertThat(environmentConfigService.pipelinesFor(new CaseInsensitiveString("prod")), hasItem(configs.get(1)));
     }
 
     @Test

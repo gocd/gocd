@@ -21,8 +21,9 @@
 ## page level variable
 #set($_hide_collapse-sidebar-button = true)
 #set($pipelineName=$esc.javascript($pipelineName))
+#set($pipelineDisplayName=$esc.javascript($pipelineDisplayName))
 
-#set($_page_title="$pipelineName")
+#set($_page_title="$pipelineDisplayName")
 #parse("shared/_header.vm")
 
 <style type="text/css">

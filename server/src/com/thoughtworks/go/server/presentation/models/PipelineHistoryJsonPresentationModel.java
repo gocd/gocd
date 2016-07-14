@@ -101,8 +101,10 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
 
     public Map toJson() {
         Map<String, Object> json = new LinkedHashMap<>();
+
         String pipelineName = str(pipelineConfig.name());
         json.put("pipelineName", pipelineName);
+        json.put("pipelineDisplayName", pipelineConfig.getDisplayName());
         json.put("paused", valueOf(pipelinePauseInfo.isPaused()));
         json.put("pauseCause", pipelinePauseInfo.getPauseCause());
         json.put("pauseBy", pipelinePauseInfo.getPauseBy());

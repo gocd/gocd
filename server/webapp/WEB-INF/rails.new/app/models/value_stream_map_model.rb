@@ -31,7 +31,7 @@ class ValueStreamMapModel
     if error
       @error = error
     else
-      @current_pipeline = vsm.getCurrentPipeline().getName() unless vsm.getCurrentPipeline() == nil
+      @current_pipeline = vsm.getCurrentPipeline().getId() unless vsm.getCurrentPipeline() == nil
       @current_material = vsm.getCurrentMaterial().getId() unless vsm.getCurrentMaterial() == nil
       @levels = Array.new
       vsm.getNodesAtEachLevel().each do |nodes|
@@ -84,8 +84,8 @@ class VSMPipelineDependencyNodeModel < VSMDependencyNodeModel
   def initialize(id, name, dependents, parents, node_type, depth, revisions, message, view_type, pdg_path_partial, stage_detail_path_partial)
     super(id, name, dependents, parents, node_type, depth)
 
-    @instances = revisions.map { |revision| VSMPipelineInstanceModel.new(name, revision.getLabel(), revision.getCounter(), revision.getStages() || [], pdg_path_partial, stage_detail_path_partial) } unless revisions == nil
-    @locator = "/go/tab/pipeline/history/#{name}" if  view_type == nil
+    @instances = revisions.map { |revision| VSMPipelineInstanceModel.new(id, name, revision.getLabel(), revision.getCounter(), revision.getStages() || [], pdg_path_partial, stage_detail_path_partial) } unless revisions == nil
+    @locator = "/go/tab/pipeline/history/#{id}" if  view_type == nil
     @message = message unless  message == nil
     @view_type = view_type.to_s unless view_type == nil
   end
@@ -107,12 +107,12 @@ end
 class VSMPipelineInstanceModel
   attr_accessor :label, :counter, :locator, :stages
 
-  def initialize(name, label, counter, stages, pdg_path_partial, stage_detail_path_partial)
+  def initialize(id, name, label, counter, stages, pdg_path_partial, stage_detail_path_partial)
     @label = label
     @counter = counter
     @locator = ""
-    @locator = pdg_path_partial.call name, counter unless counter == 0
-    @stages = stages.map { |stage| VSMPipelineInstanceStageModel.new(stage.getName(), stage.getState().to_s, stage.getCounter(), name, counter, stage_detail_path_partial) }
+    @locator = pdg_path_partial.call id, counter unless counter == 0
+    @stages = stages.map { |stage| VSMPipelineInstanceStageModel.new(stage.getName(), stage.getState().to_s, stage.getCounter(), id, name, counter, stage_detail_path_partial) }
   end
 end
 
@@ -143,10 +143,10 @@ end
 class VSMPipelineInstanceStageModel
   attr_accessor :name, :status, :locator
 
-  def initialize(name, status, counter, pipeline_name, pipeline_counter, stage_detail_path_partial)
+  def initialize(name, status, counter, pipeline_id, pipeline_name, pipeline_counter, stage_detail_path_partial)
     @name = name
     @status = status
     @locator = ""
-    @locator = stage_detail_path_partial.call pipeline_name, pipeline_counter, name, counter unless com.thoughtworks.go.domain.StageState::Unknown.to_s == status
+    @locator = stage_detail_path_partial.call pipeline_id, pipeline_counter, name, counter unless com.thoughtworks.go.domain.StageState::Unknown.to_s == status
   end
 end

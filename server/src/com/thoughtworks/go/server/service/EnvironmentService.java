@@ -66,7 +66,7 @@ public class EnvironmentService {
     private List<PipelineModel> getPipelinesInstanceForEnvironment(List<PipelineConfig> pipelines, Username username) throws NoSuchEnvironmentException {
         List<PipelineModel> pipelineList = new ArrayList<PipelineModel>();
         for (PipelineConfig pipeline : pipelines) {
-            PipelineModel pipelineModel = pipelineHistoryService.latestPipelineModel(username, CaseInsensitiveString.str(pipeline.name()), pipeline.getDisplayName());
+            PipelineModel pipelineModel = pipelineHistoryService.latestPipelineModel(username, CaseInsensitiveString.str(pipeline.name()));
             if (pipelineModel != null) {
                 pipelineList.add(pipelineModel);
             }

@@ -47,6 +47,11 @@ public class PipelineGroupModel {
         return new ArrayList<>(pipelineModels);
     }
 
+
+    public PipelineModel pipelineModelForPipelineName(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
+        return pipelineModelForPipelineName(pipelineName, pipelineName, canForce, canOperate, pipelinePauseInfo);
+    }
+
     public PipelineModel pipelineModelForPipelineName(String pipelineName, String displayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
         if (!containsPipeline(pipelineName)) { pipelineModels.add(new PipelineModel(pipelineName, displayName, canForce, canOperate, pipelinePauseInfo)); }
         return getPipelineModel(pipelineName);

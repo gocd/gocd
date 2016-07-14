@@ -765,11 +765,14 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public String getDisplayName() {
-        return this.displayName;
+        if(StringUtil.isBlank(displayName))
+            return CaseInsensitiveString.str(name);
+        return displayName;
     }
 
     public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+        if(displayName != null)
+            this.displayName = displayName.trim();
     }
 
     private void setConfigurationType(Map attributeMap) {

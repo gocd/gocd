@@ -21,6 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.presentation.pipelinehistory.Environment;
@@ -45,6 +48,13 @@ public class EnvironmentServiceTest {
     private SchedulingCheckerService schedulingCheckerService;
     private static final Username USER_FOO = new Username(new CaseInsensitiveString("Foo"));
 
+    private List<PipelineConfig> createConfigs(String... pipelines) {
+        List<PipelineConfig> configs = new ArrayList<>(pipelines.length);
+        for(String pipeline : pipelines)
+            configs.add(new PipelineConfig(new CaseInsensitiveString(pipeline), new MaterialConfigs(), new StageConfig[0]));
+        return configs;
+    }
+
     @Before public void setUp() throws Exception {
         environmentConfigService = mock(EnvironmentConfigService.class);
         pipelineHistoryService = mock(PipelineHistoryService.class);
@@ -56,7 +66,7 @@ public class EnvironmentServiceTest {
         Username username = new Username(new CaseInsensitiveString("Foo"));
 
         when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).thenReturn(
-                Arrays.asList(new CaseInsensitiveString("uat-pipeline"), new CaseInsensitiveString("staging-pipeline")));
+                createConfigs("uat-pipeline", "staging-pipeline"));
         PipelineInstanceModel uatInstance = stubPipelineHistoryServiceToReturnPipelines("uat-pipeline");
         PipelineInstanceModel stagingInstance = stubPipelineHistoryServiceToReturnPipelines("staging-pipeline");
         ArrayList<Environment> environments = new ArrayList<Environment>();
@@ -68,10 +78,10 @@ public class EnvironmentServiceTest {
         assertThat(environment.getName(), is("uat"));
         List<PipelineModel> models = environment.getPipelineModels();
         assertThat(models.size(),is(2));
-        PipelineModel model1 = new PipelineModel(uatInstance.getName(), uatInstance.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineModel model1 = new PipelineModel(uatInstance.getName(), true, true, PipelinePauseInfo.notPaused());
         model1.addPipelineInstance(uatInstance);
         assertThat(models, hasItem(model1));
-        PipelineModel model2 = new PipelineModel(stagingInstance.getName(), stagingInstance.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineModel model2 = new PipelineModel(stagingInstance.getName(), true, true, PipelinePauseInfo.notPaused());
         model2.addPipelineInstance(stagingInstance);
         assertThat(models, hasItem(model2));
     }
@@ -83,8 +93,8 @@ public class EnvironmentServiceTest {
     }
 
     private PipelineInstanceModel stubPipelineHistoryServiceToReturnPipelines(final String pipelineName) {
-        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModel.createPipeline(pipelineName, pipelineName, -1, "1", BuildCause.createManualForced(), new StageInstanceModels());
-        PipelineModel pipelineModel = new PipelineModel(pipelineInstanceModel.getName(), pipelineInstanceModel.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineInstanceModel pipelineInstanceModel = PipelineInstanceModel.createPipeline(pipelineName, -1, "1", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineModel pipelineModel = new PipelineModel(pipelineInstanceModel.getName(), true, true, PipelinePauseInfo.notPaused());
         pipelineModel.addPipelineInstance(pipelineInstanceModel);
         when(pipelineHistoryService.latestPipelineModel(new Username(new CaseInsensitiveString("Foo")), pipelineName)).thenReturn(pipelineModel);
         return pipelineInstanceModel;
@@ -92,8 +102,10 @@ public class EnvironmentServiceTest {
 
     @Test public void shouldReturnAllTheEnvironments() throws Exception {
         when(environmentConfigService.environmentNames()).thenReturn(Arrays.asList(new CaseInsensitiveString("uat"), new CaseInsensitiveString("preprod")));
-        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).thenReturn(Arrays.asList(new CaseInsensitiveString("uat-pipeline"), new CaseInsensitiveString("staging-pipeline")));
-        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("preprod"))).thenReturn(Arrays.asList(new CaseInsensitiveString("preprod-pipeline")));
+        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).thenReturn(
+                createConfigs("uat-pipeline", "staging-pipeline"));
+        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("preprod"))).thenReturn(
+                createConfigs("preprod-pipeline"));
         stubPipelineHistoryServiceToReturnPipelines("uat-pipeline", "preprod-pipeline", "staging-pipeline");
 
         List<Environment> environments = environmentService.getEnvironments(USER_FOO);
@@ -106,8 +118,10 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldOmitEnvironmentsHavePipelinesConfiguredButHaveNoPermissionsOnThePipelines() throws Exception {
         when(environmentConfigService.environmentNames()).thenReturn(Arrays.asList(new CaseInsensitiveString("uat"), new CaseInsensitiveString("preprod")));
-        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).thenReturn(Arrays.asList(new CaseInsensitiveString("staging-pipeline")));
-        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("preprod"))).thenReturn(Arrays.asList(new CaseInsensitiveString("preprod-pipeline")));
+        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).thenReturn(
+                createConfigs("staging-pipeline"));
+        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("preprod"))).thenReturn(
+                createConfigs("preprod-pipeline"));
 
         stubPipelineHistoryServiceToReturnPipelines("preprod-pipeline");
         when(pipelineHistoryService.latest("staging-pipeline", USER_FOO)).thenReturn(null);
@@ -122,8 +136,10 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldAddEnvironmentsThatHaveNoPipelinesConfigured() throws Exception {
         when(environmentConfigService.environmentNames()).thenReturn(Arrays.asList(new CaseInsensitiveString("uat"), new CaseInsensitiveString("preprod")));
-        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).thenReturn(new ArrayList<CaseInsensitiveString>());
-        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("preprod"))).thenReturn(Arrays.asList(new CaseInsensitiveString("preprod-pipeline")));
+        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("uat"))).thenReturn(createConfigs());
+        when(environmentConfigService.pipelinesFor(new CaseInsensitiveString("preprod"))).thenReturn(
+                createConfigs("preprod-pipeline"));
+
         stubPipelineHistoryServiceToReturnPipelines("preprod-pipeline");
 
         List<Environment> environments = environmentService.getEnvironments(USER_FOO);

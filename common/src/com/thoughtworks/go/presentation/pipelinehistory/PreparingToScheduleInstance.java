@@ -27,9 +27,13 @@ import com.thoughtworks.go.domain.materials.Revision;
  */
 public class PreparingToScheduleInstance extends PipelineInstanceModel {
 
+    PreparingToScheduleInstance(String pipelineName, StageInstanceModels stageHistory) {
+        this(pipelineName, pipelineName, stageHistory);
+    }
+
     PreparingToScheduleInstance(String pipelineName, String pipelineDisplayName, StageInstanceModels stageHistory) {
         super(pipelineName, pipelineDisplayName, -1, "TBD", new PreparingToScheduleBuildCause(), stageHistory);
-        canRun =false;
+        canRun = false;
         isPreparingToSchedule = true;
     }
 

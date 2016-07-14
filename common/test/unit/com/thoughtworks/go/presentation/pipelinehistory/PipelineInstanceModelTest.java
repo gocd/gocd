@@ -67,7 +67,7 @@ public class PipelineInstanceModelTest {
 
         stages.addFutureStage("unit3", false);
 
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createManualForced(), stages);
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createManualForced(), stages);
 
         assertThat(model.activeStage(), is(activeStage));
     }
@@ -85,7 +85,7 @@ public class PipelineInstanceModelTest {
 
         stages.addFutureStage("unit3", false);
 
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createManualForced(), stages);
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createManualForced(), stages);
 
         assertThat(model.activeStage(), is(nullValue()));
     }
@@ -97,7 +97,7 @@ public class PipelineInstanceModelTest {
         stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()));
         stages.addFutureStage("unit2", false);
 
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createWithModifications(revisions, ""), stages);
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), stages);
 
         assertThat(model.getPipelineStatusMessage(), is("Passed: unit1"));
     }
@@ -108,7 +108,7 @@ public class PipelineInstanceModelTest {
         MaterialRevisions revisions = new MaterialRevisions();
         HgMaterial material = MaterialsMother.hgMaterial();
         revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
 
         assertThat(model.getCurrentRevision(material.config()).getRevision(), is("a087402bd2a7828a130c1bdf43f2d9ef8f48fd46"));
     }
@@ -118,7 +118,7 @@ public class PipelineInstanceModelTest {
         MaterialRevisions revisions = new MaterialRevisions();
         HgMaterial material = MaterialsMother.hgMaterial();
         revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
 
         assertThat(model.findCurrentMaterialRevisionForUI(material.config()), is(revisions.getMaterialRevision(0)));
     }
@@ -130,7 +130,7 @@ public class PipelineInstanceModelTest {
         HgMaterial materialWithDifferentDest = MaterialsMother.hgMaterial();
         materialWithDifferentDest.setFolder("otherFolder");
         revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
 
         assertThat(model.findCurrentMaterialRevisionForUI(materialWithDifferentDest.config()), is(revisions.getMaterialRevision(0)));
     }
@@ -144,7 +144,7 @@ public class PipelineInstanceModelTest {
         revisions.addRevision(svnMaterial, new Modification(new Date(), "1024", "MOCK_LABEL-12", null));
         revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", buildCause, new StageInstanceModels());
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", buildCause, new StageInstanceModels());
 
         assertThat(model.getCurrentRevision("hg_material").getRevision(), is("a087402bd2a7828a130c1bdf43f2d9ef8f48fd46"));
     }
@@ -188,7 +188,7 @@ public class PipelineInstanceModelTest {
         MaterialRevisions revisions = new MaterialRevisions();
 
         revisions.addRevision(MaterialsMother.hgMaterial(), HG_MATERIAL_MODIFICATION);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", null, new StageInstanceModels());
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", null, new StageInstanceModels());
         model.setLatestRevisions(revisions);
         return model;
     }
@@ -197,7 +197,7 @@ public class PipelineInstanceModelTest {
         MaterialRevisions revisions = new MaterialRevisions();
 
         revisions.addRevision(MaterialsMother.hgMaterial(), new ArrayList<Modification>());
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", null, new StageInstanceModels());
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", null, new StageInstanceModels());
         model.setLatestRevisions(revisions);
         return model;
     }
@@ -206,7 +206,7 @@ public class PipelineInstanceModelTest {
         MaterialRevisions revisions = new MaterialRevisions();
 
         revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
-        return PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
+        return PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
     }
 
     @Test public void shouldKnowIfLatestRevisionIsReal() throws Exception {
@@ -220,7 +220,7 @@ public class PipelineInstanceModelTest {
         StageInstanceModel firstStage = new StageInstanceModel("dev", "1", new JobHistory());
         firstStage.setApprovedBy("some_user");
         models.add(firstStage);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createWithModifications(revisions, ""), models);
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), models);
         assertThat(model.getApprovedBy(), is("some_user"));
         assertThat(model.getApprovedByForDisplay(), is("Triggered by some_user"));
     }
@@ -240,7 +240,7 @@ public class PipelineInstanceModelTest {
         StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredFirst), job(JobResult.Passed, occuredSecond));
         stageInstanceModels.add(new NullStageHistoryItem("stage-3", false));
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
         assertThat(instanceModel.isLatestStageUnsuccessful(), is(false));
         assertThat(instanceModel.isLatestStageSuccessful(), is(true));
@@ -255,7 +255,7 @@ public class PipelineInstanceModelTest {
 
         StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredSecond), job(JobResult.Passed, occuredFirst));
         stageInstanceModels.add(new NullStageHistoryItem("stage-3", false));
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
         assertThat(instanceModel.isLatestStageUnsuccessful(), is(true));
         assertThat(instanceModel.isLatestStageSuccessful(), is(false));
@@ -270,7 +270,7 @@ public class PipelineInstanceModelTest {
         StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredSecond), job(JobResult.Passed, occuredFirst));
 
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
         assertThat(instanceModel.isLatestStageUnsuccessful(), is(true));
         assertThat(instanceModel.isLatestStageSuccessful(), is(false));
@@ -285,7 +285,7 @@ public class PipelineInstanceModelTest {
         StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occuredFirst), job(JobResult.Passed, occuredSecond));
 
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
         assertThat(instanceModel.isLatestStageUnsuccessful(), is(false));
         assertThat(instanceModel.isLatestStageSuccessful(), is(true));
@@ -300,7 +300,7 @@ public class PipelineInstanceModelTest {
         StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occuredSecond), job(JobResult.Passed, occuredFirst));
 
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
         assertThat(instanceModel.isLatestStageUnsuccessful(), is(false));
         assertThat(instanceModel.isLatestStageSuccessful(), is(true));
@@ -315,7 +315,7 @@ public class PipelineInstanceModelTest {
         NullStageHistoryItem stageHistoryItem = new NullStageHistoryItem("not_yet_run", false);
         stageInstanceModels.add(stageHistoryItem);
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
         StageInstanceModel value = stageInstanceModels.get(0);
         assertThat(instanceModel.latestStage(), is(value));
     }
@@ -329,7 +329,7 @@ public class PipelineInstanceModelTest {
         NullStageHistoryItem stageHistoryItem = new NullStageHistoryItem("not_yet_run", false);
         stageInstanceModels.add(stageHistoryItem);
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
         assertThat(instanceModel.isLatestStage(stageInstanceModels.get(0)), is(true));
         assertThat(instanceModel.isLatestStage(stageInstanceModels.get(1)), is(false));
@@ -358,7 +358,7 @@ public class PipelineInstanceModelTest {
         stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()));
         stages.addFutureStage("unit2", false);
 
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createWithModifications(currentRevisions, ""), stages);
+        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(currentRevisions, ""), stages);
         model.setLatestRevisions(latestRevisions);
         model.setMaterialConfigs(materialConfigs);
 
@@ -373,7 +373,7 @@ public class PipelineInstanceModelTest {
         stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()));
         stages.addFutureStage("unit2", false);
 
-        PipelineInstanceModel pim = PipelineInstanceModel.createPipeline("pipeline", "display", -1, "label", BuildCause.createNeverRun(), stages);
+        PipelineInstanceModel pim = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createNeverRun(), stages);
         pim.setLatestRevisions(MaterialRevisions.EMPTY);
 
         assertThat("pim.hasNeverCheckedForRevisions()", pim.hasNeverCheckedForRevisions(), is(true));

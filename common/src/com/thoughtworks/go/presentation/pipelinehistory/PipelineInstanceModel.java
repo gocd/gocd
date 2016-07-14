@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.TimeConverter;
 
 import java.util.Date;
@@ -55,6 +56,11 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     private PipelineInstanceModel() {
         stageHistory = new StageInstanceModels();
+    }
+
+
+    public PipelineInstanceModel(String name, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
+        this(name, name, counter, label, buildCause, stageHistory);
     }
 
     public PipelineInstanceModel(String name, String displayName, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
@@ -91,6 +97,8 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     public String getDisplayName() {
+        if(StringUtil.isBlank(displayName))
+            return name;
         return displayName;
     }
 
@@ -112,6 +120,10 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public StageInstanceModels getStageHistory() {
@@ -356,8 +368,17 @@ public class PipelineInstanceModel implements PipelineInfo {
         return new PipelineInstanceModel();
     }
 
+
+    public static PipelineInstanceModel createPreparingToSchedule(String name, StageInstanceModels stages) {
+        return createPreparingToSchedule(name, name, stages);
+    }
+
     public static PipelineInstanceModel createPreparingToSchedule(String name, String displayName, StageInstanceModels stages) {
         return new PreparingToScheduleInstance(name, displayName, stages);
+    }
+
+    public static PipelineInstanceModel createPipeline(String name, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
+        return createPipeline(name, name, counter, label, buildCause, stageHistory);
     }
 
     public static PipelineInstanceModel createPipeline(String name, String displayName, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {

@@ -41,6 +41,7 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -125,6 +126,10 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
         for (PipelineInstanceModel pipelineInstanceModel : history) {
             populatePipelineInstanceModel(new Username(new CaseInsensitiveString(username)), populateCanRun, pipelineConfig, pipelineInstanceModel);
+            if(!StringUtil.isBlank(pipelineConfig.getDisplayName()))
+                pipelineInstanceModel.setDisplayName(pipelineConfig.getDisplayName());
+            else
+                pipelineInstanceModel.setDisplayName(CaseInsensitiveString.str(pipelineConfig.name()));
         }
         addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), pipelineConfig, populateCanRun);
         return history;
@@ -278,16 +283,16 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         }
     }
 
-    public PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, String displayName, Pagination pagination, String userName) {
+    public PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, Pagination pagination, String userName) {
         if (!securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(userName)), pipelineName)) {
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
         PipelineInstanceModels pipelineInstanceModels = null;
         if (triggerMonitor.isAlreadyTriggered(pipelineName)) {
-
+            PipelineConfig config = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
             StageInstanceModels stageHistory = new StageInstanceModels();
             appendFollowingStagesFromConfig(pipelineName, stageHistory);
-            PipelineInstanceModel model = PipelineInstanceModel.createPreparingToSchedule(pipelineName, displayName, stageHistory);
+            PipelineInstanceModel model = PipelineInstanceModel.createPreparingToSchedule(pipelineName, config.getDisplayName(), stageHistory);
             model.setCanRun(false);
 
             pipelineInstanceModels = PipelineInstanceModels.createPipelineInstanceModels(model);
@@ -297,8 +302,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return pipelineInstanceModels;
     }
 
-    public PipelineInstanceModel latest(String pipelineName, String displayName, Username username) {
-        PipelineInstanceModels models = loadWithEmptyAsDefault(pipelineName, displayName, Pagination.ONE_ITEM, CaseInsensitiveString.str(username.getUsername()));
+    public PipelineInstanceModel latest(String pipelineName, Username username) {
+        PipelineInstanceModels models = loadWithEmptyAsDefault(pipelineName, Pagination.ONE_ITEM, CaseInsensitiveString.str(username.getUsername()));
         return models.isEmpty() ? null : models.get(0);
     }
 
@@ -306,7 +311,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         PipelineInstanceModels pipelineInstances = PipelineInstanceModels.createPipelineInstanceModels();
         for (PipelineConfigs group : goConfigService.currentCruiseConfig().getGroups()) {
             for (PipelineConfig pipelineConfig : group) {
-                PipelineInstanceModel pipelineInstanceModel = latest(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getDisplayName(), username);
+                PipelineInstanceModel pipelineInstanceModel = latest(CaseInsensitiveString.str(pipelineConfig.name()), username);
                 if (pipelineInstanceModel != null) {
                     pipelineInstances.add(pipelineInstanceModel);
                 }
@@ -412,6 +417,12 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             result.notFound(pipelineInstanceNotFound, pipelineInstanceNotFound, HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
+
+        String displayName = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)).getDisplayName();
+        if(!StringUtil.isBlank(displayName))
+            pipelineInstanceModel.setDisplayName(displayName);
+        else
+            pipelineInstanceModel.setDisplayName(pipelineName);
         populatePlaceHolderStages(pipelineInstanceModel);
         populateStageOperatePermission(pipelineInstanceModel, username);
         populateCanRunStatus(username, pipelineInstanceModel);
@@ -457,6 +468,10 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             for (PipelineInstanceModel activePipeline : activePipelines.findAll(CaseInsensitiveString.str(pipelineName))) {
                 activePipeline.setTrackingTool(pipelineConfig.getTrackingTool());
                 activePipeline.setMingleConfig(pipelineConfig.getMingleConfig());
+                if(!StringUtil.isBlank(pipelineConfig.getDisplayName()))
+                    activePipeline.setDisplayName(pipelineConfig.getDisplayName());
+                else
+                    activePipeline.setDisplayName(CaseInsensitiveString.str(pipelineName));
                 populatePlaceHolderStages(activePipeline);
 
                 String groupName = groups.findGroupNameByPipeline(pipelineName);
@@ -534,7 +549,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         String groupName = group.getGroup();
         for (PipelineConfig pipelineConfig : group) {
             if (!groupModels.containsPipeline(groupName, CaseInsensitiveString.str(pipelineConfig.name()))) {
-                PipelineModel latestPipeline = latestPipelineModel(username, CaseInsensitiveString.str(pipelineConfig.name()),pipelineConfig.getDisplayName());
+                PipelineModel latestPipeline = latestPipelineModel(username, CaseInsensitiveString.str(pipelineConfig.name()));
                 if (latestPipeline != null) {
                     groupModels.addPipelineInstance(groupName, latestPipeline.getLatestPipelineInstance(), latestPipeline.canForce(), latestPipeline.canOperate(), latestPipeline.getPausedInfo());
                 }
@@ -552,8 +567,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return newModels;
     }
 
-    public PipelineModel latestPipelineModel(Username username, String pipelineName, String displayName) {
-        PipelineInstanceModel instanceModel = latest(pipelineName, displayName, username);
+    public PipelineModel latestPipelineModel(Username username, String pipelineName) {
+        PipelineInstanceModel instanceModel = latest(pipelineName, username);
         if (instanceModel != null) {
             boolean canForce = schedulingCheckerService.canManuallyTrigger(pipelineName, username);
             PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);

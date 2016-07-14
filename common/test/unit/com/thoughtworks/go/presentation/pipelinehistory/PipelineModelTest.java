@@ -34,11 +34,11 @@ public class PipelineModelTest {
 
     @Test
     public void shouldUnderstandIfHasNewRevisions() throws Exception {
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipelineName", "pipelineName", -1, "1", BuildCause.createManualForced(), new StageInstanceModels());
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipelineName", -1, "1", BuildCause.createManualForced(), new StageInstanceModels());
         MaterialRevisions latest = ModificationsMother.createHgMaterialRevisions();
         instanceModel.setMaterialConfigs(new MaterialConfigs(latest.getMaterialRevision(0).getMaterial().config()));
         instanceModel.setLatestRevisions(latest);
-        PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), instanceModel.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), true, true, PipelinePauseInfo.notPaused());
         pipelineModel.addPipelineInstance(instanceModel);
         instanceModel.setMaterialRevisionsOnBuildCause(MaterialRevisions.EMPTY);
         assertThat(pipelineModel.hasNewRevisions(), is(true));
@@ -48,9 +48,9 @@ public class PipelineModelTest {
 
     @Test
     public void shouldNotBeAbleToscheduleIfTheLatestPipelineIsPreparingToSchedule() throws Exception {
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPreparingToSchedule("pipelineName", "displayName", new StageInstanceModels());
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPreparingToSchedule("pipelineName", new StageInstanceModels());
         
-        PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), instanceModel.getDisplayName(), true, true, PipelinePauseInfo.notPaused());
+        PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), true, true, PipelinePauseInfo.notPaused());
         pipelineModel.addPipelineInstance(instanceModel);
 
         assertThat(pipelineModel.canForce(), is(false));
@@ -58,11 +58,11 @@ public class PipelineModelTest {
 
     @Test
     public void shouldUnderstandCanOperateAndCanForce() {
-        PipelineModel foo = new PipelineModel("foo", "foo", true, true, PipelinePauseInfo.notPaused());
+        PipelineModel foo = new PipelineModel("foo", true, true, PipelinePauseInfo.notPaused());
         foo.addPipelineInstance(pipelineNamed("foo"));
-        PipelineModel bar = new PipelineModel("bar", "bar", false, false, PipelinePauseInfo.notPaused());
+        PipelineModel bar = new PipelineModel("bar", false, false, PipelinePauseInfo.notPaused());
         bar.addPipelineInstance(pipelineNamed("bar"));
-        PipelineModel baz = new PipelineModel("baz", "baz", false, true, PipelinePauseInfo.notPaused());
+        PipelineModel baz = new PipelineModel("baz", false, true, PipelinePauseInfo.notPaused());
         baz.addPipelineInstance(pipelineNamed("baz"));
         assertThat(foo.canOperate(), is(true));
         assertThat(foo.canForce(), is(true));
@@ -75,7 +75,7 @@ public class PipelineModelTest {
     private PipelineInstanceModel pipelineNamed(String name) {
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(new StageInstanceModel("dev", "10", JobHistory.withJob("dev", JobState.Completed, JobResult.Failed, new Date())));
-        return PipelineInstanceModel.createPipeline(name, name, -1, "1.0", BuildCause.createWithEmptyModifications(), stages);
+        return PipelineInstanceModel.createPipeline(name, -1, "1.0", BuildCause.createWithEmptyModifications(), stages);
     }
 
 }

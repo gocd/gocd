@@ -65,8 +65,13 @@ public class GoConfigDao {
         updateConfig(pipelineAdder(pipelineConfig, groupName));
     }
 
-    public void addEnvironment(BasicEnvironmentConfig environmentConfig, Username user) {
-        updateConfig(new AddEnvironmentCommand(environmentConfig, user));
+    public void addEnvironment(final BasicEnvironmentConfig environmentConfig) {
+        updateConfig(new UpdateConfigCommand() {
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
+                cruiseConfig.getEnvironments().add(environmentConfig);
+                return cruiseConfig;
+            }
+        });
     }
 
     public CruiseConfig loadForEditing() {

@@ -102,7 +102,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         }
         for (EnvironmentConfig config : this) {
             if (config.hasSamePipelinesAs(environmentConfig)) {
-                throw new RuntimeException("One of the environments contains duplicate pipelines");
+                throw new RuntimeException("Associating pipeline(s) which is already part of "+config.name()+" environment");
             }
         }
     }

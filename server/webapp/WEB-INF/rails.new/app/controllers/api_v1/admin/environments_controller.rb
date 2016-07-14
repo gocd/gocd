@@ -40,13 +40,13 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         get_environment_from_request
-        environment_config_service.updateEnvironment(params[:name], @environment_config_from_request, current_user, result)
+        environment_config_service.updateEnvironment(@environment_config, @environment_config_from_request, current_user, result)
         handle_config_save_or_update_result(result, @environment_config_from_request.name.to_s)
       end
 
       def destroy
         result = HttpLocalizedOperationResult.new
-        environment_config_service.deleteEnvironment(params[:name], current_user, result)
+        environment_config_service.deleteEnvironment(@environment_config, current_user, result)
         render_http_operation_result(result)
       end
 
@@ -75,8 +75,7 @@ module ApiV1
           response.etag = [get_etag_for_environment(json)]
           render DEFAULT_FORMAT => json
         else
-          json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config_from_request).to_hash(url_builder: self)
-          render_http_operation_result(result, {data: json})
+          render_http_operation_result(result)
         end
       end
 

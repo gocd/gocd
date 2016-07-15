@@ -351,45 +351,44 @@ task war(type: Jar) {
   dependsOn ':server:jar', ':server:createVersionFile', ':server:createVersionJsonFile', ':server:compileAssets'
   baseName = 'cruise'
   extension 'war'
-  exclude '**/*/log4j.properties'
-  exclude 'log4j.properties'
-
-  from(createVersionFile) { into 'WEB-INF/vm/admin' }
-  from(createVersionJsonFile) { into 'WEB-INF' }
-
-  // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-  def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)
-
-  from(classpath) {
-    into 'WEB-INF/lib'
-  }
-
-  with(copySpec {
-    from { zipTree(jar.archivePath) }
-    into('WEB-INF/classes')
-  })
-
-  from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
-    into '/'
-  }
-
-  from(project(':config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
-  from("messages/message.properties") { into('/') }
-
-  from(compileAssets) {
-    into '/WEB-INF/rails.new/public/assets'
-  }
-
-  from("webapp/WEB-INF/web.xml") {
-    filter {
-      it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
-    }
-    into "/WEB-INF"
-  }
 
   // do this lazily because finding gems is expensive during the configure cycle causing gradle to boot really slow
-  doFirst { Jar warFile ->
-    warFile.from('webapp') { theSpec ->
+  doFirst {
+    exclude '**/*/log4j.properties'
+    exclude 'log4j.properties'
+
+    from(createVersionFile) { into 'WEB-INF/vm/admin' }
+    from(createVersionJsonFile) { into 'WEB-INF' }
+
+    // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
+    def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)
+
+    from(classpath) {
+      into 'WEB-INF/lib'
+    }
+
+    with(copySpec {
+      from { zipTree(jar.archivePath) }
+      into('WEB-INF/classes')
+    })
+
+    from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
+      into '/'
+    }
+
+    from(project(':config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
+    from("messages/message.properties") { into('/') }
+
+    from(compileAssets) { into '/WEB-INF/rails.new/public/assets' }
+
+    from("webapp/WEB-INF/web.xml") {
+      filter {
+        it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
+      }
+      into "/WEB-INF"
+    }
+
+    from('webapp') { theSpec ->
       into '/'
       exclude('WEB-INF/web.xml')
       exclude("**/rails.new/*.log")

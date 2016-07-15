@@ -33,8 +33,10 @@ task fatJar(type: Jar, dependsOn: [':agent-launcher:jar', ':agent-common:jar']) 
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'
   }
 
-  from(configurations.compile) { into "libs/" }
-  from(jar.archivePath) { into('libs/') }
+  doFirst {
+    from(configurations.compile) { into "libs/" }
+    from(jar.archivePath) { into('libs/') }
+  }
 
   doLast {
     verifyJar.execute()

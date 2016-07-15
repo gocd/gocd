@@ -36,19 +36,22 @@ jar {
 }
 
 task fatJar(type: Jar, dependsOn: [jar]) {
-  from(jar.archivePath) { into('lib/') }
 
-  def deps = project.configurations.compile.findAll {
-    it.absolutePath.contains('tfs-sdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
-  }
+  doFirst {
+    from(jar.archivePath) { into('lib/') }
 
-  from(deps) {
-    into 'lib/'
-  }
+    def deps = project.configurations.compile.findAll {
+      it.absolutePath.contains('tfs-sdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
+    }
 
-  from("${project.projectDir}/tfssdk/native") {
-    include "**/*.*"
-    into "tfssdk/native"
+    from(deps) {
+      into 'lib/'
+    }
+
+    from("${project.projectDir}/tfssdk/native") {
+      include "**/*.*"
+      into "tfssdk/native"
+    }
   }
 
   doLast {

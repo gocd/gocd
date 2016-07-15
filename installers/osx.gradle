@@ -17,26 +17,32 @@ import org.apache.tools.ant.filters.ReplaceTokens
  */
 
 task agentOSXZip(type: Zip, dependsOn: [':agent-bootstrapper:fatJar']) { zipTask ->
+  outputs.upToDateWhen { false }
   def packageName = 'go-agent'
   into 'Go Agent.app'
 
   configureOsxZip(zipTask, packageName)
 
-  from(configurations.agentBootstrapperJar) {
-    into "Contents/Resources"
-    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  doFirst {
+    from(configurations.agentBootstrapperJar) {
+      into "Contents/Resources"
+      rename "(.*)-${project.version}.(.*)", '$1.$2'
+    }
   }
 }
 
 task serverOSXZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask ->
+  outputs.upToDateWhen { false }
   def packageName = 'go-server'
   into 'Go Server.app'
 
   configureOsxZip(zipTask, packageName)
 
-  from(configurations.serverJar) {
-    into "Contents/Resources"
-    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  doFirst {
+    from(configurations.serverJar) {
+      into "Contents/Resources"
+      rename "(.*)-${project.version}.(.*)", '$1.$2'
+    }
   }
 }
 
@@ -44,27 +50,29 @@ task serverOSXZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask -
 private void configureOsxZip(Zip zipTask, String packageName) {
   zipTask.configure {
     destinationDir file("${project.convention.plugins.get("base").distsDir}/osx")
-
     archiveName "${packageName}-${rootProject.fullVersion}-osx.zip"
 
+    // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
     from('osx-shared/JavaApplicationStub64') {
       into "Contents/MacOS"
       rename '.*', packageName
       fileMode 0755
     }
 
-    from('osx-shared/gocd.icns') {
-      into "Contents/Resources"
-      rename ".*", "${packageName}.icns"
-    }
+    doFirst {
+      from('osx-shared/gocd.icns') {
+        into "Contents/Resources"
+        rename ".*", "${packageName}.icns"
+      }
 
-    from("${packageName}/osx/Info.plist") {
-      filter ReplaceTokens, tokens: [
-          'distVersion': rootProject.distVersion ? rootProject.distVersion : '',
-          'version': rootProject.version.toString(),
-          'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString(),
-      ]
-      into "Contents"
+      from("${packageName}/osx/Info.plist") {
+        filter ReplaceTokens, tokens: [
+            'distVersion': rootProject.distVersion ? rootProject.distVersion : '',
+            'version'    : rootProject.version.toString(),
+            'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString(),
+        ]
+        into "Contents"
+      }
     }
   }
 }

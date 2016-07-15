@@ -49,6 +49,8 @@ task serverOSXZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask -
 
 private void configureOsxZip(Zip zipTask, String packageName) {
   zipTask.configure {
+    group project.name
+    description "Build the ${packageName} osx package"
     destinationDir file("${project.convention.plugins.get("base").distsDir}/osx")
     archiveName "${packageName}-${rootProject.fullVersion}-osx.zip"
 

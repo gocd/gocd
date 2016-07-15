@@ -19,6 +19,9 @@ import com.thoughtworks.go.build.WindowsPackagingTask
 import org.apache.tools.ant.filters.FixCrLfFilter
 
 task agentWindowsExe(type: WindowsPackagingTask, dependsOn: [':agent-bootstrapper:fatJar']) {
+  group project.name
+  description 'Build the go-agent windows installer'
+
   packageName 'go-agent'
   version rootProject.goVersion
   distVersion rootProject.distVersion
@@ -57,6 +60,9 @@ task agentWindowsExe(type: WindowsPackagingTask, dependsOn: [':agent-bootstrappe
 }
 
 task serverWindowsExe(type: WindowsPackagingTask, dependsOn: [':server-launcher:fatJar']) {
+  group project.name
+  description 'Build the go-server windows installer'
+
   packageName 'go-server'
   version rootProject.goVersion
   distVersion rootProject.distVersion

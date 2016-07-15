@@ -18,6 +18,8 @@ task agentGenericZip(type: Zip, dependsOn: [':agent-bootstrapper:fatJar']) { zip
   destinationDir file("${project.convention.plugins.get("base").distsDir}/zip")
   archiveName "go-agent-${rootProject.fullVersion}.zip"
   into("go-agent-${project.goVersion}")
+  group project.name
+  description 'Build the go-agent zip installer'
 
   // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
   from("${rootProject.projectDir}/LICENSE")
@@ -45,6 +47,8 @@ task serverGenericZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTa
   destinationDir file("${project.convention.plugins.get("base").distsDir}/zip")
   archiveName "go-server-${rootProject.fullVersion}.zip"
   into("go-server-${project.goVersion}")
+  group project.name
+  description = 'Build the go-server zip installer'
 
   // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
   zipTask.from("${rootProject.projectDir}/LICENSE")

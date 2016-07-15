@@ -70,6 +70,8 @@ def server = [
 ]
 
 task agentPackageDeb(dependsOn: [':agent-bootstrapper:fatJar'], type: DebPackagingTask) {
+  group project.name
+  description 'Build the go-agent deb package'
   packageName 'go-agent'
   version rootProject.goVersion
   distVersion rootProject.distVersion
@@ -80,6 +82,8 @@ task agentPackageDeb(dependsOn: [':agent-bootstrapper:fatJar'], type: DebPackagi
 
 task agentPackageRpm(dependsOn: [':agent-bootstrapper:fatJar'], type: RpmPackagingTask) {
   packageName 'go-agent'
+  description 'Build the go-agent rpm package'
+  group project.name
   version rootProject.goVersion
   distVersion rootProject.distVersion
   packageDescription agent.description
@@ -88,6 +92,8 @@ task agentPackageRpm(dependsOn: [':agent-bootstrapper:fatJar'], type: RpmPackagi
 }
 
 task serverPackageDeb(dependsOn: [':server-launcher:fatJar'], type: DebPackagingTask) {
+  group project.name
+  description 'Build the go-server deb package'
   packageName 'go-server'
   version rootProject.goVersion
   distVersion rootProject.distVersion
@@ -97,6 +103,8 @@ task serverPackageDeb(dependsOn: [':server-launcher:fatJar'], type: DebPackaging
 }
 
 task serverPackageRpm(dependsOn: [':server-launcher:fatJar'], type: RpmPackagingTask) {
+  group project.name
+  description 'Build the go-server rpm package'
   packageName 'go-server'
   version rootProject.goVersion
   distVersion rootProject.distVersion

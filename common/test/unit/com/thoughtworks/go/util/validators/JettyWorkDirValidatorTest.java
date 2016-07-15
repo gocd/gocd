@@ -22,52 +22,59 @@ import java.io.IOException;
 import com.thoughtworks.go.util.SystemEnvironment;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mock;
 
 public class JettyWorkDirValidatorTest {
+
+    private JettyWorkDirValidator jettyWorkDirValidator;
+
+    @Mock
+    public SystemEnvironment systemEnvironment;
+
     @Rule
     public TemporaryFolder temporaryFolder =  new TemporaryFolder();
     private File homeDir;
-    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         homeDir = temporaryFolder.newFolder();
-        systemEnvironment = new SystemEnvironment();
+        jettyWorkDirValidator = new JettyWorkDirValidator(systemEnvironment);
+
     }
 
     @Test
     public void shouldSetJettyHomeAndBasePropertyIfItsNotSet() {
-        systemEnvironment.clearProperty("jetty.home");
-        systemEnvironment.clearProperty("jetty.base");
-        systemEnvironment.setProperty("user.dir", "junk");
-        JettyWorkDirValidator jettyWorkDirValidator = new JettyWorkDirValidator();
+        when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn("");
+        when(systemEnvironment.getPropertyImpl("user.dir")).thenReturn("junk");
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
         assertThat(val.isSuccessful(), is(true));
-        assertThat(SystemEnvironment.getProperty("jetty.home"), is("junk"));
-        assertThat(SystemEnvironment.getProperty("jetty.base"), is("junk"));
+
+        verify(systemEnvironment).getPropertyImpl("user.dir");
+        verify(systemEnvironment).setProperty("jetty.home", "junk");
     }
 
     @Test
     public void shouldSetJettyBaseToValueOfJettyHome() {
-        systemEnvironment.setProperty("jetty.home", "foo");
-        systemEnvironment.clearProperty("jetty.base");
-        JettyWorkDirValidator jettyWorkDirValidator = new JettyWorkDirValidator();
+        when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn("foo");
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
         assertThat(val.isSuccessful(), is(true));
-        assertThat(systemEnvironment.getPropertyImpl("jetty.base"), is("foo"));
+        verify(systemEnvironment).setProperty("jetty.base", "foo");
     }
 
     @Test
     public void shouldCreateWorkDirIfItDoesNotExist() {
-        systemEnvironment.setProperty("jetty.home", homeDir.getAbsolutePath());
-        JettyWorkDirValidator jettyWorkDirValidator = new JettyWorkDirValidator();
+        when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn(homeDir.getAbsolutePath());
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
         assertThat(val.isSuccessful(), is(true));
@@ -78,13 +85,10 @@ public class JettyWorkDirValidatorTest {
     @Test
     public void shouldNotCreateTheJettyHomeDirIfItDoesNotExist() {
         String jettyHome = "home_dir";
-        systemEnvironment.setProperty("jetty.home", jettyHome);
-        JettyWorkDirValidator jettyWorkDirValidator = new JettyWorkDirValidator();
+        when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn(jettyHome);
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
         assertThat(val.isSuccessful(), is(true));
-        assertThat(systemEnvironment.getPropertyImpl("jetty.home"), is(jettyHome));
-        assertThat(systemEnvironment.getPropertyImpl("jetty.base"), is(jettyHome));
         assertThat(new File(jettyHome).exists(), is(false));
     }
 
@@ -93,8 +97,7 @@ public class JettyWorkDirValidatorTest {
         File oldWorkDir = new File(homeDir, "work");
         oldWorkDir.mkdir();
         new File(oldWorkDir, "junk.txt").createNewFile();
-        systemEnvironment.setProperty("jetty.home", homeDir.getAbsolutePath());
-        JettyWorkDirValidator jettyWorkDirValidator = new JettyWorkDirValidator();
+        when(systemEnvironment.getPropertyImpl("jetty.home")).thenReturn(homeDir.getAbsolutePath());
         Validation val = new Validation();
         jettyWorkDirValidator.validate(val);
         assertThat(val.isSuccessful(), is(true));

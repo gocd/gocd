@@ -237,13 +237,6 @@ task fatJar(type: Jar,
     }
 
     with(copySpec {
-      from { zipTree(project(':common').jar.archivePath) }
-      include "log4j.upgrade.*.properties"
-      into('/')
-    })
-
-
-    with(copySpec {
       from { configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }
       include '**/*.class'
       exclude 'OneJar.class'

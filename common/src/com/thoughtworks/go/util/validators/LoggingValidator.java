@@ -23,22 +23,19 @@ import java.io.File;
 
 public class LoggingValidator implements Validator {
     private final Validator log4jPropertiesValidator;
-    private final LogDirectory logDirectory;
     private final Log4jConfigReloader log4jConfigReloader;
     private final File log4jFile;
 
     public LoggingValidator(SystemEnvironment systemEnvironment) {
         this(new File(systemEnvironment.getConfigDir(), "log4j.properties"),
                 FileValidator.configFile("log4j.properties", systemEnvironment),
-                LogDirectory.fromEnvironment(systemEnvironment.getCurrentOperatingSystem()),
                 new Log4jConfigReloader());
     }
 
-    LoggingValidator(File log4jFile, Validator log4jPropsValidator, LogDirectory logDirectory,
+    LoggingValidator(File log4jFile, Validator log4jPropsValidator,
                      Log4jConfigReloader log4jConfigReloader) {
         this.log4jFile = log4jFile;
         this.log4jPropertiesValidator = log4jPropsValidator;
-        this.logDirectory = logDirectory;
         this.log4jConfigReloader = log4jConfigReloader;
     }
 
@@ -46,10 +43,6 @@ public class LoggingValidator implements Validator {
         Validation propFileValidation = log4jPropertiesValidator.validate(validation);
         if (!propFileValidation.isSuccessful()) {
             return propFileValidation;
-        }
-        Validation logDirectoryUpdateValidation = logDirectory.update(log4jFile, validation);
-        if (!logDirectoryUpdateValidation.isSuccessful()) {
-            return logDirectoryUpdateValidation;
         }
         log4jConfigReloader.reload(log4jFile);
         return Validation.SUCCESS;
@@ -63,10 +56,6 @@ public class LoggingValidator implements Validator {
 
     Validator getLog4jPropertiesValidator() {
         return log4jPropertiesValidator;
-    }
-
-    LogDirectory getLogDirectory() {
-        return logDirectory;
     }
 
     File getLog4jFile() {

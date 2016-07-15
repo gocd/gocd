@@ -41,6 +41,20 @@ public class BasicProcessingFilterEntryPointTest {
     }
 
     @Test
+    public void testShouldRender401WithJSONBodyWithApiAcceptHeaderForAnyVersion() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        request.addHeader("Accept", "application/vnd.go.cd.v2+json");
+
+        new BasicProcessingFilterEntryPoint().commence(request, response, null);
+
+        assertEquals("application/vnd.go.cd.v2+json", response.getContentType());
+        assertEquals("Basic realm=\"GoCD\"", response.getHeader("WWW-Authenticate"));
+        assertEquals(401, response.getStatus());
+        assertEquals(response.getContentAsString(), "{\n  \"message\": \"You are not authorized to access this resource!\"\n}\n");
+    }
+
+    @Test
     public void testShouldRender401WithWithHTMLWithNoAcceptHeader() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();

@@ -28,6 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
@@ -39,9 +40,11 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
             throws IOException, ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
+        ArrayList<String> acceptHeader = getAcceptHeader(request);
+        String contentType = getMatchingHeader(acceptHeader, "application/vnd\\.go\\.cd\\.v.\\+json");
 
-        if (hasAccept(request, "application/vnd.go.cd.v1+json")) {
-            httpResponse.setContentType("application/vnd.go.cd.v1+json");
+        if (contentType != null) {
+            httpResponse.setContentType(contentType);
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             httpResponse.getOutputStream().print("{\n");
             httpResponse.getOutputStream().print("  \"message\": \"You are not authorized to access this resource!\"\n");
@@ -51,20 +54,27 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
         httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 
-    private boolean hasAccept(ServletRequest request, String expectedContentType) {
+    private String getMatchingHeader(ArrayList<String> acceptHeader, String expectedType) {
+        for (String type : acceptHeader) {
+            if(type.matches(expectedType))
+                return type;
+        }
+        return null;
+    }
+
+    private ArrayList<String> getAcceptHeader(ServletRequest request) {
+        ArrayList<String> headers = new ArrayList<>();
         if (request instanceof HttpServletRequest) {
             String accept = ((HttpServletRequest) request).getHeader("Accept");
             if (accept != null) {
                 List<MediaType> mediaTypes = MediaType.parseMediaTypes(accept);
                 for (MediaType mediaType : mediaTypes) {
                     String type = mediaType.getType() + "/" + mediaType.getSubtype();
-                    if (type.equals(expectedContentType)) {
-                        return true;
-                    }
+                    headers.add(type);
                 }
             }
         }
-        return false;
+        return headers;
     }
 
 }

@@ -17,9 +17,9 @@
 -%>
 
 <% if type == 'rpm' -%>
-    rm -rf /var/lib/<%= name %> /var/log/<%= name %> /etc/defaults/<%= name %>
+    rm -rf /var/lib/<%= name %> /var/log/<%= name %>
 <% elsif type == 'deb' -%>
     update-rc.d <%= name %> remove
-    rm -rf /var/lib/<%= name %> /var/log/<%= name %> /etc/defaults/<%= name %>
+    rm -rf /var/lib/<%= name %> /var/log/<%= name %>
 <% else raise "Unsupported package type #{type}" -%>
 <% end %>

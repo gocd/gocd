@@ -72,10 +72,12 @@ public abstract class LinuxPackagingTask extends DefaultTask {
     cmd += ['--maintainer', 'ThoughtWorks, Inc.']
     cmd += ['--url', 'https://go.cd']
     cmd += ['--before-upgrade', project.file('linux-shared/before-upgrade.sh.erb')]
+    cmd += ['--after-upgrade', project.file('linux-shared/after-upgrade.sh.erb')]
     cmd += ['--before-install', project.file('linux-shared/before-install.sh.erb')]
     cmd += ['--after-install', project.file('linux-shared/after-install.sh.erb')]
     cmd += ['--before-remove', project.file('linux-shared/before-remove.sh.erb')]
     cmd += ['--after-remove', project.file('linux-shared/after-remove.sh.erb')]
+    cmd += ['--template-value', "install_scripts_dir=${project.file('linux-shared')}"]
     cmd += ['--template-scripts']
 
     directories.each { dirName, permissions ->

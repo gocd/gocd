@@ -118,11 +118,11 @@ describe("package_repository_configuration", function () {
         assertEquals("No form submit errors should be found", "", jQuery('#ajax_form_submit_errors').html());
     });
 
-    it("testShouldSetErrorOnRelevantFieldsOnFailure", function () {
+    it("testShouldSetErrorOnRelevantFieldsOnFailureAfterEscaping", function () {
         var wasCalled = false;
         AjaxForm.jquery_ajax_submit = function (form, handler, about_to_submit_handler, form_error_binding_callback) {
             wasCalled = true;
-            var responseText = '{"fieldErrors":{"field1":["error 1"]},"globalErrors":["global1","global2"],"message":"Save failed","isSuccessful":false,"subjectIdentifier":"id"}';
+            var responseText = '{"fieldErrors":{"field1":["<error 1>"]},"globalErrors":["global1","global2"],"message":"Save failed","isSuccessful":false,"subjectIdentifier":"id"}';
             var xhr = function
                 () {
                 return {
@@ -135,7 +135,8 @@ describe("package_repository_configuration", function () {
         jQuery("#package_repositories_edit_form").submit();
         assertEquals(true, wasCalled);
         assertEquals("fieldWithErrors class should be added", 1, jQuery(".field.error [name='field1']").length);
-        assertEquals("field error should be added", "error 1", jQuery("span.error").html());
+        assertEquals("field error should be added", "&lt;error 1&gt;", jQuery("span.error").html());
+
     });
 
     it("testShouldDisplayErrorMessagesOnInvisibleFieldsAsGlobalErrors", function () {

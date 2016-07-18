@@ -83,8 +83,8 @@ PackageRepositoryConfiguration = function (pluginsContainer, configurationContai
                 invisible_field_errors.push(result.fieldErrors[field])
             }
             var divFieldContainer = inputField.parent();
-            jQuery(divFieldContainer).addClass("error")
-            jQuery(divFieldContainer).append("<span class='error'>" + result.fieldErrors[field] + "</span>");
+            jQuery(divFieldContainer).addClass("error");
+            jQuery(divFieldContainer).append(jQuery("<span class='error'></span>").text(result.fieldErrors[field]));
         }
         displayErrorMessagesOnVisibleFields(invisible_field_errors)
     }

@@ -35,8 +35,11 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 
 import javax.net.ssl.SSLSocketFactory;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -144,6 +147,82 @@ public class Jetty9ServerTest {
 
         Jetty9Server.GoServerWelcomeFileHandler welcomeFileHandler = (Jetty9Server.GoServerWelcomeFileHandler) handler;
         assertThat(welcomeFileHandler.getContextPath(), is("/"));
+    }
+
+    @Test
+    public void shouldAddDefaultHeadersForRootContext() throws Exception {
+        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
+        jetty9Server.configure();
+
+        verify(server, times(1)).setHandler(captor.capture());
+        HandlerCollection handlerCollection = captor.getValue();
+        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler)handlerCollection.getHandlers()[0];
+        Handler rootPathHandler = handler.getHandler();
+
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getWriter()).thenReturn(mock(PrintWriter.class));
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/");
+
+        rootPathHandler.handle("/", mock(Request.class), request, response);
+
+        verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(response).setHeader("X-Content-Type-Options", "nosniff");
+        verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(response).setHeader("X-UA-Compatible", "chrome=1");
+
+    }
+
+    @Test
+    public void shouldSkipDefaultHeadersIfContextPathIsGoRootPath() throws Exception {
+        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
+        jetty9Server.configure();
+
+        verify(server, times(1)).setHandler(captor.capture());
+        HandlerCollection handlerCollection = captor.getValue();
+        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler)handlerCollection.getHandlers()[0];
+        Handler rootPathHandler = handler.getHandler();
+
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getWriter()).thenReturn(mock(PrintWriter.class));
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/go");
+
+        rootPathHandler.handle("/go", mock(Request.class), request, response);
+
+        verify(response, never()).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(response, never()).setHeader("X-Content-Type-Options", "nosniff");
+        verify(response, never()).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(response, never()).setHeader("X-UA-Compatible", "chrome=1");
+
+    }
+
+
+    @Test
+    public void shouldSkipDefaultHeadersIfContextPathIsAnyOtherUrlWithinGo() throws Exception {
+        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
+        jetty9Server.configure();
+
+        verify(server, times(1)).setHandler(captor.capture());
+        HandlerCollection handlerCollection = captor.getValue();
+        Jetty9Server.GoServerWelcomeFileHandler handler = (Jetty9Server.GoServerWelcomeFileHandler)handlerCollection.getHandlers()[0];
+        Handler rootPathHandler = handler.getHandler();
+
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getWriter()).thenReturn(mock(PrintWriter.class));
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/go/pipelines");
+
+        rootPathHandler.handle("/go/pipelines", mock(Request.class), request, response);
+
+        verify(response, never()).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(response, never()).setHeader("X-Content-Type-Options", "nosniff");
+        verify(response, never()).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(response, never()).setHeader("X-UA-Compatible", "chrome=1");
+
     }
 
     @Test

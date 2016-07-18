@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +131,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
             errors.add(ARGS, EXEC_CONFIG_ERROR);
             errors.add(ARG_LIST_STRING, EXEC_CONFIG_ERROR);
         }
-        if (workingDirectory != null && !FileUtil.isFolderInsideSandbox(workingDirectory)) {
+        if (workingDirectory != null && !FileUtil.isFolderInsideSandbox(new File("."), workingDirectory)) {
             if (ctx.isWithinPipelines()) {
                 errors.add(WORKING_DIR,
                         String.format("The path of the working directory for the custom command in job '%s' in stage '%s' of pipeline '%s' is outside the agent sandbox.", ctx.getJob().name(),

@@ -286,7 +286,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (dest == null) {
             return;
         }
-        if (!(FileUtil.isFolderInsideSandbox(dest))) {
+        if (!(FileUtil.isFolderInsideSandbox(new File("."), dest))) {
             setDestinationFolderError(String.format("Dest folder '%s' is not valid. It must be a sub-directory of the working folder.", dest));
         }
     }

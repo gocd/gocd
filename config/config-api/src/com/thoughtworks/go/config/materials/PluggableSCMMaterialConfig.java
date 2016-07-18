@@ -280,7 +280,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         if (dest == null) {
             return;
         }
-        if (!(FileUtil.isFolderInsideSandbox(dest))) {
+        if (!(FileUtil.isFolderInsideSandbox(new File("."), dest))) {
             addError(FOLDER, String.format("Dest folder '%s' is not valid. It must be a sub-directory of the working folder.", dest));
         }
     }

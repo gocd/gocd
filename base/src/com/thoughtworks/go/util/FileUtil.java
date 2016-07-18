@@ -443,13 +443,12 @@ public class FileUtil {
         return dir;
     }
 
-    public static boolean isFolderInsideSandbox(String path) {
-        File fileAtPath = new File(path);
-        if (fileAtPath.isAbsolute()) {
+    public static boolean isFolderInsideSandbox(File sandboxRoot, String subDirectoryPath) {
+        if (new File(subDirectoryPath).isAbsolute()) {
             return false;
         }
         try {
-            if (!FileUtil.isSubdirectoryOf(new File("."), fileAtPath)) {
+            if (!FileUtil.isSubdirectoryOf(sandboxRoot, new File(sandboxRoot, subDirectoryPath))) {
                 return false;
             }
         } catch (IOException e) {

@@ -363,7 +363,7 @@ task inlinePartials {
       into inlinedPartialsDir
     }
 
-    if (!org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    if (!project.hasProperty('fastBuild')) {
       exec {
         standardOutput = System.out
         errorOutput = System.err

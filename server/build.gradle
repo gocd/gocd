@@ -347,8 +347,43 @@ clean.doFirst {
   cleanRails.execute()
 }
 
+task inlinePartials {
+  def inlinedPartialsDir = file("${project.buildDir}/inline-partials")
+  def viewsDir = file("${project.railsRoot}/app/views")
+
+  outputs.dir(inlinedPartialsDir)
+  inputs.dir(viewsDir)
+
+  doFirst {
+    delete inlinedPartialsDir
+    inlinedPartialsDir.mkdirs()
+
+    copy {
+      from "${project.railsRoot}/app/views"
+      into inlinedPartialsDir
+    }
+
+    exec {
+      standardOutput = System.out
+      errorOutput = System.err
+
+      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        setExecutable project.rootProject.file("tools/rails/bin/jruby.bat")
+      } else {
+        setExecutable project.rootProject.file("tools/rails/bin/jruby")
+      }
+
+      environment += [
+          'INPUT_DIR': inlinedPartialsDir
+      ]
+
+      args = ['-S', 'rake', '--trace', '--rakefile', 'inline-partials.rake']
+    }
+  }
+}
+
 task war(type: Jar) {
-  dependsOn ':server:jar', ':server:createVersionFile', ':server:createVersionJsonFile', ':server:compileAssets'
+  dependsOn ':server:jar', ':server:createVersionFile', ':server:createVersionJsonFile', ':server:compileAssets', ':server:inlinePartials'
   baseName = 'cruise'
   extension 'war'
 
@@ -397,11 +432,16 @@ task war(type: Jar) {
       exclude("**/rails.new/tmp/**/*.*")
       exclude("**/rails.new/**/jruby/*/cache/*.gem")
       exclude("**/rails.new/app/assets/**/*.*")
+      exclude("**/rails.new/app/views/**/*.*")
       findGemsToNotPack().each { gem ->
         theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
         theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
         theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/build_info/${gem}.info")
       }
+    }
+
+    from(inlinePartials) {
+      into '/WEB-INF/rails.new/app/views'
     }
   }
 

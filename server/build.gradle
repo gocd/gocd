@@ -363,21 +363,19 @@ task inlinePartials {
       into inlinedPartialsDir
     }
 
-    exec {
-      standardOutput = System.out
-      errorOutput = System.err
+    if (!org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+      exec {
+        standardOutput = System.out
+        errorOutput = System.err
 
-      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        setExecutable project.rootProject.file("tools/rails/bin/jruby.bat")
-      } else {
         setExecutable project.rootProject.file("tools/rails/bin/jruby")
+
+        environment += [
+            'INPUT_DIR': inlinedPartialsDir
+        ]
+
+        args = ['-S', 'rake', '--trace', '--rakefile', 'inline-partials.rake']
       }
-
-      environment += [
-          'INPUT_DIR': inlinedPartialsDir
-      ]
-
-      args = ['-S', 'rake', '--trace', '--rakefile', 'inline-partials.rake']
     }
   }
 }

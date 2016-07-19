@@ -41,7 +41,7 @@ task serverOSXZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask -
   doFirst {
     from(configurations.serverJar) {
       into "Contents/Resources"
-      rename "(.*)-${project.version}.(.*)", '$1.$2'
+      rename "(.*)-${project.version}.(.*)", 'go.$2'
     }
   }
 }

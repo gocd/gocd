@@ -44,7 +44,6 @@
     jQuery("#pipeline_name_text_field").on('input', function() {
         var nameVal = jQuery(this).val();
         var displayVal = jQuery("#pipeline_display_name_text_field").val();
-        console.log(nameVal + "," + displayVal);
         if(displayVal == "" || (nameVal.substring(0, nameVal.length-1) == displayVal) || (displayVal.substring(0, displayVal.length-1) == nameVal))
             jQuery("#pipeline_display_name_text_field").val(nameVal);
     });

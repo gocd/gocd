@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.StringUtil;
 public class PipelineModel {
 
     private final String pipelineName;
-    private final String pipelineDisplayName;
+    private String pipelineDisplayName;
     private final boolean canForce;
     private final boolean canOperate;
     private boolean canAdminister = false;
@@ -59,6 +59,10 @@ public class PipelineModel {
         if(StringUtil.isBlank(pipelineDisplayName))
             return pipelineName;
         return pipelineDisplayName;
+    }
+
+    public void setDisplayName(String pipelineDisplayName) {
+        this.pipelineDisplayName = pipelineDisplayName;
     }
 
     public boolean hasNewRevisions() {

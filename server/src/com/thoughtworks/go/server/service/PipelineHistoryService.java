@@ -126,10 +126,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
         for (PipelineInstanceModel pipelineInstanceModel : history) {
             populatePipelineInstanceModel(new Username(new CaseInsensitiveString(username)), populateCanRun, pipelineConfig, pipelineInstanceModel);
-            if(!StringUtil.isBlank(pipelineConfig.getDisplayName()))
-                pipelineInstanceModel.setDisplayName(pipelineConfig.getDisplayName());
-            else
-                pipelineInstanceModel.setDisplayName(CaseInsensitiveString.str(pipelineConfig.name()));
         }
         addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), pipelineConfig, populateCanRun);
         return history;
@@ -197,6 +193,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             pipelineInstanceModel.setPipelineAfter(pipelineTimeline.runAfter(pipelineInstanceModel.getId(), pipelineName));
             pipelineInstanceModel.setPipelineBefore(pipelineTimeline.runBefore(pipelineInstanceModel.getId(), pipelineName));
         }
+        if(!StringUtil.isBlank(pipelineConfig.getDisplayName()))
+            pipelineInstanceModel.setDisplayName(pipelineConfig.getDisplayName());
         populatePlaceHolderStages(pipelineInstanceModel);
         populateMaterialRevisionsOnBuildCause(pipelineInstanceModel);
         pipelineInstanceModel.setMaterialConfigs(pipelineConfig.materialConfigs());
@@ -237,11 +235,14 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     }
 
     public PipelineInstanceModels findPipelineInstances(String pipelineName, String pipelineLabel, int count, String username) {
+        PipelineConfig config = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, count, pipelineLabel);
         addPlaceholderStages(history);
-        addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)), false);
+        addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), config, false);
         applySecurity(history, pipelineName, username);
         applyCanRun(new Username(new CaseInsensitiveString(username)), history);
+        for(PipelineInstanceModel model : history)
+            model.setDisplayName(config.getDisplayName());
         return history;
     }
 
@@ -421,8 +422,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         String displayName = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)).getDisplayName();
         if(!StringUtil.isBlank(displayName))
             pipelineInstanceModel.setDisplayName(displayName);
-        else
-            pipelineInstanceModel.setDisplayName(pipelineName);
         populatePlaceHolderStages(pipelineInstanceModel);
         populateStageOperatePermission(pipelineInstanceModel, username);
         populateCanRunStatus(username, pipelineInstanceModel);
@@ -470,8 +469,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
                 activePipeline.setMingleConfig(pipelineConfig.getMingleConfig());
                 if(!StringUtil.isBlank(pipelineConfig.getDisplayName()))
                     activePipeline.setDisplayName(pipelineConfig.getDisplayName());
-                else
-                    activePipeline.setDisplayName(CaseInsensitiveString.str(pipelineName));
                 populatePlaceHolderStages(activePipeline);
 
                 String groupName = groups.findGroupNameByPipeline(pipelineName);

@@ -55,7 +55,7 @@
 
                     <div class="form_item">
                         <label for="server_configuration_form_ldap_password"><%= required_label_text(l.string("LDAP_PASSWORD")) -%></label>
-                        <%= form.password_field :ldap_password, {:size => 30, :maxLength => 64, :disabled => true} %>
+                        <%= form.password_field :ldap_password, {:size => 30, :maxLength => 64, :disabled => true, :autocomplete => "off" } %>
                         <%= form.hidden_field :ldap_encrypted_password %>
                         <span class="checkbox_row">
                                 <%= form.check_box :ldap_password_changed, {}, "true", "false" %>
@@ -126,7 +126,7 @@
 
                     <div class="form_item">
                         <label for="server_configuration_form_password"><%= l.string("PASSWORD") -%></label>
-                        <%= form.password_field :password, :size => 30, :maxLength => 64, :disabled => true %>
+                        <%= form.password_field :password, :size => 30, :maxLength => 64, :disabled => true, :autocomplete => "off" %>
                         <span class="checkbox_row">
                                 <%= form.check_box :password_changed, {}, "true", "false" %>
                             <label for="server_configuration_form_password_changed"><%= l.string("CHANGE_PASSWORD") -%></label>

@@ -109,7 +109,7 @@
                 <p>
                   <label for="user_password">$l.localize("PASSWORD")</label>
                   <input class="" type="password" name="j_password" id="user_password"
-                         value=""/>
+                         value="" autocomplete="off"/>
                 </p>
 
                 <p id="login-actions">

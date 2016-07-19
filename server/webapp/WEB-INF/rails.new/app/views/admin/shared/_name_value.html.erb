@@ -65,7 +65,7 @@
               <td class="name_value_cell">
                 <div>
                   <% if scope[:secure] %>
-                    <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
+                    <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil, :autocomplete => 'off' -%>
                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", true, class: 'is-changed-field' %>
                   <% else %>

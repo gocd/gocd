@@ -49,7 +49,7 @@
             <key>ClassPath</key>
             <string>$APP_PACKAGE/go.jar</string>
             <key>MainClass</key>
-            <string>com.thoughtworks.go.server.util.GoMacLauncher</string>
+            <string>com.thoughtworks.go.server.launcher.GoMacLauncher</string>
             <key>Properties</key>
             <dict>
                 <key>com.apple.mrj.application.apple.menu.about.name</key>

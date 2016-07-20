@@ -46,7 +46,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
       });
 
       it('should unwrap the response data to return list of plugin_infos', function () {
-        var pluginInfos = {_embedded: {plugin_infos: ['plugin']}};
+        var pluginInfos = {_embedded: {plugin_info: ['plugin']}};
 
         expect(requestArgs.unwrapSuccess(pluginInfos)).toEqual(['plugin']);
       });

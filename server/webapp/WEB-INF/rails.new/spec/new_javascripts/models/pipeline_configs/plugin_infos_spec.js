@@ -30,7 +30,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
 
       it('should fetch all plugin_infos', function () {
         expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('/go/api/admin/plugin_infos')
+        expect(requestArgs.url).toBe('/go/api/admin/plugin_info')
       });
 
       it('should post required headers', function () {
@@ -145,7 +145,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
 
       it('should fetch the plugin for the given id', function () {
         expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('/go/api/admin/plugin_infos/plugin_id')
+        expect(requestArgs.url).toBe('/go/api/admin/plugin_info/plugin_id')
       });
 
       it('should post required headers', function () {

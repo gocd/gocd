@@ -19,12 +19,12 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest'], function (m, _,
 
   PluginInfos.init = function () {
     var unwrap = function (response) {
-      return response._embedded.plugin_infos;
+      return response._embedded.plugin_info;
     };
 
     return m.request({
       method:        'GET',
-      url:           Routes.apiv1AdminPluginInfosPath(),
+      url:           Routes.apiv1AdminPluginInfoIndexPath(),
       background:    true,
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: unwrap,

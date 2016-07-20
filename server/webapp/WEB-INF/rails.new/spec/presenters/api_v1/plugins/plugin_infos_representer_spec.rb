@@ -23,9 +23,9 @@ describe ApiV1::Plugin::PluginInfosRepresenter do
     actual_json = ApiV1::Plugin::PluginInfosRepresenter.new([plugin_info]).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc)
-    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_infos')
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#plugin_info')
+    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info')
+    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#plugin-info')
     actual_json.delete(:_links)
-    actual_json.fetch(:_embedded).should == { :plugin_infos => [ApiV1::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)] }
+    actual_json.fetch(:_embedded).should == { :plugin_info => [ApiV1::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)] }
   end
 end

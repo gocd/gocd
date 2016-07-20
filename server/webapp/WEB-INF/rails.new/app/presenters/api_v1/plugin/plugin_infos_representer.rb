@@ -17,17 +17,17 @@
 module ApiV1
   module Plugin
     class PluginInfosRepresenter < BaseRepresenter
-      alias_method :plugin_infos, :represented
+      alias_method :plugin_info, :represented
 
       link :self do |opts|
-        opts[:url_builder].apiv1_admin_plugin_infos_url
+        opts[:url_builder].apiv1_admin_plugin_info_index_url
       end
 
       link :doc do
-        'http://api.go.cd/#plugin_info'
+        'http://api.go.cd/#plugin-info'
       end
 
-      collection :plugin_infos,
+      collection :plugin_info,
                  embedded: true,
                  exec_context: :decorator,
                  decorator: PluginInfoRepresenter

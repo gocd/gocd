@@ -78,15 +78,15 @@ Go::Application.routes.draw do
   post "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_create
   post "admin/:stage_parent/:pipeline_name/stages/:stage_name/index/increment" => "admin/stages#increment_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_increment_index
   post "admin/:stage_parent/:pipeline_name/stages/:stage_name/index/decrement" => "admin/stages#decrement_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_decrement_index
-  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/:current_tab" => "admin/stages#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /(settings|environment_variables|permissions)/, stage_name: STAGE_NAME_FORMAT }, as: :admin_stage_edit
-  put "admin/:stage_parent/:pipeline_name/stages/:stage_name/:current_tab" => "admin/stages#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /(settings|environment_variables|permissions)/, stage_name: STAGE_NAME_FORMAT }, as: :admin_stage_update
+  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/:current_tab" => "admin/stages#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /(settings|environment_variables|permissions)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_edit
+  put "admin/:stage_parent/:pipeline_name/stages/:stage_name/:current_tab" => "admin/stages#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /(settings|environment_variables|permissions)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_update
 
   get "admin/:stage_parent/:pipeline_name/stages/:stage_name/jobs" => "admin/jobs#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_job_listing
   get "admin/:stage_parent/:pipeline_name/stages/:stage_name/jobs/new" => "admin/jobs#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_job_new
   post "admin/:stage_parent/:pipeline_name/stages/:stage_name/jobs" => "admin/jobs#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_job_create
   put "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/:current_tab" => "admin/jobs#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, job_name: JOB_NAME_FORMAT}, as: :admin_job_update #TODO: use job name format, so part splitting doesn't mess us up -JJ
   delete "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name" => "admin/jobs#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, job_name: JOB_NAME_FORMAT}, as: :admin_job_delete
-  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/:current_tab" => "admin/jobs#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT,  stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /#{["settings", "environment_variables", "artifacts", "resources", "tabs"].join("|")}/, job_name: JOB_NAME_FORMAT}, as: :admin_job_edit
+  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/:current_tab" => "admin/jobs#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /#{["settings", "environment_variables", "artifacts", "resources", "tabs"].join("|")}/, job_name: JOB_NAME_FORMAT}, as: :admin_job_edit
   #put "admin/:stage_parent/:pipeline_name/stages/:stage_name/job/:job_name/:current_tab" => "admin/jobs#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT,  stage_name: STAGE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /#{["settings", "environment_variables", "artifacts", "resources", "tabs"].join("|")}/, job_name: JOB_NAME_FORMAT}, as: :admin_job_update
 
   get "admin/commands" => "admin/commands#index", as: :admin_commands
@@ -220,7 +220,7 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do
       resources :backups, only: [:create]
 
-      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: { login_name: /(.*?)/ } do
+      resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
         patch :update, on: :member
       end
 
@@ -254,6 +254,10 @@ Go::Application.routes.draw do
 
   scope :api, as: :apiv2, format: false do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
+      namespace :admin do
+        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {name: PIPELINE_NAME_FORMAT}
+      end
+
       resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
         patch :update, on: :member
         patch on: :collection, action: :bulk_update
@@ -299,7 +303,7 @@ Go::Application.routes.draw do
       get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
 
       # stage api's
-      post 'stages/:id/cancel' => 'stages#cancel', constraints: HeaderConstraint.new ,as: :cancel_stage
+      post 'stages/:id/cancel' => 'stages#cancel', constraints: HeaderConstraint.new, as: :cancel_stage
       constraints pipeline_name: PIPELINE_NAME_FORMAT do
         post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', constraints: HeaderConstraint.new, as: :cancel_stage_using_pipeline_stage_name
       end
@@ -373,19 +377,19 @@ Go::Application.routes.draw do
 
   get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", :action => "null", as: :run_stage, constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT, :stage_name => STAGE_NAME_FORMAT}
 
-  resources :agents, :only =>  [:index], :defaults => {:format => "html"}
+  resources :agents, :only => [:index], :defaults => {:format => "html"}
   post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
-  post "agents/:action" , :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
+  post "agents/:action", :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
 
-  scope 'admin/users', module:'admin' do
+  scope 'admin/users', module: 'admin' do
     defaults :no_layout => true do
       get 'new' => 'users#new', as: :users_new
-      post 'create' =>   'users#create', as: :users_create
+      post 'create' => 'users#create', as: :users_create
       post 'search' => 'users#search', as: :users_search
       post 'roles' => 'users#roles', as: :user_roles
     end
-    post 'operate'  => 'users#operate', as: :user_operate
-    get ''=>'users#users', as: :user_listing
+    post 'operate' => 'users#operate', as: :user_operate
+    get '' => 'users#users', as: :user_listing
   end
 
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail

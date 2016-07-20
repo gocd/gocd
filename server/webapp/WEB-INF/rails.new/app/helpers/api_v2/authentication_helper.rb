@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,16 @@ module ApiV2
       end
     end
 
+    def check_pipeline_group_admin_user_and_401
+      groupName = params[:group] || go_config_service.findGroupNameByPipeline(com.thoughtworks.go.config.CaseInsensitiveString.new(params[:pipeline_name]))
+      return unless security_service.isSecurityEnabled()
+      unless is_user_an_admin_for_group?(current_user, groupName)
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
+    end
+
+
     def verify_content_type_on_post
       if [:put, :post, :patch].include?(request.request_method_symbol) && !request.raw_post.blank? && request.content_mime_type != :json
         render ApiV2::BaseController::DEFAULT_FORMAT => { message: "You must specify a 'Content-Type' of 'application/json'" }, status: :unsupported_media_type
@@ -56,6 +66,15 @@ module ApiV2
 
     def render_unauthorized_error
       render ApiV2::BaseController::DEFAULT_FORMAT => { :message => 'You are not authorized to perform this action.' }, :status => 401
+    end
+
+    private
+    def is_user_an_admin_for_group?(current_user, group_name)
+      if go_config_service.groups().hasGroup(group_name)
+        return security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
+      else
+        return security_service.isUserAdmin(current_user)
+      end
     end
 
   end

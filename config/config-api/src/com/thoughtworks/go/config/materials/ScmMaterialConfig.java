@@ -248,11 +248,11 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public void setAutoUpdateMismatchError() {
         addError(AUTO_UPDATE, String.format("Material of type %s (%s) is specified more than once in the configuration with different values for the autoUpdate attribute."
-                + " All copies of the a material should have the same value for this attribute.", getTypeForDisplay(), getDescription()));
+                + " All copies of this material must have the same value for this attribute.", getTypeForDisplay(), getDescription()));
     }
     public void setAutoUpdateMismatchErrorWithConfigRepo() {
         addError(AUTO_UPDATE, String.format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
-                + " All copies of the a material must have autoUpdate enabled or configuration repository must be removed", getTypeForDisplay(), getDescription()));
+                + " All copies of this material must have autoUpdate enabled or configuration repository must be removed", getTypeForDisplay(), getDescription()));
     }
 
     public void setDestinationFolderError(String message) {

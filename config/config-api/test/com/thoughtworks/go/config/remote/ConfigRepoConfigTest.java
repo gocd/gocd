@@ -82,7 +82,7 @@ public class ConfigRepoConfigTest {
 
         assertThat(svn.errors().isEmpty(),is(false));
         assertThat(svn.errors().on(ScmMaterialConfig.AUTO_UPDATE),
-                is("Material of type Subversion (url) is specified as a configuration repository and pipeline material with disabled autoUpdate. All copies of the a material must have autoUpdate enabled or configuration repository must be removed"));
+                is("Material of type Subversion (url) is specified as a configuration repository and pipeline material with disabled autoUpdate. All copies of this material must have autoUpdate enabled or configuration repository must be removed"));
     }
 
     @Test

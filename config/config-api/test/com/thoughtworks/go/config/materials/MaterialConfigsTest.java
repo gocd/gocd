@@ -398,7 +398,7 @@ Above scenario allowed
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
         assertThat(pipelineOne.materialConfigs().get(0).errors().on(ScmMaterialConfig.AUTO_UPDATE),
-                is("Material of type Mercurial (http://url1) is specified more than once in the configuration with different values for the autoUpdate attribute. All copies of the a material should have the same value for this attribute."));
+                is("Material of type Mercurial (http://url1) is specified more than once in the configuration with different values for the autoUpdate attribute. All copies of this material must have the same value for this attribute."));
     }
 
     @Test

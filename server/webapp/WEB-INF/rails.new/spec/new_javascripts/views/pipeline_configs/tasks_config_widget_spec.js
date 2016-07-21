@@ -206,6 +206,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
           stage:         "Dist",
           job:           "RPM",
           source:        "dir",
+          destination:   "Dest",
           isSourceAFile: true,
           runIf:         ['passed', 'failed']
         });
@@ -228,6 +229,10 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
 
       it('should bind source', function () {
         expect($root.find("input[data-prop-name='source']").val()).toBe(task.source());
+      });
+
+      it('should bind destination', function () {
+        expect($root.find("input[data-prop-name='destination']").val()).toBe(task.destination());
       });
 
       it('should bind source is a file ', function () {
@@ -278,6 +283,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
           stage:        "Dist",
           job:          "RPM",
           source:       "dir",
+          destination:  "Dest",
           sourceIsFile: true
         });
 

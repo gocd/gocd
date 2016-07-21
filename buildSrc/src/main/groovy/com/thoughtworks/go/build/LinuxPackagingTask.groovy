@@ -76,7 +76,6 @@ public abstract class LinuxPackagingTask extends DefaultTask {
     cmd += ['--before-install', project.file('linux-shared/before-install.sh.erb')]
     cmd += ['--after-install', project.file('linux-shared/after-install.sh.erb')]
     cmd += ['--before-remove', project.file('linux-shared/before-remove.sh.erb')]
-    cmd += ['--after-remove', project.file('linux-shared/after-remove.sh.erb')]
     cmd += ['--template-value', "install_scripts_dir=${project.file('linux-shared')}"]
     cmd += ['--template-scripts']
 

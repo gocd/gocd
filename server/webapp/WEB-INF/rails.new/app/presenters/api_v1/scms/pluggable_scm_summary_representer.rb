@@ -28,6 +28,11 @@ module ApiV1
       link :doc do
         'http://api.go.cd/#scms'
       end
+
+      link :find do |opts|
+        opts[:url_builder].apiv1_admin_scm_url(material_name: '__material_name__').gsub(/__material_name__/, ':material_name')
+      end
+
       property :errors, exec_context: :decorator, decorator: ApiV1::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
       property :id
       property :name

@@ -128,7 +128,7 @@ public class AgentConfigServiceIntegrationTest {
         BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString(UUID.randomUUID().toString()));
         env.addAgent(agentConfig1.getUuid());
         env.addAgent(agentConfig2.getUuid());
-        goConfigDao.addEnvironment(env, Username.ANONYMOUS);
+        goConfigDao.addEnvironment(env);
         CruiseConfig cruiseConfig = goConfigDao.load();
 
         assertThat(cruiseConfig.getEnvironments().named(env.name()).getAgents().size(), is(2));
@@ -399,7 +399,7 @@ public class AgentConfigServiceIntegrationTest {
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
         BasicEnvironmentConfig environment = new BasicEnvironmentConfig(new CaseInsensitiveString("Dev"));
-        goConfigDao.addEnvironment(environment, Username.ANONYMOUS);
+        goConfigDao.addEnvironment(environment);
 
         assertFalse(environment.hasAgent(agentConfig1.getUuid()));
         assertFalse(environment.hasAgent(agentConfig2.getUuid()));
@@ -428,8 +428,8 @@ public class AgentConfigServiceIntegrationTest {
 
         BasicEnvironmentConfig devEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("Dev"));
         BasicEnvironmentConfig testEnvironment = new BasicEnvironmentConfig(new CaseInsensitiveString("Test"));
-        goConfigDao.addEnvironment(devEnvironment, Username.ANONYMOUS);
-        goConfigDao.addEnvironment(testEnvironment, Username.ANONYMOUS);
+        goConfigDao.addEnvironment(devEnvironment);
+        goConfigDao.addEnvironment(testEnvironment);
 
         testEnvironment.addAgent(agentConfig1.getUuid());
         devEnvironment.addAgent(agentConfig1.getUuid());
@@ -510,7 +510,7 @@ public class AgentConfigServiceIntegrationTest {
 
         CruiseConfig cruiseConfig = goConfigDao.load();
         BasicEnvironmentConfig environment = new BasicEnvironmentConfig(new CaseInsensitiveString("Dev"));
-        goConfigDao.addEnvironment(environment, Username.ANONYMOUS);
+        goConfigDao.addEnvironment(environment);
 
         assertThat(environment.getAgents().getUuids(), not(containsInAnyOrder(agentConfig1.getUuid(), agentConfig2.getUuid())));
         assertFalse(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());

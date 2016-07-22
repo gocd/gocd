@@ -42,7 +42,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.EntityDigest;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
@@ -59,7 +58,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayOutputStream;
-import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
@@ -494,7 +492,7 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig pipeline = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "stage");
         goConfigService.addPipeline(pipeline, "default");
         env.addPipeline(pipeline.name());
-        goConfigService.addEnvironment(env, Username.ANONYMOUS);
+        goConfigService.addEnvironment(env);
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
         assertTrue(goConfigService.hasPipelineNamed(pipeline.name()));

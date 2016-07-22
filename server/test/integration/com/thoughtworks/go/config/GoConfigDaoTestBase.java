@@ -264,7 +264,7 @@ public abstract class GoConfigDaoTestBase {
     public void shouldAddEnvironmentToConfigFile() throws Exception {
         CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.getEnvironments().size();
-        goConfigDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")), Username.ANONYMOUS);
+        goConfigDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")));
 
         cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.getEnvironments().size(), is(oldsize + 1));

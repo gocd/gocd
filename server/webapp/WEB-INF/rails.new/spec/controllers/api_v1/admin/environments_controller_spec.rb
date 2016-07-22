@@ -117,7 +117,7 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should allow patching environments' do
         login_as_admin
         result = HttpLocalizedOperationResult.new
-        @environment_config_service.should_receive(:updateEnvironment).with(@environment_name, anything(), anything(), anything()).and_return(result)
+        @environment_config_service.should_receive(:updateEnvironment).with(@environment_config, anything(), anything(), anything()).and_return(result)
         hash = {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
 
         controller.request.env['HTTP_IF_MATCH'] = '"some-digest"'
@@ -190,8 +190,8 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should allow deleting environments' do
         login_as_admin
 
-        @environment_config_service.should_receive(:deleteEnvironment).with(@environment_name,an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |name, user, result|
-          result.setMessage(LocalizedMessage.string('ENVIRONMENT_DELETE_SUCCESSFUL', [name].to_java(java.lang.String)))
+        @environment_config_service.should_receive(:deleteEnvironment).with(@environment_config,an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |envConfig, user, result|
+          result.setMessage(LocalizedMessage.string('ENVIRONMENT_DELETE_SUCCESSFUL', @environment_config.name))
         end
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest('latest-etag')}\""
 
@@ -248,7 +248,18 @@ describe ApiV1::Admin::EnvironmentsController do
         expect(response.status).to be(200)
         expect(actual_response).to eq(expected_response(@environment_config, ApiV1::Config::EnvironmentConfigRepresenter))
       end
-    end
+
+      it 'should render the error occurred while creating an environment' do
+          login_as_admin
+
+          @environment_config_service.should_receive(:createEnvironment).with(@environment_config,an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |env, user, result|
+            result.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", env.name));
+          end
+
+          post_with_api_header :create, :environment => { name: @environment_name, pipelines: [], agents: [], environment_variables: []}
+          expect(response).to have_api_message_response(409, 'Failed to add environment. Environment \'foo-environment\' already exists.')
+        end
+      end
 
     describe :security do
       it 'should allow anyone, with security disabled' do

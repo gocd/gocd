@@ -402,8 +402,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         };
     }
 
-    public void addEnvironment(BasicEnvironmentConfig environmentConfig, Username user) {
-        goConfigDao.addEnvironment(environmentConfig, user);
+    public void addEnvironment(BasicEnvironmentConfig environmentConfig) {
+        goConfigDao.addEnvironment(environmentConfig);
     }
 
     public void addPipeline(PipelineConfig pipeline, String groupName) {
@@ -836,7 +836,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     public ConfigSaveState updateEnvironment(final String named, final EnvironmentConfig newEnvDefinition, final Username username, final String md5) {
         return goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                return new UpdateEnvironmentCommand(named, newEnvDefinition, username).update(cruiseConfig);
+                EnvironmentsConfig environments = cruiseConfig.getEnvironments();
+                EnvironmentConfig oldConfig = environments.find(new CaseInsensitiveString(named));
+                int index = environments.indexOf(oldConfig);
+                environments.remove(index);
+                environments.add(index, newEnvDefinition);
+                return cruiseConfig;
             }
 
             public String unmodifiedMd5() {

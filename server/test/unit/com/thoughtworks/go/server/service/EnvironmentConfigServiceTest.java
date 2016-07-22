@@ -16,18 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
@@ -45,18 +36,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class EnvironmentConfigServiceTest {
     public GoConfigService mockGoConfigService;
@@ -286,44 +277,6 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void createEnvironment_shouldReturnConflictWhenEnvAlreadyExists() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username user = new Username(new CaseInsensitiveString("user"));
-        when(securityService.isUserAdmin(user)).thenReturn(true);
-        String environmentName = "foo-environment";
-        when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(true);
-        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()),
-                user, result);
-
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_CONFLICT));
-
-        Localizer localizer = mock(Localizer.class);
-        result.message(localizer);
-
-        verify(localizer).localize("CANNOT_ADD_ENV_ALREADY_EXISTS", new CaseInsensitiveString(environmentName));
-        verify(mockGoConfigService).hasEnvironmentNamed(new CaseInsensitiveString(environmentName));
-        verifyNoMoreInteractions(mockGoConfigService);
-    }
-
-    @Test
-    public void createEnvironment_shouldReturn401WhenUserIsNotAnSuperAdmin() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username user = new Username(new CaseInsensitiveString("user"));
-        when(securityService.isUserAdmin(user)).thenReturn(false);
-        environmentConfigService.createEnvironment(env("foo-environment", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), user, result);
-
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_UNAUTHORIZED));
-
-        Localizer localizer = mock(Localizer.class);
-        result.message(localizer);
-
-        verify(localizer).localize("NO_PERMISSION_TO_ADD_ENVIRONMENT", "user");
-        verifyNoMoreInteractions(mockGoConfigService);
-    }
-
-    @Test
     public void getAllLocalPipelinesForUser_shouldReturnAllPipelinesToWhichAlongWithTheEnvironmentsToWhichTheyBelong() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
@@ -436,13 +389,14 @@ public class EnvironmentConfigServiceTest {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateConfig(any(UpdateEnvironmentCommand.class))).thenReturn(ConfigSaveState.MERGED);
+        when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.MERGED);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, result);
+        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, result);
 
-        assertThat(result.localizable(),
-                is(LocalizedMessage.composite(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName), LocalizedMessage.string("CONFIG_MERGED"))));
+        assertTrue(result.isSuccessful());
+        assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
+        assertThat(result.toString(), containsString(environmentName));
     }
 
     @Test
@@ -452,11 +406,13 @@ public class EnvironmentConfigServiceTest {
         Username user = new Username(new CaseInsensitiveString("user"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateConfig(any(UpdateEnvironmentCommand.class))).thenReturn(ConfigSaveState.UPDATED);
+        when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.UPDATED);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, result);
+        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, result);
 
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName)));
+        assertTrue(result.isSuccessful());
+        assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
+        assertThat(result.toString(), containsString(environmentName));
     }
     
     @Test

@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -37,7 +36,6 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -54,17 +52,20 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
-import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedPluggableTask;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
-import com.thoughtworks.go.plugin.api.config.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.api.task.*;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
+import com.thoughtworks.go.plugin.api.task.TaskExecutor;
+import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
@@ -100,10 +101,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(JunitExtRunner.class)
 public class MagicalGoConfigXmlLoaderTest {
@@ -1874,7 +1872,7 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigMigrator.loadWithMigration(content);
             fail("Should not have allowed duplicate pipeline reference across environments");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("One of the environments contains duplicate pipelines"));
+            assertThat(e.getMessage(), containsString("Associating pipeline(s) which is already part of uat environment"));
         }
     }
 

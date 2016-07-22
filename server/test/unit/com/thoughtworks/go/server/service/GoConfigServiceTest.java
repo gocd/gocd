@@ -1070,16 +1070,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingEnvironment_ForNewUpdateEnvironmentMethod() {
-        ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand("env", new BasicEnvironmentConfig(), new Username("bob"));
-        when(goConfigDao.updateConfig(command)).thenReturn(expectedSaveState);
-
-        ConfigSaveState configSaveState = goConfigService.updateConfig(command);
-        assertThat(configSaveState, is(expectedSaveState));
-    }
-
-    @Test
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
         when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);

@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
@@ -36,7 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;

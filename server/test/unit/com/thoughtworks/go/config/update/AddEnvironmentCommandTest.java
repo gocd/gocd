@@ -64,7 +64,7 @@ public class AddEnvironmentCommandTest {
 
     @Test
     public void shouldAddTheSpecifiedEnvironment() throws Exception {
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
         command.update(cruiseConfig);
         assertTrue(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
@@ -73,7 +73,7 @@ public class AddEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidAgentUUID() throws Exception {
         environmentConfig.addAgent("Invalid-agent-uuid");
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' has an invalid agent uuid 'Invalid-agent-uuid'"));
@@ -85,7 +85,7 @@ public class AddEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidPipelineName() throws Exception {
         environmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' refers to an unknown pipeline 'Invalid-pipeline-name'."));
@@ -98,7 +98,7 @@ public class AddEnvironmentCommandTest {
     public void shouldValidateDuplicateEnvironmentVariables() throws Exception {
         environmentConfig.addEnvironmentVariable("foo", "bar");
         environmentConfig.addEnvironmentVariable("foo", "baz");
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.badRequest(actionFailed.addParam("Environment Variable name 'foo' is not unique for environment 'Dev'."));
@@ -109,7 +109,7 @@ public class AddEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unauthorized(LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", currentUser.getDisplayName()), HealthStateType.unauthorised());
@@ -120,7 +120,7 @@ public class AddEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfEnvironmentWithSameNameAlreadyExists() throws Exception {
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();

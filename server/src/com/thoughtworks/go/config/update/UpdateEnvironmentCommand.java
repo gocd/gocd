@@ -16,12 +16,11 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.validation.EnvironmentAgentValidator;
-import com.thoughtworks.go.config.validation.EnvironmentPipelineValidator;
-import com.thoughtworks.go.config.validation.GoConfigValidator;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -29,23 +28,16 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import java.util.Arrays;
-import java.util.List;
-
-public class UpdateEnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
-
+public class UpdateEnvironmentCommand extends EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
 
     private GoConfigService goConfigService;
     private final EnvironmentConfig oldEnvironmentConfig;
     private final EnvironmentConfig newEnvironmentConfig;
     private final Username username;
     private final HttpLocalizedOperationResult result;
-    private final List<GoConfigValidator> VALIDATORS = Arrays.asList(
-            new EnvironmentAgentValidator(),
-            new EnvironmentPipelineValidator()
-    );
 
-    public UpdateEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig oldEnvironmentConfig, EnvironmentConfig newEnvironmentConfig, Username username, HttpLocalizedOperationResult result) {
+    public UpdateEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig oldEnvironmentConfig, EnvironmentConfig newEnvironmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, HttpLocalizedOperationResult result) {
+        super(actionFailed, newEnvironmentConfig, result);
         this.goConfigService = goConfigService;
         this.oldEnvironmentConfig = oldEnvironmentConfig;
         this.newEnvironmentConfig = newEnvironmentConfig;
@@ -62,36 +54,8 @@ public class UpdateEnvironmentCommand implements EntityConfigUpdateCommand<Envir
     }
 
     @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
-        BasicEnvironmentConfig config = (BasicEnvironmentConfig) preprocessedConfig.getEnvironments().find(newEnvironmentConfig.name());
-        config.getVariables().validate(ConfigSaveValidationContext.forChain(config));
-        List<ConfigErrors> allErrors = preprocessedConfig.getAllErrors();
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfig.name());
-
-        if (!allErrors.isEmpty()) {
-            result.badRequest(actionFailed.addParam(allErrors.get(0).firstError()));
-            return false;
-        }
-
-        for (GoConfigValidator validator : VALIDATORS) {
-            try{
-                validator.validate(preprocessedConfig);
-            } catch (Exception e) {
-                result.badRequest(actionFailed.addParam(e.getMessage()));
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(oldEnvironmentConfig);
-    }
-
-    @Override
-    public EnvironmentConfig getPreprocessedEntityConfig() {
-        return newEnvironmentConfig;
     }
 
     @Override

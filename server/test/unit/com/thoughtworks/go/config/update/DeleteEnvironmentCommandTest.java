@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -42,6 +44,7 @@ public class DeleteEnvironmentCommandTest {
     private BasicEnvironmentConfig environmentConfig;
     private CaseInsensitiveString environmentName;
     private HttpLocalizedOperationResult result;
+    private Localizable.CurryableLocalizable actionFailed;
 
     @Mock
     private EnvironmentConfigService environmentConfigService;
@@ -58,11 +61,12 @@ public class DeleteEnvironmentCommandTest {
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         result = new HttpLocalizedOperationResult();
         cruiseConfig.addEnvironment(environmentConfig);
+        actionFailed = LocalizedMessage.string("ENV_DELETE_FAILED", environmentName);
     }
 
     @Test
     public void shouldDeleteTheSpecifiedEnvironment() throws Exception {
-        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         assertTrue(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
         command.update(cruiseConfig);
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
@@ -70,7 +74,7 @@ public class DeleteEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
+        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());

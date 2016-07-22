@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.EnvironmentAgentValidator;
 import com.thoughtworks.go.config.validation.EnvironmentPipelineValidator;
 import com.thoughtworks.go.config.validation.GoConfigValidator;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -56,11 +57,19 @@ public class AddEnvironmentCommand implements EntityConfigUpdateCommand<Environm
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
+        BasicEnvironmentConfig config = (BasicEnvironmentConfig) preprocessedConfig.getEnvironments().find(environmentConfig.name());
+        config.getVariables().validate(ConfigSaveValidationContext.forChain(config));
+        List<ConfigErrors> allErrors = preprocessedConfig.getAllErrors();
+        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
+        if (!allErrors.isEmpty()) {
+            result.badRequest(actionFailed.addParam(allErrors.get(0).firstError()));
+            return false;
+        }
+
         for (GoConfigValidator validator : VALIDATORS) {
             try {
                 validator.validate(preprocessedConfig);
             } catch (Exception e) {
-                Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
                 result.badRequest(actionFailed.addParam(e.getMessage()));
                 return false;
             }

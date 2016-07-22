@@ -98,6 +98,19 @@ public class UpdateEnvironmentCommandTest {
     }
 
     @Test
+    public void shouldValidateDuplicateEnvironmentVariables() throws Exception {
+        newEnvironmentConfig.addEnvironmentVariable("foo", "bar");
+        newEnvironmentConfig.addEnvironmentVariable("foo", "baz");
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, result);
+        command.update(cruiseConfig);
+        assertThat(command.isValid(cruiseConfig), is(false));
+        assertFalse(result.isSuccessful());
+        assertThat(result.httpCode(), is(400));
+        assertThat(result.toString(), containsString("ENV_UPDATE_FAILED"));
+        assertThat(result.toString(), containsString("Environment Variable name 'foo' is not unique for environment 'Test'."));
+    }
+
+    @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);

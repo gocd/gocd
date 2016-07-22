@@ -233,6 +233,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.job           = m.prop(s.defaultToIfBlank(data.job, ''));
     this.source        = m.prop(s.defaultToIfBlank(data.source, ''));
     this.isSourceAFile = m.prop(s.defaultToIfBlank(data.isSourceAFile, false));
+    this.destination   = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.runIf         = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask  = Tasks.Task.onCancelTask(data.onCancelTask);
 
@@ -243,6 +244,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         job:               this.job,
         source:            this.source,
         is_source_a_file:  this.isSourceAFile,
+        destination:       this.destination,
         run_if:            this.runIf().data(),
         on_cancel:         this.onCancelTaskToJSON()
       }
@@ -265,6 +267,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       job:           data.job,
       source:        data.source,
       isSourceAFile: data.is_source_a_file,
+      destination:   data.destination,
       runIf:         data.run_if,
       onCancelTask:  data.on_cancel
     });

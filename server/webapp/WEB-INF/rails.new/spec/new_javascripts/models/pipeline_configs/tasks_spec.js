@@ -423,6 +423,7 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           job:      "RPM",
           source:   "dir",
           isSourceAFile: true,
+          destination: "Dest",
           runIf:   ['any']
         });
       });
@@ -445,6 +446,10 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
 
       it("should initialize task model with isSourceAFile", function () {
         expect(task.isSourceAFile()).toBe(true);
+      });
+
+      it("should initialize task model with Destination", function () {
+        expect(task.destination()).toBe("Dest");
       });
 
       it('should initialize isSourceAFile to be false if not specified', function(){
@@ -492,6 +497,7 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           expect(task.job()).toBe("RPM");
           expect(task.source()).toBe("dir");
           expect(task.isSourceAFile()).toBe(true);
+          expect(task.destination()).toBe("Dest");
           expect(task.runIf().data()).toEqual(['any']);
         });
 
@@ -508,6 +514,7 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
               job:      "RPM",
               source:   'dir',
               is_source_a_file: true,
+              destination: "Dest",
               run_if:   ['any'],
               on_cancel: {
                 type:       "nant",

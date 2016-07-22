@@ -144,6 +144,8 @@ define([
             <f.row>
               <f.inputWithLabel attrName='source'
                                 model={task}/>
+              <f.inputWithLabel attrName='destination'
+                                model={task}/>
               <f.checkBox attrName='isSourceAFile'
                                 model={task}
                                 class='check'

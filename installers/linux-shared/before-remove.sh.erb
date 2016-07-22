@@ -20,6 +20,7 @@
     /etc/init.d/<%= name %> stop 2>&1
     /sbin/chkconfig --del <%= name %>
 <% elsif type == 'deb' -%>
-    invoke-rc.d <%= name %> stop
+    invoke-rc.d <%= name %> stop || true
+    update-rc.d <%= name %> remove
 <% else raise "Unsupported package type #{type}" %>
 <% end %>

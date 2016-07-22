@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
 import com.thoughtworks.go.server.service.ConsoleService;
@@ -31,6 +32,7 @@ import com.thoughtworks.go.server.web.ArtifactFolderViewFactory;
 import com.thoughtworks.go.server.web.FileModelAndView;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.ArtifactLogUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +69,11 @@ public class ArtifactsController {
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
+    private HeaderConstraint headerConstraint;
 
     @Autowired
     ArtifactsController(ArtifactsService artifactsService, RestfulService restfulService, ZipArtifactCache zipArtifactCache,
-                        ConsoleActivityMonitor consoleActivityMonitor, ConsoleService consoleService) {
+                        ConsoleActivityMonitor consoleActivityMonitor, ConsoleService consoleService, SystemEnvironment systemEnvironment) {
         this.artifactsService = artifactsService;
         this.restfulService = restfulService;
         this.consoleActivityMonitor = consoleActivityMonitor;
@@ -79,6 +82,7 @@ public class ArtifactsController {
         this.folderViewFactory = FileModelAndView.htmlViewFactory();
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
         this.zipViewFactory = zipViewFactory(zipArtifactCache);
+        this.headerConstraint = new HeaderConstraint(systemEnvironment);
     }
 
 
@@ -135,6 +139,9 @@ public class ArtifactsController {
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
                                      MultipartHttpServletRequest request) throws Exception {
         JobIdentifier jobIdentifier;
+        if(!headerConstraint.isSatisfied(request)) {
+            return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
+        }
         try {
             jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
                     buildName, buildId);

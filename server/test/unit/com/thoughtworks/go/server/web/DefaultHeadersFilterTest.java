@@ -25,6 +25,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultHeadersFilterTest {
@@ -35,21 +37,33 @@ public class DefaultHeadersFilterTest {
     private FilterChain chain;
     @Mock
     private ServletRequest request;
+    private DefaultHeadersFilter filter;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        filter = new DefaultHeadersFilter();
     }
 
     @Test
     public void shouldAddDefaultHeaders() throws Exception {
-        DefaultHeadersFilter filter = new DefaultHeadersFilter();
         filter.doFilter(request, response, chain);
 
+        verify(response).isCommitted();
         verify(response).setHeader("X-XSS-Protection", "1; mode=block");
         verify(response).setHeader("X-Content-Type-Options", "nosniff");
         verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response).setHeader("X-UA-Compatible", "chrome=1");
+    }
+
+    @Test
+    public void shouldNotAddDefaultHeadersIfResponseIsCommitted() throws Exception {
+        when(response.isCommitted()).thenReturn(true);
+
+        filter.doFilter(request, response, chain);
+
+        verify(response).isCommitted();
+        verifyNoMoreInteractions(response);
     }
 
     @Test

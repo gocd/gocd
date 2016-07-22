@@ -24,18 +24,27 @@ public class DefaultHeadersFilter implements Filter {
     public void destroy() {
     }
 
-    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
-        HttpServletResponse response = (HttpServletResponse) resp;
-
-        response.setHeader("X-XSS-Protection", "1; mode=block");
-        response.setHeader("X-Content-Type-Options", "nosniff");
-        response.setHeader("X-Frame-Options", "SAMEORIGIN");
-        response.setHeader("X-UA-Compatible", "chrome=1");
-
-        chain.doFilter(req, resp);
-    }
-
     public void init(FilterConfig config) throws ServletException {
         // No default config
     }
+
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
+        HttpServletResponse response = (HttpServletResponse) resp;
+
+        chain.doFilter(req, resp);
+
+        if (!response.isCommitted()) {
+            addSecureHeader(response, "X-XSS-Protection", "1; mode=block");
+            addSecureHeader(response, "X-Content-Type-Options", "nosniff");
+            addSecureHeader(response, "X-Frame-Options", "SAMEORIGIN");
+            addSecureHeader(response, "X-UA-Compatible", "chrome=1");
+        }
+    }
+
+    private void addSecureHeader(HttpServletResponse response, String securityHeader, String value) {
+        if (!response.containsHeader(securityHeader)) {
+            response.setHeader(securityHeader, value);
+        }
+    }
+
 }

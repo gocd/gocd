@@ -311,7 +311,7 @@ task prepareDb(dependsOn: [':server:cleanDb']) {
   }
 }
 
-task prepare(dependsOn: [cleanDb, prepareDb, ':agent-launcher:fatJar', ':test-agent:jar']) {
+task prepare(dependsOn: [cleanDb, prepareDb, ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar']) {
   doFirst {
     project.copy {
       from { project(':test-agent').jar.archivePath }

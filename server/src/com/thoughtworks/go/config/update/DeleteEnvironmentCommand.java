@@ -18,20 +18,22 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-public class DeleteEnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
+public class DeleteEnvironmentCommand extends EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
 
     private final GoConfigService goConfigService;
     private final EnvironmentConfig environmentConfig;
     private final Username username;
     private final HttpLocalizedOperationResult result;
 
-    public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, HttpLocalizedOperationResult result) {
+    public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, HttpLocalizedOperationResult result) {
+        super(actionFailed, environmentConfig, result);
         this.goConfigService = goConfigService;
         this.environmentConfig = environmentConfig;
         this.username = username;
@@ -51,11 +53,6 @@ public class DeleteEnvironmentCommand implements EntityConfigUpdateCommand<Envir
     @Override
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(environmentConfig);
-    }
-
-    @Override
-    public EnvironmentConfig getPreprocessedEntityConfig() {
-        return environmentConfig;
     }
 
     @Override

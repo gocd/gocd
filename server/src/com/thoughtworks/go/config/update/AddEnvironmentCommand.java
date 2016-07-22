@@ -31,7 +31,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import java.util.Arrays;
 import java.util.List;
 
-public class AddEnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
+public class AddEnvironmentCommand extends EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
 
     private final GoConfigService goConfigService;
     private final BasicEnvironmentConfig environmentConfig;
@@ -42,7 +42,8 @@ public class AddEnvironmentCommand implements EntityConfigUpdateCommand<Environm
             new EnvironmentPipelineValidator()
     );
 
-    public AddEnvironmentCommand(GoConfigService goConfigService, BasicEnvironmentConfig environmentConfig, Username user, LocalizedOperationResult result) {
+    public AddEnvironmentCommand(GoConfigService goConfigService, BasicEnvironmentConfig environmentConfig, Username user, Localizable.CurryableLocalizable actionFailed, LocalizedOperationResult result) {
+        super(actionFailed, environmentConfig, result);
         this.goConfigService = goConfigService;
         this.environmentConfig = environmentConfig;
         this.user = user;
@@ -55,27 +56,8 @@ public class AddEnvironmentCommand implements EntityConfigUpdateCommand<Environm
     }
 
     @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
-        for (GoConfigValidator validator : VALIDATORS) {
-            try {
-                validator.validate(preprocessedConfig);
-            } catch (Exception e) {
-                Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
-                result.badRequest(actionFailed.addParam(e.getMessage()));
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(environmentConfig);
-    }
-
-    @Override
-    public EnvironmentConfig getPreprocessedEntityConfig() {
-        return environmentConfig;
     }
 
     @Override

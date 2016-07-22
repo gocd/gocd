@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.update.AddEnvironmentCommand;
-import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
 import com.thoughtworks.go.domain.*;
@@ -36,14 +35,11 @@ import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import static com.thoughtworks.go.server.service.ArtifactsService.LOGGER;
 
 /**
  * @understands grouping of agents and pipelines within an environment
@@ -177,8 +173,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public void createEnvironment(final BasicEnvironmentConfig environmentConfig, final Username user, final HttpLocalizedOperationResult result) {
-        AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, result);
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
+        AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, actionFailed, result);
         update(addEnvironmentCommand, environmentConfig, user, result, actionFailed);
     }
 
@@ -249,8 +245,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public void updateEnvironment(final EnvironmentConfig oldEnvironmentConfig, final EnvironmentConfig newEnvironmentConfig, final Username username, final HttpLocalizedOperationResult result) {
-        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, username, result);
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfig.name());
+        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, username, actionFailed, result);
         update(updateEnvironmentCommand, oldEnvironmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentConfig.name()));
@@ -259,8 +255,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void deleteEnvironment(final EnvironmentConfig environmentConfig, final Username username, final HttpLocalizedOperationResult result) {
         String environmentName = environmentConfig.name().toString();
-        DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, result);
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_DELETE_FAILED", environmentName);
+        DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, actionFailed, result);
         update(deleteEnvironmentCommand, environmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("ENVIRONMENT_DELETE_SUCCESSFUL", environmentName));

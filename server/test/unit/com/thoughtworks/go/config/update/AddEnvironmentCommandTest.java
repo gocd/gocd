@@ -20,15 +20,17 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.i18n.Localizable;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -40,6 +42,7 @@ public class AddEnvironmentCommandTest {
     private BasicEnvironmentConfig environmentConfig;
     private CaseInsensitiveString environmentName;
     private HttpLocalizedOperationResult result;
+    private Localizable.CurryableLocalizable actionFailed;
 
     @Mock
     private EnvironmentConfigService environmentConfigService;
@@ -56,8 +59,8 @@ public class AddEnvironmentCommandTest {
         environmentName = new CaseInsensitiveString("Dev");
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         result = new HttpLocalizedOperationResult();
+        actionFailed = LocalizedMessage.string("ENV_ADD_FAILED");
     }
-
 
     @Test
     public void shouldAddTheSpecifiedEnvironment() throws Exception {
@@ -72,11 +75,11 @@ public class AddEnvironmentCommandTest {
         environmentConfig.addAgent("Invalid-agent-uuid");
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
         command.update(cruiseConfig);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' has an invalid agent uuid 'Invalid-agent-uuid'"));
+
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(400));
-        assertThat(result.toString(), containsString("ENV_ADD_FAILED"));
-        assertThat(result.toString(), containsString("Environment 'Dev' has an invalid agent uuid 'Invalid-agent-uuid'"));
+        assertThat(result, is(expectedResult));
     }
 
     @Test
@@ -84,11 +87,11 @@ public class AddEnvironmentCommandTest {
         environmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
         command.update(cruiseConfig);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' refers to an unknown pipeline 'Invalid-pipeline-name'."));
+
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(400));
-        assertThat(result.toString(), containsString("ENV_ADD_FAILED"));
-        assertThat(result.toString(), containsString("Environment 'Dev' refers to an unknown pipeline 'Invalid-pipeline-name'."));
+        assertThat(result, is(expectedResult));
     }
 
     @Test
@@ -97,22 +100,22 @@ public class AddEnvironmentCommandTest {
         environmentConfig.addEnvironmentVariable("foo", "baz");
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
         command.update(cruiseConfig);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Environment Variable name 'foo' is not unique for environment 'Dev'."));
+
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(400));
-        assertThat(result.toString(), containsString("ENV_ADD_FAILED"));
-        assertThat(result.toString(), containsString("Environment Variable name 'foo' is not unique for environment 'Dev'."));
+        assertThat(result, is(expectedResult));
     }
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.unauthorized(LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", currentUser.getDisplayName()), HealthStateType.unauthorised());
+
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(401));
-        assertThat(result.toString(), containsString("NO_PERMISSION_TO_ADD_ENVIRONMENT"));
-        assertThat(result.toString(), containsString(currentUser.getUsername().toString()));
+        assertThat(result, is(expectedResult));
     }
 
     @Test
@@ -120,10 +123,10 @@ public class AddEnvironmentCommandTest {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", environmentName));
+
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(409));
-        assertThat(result.toString(), containsString("CANNOT_ADD_ENV_ALREADY_EXISTS"));
-        assertThat(result.toString(), containsString(environmentName.toString()));
+        assertThat(result, is(expectedResult));
     }
 }

@@ -26,13 +26,13 @@
   </context-param>
 
   <filter>
-    <filter-name>Redirect During Backup</filter-name>
-    <filter-class>com.thoughtworks.go.server.web.BackupFilter</filter-class>
+    <filter-name>Default headers filter</filter-name>
+    <filter-class>com.thoughtworks.go.server.web.DefaultHeadersFilter</filter-class>
   </filter>
 
   <filter>
-    <filter-name>Default headers filter</filter-name>
-    <filter-class>com.thoughtworks.go.server.web.DefaultHeadersFilter</filter-class>
+    <filter-name>Redirect During Backup</filter-name>
+    <filter-class>com.thoughtworks.go.server.web.BackupFilter</filter-class>
   </filter>
 
   <filter>
@@ -55,12 +55,12 @@
   </filter>
 
   <filter-mapping>
-    <filter-name>Redirect During Backup</filter-name>
+    <filter-name>Default headers filter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
   <filter-mapping>
-    <filter-name>Default headers filter</filter-name>
+    <filter-name>Redirect During Backup</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

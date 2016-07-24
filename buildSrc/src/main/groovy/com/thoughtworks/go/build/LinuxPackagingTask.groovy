@@ -54,8 +54,8 @@ public abstract class LinuxPackagingTask extends DefaultTask {
     cmd += ['fpm']
 
     cmd += ['--debug']
-    cmd += ['-e']
-    cmd += ['--debug-workspace']
+//  cmd += ['-e']
+//  cmd += ['--debug-workspace']
     cmd += ['--conflicts', packageName.replaceFirst(/^go-/, 'cruise-')]
     cmd += ['--replaces', packageName.replaceFirst(/^go-/, 'cruise-')]
     cmd += ['--force']

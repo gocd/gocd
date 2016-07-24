@@ -131,3 +131,4 @@ test-utils/target/
 tfs-impl/target/
 tw-go-plugins/dist/
 util/target/
+.vagrant/

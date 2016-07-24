@@ -16,9 +16,9 @@
 #########################################################################
 -%>
 
-<% if type == 'rpm' -%>
-    /etc/init.d/<%= name %> stop
-<% elsif type == 'deb' -%>
-    invoke-rc.d <%= name %> stop || true
-<% else raise "Unsupported package type #{type}" -%>
+<%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', '_set-debian-permissions.sh.erb')), nil, '-').result(binding) %>
+
+<% if name == 'go-server' -%>
+    # Start the service
+    /etc/init.d/go-server start
 <% end -%>

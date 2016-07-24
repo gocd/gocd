@@ -16,14 +16,4 @@
 #########################################################################
 -%>
 
-<% if type == 'rpm' -%>
-    # do nothing
-<% elsif type == 'deb' -%>
-  <%= ERB.new(File.read(File.join(install_scripts_dir, '_set-debian-permissions.sh.erb')), nil, '-').result(binding) %>
-<% else raise "Unsupported package type #{type}" -%>
-<% end -%>
-
-<% if name == 'go-server' -%>
-    # Start the service
-    /etc/init.d/go-server start
-<% end -%>
+    chkconfig --del <%= name %> || true

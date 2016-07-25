@@ -15,10 +15,9 @@
 # limitations under the License.
 #########################################################################
 -%>
-
-    <%= File.read(File.join(install_scripts_dir, 'shared', 'partials', '_set-debian-permissions.sh.erb')) %>
+    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared' ,'partials', '_set-debian-permissions.sh.erb')), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 
     # initialize init script symlinks on first install
     update-rc.d <%= name %> defaults 99
 
-    <%= File.read(File.join(install_scripts_dir, 'shared', 'partials', "_after_install_#{name}.sh.erb")) %>
+    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_after_install_#{name}.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>

@@ -978,11 +978,11 @@ public final class ConfigFileFixture {
                 + "</cruise>";
     }
 
-    public static String withServerConfig(String xml) {
+    public static String withServerConfig(String xml, int schemaVersion) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
                 + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
-                + CONFIG_SCHEMA_VERSION
+                + schemaVersion
                 + "\">\n"
                 + " <server artifactsdir=\"logs\">"
                 + xml

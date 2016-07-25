@@ -222,6 +222,7 @@
     <xsd:simpleType name="emailType">
         <xsd:restriction base="xsd:string">
             <xsd:pattern value=".*@.*"/>
+            <xsd:maxLength value="254"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:complexType name="rolesType">

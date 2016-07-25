@@ -30,7 +30,6 @@ import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UiBasedConfigUpdateCommand;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
-import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -61,6 +60,7 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.io.File;
 import java.util.*;
 
@@ -368,7 +368,6 @@ public class GoConfigServiceTest {
                 new EnvironmentVariableConfig("foo", "pipeline-fooValue"),
                 new EnvironmentVariableConfig("blah", "pipeline-blahValue")));
     }
-
 
     private PipelineConfig pipelineWithTemplate() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline");
@@ -1054,13 +1053,6 @@ public class GoConfigServiceTest {
         assertThat(configUpdateResponse.getCruiseConfig().getMd5(), is("old-md5"));
     }
 
-    @Test
-    public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingEnvironment() {
-        ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
-        ConfigSaveState configSaveState = goConfigService.updateEnvironment("env", new BasicEnvironmentConfig(), new Username("bob"), "md5");
-        assertThat(configSaveState, is(expectedSaveState));
-    }
 
     @Test
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -120,65 +119,6 @@ public class EnvironmentConfigServiceIntegrationTest {
         service.createEnvironment(env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to add environment."));
-    }
-
-    @Test
-    public void shouldUpdateExistingEnvironment() throws Exception{
-        BasicEnvironmentConfig uat = environmentConfig("uat");
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
-        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
-        Username user = Username.ANONYMOUS;
-        agentConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), user);
-        agentConfigService.addAgent(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), user);
-        uat.addPipeline(new CaseInsensitiveString("foo"));
-        uat.addAgent("uuid-2");
-        uat.addEnvironmentVariable("env-one", "ONE");
-        uat.addEnvironmentVariable("env-two", "TWO");
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("dev")));
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("qa")));
-        goConfigService.addEnvironment(uat);
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("acceptance")));
-        goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("function_testing")));
-        EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
-        newUat.addPipeline(new CaseInsensitiveString("bar"));
-        newUat.addAgent("uuid-1");
-        newUat.addEnvironmentVariable("env-three", "THREE");
-        HttpLocalizedOperationResult result = service.updateEnvironment("uat", newUat, new Username(new CaseInsensitiveString("foo")), goConfigDao.md5OfConfigFile());
-        EnvironmentConfig updatedEnv = service.named("prod");
-        assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
-        assertThat(updatedEnv.getAgents().getUuids(), is(Arrays.asList("uuid-1")));
-        assertThat(updatedEnv.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("bar"))));
-        EnvironmentVariablesConfig updatedVariables = new EnvironmentVariablesConfig();
-        updatedVariables.add("env-three", "THREE");
-        assertThat(updatedEnv.getVariables(), is(updatedVariables));
-        EnvironmentsConfig currentEnvironments = goConfigService.getCurrentConfig().getEnvironments();
-        assertThat(currentEnvironments.indexOf(updatedEnv), is(2));
-        assertThat(currentEnvironments.size(), is(5));
-    }
-
-    @Test
-    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToUpdate() throws IOException {
-        configHelper.addEnvironments("foo");
-        configHelper.turnOnSecurity();
-        configHelper.addAdmins("super_hero");
-        HttpLocalizedOperationResult result = service.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")),  goConfigDao.md5OfConfigFile());
-        assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
-    }
-
-    @Test
-    public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenDuplicateEnvironmentExists() {
-        configHelper.addEnvironments("foo-env");
-        configHelper.addEnvironments("bar-env");
-        HttpLocalizedOperationResult result = service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")),  goConfigDao.md5OfConfigFile());
-        assertThat(result.message(localizer), is("Failed to update environment 'bar-env'. Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"."));
-    }
-
-    @Test
-    public void shouldReturnBadRequestForUpdateWhenUsingInvalidEnvName() {
-        configHelper.addEnvironments("foo-env");
-        HttpLocalizedOperationResult result = service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")),  goConfigDao.md5OfConfigFile());
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));
     }
 
     @Test
@@ -296,19 +236,6 @@ public class EnvironmentConfigServiceIntegrationTest {
         ConfigElementForEdit<EnvironmentConfig> edit = service.forEdit("foo-env", result);
         assertThat(result.message(localizer), is("Environment named 'foo-env' not found."));
         assertThat(edit, is(nullValue()));
-    }
-
-    @Test
-    public void shouldNotUpdateEnvironmentIfEditingOverAStaleCopy() throws Exception{
-        configHelper.addEnvironments("prod");
-        String staleMd5 = goConfigDao.md5OfConfigFile();
-        service.updateEnvironment("prod", environmentConfig("uat1"), new Username(new CaseInsensitiveString("foo")), staleMd5);
-        assertThat("md5 should be stale", goConfigDao.md5OfConfigFile(), is(not(staleMd5)));
-
-        HttpLocalizedOperationResult result = service.updateEnvironment("prod", environmentConfig("uat2"), new Username(new CaseInsensitiveString("foo")),  staleMd5);
-
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Failed to update environment 'prod'. " + ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH));
     }
 
     private BasicEnvironmentConfig environmentConfig(String name) {

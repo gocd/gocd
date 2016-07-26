@@ -124,7 +124,7 @@ task verifyJar(type: VerifyJarTask) {
           "jackson-annotations-2.5.0.jar",
           "jackson-core-2.5.0.jar",
           "jackson-databind-2.5.0.jar",
-          "javasysmon-0.3.5.jar",
+          "javasysmon-0.3.6.jar",
           "javax.inject-1.jar",
           "javax.servlet-api-3.1.0.jar",
           "jcommander-1.48.jar",

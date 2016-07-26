@@ -43,7 +43,7 @@ dependencies {
   packagingInLibDir group: 'log4j', name: 'log4j', version: '1.2.17'
   packagingInLibDir group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
   packagingInLibDir group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.12'
-  packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.5'
+  packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
 
   extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
 }
@@ -281,7 +281,7 @@ task verifyFatJar(type: VerifyJarTask) {
           "bcprov-jdk15on-1.47.jar",
           "commons-io-2.5.jar",
           "go-plugin-activator.jar",
-          "javasysmon-0.3.5.jar",
+          "javasysmon-0.3.6.jar",
           "javax.servlet-api-3.1.0.jar",
           "jetty-continuation-9.2.17.v20160517.jar",
           "jetty-http-9.2.17.v20160517.jar",

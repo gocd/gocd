@@ -97,7 +97,7 @@ class WindowsPackagingTask extends DefaultTask {
           'REGVER'           : "${version}${distVersion.padRight(5, '0')}".replaceAll(/\./, ''),
           'JAVA'             : 'jre',
           'JAVASRC'          : jreDir,
-          'DISABLE_LOGGING'  : (System.getenv('DISABLE_WIN_INSTALLER_LOGGING') || 'false'),
+          'DISABLE_LOGGING'  : System.getenv('DISABLE_WIN_INSTALLER_LOGGING') ?: false,
           'OUTDIR'           : "${project.convention.plugins.get("base").distsDir}/win"
       ]
 

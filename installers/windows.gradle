@@ -44,18 +44,16 @@ task agentWindowsExe(type: WindowsPackagingTask, dependsOn: [':agent-bootstrappe
     project.copy {
       from(configurations.agentBootstrapperJar.singleFile.path) into(versionedDir()) rename ".*", "agent-bootstrapper.jar"
     }
-    project.copy { from('agent/release/agent.cmd') into(versionedDir()) }
-    project.copy { from('agent/release/start-agent.bat') into(versionedDir()) }
-    project.copy { from('agent/release/stop-agent.bat') into(versionedDir()) }
-    project.copy { from('agent/release/README.md') into(versionedDir()) }
-    project.copy { from('agent/win/cruisewrapper.exe') into(versionedDir()) }
-
-    project.copy {
-      from(project(':agent').file('properties/log4j.properties')) into("${versionedDir()}/config/log4j.properties")
-    }
-
+    project.copy { from('go-agent/release/agent.cmd') into(versionedDir()) }
+    project.copy { from('go-agent/release/start-agent.bat') into(versionedDir()) }
+    project.copy { from('go-agent/release/stop-agent.bat') into(versionedDir()) }
+    project.copy { from('go-agent/release/README.md') into(versionedDir()) }
+    project.copy { from('go-agent/win/cruisewrapper.exe') into(versionedDir()) }
+    project.copy { from(project(':agent').file('properties/log4j.properties')) into("${versionedDir()}/config") }
     project.copy { from('go-agent/win/config') into("${versionedDir()}/config") }
     project.copy { from('go-agent/win/lib') into("${versionedDir()}/lib") }
+
+    project.file("${versionedDir()}/tmp").mkdirs()
   }
 }
 
@@ -92,6 +90,8 @@ task serverWindowsExe(type: WindowsPackagingTask, dependsOn: [':server-launcher:
 
     project.copy { from('go-server/win/config') into("${versionedDir()}/config") }
     project.copy { from('go-server/win/lib') into("${versionedDir()}/lib") }
+
+    project.file("${versionedDir()}/tmp").mkdirs()
   }
 }
 

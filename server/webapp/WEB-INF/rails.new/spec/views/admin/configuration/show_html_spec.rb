@@ -17,6 +17,7 @@
 require 'spec_helper'
 
 describe "admin/configuration/show.html.erb" do
+  include RailsLocalizer
 
   before :each do
     view.stub(:config_edit_path).and_return('config_edit_path')

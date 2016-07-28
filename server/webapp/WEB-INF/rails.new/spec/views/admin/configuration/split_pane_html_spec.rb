@@ -17,6 +17,7 @@
 require 'spec_helper'
 
 describe "admin/configuration/split_pane.html.erb" do
+  include RailsLocalizer
 
   before :each do
     view.stub(:config_view_path).and_return("config_view_path")

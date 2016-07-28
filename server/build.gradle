@@ -25,7 +25,7 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.25'
   }
 }
 
@@ -33,6 +33,7 @@ configurations {
   warConfig
   jarConfig
   additionalClasspath
+  jrubyDist
 
   compile.exclude(group: 'org.springframework', module: 'spring-support')
   runtime.exclude(group: 'org.springframework', module: 'spring-support')
@@ -115,7 +116,8 @@ dependencies {
     exclude(module: 'org.osgi.core')
     exclude(module: 'commons-logging')
   }
-  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.25'
+  jrubyDist group: 'org.jruby', name: 'jruby-dist', version: '1.7.25', classifier: 'bin', ext: 'tar.gz'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
@@ -311,7 +313,21 @@ task prepareDb(dependsOn: [':server:cleanDb']) {
   }
 }
 
-task prepare(dependsOn: [cleanDb, prepareDb, ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar']) {
+task prepareJRuby {
+  doFirst {
+    rootProject.delete('tools/jruby')
+    rootProject.delete('tools/jruby-1.7.25')
+
+    project.copy {
+      from tarTree(project.files(project.configurations.jrubyDist.files).singleFile)
+      into rootProject.file('tools')
+    }
+
+    rootProject.file('tools/jruby-1.7.25').renameTo(rootProject.file('tools/jruby'))
+  }
+}
+
+task prepare(dependsOn: [cleanDb, prepareDb, prepareJRuby, ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar']) {
   doFirst {
     project.copy {
       from { project(':test-agent').jar.archivePath }
@@ -531,7 +547,7 @@ task verifyWar(type: VerifyJarTask) {
           "jettison-1.2.jar",
           "joda-time-2.3.jar",
           "jolt-core-0.0.20.jar",
-          "jruby-complete-1.7.11.jar",
+          "jruby-complete-1.7.25.jar",
           "jruby-rack-1.1.14.jar",
           "jsch-0.1.53.jar",
           "json-20070829.jar",

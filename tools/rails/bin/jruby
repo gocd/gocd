@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GO_ROOT=$(cd "$(dirname "$0")/../../.." > /dev/null && pwd)
-JRUBY_BASE="$GO_ROOT/tools/jruby-1.7.11"
+JRUBY_BASE="$GO_ROOT/tools/jruby"
 SERVER_ROOT="${GO_ROOT}/server"
 RAILS_ROOT="${SERVER_ROOT}/webapp/WEB-INF/rails.new"
 

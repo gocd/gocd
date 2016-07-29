@@ -59,7 +59,7 @@ public class AgentBootstrapperFunctionalTest {
         try {
             new File(Downloader.AGENT_LAUNCHER).delete();
             new AgentBootstrapper().validate();
-            assertEquals("agent launcher from default files", FileUtil.readToEnd(new File(Downloader.AGENT_LAUNCHER)));
+            assertEquals("agent launcher from default files\n", FileUtil.readToEnd(new File(Downloader.AGENT_LAUNCHER)));
         } finally {
             new File(Downloader.AGENT_LAUNCHER).delete();
         }

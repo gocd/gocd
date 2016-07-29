@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,19 +25,28 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Appender;
+import org.apache.log4j.Level;
+import org.apache.log4j.spi.LoggingEvent;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.utils.SerializationTester.serializeAndDeserialize;
+import static org.apache.log4j.LogManager.getRootLogger;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class DefaultJobPlanTest {
 
@@ -227,7 +236,42 @@ public class DefaultJobPlanTest {
         original.applyTo(variableContext);
         assertThat(variableContext.getProperty("blah"),is("override"));
         assertThat(variableContext.getProperty("foo"),is("bar"));
-        //becuase its a security issue to let operator set values for unconfigured variables
+        //because its a security issue to let operator set values for un-configured variables
         assertThat(variableContext.getProperty("another"),is(nullValue()));
+    }
+
+    @Test
+    public void shouldLogExceptionWhenUploadFails() throws Exception {
+        Appender appender = mock(Appender.class);
+        getRootLogger().addAppender(appender);
+
+        ArgumentCaptor<LoggingEvent> argumentCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
+
+        ArtifactPlans artifactPlans = new ArtifactPlans();
+        DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1,
+                null);
+
+        ArtifactPlan artifactPlan = spy(new ArtifactPlan("build", "build"));
+        artifactPlans.add(artifactPlan);
+
+        RuntimeException toBeThrown = new RuntimeException("Error while trying to upload");
+        doThrow(toBeThrown).when(artifactPlan).publish(any(GoPublisher.class), any(File.class));
+
+        StubGoPublisher publisher = new StubGoPublisher();
+
+        try {
+            plan.publishArtifacts(publisher, workingFolder);
+        } catch (Exception ignore) {
+        }
+
+        verify(appender).doAppend(argumentCaptor.capture());
+        LoggingEvent event = argumentCaptor.getValue();
+
+        getRootLogger().removeAppender(appender);
+
+        assertThat(event.getRenderedMessage(), is("Error while trying to upload"));
+        assertThat(event.getThrowableInformation().getThrowable(), Is.<Throwable>is(toBeThrown));
+        assertThat(event.getLoggerName(), is(DefaultJobPlan.class.getName()));
+        assertThat(event.getLevel(), is(Level.ERROR));
     }
 }

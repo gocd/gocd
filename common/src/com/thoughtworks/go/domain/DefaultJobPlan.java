@@ -32,6 +32,8 @@ import com.thoughtworks.go.config.TestArtifactPlan;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultJobPlan implements JobPlan {
 
@@ -48,6 +50,7 @@ public class DefaultJobPlan implements JobPlan {
     private boolean fetchMaterials = StageConfig.DEFAULT_FETCH_MATERIALS;
     private boolean cleanWorkingDir = StageConfig.DEFAULT_CLEAN_WORKING_DIR;
 
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultJobPlan.class);
 
     //FOR IBATIS
     protected DefaultJobPlan() {
@@ -104,6 +107,7 @@ public class DefaultJobPlan implements JobPlan {
             try {
                 artifactPlan.publish(goPublisher, workingDirectory);
             } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
                 failedArtifact.add(artifactPlan);
             }
         }

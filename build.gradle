@@ -62,7 +62,8 @@ ext.partitionFiles = { Collection originalFiles ->
   allPartitions[currentWorkerIndex - 1]
 }
 
-def GO_VERSION = '16.7.0'
+def GO_VERSION = '16.8.0'
+def GO_VERSION_PREVIOUS = '16.7.0'
 def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 
@@ -78,10 +79,11 @@ allprojects {
   apply plugin: 'java'
   apply plugin: 'idea'
 
-  rootProject.ext.goVersion   = GO_VERSION
-  rootProject.ext.distVersion = DIST_VERSION
-  rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
-  rootProject.ext.gitRevision = GIT_REVISION
+  rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
+  rootProject.ext.goVersion       = GO_VERSION
+  rootProject.ext.distVersion     = DIST_VERSION
+  rootProject.ext.fullVersion     = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
+  rootProject.ext.gitRevision     = GIT_REVISION
 
   rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 

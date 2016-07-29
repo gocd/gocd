@@ -36,13 +36,13 @@ task releaseNotes {
 
     ByteArrayOutputStream gitLogOut = new ByteArrayOutputStream()
     exec {
-      commandLine "git", "log", "--no-merges", "--pretty=format:%h %H %s", "16.6.0..${rootProject.gitRevision}"
+      commandLine "git", "log", "--no-merges", "--pretty=format:%h %H %s", "${project.previousVersion}..${rootProject.gitRevision}"
       standardOutput = gitLogOut
     }
 
     ByteArrayOutputStream gitContributorsOut = new ByteArrayOutputStream()
     exec {
-      commandLine "git", "log", "--no-merges", "--format=%cN", "16.6.0..${rootProject.gitRevision}"
+      commandLine "git", "log", "--no-merges", "--format=%cN", "${project.previousVersion}..${rootProject.gitRevision}"
       standardOutput = gitContributorsOut
     }
 

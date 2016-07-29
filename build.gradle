@@ -272,3 +272,7 @@ task allDependencies {
 
   description = "Print dependency tree of all projects"
 }
+
+ext.versions = [
+        jetty: '9.2.18.v20160721'
+]

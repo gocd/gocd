@@ -31,7 +31,7 @@ dependencies {
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
-  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: '9.2.17.v20160517'
+  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty
   compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
   testCompile project(path: ':common', configuration: 'testOutput')
   testCompile project(path: ':config-api', configuration: 'testOutput')
@@ -130,8 +130,8 @@ task verifyJar(type: VerifyJarTask) {
           "jcommander-1.48.jar",
           "jdom-1.0.jar",
           "jettison-1.2.jar",
-          "jetty-io-9.2.17.v20160517.jar",
-          "jetty-util-9.2.17.v20160517.jar",
+          "jetty-io-${versions.jetty}.jar",
+          "jetty-util-${versions.jetty}.jar",
           "joda-time-2.3.jar",
           "jolt-core-0.0.20.jar",
           "json-utils-0.0.20.jar",
@@ -158,9 +158,9 @@ task verifyJar(type: VerifyJarTask) {
           "stax-api-1.0.1.jar",
           "tfs-impl.jar",
           "util-${project.version}.jar",
-          "websocket-api-9.2.17.v20160517.jar",
-          "websocket-client-9.2.17.v20160517.jar",
-          "websocket-common-9.2.17.v20160517.jar",
+          "websocket-api-${versions.jetty}.jar",
+          "websocket-client-${versions.jetty}.jar",
+          "websocket-common-${versions.jetty}.jar",
           "xml-apis-1.0.b2.jar",
       ]
   ]
